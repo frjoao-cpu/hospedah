@@ -4,22 +4,43 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Weather Dashboard</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <header>
-        <h1>Weather Dashboard</h1>
-    </header>
-    <main>
-        <section>
-            <h2>Current Weather</h2>
-            <div id="current-weather"></div>
-        </section>
-        <section>
-            <h2>Forecast</h2>
-            <div id="forecast"></div>
-        </section>
-    </main>
+    <div class="container">
+        <header>
+            <h1>🌤️ Weather Dashboard</h1>
+            <div class="search-box">
+                <input type="text" id="cityInput" placeholder="Digite uma cidade..." />
+                <button onclick="searchWeather()">Buscar</button>
+            </div>
+        </header>
+
+        <main>
+            <!-- Clima Atual -->
+            <section class="current-weather" id="currentWeather">
+                <div class="loading">Carregando...</div>
+            </section>
+
+            <!-- Previsão 5 Dias -->
+            <section class="forecast">
+                <h2>Previsão para 5 dias</h2>
+                <div class="forecast-grid" id="forecastGrid">
+                    <div class="loading">Carregando previsão...</div>
+                </div>
+            </section>
+
+            <!-- Detalhes -->
+            <section class="details" id="details">
+                <div class="loading">Carregando detalhes...</div>
+            </section>
+        </main>
+
+        <footer>
+            <p>Dados fornecidos por OpenWeatherMap API</p>
+        </footer>
+    </div>
+
     <script src="script.js"></script>
 </body>
 </html>
