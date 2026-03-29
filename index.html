@@ -3,416 +3,222 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="HOSPEDAH - Hospedagens premium em todo o mundo. Apenas 3 vagas disponíveis este mês!">
-    <title>HOSPEDAH - Sua Experiência Começa Aqui | Hospedagem Premium</title>
+    <meta name="description" content="HOSPEDAH - Hospedagens premium em todo o mundo">
+    <title>HOSPEDAH - Resorts & Praias Premium</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f5f5; color: #333; }
         
-        @keyframes slideDown { from { opacity: 0; transform: translateY(-30px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
-        @keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-10px); } }
-
-        nav { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); padding: 15px 20px; position: sticky; top: 0; z-index: 1000; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3); animation: slideDown 0.6s ease-out; }
-        nav ul { list-style: none; display: flex; justify-content: center; gap: 30px; flex-wrap: wrap; max-width: 1200px; margin: 0 auto; }
-        nav a { color: #fff; text-decoration: none; font-weight: 600; font-size: 1em; transition: all 0.3s; padding: 8px 15px; }
-        nav a:hover { color: #d4af37; text-shadow: 0 0 10px rgba(212, 175, 55, 0.6); }
-
-        .hero { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); color: white; padding: 40px 20px; text-align: center; min-height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; position: relative; overflow: hidden; }
-        .hero::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: radial-gradient(circle at 20% 50%, rgba(212, 175, 55, 0.1) 0%, transparent 50%); pointer-events: none; }
-        .hero-content { position: relative; z-index: 2; animation: fadeIn 0.8s ease-out; }
+        nav { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); padding: 15px 10px; position: sticky; top: 0; z-index: 1000; box-shadow: 0 4px 20px rgba(0,0,0,0.3); }
+        nav ul { list-style: none; display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
+        nav a { color: #fff; text-decoration: none; font-weight: 600; font-size: 0.9em; padding: 8px 10px; transition: all 0.3s; }
+        nav a:hover { color: #d4af37; text-shadow: 0 0 10px rgba(212,175,55,0.6); }
         
-        .logo-container { margin-bottom: 30px; animation: float 3s ease-in-out infinite; }
-        .logo-container svg { max-width: 400px; width: 100%; height: auto; filter: drop-shadow(0 15px 30px rgba(212, 175, 55, 0.5)); }
+        .hero { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); color: white; padding: 60px 20px; text-align: center; min-height: 400px; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        .hero h1 { font-size: 3.5em; margin-bottom: 15px; color: #d4af37; }
+        .hero p { font-size: 1.3em; color: #e0e0e0; margin-bottom: 30px; }
         
-        .hero h1 { font-size: 3.5em; margin-bottom: 15px; color: #d4af37; text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.6); letter-spacing: 2px; }
-        .hero p { font-size: 1.4em; margin-bottom: 20px; color: #e0e0e0; font-style: italic; }
-
-        .urgency-badge { background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%); color: white; padding: 14px 28px; border-radius: 50px; display: inline-block; margin-bottom: 30px; font-weight: bold; animation: pulse 2s ease-in-out infinite; box-shadow: 0 4px 15px rgba(231, 76, 60, 0.5); font-size: 1.1em; }
-
-        .cta-button { background: linear-gradient(135deg, #d4af37 0%, #c19a2b 100%); color: #1a1a2e; padding: 18px 50px; font-size: 1.2em; border: none; border-radius: 50px; cursor: pointer; font-weight: bold; transition: all 0.4s; box-shadow: 0 6px 25px rgba(212, 175, 55, 0.5); margin: 10px; display: inline-block; }
-        .cta-button:hover { transform: translateY(-3px); box-shadow: 0 10px 35px rgba(212, 175, 55, 0.7); letter-spacing: 1px; }
-        .cta-button:active { transform: translateY(-1px); }
-
-        .social-proof { background: rgba(255, 255, 255, 0.1); padding: 25px; border-radius: 15px; margin-top: 40px; backdrop-filter: blur(10px); animation: fadeIn 1s ease-out 0.3s both; }
-        .proof-item { display: inline-block; margin: 15px 20px; animation: fadeIn 0.8s ease-out; }
-        .proof-icon { font-size: 2em; margin-right: 8px; }
-        .proof-text { color: #d4af37; font-weight: bold; font-size: 1em; }
-
-        section { padding: 60px 20px; max-width: 1200px; margin: 0 auto; }
-        section h2 { font-size: 2.5em; color: #1a1a2e; margin-bottom: 15px; text-align: center; animation: fadeIn 0.8s ease-out; }
-        .section-subtitle { text-align: center; color: #d4af37; font-size: 1.2em; margin-bottom: 40px; font-weight: bold; animation: fadeIn 0.8s ease-out 0.2s both; }
-
-        .benefits-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px; margin-top: 40px; }
-        .benefit-card { background: white; padding: 30px; border-radius: 15px; text-align: center; box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1); transition: all 0.4s; border-top: 5px solid #d4af37; animation: fadeIn 0.8s ease-out; }
-        .benefit-card:hover { transform: translateY(-8px); box-shadow: 0 15px 40px rgba(212, 175, 55, 0.3); }
-        .benefit-icon { font-size: 3.5em; margin-bottom: 15px; }
-        .benefit-card h3 { color: #1a1a2e; font-size: 1.4em; margin-bottom: 15px; }
-        .benefit-card p { color: #666; line-height: 1.6; }
-
-        .form-container { background: white; padding: 40px; border-radius: 15px; box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15); max-width: 650px; margin: 0 auto; animation: fadeIn 0.8s ease-out; }
-        .form-group { margin-bottom: 20px; }
-        .form-group label { display: block; margin-bottom: 8px; font-weight: bold; color: #1a1a2e; font-size: 0.95em; }
-        .form-group input, .form-group textarea { width: 100%; padding: 14px; border: 2px solid #ddd; border-radius: 8px; font-size: 1em; font-family: Arial, sans-serif; transition: all 0.3s; }
-        .form-group input:focus, .form-group textarea:focus { outline: none; border-color: #d4af37; box-shadow: 0 0 12px rgba(212, 175, 55, 0.4); background: #fffbf0; }
-        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        .error { color: #e74c3c; font-size: 0.85em; margin-top: 5px; display: block; font-weight: bold; }
-        .submit-btn { width: 100%; padding: 16px; background: linear-gradient(135deg, #d4af37 0%, #c19a2b 100%); color: #1a1a2e; border: none; border-radius: 8px; font-size: 1.1em; font-weight: bold; cursor: pointer; transition: all 0.4s; box-shadow: 0 6px 20px rgba(212, 175, 55, 0.4); }
-        .submit-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(212, 175, 55, 0.6); }
-
-        .weather-section { background: linear-gradient(135deg, #f0f0f0 0%, #e8e8e8 100%); }
-        .search-box { display: flex; gap: 10px; margin-bottom: 30px; max-width: 600px; margin-left: auto; margin-right: auto; }
-        .search-box input { flex: 1; padding: 14px 20px; border: 2px solid #ddd; border-radius: 8px; font-size: 1em; transition: all 0.3s; }
-        .search-box input:focus { border-color: #d4af37; box-shadow: 0 0 10px rgba(212, 175, 55, 0.3); }
-        .search-box button { padding: 14px 40px; background: linear-gradient(135deg, #d4af37 0%, #c19a2b 100%); color: #1a1a2e; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; transition: all 0.3s; box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3); }
-        .search-box button:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(212, 175, 55, 0.5); }
-
-        .current-weather { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); color: white; padding: 40px; border-radius: 15px; text-align: center; margin-bottom: 40px; box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2); animation: fadeIn 0.8s ease-out; }
-        .weather-icon { font-size: 5em; margin: 20px 0; animation: float 3s ease-in-out infinite; }
-        .temperature { font-size: 3.5em; font-weight: bold; color: #d4af37; margin: 20px 0; }
-
-        .forecast-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 15px; margin-bottom: 40px; }
-        .forecast-card { background: white; padding: 20px; border-radius: 12px; text-align: center; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); transition: all 0.3s; border-top: 4px solid #d4af37; animation: fadeIn 0.8s ease-out; }
-        .forecast-card:hover { transform: translateY(-5px); box-shadow: 0 8px 25px rgba(212, 175, 55, 0.2); }
-        .forecast-icon { font-size: 3em; margin: 10px 0; }
-
-        .details-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 20px; }
-        .detail-item { background: white; padding: 25px; border-radius: 12px; text-align: center; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); border-top: 5px solid #d4af37; animation: fadeIn 0.8s ease-out; }
-        .detail-item:hover { box-shadow: 0 8px 25px rgba(212, 175, 55, 0.2); }
-        .detail-label { color: #999; font-size: 0.85em; text-transform: uppercase; margin-bottom: 10px; font-weight: bold; letter-spacing: 1px; }
-        .detail-value { font-size: 2em; color: #1a1a2e; font-weight: bold; }
-
-        .proposal-result { background: white; padding: 30px; border-radius: 15px; margin-top: 30px; box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15); border-left: 6px solid #d4af37; animation: fadeIn 0.8s ease-out; }
-        .proposal-result h3 { color: #d4af37; font-size: 1.8em; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 1px; }
-        .proposal-result p { margin: 15px 0; line-height: 1.8; color: #555; }
-        .proposal-result ul { margin: 20px 0 20px 30px; }
-        .proposal-result li { margin: 12px 0; color: #555; line-height: 1.6; }
-
-        .whatsapp-btn { display: inline-block; background: linear-gradient(135deg, #25d366 0%, #20ba5f 100%); color: white; padding: 14px 35px; border-radius: 8px; text-decoration: none; font-weight: bold; margin-top: 25px; transition: all 0.4s; box-shadow: 0 4px 15px rgba(37, 211, 102, 0.4); cursor: pointer; border: none; font-size: 1em; }
-        .whatsapp-btn:hover { transform: translateY(-3px); box-shadow: 0 6px 25px rgba(37, 211, 102, 0.6); }
-
-        footer { background: #1a1a2e; color: white; text-align: center; padding: 30px 20px; border-top: 3px solid #d4af37; }
-        footer p { margin: 10px 0; font-size: 0.95em; }
-
-        .loading { text-align: center; color: #999; padding: 20px; font-size: 1em; }
-        .error-message { text-align: center; color: #e74c3c; padding: 20px; font-size: 1em; }
-
+        .container { max-width: 1200px; margin: 0 auto; padding: 40px 20px; }
+        
+        section { margin-bottom: 60px; }
+        section h2 { text-align: center; color: #1a1a2e; font-size: 2.5em; margin-bottom: 40px; }
+        
+        .resort-card { background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 8px 25px rgba(0,0,0,0.1); margin-bottom: 30px; transition: all 0.4s; }
+        .resort-card:hover { transform: translateY(-8px); box-shadow: 0 15px 40px rgba(212,175,55,0.3); }
+        
+        .resort-image { width: 100%; height: 300px; object-fit: cover; }
+        .resort-content { padding: 30px; }
+        .resort-content h3 { color: #d4af37; font-size: 1.6em; margin: 0 0 15px 0; }
+        .resort-content p { color: #666; line-height: 1.6; margin-bottom: 20px; }
+        
+        .resort-features { list-style: none; margin: 20px 0; }
+        .resort-features li { color: #555; padding: 8px 0; border-bottom: 1px solid #eee; font-size: 0.95em; }
+        .resort-features li:before { content: "✓ "; color: #d4af37; font-weight: bold; margin-right: 8px; }
+        
+        .btn-container { margin-top: 20px; }
+        .btn { display: inline-block; padding: 12px 30px; margin: 5px; border: none; border-radius: 25px; cursor: pointer; text-decoration: none; font-weight: bold; transition: all 0.3s; }
+        .btn-gold { background: linear-gradient(135deg, #d4af37 0%, #c19a2b 100%); color: #1a1a2e; }
+        .btn-whatsapp { background: linear-gradient(135deg, #25d366 0%, #20ba5f 100%); color: white; }
+        .btn:hover { transform: translateY(-3px); box-shadow: 0 6px 20px rgba(0,0,0,0.2); }
+        
+        footer { background: #1a1a2e; color: white; text-align: center; padding: 30px 20px; border-top: 3px solid #d4af37; margin-top: 50px; }
+        
         @media (max-width: 768px) {
             .hero h1 { font-size: 2em; }
-            .hero p { font-size: 1.1em; }
-            .logo-container svg { max-width: 280px; }
-            nav ul { gap: 10px; }
-            nav a { font-size: 0.9em; padding: 6px 10px; }
-            .form-row { grid-template-columns: 1fr; }
-            .search-box { flex-direction: column; }
+            nav a { font-size: 0.8em; padding: 5px 8px; }
             section h2 { font-size: 1.8em; }
-            .cta-button { padding: 14px 35px; font-size: 1em; width: 100%; }
-            .benefit-card { padding: 20px; }
-            .forecast-grid { grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); }
-            .details-grid { grid-template-columns: repeat(2, 1fr); }
-            .proof-item { display: block; margin: 10px 0; }
-        }
-
-        @media (max-width: 480px) {
-            .hero h1 { font-size: 1.5em; }
-            .logo-container svg { max-width: 200px; }
-            nav ul { flex-direction: column; gap: 5px; }
-            nav a { font-size: 0.85em; }
-            .urgency-badge { padding: 10px 20px; font-size: 0.9em; }
-            .cta-button { padding: 12px 30px; font-size: 0.95em; }
-            .details-grid { grid-template-columns: 1fr; }
-            section h2 { font-size: 1.5em; }
-            .section-subtitle { font-size: 1em; }
-            .form-group label { font-size: 0.9em; }
+            .resort-image { height: 200px; }
         }
     </style>
 </head>
 <body>
     <nav>
         <ul>
-            <li><a href="#home">Home</a></li>
-            <li><a href="#beneficios">Benefícios</a></li>
-            <li><a href="#proposta">Proposta</a></li>
-            <li><a href="#weather">Clima</a></li>
+            <li><a href="#home">🏠 Home</a></li>
+            <li><a href="#hot-beach">🏨 Hot Beach</a></li>
+            <li><a href="#sao-pedro">♨️ São Pedro</a></li>
+            <li><a href="#olimpia">🎢 Olimpia</a></li>
+            <li><a href="#wyndham">👑 Wyndham</a></li>
+            <li><a href="#solar">☀️ Solar</a></li>
+            <li><a href="#juquehy">🏖️ Juquehy</a></li>
         </ul>
     </nav>
 
     <section class="hero" id="home">
-        <div class="hero-content">
-            <div class="urgency-badge">⏰ Apenas 3 vagas disponíveis este mês!</div>
-            
-            <div class="logo-container">
-                <svg width="400" height="300" viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg">
-                    <defs>
-                        <linearGradient id="goldGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                            <stop offset="0%" style="stop-color:#FFD700;stop-opacity:1" />
-                            <stop offset="100%" style="stop-color:#D4AF37;stop-opacity:1" />
-                        </linearGradient>
-                    </defs>
-                    <text x="50" y="350" font-size="280" font-weight="bold" fill="url(#goldGradient)" font-family="Georgia" letter-spacing="20">H</text>
-                    <circle cx="520" cy="280" r="130" fill="#16213e" stroke="#D4AF37" stroke-width="4"/>
-                    <circle cx="520" cy="280" r="125" fill="#1a1a2e"/>
-                    <ellipse cx="480" cy="240" rx="50" ry="45" fill="#D4AF37" opacity="0.9"/>
-                    <ellipse cx="560" cy="320" rx="55" ry="60" fill="#D4AF37" opacity="0.9"/>
-                    <rect x="510" y="250" width="50" height="65" fill="#FFD700" stroke="#D4AF37" stroke-width="2"/>
-                    <polygon points="535,250 505,215 565,215" fill="#FFD700" stroke="#D4AF37" stroke-width="2"/>
-                    <rect x="515" y="265" width="8" height="12" fill="#1a1a2e"/>
-                    <rect x="527" y="265" width="8" height="12" fill="#1a1a2e"/>
-                    <rect x="539" y="265" width="8" height="12" fill="#1a1a2e"/>
-                    <rect x="515" y="282" width="8" height="12" fill="#1a1a2e"/>
-                    <rect x="527" y="282" width="8" height="12" fill="#1a1a2e"/>
-                    <rect x="539" y="282" width="8" height="12" fill="#1a1a2e"/>
-                    <text x="100" y="520" font-size="90" font-weight="bold" fill="#1a1a2e" font-family="Georgia">HOSPEDAH</text>
-                    <text x="150" y="570" font-size="32" fill="#D4AF37" font-family="Georgia" font-style="italic">Sua experiência começa aqui.</text>
-                </svg>
-            </div>
-            
-            <h1>HOSPEDAH</h1>
-            <p>Sua experiência começa aqui.</p>
-
-            <button class="cta-button" onclick="document.getElementById('proposta').scrollIntoView({behavior:'smooth'})">✓ Monte sua Proposta</button>
-
-            <div class="social-proof">
-                <div class="proof-item"><span class="proof-icon">⭐</span><span class="proof-text">4.9/5 - 1.200+ clientes</span></div>
-                <div class="proof-item"><span class="proof-icon">🏆</span><span class="proof-text">Prêmio 2024</span></div>
-                <div class="proof-item"><span class="proof-icon">✈️</span><span class="proof-text">150+ destinos</span></div>
-            </div>
-        </div>
+        <h1>🌟 HOSPEDAH - Resorts & Praias Premium</h1>
+        <p>Descubra os melhores destinos de hospedagem do Brasil</p>
     </section>
 
-    <section id="beneficios">
-        <h2>Por Que Escolher HOSPEDAH?</h2>
-        <p class="section-subtitle">Experiência premium com autoridade comprovada</p>
-        <div class="benefits-grid">
-            <div class="benefit-card">
-                <div class="benefit-icon">🏨</div>
-                <h3>Hospedagens Premium</h3>
-                <p>Seleção rigorosa dos melhores hotéis 5 estrelas do mundo</p>
-            </div>
-            <div class="benefit-card">
-                <div class="benefit-icon">📞</div>
-                <h3>Suporte 24/7</h3>
-                <p>Tim especializado sempre disponível para você</p>
-            </div>
-            <div class="benefit-card">
-                <div class="benefit-icon">💰</div>
-                <h3>Melhor Preço</h3>
-                <p>20% mais barato ou devolvemos a diferença!</p>
-            </div>
-        </div>
-    </section>
-
-    <section id="proposta">
-        <h2>Monte sua Proposta Agora</h2>
-        <p class="section-subtitle">⏰ Aproveite as 3 vagas restantes</p>
-        
-        <div class="form-container">
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="nome">Nome do Cliente *</label>
-                    <input type="text" id="nome" placeholder="João Silva" required>
-                    <span id="nomeError" class="error"></span>
-                </div>
-                <div class="form-group">
-                    <label for="destino">Destino *</label>
-                    <input type="text" id="destino" placeholder="Rio de Janeiro" required>
-                    <span id="destinoError" class="error"></span>
+    <div class="container">
+        <!-- HOT BEACH SUITES -->
+        <section id="hot-beach">
+            <h2>🏨 Hot Beach Suites - Olímpia</h2>
+            <div class="resort-card">
+                <img src="https://images.booking.com/xdata/67903/679039e8ec95beae12a1f69d3f3b2f9d.jpg" alt="Hot Beach Suites" class="resort-image">
+                <div class="resort-content">
+                    <h3>Luxo em Olímpia</h3>
+                    <p>Suítes premium com piscina aquecida, restaurante gourmet e acesso direto ao parque aquático. Experiência 5 estrelas garantida!</p>
+                    <ul class="resort-features">
+                        <li>Suítes espaçosas e aconchegantes</li>
+                        <li>Piscina aquecida com hidromassagem</li>
+                        <li>Restaurante 5 estrelas</li>
+                        <li>Acesso ao parque aquático</li>
+                        <li>WiFi de alta velocidade</li>
+                        <li>Serviço de concierge 24h</li>
+                    </ul>
+                    <div class="btn-container">
+                        <a href="https://www.booking.com/hotel/br/hot-beach-suites-olimpia1.html" target="_blank" class="btn btn-gold">Ver Detalhes</a>
+                        <a href="https://wa.me/5517982006382?text=Olá! Gostaria de informações sobre Hot Beach Suites" target="_blank" class="btn btn-whatsapp">💬 WhatsApp</a>
+                    </div>
                 </div>
             </div>
+        </section>
 
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="data">Data da Viagem *</label>
-                    <input type="date" id="data" required>
-                    <span id="dataError" class="error"></span>
-                </div>
-                <div class="form-group">
-                    <label for="pessoas">Pessoas *</label>
-                    <input type="number" id="pessoas" min="1" placeholder="2" required>
-                    <span id="pessoasError" class="error"></span>
+        <!-- SÃO PEDRO THERMAS -->
+        <section id="sao-pedro">
+            <h2>♨️ São Pedro Thermas Resort - Águas de São Pedro</h2>
+            <div class="resort-card">
+                <img src="https://images.booking.com/xdata/67903/679039e8ec95beae12a1f69d3f3b2f9d.jpg" alt="São Pedro Thermas" class="resort-image">
+                <div class="resort-content">
+                    <h3>Termalismo e Bem-Estar</h3>
+                    <p>Resort termal completo com água quente natural, SPA de luxo e piscinas terapêuticas. Relaxamento garantido para seu corpo e mente!</p>
+                    <ul class="resort-features">
+                        <li>Águas termais naturais 100% pura</li>
+                        <li>SPA premium com massagens</li>
+                        <li>Piscinas terapêuticas aquecidas</li>
+                        <li>Academia de ginástica e yoga</li>
+                        <li>Restaurante com spa cuisine</li>
+                        <li>Sauna e vapor naturais</li>
+                    </ul>
+                    <div class="btn-container">
+                        <a href="https://saopedrotermasresort.com.br/" target="_blank" class="btn btn-gold">Ver Detalhes</a>
+                        <a href="https://wa.me/5517982006382?text=Olá! Gostaria de informações sobre São Pedro Thermas" target="_blank" class="btn btn-whatsapp">💬 WhatsApp</a>
+                    </div>
                 </div>
             </div>
+        </section>
 
-            <button class="submit-btn" onclick="gerarProposta()">✓ Gerar Proposta</button>
-            <div id="resultado"></div>
-        </div>
-    </section>
+        <!-- OLIMPIA PARK RESORT -->
+        <section id="olimpia">
+            <h2>🎢 Olimpia Park Resort - Olímpia</h2>
+            <div class="resort-card">
+                <img src="https://images.booking.com/xdata/67903/679039e8ec95beae12a1f69d3f3b2f9d.jpg" alt="Olimpia Park" class="resort-image">
+                <div class="resort-content">
+                    <h3>Diversão para Toda Família</h3>
+                    <p>Parque resort completo com 7 piscinas temáticas, parque aquático gigante e entretenimento 24h. Diversão sem fim para toda a família!</p>
+                    <ul class="resort-features">
+                        <li>7 piscinas temáticas diferentes</li>
+                        <li>Parque aquático de tirar o fôlego</li>
+                        <li>Área kids com supervião 24h</li>
+                        <li>Shows noturnos ao vivo</li>
+                        <li>Múltiplos restaurantes e bares</li>
+                        <li>Animação em tempo integral</li>
+                    </ul>
+                    <div class="btn-container">
+                        <a href="https://www.booking.com/hotel/br/olimpia-park-resort" target="_blank" class="btn btn-gold">Ver Detalhes</a>
+                        <a href="https://wa.me/5517982006382?text=Olá! Gostaria de informações sobre Olimpia Park Resort" target="_blank" class="btn btn-whatsapp">💬 WhatsApp</a>
+                    </div>
+                </div>
+            </div>
+        </section>
 
-    <section id="weather" class="weather-section">
-        <h2>🌤️ Clima do Seu Destino</h2>
-        <p class="section-subtitle">Informações em tempo real</p>
-        
-        <div class="search-box">
-            <input type="text" id="cityInput" placeholder="Digite uma cidade...">
-            <button onclick="searchWeatherFunc()">🔍 Buscar</button>
-        </div>
+        <!-- WYNDHAM ROYAL -->
+        <section id="wyndham">
+            <h2>👑 Wyndham Royal - Padrão Internacional</h2>
+            <div class="resort-card">
+                <img src="https://images.booking.com/xdata/67903/679039e8ec95beae12a1f69d3f3b2f9d.jpg" alt="Wyndham Royal" class="resort-image">
+                <div class="resort-content">
+                    <h3>Elegância Internacional</h3>
+                    <p>Resort de padrão internacional com serviços premium, localização estratégica e conforto absoluto. Sofisticação em cada detalhe!</p>
+                    <ul class="resort-features">
+                        <li>Suítes presidenciais luxuosas</li>
+                        <li>Concierge 24h em múltiplas línguas</li>
+                        <li>Business center completo</li>
+                        <li>Piscina infinity com vista panorâmica</li>
+                        <li>SPA internacional de 5 estrelas</li>
+                        <li>Serviço room service 24h</li>
+                    </ul>
+                    <div class="btn-container">
+                        <a href="https://www.booking.com/hotel/vn/wyndham-hoi-an-royal" target="_blank" class="btn btn-gold">Ver Detalhes</a>
+                        <a href="https://wa.me/5517982006382?text=Olá! Gostaria de informações sobre Wyndham Royal" target="_blank" class="btn btn-whatsapp">💬 WhatsApp</a>
+                    </div>
+                </div>
+            </div>
+        </section>
 
-        <div class="current-weather" id="currentWeather">
-            <div class="loading">Carregando clima...</div>
-        </div>
+        <!-- SOLAR DAS ÁGUAS -->
+        <section id="solar">
+            <h2>☀️ Solar das Águas Park Resort - Olímpia</h2>
+            <div class="resort-card">
+                <img src="https://images.booking.com/xdata/67903/679039e8ec95beae12a1f69d3f3b2f9d.jpg" alt="Solar das Águas" class="resort-image">
+                <div class="resort-content">
+                    <h3>Paraíso das Águas</h3>
+                    <p>Resort com piscinas naturais, SPA termal e gastronomia sofisticada. Um oásis de paz e tranquilidade para recuperar suas energias!</p>
+                    <ul class="resort-features">
+                        <li>Águas naturais aquecidas a 35°C</li>
+                        <li>SPA termal completo com terapias</li>
+                        <li>Gastronomia premium internacional</li>
+                        <li>Sauna finlandesa e vapor</li>
+                        <li>Área de naturismo privativa</li>
+                        <li>Piscinas termais naturais</li>
+                    </ul>
+                    <div class="btn-container">
+                        <a href="https://www.booking.com/hotel/br/solar-das-aguas-park-resort" target="_blank" class="btn btn-gold">Ver Detalhes</a>
+                        <a href="https://wa.me/5517982006382?text=Olá! Gostaria de informações sobre Solar das Águas" target="_blank" class="btn btn-whatsapp">💬 WhatsApp</a>
+                    </div>
+                </div>
+            </div>
+        </section>
 
-        <h3 style="text-align: center; color: #1a1a2e; margin-top: 40px; margin-bottom: 30px;">📅 Previsão 5 Dias</h3>
-        <div class="forecast-grid" id="forecastGrid"></div>
-
-        <h3 style="text-align: center; color: #1a1a2e; margin-top: 40px; margin-bottom: 30px;">📊 Detalhes</h3>
-        <div class="details-grid" id="details"></div>
-    </section>
+        <!-- PRAIA DE JUQUEHY -->
+        <section id="juquehy">
+            <h2>🏖️ Praia de Juquehy - Litoral de São Paulo</h2>
+            <div class="resort-card">
+                <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1200&h=675&fit=crop" alt="Praia de Juquehy" class="resort-image">
+                <div class="resort-content">
+                    <h3>Praia Paradisíaca</h3>
+                    <p>Uma das praias mais bonitas do litoral norte paulista, com águas cristalinas e natureza preservada. Paraíso tropical esperando por você!</p>
+                    <ul class="resort-features">
+                        <li>Águas cristalinas e mornas</li>
+                        <li>Mata atlântica preservada ao redor</li>
+                        <li>Surfe e esportes aquáticos</li>
+                        <li>Restaurantes à beira-mar premium</li>
+                        <li>Sunsets espetaculares ao entardecer</li>
+                        <li>Tranquilidade e beleza natural</li>
+                    </ul>
+                    <div class="btn-container">
+                        <a href="https://juquehypraiahotel.com.br/" target="_blank" class="btn btn-gold">Ver Detalhes</a>
+                        <a href="https://wa.me/5517982006382?text=Olá! Gostaria de informações sobre Praia de Juquehy" target="_blank" class="btn btn-whatsapp">💬 WhatsApp</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
 
     <footer>
-        <p>&copy; 2026 HOSPEDAH - Sua Experiência Começa Aqui</p>
-        <p>📞 Telefone: +55 (17) 98200-6382</p>
+        <p>&copy; 2026 HOSPEDAH - Resorts & Praias Premium</p>
+        <p>📞 +55 (17) 98200-6382 | ✉️ contato@hospedah.com</p>
+        <p>🌟 Ofertas todos os dias e garantia de melhor preço!</p>
     </footer>
-
-    <script>
-        function gerarProposta() {
-            let nome = document.getElementById("nome").value.trim();
-            let destino = document.getElementById("destino").value.trim();
-            let data = document.getElementById("data").value;
-            let pessoas = document.getElementById("pessoas").value;
-
-            document.getElementById("nomeError").innerText = "";
-            document.getElementById("destinoError").innerText = "";
-            document.getElementById("dataError").innerText = "";
-            document.getElementById("pessoasError").innerText = "";
-
-            let hasErrors = false;
-
-            if (!nome) {
-                document.getElementById("nomeError").innerText = "Nome obrigatório";
-                hasErrors = true;
-            }
-            if (!destino) {
-                document.getElementById("destinoError").innerText = "Destino obrigatório";
-                hasErrors = true;
-            }
-            if (!data) {
-                document.getElementById("dataError").innerText = "Data obrigatória";
-                hasErrors = true;
-            }
-            if (!pessoas || pessoas < 1) {
-                document.getElementById("pessoasError").innerText = "Quantidade obrigatória";
-                hasErrors = true;
-            }
-
-            if (hasErrors) return;
-
-            let formattedData = new Date(data).toLocaleDateString('pt-BR');
-
-            document.getElementById("resultado").innerHTML = `
-                <div class="proposal-result">
-                    <h3>✅ Proposta Gerada!</h3>
-                    <p><strong>🎯 Cliente:</strong> ${nome}</p>
-                    <p><strong>🌍 Destino:</strong> ${destino}</p>
-                    <p><strong>📅 Data:</strong> ${formattedData}</p>
-                    <p><strong>👥 Pessoas:</strong> ${pessoas}</p>
-                    <h3 style="margin-top: 20px;">Inclui:</h3>
-                    <ul>
-                        <li>🏨 Hospedagem premium</li>
-                        <li>✈️ Planejamento personalizado</li>
-                        <li>📞 Suporte 24/7</li>
-                        <li>💰 Garantia de melhor preço</li>
-                    </ul>
-                    <a href="https://wa.me/5517982006382?text=Olá! Recebi minha proposta para ${destino} em ${formattedData}" target="_blank" class="whatsapp-btn">💬 Falar no WhatsApp</a>
-                </div>
-            `;
-        }
-
-        const API_KEY = 'b6fd43b74eda4370d4f4948410281366';
-        const BASE_URL = 'https://api.openweathermap.org/data/2.5';
-
-        const weatherIcons = {
-            '01d': '☀️', '01n': '🌙', '02d': '⛅', '02n': '☁️',
-            '03d': '☁️', '03n': '☁️', '04d': '☁️', '04n': '☁️',
-            '09d': '🌧️', '09n': '🌧️', '10d': '🌦️', '10n': '🌧️',
-            '11d': '⛈️', '11n': '⛈️', '13d': '❄️', '13n': '❄️',
-            '50d': '🌫️', '50n': '🌫️'
-        };
-
-        window.addEventListener('load', function() {
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(
-                    function(position) {
-                        fetchWeatherByCoords(position.coords.latitude, position.coords.longitude);
-                    },
-                    function() {
-                        searchWeatherByCity('São Paulo');
-                    }
-                );
-            } else {
-                searchWeatherByCity('São Paulo');
-            }
-        });
-
-        function searchWeatherFunc() {
-            const city = document.getElementById('cityInput').value.trim();
-            if (city) searchWeatherByCity(city);
-            else alert('Digite uma cidade!');
-        }
-
-        function searchWeatherByCity(city) {
-            fetch(`${BASE_URL}/weather?q=${city}&appid=${API_KEY}&units=metric&lang=pt_br`)
-                .then(r => {
-                    if (!r.ok) throw new Error('Cidade não encontrada');
-                    return r.json();
-                })
-                .then(d => fetchWeatherByCoords(d.coord.lat, d.coord.lon))
-                .catch(e => {
-                    document.getElementById('currentWeather').innerHTML = `<div class="error-message">⚠️ Cidade não encontrada!</div>`;
-                });
-        }
-
-        function fetchWeatherByCoords(lat, lon) {
-            fetch(`${BASE_URL}/onecall?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric&lang=pt_br`)
-                .then(r => r.json())
-                .then(d => {
-                    displayCurrentWeather(d.current, d.timezone);
-                    displayForecast(d.daily);
-                    displayDetails(d.current);
-                })
-                .catch(e => console.error(e));
-        }
-
-        function displayCurrentWeather(current, timezone) {
-            const icon = weatherIcons[current.weather[0].icon] || '🌤️';
-            const city = timezone.split('/')[1]?.replace(/_/g, ' ') || 'Local';
-            
-            document.getElementById('currentWeather').innerHTML = `
-                <div class="weather-icon">${icon}</div>
-                <div style="font-size: 2.2em; margin-bottom: 15px; font-weight: bold;">${city}</div>
-                <div class="temperature">${Math.round(current.temp)}°C</div>
-                <div style="font-size: 1.3em; text-transform: capitalize; margin: 15px 0;">${current.weather[0].description}</div>
-                <div style="font-size: 1.1em; opacity: 0.9;">Sensação: ${Math.round(current.feels_like)}°C</div>
-            `;
-        }
-
-        function displayForecast(daily) {
-            let html = '';
-            for (let i = 1; i <= 5; i++) {
-                const day = daily[i];
-                const date = new Date(day.dt * 1000);
-                const icon = weatherIcons[day.weather[0].icon] || '🌤️';
-                html += `
-                    <div class="forecast-card">
-                        <div style="color: #d4af37; font-weight: bold;">${date.toLocaleDateString('pt-BR', { weekday: 'short' })}</div>
-                        <div class="forecast-icon">${icon}</div>
-                        <div style="font-size: 1.4em; color: #1a1a2e; font-weight: bold;">${Math.round(day.temp.max)}° / ${Math.round(day.temp.min)}°</div>
-                    </div>
-                `;
-            }
-            document.getElementById('forecastGrid').innerHTML = html;
-        }
-
-        function displayDetails(current) {
-            document.getElementById('details').innerHTML = `
-                <div class="detail-item"><div class="detail-label">💧 Umidade</div><div class="detail-value">${current.humidity}%</div></div>
-                <div class="detail-item"><div class="detail-label">📊 Pressão</div><div class="detail-value">${current.pressure} hPa</div></div>
-                <div class="detail-item"><div class="detail-label">💨 Vento</div><div class="detail-value">${(current.wind_speed * 3.6).toFixed(1)} km/h</div></div>
-                <div class="detail-item"><div class="detail-label">☁️ Nuvens</div><div class="detail-value">${current.clouds}%</div></div>
-                <div class="detail-item"><div class="detail-label">👁️ Visibilidade</div><div class="detail-value">${(current.visibility / 1000).toFixed(1)} km</div></div>
-                <div class="detail-item"><div class="detail-label">☀️ UV</div><div class="detail-value">${current.uvi.toFixed(1)}</div></div>
-            `;
-        }
-    </script>
 </body>
 </html>
