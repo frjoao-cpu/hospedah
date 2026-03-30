@@ -1,65 +1,174 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-br">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Resorts Gallery</title>
-    <link rel="stylesheet" href="styles.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HOSPEDAH | Hospedagens Premium</title>
+<style>
+body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto; background: #f5f5f7; color: #1d1d1f; }
+header { text-align: center; padding: 50px 20px; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); color: white; }
+header h1 { font-size: 48px; color: #d4af37; margin: 0; }
+header p { color: #ddd; font-size: 18px; margin-top: 10px; }
+nav { background: #16213e; padding: 15px 20px; text-align: center; }
+nav a { color: #d4af37; margin: 0 15px; text-decoration: none; font-size: 14px; }
+.resort { padding: 40px 20px; max-width: 1200px; margin: 0 auto; border-bottom: 1px solid #e5e5e7; }
+.resort h2 { margin: 0 0 5px 0; font-size: 28px; color: #1a1a2e; }
+.resort p { color: #6e6e73; margin: 0 0 20px 0; }
+.filtros { margin: 20px 0; display: flex; gap: 10px; flex-wrap: wrap; }
+.filtros button { padding: 10px 16px; border-radius: 20px; border: 1px solid #d4af37; cursor: pointer; background: white; color: #1a1a2e; font-weight: 500; transition: 0.3s; }
+.filtros button:hover { background: #d4af37; color: white; }
+.galeria { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin: 30px 0; }
+.galeria img { width: 100%; height: 220px; object-fit: cover; border-radius: 12px; cursor: pointer; transition: 0.3s; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+.galeria img:hover { transform: scale(1.05); box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+.btn-whats { display: inline-block; margin-top: 20px; background: #25D366; color: white; padding: 12px 24px; border-radius: 25px; text-decoration: none; font-weight: bold; transition: 0.3s; }
+.btn-whats:hover { background: #1da851; transform: scale(1.05); }
+.lightbox { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); display: none; align-items: center; justify-content: center; z-index: 1000; }
+.lightbox img { max-width: 90%; max-height: 90%; border-radius: 10px; animation: zoom 0.3s; }
+@keyframes zoom { from { transform: scale(0.8); } to { transform: scale(1); } }
+.lightbox-close { position: absolute; top: 20px; right: 30px; color: white; font-size: 40px; cursor: pointer; }
+footer { background: #1a1a2e; color: #d4af37; text-align: center; padding: 30px 20px; border-top: 3px solid #d4af37; }
+footer p { margin: 8px 0; }
+footer a { color: #d4af37; text-decoration: none; }
+</style>
 </head>
 <body>
-    <header>
-        <h1>Our Resorts</h1>
-        <p>Contact Juliana: (17) 99206-8296</p>
-    </header>
-    <main>
-        <section class="gallery">
-            <div class="resort" id="resort1">
-                <img src="resort1.jpg" alt="Resort 1">
-                <div class="overlay">
-                    <h2>Resort 1</h2>
-                    <p>Description of Resort 1.</p>
-                </div>
-            </div>
-            <div class="resort" id="resort2">
-                <img src="resort2.jpg" alt="Resort 2">
-                <div class="overlay">
-                    <h2>Resort 2</h2>
-                    <p>Description of Resort 2.</p>
-                </div>
-            </div>
-            <div class="resort" id="resort3">
-                <img src="resort3.jpg" alt="Resort 3">
-                <div class="overlay">
-                    <h2>Resort 3</h2>
-                    <p>Description of Resort 3.</p>
-                </div>
-            </div>
-            <div class="resort" id="resort4">
-                <img src="resort4.jpg" alt="Resort 4">
-                <div class="overlay">
-                    <h2>Resort 4</h2>
-                    <p>Description of Resort 4.</p>
-                </div>
-            </div>
-            <div class="resort" id="resort5">
-                <img src="resort5.jpg" alt="Resort 5">
-                <div class="overlay">
-                    <h2>Resort 5</h2>
-                    <p>Description of Resort 5.</p>
-                </div>
-            </div>
-            <div class="resort" id="resort6">
-                <img src="resort6.jpg" alt="Resort 6">
-                <div class="overlay">
-                    <h2>Resort 6</h2>
-                    <p>Description of Resort 6.</p>
-                </div>
-            </div>
-        </section>
-    </main>
-    <footer>
-        <p>&copy; 2026 Our Resorts. All rights reserved.</p>
-    </footer>
-    <script src="lightbox.js"></script>
+
+<header>
+    <h1>🏛️ HOSPEDAH</h1>
+    <p>Resorts e Praias Premium em São Paulo</p>
+</header>
+
+<nav>
+    <a href="https://www.instagram.com/julianasilvaoliveira.joao?igsh=bzZmNGIxdjdqc285" target="_blank">📱 Instagram</a>
+    <a href="https://wa.me/5517992068296" target="_blank">💬 WhatsApp Juliana</a>
+    <a href="https://wa.me/5517982006382" target="_blank">💬 WhatsApp Flávio</a>
+</nav>
+
+<section class="resort">
+  <h2>🏨 Hot Beach Suites</h2>
+  <p>Luxo em Olímpia - Suítes premium com piscina aquecida e acesso ao parque aquático</p>
+  <div class="filtros">
+    <button onclick="filtrar(this, 'all')">Todos</button>
+    <button onclick="filtrar(this, 'suite')">Suítes</button>
+    <button onclick="filtrar(this, 'piscina')">Piscinas</button>
+    <button onclick="filtrar(this, 'lazer')">Lazer</button>
+  </div>
+  <div class="galeria">
+    <img src="https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=500" data-cat="suite" onclick="abrir(this)">
+    <img src="https://images.unsplash.com/photo-1566073771259-6a8506099945?w=500" data-cat="piscina" onclick="abrir(this)">
+    <img src="https://images.unsplash.com/photo-1570085620325-dffb97e45f28?w=500" data-cat="lazer" onclick="abrir(this)">
+    <img src="https://images.unsplash.com/photo-1552321554-5fefe8c9ef14?w=500" data-cat="piscina" onclick="abrir(this)">
+  </div>
+  <a class="btn-whats" href="https://wa.me/5517992068296" target="_blank">Solicitar Orçamento</a>
+</section>
+
+<section class="resort">
+  <h2>♨️ São Pedro Thermas Resort</h2>
+  <p>Termalismo e Bem-Estar - Águas termais naturais e SPA premium</p>
+  <div class="filtros">
+    <button onclick="filtrar(this, 'all')">Todos</button>
+    <button onclick="filtrar(this, 'suite')">Suítes</button>
+    <button onclick="filtrar(this, 'piscina')">Piscinas</button>
+    <button onclick="filtrar(this, 'lazer')">Lazer</button>
+  </div>
+  <div class="galeria">
+    <img src="https://images.unsplash.com/photo-1596178065887-f50b2ebb75b7?w=500" data-cat="suite" onclick="abrir(this)">
+    <img src="https://images.unsplash.com/photo-1578683078519-e21cc028cb29?w=500" data-cat="piscina" onclick="abrir(this)">
+    <img src="https://images.unsplash.com/photo-1544161515-81205f8abecc?w=500" data-cat="lazer" onclick="abrir(this)">
+    <img src="https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=500" data-cat="piscina" onclick="abrir(this)">
+  </div>
+  <a class="btn-whats" href="https://wa.me/5517992068296" target="_blank">Solicitar Orçamento</a>
+</section>
+
+<section class="resort">
+  <h2>🎢 Olimpia Park Resort</h2>
+  <p>Diversão para Toda Família - 7 piscinas temáticas e parque aquático</p>
+  <div class="filtros">
+    <button onclick="filtrar(this, 'all')">Todos</button>
+    <button onclick="filtrar(this, 'suite')">Suítes</button>
+    <button onclick="filtrar(this, 'piscina')">Piscinas</button>
+    <button onclick="filtrar(this, 'lazer')">Lazer</button>
+  </div>
+  <div class="galeria">
+    <img src="https://images.unsplash.com/photo-1552321554-5fefe8c9ef14?w=500" data-cat="suite" onclick="abrir(this)">
+    <img src="https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=500" data-cat="piscina" onclick="abrir(this)">
+    <img src="https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=500" data-cat="lazer" onclick="abrir(this)">
+    <img src="https://images.unsplash.com/photo-1566073771259-6a8506099945?w=500" data-cat="piscina" onclick="abrir(this)">
+  </div>
+  <a class="btn-whats" href="https://wa.me/5517992068296" target="_blank">Solicitar Orçamento</a>
+</section>
+
+<section class="resort">
+  <h2>👑 Wyndham Royal</h2>
+  <p>Elegância Internacional - Suítes presidenciais e SPA 5 estrelas</p>
+  <div class="filtros">
+    <button onclick="filtrar(this, 'all')">Todos</button>
+    <button onclick="filtrar(this, 'suite')">Suítes</button>
+    <button onclick="filtrar(this, 'piscina')">Piscinas</button>
+    <button onclick="filtrar(this, 'lazer')">Lazer</button>
+  </div>
+  <div class="galeria">
+    <img src="https://images.unsplash.com/photo-1578683078519-e21cc028cb29?w=500" data-cat="suite" onclick="abrir(this)">
+    <img src="https://images.unsplash.com/photo-1501117716987-c8e1ecb210f9?w=500" data-cat="piscina" onclick="abrir(this)">
+    <img src="https://images.unsplash.com/photo-1582719471384-894fbb16e074?w=500" data-cat="lazer" onclick="abrir(this)">
+    <img src="https://images.unsplash.com/photo-1570085620325-dffb97e45f28?w=500" data-cat="piscina" onclick="abrir(this)">
+  </div>
+  <a class="btn-whats" href="https://wa.me/5517992068296" target="_blank">Solicitar Orçamento</a>
+</section>
+
+<section class="resort">
+  <h2>☀️ Solar das Águas</h2>
+  <p>Paraíso das Águas - Piscinas naturais e gastronomia premium</p>
+  <div class="filtros">
+    <button onclick="filtrar(this, 'all')">Todos</button>
+    <button onclick="filtrar(this, 'suite')">Suítes</button>
+    <button onclick="filtrar(this, 'piscina')">Piscinas</button>
+    <button onclick="filtrar(this, 'lazer')">Lazer</button>
+  </div>
+  <div class="galeria">
+    <img src="https://images.unsplash.com/photo-1570085620325-dffb97e45f28?w=500" data-cat="suite" onclick="abrir(this)">
+    <img src="https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=500" data-cat="piscina" onclick="abrir(this)">
+    <img src="https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=500" data-cat="lazer" onclick="abrir(this)">
+    <img src="https://images.unsplash.com/photo-1544161515-81205f8abecc?w=500" data-cat="piscina" onclick="abrir(this)">
+  </div>
+  <a class="btn-whats" href="https://wa.me/5517992068296" target="_blank">Solicitar Orçamento</a>
+</section>
+
+<section class="resort">
+  <h2>🏖️ Praia de Juquehy</h2>
+  <p>Praia Paradisíaca - Águas cristalinas no litoral norte</p>
+  <div class="filtros">
+    <button onclick="filtrar(this, 'all')">Todos</button>
+    <button onclick="filtrar(this, 'suite')">Acomodações</button>
+    <button onclick="filtrar(this, 'piscina')">Praia</button>
+    <button onclick="filtrar(this, 'lazer')">Lazer</button>
+  </div>
+  <div class="galeria">
+    <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=500" data-cat="piscina" onclick="abrir(this)">
+    <img src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=500" data-cat="suite" onclick="abrir(this)">
+    <img src="https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=500" data-cat="lazer" onclick="abrir(this)">
+    <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=500" data-cat="piscina" onclick="abrir(this)">
+  </div>
+  <a class="btn-whats" href="https://wa.me/5517992068296" target="_blank">Solicitar Orçamento</a>
+</section>
+
+<div class="lightbox" id="lightbox" onclick="fechar()">
+    <span class="lightbox-close">&times;</span>
+    <img id="img-lightbox">
+</div>
+
+<footer>
+    <p>&copy; 2026 HOSPEDAH - Resorts & Praias Premium</p>
+    <p>📱 Juliana: (17) 99206-8296 | Flávio: (17) 98200-6382</p>
+    <p><a href="https://www.instagram.com/julianasilvaoliveira.joao?igsh=bzZmNGIxdjdqc285" target="_blank">Siga-nos no Instagram</a></p>
+    <p>🌟 Ofertas todos os dias | Garantia de melhor preço!</p>
+</footer>
+
+<script>
+function abrir(img){ document.getElementById("lightbox").style.display = "flex"; document.getElementById("img-lightbox").src = img.src; }
+function fechar(){ document.getElementById("lightbox").style.display = "none"; }
+function filtrar(btn, cat){ let section = btn.closest(".resort"); let imgs = section.querySelectorAll(".galeria img"); imgs.forEach(img => { img.style.display = (cat === "all" || img.dataset.cat === cat) ? "block" : "none"; }); }
+</script>
+
 </body>
 </html>
