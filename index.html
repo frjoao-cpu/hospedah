@@ -250,13 +250,28 @@
             transform: scale(1.15);
             box-shadow: 0 10px 40px rgba(37, 211, 102, 0.4);
         }
-        .btn-instagram {
-            bottom: 110px;
-            background: linear-gradient(45deg, #D4AF37, #FFD700, #D4AF37);
+              .btn-instagram {
+            position: fixed;
+            bottom: 90px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+            z-index: 999;
+            transition: 0.3s;
         }
+
+        .btn-instagram img {
+            width: 30px;
+        }
+
         .btn-instagram:hover {
-            transform: scale(1.15);
-            box-shadow: 0 10px 40px rgba(212, 175, 55, 0.5);
+            transform: scale(1.1);
         }
         /* FOOTER */
         footer {
