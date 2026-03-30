@@ -1,350 +1,189 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HOSPEDAH - Resorts Premium</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f0f0; color: #333; }
-        
-        header { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); color: white; padding: 30px 20px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
-        header h1 { font-size: 3em; color: #d4af37; margin-bottom: 10px; }
-        header p { font-size: 1.3em; color: #ddd; }
-        
-        nav { background: #16213e; padding: 15px 20px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        nav a { color: #d4af37; margin: 0 15px; text-decoration: none; font-size: 1.1em; transition: 0.3s; }
-        nav a:hover { color: white; text-decoration: underline; }
-        
-        .slider-container { max-width: 1200px; margin: 40px auto; padding: 0 20px; }
-        .resort-section { margin-bottom: 60px; padding: 30px; background: white; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        .resort-section h2 { color: #1a1a2e; font-size: 2.2em; margin-bottom: 20px; text-align: center; }
-        
-        .slider { position: relative; width: 100%; max-width: 900px; margin: 0 auto; background: black; border-radius: 10px; overflow: hidden; box-shadow: 0 8px 25px rgba(0,0,0,0.3); }
-        .slides { position: relative; width: 100%; padding-bottom: 66.67%; }
-        .slide { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; transition: opacity 0.5s ease-in-out; }
-        .slide.active { opacity: 1; }
-        .slide img { width: 100%; height: 100%; object-fit: cover; }
-        
-        .prev, .next { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.5); color: white; border: none; padding: 15px 20px; font-size: 24px; cursor: pointer; transition: 0.3s; z-index: 10; }
-        .prev:hover, .next:hover { background: rgba(0,0,0,0.8); }
-        .prev { left: 10px; }
-        .next { right: 10px; }
-        
-        .dots { text-align: center; padding: 15px 0; }
-        .dot { height: 12px; width: 12px; margin: 0 5px; background-color: #bbb; border-radius: 50%; display: inline-block; cursor: pointer; transition: 0.3s; }
-        .dot.active { background-color: #d4af37; }
-        
-        .resort-info { margin-top: 25px; }
-        .resort-info h3 { color: #d4af37; font-size: 1.5em; margin-bottom: 15px; }
-        .resort-info p { color: #666; line-height: 1.8; margin-bottom: 15px; font-size: 1.05em; }
-        .resort-features { list-style: none; margin: 20px 0; }
-        .resort-features li { color: #555; padding: 8px 0; border-bottom: 1px solid #eee; }
-        .resort-features li:before { content: "✓ "; color: #d4af37; font-weight: bold; margin-right: 10px; font-size: 1.1em; }
-        
-        .resort-links { margin-top: 20px; display: flex; gap: 15px; flex-wrap: wrap; }
-        .btn { background: #25d366; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; border: none; cursor: pointer; font-weight: bold; font-size: 1em; transition: 0.3s; }
-        .btn:hover { background: #1da851; transform: scale(1.05); }
-        .btn-link { background: #0066cc; }
-        .btn-link:hover { background: #0052a3; }
-        
-        .contacts { background: #1a1a2e; padding: 40px 20px; color: white; }
-        .contacts h2 { text-align: center; color: #d4af37; font-size: 2.2em; margin-bottom: 30px; }
-        .contact-container { max-width: 1000px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; }
-        .contact-card { background: rgba(212,175,55,0.1); border: 2px solid #d4af37; border-radius: 10px; padding: 30px; text-align: center; }
-        .contact-card h3 { color: #d4af37; font-size: 1.5em; margin-bottom: 15px; }
-        .contact-card p { margin: 10px 0; font-size: 1.1em; }
-        
-        footer { background: #1a1a2e; color: #d4af37; text-align: center; padding: 30px; border-top: 3px solid #d4af37; }
-        footer p { margin: 8px 0; }
-        
-        @media (max-width: 768px) {
-            header h1 { font-size: 2em; }
-            .resort-section h2 { font-size: 1.6em; }
-            nav a { margin: 0 8px; font-size: 0.95em; }
-            .resort-links { flex-direction: column; }
-            .btn { width: 100%; }
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>HOSPEDAH | Hospedagens Premium</title>
+
+<style>
+body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto;
+    background: #f5f5f7;
+    color: #1d1d1f;
+}
+
+/* HEADER */
+header {
+    text-align: center;
+    padding: 50px 20px;
+}
+
+header h1 {
+    font-size: 36px;
+}
+
+header p {
+    color: #6e6e73;
+}
+
+/* RESORT */
+.resort {
+    padding: 40px 20px;
+}
+
+.resort h2 {
+    margin-bottom: 5px;
+}
+
+/* FILTRO */
+.filtros {
+    margin: 15px 0;
+}
+
+.filtros button {
+    margin: 5px;
+    padding: 8px 14px;
+    border-radius: 20px;
+    border: 1px solid #ddd;
+    cursor: pointer;
+    background: white;
+}
+
+.filtros button:hover {
+    background: black;
+    color: white;
+}
+
+/* GALERIA */
+.galeria {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 12px;
+}
+
+.galeria img {
+    width: 100%;
+    height: 220px;
+    object-fit: cover;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.galeria img:hover {
+    transform: scale(1.05);
+}
+
+/* WHATS */
+.btn-whats {
+    display: inline-block;
+    margin-top: 15px;
+    background: #25D366;
+    color: white;
+    padding: 10px 18px;
+    border-radius: 25px;
+    text-decoration: none;
+}
+
+/* LIGHTBOX */
+.lightbox {
+    position: fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background:black;
+    display:none;
+    align-items:center;
+    justify-content:center;
+}
+
+.lightbox img {
+    max-width:90%;
+    border-radius:10px;
+}
+
+</style>
 </head>
+
 <body>
 
 <header>
-    <h1>🏛️ HOSPEDAH</h1>
-    <p>Resorts e Praias Premium</p>
+    <h1>HOSPEDAH</h1>
+    <p>Hospedagens premium ao redor do mundo</p>
 </header>
 
-<nav>
-    <a href="https://www.instagram.com/julianasilvaoliveira.joao?igsh=bzZmNGIxdjdqc285" target="_blank">📱 Instagram</a>
-    <a href="https://wa.me/5517992068296" target="_blank">💬 WhatsApp Juliana</a>
-    <a href="https://wa.me/5517982006382" target="_blank">💬 WhatsApp Flávio</a>
-</nav>
+<!-- RESORT 1 -->
+<section class="resort">
+  <h2>Resort Paradise Beach</h2>
+  <p>Luxo, conforto e experiência à beira-mar</p>
 
-<div class="slider-container">
+  <div class="filtros">
+    <button onclick="filtrar('all', this)">Todos</button>
+    <button onclick="filtrar('quarto', this)">Quartos</button>
+    <button onclick="filtrar('piscina', this)">Piscinas</button>
+    <button onclick="filtrar('lazer', this)">Lazer</button>
+  </div>
 
-    <!-- HOT BEACH SUITES -->
-    <div class="resort-section">
-        <h2>🏨 Hot Beach Suites</h2>
-        <div class="slider">
-            <div class="slides">
-                <div class="slide active"><img src="https://aff-media.s3.amazonaws.com/media/uploads/hotbeach1.jpg" alt="Hot Beach 1" onerror="this.src='https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=900'"></div>
-                <div class="slide"><img src="https://aff-media.s3.amazonaws.com/media/uploads/hotbeach2.jpg" alt="Hot Beach 2" onerror="this.src='https://images.unsplash.com/photo-1566073771259-6a8506099945?w=900'"></div>
-                <div class="slide"><img src="https://aff-media.s3.amazonaws.com/media/uploads/hotbeach3.jpg" alt="Hot Beach 3" onerror="this.src='https://images.unsplash.com/photo-1552321554-5fefe8c9ef14?w=900'"></div>
-                <div class="slide"><img src="https://aff-media.s3.amazonaws.com/media/uploads/hotbeach4.jpg" alt="Hot Beach 4" onerror="this.src='https://images.unsplash.com/photo-1570085620325-dffb97e45f28?w=900'"></div>
-            </div>
-            <button class="prev" onclick="changeSlide('hot', -1)">&#10094;</button>
-            <button class="next" onclick="changeSlide('hot', 1)">&#10095;</button>
-        </div>
-        <div class="dots" id="dots-hot"></div>
-        <div class="resort-info">
-            <h3>Luxo em Olímpia</h3>
-            <p>Suítes premium com piscina aquecida, restaurante gourmet e acesso direto ao parque aquático Hot Beach.</p>
-            <ul class="resort-features">
-                <li>Suítes espaçosas para até 7 pessoas</li>
-                <li>Piscina aquecida com hidromassagem</li>
-                <li>Restaurante 5 estrelas</li>
-                <li>Acesso ilimitado ao Hot Beach Park</li>
-            </ul>
-            <div class="resort-links">
-                <a href="https://www.tripadvisor.com/Hotel_Review-g2333146-d23676574-Reviews-Hot_Beach_Suites-Olimpia_State_of_Sao_Paulo.html" class="btn btn-link" target="_blank">📸 Ver Fotos Completas</a>
-                <a href="https://wa.me/5517992068296" class="btn">Mais Informações</a>
-            </div>
-        </div>
-    </div>
+  <div class="galeria">
+    <img src="https://images.unsplash.com/photo-1566073771259-6a8506099945" data-cat="quarto" onclick="abrir(this)">
+    <img src="https://images.unsplash.com/photo-1571896349842-33c89424de2d" data-cat="piscina" onclick="abrir(this)">
+    <img src="https://images.unsplash.com/photo-1542314831-068cd1dbfeeb" data-cat="lazer" onclick="abrir(this)">
+  </div>
 
-    <!-- SÃO PEDRO THERMAS -->
-    <div class="resort-section">
-        <h2>♨️ São Pedro Thermas Resort</h2>
-        <div class="slider">
-            <div class="slides">
-                <div class="slide active"><img src="https://aff-media.s3.amazonaws.com/media/uploads/saopedro1.jpg" alt="São Pedro 1" onerror="this.src='https://images.unsplash.com/photo-1596178065887-f50b2ebb75b7?w=900'"></div>
-                <div class="slide"><img src="https://aff-media.s3.amazonaws.com/media/uploads/saopedro2.jpg" alt="São Pedro 2" onerror="this.src='https://images.unsplash.com/photo-1566073771259-6a8506099945?w=900'"></div>
-                <div class="slide"><img src="https://aff-media.s3.amazonaws.com/media/uploads/saopedro3.jpg" alt="São Pedro 3" onerror="this.src='https://images.unsplash.com/photo-1578683078519-e21cc028cb29?w=900'"></div>
-                <div class="slide"><img src="https://aff-media.s3.amazonaws.com/media/uploads/saopedro4.jpg" alt="São Pedro 4" onerror="this.src='https://images.unsplash.com/photo-1570085620325-dffb97e45f28?w=900'"></div>
-            </div>
-            <button class="prev" onclick="changeSlide('saopedro', -1)">&#10094;</button>
-            <button class="next" onclick="changeSlide('saopedro', 1)">&#10095;</button>
-        </div>
-        <div class="dots" id="dots-saopedro"></div>
-        <div class="resort-info">
-            <h3>Termalismo e Bem-Estar</h3>
-            <p>Resort termal com água quente natural, SPA de luxo e piscinas terapêuticas.</p>
-            <ul class="resort-features">
-                <li>Águas termais naturais 100% puras</li>
-                <li>SPA premium com massagens terapêuticas</li>
-                <li>Piscinas terapêuticas aquecidas</li>
-                <li>Acesso ao Thermas Water Park</li>
-            </ul>
-            <div class="resort-links">
-                <a href="https://www.tripadvisor.com.br/Hotel_Review-g1651034-d25354514-Reviews-or35-Sao_Pedro_Thermas_Resort-Aguas_de_Sao_Pedro_State_of_Sao_Paulo.html" class="btn btn-link" target="_blank">📸 Ver 355 Fotos</a>
-                <a href="https://wa.me/5517992068296" class="btn">Mais Informações</a>
-            </div>
-        </div>
-    </div>
-
-    <!-- OLIMPIA PARK RESORT -->
-    <div class="resort-section">
-        <h2>🎢 Olimpia Park Resort</h2>
-        <div class="slider">
-            <div class="slides">
-                <div class="slide active"><img src="https://aff-media.s3.amazonaws.com/media/uploads/olimpia1.jpg" alt="Olimpia Park 1" onerror="this.src='https://images.unsplash.com/photo-1552321554-5fefe8c9ef14?w=900'"></div>
-                <div class="slide"><img src="https://aff-media.s3.amazonaws.com/media/uploads/olimpia2.jpg" alt="Olimpia Park 2" onerror="this.src='https://images.unsplash.com/photo-1566073771259-6a8506099945?w=900'"></div>
-                <div class="slide"><img src="https://aff-media.s3.amazonaws.com/media/uploads/olimpia3.jpg" alt="Olimpia Park 3" onerror="this.src='https://images.unsplash.com/photo-1578683078519-e21cc028cb29?w=900'"></div>
-                <div class="slide"><img src="https://aff-media.s3.amazonaws.com/media/uploads/olimpia4.jpg" alt="Olimpia Park 4" onerror="this.src='https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=900'"></div>
-            </div>
-            <button class="prev" onclick="changeSlide('olimpia', -1)">&#10094;</button>
-            <button class="next" onclick="changeSlide('olimpia', 1)">&#10095;</button>
-        </div>
-        <div class="dots" id="dots-olimpia"></div>
-        <div class="resort-info">
-            <h3>Diversão para Toda Família</h3>
-            <p>Parque resort com 7 piscinas temáticas e entretenimento 24h.</p>
-            <ul class="resort-features">
-                <li>7 piscinas temáticas variadas</li>
-                <li>Parque aquático gigante</li>
-                <li>Shows noturnos ao vivo</li>
-                <li>Área kids e teen</li>
-            </ul>
-            <div class="resort-links">
-                <a href="https://www.tripadvisor.com.br/Hotel_Review-g2333146-d14759961-Reviews-or30-Enjoy_Olimpia_Park_Resort-Olimpia_State_of_Sao_Paulo.html" class="btn btn-link" target="_blank">📸 Ver 1.492 Fotos</a>
-                <a href="https://wa.me/5517992068296" class="btn">Mais Informações</a>
-            </div>
-        </div>
-    </div>
-
-    <!-- WYNDHAM ROYAL -->
-    <div class="resort-section">
-        <h2>👑 Wyndham Royal</h2>
-        <div class="slider">
-            <div class="slides">
-                <div class="slide active"><img src="https://aff-media.s3.amazonaws.com/media/uploads/wyndham1.jpg" alt="Wyndham 1" onerror="this.src='https://images.unsplash.com/photo-1578683078519-e21cc028cb29?w=900'"></div>
-                <div class="slide"><img src="https://aff-media.s3.amazonaws.com/media/uploads/wyndham2.jpg" alt="Wyndham 2" onerror="this.src='https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=900'"></div>
-                <div class="slide"><img src="https://aff-media.s3.amazonaws.com/media/uploads/wyndham3.jpg" alt="Wyndham 3" onerror="this.src='https://images.unsplash.com/photo-1552321554-5fefe8c9ef14?w=900'"></div>
-                <div class="slide"><img src="https://aff-media.s3.amazonaws.com/media/uploads/wyndham4.jpg" alt="Wyndham 4" onerror="this.src='https://images.unsplash.com/photo-1570085620325-dffb97e45f28?w=900'"></div>
-            </div>
-            <button class="prev" onclick="changeSlide('wyndham', -1)">&#10094;</button>
-            <button class="next" onclick="changeSlide('wyndham', 1)">&#10095;</button>
-        </div>
-        <div class="dots" id="dots-wyndham"></div>
-        <div class="resort-info">
-            <h3>Elegância Internacional</h3>
-            <p>Resort de padrão internacional com serviços premium e conforto absoluto.</p>
-            <ul class="resort-features">
-                <li>Suítes presidenciais luxuosas</li>
-                <li>Concierge 24h personalizado</li>
-                <li>SPA internacional 5 estrelas</li>
-                <li>960 suítes em diferentes categorias</li>
-            </ul>
-            <div class="resort-links">
-                <a href="https://www.tripadvisor.com.br/Hotel_Review-g2333146-d7121836-Reviews-or4420-Wyndham_Olimpia_Royal_Hotels-Olimpia_State_of_Sao_Paulo.html" class="btn btn-link" target="_blank">📸 Ver 2.533 Fotos</a>
-                <a href="https://wa.me/5517992068296" class="btn">Mais Informações</a>
-            </div>
-        </div>
-    </div>
-
-    <!-- SOLAR DAS ÁGUAS -->
-    <div class="resort-section">
-        <h2>☀️ Solar das Águas</h2>
-        <div class="slider">
-            <div class="slides">
-                <div class="slide active"><img src="https://aff-media.s3.amazonaws.com/media/uploads/solar1.jpg" alt="Solar 1" onerror="this.src='https://images.unsplash.com/photo-1570085620325-dffb97e45f28?w=900'"></div>
-                <div class="slide"><img src="https://aff-media.s3.amazonaws.com/media/uploads/solar2.jpg" alt="Solar 2" onerror="this.src='https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=900'"></div>
-                <div class="slide"><img src="https://aff-media.s3.amazonaws.com/media/uploads/solar3.jpg" alt="Solar 3" onerror="this.src='https://images.unsplash.com/photo-1596178065887-f50b2ebb75b7?w=900'"></div>
-                <div class="slide"><img src="https://aff-media.s3.amazonaws.com/media/uploads/solar4.jpg" alt="Solar 4" onerror="this.src='https://images.unsplash.com/photo-1552321554-5fefe8c9ef14?w=900'"></div>
-            </div>
-            <button class="prev" onclick="changeSlide('solar', -1)">&#10094;</button>
-            <button class="next" onclick="changeSlide('solar', 1)">&#10095;</button>
-        </div>
-        <div class="dots" id="dots-solar"></div>
-        <div class="resort-info">
-            <h3>Paraíso das Águas</h3>
-            <p>Resort com piscinas naturais, SPA termal e gastronomia sofisticada.</p>
-            <ul class="resort-features">
-                <li>Piscinas naturais aquecidas</li>
-                <li>SPA termal completo com tratamentos</li>
-                <li>Gastronomia premium variada</li>
-                <li>1.000 suítes modernas com varanda</li>
-            </ul>
-            <div class="resort-links">
-                <a href="https://www.tripadvisor.com.br/Hotel_Review-g2333146-d23619837-Reviews-Enjoy_Solar_das_Aguas_Park_Resort-Olimpia_State_of_Sao_Paulo.html" class="btn btn-link" target="_blank">📸 Ver 1.002 Fotos</a>
-                <a href="https://wa.me/5517992068296" class="btn">Mais Informações</a>
-            </div>
-        </div>
-    </div>
-
-    <!-- PRAIA JUQUEHY -->
-    <div class="resort-section">
-        <h2>🏖️ Praia de Juquehy</h2>
-        <div class="slider">
-            <div class="slides">
-                <div class="slide active"><img src="https://aff-media.s3.amazonaws.com/media/uploads/juquehy1.jpg" alt="Juquehy 1" onerror="this.src='https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=900'"></div>
-                <div class="slide"><img src="https://aff-media.s3.amazonaws.com/media/uploads/juquehy2.jpg" alt="Juquehy 2" onerror="this.src='https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=900'"></div>
-                <div class="slide"><img src="https://aff-media.s3.amazonaws.com/media/uploads/juquehy3.jpg" alt="Juquehy 3" onerror="this.src='https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=900'"></div>
-                <div class="slide"><img src="https://aff-media.s3.amazonaws.com/media/uploads/juquehy4.jpg" alt="Juquehy 4" onerror="this.src='https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=900'"></div>
-            </div>
-            <button class="prev" onclick="changeSlide('juquehy', -1)">&#10094;</button>
-            <button class="next" onclick="changeSlide('juquehy', 1)">&#10095;</button>
-        </div>
-        <div class="dots" id="dots-juquehy"></div>
-        <div class="resort-info">
-            <h3>Praia Paradisíaca</h3>
-            <p>Uma das praias mais bonitas do litoral norte com águas cristalinas.</p>
-            <ul class="resort-features">
-                <li>Águas cristalinas e mornas</li>
-                <li>Mata atlântica preservada</li>
-                <li>Restaurantes à beira-mar premium</li>
-                <li>Paisagem de tirar o fôlego</li>
-            </ul>
-            <div class="resort-links">
-                <a href="https://www.istockphoto.com/br/fotos/juquehy" class="btn btn-link" target="_blank">📸 Ver Fotos Premium</a>
-                <a href="https://wa.me/5517992068296" class="btn">Mais Informações</a>
-            </div>
-        </div>
-    </div>
-
-</div>
-
-<section class="contacts">
-    <h2>📞 Contate Nossos Especialistas</h2>
-    <div class="contact-container">
-        <div class="contact-card">
-            <h3>👤 Juliana João</h3>
-            <p>Especialista em Hospedagens Premium</p>
-            <p><strong>(17) 99206-8296</strong></p>
-            <a href="https://wa.me/5517992068296" class="btn" style="margin-top: 15px;">Enviar WhatsApp</a>
-        </div>
-        <div class="contact-card">
-            <h3>👤 Flávio João</h3>
-            <p>Especialista em Hospedagens Premium</p>
-            <p><strong>(17) 98200-6382</strong></p>
-            <a href="https://wa.me/5517982006382" class="btn" style="margin-top: 15px;">Enviar WhatsApp</a>
-        </div>
-    </div>
+  <a class="btn-whats" href="https://wa.me/5517982006382" target="_blank">
+    Solicitar Orçamento
+  </a>
 </section>
 
-<footer>
-    <p>&copy; 2026 HOSPEDAH - Resorts & Praias Premium</p>
-    <p>📱 Juliana: (17) 99206-8296 | Flávio: (17) 98200-6382</p>
-    <p><a href="https://www.instagram.com/julianasilvaoliveira.joao?igsh=bzZmNGIxdjdqc285" target="_blank" style="color: #d4af37;">Siga-nos no Instagram</a></p>
-    <p>🌟 Ofertas todos os dias | Garantia de melhor preço!</p>
-</footer>
+<!-- RESORT 2 -->
+<section class="resort">
+  <h2>Maldivas Luxury Resort</h2>
+  <p>Experiência exclusiva em águas cristalinas</p>
+
+  <div class="filtros">
+    <button onclick="filtrar('all', this)">Todos</button>
+    <button onclick="filtrar('quarto', this)">Quartos</button>
+    <button onclick="filtrar('piscina', this)">Piscinas</button>
+    <button onclick="filtrar('lazer', this)">Lazer</button>
+  </div>
+
+  <div class="galeria">
+    <img src="https://images.unsplash.com/photo-1501117716987-c8e1ecb210f9" data-cat="quarto" onclick="abrir(this)">
+    <img src="https://images.unsplash.com/photo-1551882547-ff40c63fe5fa" data-cat="piscina" onclick="abrir(this)">
+    <img src="https://images.unsplash.com/photo-1582719478250-c89cae4dc85b" data-cat="lazer" onclick="abrir(this)">
+  </div>
+
+  <a class="btn-whats" href="https://wa.me/5517982006382" target="_blank">
+    Solicitar Orçamento
+  </a>
+</section>
+
+<!-- LIGHTBOX -->
+<div class="lightbox" id="lightbox" onclick="fechar()">
+    <img id="img-lightbox">
+</div>
 
 <script>
-    const sliders = {
-        hot: { current: 0, total: 4 },
-        saopedro: { current: 0, total: 4 },
-        olimpia: { current: 0, total: 4 },
-        wyndham: { current: 0, total: 4 },
-        solar: { current: 0, total: 4 },
-        juquehy: { current: 0, total: 4 }
-    };
+function abrir(img){
+    document.getElementById("lightbox").style.display = "flex";
+    document.getElementById("img-lightbox").src = img.src;
+}
 
-    function initDots() {
-        Object.keys(sliders).forEach(key => {
-            const dotsContainer = document.getElementById(`dots-${key}`);
-            for (let i = 0; i < sliders[key].total; i++) {
-                const dot = document.createElement('span');
-                dot.className = `dot ${i === 0 ? 'active' : ''}`;
-                dot.onclick = () => goToSlide(key, i);
-                dotsContainer.appendChild(dot);
-            }
-        });
-    }
+function fechar(){
+    document.getElementById("lightbox").style.display = "none";
+}
 
-    function changeSlide(sliderId, n) {
-        goToSlide(sliderId, sliders[sliderId].current + n);
-    }
+function filtrar(cat, btn){
+    let section = btn.closest(".resort");
+    let imgs = section.querySelectorAll(".galeria img");
 
-    function goToSlide(sliderId, n) {
-        const slider = sliders[sliderId];
-        slider.current = (n + slider.total) % slider.total;
-        
-        const slides = document.querySelectorAll(`#dots-${sliderId}`).length;
-        const section = Array.from(document.querySelectorAll('.resort-section')).find(el => 
-            el.querySelector(`#dots-${sliderId}`)
-        );
-        
-        if (section) {
-            const slideElements = section.querySelectorAll('.slide');
-            slideElements.forEach((slide, index) => {
-                slide.classList.toggle('active', index === slider.current);
-            });
-            
-            const dots = section.querySelectorAll('.dot');
-            dots.forEach((dot, index) => {
-                dot.classList.toggle('active', index === slider.current);
-            });
-        }
-    }
-
-    function autoSlide() {
-        Object.keys(sliders).forEach(key => {
-            changeSlide(key, 1);
-        });
-    }
-
-    initDots();
-    setInterval(autoSlide, 5000);
+    imgs.forEach(img => {
+        img.style.display = (cat === "all" || img.dataset.cat === cat) ? "block" : "none";
+    });
+}
 </script>
 
 </body>
