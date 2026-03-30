@@ -1,35 +1,144 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Resorts</title>
+    <title>HOSPEDAH - Resorts Premium</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background: #f0f0f0; color: #333; }
+        header { background: #1a1a2e; color: #d4af37; padding: 20px; text-align: center; }
+        header h1 { font-size: 2.5em; }
+        nav { background: #16213e; padding: 10px; text-align: center; }
+        nav a { color: #d4af37; margin: 0 15px; text-decoration: none; font-size: 1.1em; }
+        .hero { background: #1a1a2e; color: white; padding: 40px; text-align: center; }
+        .hero h2 { color: #d4af37; font-size: 2em; }
+        .contacts { background: #fff; padding: 30px; margin: 20px; border-radius: 8px; }
+        .contact-item { margin: 15px 0; padding: 15px; background: #f9f9f9; border-left: 4px solid #d4af37; }
+        .btn { background: #25d366; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block; margin-top: 10px; }
+        .resorts { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; padding: 20px; }
+        .resort { background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        .resort img { width: 100%; height: 200px; object-fit: cover; }
+        .resort-content { padding: 20px; }
+        .resort-content h4 { color: #d4af37; margin-bottom: 10px; }
+        .resort-features { list-style: none; }
+        .resort-features li:before { content: "✓ "; color: #d4af37; font-weight: bold; margin-right: 5px; }
+        footer { background: #1a1a2e; color: #d4af37; text-align: center; padding: 20px; }
+    </style>
 </head>
 <body>
     <header>
-        <h1>Welcome to Our Resorts</h1>
-        <p>Discover the best vacation spots!</p>
+        <h1>🏛️ HOSPEDAH</h1>
+        <p>Resorts e Praias Premium</p>
     </header>
-    <main>
-        <section>
-            <h2>Our Featured Resorts</h2>
-            <ul>
-                <li>Resort 1: Paradise Beach Resort</li>
-                <li>Resort 2: Mountain View Resort</li>
-                <li>Resort 3: City Lights Hotel</li>
-                <li>Resort 4: Country Side Retreat</li>
-                <li>Resort 5: Ocean Breeze Resort</li>
-                <li>Resort 6: Desert Oasis Resort</li>
-            </ul>
-        </section>
-        <section>
-            <h2>Contact Us</h2>
-            <p>Follow us on Instagram: <a href="https://www.instagram.com/yourinstapage">Instagram</a></p>
-            <p>WhatsApp: <a href="https://wa.me/15555555555">Contact us</a></p>
-        </section>
-    </main>
+    <nav>
+        <a href="https://www.instagram.com/julianasilvaoliveira.joao?igsh=bzZmNGIxdjdqc285" target="_blank">📱 Instagram</a>
+        <a href="https://wa.me/5517999206829" target="_blank">💬 WhatsApp Juliana</a>
+        <a href="https://wa.me/5517982006382" target="_blank">💬 WhatsApp Flávio</a>
+    </nav>
+    <div class="hero">
+        <h2>🌟 Bem-vindo à HOSPEDAH</h2>
+        <p>Sua experiência de luxo começa aqui</p>
+    </div>
+    <div class="contacts">
+        <h3>📞 Contate Nossos Especialistas</h3>
+        <div class="contact-item">
+            <strong>👤 Juliana João</strong><br>
+            Especialista em Hospedagens Premium<br>
+            📱 (17) 99920-68296<br>
+            <a href="https://wa.me/5517999206829" class="btn">Enviar WhatsApp</a>
+        </div>
+        <div class="contact-item">
+            <strong>👤 Flávio João</strong><br>
+            Especialista em Hospedagens Premium<br>
+            📱 (17) 98200-6382<br>
+            <a href="https://wa.me/5517982006382" class="btn">Enviar WhatsApp</a>
+        </div>
+    </div>
+    <div class="resorts">
+        <div class="resort">
+            <img src="https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=400" alt="Hot Beach">
+            <div class="resort-content">
+                <h4>Hot Beach Suites</h4>
+                <p>Luxo em Olímpia</p>
+                <ul class="resort-features">
+                    <li>Suítes premium</li>
+                    <li>Piscina aquecida</li>
+                    <li>Restaurante 5 estrelas</li>
+                </ul>
+                <a href="https://wa.me/5517999206829" class="btn">Mais Info</a>
+            </div>
+        </div>
+        <div class="resort">
+            <img src="https://images.unsplash.com/photo-1596178065887-f50b2ebb75b7?w=400" alt="São Pedro">
+            <div class="resort-content">
+                <h4>São Pedro Thermas Resort</h4>
+                <p>Termalismo e Bem-Estar</p>
+                <ul class="resort-features">
+                    <li>Águas termais naturais</li>
+                    <li>SPA premium</li>
+                    <li>Piscinas terapêuticas</li>
+                </ul>
+                <a href="https://wa.me/5517999206829" class="btn">Mais Info</a>
+            </div>
+        </div>
+        <div class="resort">
+            <img src="https://images.unsplash.com/photo-1552321554-5fefe8c9ef14?w=400" alt="Olimpia">
+            <div class="resort-content">
+                <h4>Olimpia Park Resort</h4>
+                <p>Diversão para Toda Família</p>
+                <ul class="resort-features">
+                    <li>7 piscinas temáticas</li>
+                    <li>Parque aquático</li>
+                    <li>Shows noturnos</li>
+                </ul>
+                <a href="https://wa.me/5517999206829" class="btn">Mais Info</a>
+            </div>
+        </div>
+        <div class="resort">
+            <img src="https://images.unsplash.com/photo-1578683078519-e21cc028cb29?w=400" alt="Wyndham">
+            <div class="resort-content">
+                <h4>Wyndham Royal</h4>
+                <p>Elegância Internacional</p>
+                <ul class="resort-features">
+                    <li>Suítes presidenciais</li>
+                    <li>Concierge 24h</li>
+                    <li>SPA 5 estrelas</li>
+                </ul>
+                <a href="https://wa.me/5517999206829" class="btn">Mais Info</a>
+            </div>
+        </div>
+        <div class="resort">
+            <img src="https://images.unsplash.com/photo-1570085620325-dffb97e45f28?w=400" alt="Solar">
+            <div class="resort-content">
+                <h4>Solar das Águas</h4>
+                <p>Paraíso das Águas</p>
+                <ul class="resort-features">
+                    <li>Piscinas naturais</li>
+                    <li>SPA termal</li>
+                    <li>Gastronomia premium</li>
+                </ul>
+                <a href="https://wa.me/5517999206829" class="btn">Mais Info</a>
+            </div>
+        </div>
+        <div class="resort">
+            <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=400" alt="Praia">
+            <div class="resort-content">
+                <h4>Praia de Juquehy</h4>
+                <p>Praia Paradisíaca</p>
+                <ul class="resort-features">
+                    <li>Águas cristalinas</li>
+                    <li>Mata atlântica</li>
+                    <li>Restaurantes</li>
+                </ul>
+                <a href="https://wa.me/5517999206829" class="btn">Mais Info</a>
+            </div>
+        </div>
+    </div>
     <footer>
-        <p>&copy; 2026 Resorts. All rights reserved.</p>
+        <p>&copy; 2026 HOSPEDAH - Resorts & Praias Premium</p>
+        <p>📱 Juliana: (17) 99920-68296 | Flávio: (17) 98200-6382</p>
+        <p>Ofertas todos os dias!</p>
     </footer>
 </body>
 </html>
