@@ -1,59 +1,227 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Website</title>
-    <link rel="stylesheet" href="style.css">
+    <title>HOSPEDAH - Sua Agência de Viagens</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+            color: #333;
+        }
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px 20px;
+            text-align: center;
+        }
+        header h1 {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+        nav {
+            background: white;
+            padding: 20px 0;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        nav a {
+            margin: 0 20px;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        nav a:hover {
+            color: #764ba2;
+        }
+        section {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .resort-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .resort-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            transition: transform 0.3s;
+        }
+        .resort-card:hover {
+            transform: translateY(-10px);
+        }
+        .resort-card h3 {
+            margin: 10px 0;
+        }
+        .instagram-profile {
+            text-align: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        .instagram-profile h3 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+        .btn {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 12px 30px;
+            border-radius: 50px;
+            text-decoration: none;
+            margin: 10px;
+            transition: background 0.3s;
+        }
+        .btn:hover {
+            background: #764ba2;
+        }
+        .contact-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .contact-item {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .contact-item a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .whatsapp-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #25D366;
+            color: white;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            font-size: 30px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            z-index: 999;
+        }
+        .whatsapp-btn:hover {
+            background: #1FAE51;
+        }
+        footer {
+            background: #333;
+            color: white;
+            text-align: center;
+            padding: 30px 20px;
+            margin-top: 50px;
+        }
+        footer a {
+            color: #667eea;
+            text-decoration: none;
+        }
+    </style>
 </head>
 <body>
     <header>
-        <nav>
-            <ul>
-                <li><a href="#resorts">Resorts</a></li>
-                <li><a href="#about">About</a></li>
-                <li><a href="#contact">Contact</a></li>
-                <li><a href="#instagram">Instagram Premium</a></li>
-            </ul>
-        </nav>
+        <h1>🏨 HOSPEDAH</h1>
+        <p>Seus Resorts & Praias Premium</p>
     </header>
 
-    <main>
-        <section id="instagram">
-            <h2>Instagram Premium Section</h2>
-            <p>Follow us on Instagram for premium updates!</p>
-            <a href="https://www.instagram.com">Instagram</a>
-        </section>
+    <nav>
+        <a href="#instagram">📸 Instagram</a>
+        <a href="#resorts">🏨 Resorts</a>
+        <a href="#about">ℹ️ Sobre</a>
+        <a href="#contact">📞 Contato</a>
+    </nav>
 
-        <section id="resorts">
-            <h2>Resorts</h2>
-            <div class="card">
-                <h3>Resort 1</h3>
-                <p>Description of Resort 1.</p>
+    <section id="instagram">
+        <div class="instagram-profile">
+            <h2>📸 Siga-nos no Instagram</h2>
+            <h3>@julianasilvaoliveira.joao</h3>
+            <p>✈️ Viagens & Experiências Premium 🌴<br>Especialista em Resorts & Praias 🏖️</p>
+            <a href="https://www.instagram.com/julianasilvaoliveira.joao?igsh=bzZmNGIxdjdqc281" target="_blank" class="btn">📲 Seguir no Instagram</a>
+        </div>
+    </section>
+
+    <section id="resorts">
+        <h2>🏨 Nossos Resorts Premium</h2>
+        <div class="resort-cards">
+            <div class="resort-card">
+                <h3>🏨 Hot Beach Suites</h3>
+                <p>Resort 5 estrelas com piscinas e spa</p>
             </div>
-            <div class="card">
-                <h3>Resort 2</h3>
-                <p>Description of Resort 2.</p>
+            <div class="resort-card">
+                <h3>♨️ São Pedro Thermas</h3>
+                <p>Águas termais naturais e terapia</p>
             </div>
-            <div class="card">
-                <h3>Resort 3</h3>
-                <p>Description of Resort 3.</p>
+            <div class="resort-card">
+                <h3>🎢 Olimpia Park</h3>
+                <p>Maior parque aquático do Brasil</p>
             </div>
-        </section>
+            <div class="resort-card">
+                <h3>☀️ Solar das Águas</h3>
+                <p>Resort boutique para casais</p>
+            </div>
+            <div class="resort-card">
+                <h3>👑 Wyndham Royal</h3>
+                <p>Luxo e conforto inigualável</p>
+            </div>
+            <div class="resort-card">
+                <h3>🏖️ Juquehy</h3>
+                <p>Praia paradisíaca e exclusiva</p>
+            </div>
+        </div>
+    </section>
 
-        <section id="about">
-            <h2>About Us</h2>
-            <p>Information about the company.</p>
-        </section>
+    <section id="about">
+        <h2>ℹ️ Sobre a HOSPEDAH</h2>
+        <p>A <strong>HOSPEDAH</strong> é uma agência de viagens dedicada a oferecer as melhores experiências para os nossos clientes. Com mais de 15 anos de experiência, garantimos tarifas especiais, atendimento de excelência e uma equipe dedicada a fazer suas férias perfeitas.</p>
+        <p style="margin-top: 20px;"><strong>✅ Melhores tarifas garantidas</strong></p>
+        <p><strong>✅ Suporte 24/7</strong></p>
+        <p><strong>✅ Resorts premium selecionados</strong></p>
+        <p><strong>✅ Experiência de 15+ anos</strong></p>
+        <p><strong>✅ Pacotes personalizados</strong></p>
+    </section>
 
-        <section id="contact">
-            <h2>Contact Us</h2>
-            <p>Feel free to reach out!</p>
-        </section>
-    </main>
-
-    <footer>
-        <p>&copy; 2026 My Website. All Rights Reserved.</p>
-    </footer>
-</body>
-</html>
+    <section id="contact">
+        <h2>📞 Entre em Contato</h2>
+        <div class="contact-info">
+            <div class="contact-item">
+                <h4>📱 WhatsApp Flávio</h4>
+                <a href="https://wa.me/5517982006382" target="_blank">(17) 98200-6382</a>
+            </div>
+            <div class="contact-item">
+                <h4>📱 WhatsApp Juliana</h4>
+                <a href="https://wa.me/55179992068296" target="_blank">(17) 99206-8296</a>
+            </div>
+            <div class="contact-item">
+                <h4>📸 Instagram</h4>
+                <a href="https://www.*
+
