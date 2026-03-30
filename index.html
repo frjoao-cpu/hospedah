@@ -1,13 +1,151 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt-BR">
 <head>
-    <title>My Image Gallery</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HOSPEDAH - Resorts Premium</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Arial', sans-serif; background: linear-gradient(135deg, #1a1a2e, #16213e); color: #fff; }
+        
+        header { text-align: center; padding: 40px 20px; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); }
+        header h1 { font-size: 48px; color: #d4af37; margin-bottom: 10px; }
+        header p { color: #ddd; font-size: 18px; }
+        
+        nav { background: #0f3460; padding: 15px; text-align: center; }
+        nav a { color: #d4af37; margin: 0 15px; text-decoration: none; cursor: pointer; }
+        nav a:hover { text-decoration: underline; }
+        
+        .container { max-width: 1200px; margin: 0 auto; padding: 40px 20px; }
+        
+        .resort { background: #16213e; border: 2px solid #d4af37; border-radius: 10px; padding: 20px; margin: 20px 0; }
+        .resort h2 { color: #d4af37; margin-bottom: 15px; }
+        .resort p { color: #bbb; margin-bottom: 20px; }
+        
+        .gallery { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin: 20px 0; }
+        .gallery img { width: 100%; height: 200px; object-fit: cover; border-radius: 10px; cursor: pointer; transition: 0.3s; }
+        .gallery img:hover { transform: scale(1.05); box-shadow: 0 0 15px #d4af37; }
+        
+        .btn-whats { background: #25D366; color: #fff; padding: 12px 24px; border: none; border-radius: 25px; cursor: pointer; font-weight: bold; text-decoration: none; display: inline-block; transition: 0.3s; }
+        .btn-whats:hover { background: #1da851; transform: scale(1.05); }
+        
+        footer { background: #0f3460; text-align: center; padding: 30px 20px; border-top: 2px solid #d4af37; }
+        footer p { margin: 8px 0; }
+        footer a { color: #d4af37; text-decoration: none; }
+    </style>
 </head>
 <body>
-    <h1>Image Gallery</h1>
-    <img src="https://example.com/image1.jpg" alt="Image 1">
-    <img src="https://example.com/image2.jpg" alt="Image 2">
-    <img src="https://example.com/image3.jpg" alt="Image 3">
-    <!-- More images can be added here -->
+    <header>
+        <h1>🏛️ HOSPEDAH</h1>
+        <p>Resorts e Praias Premium</p>
+    </header>
+    
+    <nav>
+        <a href="#hotbeach">Hot Beach</a>
+        <a href="#saopedro">São Pedro</a>
+        <a href="#olimpia">Olimpia</a>
+        <a href="#solar">Solar</a>
+        <a href="#wyndham">Wyndham</a>
+        <a href="#juquehy">Juquehy</a>
+    </nav>
+    
+    <div class="container">
+        <!-- HOT BEACH -->
+        <div class="resort" id="hotbeach">
+            <h2>🏨 Hot Beach Suites</h2>
+            <p>Luxo em Olímpia - Suítes premium com piscina aquecida e acesso ao parque aquático</p>
+            <div class="gallery">
+                <img src="assets/img/hotbeach/hotbeach-1.jpg" alt="Hot Beach 1">
+                <img src="assets/img/hotbeach/hotbeach-2.jpg" alt="Hot Beach 2">
+                <img src="assets/img/hotbeach/hotbeach-3.jpg" alt="Hot Beach 3">
+                <img src="assets/img/hotbeach/hotbeach-4.jpg" alt="Hot Beach 4">
+            </div>
+            <a href="https://wa.me/5517992068296" class="btn-whats" target="_blank">📱 Solicitar Orçamento</a>
+        </div>
+        
+        <!-- SÃO PEDRO -->
+        <div class="resort" id="saopedro">
+            <h2>♨️ São Pedro Thermas Resort</h2>
+            <p>Termalismo e Bem-Estar - Águas termais naturais e SPA premium</p>
+            <div class="gallery">
+                <img src="assets/img/saopedro/saopedro-1.jpg" alt="São Pedro 1">
+                <img src="assets/img/saopedro/saopedro-2.jpg" alt="São Pedro 2">
+                <img src="assets/img/saopedro/saopedro-3.jpg" alt="São Pedro 3">
+                <img src="assets/img/saopedro/saopedro-4.jpg" alt="São Pedro 4">
+                <img src="assets/img/saopedro/saopedro-5.jpg" alt="São Pedro 5">
+                <img src="assets/img/saopedro/saopedro-6.jpg" alt="São Pedro 6">
+                <img src="assets/img/saopedro/saopedro-7.jpg" alt="São Pedro 7">
+                <img src="assets/img/saopedro/saopedro-8.jpg" alt="São Pedro 8">
+                <img src="assets/img/saopedro/saopedro-9.jpg" alt="São Pedro 9">
+            </div>
+            <a href="https://wa.me/5517992068296" class="btn-whats" target="_blank">📱 Solicitar Orçamento</a>
+        </div>
+        
+        <!-- OLIMPIA PARK -->
+        <div class="resort" id="olimpia">
+            <h2>🎢 Olimpia Park Resort</h2>
+            <p>Diversão para Toda Família - 6 piscinas temáticas e parque aquático</p>
+            <div class="gallery">
+                <img src="assets/img/olimpiapark/olimpia-1.jpg" alt="Olimpia 1">
+                <img src="assets/img/olimpiapark/olimpia-2.jpg" alt="Olimpia 2">
+                <img src="assets/img/olimpiapark/olimpia-3.jpg" alt="Olimpia 3">
+                <img src="assets/img/olimpiapark/olimpia-4.jpg" alt="Olimpia 4">
+                <img src="assets/img/olimpiapark/olimpia-5.jpg" alt="Olimpia 5">
+                <img src="assets/img/olimpiapark/olimpia-6.jpg" alt="Olimpia 6">
+            </div>
+            <a href="https://wa.me/5517992068296" class="btn-whats" target="_blank">📱 Solicitar Orçamento</a>
+        </div>
+        
+        <!-- SOLAR DAS ÁGUAS -->
+        <div class="resort" id="solar">
+            <h2>☀️ Solar das Águas</h2>
+            <p>Paraíso das Águas - Piscinas naturais e gastronomia premium</p>
+            <div class="gallery">
+                <img src="assets/img/solardasaguas/solar-1.jpg" alt="Solar 1">
+                <img src="assets/img/solardasaguas/solar-2.jpg" alt="Solar 2">
+                <img src="assets/img/solardasaguas/solar-3.jpg" alt="Solar 3">
+                <img src="assets/img/solardasaguas/solar-4.jpg" alt="Solar 4">
+                <img src="assets/img/solardasaguas/solar-5.jpg" alt="Solar 5">
+                <img src="assets/img/solardasaguas/solar-6.jpg" alt="Solar 6">
+                <img src="assets/img/solardasaguas/solar-7.jpg" alt="Solar 7">
+            </div>
+            <a href="https://wa.me/5517992068296" class="btn-whats" target="_blank">📱 Solicitar Orçamento</a>
+        </div>
+        
+        <!-- WYNDHAM ROYAL -->
+        <div class="resort" id="wyndham">
+            <h2>👑 Wyndham Royal</h2>
+            <p>Elegância Internacional - Suítes presidenciais e SPA 5 estrelas</p>
+            <div class="gallery">
+                <img src="assets/img/wyndham/wyndham-1.jpg" alt="Wyndham 1">
+                <img src="assets/img/wyndham/wyndham-2.jpg" alt="Wyndham 2">
+                <img src="assets/img/wyndham/wyndham-3.jpg" alt="Wyndham 3">
+                <img src="assets/img/wyndham/wyndham-4.jpg" alt="Wyndham 4">
+                <img src="assets/img/wyndham/wyndham-5.jpg" alt="Wyndham 5">
+                <img src="assets/img/wyndham/wyndham-6.jpg" alt="Wyndham 6">
+                <img src="assets/img/wyndham/wyndham-7.jpg" alt="Wyndham 7">
+            </div>
+            <a href="https://wa.me/5517992068296" class="btn-whats" target="_blank">📱 Solicitar Orçamento</a>
+        </div>
+        
+        <!-- JUQUEHY -->
+        <div class="resort" id="juquehy">
+            <h2>🏖️ Praia de Juquehy</h2>
+            <p>Praia Paradisíaca - Águas cristalinas no litoral norte</p>
+            <div class="gallery">
+                <img src="assets/img/juquehy/juquehy-1.jpg" alt="Juquehy 1">
+                <img src="assets/img/juquehy/juquehy-2.jpg" alt="Juquehy 2">
+                <img src="assets/img/juquehy/juquehy-3.jpg" alt="Juquehy 3">
+            </div>
+            <a href="https://wa.me/5517992068296" class="btn-whats" target="_blank">📱 Solicitar Orçamento</a>
+        </div>
+    </div>
+    
+    <footer>
+        <p>&copy; 2026 HOSPEDAH - Resorts & Praias Premium</p>
+        <p>📱 Juliana: (17) 99206-8296 | Flávio: (17) 98200-6382</p>
+        <p><a href="https://www.instagram.com/julianasilvaoliveira.joao" target="_blank">Siga-nos no Instagram</a></p>
+        <p>🌟 Ofertas todos os dias | Garantia de melhor preço!</p>
+    </footer>
 </body>
 </html>
