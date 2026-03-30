@@ -226,52 +226,43 @@
         /* BOTÕES FLUTUANTES */
         .btn-whatsapp, .btn-instagram {
             position: fixed;
-            right: 25px;
-            width: 65px;
-            height: 65px;
+            right: 20px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: white;
-            font-size: 28px;
             text-decoration: none;
-            box-shadow: 0 6px 25px rgba(0, 31, 63, 0.4);
             z-index: 999;
             transition: all 0.3s;
-            border: 2px solid rgba(255, 255, 255, 0.3);
         }
         .btn-whatsapp {
-            bottom: 25px;
+            bottom: 20px;
+            width: 60px;
+            height: 60px;
             background: linear-gradient(135deg, #25D366, #1FAE51);
+            color: white;
+            font-size: 28px;
+            box-shadow: 0 6px 25px rgba(37, 211, 102, 0.4);
         }
         .btn-whatsapp:hover {
             background: linear-gradient(135deg, #1FAE51, #128C42);
             transform: scale(1.15);
-            box-shadow: 0 10px 40px rgba(37, 211, 102, 0.4);
+            box-shadow: 0 10px 40px rgba(37, 211, 102, 0.5);
         }
-              .btn-instagram {
-            position: fixed;
+        .btn-instagram {
             bottom: 90px;
-            right: 20px;
             width: 60px;
             height: 60px;
-            border-radius: 50%;
             background: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
             box-shadow: 0 5px 20px rgba(0,0,0,0.3);
-            z-index: 999;
-            transition: 0.3s;
         }
-
         .btn-instagram img {
-            width: 30px;
+            width: 36px;
+            height: 36px;
         }
-
         .btn-instagram:hover {
             transform: scale(1.1);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.4);
         }
         /* FOOTER */
         footer {
@@ -313,12 +304,18 @@
                 font-size: 28px;
             }
             .btn-whatsapp, .btn-instagram {
-                width: 55px;
-                height: 55px;
+                width: 52px;
+                height: 52px;
+            }
+            .btn-whatsapp {
                 font-size: 22px;
             }
             .btn-instagram {
-                bottom: 95px;
+                bottom: 82px;
+            }
+            .btn-instagram img {
+                width: 30px;
+                height: 30px;
             }
         }
         @media(max-width: 600px) {
@@ -436,10 +433,8 @@
                 <a href="https://wa.me/5517982006382" target="_blank">(17) 98200-6382</a>
             </div>
             <div class="contact-item">
-                     <a href="https://www.instagram.com/julianasilvaoliveira.joao?igsh=bzZmNGIxdjdqc281" class="btn-instagram" target="_blank" title="Instagram">
-         <img src="assets/icons/instagram.png" alt="Instagram">
-     </a>
-                <a href="https://wa.me/55179992068296" target="_blank">(17) 99206-8296</a>
+                <h4>📱 WhatsApp Juliana</h4>
+                <a href="https://wa.me/5517992068296" target="_blank">(17) 99206-8296</a>
             </div>
             <div class="contact-item">
                 <h4>📸 Instagram</h4>
@@ -453,7 +448,9 @@
     </section>
 
     <!-- Botões Flutuantes -->
-    <a href="https://www.instagram.com/julianasilvaoliveira.joao?igsh=bzZmNGIxdjdqc281" class="btn-instagram" target="_blank" title="Instagram">📸</a>
+    <a href="https://www.instagram.com/julianasilvaoliveira.joao?igsh=bzZmNGIxdjdqc281" class="btn-instagram" target="_blank" title="Instagram">
+        <img src="assets/icons/instagram.png" alt="Instagram">
+    </a>
     <a href="https://wa.me/5517982006382" class="btn-whatsapp" target="_blank" title="WhatsApp">💬</a>
 
     <!-- Footer -->
