@@ -15,14 +15,19 @@
         .hero h2 { color: #d4af37; font-size: 2em; }
         .contacts { background: #fff; padding: 30px; margin: 20px; border-radius: 8px; }
         .contact-item { margin: 15px 0; padding: 15px; background: #f9f9f9; border-left: 4px solid #d4af37; }
-        .btn { background: #25d366; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block; margin-top: 10px; }
+        .btn { background: #25d366; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block; margin-top: 10px; font-weight: bold; }
+        .btn:hover { background: #1da851; }
         .resorts { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; padding: 20px; }
         .resort { background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
-        .resort img { width: 100%; height: 200px; object-fit: cover; }
+        .resort img { width: 100%; height: 250px; object-fit: cover; }
         .resort-content { padding: 20px; }
-        .resort-content h4 { color: #d4af37; margin-bottom: 10px; }
-        .resort-features { list-style: none; }
+        .resort-content h4 { color: #d4af37; margin-bottom: 10px; font-size: 1.3em; }
+        .resort-content p { color: #666; line-height: 1.6; margin-bottom: 10px; }
+        .resort-features { list-style: none; margin: 15px 0; }
+        .resort-features li { color: #555; padding: 5px 0; }
         .resort-features li:before { content: "✓ "; color: #d4af37; font-weight: bold; margin-right: 5px; }
+        .resort-link { display: block; margin-top: 10px; font-size: 0.9em; color: #0066cc; text-decoration: none; }
+        .resort-link:hover { text-decoration: underline; }
         footer { background: #1a1a2e; color: #d4af37; text-align: center; padding: 20px; }
     </style>
 </head>
@@ -45,7 +50,7 @@
         <div class="contact-item">
             <strong>👤 Juliana João</strong><br>
             Especialista em Hospedagens Premium<br>
-            📱 (17) 99920-68296<br>
+            📱 (17) 99206-8296<br>
             <a href="https://wa.me/5517999206829" class="btn">Enviar WhatsApp</a>
         </div>
         <div class="contact-item">
@@ -57,88 +62,94 @@
     </div>
     <div class="resorts">
         <div class="resort">
-            <img src="https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=400" alt="Hot Beach">
+            <img src="https://media.tacdn.com/media/attractions-splice-spp/0b/39/5c/54.jpg" alt="Hot Beach Suites">
             <div class="resort-content">
-                <h4>Hot Beach Suites</h4>
-                <p>Luxo em Olímpia</p>
+                <h4>🏨 Hot Beach Suites</h4>
+                <p><strong>Luxo em Olímpia</strong></p>
                 <ul class="resort-features">
                     <li>Suítes premium</li>
                     <li>Piscina aquecida</li>
                     <li>Restaurante 5 estrelas</li>
                 </ul>
-                <a href="https://wa.me/5517999206829" class="btn">Mais Info</a>
+                <a href="https://www.tripadvisor.com/Hotel_Review-g2333146-d23676574-Reviews-Hot_Beach_Suites-Olimpia_State_of_Sao_Paulo.html" class="resort-link" target="_blank">📸 Ver fotos no Tripadvisor →</a>
+                <a href="https://wa.me/5517999206829" class="btn">Mais Informações</a>
             </div>
         </div>
         <div class="resort">
-            <img src="https://images.unsplash.com/photo-1596178065887-f50b2ebb75b7?w=400" alt="São Pedro">
+            <img src="https://media.tacdn.com/media/attractions-splice-spp/0b/39/5c/54.jpg" alt="São Pedro Thermas">
             <div class="resort-content">
-                <h4>São Pedro Thermas Resort</h4>
-                <p>Termalismo e Bem-Estar</p>
+                <h4>♨️ São Pedro Thermas Resort</h4>
+                <p><strong>Termalismo e Bem-Estar</strong></p>
                 <ul class="resort-features">
                     <li>Águas termais naturais</li>
                     <li>SPA premium</li>
                     <li>Piscinas terapêuticas</li>
                 </ul>
-                <a href="https://wa.me/5517999206829" class="btn">Mais Info</a>
+                <a href="https://www.tripadvisor.com.br/Hotel_Review-g1651034-d25354514-Reviews-or35-Sao_Pedro_Thermas_Resort-Aguas_de_Sao_Pedro_State_of_Sao_Paulo.html" class="resort-link" target="_blank">📸 Ver 349 fotos no Tripadvisor →</a>
+                <a href="https://wa.me/5517999206829" class="btn">Mais Informações</a>
             </div>
         </div>
         <div class="resort">
-            <img src="https://images.unsplash.com/photo-1552321554-5fefe8c9ef14?w=400" alt="Olimpia">
+            <img src="https://media.tacdn.com/media/attractions-splice-spp/10/db/5c/f0.jpg" alt="Olimpia Park">
             <div class="resort-content">
-                <h4>Olimpia Park Resort</h4>
-                <p>Diversão para Toda Família</p>
+                <h4>🎢 Olimpia Park Resort</h4>
+                <p><strong>Diversão para Toda Família</strong></p>
                 <ul class="resort-features">
                     <li>7 piscinas temáticas</li>
                     <li>Parque aquático</li>
                     <li>Shows noturnos</li>
                 </ul>
-                <a href="https://wa.me/5517999206829" class="btn">Mais Info</a>
+                <a href="https://www.tripadvisor.com.br/Hotel_Review-g2333146-d14759961-Reviews-or30-Enjoy_Olimpia_Park_Resort-Olimpia_State_of_Sao_Paulo.html" class="resort-link" target="_blank">📸 Ver 1.492 fotos no Tripadvisor →</a>
+                <a href="https://wa.me/551799206829" class="btn">Mais Informações</a>
             </div>
         </div>
         <div class="resort">
-            <img src="https://images.unsplash.com/photo-1578683078519-e21cc028cb29?w=400" alt="Wyndham">
+            <img src="https://media.tacdn.com/media/attractions-splice-spp/0d/74/5e/4f.jpg" alt="Wyndham Royal">
             <div class="resort-content">
-                <h4>Wyndham Royal</h4>
-                <p>Elegância Internacional</p>
+                <h4>👑 Wyndham Royal</h4>
+                <p><strong>Elegância Internacional</strong></p>
                 <ul class="resort-features">
                     <li>Suítes presidenciais</li>
                     <li>Concierge 24h</li>
                     <li>SPA 5 estrelas</li>
                 </ul>
-                <a href="https://wa.me/5517999206829" class="btn">Mais Info</a>
+                <a href="https://www.tripadvisor.com.br/Hotel_Review-g2333146-d7121836-Reviews-or4420-Wyndham_Olimpia_Royal_Hotels-Olimpia_State_of_Sao_Paulo.html" class="resort-link" target="_blank">📸 Ver 1.896 fotos no Tripadvisor →</a>
+                <a href="https://wa.me/5517999206829" class="btn">Mais Informações</a>
             </div>
         </div>
         <div class="resort">
-            <img src="https://images.unsplash.com/photo-1570085620325-dffb97e45f28?w=400" alt="Solar">
+            <img src="https://media.tacdn.com/media/attractions-splice-spp/11/84/5e/cb.jpg" alt="Solar das Águas">
             <div class="resort-content">
-                <h4>Solar das Águas</h4>
-                <p>Paraíso das Águas</p>
+                <h4>☀️ Solar das Águas</h4>
+                <p><strong>Paraíso das Águas</strong></p>
                 <ul class="resort-features">
                     <li>Piscinas naturais</li>
                     <li>SPA termal</li>
                     <li>Gastronomia premium</li>
                 </ul>
-                <a href="https://wa.me/5517999206829" class="btn">Mais Info</a>
+                <a href="https://www.tripadvisor.com.br/Hotel_Review-g2333146-d23619837-Reviews-Enjoy_Solar_das_Aguas_Park_Resort-Olimpia_State_of_Sao_Paulo.html" class="resort-link" target="_blank">📸 Ver 1.002 fotos no Tripadvisor →</a>
+                <a href="https://wa.me/5517999206829" class="btn">Mais Informações</a>
             </div>
         </div>
         <div class="resort">
-            <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=400" alt="Praia">
+            <img src="https://media.tacdn.com/media/attractions-splice-spp/05/1a/5e/42.jpg" alt="Praia Juquehy">
             <div class="resort-content">
-                <h4>Praia de Juquehy</h4>
-                <p>Praia Paradisíaca</p>
+                <h4>🏖️ Praia de Juquehy</h4>
+                <p><strong>Praia Paradisíaca</strong></p>
                 <ul class="resort-features">
                     <li>Águas cristalinas</li>
                     <li>Mata atlântica</li>
                     <li>Restaurantes</li>
                 </ul>
-                <a href="https://wa.me/5517999206829" class="btn">Mais Info</a>
+                <a href="https://www.istockphoto.com/br/fotos/juquehy" class="resort-link" target="_blank">📸 Ver fotos premium no iStock →</a>
+                <a href="https://wa.me/5517999206829" class="btn">Mais Informações</a>
             </div>
         </div>
     </div>
     <footer>
         <p>&copy; 2026 HOSPEDAH - Resorts & Praias Premium</p>
-        <p>📱 Juliana: (17) 99920-68296 | Flávio: (17) 98200-6382</p>
-        <p>Ofertas todos os dias!</p>
+        <p>📱 Juliana: (17) 99206-8296 | Flávio: (17) 98200-6382</p>
+        <p><a href="https://www.instagram.com/julianasilvaoliveira.joao?igsh=bzZmNGIxdjdqc285" target="_blank">Siga-nos no Instagram</a></p>
     </footer>
 </body>
 </html>
