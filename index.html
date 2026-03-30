@@ -1,190 +1,65 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>HOSPEDAH | Hospedagens Premium</title>
-
-<style>
-body {
-    margin: 0;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto;
-    background: #f5f5f7;
-    color: #1d1d1f;
-}
-
-/* HEADER */
-header {
-    text-align: center;
-    padding: 50px 20px;
-}
-
-header h1 {
-    font-size: 36px;
-}
-
-header p {
-    color: #6e6e73;
-}
-
-/* RESORT */
-.resort {
-    padding: 40px 20px;
-}
-
-.resort h2 {
-    margin-bottom: 5px;
-}
-
-/* FILTRO */
-.filtros {
-    margin: 15px 0;
-}
-
-.filtros button {
-    margin: 5px;
-    padding: 8px 14px;
-    border-radius: 20px;
-    border: 1px solid #ddd;
-    cursor: pointer;
-    background: white;
-}
-
-.filtros button:hover {
-    background: black;
-    color: white;
-}
-
-/* GALERIA */
-.galeria {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 12px;
-}
-
-.galeria img {
-    width: 100%;
-    height: 220px;
-    object-fit: cover;
-    border-radius: 12px;
-    cursor: pointer;
-    transition: 0.3s;
-}
-
-.galeria img:hover {
-    transform: scale(1.05);
-}
-
-/* WHATS */
-.btn-whats {
-    display: inline-block;
-    margin-top: 15px;
-    background: #25D366;
-    color: white;
-    padding: 10px 18px;
-    border-radius: 25px;
-    text-decoration: none;
-}
-
-/* LIGHTBOX */
-.lightbox {
-    position: fixed;
-    top:0;
-    left:0;
-    width:100%;
-    height:100%;
-    background:black;
-    display:none;
-    align-items:center;
-    justify-content:center;
-}
-
-.lightbox img {
-    max-width:90%;
-    border-radius:10px;
-}
-
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resorts Gallery</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
-
 <body>
-
-<header>
-    <h1>HOSPEDAH</h1>
-    <p>Hospedagens premium ao redor do mundo</p>
-</header>
-
-<!-- RESORT 1 -->
-<section class="resort">
-  <h2>Resort Paradise Beach</h2>
-  <p>Luxo, conforto e experiência à beira-mar</p>
-
-  <div class="filtros">
-    <button onclick="filtrar('all', this)">Todos</button>
-    <button onclick="filtrar('quarto', this)">Quartos</button>
-    <button onclick="filtrar('piscina', this)">Piscinas</button>
-    <button onclick="filtrar('lazer', this)">Lazer</button>
-  </div>
-
-  <div class="galeria">
-    <img src="https://images.unsplash.com/photo-1566073771259-6a8506099945" data-cat="quarto" onclick="abrir(this)">
-    <img src="https://images.unsplash.com/photo-1571896349842-33c89424de2d" data-cat="piscina" onclick="abrir(this)">
-    <img src="https://images.unsplash.com/photo-1542314831-068cd1dbfeeb" data-cat="lazer" onclick="abrir(this)">
-  </div>
-
-  <a class="btn-whats" href="https://wa.me/5517982006382" target="_blank">
-    Solicitar Orçamento
-  </a>
-</section>
-
-<!-- RESORT 2 -->
-<section class="resort">
-  <h2>Maldivas Luxury Resort</h2>
-  <p>Experiência exclusiva em águas cristalinas</p>
-
-  <div class="filtros">
-    <button onclick="filtrar('all', this)">Todos</button>
-    <button onclick="filtrar('quarto', this)">Quartos</button>
-    <button onclick="filtrar('piscina', this)">Piscinas</button>
-    <button onclick="filtrar('lazer', this)">Lazer</button>
-  </div>
-
-  <div class="galeria">
-    <img src="https://images.unsplash.com/photo-1501117716987-c8e1ecb210f9" data-cat="quarto" onclick="abrir(this)">
-    <img src="https://images.unsplash.com/photo-1551882547-ff40c63fe5fa" data-cat="piscina" onclick="abrir(this)">
-    <img src="https://images.unsplash.com/photo-1582719478250-c89cae4dc85b" data-cat="lazer" onclick="abrir(this)">
-  </div>
-
-  <a class="btn-whats" href="https://wa.me/5517982006382" target="_blank">
-    Solicitar Orçamento
-  </a>
-</section>
-
-<!-- LIGHTBOX -->
-<div class="lightbox" id="lightbox" onclick="fechar()">
-    <img id="img-lightbox">
-</div>
-
-<script>
-function abrir(img){
-    document.getElementById("lightbox").style.display = "flex";
-    document.getElementById("img-lightbox").src = img.src;
-}
-
-function fechar(){
-    document.getElementById("lightbox").style.display = "none";
-}
-
-function filtrar(cat, btn){
-    let section = btn.closest(".resort");
-    let imgs = section.querySelectorAll(".galeria img");
-
-    imgs.forEach(img => {
-        img.style.display = (cat === "all" || img.dataset.cat === cat) ? "block" : "none";
-    });
-}
-</script>
-
+    <header>
+        <h1>Our Resorts</h1>
+        <p>Contact Juliana: (17) 99206-8296</p>
+    </header>
+    <main>
+        <section class="gallery">
+            <div class="resort" id="resort1">
+                <img src="resort1.jpg" alt="Resort 1">
+                <div class="overlay">
+                    <h2>Resort 1</h2>
+                    <p>Description of Resort 1.</p>
+                </div>
+            </div>
+            <div class="resort" id="resort2">
+                <img src="resort2.jpg" alt="Resort 2">
+                <div class="overlay">
+                    <h2>Resort 2</h2>
+                    <p>Description of Resort 2.</p>
+                </div>
+            </div>
+            <div class="resort" id="resort3">
+                <img src="resort3.jpg" alt="Resort 3">
+                <div class="overlay">
+                    <h2>Resort 3</h2>
+                    <p>Description of Resort 3.</p>
+                </div>
+            </div>
+            <div class="resort" id="resort4">
+                <img src="resort4.jpg" alt="Resort 4">
+                <div class="overlay">
+                    <h2>Resort 4</h2>
+                    <p>Description of Resort 4.</p>
+                </div>
+            </div>
+            <div class="resort" id="resort5">
+                <img src="resort5.jpg" alt="Resort 5">
+                <div class="overlay">
+                    <h2>Resort 5</h2>
+                    <p>Description of Resort 5.</p>
+                </div>
+            </div>
+            <div class="resort" id="resort6">
+                <img src="resort6.jpg" alt="Resort 6">
+                <div class="overlay">
+                    <h2>Resort 6</h2>
+                    <p>Description of Resort 6.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+    <footer>
+        <p>&copy; 2026 Our Resorts. All rights reserved.</p>
+    </footer>
+    <script src="lightbox.js"></script>
 </body>
 </html>
