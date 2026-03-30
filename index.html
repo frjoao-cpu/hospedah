@@ -1,134 +1,177 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HOSPEDAH - Resorts Premium</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css" />
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js"></script>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Arial', sans-serif; background: linear-gradient(135deg, #1a1a2e, #16213e); color: #fff; }
-        header { text-align: center; padding: 40px 20px; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); }
-        header h1 { font-size: 48px; color: #d4af37; margin-bottom: 10px; }
-        header p { color: #ddd; font-size: 18px; }
-        nav { background: #0f3460; padding: 15px; text-align: center; display: flex; justify-content: center; flex-wrap: wrap; gap: 10px; }
-        nav a { color: #d4af37; text-decoration: none; cursor: pointer; padding: 8px 15px; border: 1px solid #d4af37; border-radius: 5px; transition: 0.3s; }
-        nav a:hover { background: #d4af37; color: #0f3460; }
-        .container { max-width: 1200px; margin: 0 auto; padding: 40px 20px; display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; }
-        .resort { background: #16213e; border: 2px solid #d4af37; border-radius: 10px; overflow: hidden; box-shadow: 0 8px 16px rgba(0,0,0,0.3); transition: 0.3s; }
-        .resort:hover { transform: translateY(-10px); box-shadow: 0 12px 24px rgba(212,175,55,0.3); }
-        .resort h2 { color: #d4af37; padding: 20px; text-align: center; border-bottom: 2px solid #d4af37; }
-        .gallery { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; padding: 20px; }
-        .gallery a { overflow: hidden; border-radius: 8px; }
-        .gallery img { width: 100%; height: 150px; object-fit: cover; border-radius: 10px; transition: 0.3s; cursor: pointer; }
-        .gallery img:hover { transform: scale(1.05); }
-        .btn-whats { background: #25D366; color: #fff; padding: 12px 24px; border: none; border-radius: 25px; cursor: pointer; font-weight: bold; text-decoration: none; display: block; margin: 20px auto; transition: 0.3s; width: 90%; }
-        .btn-whats:hover { background: #1da851; transform: scale(1.05); }
-        footer { background: #0f3460; text-align: center; padding: 30px 20px; border-top: 2px solid #d4af37; }
-        footer p { margin: 8px 0; }
-        footer a { color: #d4af37; text-decoration: none; }
-        @media (max-width: 768px) {
-            header h1 { font-size: 36px; }
-            .container { grid-template-columns: 1fr; }
-            nav { flex-direction: column; }
-            nav a { width: 100%; }
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HOSPEDAH - Galeria Premium</title>
+
+<style>
+body {
+    font-family: -apple-system, BlinkMacSystemFont;
+    background: #f5f5f7;
+    margin: 0;
+}
+
+h1 {
+    text-align: center;
+    padding: 20px;
+}
+
+h2 {
+    margin: 30px 20px 10px;
+}
+
+.gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 12px;
+    padding: 0 20px;
+}
+
+.gallery img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.gallery img:hover {
+    transform: scale(1.05);
+}
+
+#lightbox {
+    position: fixed;
+    top:0; left:0;
+    width:100%; height:100%;
+    background: rgba(0,0,0,0.95);
+    display:none;
+    align-items:center;
+    justify-content:center;
+    z-index:9999;
+}
+
+#lightbox img {
+    max-width:90%;
+    border-radius:10px;
+}
+
+.close {
+    position:absolute;
+    top:30px;
+    right:40px;
+    color:white;
+    font-size:30px;
+    cursor:pointer;
+}
+
+.whatsapp {
+    position: fixed;
+    bottom:20px;
+    right:20px;
+    background:#25D366;
+    color:white;
+    padding:15px 20px;
+    border-radius:30px;
+    text-decoration:none;
+    font-weight:bold;
+    box-shadow:0 4px 15px rgba(0,0,0,0.3);
+}
+</style>
 </head>
+
 <body>
-    <header>
-        <h1>🏛️ HOSPEDAH</h1>
-        <p>Resorts e Praias Premium</p>
-    </header>
-    <nav>
-        <a href="#hotbeach">🏖️ Hot Beach</a>
-        <a href="#saopedro">♨️ São Pedro</a>
-        <a href="#olimpia">🎢 Olimpia</a>
-        <a href="#solar">☀️ Solar</a>
-        <a href="#wyndham">👑 Wyndham</a>
-        <a href="#juquehy">🌊 Juquehy</a>
-    </nav>
-    <div class="container">
-        <div class="resort" id="hotbeach">
-            <h2>🏖️ Hot Beach Suites</h2>
-            <div class="gallery">
-                <a data-fancybox="hotbeach" href="https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80"><img src="https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=200&q=80"></a>
-                <a data-fancybox="hotbeach" href="https://images.unsplash.com/photo-1582719508461-905c673771fd?auto=format&fit=crop&w=800&q=80"><img src="https://images.unsplash.com/photo-1582719508461-905c673771fd?auto=format&fit=crop&w=200&q=80"></a>
-                <a data-fancybox="hotbeach" href="https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?auto=format&fit=crop&w=800&q=80"><img src="https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?auto=format&fit=crop&w=200&q=80"></a>
-                <a data-fancybox="hotbeach" href="https://images.unsplash.com/photo-1576675784201-0e142b423952?auto=format&fit=crop&w=800&q=80"><img src="https://images.unsplash.com/photo-1576675784201-0e142b423952?auto=format&fit=crop&w=200&q=80"></a>
-            </div>
-            <a href="https://wa.me/5517992068296" class="btn-whats" target="_blank">📱 Contato Juliana</a>
-        </div>
-        <div class="resort" id="saopedro">
-            <h2>♨️ São Pedro Thermas</h2>
-            <div class="gallery">
-                <a data-fancybox="saopedro" href="https://images.unsplash.com/photo-1584132967334-10e028bd69f7?auto=format&fit=crop&w=800&q=80"><img src="https://images.unsplash.com/photo-1584132967334-10e028bd69f7?auto=format&fit=crop&w=200&q=80"></a>
-                <a data-fancybox="saopedro" href="https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=800&q=80"><img src="https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=200&q=80"></a>
-                <a data-fancybox="saopedro" href="https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=800&q=80"><img src="https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=200&q=80"></a>
-                <a data-fancybox="saopedro" href="https://images.unsplash.com/photo-1559599101-f09722fb4948?auto=format&fit=crop&w=800&q=80"><img src="https://images.unsplash.com/photo-1559599101-f09722fb4948?auto=format&fit=crop&w=200&q=80"></a>
-                <a data-fancybox="saopedro" href="https://images.unsplash.com/photo-1578683010236-d716f9a3f461?auto=format&fit=crop&w=800&q=80"><img src="https://images.unsplash.com/photo-1578683010236-d716f9a3f461?auto=format&fit=crop&w=200&q=80"></a>
-                <a data-fancybox="saopedro" href="https://images.unsplash.com/photo-1596436889106-be35e843f974?auto=format&fit=crop&w=800&q=80"><img src="https://images.unsplash.com/photo-1596436889106-be35e843f974?auto=format&fit=crop&w=200&q=80"></a>
-                <a data-fancybox="saopedro" href="https://images.unsplash.com/photo-1582268611958-ebfd161ef9cf?auto=format&fit=crop&w=800&q=80"><img src="https://images.unsplash.com/photo-1582268611958-ebfd161ef9cf?auto=format&fit=crop&w=200&q=80"></a>
-                <a data-fancybox="saopedro" href="https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&w=800&q=80"><img src="https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&w=200&q=80"></a>
-                <a data-fancybox="saopedro" href="https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?auto=format&fit=crop&w=800&q=80"><img src="https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?auto=format&fit=crop&w=200&q=80"></a>
-            </div>
-            <a href="https://wa.me/5517992068296" class="btn-whats" target="_blank">📱 Contato Juliana</a>
-        </div>
-        <div class="resort" id="olimpia">
-            <h2>🎢 Olimpia Park Resort</h2>
-            <div class="gallery">
-                <a data-fancybox="olimpia" href="https://images.unsplash.com/photo-1562790351-d273a961e0e9?auto=format&fit=crop&w=800&q=80"><img src="https://images.unsplash.com/photo-1562790351-d273a961e0e9?auto=format&fit=crop&w=200&q=80"></a>
-                <a data-fancybox="olimpia" href="https://images.unsplash.com/photo-1501117716987-c8e1ecb2102b?auto=format&fit=crop&w=800&q=80"><img src="https://images.unsplash.com/photo-1501117716987-c8e1ecb2102b?auto=format&fit=crop&w=200&q=80"></a>
-                <a data-fancybox="olimpia" href="https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=800&q=80"><img src="https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=200&q=80"></a>
-                <a data-fancybox="olimpia" href="https://images.unsplash.com/photo-1584132915807-fd1f5fbc078f?auto=format&fit=crop&w=800&q=80"><img src="https://images.unsplash.com/photo-1584132915807-fd1f5fbc078f?auto=format&fit=crop&w=200&q=80"></a>
-                <a data-fancybox="olimpia" href="https://images.unsplash.com/photo-1566665797739-1674de7a421a?auto=format&fit=crop&w=800&q=80"><img src="https://images.unsplash.com/photo-1566665797739-1674de7a421a?auto=format&fit=crop&w=200&q=80"></a>
-                <a data-fancybox="olimpia" href="https://images.unsplash.com/photo-1551918120-9739cb430c6d?auto=format&fit=crop&w=800&q=80"><img src="https://images.unsplash.com/photo-1551918120-9739cb430c6d?auto=format&fit=crop&w=200&q=80"></a>
-            </div>
-            <a href="https://wa.me/5517992068296" class="btn-whats" target="_blank">📱 Contato Juliana</a>
-        </div>
-        <div class="resort" id="solar">
-            <h2>☀️ Solar das Águas</h2>
-            <div class="gallery">
-                <a data-fancybox="solar" href="https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?auto=format&fit=crop&w=800&q=80"><img src="https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?auto=format&fit=crop&w=200&q=80"></a>
-                <a data-fancybox="solar" href="https://images.unsplash.com/photo-1560448204-603b3fc33ddc?auto=format&fit=crop&w=800&q=80"><img src="https://images.unsplash.com/photo-1560448204-603b3fc33ddc?auto=format&fit=crop&w=200&q=80"></a>
-                <a data-fancybox="solar" href="https://images.unsplash.com/photo-1560448075-bb485b067938?auto=format&fit=crop&w=800&q=80"><img src="https://images.unsplash.com/photo-1560448075-bb485b067938?auto=format&fit=crop&w=200&q=80"></a>
-                <a data-fancybox="solar" href="https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=800&q=80"><img src="https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=200&q=80"></a>
-                <a data-fancybox="solar" href="https://images.unsplash.com/photo-1584132967334-10e028bd69f7?auto=format&fit=crop&w=800&q=80"><img src="https://images.unsplash.com/photo-1584132967334-10e028bd69f7?auto=format&fit=crop&w=200&q=80"></a>
-                <a data-fancybox="solar" href="https://images.unsplash.com/photo-1571896349842-33c89424de2d?auto=format&fit=crop&w=800&q=80"><img src="https://images.unsplash.com/photo-1571896349842-33c89424de2d?auto=format&fit=crop&w=200&q=80"></a>
-                <a data-fancybox="solar" href="https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80"><img src="https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=200&q=80"></a>
-            </div>
-            <a href="https://wa.me/5517992068296" class="btn-whats" target="_blank">📱 Contato Juliana</a>
-        </div>
-        <div class="resort" id="wyndham">
-            <h2>👑 Wyndham Royal</h2>
-            <div class="gallery">
-                <a data-fancybox="wyndham" href="https://images.unsplash.com/photo-1578683010236-d716f9a3f461?auto=format&fit=crop&w=800&q=80"><img src="https://images.unsplash.com/photo-1578683010236-d716f9a3f461?auto=format&fit=crop&w=200&q=80"></a>
-                <a data-fancybox="wyndham" href="https://images.unsplash.com/photo-1582719478181-7e3d7bca5c77?auto=format&fit=crop&w=800&q=80"><img src="https://images.unsplash.com/photo-1582719478181-7e3d7bca5c77?auto=format&fit=crop&w=200&q=80"></a>
-                <a data-fancybox="wyndham" href="https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=800&q=80"><img src="https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=200&q=80"></a>
-                <a data-fancybox="wyndham" href="https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80"><img src="https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=200&q=80"></a>
-                <a data-fancybox="wyndham" href="https://images.unsplash.com/photo-1584132967334-10e028bd69f7?auto=format&fit=crop&w=800&q=80"><img src="https://images.unsplash.com/photo-1584132967334-10e028bd69f7?auto=format&fit=crop&w=200&q=80"></a>
-                <a data-fancybox="wyndham" href="https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=800&q=80"><img src="https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=200&q=80"></a>
-                <a data-fancybox="wyndham" href="https://images.unsplash.com/photo-1559599101-f09722fb4948?auto=format&fit=crop&w=800&q=80"><img src="https://images.unsplash.com/photo-1559599101-f09722fb4948?auto=format&fit=crop&w=200&q=80"></a>
-            </div>
-            <a href="https://wa.me/5517992068296" class="btn-whats" target="_blank">📱 Contato Juliana</a>
-        </div>
-        <div class="resort" id="juquehy">
-            <h2>🌊 Praia de Juquehy</h2>
-            <div class="gallery">
-                <a data-fancybox="juquehy" href="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80"><img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=200&q=80"></a>
-                <a data-fancybox="juquehy" href="https://images.unsplash.com/photo-1500375592092-40eb2168fd21?auto=format&fit=crop&w=800&q=80"><img src="https://images.unsplash.com/photo-1500375592092-40eb2168fd21?auto=format&fit=crop&w=200&q=80"></a>
-                <a data-fancybox="juquehy" href="https://images.unsplash.com/photo-1473116763249-2faaef81ccda?auto=format&fit=crop&w=800&q=80"><img src="https://images.unsplash.com/photo-1473116763249-2faaef81ccda?auto=format&fit=crop&w=200&q=80"></a>
-            </div>
-            <a href="https://wa.me/5517992068296" class="btn-whats" target="_blank">📱 Contato Juliana</a>
-        </div>
-    </div>
-    <footer>
-        <p>&copy; 2026 HOSPEDAH - Resorts & Praias Premium</p>
-        <p>📱 Juliana: (17) 99206-8296 | Flávio: (17) 98200-6382</p>
-        <p><a href="https://www.instagram.com/julianasilvaoliveira.joao" target="_blank">Siga-nos no Instagram 📸</a></p>
-        <p>🌟 As melhores tarifas garantidas!</p>
-    </footer>
+
+<h1>HOSPEDAH</h1>
+
+<!-- HOT BEACH -->
+<h2>🏨 Hot Beach Suites</h2>
+<div class="gallery">
+<img src="https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80" onclick="openImg(this)">
+<img src="https://images.unsplash.com/photo-1582719508461-905c673771fd?auto=format&fit=crop&w=800&q=80" onclick="openImg(this)">
+<img src="https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?auto=format&fit=crop&w=800&q=80" onclick="openImg(this)">
+<img src="https://images.unsplash.com/photo-1576675784201-0e142b423952?auto=format&fit=crop&w=800&q=80" onclick="openImg(this)">
+</div>
+
+<!-- SÃO PEDRO -->
+<h2>♨️ São Pedro Thermas</h2>
+<div class="gallery">
+<img src="https://images.unsplash.com/photo-1584132967334-10e028bd69f7?auto=format&fit=crop&w=800&q=80" onclick="openImg(this)">
+<img src="https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=800&q=80" onclick="openImg(this)">
+<img src="https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=800&q=80" onclick="openImg(this)">
+<img src="https://images.unsplash.com/photo-1559599101-f09722fb4948?auto=format&fit=crop&w=800&q=80" onclick="openImg(this)">
+<img src="https://images.unsplash.com/photo-1578683010236-d716f9a3f461?auto=format&fit=crop&w=800&q=80" onclick="openImg(this)">
+<img src="https://images.unsplash.com/photo-1596436889106-be35e843f974?auto=format&fit=crop&w=800&q=80" onclick="openImg(this)">
+<img src="https://images.unsplash.com/photo-1582268611958-ebfd161ef9cf?auto=format&fit=crop&w=800&q=80" onclick="openImg(this)">
+<img src="https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&w=800&q=80" onclick="openImg(this)">
+<img src="https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?auto=format&fit=crop&w=800&q=80" onclick="openImg(this)">
+</div>
+
+<!-- OLIMPIA -->
+<h2>🎢 Olimpia Park Resort</h2>
+<div class="gallery">
+<img src="https://images.unsplash.com/photo-1562790351-d273a961e0e9?auto=format&fit=crop&w=800&q=80" onclick="openImg(this)">
+<img src="https://images.unsplash.com/photo-1501117716987-c8e1ecb2102b?auto=format&fit=crop&w=800&q=80" onclick="openImg(this)">
+<img src="https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=800&q=80" onclick="openImg(this)">
+<img src="https://images.unsplash.com/photo-1584132915807-fd1f5fbc078f?auto=format&fit=crop&w=800&q=80" onclick="openImg(this)">
+<img src="https://images.unsplash.com/photo-1566665797739-1674de7a421a?auto=format&fit=crop&w=800&q=80" onclick="openImg(this)">
+<img src="https://images.unsplash.com/photo-1551918120-9739cb430c6d?auto=format&fit=crop&w=800&q=80" onclick="openImg(this)">
+</div>
+
+<!-- SOLAR -->
+<h2>☀️ Solar das Águas</h2>
+<div class="gallery">
+<img src="https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?auto=format&fit=crop&w=800&q=80" onclick="openImg(this)">
+<img src="https://images.unsplash.com/photo-1560448204-603b3fc33ddc?auto=format&fit=crop&w=800&q=80" onclick="openImg(this)">
+<img src="https://images.unsplash.com/photo-1560448075-bb485b067938?auto=format&fit=crop&w=800&q=80" onclick="openImg(this)">
+<img src="https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=800&q=80" onclick="openImg(this)">
+<img src="https://images.unsplash.com/photo-1584132967334-10e028bd69f7?auto=format&fit=crop&w=800&q=80" onclick="openImg(this)">
+<img src="https://images.unsplash.com/photo-1571896349842-33c89424de2d?auto=format&fit=crop&w=800&q=80" onclick="openImg(this)">
+<img src="https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80" onclick="openImg(this)">
+</div>
+
+<!-- WYNDHAM -->
+<h2>👑 Wyndham Royal</h2>
+<div class="gallery">
+<img src="https://images.unsplash.com/photo-1578683010236-d716f9a3f461?auto=format&fit=crop&w=800&q=80" onclick="openImg(this)">
+<img src="https://images.unsplash.com/photo-1582719478181-7e3d7bca5c77?auto=format&fit=crop&w=800&q=80" onclick="openImg(this)">
+<img src="https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=800&q=80" onclick="openImg(this)">
+<img src="https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80" onclick="openImg(this)">
+<img src="https://images.unsplash.com/photo-1584132967334-10e028bd69f7?auto=format&fit=crop&w=800&q=80" onclick="openImg(this)">
+<img src="https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=800&q=80" onclick="openImg(this)">
+<img src="https://images.unsplash.com/photo-1559599101-f09722fb4948?auto=format&fit=crop&w=800&q=80" onclick="openImg(this)">
+</div>
+
+<!-- JUQUEHY -->
+<h2>🌊 Praia de Juquehy</h2>
+<div class="gallery">
+<img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80" onclick="openImg(this)">
+<img src="https://images.unsplash.com/photo-1500375592092-40eb2168fd21?auto=format&fit=crop&w=800&q=80" onclick="openImg(this)">
+<img src="https://images.unsplash.com/photo-1473116763249-2faaef81ccda?auto=format&fit=crop&w=800&q=80" onclick="openImg(this)">
+</div>
+
+<!-- LIGHTBOX -->
+<div id="lightbox" onclick="closeImg()">
+<span class="close">✕</span>
+<img id="lightbox-img">
+</div>
+
+<!-- WHATSAPP -->
+<a href="https://wa.me/5517992068296" class="whatsapp" target="_blank">
+💬 Fale com Especialista
+</a>
+
+<script>
+function openImg(img){
+    document.getElementById("lightbox").style.display = "flex";
+    document.getElementById("lightbox-img").src = img.src;
+}
+
+function closeImg(){
+    document.getElementById("lightbox").style.display = "none";
+}
+</script>
+
 </body>
 </html>
