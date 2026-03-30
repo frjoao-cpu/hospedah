@@ -266,10 +266,6 @@
             transition: 0.3s;
         }
 
-        .btn-instagram img {
-            width: 30px;
-        }
-
         .btn-instagram:hover {
             transform: scale(1.1);
         }
@@ -345,7 +341,7 @@
 <body>
     <!-- Header com Logo -->
     <header class="topo">
-        <img src="assets/logo.png" class="logo" alt="HOSPEDAH">
+        <img src="https://github.com/user-attachments/assets/ce33a324-deb0-4bce-8446-418e54c1a6ad" class="logo" alt="HOSPEDAH">
     </header>
 
     <!-- Hero Section -->
@@ -436,10 +432,8 @@
                 <a href="https://wa.me/5517982006382" target="_blank">(17) 98200-6382</a>
             </div>
             <div class="contact-item">
-                     <a href="https://www.instagram.com/julianasilvaoliveira.joao?igsh=bzZmNGIxdjdqc281" class="btn-instagram" target="_blank" title="Instagram">
-         <img src="assets/icons/instagram.png" alt="Instagram">
-     </a>
-                <a href="https://wa.me/55179992068296" target="_blank">(17) 99206-8296</a>
+                <h4>📱 WhatsApp Juliana</h4>
+                <a href="https://wa.me/5517992068296" target="_blank">(17) 99206-8296</a>
             </div>
             <div class="contact-item">
                 <h4>📸 Instagram</h4>
@@ -453,8 +447,24 @@
     </section>
 
     <!-- Botões Flutuantes -->
-    <a href="https://www.instagram.com/julianasilvaoliveira.joao?igsh=bzZmNGIxdjdqc281" class="btn-instagram" target="_blank" title="Instagram">📸</a>
-    <a href="https://wa.me/5517982006382" class="btn-whatsapp" target="_blank" title="WhatsApp">💬</a>
+    <a href="https://www.instagram.com/julianasilvaoliveira.joao?igsh=bzZmNGIxdjdqc281" class="btn-instagram" target="_blank" title="Instagram">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="30" height="30">
+            <defs>
+                <radialGradient id="instagram-floating-btn-gradient" cx="30%" cy="107%" r="150%">
+                    <stop offset="0%" stop-color="#fdf497"/>
+                    <stop offset="5%" stop-color="#fdf497"/>
+                    <stop offset="45%" stop-color="#fd5949"/>
+                    <stop offset="60%" stop-color="#d6249f"/>
+                    <stop offset="90%" stop-color="#285AEB"/>
+                </radialGradient>
+            </defs>
+            <rect width="24" height="24" rx="6" fill="url(#instagram-floating-btn-gradient)"/>
+            <circle cx="12" cy="12" r="4.5" fill="none" stroke="white" stroke-width="1.8"/>
+            <circle cx="17.5" cy="6.5" r="1.1" fill="white"/>
+            <rect x="2.5" y="2.5" width="19" height="19" rx="5.5" fill="none" stroke="white" stroke-width="1.5"/>
+        </svg>
+    </a>
+    <a href="https://wa.me/5517992068296" class="btn-whatsapp" target="_blank" title="WhatsApp">💬</a>
 
     <!-- Footer -->
     <footer>
