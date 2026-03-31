@@ -157,6 +157,81 @@ object-fit:cover;
 border-radius:12px;
 }
 
+/* BOTÕES INSTAGRAM / WHATSAPP */
+.instagram-btn{
+display:inline-block;
+padding:10px 20px;
+border-radius:30px;
+background:linear-gradient(45deg,#833AB4,#E1306C,#FCAF45);
+color:#fff;
+font-size:14px;
+font-weight:600;
+border:none;
+cursor:pointer;
+text-decoration:none;
+transition:opacity 0.2s;
+}
+
+.instagram-btn:hover{
+opacity:0.85;
+}
+
+.whatsapp-btn{
+display:inline-block;
+padding:10px 20px;
+border-radius:30px;
+background:#25D366;
+color:#fff;
+font-size:14px;
+font-weight:600;
+border:none;
+cursor:pointer;
+text-decoration:none;
+transition:opacity 0.2s;
+}
+
+.whatsapp-btn:hover{
+opacity:0.85;
+}
+
+/* CONTATO BTNs */
+.contato-btns{
+display:flex;
+flex-wrap:wrap;
+gap:10px;
+justify-content:center;
+margin-top:10px;
+}
+
+/* GALERIA RESORTS */
+.resort-section{
+padding:20px 40px;
+}
+
+.resort-section h3{
+color:var(--dourado);
+margin-bottom:12px;
+font-size:18px;
+}
+
+.resort-gallery{
+position:relative;
+}
+
+.resort-gallery img.main-photo{
+width:100%;
+max-width:800px;
+height:260px;
+object-fit:cover;
+border-radius:12px;
+display:block;
+margin:0 auto;
+}
+
+.resort-gallery img.hidden-photo{
+display:none;
+}
+
 /* FOOTER */
 footer{
 text-align:center;
@@ -201,7 +276,10 @@ opacity:0.7;
 <div class="card-contato">
 <h3>Juliana</h3>
 <p>Especialista em Hospedagens</p>
-<a class="btn" href="https://wa.me/5517992068296">WhatsApp</a>
+<div class="contato-btns">
+<button class="instagram-btn" onclick="window.open('https://www.instagram.com/julianasilvaoliveira.joao?igsh=bzZmNGIxdjdqc281', '_blank');" aria-label="Visitar perfil do Instagram de Juliana">📸 Instagram</button>
+<a href="https://wa.me/5517982006382" target="_blank" class="whatsapp-btn">💬 WhatsApp</a>
+</div>
 </div>
 
 </div>
@@ -233,13 +311,76 @@ buscando sempre as melhores opções com atendimento personalizado e humano.
 <h2>Destinos Exclusivos</h2>
 </div>
 
-<div class="gallery">
-<img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e">
-<img src="https://images.unsplash.com/photo-1566073771259-6a8506099945">
-<img src="https://images.unsplash.com/photo-1542314831-068cd1dbfeeb">
-<img src="https://images.unsplash.com/photo-1582719478250-c89cae4dc85b">
-<img src="https://images.unsplash.com/photo-1578683010236-d716f9a3f461">
-<img src="https://images.unsplash.com/photo-1590490360182-c33d57733427">
+<div class="resort-section">
+<h3>🏖️ HOT BEACH</h3>
+<div class="resort-gallery">
+<img class="main-photo" src="https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80" alt="Hot Beach 1">
+<img class="hidden-photo" src="https://images.unsplash.com/photo-1582719508461-905c673771fd?auto=format&fit=crop&w=800&q=80" alt="Hot Beach 2">
+<img class="hidden-photo" src="https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?auto=format&fit=crop&w=800&q=80" alt="Hot Beach 3">
+<img class="hidden-photo" src="https://images.unsplash.com/photo-1576675784201-0e142b423952?auto=format&fit=crop&w=800&q=80" alt="Hot Beach 4">
+</div>
+</div>
+
+<div class="resort-section">
+<h3>⛪ SÃO PEDRO</h3>
+<div class="resort-gallery">
+<img class="main-photo" src="https://images.unsplash.com/photo-1584132967334-10e028bd69f7?auto=format&fit=crop&w=800&q=80" alt="São Pedro 1">
+<img class="hidden-photo" src="https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=800&q=80" alt="São Pedro 2">
+<img class="hidden-photo" src="https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=800&q=80" alt="São Pedro 3">
+<img class="hidden-photo" src="https://images.unsplash.com/photo-1559599101-f09722fb4948?auto=format&fit=crop&w=800&q=80" alt="São Pedro 4">
+<img class="hidden-photo" src="https://images.unsplash.com/photo-1578683010236-d716f9a3f461?auto=format&fit=crop&w=800&q=80" alt="São Pedro 5">
+<img class="hidden-photo" src="https://images.unsplash.com/photo-1596436889106-be35e843f974?auto=format&fit=crop&w=800&q=80" alt="São Pedro 6">
+<img class="hidden-photo" src="https://images.unsplash.com/photo-1582268611958-ebfd161ef9cf?auto=format&fit=crop&w=800&q=80" alt="São Pedro 7">
+<img class="hidden-photo" src="https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&w=800&q=80" alt="São Pedro 8">
+<img class="hidden-photo" src="https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?auto=format&fit=crop&w=800&q=80" alt="São Pedro 9">
+</div>
+</div>
+
+<div class="resort-section">
+<h3>🎡 OLIMPIA</h3>
+<div class="resort-gallery">
+<img class="main-photo" src="https://images.unsplash.com/photo-1562790351-d273a961e0e9?auto=format&fit=crop&w=800&q=80" alt="Olimpia 1">
+<img class="hidden-photo" src="https://images.unsplash.com/photo-1501117716987-c8e1ecb2102b?auto=format&fit=crop&w=800&q=80" alt="Olimpia 2">
+<img class="hidden-photo" src="https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=800&q=80" alt="Olimpia 3">
+<img class="hidden-photo" src="https://images.unsplash.com/photo-1584132915807-fd1f5fbc078f?auto=format&fit=crop&w=800&q=80" alt="Olimpia 4">
+<img class="hidden-photo" src="https://images.unsplash.com/photo-1566665797739-1674de7a421a?auto=format&fit=crop&w=800&q=80" alt="Olimpia 5">
+<img class="hidden-photo" src="https://images.unsplash.com/photo-1551918120-9739cb430c6d?auto=format&fit=crop&w=800&q=80" alt="Olimpia 6">
+</div>
+</div>
+
+<div class="resort-section">
+<h3>☀️ SOLAR</h3>
+<div class="resort-gallery">
+<img class="main-photo" src="https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?auto=format&fit=crop&w=800&q=80" alt="Solar 1">
+<img class="hidden-photo" src="https://images.unsplash.com/photo-1560448204-603b3fc33ddc?auto=format&fit=crop&w=800&q=80" alt="Solar 2">
+<img class="hidden-photo" src="https://images.unsplash.com/photo-1560448075-bb485b067938?auto=format&fit=crop&w=800&q=80" alt="Solar 3">
+<img class="hidden-photo" src="https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=800&q=80" alt="Solar 4">
+<img class="hidden-photo" src="https://images.unsplash.com/photo-1584132967334-10e028bd69f7?auto=format&fit=crop&w=800&q=80" alt="Solar 5">
+<img class="hidden-photo" src="https://images.unsplash.com/photo-1571896349842-33c89424de2d?auto=format&fit=crop&w=800&q=80" alt="Solar 6">
+<img class="hidden-photo" src="https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80" alt="Solar 7">
+</div>
+</div>
+
+<div class="resort-section">
+<h3>🏨 WYNDHAM</h3>
+<div class="resort-gallery">
+<img class="main-photo" src="https://images.unsplash.com/photo-1578683010236-d716f9a3f461?auto=format&fit=crop&w=800&q=80" alt="Wyndham 1">
+<img class="hidden-photo" src="https://images.unsplash.com/photo-1582719478181-7e3d7bca5c77?auto=format&fit=crop&w=800&q=80" alt="Wyndham 2">
+<img class="hidden-photo" src="https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=800&q=80" alt="Wyndham 3">
+<img class="hidden-photo" src="https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80" alt="Wyndham 4">
+<img class="hidden-photo" src="https://images.unsplash.com/photo-1584132967334-10e028bd69f7?auto=format&fit=crop&w=800&q=80" alt="Wyndham 5">
+<img class="hidden-photo" src="https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=800&q=80" alt="Wyndham 6">
+<img class="hidden-photo" src="https://images.unsplash.com/photo-1559599101-f09722fb4948?auto=format&fit=crop&w=800&q=80" alt="Wyndham 7">
+</div>
+</div>
+
+<div class="resort-section">
+<h3>🌊 JUQUEHY</h3>
+<div class="resort-gallery">
+<img class="main-photo" src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80" alt="Juquehy 1">
+<img class="hidden-photo" src="https://images.unsplash.com/photo-1500375592092-40eb2168fd21?auto=format&fit=crop&w=800&q=80" alt="Juquehy 2">
+<img class="hidden-photo" src="https://images.unsplash.com/photo-1473116763249-2faaef81ccda?auto=format&fit=crop&w=800&q=80" alt="Juquehy 3">
+</div>
 </div>
 
 <footer>
