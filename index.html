@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HOSPEDAH - Sua Agência Premium de Viagens</title>
+    <meta name="description" content="HOSPEDAH - Curadoria exclusiva de hospedagens e resorts de alto padrão. Experiências premium para clientes exigentes.">
+    <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
     <style>
         * {
             margin: 0;
@@ -14,6 +16,14 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #F5F5F5 0%, #E8E8E8 100%);
             color: #1a1a1a;
+        }
+        /* LOGO FALLBACK */
+        .logo-fallback {
+            display: none;
+            font-size: 36px;
+            font-weight: 700;
+            color: #D4AF37;
+            letter-spacing: 3px;
         }
         /* HEADER COM LOGO */
         .topo {
@@ -119,6 +129,8 @@
             overflow: hidden;
             box-shadow: 0 8px 25px rgba(0, 31, 63, 0.15);
             border-top: 4px solid #D4AF37;
+            text-decoration: none;
+            display: block;
         }
         .resort-card:before {
             content: '';
@@ -330,7 +342,8 @@
 <body>
     <!-- Header com Logo -->
     <header class="topo">
-        <img src="assets/logo.png" class="logo" alt="HOSPEDAH">
+        <img src="assets/logo.png" class="logo" alt="HOSPEDAH" onerror="this.style.display='none'; this.nextElementSibling.style.display='block'">
+        <span class="logo-fallback">HOSPEDAH</span>
     </header>
 
     <!-- Hero Section -->
@@ -361,30 +374,30 @@
     <section id="resorts">
         <h2>🏨 Nossos Resorts Premium</h2>
         <div class="resort-cards">
-            <div class="resort-card">
+            <a href="resorts/hotbeach.html" class="resort-card">
                 <h3>🏨 Hot Beach Suites</h3>
                 <p>Resort 5 estrelas com piscinas aquecidas, spa luxuoso e vista para o mar</p>
-            </div>
-            <div class="resort-card">
+            </a>
+            <a href="resorts/saopedro.html" class="resort-card">
                 <h3>♨️ São Pedro Thermas</h3>
                 <p>Águas termais naturais com terapias exclusivas e relaxamento total</p>
-            </div>
-            <div class="resort-card">
+            </a>
+            <a href="resorts/olimpia.html" class="resort-card">
                 <h3>🎢 Olimpia Park</h3>
                 <p>Maior parque aquático do Brasil com atividades para toda a família</p>
-            </div>
-            <div class="resort-card">
+            </a>
+            <a href="resorts/solar.html" class="resort-card">
                 <h3>☀️ Solar das Águas</h3>
                 <p>Resort boutique romântico para casais em clima de paraíso tropical</p>
-            </div>
-            <div class="resort-card">
+            </a>
+            <a href="resorts/wyndham.html" class="resort-card">
                 <h3>👑 Wyndham Royal</h3>
                 <p>Luxo absoluto com atendimento personalizado e comodidades exclusivas</p>
-            </div>
-            <div class="resort-card">
+            </a>
+            <a href="resorts/juquehy.html" class="resort-card">
                 <h3>🏖️ Juquehy</h3>
                 <p>Praia paradisíaca e exclusiva com resort 5 estrelas frente ao mar</p>
-            </div>
+            </a>
         </div>
     </section>
 
