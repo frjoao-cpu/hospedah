@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 100" width="400" height="100">
+  <defs>
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#D4AF37;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#FFD700;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <!-- Background -->
+  <rect width="400" height="100" fill="#001F3F" rx="8"/>
+  <!-- Gold accent line -->
+  <rect x="0" y="0" width="400" height="4" fill="url(#goldGrad)" rx="2"/>
+  <!-- Logo text -->
+  <text x="200" y="58" font-family="'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
+        font-size="42" font-weight="700" text-anchor="middle" letter-spacing="6"
+        fill="url(#goldGrad)">HOSPEDAH</text>
+  <!-- Tagline -->
+  <text x="200" y="80" font-family="'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
+        font-size="13" text-anchor="middle" letter-spacing="3"
+        fill="#FFFFFF" opacity="0.8">RESORTS &amp; PRAIAS PREMIUM</text>
+</svg>
