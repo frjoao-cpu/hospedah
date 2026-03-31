@@ -7,6 +7,9 @@
 <title>HOSPEDAH | Experiências Premium</title>
 <meta name="description" content="Curadoria exclusiva de hospedagens de alto padrão">
 
+<!-- Favicon -->
+<link rel="icon" type="image/jpeg" href="assets/logo.jpg">
+
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
 
 <style>
@@ -31,6 +34,7 @@ body {
     align-items: center;
     justify-content: center;
     text-align: center;
+    padding: 0 20px;
 }
 
 .hero h1 {
@@ -51,6 +55,12 @@ body {
     color: #000;
     font-weight: bold;
     text-decoration: none;
+    transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.btn:hover {
+    opacity: 0.85;
+    transform: scale(1.04);
 }
 
 /* SEÇÕES */
@@ -72,10 +82,17 @@ body {
     border-radius: 15px;
     overflow: hidden;
     backdrop-filter: blur(5px);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(212,175,55,0.25);
 }
 
 .card img {
     width: 100%;
+    display: block;
 }
 
 .card h3 {
@@ -92,6 +109,9 @@ body {
     padding: 15px;
     border-radius: 50%;
     text-decoration: none;
+    font-size: 22px;
+    line-height: 1;
+    transition: transform 0.2s ease, opacity 0.2s ease;
 }
 
 .instagram {
@@ -102,6 +122,54 @@ body {
     padding: 15px;
     border-radius: 50%;
     text-decoration: none;
+    font-size: 22px;
+    line-height: 1;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.whatsapp:hover,
+.instagram:hover {
+    transform: scale(1.12);
+    opacity: 0.9;
+}
+
+/* FOOTER */
+footer {
+    padding: 30px 20px;
+    text-align: center;
+    font-size: 13px;
+    color: rgba(255,255,255,0.45);
+    border-top: 1px solid rgba(255,255,255,0.08);
+}
+
+footer a {
+    color: #D4AF37;
+    text-decoration: none;
+}
+
+footer a:hover {
+    text-decoration: underline;
+}
+
+/* RESPONSIVIDADE — telas muito pequenas */
+@media (max-width: 400px) {
+    .hero h1 {
+        font-size: 26px;
+    }
+
+    .btn {
+        padding: 12px 24px;
+        font-size: 14px;
+    }
+
+    .cards {
+        gap: 15px;
+    }
+
+    .card {
+        width: 100%;
+        max-width: 320px;
+    }
 }
 
 </style>
@@ -110,7 +178,7 @@ body {
 <body>
 
 <!-- HERO -->
-<div class="hero">
+<header class="hero">
     <div>
         <h1>Experiências Exclusivas em Hospedagens de Alto Padrão</h1>
 
@@ -124,68 +192,82 @@ body {
         Atendimento limitado • Sob consulta
         </p>
     </div>
-</div>
+</header>
+
+<main>
 
 <!-- POSICIONAMENTO -->
-<div class="section">
+<section class="section">
 <h2>Atendimento Privado</h2>
 <p>
 Cada cliente recebe uma curadoria personalizada, com hospedagens selecionadas manualmente.
 Não trabalhamos com volume, e sim com excelência.
 </p>
-</div>
+</section>
 
 <!-- RESORTS -->
-<div class="section">
+<section class="section">
 <h2>Seleção Exclusiva</h2>
 
 <div class="cards">
 
 <div class="card">
-<img src="https://images.unsplash.com/photo-1566073771259-6a8506099945">
+<img src="https://images.unsplash.com/photo-1566073771259-6a8506099945" alt="Hot Beach Suites — resort com piscinas termais">
 <h3>Hot Beach Suites</h3>
 </div>
 
 <div class="card">
-<img src="https://images.unsplash.com/photo-1582719478250-c89cae4dc85b">
+<img src="https://images.unsplash.com/photo-1582719478250-c89cae4dc85b" alt="São Pedro Thermas — quarto de hotel luxuoso">
 <h3>São Pedro Thermas</h3>
 </div>
 
 <div class="card">
-<img src="https://images.unsplash.com/photo-1542314831-068cd1dbfeeb">
+<img src="https://images.unsplash.com/photo-1542314831-068cd1dbfeeb" alt="Olímpia Park — vista do hotel premium">
 <h3>Olímpia Park</h3>
 </div>
 
 <div class="card">
-<img src="https://images.unsplash.com/photo-1501117716987-c8e1ecb210ef">
+<img src="https://images.unsplash.com/photo-1501117716987-c8e1ecb210ef" alt="Solar das Águas — beira-mar exclusivo">
 <h3>Solar das Águas</h3>
 </div>
 
 <div class="card">
-<img src="https://images.unsplash.com/photo-1551882547-ff40c63fe5fa">
+<img src="https://images.unsplash.com/photo-1551882547-ff40c63fe5fa" alt="Wyndham Royal — hotel sofisticado">
 <h3>Wyndham Royal</h3>
 </div>
 
 <div class="card">
-<img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e">
+<img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e" alt="Juquehy — praia de Juquehy ao amanhecer">
 <h3>Juquehy</h3>
 </div>
 
 </div>
-</div>
+</section>
 
 <!-- CTA -->
-<div class="section">
+<section class="section">
 <h2>Solicite sua experiência</h2>
 
 <a href="https://wa.me/5517982006382?text=Olá,%20quero%20uma%20hospedagem%20premium" class="btn">
 Falar com especialista
 </a>
-</div>
+</section>
 
-<!-- BOTÕES -->
-<a href="https://wa.me/5517982006382" class="whatsapp">💬</a>
-<a href="https://www.instagram.com/julianasilvaoliveira.joao" class="instagram">📸</a>
+</main>
+
+<!-- RODAPÉ -->
+<footer>
+    <p>© 2024 HOSPEDAH — Experiências de alto padrão</p>
+    <p>
+        <a href="https://wa.me/5517982006382" aria-label="WhatsApp HOSPEDAH">WhatsApp</a>
+        &nbsp;|&nbsp;
+        <a href="https://www.instagram.com/julianasilvaoliveira.joao" aria-label="Instagram HOSPEDAH" target="_blank" rel="noopener noreferrer">Instagram</a>
+    </p>
+</footer>
+
+<!-- BOTÕES FLUTUANTES -->
+<a href="https://wa.me/5517982006382" class="whatsapp" aria-label="Contato via WhatsApp">💬</a>
+<a href="https://www.instagram.com/julianasilvaoliveira.joao" class="instagram" aria-label="Instagram HOSPEDAH" target="_blank" rel="noopener noreferrer">📸</a>
 
 </body>
 </html>
