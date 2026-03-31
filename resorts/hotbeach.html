@@ -1,79 +1,47 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hot Beach Suites - Resort Premium | HOSPEDAH</title>
-    <meta name="description" content="Hot Beach Suites - Resort 5 estrelas com piscinas, spa e praias privadas. Hospedagem premium com a HOSPEDAH.">
-    <meta name="keywords" content="resort, hospedagem, praia, hot beach, suites, férias">
-    <meta property="og:title" content="Hot Beach Suites - Resort Premium | HOSPEDAH">
-    <meta property="og:description" content="Hot Beach Suites - Resort 5 estrelas com piscinas, spa e praias privadas. Hospedagem premium com a HOSPEDAH.">
-    <meta property="og:image" content="link_to_image"> <!-- Update with actual image link -->
-    <meta property="og:url" content="URL_TO_PAGE"> <!-- Update with actual page URL -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=GA_TRACKING_ID"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
-        gtag('config', 'GA_TRACKING_ID');
-    </script>
-    <link rel="stylesheet" href="styles.css"> <!-- Link to your CSS file -->
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hot Beach Suites - HOSPEDAH</title>
+<meta name="description" content="Hot Beach Suites - Resort 5 estrelas com piscinas aquecidas, spa e praias privadas. Hospedagem premium com a HOSPEDAH.">
+<link rel="stylesheet" href="../assets/style.css">
 </head>
+
 <body>
-    <header>
-        <h1>Hot Beach Suites</h1>
-        <nav>
-            <ul>
-                <li><a href="#description">Descrição</a></li>
-                <li><a href="#gallery">Galeria</a></li>
-                <li><a href="#contact">Contato</a></li>
-            </ul>
-        </nav>
-    </header>
-    <main>
-        <section id="description">
-            <h2>Descrição do Resort</h2>
-            <p>O Hot Beach Suites é um resort premium 5 estrelas, oferecendo aos seus hóspedes uma experiência exclusiva com piscinas, spa e praias privadas.</p>
-            <h3>Características:</h3>
-            <ul>
-                <li>Piscinas climatizadas</li>
-                <li>Spa completo</li>
-                <li>Serviço de praia</li>
-                <li>Quartos confortáveis e luxuosos</li>
-                <li>Restaurantes com culinária diversificada</li>
-            </ul>
-        </section>
-        <section id="gallery">
-            <h2>Galeria</h2>
-            <div class="lightbox-gallery">
-                <img src="image1.jpg" alt="Descrição da imagem 1" onclick="openLightbox();"> 
-                <img src="image2.jpg" alt="Descrição da imagem 2" onclick="openLightbox();"> 
-                <!-- Add more images as needed -->
-            </div>
-        </section>
-        <section id="contact">
-            <h2>Contato</h2>
-            <form id="contactForm" onsubmit="openWhatsApp(); return false;">
-                <label for="name">Nome:</label>
-                <input type="text" id="name" name="name" required>
-                <label for="email">Email:</label>
-                <input type="email" id="email" name="email" required>
-                <button type="submit">Enviar</button>
-            </form>
-        </section>
-    </main>
-    <footer>
-        <p>&copy; 2026 Hot Beach Suites. Todos os direitos reservados.</p>
-    </footer>
-    <script>
-        function openLightbox() {
-            // Lightbox functionality code here
-        }
-        function openWhatsApp() {
-            const name = document.getElementById('name').value;
-            const message = `Olá, meu nome é ${name}. Estou interessado em mais informações sobre o Hot Beach Suites.`;
-            window.open(`https://wa.me/your_whatsapp_number?text=${encodeURIComponent(message)}`, '_blank');
-        }
-    </script>
+
+<h1>🏨 Hot Beach Suites</h1>
+
+<div class="gallery">
+<img src="https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?auto=format&fit=crop&w=800&q=80" onclick="openImg(this)" alt="Hot Beach Suites">
+<img src="https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80" onclick="openImg(this)" alt="Hot Beach Suites piscina">
+<img src="https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=800&q=80" onclick="openImg(this)" alt="Hot Beach Suites quarto">
+<img src="https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=800&q=80" onclick="openImg(this)" alt="Hot Beach Suites spa">
+<img src="https://images.unsplash.com/photo-1584132967334-10e028bd69f7?auto=format&fit=crop&w=800&q=80" onclick="openImg(this)" alt="Hot Beach Suites restaurante">
+<img src="https://images.unsplash.com/photo-1560448204-603b3fc33ddc?auto=format&fit=crop&w=800&q=80" onclick="openImg(this)" alt="Hot Beach Suites área externa">
+</div>
+
+<div id="lightbox" onclick="closeImg()">
+<span class="close">✕</span>
+<img id="lightbox-img" alt="Imagem ampliada">
+</div>
+
+<a href="https://wa.me/5517982006382?text=Quero%20informações%20sobre%20o%20Hot%20Beach%20Suites" class="whatsapp" target="_blank">
+💬 Solicitar orçamento
+</a>
+
+<a href="../index.html" class="btn-back">← Voltar</a>
+
+<script>
+function openImg(img){
+    document.getElementById("lightbox").style.display = "flex";
+    document.getElementById("lightbox-img").src = img.src;
+}
+
+function closeImg(){
+    document.getElementById("lightbox").style.display = "none";
+}
+</script>
+
 </body>
 </html>
