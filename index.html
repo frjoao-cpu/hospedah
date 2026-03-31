@@ -227,51 +227,42 @@
         .btn-whatsapp, .btn-instagram {
             position: fixed;
             right: 25px;
-            width: 65px;
-            height: 65px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: white;
-            font-size: 28px;
             text-decoration: none;
-            box-shadow: 0 6px 25px rgba(0, 31, 63, 0.4);
             z-index: 999;
             transition: all 0.3s;
-            border: 2px solid rgba(255, 255, 255, 0.3);
         }
         .btn-whatsapp {
             bottom: 25px;
+            width: 65px;
+            height: 65px;
             background: linear-gradient(135deg, #25D366, #1FAE51);
+            color: white;
+            font-size: 28px;
+            box-shadow: 0 6px 25px rgba(37, 211, 102, 0.4);
         }
         .btn-whatsapp:hover {
             background: linear-gradient(135deg, #1FAE51, #128C42);
             transform: scale(1.15);
-            box-shadow: 0 10px 40px rgba(37, 211, 102, 0.4);
+            box-shadow: 0 10px 40px rgba(37, 211, 102, 0.5);
         }
-              .btn-instagram {
-            position: fixed;
-            bottom: 90px;
-            right: 20px;
+        .btn-instagram {
+            bottom: 110px;
             width: 60px;
             height: 60px;
-            border-radius: 50%;
             background: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
-            z-index: 999;
-            transition: 0.3s;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
         }
-
-        .btn-instagram img {
+        .btn-instagram svg {
             width: 30px;
+            height: 30px;
         }
-
         .btn-instagram:hover {
             transform: scale(1.1);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
         }
         /* FOOTER */
         footer {
@@ -345,7 +336,7 @@
 <body>
     <!-- Header com Logo -->
     <header class="topo">
-        <img src="assets/logo.png" class="logo" alt="HOSPEDAH">
+        <img src="assets/logo.svg" class="logo" alt="HOSPEDAH">
     </header>
 
     <!-- Hero Section -->
@@ -436,10 +427,8 @@
                 <a href="https://wa.me/5517982006382" target="_blank">(17) 98200-6382</a>
             </div>
             <div class="contact-item">
-                     <a href="https://www.instagram.com/julianasilvaoliveira.joao?igsh=bzZmNGIxdjdqc281" class="btn-instagram" target="_blank" title="Instagram">
-         <img src="assets/icons/instagram.png" alt="Instagram">
-     </a>
-                <a href="https://wa.me/55179992068296" target="_blank">(17) 99206-8296</a>
+                <h4>📱 WhatsApp Juliana</h4>
+                <a href="https://wa.me/5517992068296" target="_blank">(17) 99206-8296</a>
             </div>
             <div class="contact-item">
                 <h4>📸 Instagram</h4>
@@ -453,7 +442,22 @@
     </section>
 
     <!-- Botões Flutuantes -->
-    <a href="https://www.instagram.com/julianasilvaoliveira.joao?igsh=bzZmNGIxdjdqc281" class="btn-instagram" target="_blank" title="Instagram">📸</a>
+    <a href="https://www.instagram.com/julianasilvaoliveira.joao?igsh=bzZmNGIxdjdqc281" class="btn-instagram" target="_blank" title="Instagram" aria-label="Seguir no Instagram">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="url(#igGrad)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Instagram">
+            <defs>
+                <linearGradient id="igGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+                    <stop offset="0%" style="stop-color:#f09433"/>
+                    <stop offset="25%" style="stop-color:#e6683c"/>
+                    <stop offset="50%" style="stop-color:#dc2743"/>
+                    <stop offset="75%" style="stop-color:#cc2366"/>
+                    <stop offset="100%" style="stop-color:#bc1888"/>
+                </linearGradient>
+            </defs>
+            <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+            <circle cx="12" cy="12" r="4.5"/>
+            <circle cx="17.5" cy="6.5" r="1" fill="url(#igGrad)" stroke="none"/>
+        </svg>
+    </a>
     <a href="https://wa.me/5517982006382" class="btn-whatsapp" target="_blank" title="WhatsApp">💬</a>
 
     <!-- Footer -->
