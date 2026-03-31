@@ -1,26 +1,9 @@
-.header {
-    background-color: #333;
-    color: white;
-    padding: 20px;
-    text-align: center;
-}
-
-.navbar {
-    display: flex;
-    justify-content: space-between;
-    background-color: #444;
-}
-
-.navbar a {
-    color: white;
-    padding: 14px 20px;
-    text-decoration: none;
-    text-align: center;
-}
-
-.navbar a:hover {
-    background-color: #ddd;
-    color: black;
+/* HOSPEDAH - Assets / Componentes Extras */
+:root {
+    --navy: #001F3F;
+    --gold: #D4AF37;
+    --gold-light: #FFD700;
+    --white: #FFFFFF;
 }
 
 .instagram-section {
@@ -29,12 +12,28 @@
     padding: 20px;
 }
 
-.card {
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    padding: 20px;
-    margin: 10px;
-    flex: 1;
+.instagram-profile {
+    text-align: center;
+    background: linear-gradient(135deg, var(--navy) 0%, #003D66 100%);
+    color: var(--white);
+    padding: 50px;
+    border-radius: 15px;
+    margin-bottom: 30px;
+    border-top: 4px solid var(--gold);
+    box-shadow: 0 10px 40px rgba(0, 31, 63, 0.2);
+}
+
+.instagram-profile h3 {
+    font-size: 28px;
+    color: var(--gold-light);
+    margin-bottom: 15px;
+    font-weight: 300;
+}
+
+.instagram-profile p {
+    font-size: 16px;
+    color: #E0E0E0;
+    line-height: 1.8;
 }
 
 .contact-form {
@@ -44,11 +43,29 @@
     margin: auto;
 }
 
-.contact-form input, .contact-form textarea {
+.contact-form input,
+.contact-form textarea {
     margin: 10px 0;
-    padding: 10px;
+    padding: 12px;
     border: 1px solid #ccc;
     border-radius: 5px;
+    font-family: inherit;
+}
+
+.contact-form button {
+    background: linear-gradient(135deg, var(--gold), var(--gold-light));
+    color: var(--navy);
+    border: none;
+    padding: 12px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s;
+}
+
+.contact-form button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(212, 175, 55, 0.4);
 }
 
 .gallery {
@@ -58,32 +75,17 @@
     padding: 20px;
 }
 
-.lightbox {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.8);
-    justify-content: center;
-    align-items: center;
-}
-
-.lightbox img {
-    max-width: 90%;
-    max-height: 90%;
-}
-
 .footer {
-    background-color: #333;
-    color: white;
+    background: linear-gradient(135deg, var(--navy) 0%, #002850 100%);
+    color: #E0E0E0;
     text-align: center;
-    padding: 10px 0;
+    padding: 40px 20px;
+    border-top: 3px solid var(--gold);
 }
 
 @media (max-width: 768px) {
-    .navbar {
-        flex-direction: column;
+    .instagram-profile {
+        padding: 30px 20px;
     }
 }
+

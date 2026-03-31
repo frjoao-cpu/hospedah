@@ -1,74 +1,240 @@
-.container {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  padding: 20px;
+/* HOSPEDAH - Estilos Principais */
+:root {
+    --navy: #001F3F;
+    --navy-dark: #002850;
+    --gold: #D4AF37;
+    --gold-light: #FFD700;
+    --white: #FFFFFF;
+    --light-gray: #F5F5F5;
+    --text-dark: #1a1a1a;
+    --text-muted: #666;
 }
 
-.header {
-  background: linear-gradient(to right, #4a90e2, #9013fe);
-  color: white;
-  text-align: center;
-  padding: 20px;
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
 
-.card {
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-  margin: 10px;
-  flex: 1 1 calc(30% - 20px);
-  overflow: hidden;
-  transition: transform 0.2s;
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, var(--light-gray) 0%, #E8E8E8 100%);
+    color: var(--text-dark);
 }
 
-.card:hover {
-  transform: scale(1.05);
+/* HEADER */
+.topo {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 30px 20px;
+    background: linear-gradient(135deg, var(--navy) 0%, var(--navy-dark) 100%);
+    box-shadow: 0 8px 32px rgba(212, 175, 55, 0.2);
 }
 
-.form {
-  display: flex;
-  flex-direction: column;
-  padding: 20px;
-  background: #f0f0f0;
-  border-radius: 8px;
+.logo {
+    height: 80px;
+    object-fit: contain;
+    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
 }
 
-.form input,
-.form textarea {
-  margin-bottom: 10px;
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+/* HERO */
+.hero {
+    background: linear-gradient(135deg, var(--navy) 0%, var(--gold) 100%);
+    color: var(--white);
+    padding: 80px 20px;
+    text-align: center;
+    box-shadow: 0 10px 40px rgba(0, 31, 63, 0.3);
 }
 
-.form button {
-  background: #4a90e2;
-  color: white;
-  border: none;
-  padding: 10px;
-  border-radius: 4px;
-  cursor: pointer;
+.hero h1 {
+    font-size: 48px;
+    margin-bottom: 20px;
+    font-weight: 300;
+    letter-spacing: 2px;
 }
 
-.weather-card {
-  background: #e3f2fd;
-  border-radius: 8px;
-  padding: 15px;
-  text-align: center;
+.hero p {
+    font-size: 20px;
+    color: var(--gold-light);
+    font-style: italic;
 }
 
-.details-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  gap: 10px;
+/* NAVEGAÇÃO */
+nav {
+    background: var(--white);
+    padding: 20px 0;
+    text-align: center;
+    box-shadow: 0 4px 15px rgba(0, 31, 63, 0.1);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+nav a {
+    margin: 0 25px;
+    color: var(--navy);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 16px;
+    transition: all 0.3s;
+    border-bottom: 2px solid transparent;
+}
+
+nav a:hover {
+    color: var(--gold);
+    border-bottom: 2px solid var(--gold);
+}
+
+/* SEÇÕES */
+section {
+    max-width: 1200px;
+    margin: 60px auto;
+    padding: 50px 30px;
+    background: var(--white);
+    border-radius: 15px;
+    box-shadow: 0 10px 40px rgba(0, 31, 63, 0.08);
+}
+
+/* CARDS */
+.resort-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 30px;
+    margin-top: 40px;
+}
+
+.resort-card {
+    background: linear-gradient(135deg, var(--navy) 0%, #003D66 100%);
+    color: var(--white);
+    padding: 30px;
+    border-radius: 12px;
+    text-align: center;
+    transition: all 0.4s;
+    border-top: 4px solid var(--gold);
+    box-shadow: 0 8px 25px rgba(0, 31, 63, 0.15);
+}
+
+.resort-card:hover {
+    transform: translateY(-15px);
+    box-shadow: 0 15px 45px rgba(212, 175, 55, 0.3);
+}
+
+/* BOTÃO */
+.btn {
+    display: inline-block;
+    background: linear-gradient(135deg, var(--gold), var(--gold-light));
+    color: var(--navy);
+    padding: 15px 40px;
+    border-radius: 50px;
+    text-decoration: none;
+    margin: 20px 10px 0;
+    transition: all 0.3s;
+    font-weight: 600;
+    box-shadow: 0 5px 20px rgba(212, 175, 55, 0.3);
+}
+
+.btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 30px rgba(212, 175, 55, 0.5);
+}
+
+/* CONTATO */
+.contact-info {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 30px;
+    margin-top: 40px;
+}
+
+.contact-item {
+    background: linear-gradient(135deg, #F9F9F9, var(--white));
+    padding: 30px;
+    border-radius: 12px;
+    text-align: center;
+    border-left: 4px solid var(--gold);
+    box-shadow: 0 5px 20px rgba(0, 31, 63, 0.05);
+    transition: all 0.3s;
+}
+
+.contact-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0, 31, 63, 0.1);
+}
+
+/* BOTÕES FLUTUANTES */
+.btn-whatsapp, .btn-instagram {
+    position: fixed;
+    right: 25px;
+    width: 65px;
+    height: 65px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--white);
+    font-size: 28px;
+    text-decoration: none;
+    box-shadow: 0 6px 25px rgba(0, 31, 63, 0.4);
+    z-index: 999;
+    transition: all 0.3s;
+}
+
+.btn-whatsapp {
+    bottom: 25px;
+    background: linear-gradient(135deg, #25D366, #1FAE51);
+}
+
+.btn-whatsapp:hover {
+    transform: scale(1.15);
+    box-shadow: 0 10px 40px rgba(37, 211, 102, 0.4);
+}
+
+.btn-instagram {
+    bottom: 110px;
+    background: var(--white);
+    width: 60px;
+    height: 60px;
+}
+
+.btn-instagram:hover {
+    transform: scale(1.1);
+}
+
+/* FOOTER */
+footer {
+    background: linear-gradient(135deg, var(--navy) 0%, var(--navy-dark) 100%);
+    color: #E0E0E0;
+    text-align: center;
+    padding: 40px 20px;
+    margin-top: 80px;
+    border-top: 3px solid var(--gold);
+}
+
+footer a {
+    color: var(--gold-light);
+    text-decoration: none;
+    transition: all 0.3s;
+}
+
+footer a:hover {
+    color: var(--white);
+}
+
+/* RESPONSIVO */
+@media (max-width: 768px) {
+    .logo { height: 60px; }
+    .hero h1 { font-size: 32px; }
+    nav a { margin: 0 15px; font-size: 14px; }
+    section { padding: 30px 15px; }
 }
 
 @media (max-width: 600px) {
-  .card {
-    flex: 1 1 100%;
-  }
-  .details-grid {
-    grid-template-columns: 1fr;
-  }
+    .logo { height: 50px; }
+    .hero { padding: 50px 15px; }
+    .hero h1 { font-size: 24px; }
+    nav a { margin: 0 10px; font-size: 12px; }
+    section { margin: 40px auto; padding: 20px 15px; }
+    .btn-whatsapp, .btn-instagram { width: 55px; height: 55px; }
+    .btn-instagram { bottom: 100px; }
 }
