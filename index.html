@@ -142,19 +142,53 @@ border-radius:15px;
 width:250px;
 }
 
-/* GALERIA */
-.gallery{
+/* GALERIA DE RESORTS */
+.resorts-grid{
 display:grid;
-grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
-gap:15px;
-padding:40px;
+grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+gap:20px;
+padding:20px 40px 50px;
 }
 
-.gallery img{
+.resort-card{
+background:rgba(255,255,255,0.05);
+border-radius:15px;
+overflow:hidden;
+text-decoration:none;
+color:#fff;
+transition:transform 0.2s,box-shadow 0.2s;
+display:block;
+}
+
+.resort-card:hover{
+transform:translateY(-4px);
+box-shadow:0 8px 30px rgba(212,175,55,0.25);
+}
+
+.resort-card img{
 width:100%;
-height:220px;
+height:200px;
 object-fit:cover;
-border-radius:12px;
+display:block;
+}
+
+.resort-card .resort-name{
+padding:14px 16px;
+font-size:15px;
+font-weight:600;
+color:var(--dourado);
+text-align:center;
+}
+
+/* INSTAGRAM BUTTON */
+.btn-insta{
+margin-top:10px;
+display:inline-block;
+padding:10px 15px;
+background:linear-gradient(45deg,#833AB4,#E1306C,#FCAF45);
+border-radius:20px;
+color:#fff;
+text-decoration:none;
 }
 
 /* FOOTER */
@@ -195,13 +229,15 @@ opacity:0.7;
 <div class="card-contato">
 <h3>Flávio</h3>
 <p>Especialista em Hospedagens</p>
-<a class="btn" href="https://wa.me/5517982006382">WhatsApp</a>
+<a class="btn" href="https://wa.me/5517982006382" target="_blank">💬 WhatsApp</a>
+<a class="btn-insta" href="https://www.instagram.com/julianasilvaoliveira.joao" target="_blank">📸 Instagram</a>
 </div>
 
 <div class="card-contato">
 <h3>Juliana</h3>
 <p>Especialista em Hospedagens</p>
-<a class="btn" href="https://wa.me/5517992068296">WhatsApp</a>
+<a class="btn" href="https://wa.me/5517992068296" target="_blank">💬 WhatsApp</a>
+<a class="btn-insta" href="https://www.instagram.com/julianasilvaoliveira.joao" target="_blank">📸 Instagram</a>
 </div>
 
 </div>
@@ -233,13 +269,38 @@ buscando sempre as melhores opções com atendimento personalizado e humano.
 <h2>Destinos Exclusivos</h2>
 </div>
 
-<div class="gallery">
-<img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e">
-<img src="https://images.unsplash.com/photo-1566073771259-6a8506099945">
-<img src="https://images.unsplash.com/photo-1542314831-068cd1dbfeeb">
-<img src="https://images.unsplash.com/photo-1582719478250-c89cae4dc85b">
-<img src="https://images.unsplash.com/photo-1578683010236-d716f9a3f461">
-<img src="https://images.unsplash.com/photo-1590490360182-c33d57733427">
+<div class="resorts-grid">
+
+<a class="resort-card" href="resorts/olimpia.html">
+<img src="https://images.unsplash.com/photo-1600585154526-990dced4db0d?auto=format&fit=crop&w=800&q=80" alt="Olimpia Park Resort">
+<div class="resort-name">🏊 Olimpia Park Resort</div>
+</a>
+
+<a class="resort-card" href="resorts/hotbeach.html">
+<img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80" alt="Hot Beach Suites">
+<div class="resort-name">🌊 Hot Beach Suites</div>
+</a>
+
+<a class="resort-card" href="resorts/wyndham.html">
+<img src="https://images.unsplash.com/photo-1578683010236-d716f9a3f461?auto=format&fit=crop&w=800&q=80" alt="Wyndham Royal">
+<div class="resort-name">👑 Wyndham Royal</div>
+</a>
+
+<a class="resort-card" href="resorts/juquehy.html">
+<img src="https://images.unsplash.com/photo-1473116763249-2faaef81ccda?auto=format&fit=crop&w=800&q=80" alt="Praia de Juquehy">
+<div class="resort-name">🌴 Praia de Juquehy</div>
+</a>
+
+<a class="resort-card" href="resorts/saopedro.html">
+<img src="https://images.unsplash.com/photo-1584132967334-10e028bd69f7?auto=format&fit=crop&w=800&q=80" alt="São Pedro Thermas">
+<div class="resort-name">♨️ São Pedro Thermas</div>
+</a>
+
+<a class="resort-card" href="resorts/solar.html">
+<img src="https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?auto=format&fit=crop&w=800&q=80" alt="Solar das Águas">
+<div class="resort-name">☀️ Solar das Águas</div>
+</a>
+
 </div>
 
 <footer>
