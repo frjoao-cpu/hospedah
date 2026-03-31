@@ -1,89 +1,91 @@
-.header {
-    background-color: #333;
-    color: white;
-    padding: 20px;
-    text-align: center;
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
+
+:root{
+--azul:#0B1C3D;
+--dourado:#D4AF37;
 }
 
-.navbar {
-    display: flex;
-    justify-content: space-between;
-    background-color: #444;
+body{
+background:linear-gradient(135deg,#0B1C3D,#142850);
+color:#fff;
+min-height:100vh;
+padding-bottom:80px;
 }
 
-.navbar a {
-    color: white;
-    padding: 14px 20px;
-    text-decoration: none;
-    text-align: center;
+h1{
+color:var(--dourado);
+text-align:center;
+padding:30px 20px 20px;
+font-size:28px;
 }
 
-.navbar a:hover {
-    background-color: #ddd;
-    color: black;
+/* GALLERY */
+.gallery{
+display:flex;
+flex-direction:column;
+align-items:center;
+padding:20px;
+gap:15px;
 }
 
-.instagram-section {
-    display: flex;
-    justify-content: center;
-    padding: 20px;
+.gallery img{
+width:100%;
+max-width:600px;
+border-radius:14px;
+object-fit:cover;
+cursor:pointer;
 }
 
-.card {
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    padding: 20px;
-    margin: 10px;
-    flex: 1;
+/* WHATSAPP BUTTON */
+.whatsapp{
+position:fixed;
+bottom:20px;
+right:20px;
+background:#25D366;
+color:#fff;
+padding:14px 20px;
+border-radius:30px;
+text-decoration:none;
+font-weight:600;
+font-size:15px;
+z-index:500;
+box-shadow:0 4px 20px rgba(37,211,102,0.5);
 }
 
-.contact-form {
-    display: flex;
-    flex-direction: column;
-    max-width: 400px;
-    margin: auto;
+/* INSTAGRAM BUTTON */
+.instagram{
+position:fixed;
+bottom:20px;
+right:calc(20px + 200px + 15px);
+background:linear-gradient(45deg,#833AB4,#E1306C,#FCAF45);
+color:#fff;
+padding:14px 20px;
+border-radius:30px;
+text-decoration:none;
+font-weight:600;
+font-size:15px;
+z-index:500;
+box-shadow:0 4px 20px rgba(225,48,108,0.4);
 }
 
-.contact-form input, .contact-form textarea {
-    margin: 10px 0;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
+/* LIGHTBOX */
+.close{
+position:absolute;
+top:15px;
+right:25px;
+color:#fff;
+font-size:30px;
+cursor:pointer;
 }
 
-.gallery {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 10px;
-    padding: 20px;
+@media(max-width:600px){
+.instagram{
+right:auto;
+left:20px;
+bottom:20px;
 }
-
-.lightbox {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.8);
-    justify-content: center;
-    align-items: center;
+.whatsapp{
+right:20px;
+bottom:20px;
 }
-
-.lightbox img {
-    max-width: 90%;
-    max-height: 90%;
-}
-
-.footer {
-    background-color: #333;
-    color: white;
-    text-align: center;
-    padding: 10px 0;
-}
-
-@media (max-width: 768px) {
-    .navbar {
-        flex-direction: column;
-    }
 }
