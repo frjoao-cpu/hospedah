@@ -13,7 +13,7 @@
 - **WhatsApp:** [Chat with us](https://wa.me/5517982006382)
 
 ### Resort 3: Beach Paradise
-- **Phone:** (17) 99920-68296  
+- **Phone:** (17) 99206-8296  
 - **Instagram:** [Follow us on Instagram](https://www.instagram.com/julianasilvaoliveira.joao?igsh=bzZmNGIxdjdqc285)  
 - **WhatsApp:** [Chat with us](https://wa.me/55179992068296)
 
@@ -23,7 +23,7 @@
 - **WhatsApp:** [Chat with us](https://wa.me/5517982006382)
 
 ### Resort 5: Cozy Cabin
-- **Phone:** (17) 99920-68296  
+- **Phone:** (17) 99206-8296  
 - **Instagram:** [Follow us on Instagram](https://www.instagram.com/julianasilvaoliveira.joao?igsh=bzZmNGIxdjdqc285)  
 - **WhatsApp:** [Chat with us](https://wa.me/55179992068296)
 
