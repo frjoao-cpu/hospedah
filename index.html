@@ -6,15 +6,17 @@
 
 <title>HOSPEDAH | Curadoria Exclusiva de Hospedagens</title>
 
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+
 <style>
 *{
     margin:0;
     padding:0;
     box-sizing:border-box;
-    font-family: Arial, sans-serif;
+    font-family: 'Poppins', sans-serif;
 }
 
-/* CORES DA MARCA */
+/* CORES */
 :root{
     --azul:#0B1C3D;
     --azul-suave:#142850;
@@ -22,11 +24,11 @@
     --dourado-claro:#FFD700;
 }
 
-/* FUNDO PREMIUM */
+/* FUNDO */
 body{
     background:
-    linear-gradient(rgba(11,28,61,0.92), rgba(11,28,61,0.96)),
-    url("assets/logo.jpg") center/50% no-repeat fixed;
+    linear-gradient(rgba(11,28,61,0.88), rgba(11,28,61,0.95)),
+    url("assets/logo.jpg") center/40% no-repeat fixed;
 
     background-color: var(--azul);
     color:#fff;
@@ -35,19 +37,21 @@ body{
 /* HEADER */
 header{
     text-align:center;
-    padding:50px 20px;
+    padding:60px 20px;
+    backdrop-filter: blur(6px);
 }
 
 header img{
-    width:140px;
+    width:150px;
     margin-bottom:15px;
+    filter: drop-shadow(0 0 10px rgba(212,175,55,0.4));
 }
 
 header h1{
-    font-size:46px;
-    letter-spacing:5px;
+    font-size:48px;
+    letter-spacing:6px;
     color:var(--dourado);
-    text-shadow:0 0 12px rgba(212,175,55,0.5);
+    text-shadow:0 0 15px rgba(212,175,55,0.6);
 }
 
 header p{
@@ -57,13 +61,13 @@ header p{
 
 /* SEÇÕES */
 section{
-    padding:35px;
+    padding:40px 30px;
 }
 
 section h2{
-    margin-bottom:20px;
+    margin-bottom:25px;
     border-left:4px solid var(--dourado);
-    padding-left:10px;
+    padding-left:12px;
     font-size:24px;
     color:var(--dourado-claro);
 }
@@ -71,35 +75,44 @@ section h2{
 /* GALERIA */
 .gallery{
     display:grid;
-    grid-template-columns:repeat(auto-fit, minmax(250px,1fr));
-    gap:15px;
+    grid-template-columns:repeat(auto-fit, minmax(260px,1fr));
+    gap:18px;
 }
 
 .gallery img{
     width:100%;
-    height:200px;
+    height:210px;
     object-fit:cover;
-    border-radius:12px;
+    border-radius:14px;
     transition:0.4s;
+    box-shadow:0 10px 25px rgba(0,0,0,0.4);
 }
 
 .gallery img:hover{
-    transform:scale(1.06);
+    transform:scale(1.08);
+    box-shadow:0 15px 40px rgba(212,175,55,0.3);
 }
 
 /* BOTÕES */
 .whatsapp, .instagram{
     position:fixed;
     right:20px;
-    width:55px;
-    height:55px;
+    width:60px;
+    height:60px;
     border-radius:50%;
     display:flex;
     align-items:center;
     justify-content:center;
-    font-size:22px;
+    font-size:24px;
     color:#fff;
     text-decoration:none;
+    box-shadow:0 5px 15px rgba(0,0,0,0.3);
+    transition:0.3s;
+}
+
+.whatsapp:hover,
+.instagram:hover{
+    transform:scale(1.1);
 }
 
 .whatsapp{
@@ -108,14 +121,14 @@ section h2{
 }
 
 .instagram{
-    bottom:90px;
+    bottom:95px;
     background:linear-gradient(135deg,#833AB4,#E1306C,#FCAF45);
 }
 
 /* FOOTER */
 footer{
     text-align:center;
-    padding:25px;
+    padding:30px;
     font-size:14px;
     opacity:0.7;
 }
@@ -198,10 +211,8 @@ footer{
 © HOSPEDAH — Experiências Exclusivas
 </footer>
 
-<!-- BOTÕES -->
 <a class="whatsapp" href="https://wa.me/5517992068296" target="_blank">📱</a>
-
-<a class="instagram" href="https://www.instagram.com/julianasilvaoliveira.joao?igsh=bzZmNGIxdjdqc285" target="_blank">📸</a>
+<a class="instagram" href="https://www.instagram.com/julianasilvaoliveira.joao" target="_blank">📸</a>
 
 </body>
 </html>
