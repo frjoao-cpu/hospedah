@@ -1,19 +1,47 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Olimpia Park Resort</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Olimpia Park Resort - HOSPEDAH</title>
+<meta name="description" content="Olimpia Park Resort - Maior parque aquático do Brasil com atividades para toda a família. Hospedagem premium com a HOSPEDAH.">
+<link rel="stylesheet" href="../assets/style.css">
 </head>
+
 <body>
-    <h1>Welcome to Olimpia Park Resort</h1>
-    <p>Experience the best family getaway at Olimpia Park Resort, where relaxation meets fun!</p>
-    <h2>Images of Our Resort</h2>
-    <img src="image1.jpg" alt="Olimpia Park Resort Image 1" />
-    <img src="image2.jpg" alt="Olimpia Park Resort Image 2" />
-    <img src="image3.jpg" alt="Olimpia Park Resort Image 3" />
-    <img src="image4.jpg" alt="Olimpia Park Resort Image 4" />
-    <img src="image5.jpg" alt="Olimpia Park Resort Image 5" />
-    <img src="image6.jpg" alt="Olimpia Park Resort Image 6" />
+
+<h1>🎢 Olimpia Park Resort</h1>
+
+<div class="gallery">
+<img src="https://images.unsplash.com/photo-1575505586569-646b2ca898fc?auto=format&fit=crop&w=800&q=80" onclick="openImg(this)" alt="Olimpia Park Resort">
+<img src="https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&w=800&q=80" onclick="openImg(this)" alt="Olimpia Park piscina">
+<img src="https://images.unsplash.com/photo-1584132967334-10e028bd69f7?auto=format&fit=crop&w=800&q=80" onclick="openImg(this)" alt="Olimpia Park quarto">
+<img src="https://images.unsplash.com/photo-1561501878-aabd62634533?auto=format&fit=crop&w=800&q=80" onclick="openImg(this)" alt="Olimpia Park toboágua">
+<img src="https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80" onclick="openImg(this)" alt="Olimpia Park área externa">
+<img src="https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=800&q=80" onclick="openImg(this)" alt="Olimpia Park acomodação">
+</div>
+
+<div id="lightbox" onclick="closeImg()">
+<span class="close">✕</span>
+<img id="lightbox-img" alt="Imagem ampliada">
+</div>
+
+<a href="https://wa.me/5517982006382?text=Quero%20informações%20sobre%20o%20Olimpia%20Park%20Resort" class="whatsapp" target="_blank">
+💬 Solicitar orçamento
+</a>
+
+<a href="../index.html" class="btn-back">← Voltar</a>
+
+<script>
+function openImg(img){
+    document.getElementById("lightbox").style.display = "flex";
+    document.getElementById("lightbox-img").src = img.src;
+}
+
+function closeImg(){
+    document.getElementById("lightbox").style.display = "none";
+}
+</script>
+
 </body>
 </html>
