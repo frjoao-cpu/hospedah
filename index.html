@@ -4,215 +4,247 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>HOSPEDAH | Curadoria Exclusiva de Hospedagens</title>
+<title>HOSPEDAH | Experiências Exclusivas</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
 
 <style>
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-    font-family: 'Poppins', sans-serif;
-}
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
 
-/* CORES */
 :root{
-    --azul:#0B1C3D;
-    --azul-suave:#142850;
-    --dourado:#D4AF37;
-    --dourado-claro:#FFD700;
+--azul:#0B1C3D;
+--dourado:#D4AF37;
 }
 
-/* FUNDO */
 body{
-    background:
-    linear-gradient(rgba(11,28,61,0.88), rgba(11,28,61,0.95)),
-    url("assets/logo.jpg") center/40% no-repeat fixed;
-
-    background-color: var(--azul);
-    color:#fff;
+background:linear-gradient(135deg,#0B1C3D,#142850);
+color:#fff;
 }
 
-/* HEADER */
-header{
-    text-align:center;
-    padding:60px 20px;
-    backdrop-filter: blur(6px);
+/* MENU */
+nav{
+position:fixed;
+top:0;
+width:100%;
+background:rgba(0,0,0,0.4);
+backdrop-filter:blur(10px);
+display:flex;
+justify-content:space-between;
+padding:15px 30px;
+z-index:1000;
 }
 
-header img{
-    width:150px;
-    margin-bottom:15px;
-    filter: drop-shadow(0 0 10px rgba(212,175,55,0.4));
+nav a{
+color:#fff;
+text-decoration:none;
+margin:0 10px;
+font-size:14px;
 }
 
-header h1{
-    font-size:48px;
-    letter-spacing:6px;
-    color:var(--dourado);
-    text-shadow:0 0 15px rgba(212,175,55,0.6);
+.logo{
+color:var(--dourado);
+font-weight:600;
 }
 
-header p{
-    font-size:18px;
-    opacity:0.85;
+/* HERO */
+.hero{
+padding-top:120px;
+text-align:center;
 }
 
-/* SEÇÕES */
-section{
-    padding:40px 30px;
+.hero h1{
+font-size:42px;
+color:var(--dourado);
 }
 
-section h2{
-    margin-bottom:25px;
-    border-left:4px solid var(--dourado);
-    padding-left:12px;
-    font-size:24px;
-    color:var(--dourado-claro);
+.hero p{
+margin-top:10px;
+opacity:0.8;
+}
+
+/* INSTAGRAM DESTAQUE */
+.insta-top{
+margin-top:20px;
+display:inline-block;
+padding:10px 20px;
+border-radius:30px;
+background:linear-gradient(45deg,#833AB4,#E1306C,#FCAF45);
+text-decoration:none;
+color:#fff;
+}
+
+/* CONTATOS */
+.contatos{
+display:flex;
+justify-content:center;
+gap:30px;
+margin:40px 0;
+flex-wrap:wrap;
+}
+
+.card-contato{
+background:rgba(255,255,255,0.05);
+padding:20px;
+border-radius:15px;
+text-align:center;
+width:250px;
+}
+
+.card-contato h3{
+color:var(--dourado);
+}
+
+.card-contato p{
+font-size:13px;
+margin:5px 0;
+}
+
+.btn{
+margin-top:10px;
+display:inline-block;
+padding:10px 15px;
+background:#25D366;
+border-radius:20px;
+color:#fff;
+text-decoration:none;
+}
+
+/* HISTÓRIA */
+.section{
+padding:50px 30px;
+text-align:center;
+}
+
+.section h2{
+color:var(--dourado);
+margin-bottom:20px;
+}
+
+.section p{
+max-width:800px;
+margin:auto;
+opacity:0.85;
+}
+
+/* AVALIAÇÕES */
+.avaliacoes{
+display:flex;
+gap:20px;
+justify-content:center;
+flex-wrap:wrap;
+margin-top:30px;
+}
+
+.review{
+background:rgba(255,255,255,0.05);
+padding:20px;
+border-radius:15px;
+width:250px;
 }
 
 /* GALERIA */
 .gallery{
-    display:grid;
-    grid-template-columns:repeat(auto-fit, minmax(260px,1fr));
-    gap:18px;
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+gap:15px;
+padding:40px;
 }
 
 .gallery img{
-    width:100%;
-    height:210px;
-    object-fit:cover;
-    border-radius:14px;
-    transition:0.4s;
-    box-shadow:0 10px 25px rgba(0,0,0,0.4);
-}
-
-.gallery img:hover{
-    transform:scale(1.08);
-    box-shadow:0 15px 40px rgba(212,175,55,0.3);
-}
-
-/* BOTÕES */
-.whatsapp, .instagram{
-    position:fixed;
-    right:20px;
-    width:60px;
-    height:60px;
-    border-radius:50%;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    font-size:24px;
-    color:#fff;
-    text-decoration:none;
-    box-shadow:0 5px 15px rgba(0,0,0,0.3);
-    transition:0.3s;
-}
-
-.whatsapp:hover,
-.instagram:hover{
-    transform:scale(1.1);
-}
-
-.whatsapp{
-    bottom:20px;
-    background:#25D366;
-}
-
-.instagram{
-    bottom:95px;
-    background:linear-gradient(135deg,#833AB4,#E1306C,#FCAF45);
+width:100%;
+height:220px;
+object-fit:cover;
+border-radius:12px;
 }
 
 /* FOOTER */
 footer{
-    text-align:center;
-    padding:30px;
-    font-size:14px;
-    opacity:0.7;
+text-align:center;
+padding:30px;
+opacity:0.7;
 }
 </style>
 </head>
 
 <body>
 
-<header>
-    <img src="assets/logo.jpg" alt="HOSPEDAH">
-    <h1>HOSPEDAH</h1>
-    <p>Sua experiência começa aqui</p>
-</header>
-
-<!-- HOT BEACH -->
-<section>
-<h2>HOT BEACH</h2>
-<div class="gallery">
-<img src="https://images.unsplash.com/photo-1566073771259-6a8506099945">
-<img src="https://images.unsplash.com/photo-1582719508461-905c673771fd">
-<img src="https://images.unsplash.com/photo-1551882547-ff40c63fe5fa">
-<img src="https://images.unsplash.com/photo-1576675784201-0e142b423952">
+<!-- MENU -->
+<nav>
+<div class="logo">HOSPEDAH</div>
+<div>
+<a href="#">Início</a>
+<a href="#historia">História</a>
+<a href="#avaliacoes">Avaliações</a>
+<a href="#galeria">Destinos</a>
 </div>
-</section>
+</nav>
 
-<!-- SÃO PEDRO -->
-<section>
-<h2>SÃO PEDRO</h2>
-<div class="gallery">
-<img src="https://images.unsplash.com/photo-1584132967334-10e028bd69f7">
-<img src="https://images.unsplash.com/photo-1590490360182-c33d57733427">
-<img src="https://images.unsplash.com/photo-1542314831-068cd1dbfeeb">
-<img src="https://images.unsplash.com/photo-1559599101-f09722fb4948">
-<img src="https://images.unsplash.com/photo-1578683010236-d716f9a3f461">
+<!-- HERO -->
+<div class="hero">
+<h1>Experiências Exclusivas</h1>
+<p>Sua experiência começa aqui</p>
+
+<a href="https://www.instagram.com/julianasilvaoliveira.joao" class="insta-top" target="_blank">
+📸 Instagram Oficial
+</a>
 </div>
-</section>
 
-<!-- OLÍMPIA -->
-<section>
-<h2>OLÍMPIA</h2>
-<div class="gallery">
-<img src="https://images.unsplash.com/photo-1562790351-d273a961e0e9">
-<img src="https://images.unsplash.com/photo-1501117716987-c8e1ecb2102b">
-<img src="https://images.unsplash.com/photo-1560448204-e02f11c3d0e2">
-<img src="https://images.unsplash.com/photo-1584132915807-fd1f5fbc078f">
+<!-- CONTATOS -->
+<div class="contatos">
+
+<div class="card-contato">
+<h3>Flávio</h3>
+<p>Especialista em Hospedagens</p>
+<a class="btn" href="https://wa.me/5517982006382">WhatsApp</a>
 </div>
-</section>
 
-<!-- SOLAR -->
-<section>
-<h2>SOLAR</h2>
-<div class="gallery">
-<img src="https://images.unsplash.com/photo-1596394516093-501ba68a0ba6">
-<img src="https://images.unsplash.com/photo-1560448204-603b3fc33ddc">
-<img src="https://images.unsplash.com/photo-1560448075-bb485b067938">
+<div class="card-contato">
+<h3>Juliana</h3>
+<p>Especialista em Hospedagens</p>
+<a class="btn" href="https://wa.me/5517992068296">WhatsApp</a>
 </div>
-</section>
 
-<!-- WYNDHAM -->
-<section>
-<h2>WYNDHAM</h2>
-<div class="gallery">
-<img src="https://images.unsplash.com/photo-1578683010236-d716f9a3f461">
-<img src="https://images.unsplash.com/photo-1582719478181-7e3d7bca5c77">
-<img src="https://images.unsplash.com/photo-1590490360182-c33d57733427">
 </div>
-</section>
 
-<!-- JUQUEHY -->
-<section>
-<h2>JUQUEHY</h2>
+<!-- HISTÓRIA -->
+<div class="section" id="historia">
+<h2>Nossa História</h2>
+<p>
+A HOSPEDAH nasceu com o propósito de oferecer experiências únicas em hospedagens.
+Trabalhamos com transparência, excelência e compromisso com cada cliente,
+buscando sempre as melhores opções com atendimento personalizado e humano.
+</p>
+</div>
+
+<!-- AVALIAÇÕES -->
+<div class="section" id="avaliacoes">
+<h2>Avaliações</h2>
+
+<div class="avaliacoes">
+<div class="review">★★★★★<br>Atendimento impecável!</div>
+<div class="review">★★★★★<br>Experiência perfeita do início ao fim.</div>
+<div class="review">★★★★★<br>Super confiável e profissional.</div>
+</div>
+
+</div>
+
+<!-- GALERIA -->
+<div class="section" id="galeria">
+<h2>Destinos Exclusivos</h2>
+</div>
+
 <div class="gallery">
 <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e">
-<img src="https://images.unsplash.com/photo-1500375592092-40eb2168fd21">
-<img src="https://images.unsplash.com/photo-1473116763249-2faaef81ccda">
+<img src="https://images.unsplash.com/photo-1566073771259-6a8506099945">
+<img src="https://images.unsplash.com/photo-1542314831-068cd1dbfeeb">
+<img src="https://images.unsplash.com/photo-1582719478250-c89cae4dc85b">
+<img src="https://images.unsplash.com/photo-1578683010236-d716f9a3f461">
+<img src="https://images.unsplash.com/photo-1590490360182-c33d57733427">
 </div>
-</section>
 
 <footer>
-© HOSPEDAH — Experiências Exclusivas
+© HOSPEDAH — Atendimento 5 estrelas
 </footer>
-
-<a class="whatsapp" href="https://wa.me/5517992068296" target="_blank">📱</a>
-<a class="instagram" href="https://www.instagram.com/julianasilvaoliveira.joao" target="_blank">📸</a>
 
 </body>
 </html>
