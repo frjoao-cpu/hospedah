@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-<!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
@@ -32,7 +31,6 @@
         .resort-link{color:#D4AF37;font-size:1rem;text-decoration:none;font-weight:500;margin-bottom:20px;display:inline-block;}
         .gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:15px;justify-items:center;}
         .gallery img{width:100%;max-width:350px;height:220px;object-fit:cover;border-radius:14px;box-shadow: 0 2px 12px rgba(0,0,0,0.14);}
-        /* orçamento-v3 e multiprop: ajuste responsividade e margem dos formulários */
         .orcamento-v3, .multi-v3 {background: linear-gradient(135deg, #000, #111);}
         .orcamento-v3 {color: #fff; padding: 80px 20px 50px 20px; display: flex; justify-content: center; margin: 48px 0 0 0;}
         .orcamento-v3 .box, .multi-v3 .box {background: #151515; padding: 40px; border-radius: 20px; max-width: 600px; width: 100%; box-shadow: 0 10px 40px rgba(0,0,0,0.6);}
@@ -100,7 +98,7 @@
             <button class="tab" data-target="juquehy" role="tab" aria-selected="false">Praia de Juquehy</button>
         </div>
         <!-- HOT BEACH -->
-        <div class="gallery-block active" id="hotbeach">
+        <div class="gallery-block active" id="hotbeach" role="tabpanel">
             <div class="resort-title">Hot Beach Resort</div>
             <a href="hotbeach.html" class="resort-link" target="_blank">Ver página exclusiva do Hot Beach</a>
             <div class="gallery">
@@ -117,7 +115,7 @@
             </div>
         </div>
         <!-- SÃO PEDRO -->
-        <div class="gallery-block" id="saopedro">
+        <div class="gallery-block" id="saopedro" role="tabpanel">
             <div class="resort-title">São Pedro Thermas</div>
             <a href="saopedro.html" class="resort-link" target="_blank">Ver página exclusiva do São Pedro Thermas</a>
             <div class="gallery">
@@ -135,7 +133,7 @@
             </div>
         </div>
         <!-- OLIMPIA PARK -->
-        <div class="gallery-block" id="olimpia">
+        <div class="gallery-block" id="olimpia" role="tabpanel">
             <div class="resort-title">Olimpia Park</div>
             <a href="olimpia.html" class="resort-link" target="_blank">Ver página exclusiva do Olimpia Park</a>
             <div class="gallery">
@@ -151,7 +149,7 @@
             </div>
         </div>
         <!-- SOLAR DAS ÁGUAS -->
-        <div class="gallery-block" id="solar">
+        <div class="gallery-block" id="solar" role="tabpanel">
             <div class="resort-title">Solar das Águas</div>
             <a href="solar.html" class="resort-link" target="_blank">Ver página exclusiva do Solar das Águas</a>
             <div class="gallery">
@@ -168,7 +166,7 @@
             </div>
         </div>
         <!-- WYNDHAM ROYAL -->
-        <div class="gallery-block" id="wyndham">
+        <div class="gallery-block" id="wyndham" role="tabpanel">
             <div class="resort-title">Wyndham Royal</div>
             <a href="wyndham.html" class="resort-link" target="_blank">Ver página exclusiva do Wyndham Royal</a>
             <div class="gallery">
@@ -185,7 +183,7 @@
             </div>
         </div>
         <!-- PRAIA DE JUQUEHY -->
-        <div class="gallery-block" id="juquehy">
+        <div class="gallery-block" id="juquehy" role="tabpanel">
             <div class="resort-title">Praia de Juquehy</div>
             <a href="juquehy.html" class="resort-link" target="_blank">Ver página exclusiva da Praia de Juquehy</a>
             <div class="gallery">
