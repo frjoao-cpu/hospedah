@@ -13,13 +13,39 @@
   --cor-foco: #e7c343;
 }
 body{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;background:linear-gradient(135deg,#0B1C3D,#142850);color:#fff;}
+/* Barra de destaque fixa */
+.barra-destaque{
+  position:sticky; top:0; z-index:1100;
+  background:linear-gradient(90deg,#fffbe7,#fbecc3 60%,#ffeabb); box-shadow:0 2px 15px #c89a0908;
+  display:flex;gap:22px;justify-content:center;align-items:center;padding:18px 6vw 18px 6vw;
+  border-bottom: 2.5px solid var(--dourado);
+}
+.barra-destaque .btn-destaque{
+  background:linear-gradient(90deg, #f7c876, #d4af37 80%);
+  color:#1b1b1b;
+  font-weight:600;
+  border-radius:25px;
+  font-size:1.11em;
+  padding:13px 27px;
+  border:none;
+  cursor:pointer;
+  box-shadow: 0 2px 13px #d4af3730;
+  display:inline-flex;align-items:center;gap:13px;
+  text-decoration:none;
+  transition:.11s;
+}
+.barra-destaque .btn-destaque:hover{
+  background: var(--dourado);
+  color: #fff;
+  transform:scale(1.055);
+}
+/* -- resto igual ao exemplo anterior -- */
 .faixa-logo {width: 100%; background: #fff; box-shadow: 0 4px 20px -7px #001e3b30; display: flex; align-items: center; justify-content: center; padding: 34px 0 34px 0; position: relative;}
 .faixa-logo img {max-width: 600px;width: 100%;height: auto;display: block;}
 .modo-toggle {position: absolute; top:18px;right:34px;}
 .modo-toggle button {background:#fff1;color:#555;border-radius:16px;padding:6px 16px;font-weight:600;border:none;cursor:pointer;}
 .modo-toggle button:active{background:var(--dourado);color:#fff;}
-.insta-top img,
-.btn img { vertical-align:middle;display:inline-block;margin-right:7px;}
+.insta-top img, .btn img, .btn-destaque img { vertical-align:middle;display:inline-block;margin-right:7px;}
 .zap-float img {display:inline-block;}
 .topo-infos{display:flex; flex-direction:column; align-items:center; gap:7px; margin-top: 22px;}
 .topo-infos h1{color: var(--dourado); font-size: 1.33rem; font-weight:600; margin-bottom:3px;letter-spacing:.4px;}
@@ -29,7 +55,7 @@ body{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;b
 .contato-b h3 { color:var(--dourado); font-size:1.07rem; margin:0 0 2px 0;}
 .contato-b p { font-size:13px; margin:0 0 4px 0; color:#fff;}
 .contato-b a.btn {margin-top:1px; padding:8px 18px; background:#25D366; border-radius:16px; color:#fff; text-decoration:none; font-size:15px;display:inline-flex;align-items:center;gap:8px;}
-nav.nav-main {display:flex; justify-content:center; align-items:center; gap:32px; margin:0; padding:22px 0; background:#fff4; position:sticky; top:0; z-index:40; backdrop-filter:blur(6px);}
+nav.nav-main {display:flex; justify-content:center; align-items:center; gap:32px; margin:0; padding:22px 0; background:#fff4; position:sticky; top:0; z-index:1000; backdrop-filter:blur(6px);}
 nav.nav-main a {color: #0B1C3D; text-decoration: none; font-weight: 500; font-size: 18px; padding: 10px 8px; border-radius: 20px; transition: background .12s,color .12s; display:inline-flex;align-items:center;gap:7px;}
 nav.nav-main a:hover, nav.nav-main a.active{ background: var(--dourado); color: #fff;}
 .section{padding:44px 14px 24px 14px;text-align:center;}
@@ -65,6 +91,7 @@ nav.nav-main a:hover, nav.nav-main a.active{ background: var(--dourado); color: 
   .section{padding:24px 4vw;}
   .resort-title{margin-top:20px;}
   .tab{font-size:13px;padding:9px 10px;}
+  .barra-destaque{flex-direction:column;gap:11px;padding:5vw 2vw;}
 }
 @keyframes fadeIn {from{opacity:0;}to{opacity:1;}}
 /* Depoimentos carrossel */
@@ -108,21 +135,6 @@ nav.nav-main a:hover, nav.nav-main a.active{ background: var(--dourado); color: 
 .depo-carousel-dot.active{
   background:var(--dourado,#D4AF37);border:2px solid #d4af37;
 }
-.orcamento-v3, .multi-v3 {background: linear-gradient(135deg, #000, #111);}
-.orcamento-v3 {color: #fff; padding: 80px 20px 50px 20px; display: flex; justify-content: center;}
-.orcamento-v3 .box, .multi-v3 .box {background: #151515; padding: 40px; border-radius: 20px; max-width: 600px; width: 100%; box-shadow: 0 10px 40px rgba(0,0,0,0.6);}
-.orcamento-v3 h2, .multi-v3 h2 {text-align: center; font-size: 28px;}
-.orcamento-v3 p, .multi-v3 p {text-align: center; color: #aaa; margin-bottom: 25px;}
-#formOrcamento, #formMulti {display: flex; flex-direction: column; gap: 15px;}
-#formOrcamento input, #formMulti input, #formMulti textarea {padding: 14px; border-radius: 12px; border: none; background: #1f1f1f; color: white; font-size: 15px;}
-#formOrcamento .datas {display: flex; gap: 10px;}
-#formOrcamento .datas div {flex: 1;}
-#formOrcamento label, #formMulti label {font-size: 12px; color: #aaa;}
-#formOrcamento button, #formMulti button {margin-top: 10px; padding: 16px; border-radius: 12px; border: none; background: linear-gradient(90deg, gold, #d4af37); font-weight: bold; cursor: pointer; transition: 0.3s;display:flex;align-items:center;gap:8px;justify-content:center;}
-#formOrcamento button:hover, #formMulti button:hover {transform: scale(1.03);}
-#infoEstadia, #preview {font-size: 14px; color: #ccc; text-align: center;}
-#formMulti textarea {min-height: 80px; resize: none;}
-.erro-msg { color:#f56; font-size:14px; margin:0 0 3px 0;}
 .zap-float { position:fixed; right:19px; bottom:18px; z-index:7000; }
 .zap-float a {
     border-radius: 50%;
@@ -190,16 +202,25 @@ footer{background:#191919;color:#fff;padding:36px 11vw 23px 11vw;text-align:cent
     <img src="https://i.imgur.com/naSPn1m.jpeg" style="width:24px;"> Instagram
   </a>
 </nav>
-<!-- GALERIA EM ABAS (exemplo) -->
+
+<!-- BARRA DE DESTAQUE -->
+<div class="barra-destaque">
+  <a href="#orcamento" class="btn-destaque"><img src="https://i.imgur.com/6RduVDB.jpeg" alt="WhatsApp" width="25"> Solicite seu Orçamento Premium</a>
+  <a href="#multi" class="btn-destaque"><img src="https://i.imgur.com/6RduVDB.jpeg" alt="WhatsApp" width="25"> Cadastre seu Empreendimento</a>
+</div>
+
+<!-- GALERIA EM ABAS -->
 <div class="section" id="galeria">
   <div class="tabs" role="tablist">
     <button class="tab active" id="tab_hotbeach" role="tab" aria-controls="hotbeach" aria-selected="true" tabindex="0">Hot Beach</button>
-    <button class="tab" id="tab_saopedro" role="tab" aria-controls="saopedro" aria-selected="false" tabindex="-1">São Pedro</button>
+    <button class="tab" id="tab_saopedro" role="tab" aria-controls="saopedro" aria-selected="false" tabindex="-1">São Pedro Thermas</button>
     <button class="tab" id="tab_olimpia" role="tab" aria-controls="olimpia" aria-selected="false" tabindex="-1">Olimpia Park</button>
+    <button class="tab" id="tab_solar" role="tab" aria-controls="solar" aria-selected="false" tabindex="-1">Solar das Águas</button>
+    <button class="tab" id="tab_wyndham" role="tab" aria-controls="wyndham" aria-selected="false" tabindex="-1">Wyndham Royal</button>
+    <button class="tab" id="tab_juquehy" role="tab" aria-controls="juquehy" aria-selected="false" tabindex="-1">Praia de Juquehy</button>
   </div>
   <div class="gallery-block active" id="hotbeach" role="tabpanel" tabindex="0" aria-labelledby="tab_hotbeach">
     <div class="resort-title">Hot Beach Resort</div>
-    <a href="hotbeach.html" class="resort-link" target="_blank">Ver página exclusiva do Hot Beach</a>
     <div class="gallery">
       <img src="https://i.imgur.com/AmFSwwd.jpeg" alt="Hot Beach 1" loading="lazy" tabindex="0">
       <img src="https://i.imgur.com/PMok8fe.jpeg" alt="Hot Beach 2" loading="lazy" tabindex="0">
@@ -208,7 +229,6 @@ footer{background:#191919;color:#fff;padding:36px 11vw 23px 11vw;text-align:cent
   </div>
   <div class="gallery-block" id="saopedro" role="tabpanel" tabindex="-1" aria-labelledby="tab_saopedro">
     <div class="resort-title">São Pedro Thermas</div>
-    <a href="saopedro.html" class="resort-link" target="_blank">Ver página exclusiva do São Pedro</a>
     <div class="gallery">
       <img src="https://i.imgur.com/pyEKOtQ.jpeg" alt="São Pedro 1" loading="lazy" tabindex="0">
       <img src="https://i.imgur.com/1HeNjKT.jpeg" alt="São Pedro 2" loading="lazy" tabindex="0">
@@ -216,15 +236,36 @@ footer{background:#191919;color:#fff;padding:36px 11vw 23px 11vw;text-align:cent
   </div>
   <div class="gallery-block" id="olimpia" role="tabpanel" tabindex="-1" aria-labelledby="tab_olimpia">
     <div class="resort-title">Olimpia Park</div>
-    <a href="olimpia.html" class="resort-link" target="_blank">Ver página exclusiva do Olimpia Park</a>
     <div class="gallery">
       <img src="https://i.imgur.com/AseZPzL.jpeg" alt="Olimpia Park 1" loading="lazy" tabindex="0">
       <img src="https://i.imgur.com/uhGHhcA.jpeg" alt="Olimpia Park 2" loading="lazy" tabindex="0">
     </div>
   </div>
+  <div class="gallery-block" id="solar" role="tabpanel" tabindex="-1" aria-labelledby="tab_solar">
+    <div class="resort-title">Solar das Águas</div>
+    <div class="gallery">
+      <img src="https://i.imgur.com/S4tSUzG.jpeg" alt="Solar das Águas 1" loading="lazy" tabindex="0">
+      <img src="https://i.imgur.com/uiZei1A.jpeg" alt="Solar das Águas 2" loading="lazy" tabindex="0">
+    </div>
+  </div>
+  <div class="gallery-block" id="wyndham" role="tabpanel" tabindex="-1" aria-labelledby="tab_wyndham">
+    <div class="resort-title">Wyndham Royal</div>
+    <div class="gallery">
+      <img src="https://i.imgur.com/iDMQ2XA.jpeg" alt="Wyndham Royal 1" loading="lazy" tabindex="0">
+      <img src="https://i.imgur.com/WOhzcpP.jpeg" alt="Wyndham Royal 2" loading="lazy" tabindex="0">
+    </div>
+  </div>
+  <div class="gallery-block" id="juquehy" role="tabpanel" tabindex="-1" aria-labelledby="tab_juquehy">
+    <div class="resort-title">Praia de Juquehy</div>
+    <div class="gallery">
+      <img src="https://i.imgur.com/SxlktwS.jpeg" alt="Juquehy 1" loading="lazy" tabindex="0">
+      <img src="https://i.imgur.com/uORu8RN.jpeg" alt="Juquehy 2" loading="lazy" tabindex="0">
+    </div>
+  </div>
 </div>
 
-<!-- ... (seus formulários, outras seções, multi-v3, etc) ... -->
+<!-- FORMULÁRIOS, CONTATO, ETC ... -->
+<!-- ...blocos do seu site aqui... -->
 
 <!-- DEPOIMENTOS CARROSSEL (no rodapé, antes do footer) -->
 <section class="depoimentos-section" id="depoimentos">
@@ -241,192 +282,5 @@ footer{background:#191919;color:#fff;padding:36px 11vw 23px 11vw;text-align:cent
       <div class="depo-card">
         <img src="https://i.imgur.com/dciabUo.jpeg" alt="Cliente Ricardo A.">
         <div class="depo-stars">★★★★★</div>
-        <p>“Fechei sem medo! Equipe muito confiável, recomendo para todos que buscam férias tranquilas.”</p>
-        <div class="depo-nome">Ricardo A.</div>
-        <div class="depo-cidade">São Paulo, SP</div>
-      </div>
-      <div class="depo-card">
-        <img src="https://i.imgur.com/dciabUo.jpeg" alt="Cliente Marina Lopes">
-        <div class="depo-stars">★★★★★</div>
-        <p>“Tudo perfeito: reserva, atendimento e o resort maravilhoso. Obrigada, HOSPEDAH!”</p>
-        <div class="depo-nome">Marina Lopes</div>
-        <div class="depo-cidade">Uberaba, MG</div>
-      </div>
-      <div class="depo-card">
-        <img src="https://i.imgur.com/j5izC2s.jpeg" alt="Cliente Gabriel Pinheiro">
-        <div class="depo-stars">★★★★★</div>
-        <p>“Superaram as minhas expectativas. Voltarei a reservar com eles, com certeza.”</p>
-        <div class="depo-nome">Gabriel Pinheiro</div>
-        <div class="depo-cidade">Campinas, SP</div>
-      </div>
-      <div class="depo-card">
-        <img src="https://i.imgur.com/iVoMnep.jpeg" alt="Cliente Paula Menezes">
-        <div class="depo-stars">★★★★★</div>
-        <p>“Atendimento exclusivo, muita praticidade e resorts fantásticos. Indico de olhos fechados.”</p>
-        <div class="depo-nome">Paula Menezes</div>
-        <div class="depo-cidade">Belo Horizonte, MG</div>
-      </div>
-    </div>
-    <div class="depo-carousel-arrows">
-      <button class="depo-carousel-btn" id="depoPrev" aria-label="Anterior" type="button">&#8592;</button>
-      <button class="depo-carousel-btn" id="depoNext" aria-label="Próximo" type="button">&#8594;</button>
-    </div>
-    <div class="depo-carousel-dots">
-      <span class="depo-carousel-dot active"></span>
-      <span class="depo-carousel-dot"></span>
-      <span class="depo-carousel-dot"></span>
-      <span class="depo-carousel-dot"></span>
-      <span class="depo-carousel-dot"></span>
-    </div>
-  </div>
-</section>
-
-<footer>
-  <div class="footer-grid">
-    <div class="footer-logo"><img src="https://i.imgur.com/ITjjQaf.jpeg" alt="Logo HOSPEDAH"></div>
-    <div>
-      <b>Reservas e informações:</b><br>
-      <a href="https://wa.me/5517982006382" style="color:#25D366;display:inline-flex;align-items:center;gap:4px;" target="_blank"><img src="https://i.imgur.com/6RduVDB.jpeg" style="width:18px;"> WhatsApp Flávio</a><br>
-      <a href="https://wa.me/5517992068296" style="color:#25D366;display:inline-flex;align-items:center;gap:4px;" target="_blank"><img src="https://i.imgur.com/6RduVDB.jpeg" style="width:18px;"> WhatsApp Juliana</a>
-    </div>
-    <div class="footer-social">
-      <b>Siga nas redes:</b><br>
-      <a href="https://www.instagram.com/julianasilvaoliveira.joao?igsh=bzZmNGIxdjdqc285" target="_blank"><img src="https://i.imgur.com/naSPn1m.jpeg" style="width:26px;" alt="Instagram"></a>
-    </div>
-    <div>
-      <b>Endereço:</b><br>
-      São José do Rio Preto, SP <br>
-      CNPJ 44.035.040/0001-65
-    </div>
-  </div>
-  <div style="margin-top:16px;">© HOSPEDAH — Exclusividade em experiências</div>
-</footer>
-<div class="zap-float">
-  <a href="https://wa.me/5517982006382?text=Olá, gostaria de atendimento sobre hospedagem!" target="_blank" aria-label="Chamar no WhatsApp">
-    <img src="https://i.imgur.com/6RduVDB.jpeg" alt="WhatsApp" style="width:40px;height:40px;">
-  </a>
-</div>
-<!-- SCRIPTS -->
-<script>
-// Modo claro/escuro
-const modeBtn = document.getElementById('modeToggleBtn');
-function setTheme(mode){
-  document.documentElement.setAttribute('data-theme',mode);
-  try{localStorage.setItem('theme',mode);}catch{}
-}
-modeBtn.addEventListener('click',()=>{
-  const current= document.documentElement.getAttribute('data-theme');
-  setTheme(current==='light'?'dark':'light');
-});
-(function(){
-  let userMode = null;
-  try{userMode = localStorage.getItem('theme');}catch(e){}
-  setTheme(userMode ? userMode : 'dark');
-})();
-// Tabs ARIA/Keyboard/Focus
-document.addEventListener('DOMContentLoaded', function() {
-  const tabs = document.querySelectorAll('.tab');
-  const blocks = document.querySelectorAll('.gallery-block');
-  tabs.forEach(tab => {
-    tab.addEventListener('click', function(){
-      tabs.forEach((t,i)=>{
-        t.classList.remove('active');
-        t.setAttribute('aria-selected', 'false');
-        t.setAttribute('tabindex', '-1');
-        blocks[i].classList.remove('active');
-        blocks[i].setAttribute('tabindex', '-1');
-      });
-      this.classList.add('active');
-      this.setAttribute('aria-selected','true');
-      this.setAttribute('tabindex', '0');
-      let idx = Array.from(tabs).indexOf(this);
-      blocks[idx].classList.add('active');
-      blocks[idx].setAttribute('tabindex','0');
-      blocks[idx].focus();
-    });
-    tab.addEventListener('keydown',function(e){
-      if(e.key==="ArrowRight"||e.key==="ArrowLeft"){
-        let idx = Array.from(tabs).indexOf(document.activeElement);
-        if(e.key==="ArrowRight") idx++;
-        else idx--;
-        if(idx>=tabs.length) idx=0;
-        if(idx<0) idx=tabs.length-1;
-        tabs[idx].focus();
-        tabs[idx].click();
-        e.preventDefault();
-      }
-    });
-  });
-});
-// Mascara telefone
-function mascaraTelefone(e){
-  let v = e.target.value.replace(/\D/g,'');
-  if (v.length > 2 && v.length <= 7)
-    v = '(' + v.slice(0,2) + ') ' + v.slice(2);
-  else if (v.length > 7)
-    v = '(' + v.slice(0,2) + ') ' + v.slice(2,7) + '-' + v.slice(7,11);
-  e.target.value = v;
-}
-document.querySelectorAll('input[type="tel"]').forEach(inp=>{
-    inp.addEventListener('input', mascaraTelefone);
-});
-// Lightbox para galeria
-document.querySelectorAll('.gallery img').forEach((img, index, arr)=>{
-  img.addEventListener('click',()=>showLightbox(arr,index));
-  img.addEventListener('keydown',e=>{
-    if(e.key==='Enter'||e.key===' ') { showLightbox(arr,index); e.preventDefault();}
-  });
-});
-function showLightbox(imgArray, idx){
-  let lb = document.createElement('div');
-  lb.className = 'lightbox-modal';
-  let area = document.createElement('div');
-  area.className = 'lightbox-img-area';
-  let img = document.createElement('img');
-  img.src = imgArray[idx].src; img.alt=imgArray[idx].alt;
-  area.appendChild(img);
-  let btnClose = document.createElement('button');
-  btnClose.className = 'lightbox-close'; btnClose.innerHTML = '&times;';
-  btnClose.onclick = ()=>lb.remove();
-  area.appendChild(btnClose);
-  function navImg(inc){
-    idx = (idx+inc+imgArray.length)%imgArray.length;
-    img.src = imgArray[idx].src; img.alt=imgArray[idx].alt;
-  }
-  let btnPrev = document.createElement('button'); btnPrev.className = 'lightbox-arrow prev'; btnPrev.innerHTML = '&#60;';
-  btnPrev.onclick = ()=>navImg(-1);
-  let btnNext = document.createElement('button'); btnNext.className = 'lightbox-arrow next'; btnNext.innerHTML = '&#62;';
-  btnNext.onclick = ()=>navImg(+1);
-  area.appendChild(btnPrev); area.appendChild(btnNext);
-  lb.appendChild(area);
-  lb.tabIndex=0;
-  document.body.appendChild(lb); btnClose.focus();
-  lb.addEventListener('keydown', function(e){
-    if(e.key==='Escape') lb.remove();
-    else if(e.key==='ArrowLeft') navImg(-1);
-    else if(e.key==='ArrowRight') navImg(+1);
-  });
-  lb.onclick = e => {if(e.target===lb) lb.remove();}
-}
-// Depoimentos carrossel
-(function(){
-  const cards = document.querySelectorAll('.depo-card');
-  const dots = document.querySelectorAll('.depo-carousel-dot');
-  let current = 0, max = cards.length;
-  function show(idx) {
-    cards.forEach((c,i)=>c.classList.toggle('active',i===idx));
-    dots.forEach((d,i)=>d.classList.toggle('active',i===idx));
-    current = idx;
-  }
-  document.getElementById('depoNext').onclick = () => show((current+1)%max);
-  document.getElementById('depoPrev').onclick = () => show((current+max-1)%max);
-  dots.forEach((dot,i)=>dot.onclick=()=>show(i));
-  document.querySelector('.depo-carousel-wrap').addEventListener('keydown',function(e){
-    if (e.key==='ArrowRight') { show((current+1)%max); e.preventDefault(); }
-    else if (e.key==='ArrowLeft') { show((current+max-1)%max); e.preventDefault(); }
-  });
-  setInterval(()=>show((current+1)%max), 8500);
-})();
-</script>
-</body>
-</html>
+        <p>“Fechei sem*
+
