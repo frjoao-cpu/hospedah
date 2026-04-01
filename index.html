@@ -10,41 +10,127 @@
         :root{--azul:#0B1C3D;--dourado:#D4AF37;}
         body{background:linear-gradient(135deg,#0B1C3D,#142850);color:#fff;}
 
-        .logo-faixa {
+        .header-bar-flex {
             width: 100%;
             display: flex;
-            justify-content: center;
-            align-items: center;
+            align-items: center; /* Centraliza verticalmente */
+            justify-content: space-between;
             background: #fff;
-            /* margem para descer o logo "um pouco mais" */
-            padding: 70px 0 35px 0;
+            padding: 24px 3vw 17px 3vw;
             box-shadow: 0 4px 20px -7px #001e3b30;
+            position: relative;
+            z-index: 1200;
+            gap: 22px;
         }
-        .logo-faixa img {
-            max-width: 430px;
+        .header-left {
+            display: flex;
+            align-items: center; /* Alinha logo e menu pelo centro */
+            gap: 36px;
+        }
+        .header-bar-flex img {
+            max-width: 162px;
             width: 100%;
             height: auto;
             display: block;
         }
-        @media (max-width:600px) {
-            .logo-faixa img { max-width:90vw; }
-            .logo-faixa { padding:36px 0 10px 0; }
+        nav.nav-main {
+            display: flex;
+            gap: 25px;
+            align-items: center;
+            padding-top: 0;
+        }
+        nav.nav-main a {
+            color: var(--azul);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 16px;
+            padding: 10px 5px;
+            border-radius: 20px;
+            transition: background .12s,color .12s;
+        }
+        nav.nav-main a:hover {
+            background: var(--dourado);
+            color: #fff;
         }
 
-        nav{position:fixed;top:0;width:100%;background:rgba(0,0,0,0.4);backdrop-filter:blur(10px);display:flex;justify-content:space-between;padding:15px 30px;z-index:1000;}
-        nav a{color:#fff;text-decoration:none;margin:0 10px;font-size:14px;}
-        .logo{color:var(--dourado);font-weight:600;}
-        .hero{padding-top:90px;text-align:center;}
-        .hero h1{font-size:42px;color:var(--dourado);}
-        .insta-top{margin-top:30px;display:inline-block;padding:10px 20px;border-radius:30px;background:linear-gradient(45deg,#833AB4,#E1306C,#FCAF45);text-decoration:none;color:#fff;}
-        .contatos{display:flex;justify-content:center;gap:30px;margin:40px 0;flex-wrap:wrap;}
-        .card-contato{background:rgba(255,255,255,0.05);padding:20px;border-radius:15px;text-align:center;width:250px;}
-        .card-contato h3{color:var(--dourado);}
-        .card-contato p{font-size:13px;margin:5px 0;}
-        .btn{margin-top:10px;display:inline-block;padding:10px 15px;background:#25D366;border-radius:20px;color:#fff;text-decoration:none;}
+        .header-infos {
+            display: flex;
+            align-items: center;           /* Centraliza na linha do logo */
+            gap: 22px;
+            flex-wrap: wrap;
+        }
+        .header-infos-main {
+            display:flex;
+            flex-direction:column;
+            align-items: flex-start;
+            justify-content: center;
+            margin-bottom: 0;
+        }
+        .header-infos h1 {
+            color: var(--dourado);
+            font-size: 1.06rem;
+            font-weight: 600;
+            line-height: 1.1;
+            margin: 0 0 7px 0;
+            letter-spacing:.4px;
+        }
+        .insta-top {
+            margin-bottom: 0;
+            display:inline-block;
+            padding:7px 18px;
+            border-radius:30px;
+            background:linear-gradient(45deg,#833AB4,#E1306C,#FCAF45);
+            text-decoration:none;
+            color:#fff;
+            font-size: 15px;
+            font-weight: 500;
+        }
+        .header-consultor {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+            background: rgba(11,28,61,0.07);
+            border-radius: 11px;
+            padding: 7px 11px 5px 11px;
+            min-width:105px;
+            align-items: flex-start;
+            margin-right:3px;
+        }
+        .header-consultor h3 {
+            color:var(--dourado);
+            font-size:.99rem;
+            margin:0;
+        }
+        .header-consultor p {
+            font-size:12px;
+            margin:1px 0 3px 0;
+            color:#222f35;
+        }
+        .header-consultor a.btn {
+            margin-top:1px;
+            padding:6px 10px;
+            background:#25D366;
+            border-radius:16px;
+            color:#fff;
+            text-decoration:none;
+            font-size:13px;
+        }
+
+        @media (max-width:1100px) {
+            .header-bar-flex {flex-direction:column;align-items:center;padding:13px 2vw 5px 2vw;gap:11px;}
+            .header-left {gap:11px;flex-direction:column;align-items:center;}
+            .header-infos-main{align-items: center;}
+            .header-infos{gap:8px;flex-direction:column;}
+        }
+        @media(max-width:600px){
+            .header-bar-flex img { max-width:68vw;}
+            nav.nav-main {gap:7px;}
+        }
+
         .section{padding:50px 30px;text-align:center;}
         .section h2{color:var(--dourado);margin-bottom:20px;}
         .section p{max-width:800px;margin:auto;opacity:0.85;}
+
         .avaliacoes{display:flex;gap:20px;justify-content:center;flex-wrap:wrap;margin-top:30px;}
         .review{background:rgba(255,255,255,0.05);padding:20px;border-radius:15px;width:250px;}
         .tabs{display:flex;justify-content:center;gap:8px;margin-bottom:30px;flex-wrap:wrap;}
@@ -57,46 +143,39 @@
         footer{text-align:center;padding:30px;opacity:0.7;}
         @media(max-width:700px){
             .gallery img{height:140px;}
-            nav{padding:7px 10px;}
+            .section h2{font-size:19px;}
         }
     </style>
 </head>
 <body>
-    <!-- LOGO EM FAIXA NO TOPO -->
-    <div class="logo-faixa">
-        <img src="https://i.imgur.com/ITjjQaf.jpeg" alt="HOSPEDAH - Sua experiência começa aqui">
-    </div>
-
-    <!-- MENU -->
-    <nav>
-        <div class="logo"></div>
-        <div>
-            <a href="#">Início</a>
-            <a href="#historia">História</a>
-            <a href="#avaliacoes">Avaliações</a>
-            <a href="#galeria">Destinos</a>
+    <!-- TOPO: LOGO + MENU + INFORMAÇÕES LADO A LADO, ENCOSTADOS NA FAIXA BRANCA -->
+    <div class="header-bar-flex">
+        <div class="header-left">
+            <img src="https://i.imgur.com/ITjjQaf.jpeg" alt="HOSPEDAH - Sua experiência começa aqui">
+            <nav class="nav-main">
+                <a href="#">Início</a>
+                <a href="#historia">História</a>
+                <a href="#avaliacoes">Avaliações</a>
+                <a href="#galeria">Destinos</a>
+            </nav>
         </div>
-    </nav>
-
-    <!-- HERO -->
-    <div class="hero">
-        <h1>Experiências Exclusivas</h1>
-        <a href="https://www.instagram.com/julianasilvaoliveira.joao?igsh=bzZmNGIxdjdqc285" class="insta-top" target="_blank">
-            📸 Instagram Oficial
-        </a>
-    </div>
-
-    <!-- CONTATOS -->
-    <div class="contatos">
-        <div class="card-contato">
-            <h3>Flávio</h3>
-            <p>Especialista em Hospedagens</p>
-            <a class="btn" href="https://wa.me/5517982006382" target="_blank">WhatsApp</a>
-        </div>
-        <div class="card-contato">
-            <h3>Juliana</h3>
-            <p>Especialista em Hospedagens</p>
-            <a class="btn" href="https://wa.me/5517992068296" target="_blank">WhatsApp</a>
+        <div class="header-infos">
+            <div class="header-infos-main">
+                <h1>Experiências Exclusivas</h1>
+                <a href="https://www.instagram.com/julianasilvaoliveira.joao?igsh=bzZmNGIxdjdqc285" class="insta-top" target="_blank">
+                    📸 Instagram Oficial
+                </a>
+            </div>
+            <div class="header-consultor">
+                <h3>Flávio</h3>
+                <p>Especialista em Hospedagens</p>
+                <a class="btn" href="https://wa.me/5517982006382" target="_blank">WhatsApp</a>
+            </div>
+            <div class="header-consultor">
+                <h3>Juliana</h3>
+                <p>Especialista em Hospedagens</p>
+                <a class="btn" href="https://wa.me/5517992068296" target="_blank">WhatsApp</a>
+            </div>
         </div>
     </div>
 
@@ -145,16 +224,5 @@
         <div class="gallery-block" id="saopedro">
             <div class="gallery">
                 <img src="https://images.unsplash.com/photo-1584132967334-10e028bd69f7?auto=format&fit=crop&w=800&q=80" alt="São Pedro 1">
-                <img src="https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=800&q=80" alt="São Pedro 2">
-                <img src="https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=800&q=80" alt="São Pedro 3">
-                <img src="https://images.unsplash.com/photo-1559599101-f09722fb4948?auto=format&fit=crop&w=800&q=80" alt="São Pedro 4">
-                <img src="https://images.unsplash.com/photo-1578683010236-d716f9a3f461?auto=format&fit=crop&w=800&q=80" alt="São Pedro 5">
-                <img src="https://images.unsplash.com/photo-1596436889106-be35e843f974?auto=format&fit=crop&w=800&q=80" alt="São Pedro 6">
-                <img src="https://images.unsplash.com/photo-1582268611958-ebfd161ef9cf?auto=format&fit=crop&w=800&q=80" alt="São Pedro 7">
-                <img src="https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&w=800&q=80" alt="São Pedro 8">
-                <img src="https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?auto=format&fit=crop&w=800&q=80" alt="São Pedro 9">
-            </div>
-        </div>
-        <!-- OLIMPIA (6) -->
-        <div class="gallery-block" id*
+                <*
 
