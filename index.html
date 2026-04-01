@@ -9,8 +9,7 @@
         *{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
         :root{--azul:#0B1C3D;--dourado:#D4AF37;}
         body{background:linear-gradient(135deg,#0B1C3D,#142850);color:#fff;}
-
-        /* FAIXA BRANCA MUITO MAIS ALTA, LOGO BEM GRANDE E BEM DESCIDO */
+        /* FAIXA BRANCA REDUZIDA, LOGO CENTRALIZADO E GRANDE */
         .faixa-logo {
             width: 100%;
             background: #fff;
@@ -18,11 +17,11 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 120px 0 120px 0; /* MUITO MAIS ALTA, logo desce */
+            padding: 54px 0 54px 0; /* menos altura que antes */
             position: relative;
         }
         .faixa-logo img {
-            max-width: 660px; /* LOGO MAIOR (ajuste aqui se quiser ainda maior) */
+            max-width: 600px;
             width: 100%;
             height: auto;
             display: block;
@@ -76,46 +75,8 @@
         }
         .contato-b p {
             font-size:13px;
-            margin:0 0 4px 0;
-            color:#222f35;
-        }
-        .contato-b a.btn {
-            margin-top:1px;
-            padding:8px 18px;
-            background:#25D366;
-            border-radius:16px;
-            color:#fff;
-            text-decoration:none;
-            font-size:15px;
-        }
-        nav.nav-main {
-            display:flex;
-            justify-content:center;
-            gap:32px;
-            margin:34px 0 0 0;
-            background:none;
-        }
-        nav.nav-main a {
-            color: var(--azul);
-            text-decoration: none;
-            font-weight: 500;
-            font-size: 18px;
-            padding: 12px 7px;
-            border-radius: 20px;
-            transition: background .12s,color .12s;
-        }
-        nav.nav-main a:hover {
-            background: var(--dourado);
-            color: #fff;
-        }
-
-        @media(max-width:900px){
-            .faixa-logo img{max-width:94vw;}
-            .faixa-logo{padding:20vw 0 18vw 0;}
-            .topo-infos h1{font-size:1.09rem;}
-            .insta-top{font-size:14px;padding:7px 14px;}
-            .contato-b{padding:9px 6vw 8px 6vw;}
-            .contato-b h3{font-size:1em;}
+            margin:0 0 4*
+
             nav.nav-main{gap:15px;}
         }
         .section{padding:50px 30px;text-align:center;}
