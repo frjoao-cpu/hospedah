@@ -10,38 +10,111 @@
         :root{--azul:#0B1C3D;--dourado:#D4AF37;}
         body{background:linear-gradient(135deg,#0B1C3D,#142850);color:#fff;}
 
-        .logo-faixa {
+        /* FAIXA BRANCA MAIS ALTA, LOGO CENTRALIZADO E MAIOR */
+        .faixa-logo {
             width: 100%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
             background: #fff;
-            padding: 30px 0 20px 0;
             box-shadow: 0 4px 20px -7px #001e3b30;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 54px 0 80px 0; /* MAIS ESPAÇO ACIMA, MAIS ALTURA TOTAL */
+            position: relative;
         }
-        .logo-faixa img {
-            max-width: 430px;
+        .faixa-logo img {
+            max-width: 520px; /* LOGO MAIOR */
             width: 100%;
             height: auto;
             display: block;
         }
-        @media (max-width:600px) {
-            .logo-faixa img { max-width:90vw; }
-            .logo-faixa { padding:16px 0 8px 0; }
+
+        /* Bloco de informações centralizado abaixo da faixa */
+        .topo-infos{
+            display:flex;
+            flex-direction:column;
+            align-items:center;
+            gap:7px;
+            margin-top: 10px;
+        }
+        .topo-infos h1{
+            color: var(--dourado);
+            font-size: 1.21rem;
+            font-weight:600;
+            margin-bottom:3px;
+            letter-spacing:.4px;
+        }
+        .insta-top {
+            margin-bottom: 4px;
+            display:inline-block;
+            padding:8px 22px;
+            border-radius:30px;
+            background:linear-gradient(45deg,#833AB4,#E1306C,#FCAF45);
+            text-decoration:none;
+            color:#fff;
+            font-size: 15px;
+            font-weight: 500;
+        }
+        .contatos-topo {
+            display:flex;
+            gap:18px;
+            justify-content:center;
+            margin-top:12px;
+        }
+        .contato-b {
+            background: rgba(11,28,61,0.07);
+            border-radius: 11px;
+            padding: 10px 15px 9px 15px;
+            min-width:120px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .contato-b h3 {
+            color:var(--dourado);
+            font-size:.99rem;
+            margin:0 0 2px 0;
+        }
+        .contato-b p {
+            font-size:12px;
+            margin:0 0 3px 0;
+            color:#222f35;
+        }
+        .contato-b a.btn {
+            margin-top:1px;
+            padding:7px 12px;
+            background:#25D366;
+            border-radius:16px;
+            color:#fff;
+            text-decoration:none;
+            font-size:13px;
+        }
+        nav.nav-main {
+            display:flex;
+            justify-content:center;
+            gap:28px;
+            margin:27px 0 0 0;
+            background:none;
+        }
+        nav.nav-main a {
+            color: var(--azul);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 16px;
+            padding: 10px 5px;
+            border-radius: 20px;
+            transition: background .12s,color .12s;
+        }
+        nav.nav-main a:hover {
+            background: var(--dourado);
+            color: #fff;
         }
 
-        nav{position:fixed;top:0;width:100%;background:rgba(0,0,0,0.4);backdrop-filter:blur(10px);display:flex;justify-content:space-between;padding:15px 30px;z-index:1000;}
-        nav a{color:#fff;text-decoration:none;margin:0 10px;font-size:14px;}
-        .logo{color:var(--dourado);font-weight:600;}
-        .hero{padding-top:120px;text-align:center;}
-        .hero h1{font-size:42px;color:var(--dourado);}
-        .hero p{margin-top:10px;opacity:0.8;}
-        .insta-top{margin-top:20px;display:inline-block;padding:10px 20px;border-radius:30px;background:linear-gradient(45deg,#833AB4,#E1306C,#FCAF45);text-decoration:none;color:#fff;}
-        .contatos{display:flex;justify-content:center;gap:30px;margin:40px 0;flex-wrap:wrap;}
-        .card-contato{background:rgba(255,255,255,0.05);padding:20px;border-radius:15px;text-align:center;width:250px;}
-        .card-contato h3{color:var(--dourado);}
-        .card-contato p{font-size:13px;margin:5px 0;}
-        .btn{margin-top:10px;display:inline-block;padding:10px 15px;background:#25D366;border-radius:20px;color:#fff;text-decoration:none;}
+        @media(max-width:700px){
+            .faixa-logo img{max-width:92vw;}
+            .faixa-logo{padding:12vw 0 19vw 0;}
+            .contatos-topo {gap:8px;}
+            nav.nav-main{gap:10px;}
+        }
         .section{padding:50px 30px;text-align:center;}
         .section h2{color:var(--dourado);margin-bottom:20px;}
         .section p{max-width:800px;margin:auto;opacity:0.85;}
@@ -57,49 +130,39 @@
         footer{text-align:center;padding:30px;opacity:0.7;}
         @media(max-width:700px){
             .gallery img{height:140px;}
-            nav{padding:7px 10px;}
         }
     </style>
 </head>
 <body>
-    <!-- LOGO EM FAIXA NO TOPO -->
-    <div class="logo-faixa">
+    <!-- FAIXA DO LOGO CENTRALIZADA, MAIS ALTA E LOGO MAIOR -->
+    <div class="faixa-logo">
         <img src="https://i.imgur.com/ITjjQaf.jpeg" alt="HOSPEDAH - Sua experiência começa aqui">
     </div>
-
-    <!-- MENU -->
-    <nav>
-        <div class="logo"></div>
-        <div>
-            <a href="#">Início</a>
-            <a href="#historia">História</a>
-            <a href="#avaliacoes">Avaliações</a>
-            <a href="#galeria">Destinos</a>
-        </div>
-    </nav>
-
-    <!-- HERO -->
-    <div class="hero">
+    <!-- BLOCO CENTRALIZADO DAS INFORMAÇÕES PRINCIPAIS -->
+    <div class="topo-infos">
         <h1>Experiências Exclusivas</h1>
-        <p>Sua experiência começa aqui</p>
         <a href="https://www.instagram.com/julianasilvaoliveira.joao?igsh=bzZmNGIxdjdqc285" class="insta-top" target="_blank">
             📸 Instagram Oficial
         </a>
-    </div>
-
-    <!-- CONTATOS -->
-    <div class="contatos">
-        <div class="card-contato">
-            <h3>Flávio</h3>
-            <p>Especialista em Hospedagens</p>
-            <a class="btn" href="https://wa.me/5517982006382" target="_blank">WhatsApp</a>
-        </div>
-        <div class="card-contato">
-            <h3>Juliana</h3>
-            <p>Especialista em Hospedagens</p>
-            <a class="btn" href="https://wa.me/5517992068296" target="_blank">WhatsApp</a>
+        <div class="contatos-topo">
+            <div class="contato-b">
+                <h3>Flávio</h3>
+                <p>Especialista em Hospedagens</p>
+                <a class="btn" href="https://wa.me/5517982006382" target="_blank">WhatsApp</a>
+            </div>
+            <div class="contato-b">
+                <h3>Juliana</h3>
+                <p>Especialista em Hospedagens</p>
+                <a class="btn" href="https://wa.me/5517992068296" target="_blank">WhatsApp</a>
+            </div>
         </div>
     </div>
+    <nav class="nav-main">
+        <a href="#">Início</a>
+        <a href="#historia">História</a>
+        <a href="#avaliacoes">Avaliações</a>
+        <a href="#galeria">Destinos</a>
+    </nav>
 
     <!-- HISTÓRIA -->
     <div class="section" id="historia">
