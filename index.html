@@ -87,7 +87,6 @@
         <a href="#multi">Cadastre seu empreendimento</a>
         <a href="#contato">Contato</a>
     </nav>
-
     <div class="section" id="galeria">
         <div class="tabs" role="tablist">
             <button class="tab active" id="tab_hotbeach" role="tab" aria-controls="hotbeach" aria-selected="true" tabindex="0">Hot Beach</button>
@@ -188,16 +187,62 @@
             </div>
         </div>
     </div>
-    <!-- ...Demais seções idênticas... -->
 
-    <!-- Orçamento e Cadastro seguem idênticos ao exemplo anterior -->
-    <!-- ... -->
+    <section class="orcamento-v3" id="orcamento">
+      <div class="box">
+        <h2>Solicitar Orçamento Premium</h2>
+        <p>Preencha os dados e receba atendimento imediato</p>
+        <form id="formOrcamento">
+          <input type="text" id="nome" placeholder="Seu nome completo" required>
+          <input type="text" id="propriedade" placeholder="Destino ou propriedade desejada" required>
+          <div class="datas">
+            <div>
+              <label>Check-in</label>
+              <input type="date" id="checkin" required>
+            </div>
+            <div>
+              <label>Check-out</label>
+              <input type="date" id="checkout" required>
+            </div>
+          </div>
+          <input type="number" id="pessoas" placeholder="Quantidade de pessoas" min="1" required>
+          <input type="tel" id="whatsapp" pattern="[0-9]{2}[0-9]{8,9}" placeholder="Seu WhatsApp" required>
+          <div id="infoEstadia"></div>
+          <button type="submit" id="btnEnviar">Solicitar via WhatsApp</button>
+        </form>
+      </div>
+    </section>
 
+    <section class="multi-v3" id="multi">
+      <div class="box">
+        <h2>Cadastre o seu empreendimento aqui</h2>
+        <p>Preencha os dados e envie seu imóvel ou empreendimento para nosso time comercial</p>
+        <form id="formMulti">
+          <input type="text" id="resort" placeholder="Empreendimento / Resort" required>
+          <input type="number" id="dormitorios" placeholder="Nº de dormitórios" required>
+          <input type="text" id="vista" placeholder="Vista da sacada (ex: mar, piscina, jardim)" required>
+          <input type="text" id="uso" placeholder="Uso (ex: 1 semana por ano, anual, avulso, etc.)" required>
+          <textarea id="periodos" placeholder="Períodos disponíveis ou observações (ex: Janeiro, Julho etc, ou Out/Nov em aberto, etc.)" required></textarea>
+          <input type="text" id="nomeMulti" placeholder="Seu nome" required>
+          <input type="tel" id="contato" placeholder="WhatsApp para contato" required>
+          <div id="preview"></div>
+          <button type="submit">Cadastrar agora</button>
+        </form>
+      </div>
+    </section>
+
+    <div class="section" id="contato">
+        <h2>Contato</h2>
+        <p>Entre em contato para reservas, cotações e atendimento exclusivo.<br>
+        <strong>Flávio:</strong> <a style="color:#25D366;" href="https://wa.me/5517982006382" target="_blank">WhatsApp</a> <br>
+        <strong>Juliana:</strong> <a style="color:#25D366;" href="https://wa.me/5517992068296" target="_blank">WhatsApp</a>
+        </p>
+    </div>
     <footer>
         © HOSPEDAH — Atendimento 5 estrelas
     </footer>
     <script>
-    // Tabs ARIA/Keyboard/Focus perfeito
+    // Tabs ARIA/Keyboard/Focus
     document.addEventListener('DOMContentLoaded', function() {
         const tabs = document.querySelectorAll('.tab');
         const blocks = document.querySelectorAll('.gallery-block');
@@ -218,7 +263,6 @@
                 blocks[idx].setAttribute('tabindex','0');
                 blocks[idx].focus(); // opcional: move foco ao painel ao trocar aba
             });
-            // Teclas de navegação
             tab.addEventListener('keydown',function(e){
                 if(e.key==="ArrowRight"||e.key==="ArrowLeft"){
                     let idx = Array.from(tabs).indexOf(document.activeElement);
@@ -233,7 +277,84 @@
             });
         });
     });
-    // ...Demais scripts permanecem...
+
+    // Orçamento premium
+    const checkin = document.getElementById("checkin");
+    const checkout = document.getElementById("checkout");
+    const info = document.getElementById("infoEstadia");
+    function calcularDiarias() {
+      if (checkin.value && checkout.value) {
+        let data1 = new Date(checkin.value);
+        let data2 = new Date(checkout.value);
+        let diff = (data2 - data1) / (1000 * 60 * 60 * 24);
+        if (diff > 0) {
+          info.innerHTML = `Estadia de <strong>${diff} noites</strong>`;
+        } else {
+          info.innerHTML = "Check-out deve ser após o check-in";
+        }
+      }
+    }
+    checkin.addEventListener("change", calcularDiarias);
+    checkout.addEventListener("change", calcularDiarias);
+
+    document.getElementById("formOrcamento").addEventListener("submit", function(e) {
+      e.preventDefault();
+      let btn = document.getElementById("btnEnviar");
+      btn.innerText = "Enviando...";
+      btn.disabled = true;
+      let nome = document.getElementById("nome").value;
+      let propriedade = document.getElementById("propriedade").value;
+      let checkinVal = checkin.value;
+      let checkoutVal = checkout.value;
+      let pessoas = document.getElementById("pessoas").value;
+      let whatsapp = document.getElementById("whatsapp").value;
+      let mensagem = `✨ *SOLICITAÇÃO DE ORÇAMENTO - HOSPEDAH* ✨%0A
+👤 Nome: ${nome}%0A
+📍 Destino: ${propriedade}%0A
+📅 Check-in: ${checkinVal}%0A
+📅 Check-out: ${checkoutVal}%0A
+👥 Pessoas: ${pessoas}%0A
+📞 WhatsApp: ${whatsapp}%0A
+-------------------------%0A
+Aguardo retorno com opções disponíveis.`;
+      let numero = "5517982006382";
+      setTimeout(() => {
+        window.open(`https://wa.me/${numero}?text=${mensagem}`, "_blank");
+        btn.innerText = "Enviado ✔";
+        btn.style.background = "green";
+      }, 1200);
+    });
+
+    // Cadastro de empreendimento
+    const preview = document.getElementById("preview");
+    document.getElementById("periodos").addEventListener("input", () => {
+      preview.innerHTML = "✔ Informações adicionadas";
+    });
+    document.getElementById("formMulti").addEventListener("submit", function(e) {
+      e.preventDefault();
+      let resort = document.getElementById("resort").value.trim();
+      let dormitorios = document.getElementById("dormitorios").value.trim();
+      let vista = document.getElementById("vista").value.trim();
+      let uso = document.getElementById("uso").value.trim();
+      let periodos = document.getElementById("periodos").value.trim();
+      let nome = document.getElementById("nomeMulti").value.trim();
+      let contato = document.getElementById("contato").value.trim();
+      let mensagem =
+        `🏢 *CADASTRO DE EMPREENDIMENTO - HOSPEDAH* 🏢%0A` +
+        `🏨 Empreendimento/Resort: ${resort}%0A` +
+        `🛏️ Dormitórios: ${dormitorios}%0A` +
+        `🌅 Vista: ${vista}%0A` +
+        `📆 Uso: ${uso}%0A` +
+        `-------------------------%0A` +
+        `📝 Detalhes/Períodos/Observações:%0A${periodos}%0A` +
+        `-------------------------%0A` +
+        `👤 Proprietário: ${nome}%0A` +
+        `📞 Contato: ${contato}%0A` +
+        `-------------------------%0A` +
+        `✨ Nossa equipe comercial entrará em contato.`;
+      let numero = "5517982006382";
+      window.open(`https://wa.me/${numero}?text=${mensagem}`, "_blank");
+    });
     </script>
 </body>
 </html>
