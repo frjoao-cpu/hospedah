@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
@@ -31,20 +32,23 @@
         .resort-link{color:#D4AF37;font-size:1rem;text-decoration:none;font-weight:500;margin-bottom:20px;display:inline-block;}
         .gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:15px;justify-items:center;}
         .gallery img{width:100%;max-width:350px;height:220px;object-fit:cover;border-radius:14px;box-shadow: 0 2px 12px rgba(0,0,0,0.14);}
-        /* orçamento-v3: ajuste responsividade e margem do formulário */
-        .orcamento-v3 {background: linear-gradient(135deg, #000, #111); color: #fff; padding: 80px 20px 50px 20px; display: flex; justify-content: center; margin: 48px 0 0 0;}
-        .orcamento-v3 .box {background: #121212; padding: 40px; border-radius: 20px; max-width: 550px; width: 100%; box-shadow: 0 10px 40px rgba(0,0,0,0.6);}
-        .orcamento-v3 h2 {text-align: center; font-size: 28px;}
-        .orcamento-v3 p {text-align: center; color: #aaa; margin-bottom: 25px;}
-        #formOrcamento {display: flex; flex-direction: column; gap: 15px;}
-        #formOrcamento input {padding: 14px; border-radius: 12px; border: none; background: #1f1f1f; color: white; font-size: 15px;}
+        /* orçamento-v3 e multiprop: ajuste responsividade e margem dos formulários */
+        .orcamento-v3, .multi-v3 {background: linear-gradient(135deg, #000, #111);}
+        .orcamento-v3 {color: #fff; padding: 80px 20px 50px 20px; display: flex; justify-content: center; margin: 48px 0 0 0;}
+        .orcamento-v3 .box, .multi-v3 .box {background: #151515; padding: 40px; border-radius: 20px; max-width: 600px; width: 100%; box-shadow: 0 10px 40px rgba(0,0,0,0.6);}
+        .orcamento-v3 h2, .multi-v3 h2 {text-align: center; font-size: 28px;}
+        .orcamento-v3 p, .multi-v3 p {text-align: center; color: #aaa; margin-bottom: 25px;}
+        #formOrcamento, #formMulti {display: flex; flex-direction: column; gap: 15px;}
+        #formOrcamento input, #formMulti input, #formMulti textarea {padding: 14px; border-radius: 12px; border: none; background: #1f1f1f; color: white; font-size: 15px;}
         #formOrcamento .datas {display: flex; gap: 10px;}
         #formOrcamento .datas div {flex: 1;}
-        #formOrcamento label {font-size: 12px; color: #aaa;}
-        #formOrcamento button {margin-top: 10px; padding: 16px; border-radius: 12px; border: none; background: linear-gradient(90deg, gold, #d4af37); font-weight: bold; cursor: pointer; transition: 0.3s;}
-        #formOrcamento button:hover {transform: scale(1.03);}
-        #infoEstadia {font-size: 14px; color: #ccc; text-align: center;}
-        footer{text-align:center;padding:30px;opacity:0.7;}
+        #formOrcamento label, #formMulti label {font-size: 12px; color: #aaa;}
+        #formOrcamento button, #formMulti button {margin-top: 10px; padding: 16px; border-radius: 12px; border: none; background: linear-gradient(90deg, gold, #d4af37); font-weight: bold; cursor: pointer; transition: 0.3s;}
+        #formMulti button {margin-top: 8px;}
+        #formOrcamento button:hover, #formMulti button:hover {transform: scale(1.03);}
+        #infoEstadia, #preview {font-size: 14px; color: #ccc; text-align: center;}
+        #formMulti textarea {min-height: 80px; resize: none;}
+        .multi-v3 {padding: 0 0 80px 0; display: flex; justify-content: center; color: white;}
         @media(max-width:700px){
             .faixa-logo img{max-width:94vw;}
             .faixa-logo{padding:6vw 0 6vw 0;}
@@ -52,7 +56,7 @@
             .section{padding:24px 4vw;}
             .resort-title{margin-top:20px;}
             .tab{font-size:13px;padding:9px 10px;}
-            .orcamento-v3 .box {padding: 20px;}
+            .orcamento-v3 .box, .multi-v3 .box {padding: 20px;}
         }
     </style>
 </head>
@@ -82,6 +86,7 @@
         <a href="#">Início</a>
         <a href="#galeria">Galeria</a>
         <a href="#orcamento">Orçamento</a>
+        <a href="#multi">Cadastre seu empreendimento</a>
         <a href="#contato">Contato</a>
     </nav>
 
@@ -219,6 +224,24 @@
       </div>
     </section>
 
+    <section class="multi-v3" id="multi">
+      <div class="box">
+        <h2>Cadastre o seu empreendimento aqui</h2>
+        <p>Preencha os dados e envie seu imóvel ou empreendimento para nosso time comercial</p>
+        <form id="formMulti">
+          <input type="text" id="resort" placeholder="Empreendimento / Resort" required>
+          <input type="number" id="dormitorios" placeholder="Nº de dormitórios" required>
+          <input type="text" id="vista" placeholder="Vista da sacada (ex: mar, piscina, jardim)" required>
+          <input type="text" id="uso" placeholder="Uso (ex: 1 semana por ano, anual, avulso, etc.)" required>
+          <textarea id="periodos" placeholder="Períodos disponíveis ou observações (ex: Janeiro, Julho etc, ou Out/Nov em aberto, etc.)" required></textarea>
+          <input type="text" id="nomeMulti" placeholder="Seu nome" required>
+          <input type="tel" id="contato" placeholder="WhatsApp para contato" required>
+          <div id="preview"></div>
+          <button type="submit">Cadastrar agora</button>
+        </form>
+      </div>
+    </section>
+
     <div class="section" id="contato">
         <h2>Contato</h2>
         <p>Entre em contato para reservas, cotações e atendimento exclusivo.<br>
@@ -249,7 +272,7 @@
             });
         });
     });
-    // Orçamento
+    // Orçamento premium
     const checkin = document.getElementById("checkin");
     const checkout = document.getElementById("checkout");
     const info = document.getElementById("infoEstadia");
@@ -288,12 +311,43 @@
 📞 WhatsApp: ${whatsapp}%0A
 -------------------------%0A
 Aguardo retorno com opções disponíveis.`;
-      let numero = "5517982006382"; // Número Flávio já ajustado
+      let numero = "5517982006382";
       setTimeout(() => {
         window.open(`https://wa.me/${numero}?text=${mensagem}`, "_blank");
         btn.innerText = "Enviado ✔";
         btn.style.background = "green";
       }, 1200);
+    });
+
+    // Cadastro de empreendimento
+    const preview = document.getElementById("preview");
+    document.getElementById("periodos").addEventListener("input", () => {
+      preview.innerHTML = "✔ Informações adicionadas";
+    });
+    document.getElementById("formMulti").addEventListener("submit", function(e) {
+      e.preventDefault();
+      let resort = document.getElementById("resort").value.trim();
+      let dormitorios = document.getElementById("dormitorios").value.trim();
+      let vista = document.getElementById("vista").value.trim();
+      let uso = document.getElementById("uso").value.trim();
+      let periodos = document.getElementById("periodos").value.trim();
+      let nome = document.getElementById("nomeMulti").value.trim();
+      let contato = document.getElementById("contato").value.trim();
+      let mensagem =
+        `🏢 *CADASTRO DE EMPREENDIMENTO - HOSPEDAH* 🏢%0A` +
+        `🏨 Empreendimento/Resort: ${resort}%0A` +
+        `🛏️ Dormitórios: ${dormitorios}%0A` +
+        `🌅 Vista: ${vista}%0A` +
+        `📆 Uso: ${uso}%0A` +
+        `-------------------------%0A` +
+        `📝 Detalhes/Períodos/Observações:%0A${periodos}%0A` +
+        `-------------------------%0A` +
+        `👤 Proprietário: ${nome}%0A` +
+        `📞 Contato: ${contato}%0A` +
+        `-------------------------%0A` +
+        `✨ Nossa equipe comercial entrará em contato.`;
+      let numero = "5517982006382";
+      window.open(`https://wa.me/${numero}?text=${mensagem}`, "_blank");
     });
     </script>
 </body>
