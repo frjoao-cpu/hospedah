@@ -5,12 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>HOSPEDAH | Resorts e Experiências Exclusivas</title>
 <meta name="description" content="Hospede-se com qualidade nos melhores resorts e tenha experiências exclusivas. Orçamento premium, atendimento digital e profissionais à disposição.">
-<meta property="og:title" content="HOSPEDAH | Resorts e Experiências Exclusivas">
-<meta property="og:description" content="Hospede-se com qualidade nos melhores resorts e tenha experiências exclusivas. Faça seu orçamento online e conheça nossos diferenciais.">
-<meta property="og:image" content="https://i.imgur.com/ITjjQaf.jpeg">
-<meta property="og:url" content="https://www.seusite.com.br/">
-<meta name="twitter:card" content="summary_large_image">
-<link rel="shortcut icon" href="https://i.imgur.com/ITjjQaf.jpeg" type="image/jpeg">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -18,66 +12,64 @@
     --bg-escuro: #0B1C3D;
     --bg-claro: #fff;
     --bg-grad-dark: linear-gradient(135deg,#0B1C3D,#142850);
-    --bg-grad-light: linear-gradient(135deg,#fff,#e9e9e9);
-    --cor-foco: #e7c343;
 }
-html[data-theme="dark"] body { background: var(--bg-grad-dark); color: #fff; }
-html[data-theme="light"] body { background: var(--bg-grad-light); color: #191919; }
-body{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;background:var(--bg-grad-dark);color:#fff;}
+body {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Poppins', sans-serif;
+  background: #0B1C3D;
+  color: #fff;
+}
 .faixa-logo{width:100%;background:#fff;box-shadow:0 4px 20px -7px #001e3b30;display:flex;align-items:center;justify-content:center;padding:34px 0 34px 0;position:relative;}
 .faixa-logo img{max-width:600px;width:100%;height:auto;display:block;}
-.modo-toggle{position:absolute;top:18px;right:34px;}
-.modo-toggle button{background:#fff1;color:#555;border-radius:16px;padding:6px 16px;font-weight:600;border:none;cursor:pointer;}
 .topo-infos{display:flex;flex-direction:column;align-items:center;gap:7px;margin-top:22px;}
-.topo-infos h1{color:var(--dourado);font-size:1.33rem;font-weight:600;margin-bottom:3px;letter-spacing:.4px;}
+.topo-infos h1{color:#D4AF37;font-size:1.33rem;font-weight:600;margin-bottom:3px;letter-spacing:.4px;}
 .insta-top{margin-bottom:4px;display:inline-block;padding:11px 28px;border-radius:30px;background:linear-gradient(45deg,#833AB4,#E1306C,#FCAF45);text-decoration:none;color:#fff;font-size:17px;font-weight:500;}
 .contatos-topo{display:flex;gap:22px;justify-content:center;margin-top:14px;}
 .contato-b{background:rgba(11,28,61,0.07);border-radius:11px;padding:13px 19px 11px 19px;min-width:140px;display:flex;flex-direction:column;align-items:center;}
-.contato-b h3{color:var(--dourado);font-size:1.07rem;margin:0 0 2px 0;}
+.contato-b h3{color:#D4AF37;font-size:1.07rem;margin:0 0 2px 0;}
 .contato-b p{font-size:13px;margin:0 0 4px 0;color:#fff;}
 .contato-b a.btn{margin-top:1px;padding:8px 18px;background:#25D366;border-radius:16px;color:#fff;text-decoration:none;font-size:15px;}
-/* NAV-MAIN SEMPRE VISÍVEL E BONITO */
 nav.nav-main {
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    gap: 32px;
-    margin: 34px 0 0 0;
-    background: none;
-    position: relative;
-    z-index: 20;
-    flex-wrap: wrap;
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 22px;
+  margin: 34px 0 0 0;
+  background: none;
 }
 nav.nav-main a {
-    display: inline-block;
-    opacity: 1 !important;
-    visibility: visible !important;
-    color: var(--bg-escuro);
-    text-decoration: none;
-    font-weight: 500;
-    font-size: 18px;
-    padding: 12px 18px;
-    border-radius: 20px;
-    transition: background .12s, color .12s;
-    background: none;
+  display: inline-block;
+  color: #0B1C3D;
+  background: #fff;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 18px;
+  padding: 12px 24px;
+  border-radius: 24px;
+  transition: background .15s, color .15s, box-shadow .15s;
+  box-shadow: 0 2px 8px #0001;
+  opacity: 1;
+  visibility: visible;
 }
 nav.nav-main a:hover,
 nav.nav-main a:focus {
-    background: var(--dourado);
-    color: #fff;
-    outline: none;
+  background: #D4AF37;
+  color: #fff;
+  outline: none;
 }
-@media (max-width:700px) {
-    nav.nav-main {
-        gap: 10px;
-        flex-wrap: wrap;
-        padding: 10px 0;
-    }
-    nav.nav-main a {
-        font-size:15px;
-        padding: 8px 10px;
-        margin: 2px 0;
-    }
+@media (max-width: 680px) {
+  nav.nav-main {
+    gap: 8px;
+    padding: 7px 2vw 4px 2vw;
+  }
+  nav.nav-main a {
+    font-size:15px;
+    padding: 8px 12px;
+    margin-top: 2px;
+  }
 }
 .section{padding:44px 14px 24px 14px;text-align:center;}
 .tabs{display:flex;justify-content:center;gap:8px;margin-bottom:26px;flex-wrap:wrap;}
@@ -93,22 +85,77 @@ nav.nav-main a:focus {
 .gallery img{width:100%;max-width:420px;height:260px;object-fit:cover;border-radius:14px;box-shadow: 0 2px 16px rgba(0,0,0,0.16); cursor: pointer;transition:.2s;}
 .gallery img:focus-visible{ outline: 3px solid var(--cor-foco);}
 @media (max-width:500px) {
-    .gallery img{height:130px;}
+  .gallery img{height:130px;}
+}
+
+/* ====== Depoimentos Carrossel ====== */
+.depoimentos-section {
+  padding:38px 4vw 64px 4vw;
+  background:#fff;
+}
+.depo-title {
+  text-align:center;font-size:1.34em;color:#D4AF37;margin-bottom:32px;
+}
+.depo-carousel-wrap {
+  max-width:350px;
+  margin:0 auto;
+  position:relative;
+}
+.depo-carousel-inner {
+  overflow:hidden;
+}
+.depo-card {
+  background:linear-gradient(115deg,#fffbe7 50%,#fbecd1 100%);
+  color:#191919;
+  border-radius:16px;box-shadow:0 2px 18px #efb21107;
+  max-width:340px;
+  min-height:378px;
+  padding:36px 28px 32px 28px;
+  text-align:center;
+  display:flex; flex-direction:column; align-items:center;justify-content:center;
+  position:absolute; width:100%;left:0;top:0; opacity:0;transition:all .44s cubic-bezier(.68,-0.55,.27,1.55);
+  pointer-events:none;
+}
+.depo-card.active {opacity:1;position:relative;pointer-events:auto;}
+.depo-card img{width:56px;height:56px;border-radius:50%;margin-bottom:15px;object-fit:cover;box-shadow:0 1px 8px #0001;}
+.depo-stars{color:gold;font-size:1.26em;margin-bottom:10px;letter-spacing:2px;}
+.depo-card p{font-size:1.07em;margin:0 0 12px 0;font-style:italic;}
+.depo-nome{font-weight:bold;margin-top:2px;font-size:1.08em;}
+.depo-cidade{font-size:.99em;color:#b9aa92;}
+.depo-carousel-arrows {
+  text-align:center;margin-top:24px;
+}
+.depo-carousel-btn {
+  background: var(--dourado,#D4AF37); color:#fff;border:none;border-radius:50%;width:38px;height:38px;cursor:pointer;font-size:1.8em;margin:0 13px;transition:.15s; vertical-align:middle;
+  display:inline-flex;align-items:center;justify-content:center;
+  box-shadow:0 2px 6px #0002;
+}
+.depo-carousel-btn:hover {background:goldenrod;}
+.depo-carousel-dots {
+  text-align:center;margin:22px 0 0 0;
+}
+.depo-carousel-dot{
+  display:inline-block;width:13px;height:13px;
+  background:#ecd498;border-radius:50%;
+  margin:0 6px;cursor:pointer;transition:.15s;border:2px solid #fff;vertical-align:middle;
+  box-shadow:0 2px 7px #d4af3755;
+}
+.depo-carousel-dot.active{
+  background:var(--dourado,#D4AF37);border:2px solid #d4af37;
+}
+@media(max-width:480px){
+  .depo-carousel-wrap {max-width:96vw;}
+  .depo-card {max-width:96vw;}
 }
 </style>
 </head>
 <body>
     <div class="faixa-logo">
         <img src="https://i.imgur.com/ITjjQaf.jpeg" alt="HOSPEDAH - Sua experiência começa aqui">
-        <div class="modo-toggle">
-            <button id="modeToggleBtn" aria-label="Alternar modo claro/escuro"> 🌓 Trocar tema</button>
-        </div>
     </div>
     <div class="topo-infos">
         <h1>Experiências Exclusivas</h1>
-        <a href="https://www.instagram.com/julianasilvaoliveira.joao?igsh=bzZmNGIxdjdqc285" class="insta-top" target="_blank">
-            📸 Instagram Oficial
-        </a>
+        <a href="https://www.instagram.com/julianasilvaoliveira.joao?igsh=bzZmNGIxdjdqc285" class="insta-top" target="_blank">📸 Instagram Oficial</a>
         <div class="contatos-topo">
             <div class="contato-b">
                 <h3>Flávio</h3>
@@ -122,6 +169,8 @@ nav.nav-main a:focus {
             </div>
         </div>
     </div>
+
+    <!-- MENU SEMPRE VISÍVEL -->
     <nav class="nav-main">
         <a href="#">Início</a>
         <a href="#galeria">Galeria</a>
@@ -130,6 +179,7 @@ nav.nav-main a:focus {
         <a href="#contato">Contato</a>
     </nav>
 
+    <!-- GALERIA -->
     <div class="section" id="galeria">
         <div class="tabs" role="tablist">
             <button class="tab active" id="tab_hotbeach" aria-controls="hotbeach" aria-selected="true" tabindex="0">Hot Beach</button>
@@ -139,7 +189,6 @@ nav.nav-main a:focus {
             <button class="tab" id="tab_wyndham" aria-controls="wyndham" aria-selected="false" tabindex="-1">Wyndham Royal</button>
             <button class="tab" id="tab_juquehy" aria-controls="juquehy" aria-selected="false" tabindex="-1">Praia de Juquehy</button>
         </div>
-
         <!-- HOT BEACH -->
         <div class="gallery-block active" id="hotbeach">
             <div class="resort-title">Hot Beach Resort</div>
@@ -238,7 +287,62 @@ nav.nav-main a:focus {
         </div>
     </div>
 
-    <!-- JS: Tabs das galerias -->
+    <!-- DEPOIMENTOS -->
+    <section class="depoimentos-section" id="depoimentos">
+      <h2 class="depo-title">O que nossos clientes dizem</h2>
+      <div class="depo-carousel-wrap" tabindex="0" aria-label="Depoimentos em carrossel">
+        <div class="depo-carousel-inner">
+          <div class="depo-card active">
+            <img src="https://i.imgur.com/ep4Ng4e.jpeg" alt="Cliente Cordélia S.">
+            <div class="depo-stars">★★★★★</div>
+            <p>“A melhor experiência de viagem que já tive. Atendimento super rápido e opções excelentes!”</p>
+            <div class="depo-nome">Cordélia S.</div>
+            <div class="depo-cidade">Rio Preto, SP</div>
+          </div>
+          <div class="depo-card">
+            <img src="https://i.imgur.com/dciabUo.jpeg" alt="Cliente Ricardo A.">
+            <div class="depo-stars">★★★★★</div>
+            <p>“Fechei sem medo! Equipe muito confiável, recomendo para todos que buscam férias tranquilas.”</p>
+            <div class="depo-nome">Ricardo A.</div>
+            <div class="depo-cidade">São Paulo, SP</div>
+          </div>
+          <div class="depo-card">
+            <img src="https://i.imgur.com/dciabUo.jpeg" alt="Cliente Marina Lopes">
+            <div class="depo-stars">★★★★★</div>
+            <p>“Tudo perfeito: reserva, atendimento e o resort maravilhoso. Obrigada, HOSPEDAH!”</p>
+            <div class="depo-nome">Marina Lopes</div>
+            <div class="depo-cidade">Uberaba, MG</div>
+          </div>
+          <div class="depo-card">
+            <img src="https://i.imgur.com/j5izC2s.jpeg" alt="Cliente Gabriel Pinheiro">
+            <div class="depo-stars">★★★★★</div>
+            <p>“Superaram as minhas expectativas. Voltarei a reservar com eles, com certeza.”</p>
+            <div class="depo-nome">Gabriel Pinheiro</div>
+            <div class="depo-cidade">Campinas, SP</div>
+          </div>
+          <div class="depo-card">
+            <img src="https://i.imgur.com/iVoMnep.jpeg" alt="Cliente Paula Menezes">
+            <div class="depo-stars">★★★★★</div>
+            <p>“Atendimento exclusivo, muita praticidade e resorts fantásticos. Indico de olhos fechados.”</p>
+            <div class="depo-nome">Paula Menezes</div>
+            <div class="depo-cidade">Belo Horizonte, MG</div>
+          </div>
+        </div>
+        <div class="depo-carousel-arrows">
+          <button class="depo-carousel-btn" id="depoPrev" aria-label="Anterior" type="button">&#8592;</button>
+          <button class="depo-carousel-btn" id="depoNext" aria-label="Próximo" type="button">&#8594;</button>
+        </div>
+        <div class="depo-carousel-dots">
+          <span class="depo-carousel-dot active"></span>
+          <span class="depo-carousel-dot"></span>
+          <span class="depo-carousel-dot"></span>
+          <span class="depo-carousel-dot"></span>
+          <span class="depo-carousel-dot"></span>
+        </div>
+      </div>
+    </section>
+
+    <!-- JS de abas das galerias -->
     <script>
     document.addEventListener('DOMContentLoaded', function() {
         const tabs = document.querySelectorAll('.tab');
@@ -256,6 +360,27 @@ nav.nav-main a:focus {
             });
         });
     });
+    </script>
+    <!-- JS do carrossel dos depoimentos -->
+    <script>
+    (function(){
+      const cards = document.querySelectorAll('.depo-card');
+      const dots = document.querySelectorAll('.depo-carousel-dot');
+      let current = 0, max = cards.length;
+      function show(idx) {
+        cards.forEach((c,i)=>c.classList.toggle('active',i===idx));
+        dots.forEach((d,i)=>d.classList.toggle('active',i===idx));
+        current = idx;
+      }
+      document.getElementById('depoNext').onclick = () => show((current+1)%max);
+      document.getElementById('depoPrev').onclick = () => show((current+max-1)%max);
+      dots.forEach((dot,i)=>dot.onclick=()=>show(i));
+      document.querySelector('.depo-carousel-wrap').addEventListener('keydown',function(e){
+        if (e.key==='ArrowRight') { show((current+1)%max); e.preventDefault(); }
+        else if (e.key==='ArrowLeft') { show((current+max-1)%max); e.preventDefault(); }
+      });
+      setInterval(()=>show((current+1)%max), 8500);
+    })();
     </script>
 </body>
 </html>
