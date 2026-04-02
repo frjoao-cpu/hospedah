@@ -8,10 +8,10 @@
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
 <style>
 :root {
-    --dourado: #D4AF37;
-    --bg-escuro: #0B1C3D;
-    --bg-claro: #fff;
-    --bg-grad-dark: linear-gradient(135deg,#0B1C3D,#142850);
+  --dourado: #D4AF37;
+  --azul: #0B1C3D;
+  --bg-claro: #fff;
+  --cor-foco: #e7c343;
 }
 body {
   margin: 0;
@@ -21,8 +21,74 @@ body {
   background: #0B1C3D;
   color: #fff;
 }
-.faixa-logo{width:100%;background:#fff;box-shadow:0 4px 20px -7px #001e3b30;display:flex;align-items:center;justify-content:center;padding:34px 0 34px 0;position:relative;}
-.faixa-logo img{max-width:600px;width:100%;height:auto;display:block;}
+.faixa-logo{
+    width:100%;
+    background:#fff;
+    box-shadow:0 4px 20px -7px #001e3b30;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:flex-start;
+    position:relative;
+    padding-top:0;
+    padding-bottom:34px;
+}
+nav.nav-main {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    padding: 18px 0 0 0;
+    position: absolute;
+    top:0;
+    left:0;
+    z-index:22;
+    background: transparent;
+}
+nav.nav-main a {
+    display: inline-block;
+    background: var(--azul);
+    color: var(--dourado);
+    font-weight:600;
+    text-decoration:none;
+    font-size:18px;
+    padding:11px 23px;
+    border-radius:30px;
+    margin:0;
+    letter-spacing:.02em;
+    transition: background .17s, color .17s, box-shadow .16s;
+    box-shadow:0 2px 8px #1113;
+    border:none;
+    outline:none;
+    opacity: 1;
+    visibility: visible;
+}
+nav.nav-main a:hover,
+nav.nav-main a:focus {
+    background: #21315B;
+    color: #FFD700;
+    outline: 2px solid var(--cor-foco);
+}
+@media (max-width: 900px) {
+    nav.nav-main {gap: 8px;}
+    nav.nav-main a {font-size:15px;padding:9px 13px;}
+}
+@media (max-width:600px){
+    nav.nav-main {
+        flex-wrap:wrap;
+        gap:5px;
+        padding-top:10px;
+        position: static;
+    }
+    .faixa-logo img {margin-top:14px;}
+}
+.faixa-logo img{
+    max-width:400px;
+    width:90vw;
+    height:auto;
+    display:block;
+    margin:65px auto 0 auto;
+}
 .topo-infos{display:flex;flex-direction:column;align-items:center;gap:7px;margin-top:22px;}
 .topo-infos h1{color:#D4AF37;font-size:1.33rem;font-weight:600;margin-bottom:3px;letter-spacing:.4px;}
 .insta-top{margin-bottom:4px;display:inline-block;padding:11px 28px;border-radius:30px;background:linear-gradient(45deg,#833AB4,#E1306C,#FCAF45);text-decoration:none;color:#fff;font-size:17px;font-weight:500;}
@@ -31,46 +97,6 @@ body {
 .contato-b h3{color:#D4AF37;font-size:1.07rem;margin:0 0 2px 0;}
 .contato-b p{font-size:13px;margin:0 0 4px 0;color:#fff;}
 .contato-b a.btn{margin-top:1px;padding:8px 18px;background:#25D366;border-radius:16px;color:#fff;text-decoration:none;font-size:15px;}
-nav.nav-main {
-  width: 100%;
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 22px;
-  margin: 34px 0 0 0;
-  background: none;
-}
-nav.nav-main a {
-  display: inline-block;
-  color: #0B1C3D;
-  background: #fff;
-  text-decoration: none;
-  font-weight: 600;
-  font-size: 18px;
-  padding: 12px 24px;
-  border-radius: 24px;
-  transition: background .15s, color .15s, box-shadow .15s;
-  box-shadow: 0 2px 8px #0001;
-  opacity: 1;
-  visibility: visible;
-}
-nav.nav-main a:hover,
-nav.nav-main a:focus {
-  background: #D4AF37;
-  color: #fff;
-  outline: none;
-}
-@media (max-width: 680px) {
-  nav.nav-main {
-    gap: 8px;
-    padding: 7px 2vw 4px 2vw;
-  }
-  nav.nav-main a {
-    font-size:15px;
-    padding: 8px 12px;
-    margin-top: 2px;
-  }
-}
 .section{padding:44px 14px 24px 14px;text-align:center;}
 .tabs{display:flex;justify-content:center;gap:8px;margin-bottom:26px;flex-wrap:wrap;}
 .tab{padding:10px 26px;background:#fff1;border-radius:22px 22px 0 0;font-size:17px;color:var(--dourado);border:none;cursor:pointer;outline:none;font-weight:600;transition:.14s;}
@@ -87,7 +113,6 @@ nav.nav-main a:focus {
 @media (max-width:500px) {
   .gallery img{height:130px;}
 }
-
 /* ====== Depoimentos Carrossel ====== */
 .depoimentos-section {
   padding:38px 4vw 64px 4vw;
@@ -122,27 +147,12 @@ nav.nav-main a:focus {
 .depo-card p{font-size:1.07em;margin:0 0 12px 0;font-style:italic;}
 .depo-nome{font-weight:bold;margin-top:2px;font-size:1.08em;}
 .depo-cidade{font-size:.99em;color:#b9aa92;}
-.depo-carousel-arrows {
-  text-align:center;margin-top:24px;
-}
-.depo-carousel-btn {
-  background: var(--dourado,#D4AF37); color:#fff;border:none;border-radius:50%;width:38px;height:38px;cursor:pointer;font-size:1.8em;margin:0 13px;transition:.15s; vertical-align:middle;
-  display:inline-flex;align-items:center;justify-content:center;
-  box-shadow:0 2px 6px #0002;
-}
+.depo-carousel-arrows {text-align:center;margin-top:24px;}
+.depo-carousel-btn {background: var(--dourado,#D4AF37); color:#fff;border:none;border-radius:50%;width:38px;height:38px;cursor:pointer;font-size:1.8em;margin:0 13px;transition:.15s; vertical-align:middle;display:inline-flex;align-items:center;justify-content:center;box-shadow:0 2px 6px #0002;}
 .depo-carousel-btn:hover {background:goldenrod;}
-.depo-carousel-dots {
-  text-align:center;margin:22px 0 0 0;
-}
-.depo-carousel-dot{
-  display:inline-block;width:13px;height:13px;
-  background:#ecd498;border-radius:50%;
-  margin:0 6px;cursor:pointer;transition:.15s;border:2px solid #fff;vertical-align:middle;
-  box-shadow:0 2px 7px #d4af3755;
-}
-.depo-carousel-dot.active{
-  background:var(--dourado,#D4AF37);border:2px solid #d4af37;
-}
+.depo-carousel-dots {text-align:center;margin:22px 0 0 0;}
+.depo-carousel-dot{display:inline-block;width:13px;height:13px;background:#ecd498;border-radius:50%;margin:0 6px;cursor:pointer;transition:.15s;border:2px solid #fff;vertical-align:middle;box-shadow:0 2px 7px #d4af3755;}
+.depo-carousel-dot.active{background:var(--dourado,#D4AF37);border:2px solid #d4af37;}
 @media(max-width:480px){
   .depo-carousel-wrap {max-width:96vw;}
   .depo-card {max-width:96vw;}
@@ -151,6 +161,13 @@ nav.nav-main a:focus {
 </head>
 <body>
     <div class="faixa-logo">
+        <nav class="nav-main" aria-label="Navegação principal">
+            <a href="#">Início</a>
+            <a href="#galeria">Galeria</a>
+            <a href="#orcamento">Orçamento</a>
+            <a href="#multi">Cadastre seu empreendimento</a>
+            <a href="#contato">Contato</a>
+        </nav>
         <img src="https://i.imgur.com/ITjjQaf.jpeg" alt="HOSPEDAH - Sua experiência começa aqui">
     </div>
     <div class="topo-infos">
@@ -169,15 +186,6 @@ nav.nav-main a:focus {
             </div>
         </div>
     </div>
-
-    <!-- MENU SEMPRE VISÍVEL -->
-    <nav class="nav-main">
-        <a href="#">Início</a>
-        <a href="#galeria">Galeria</a>
-        <a href="#orcamento">Orçamento</a>
-        <a href="#multi">Cadastre seu empreendimento</a>
-        <a href="#contato">Contato</a>
-    </nav>
 
     <!-- GALERIA -->
     <div class="section" id="galeria">
