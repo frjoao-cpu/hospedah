@@ -1,61 +1,101 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HOSPEDAH | Resorts e Experiências Exclusivas</title>
-    <meta name="description" content="Hospede-se com qualidade nos melhores resorts e tenha experiências exclusivas. Orçamento premium, atendimento digital e profissionais à disposição.">
-    <meta property="og:title" content="HOSPEDAH | Resorts e Experiências Exclusivas">
-    <meta property="og:description" content="Hospede-se com qualidade nos melhores resorts e tenha experiências exclusivas. Faça seu orçamento online e conheça nossos diferenciais.">
-    <meta property="og:image" content="https://i.imgur.com/ITjjQaf.jpeg">
-    <meta property="og:url" content="https://www.seusite.com.br/">
-    <meta name="twitter:card" content="summary_large_image">
-    <link rel="shortcut icon" href="https://i.imgur.com/ITjjQaf.jpeg" type="image/jpeg">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-    <style>
-    :root {
-        --dourado: #D4AF37;
-        --bg-escuro: #0B1C3D;
-        --bg-claro: #fff;
-        --bg-grad-dark: linear-gradient(135deg,#0B1C3D,#142850);
-        --bg-grad-light: linear-gradient(135deg,#fff,#e9e9e9);
-        --cor-foco: #e7c343;
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HOSPEDAH | Resorts e Experiências Exclusivas</title>
+<meta name="description" content="Hospede-se com qualidade nos melhores resorts e tenha experiências exclusivas. Orçamento premium, atendimento digital e profissionais à disposição.">
+<meta property="og:title" content="HOSPEDAH | Resorts e Experiências Exclusivas">
+<meta property="og:description" content="Hospede-se com qualidade nos melhores resorts e tenha experiências exclusivas. Faça seu orçamento online e conheça nossos diferenciais.">
+<meta property="og:image" content="https://i.imgur.com/ITjjQaf.jpeg">
+<meta property="og:url" content="https://www.seusite.com.br/">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="shortcut icon" href="https://i.imgur.com/ITjjQaf.jpeg" type="image/jpeg">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+    --dourado: #D4AF37;
+    --bg-escuro: #0B1C3D;
+    --bg-claro: #fff;
+    --bg-grad-dark: linear-gradient(135deg,#0B1C3D,#142850);
+    --bg-grad-light: linear-gradient(135deg,#fff,#e9e9e9);
+    --cor-foco: #e7c343;
+}
+html[data-theme="dark"] body { background: var(--bg-grad-dark); color: #fff; }
+html[data-theme="light"] body { background: var(--bg-grad-light); color: #191919; }
+body{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;background:var(--bg-grad-dark);color:#fff;}
+.faixa-logo{width:100%;background:#fff;box-shadow:0 4px 20px -7px #001e3b30;display:flex;align-items:center;justify-content:center;padding:34px 0 34px 0;position:relative;}
+.faixa-logo img{max-width:600px;width:100%;height:auto;display:block;}
+.modo-toggle{position:absolute;top:18px;right:34px;}
+.modo-toggle button{background:#fff1;color:#555;border-radius:16px;padding:6px 16px;font-weight:600;border:none;cursor:pointer;}
+.topo-infos{display:flex;flex-direction:column;align-items:center;gap:7px;margin-top:22px;}
+.topo-infos h1{color:var(--dourado);font-size:1.33rem;font-weight:600;margin-bottom:3px;letter-spacing:.4px;}
+.insta-top{margin-bottom:4px;display:inline-block;padding:11px 28px;border-radius:30px;background:linear-gradient(45deg,#833AB4,#E1306C,#FCAF45);text-decoration:none;color:#fff;font-size:17px;font-weight:500;}
+.contatos-topo{display:flex;gap:22px;justify-content:center;margin-top:14px;}
+.contato-b{background:rgba(11,28,61,0.07);border-radius:11px;padding:13px 19px 11px 19px;min-width:140px;display:flex;flex-direction:column;align-items:center;}
+.contato-b h3{color:var(--dourado);font-size:1.07rem;margin:0 0 2px 0;}
+.contato-b p{font-size:13px;margin:0 0 4px 0;color:#fff;}
+.contato-b a.btn{margin-top:1px;padding:8px 18px;background:#25D366;border-radius:16px;color:#fff;text-decoration:none;font-size:15px;}
+/* NAV-MAIN SEMPRE VISÍVEL E BONITO */
+nav.nav-main {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    gap: 32px;
+    margin: 34px 0 0 0;
+    background: none;
+    position: relative;
+    z-index: 20;
+    flex-wrap: wrap;
+}
+nav.nav-main a {
+    display: inline-block;
+    opacity: 1 !important;
+    visibility: visible !important;
+    color: var(--bg-escuro);
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 18px;
+    padding: 12px 18px;
+    border-radius: 20px;
+    transition: background .12s, color .12s;
+    background: none;
+}
+nav.nav-main a:hover,
+nav.nav-main a:focus {
+    background: var(--dourado);
+    color: #fff;
+    outline: none;
+}
+@media (max-width:700px) {
+    nav.nav-main {
+        gap: 10px;
+        flex-wrap: wrap;
+        padding: 10px 0;
     }
-    html[data-theme="dark"] body { background: var(--bg-grad-dark); color: #fff; }
-    html[data-theme="light"] body { background: var(--bg-grad-light); color: #191919; }
-    /* ...demais estilos do seu site... */
-    body{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;background:var(--bg-grad-dark);color:#fff;}
-    .faixa-logo{width:100%;background:#fff;box-shadow: 0 4px 20px -7px #001e3b30;display:flex;align-items:center;justify-content:center;padding:34px 0 34px 0;position:relative;}
-    .faixa-logo img{max-width:600px;width:100%;height:auto;display:block;}
-    .modo-toggle{position: absolute; top:18px;right:34px;}
-    .modo-toggle button{background:#fff1;color:#555;border-radius:16px;padding:6px 16px;font-weight:600;border:none;cursor:pointer;}
-    .modo-toggle button:active{background:var(--dourado);color:#fff;}
-    .topo-infos{display:flex;flex-direction:column;align-items:center;gap:7px;margin-top:22px;}
-    .topo-infos h1{color:var(--dourado);font-size:1.33rem;font-weight:600;margin-bottom:3px;letter-spacing:.4px;}
-    .insta-top{margin-bottom:4px;display:inline-block;padding:11px 28px;border-radius:30px;background:linear-gradient(45deg,#833AB4,#E1306C,#FCAF45);text-decoration:none;color:#fff;font-size:17px;font-weight:500;}
-    .contatos-topo{display:flex;gap:22px;justify-content:center;margin-top:14px;}
-    .contato-b{background:rgba(11,28,61,0.07);border-radius:11px;padding:13px 19px 11px 19px;min-width:140px;display:flex;flex-direction:column;align-items:center;}
-    .contato-b h3{color:var(--dourado);font-size:1.07rem;margin:0 0 2px 0;}
-    .contato-b p{font-size:13px;margin:0 0 4px 0;color:#fff;}
-    .contato-b a.btn{margin-top:1px;padding:8px 18px;background:#25D366;border-radius:16px;color:#fff;text-decoration:none;font-size:15px;}
-    nav.nav-main{display:flex;justify-content:center;gap:32px;margin:34px 0 0 0;}
-    nav.nav-main a{color:var(--bg-escuro);text-decoration:none;font-weight:500;font-size:18px;padding:12px 7px;border-radius:20px;transition:background .12s,color .12s;}
-    nav.nav-main a:hover{background:var(--dourado);color:#fff;}
-    .section{padding:44px 14px 24px 14px;text-align:center;}
-    .tabs{display:flex;justify-content:center;gap:8px;margin-bottom:26px;flex-wrap:wrap;}
-    .tab{padding:10px 26px;background:#fff1;border-radius:22px 22px 0 0;font-size:17px;color:var(--dourado);border:none;cursor:pointer;outline:none;font-weight:600;transition:.14s;}
-    .tab.active,.tab:focus{background:var(--dourado);color:#0B1C3D;}
-    .tab:hover{background:#D4AF37cc;color:#fff;}
-    .tab:focus-visible{outline:3px solid var(--cor-foco);box-shadow:0 0 0 1.5px var(--cor-foco);}
-    .gallery-block{display:none;}
-    .gallery-block.active{display:block;}
-    .resort-title{font-size:1.33rem;color:var(--dourado);margin-bottom:11px;font-weight:700;letter-spacing:.06em;}
-    .resort-link{color:var(--dourado);font-size:1rem;text-decoration:none;font-weight:500;margin-bottom:20px;display:inline-block;}
-    .gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:15px;justify-items:center;}
-    .gallery img{width:100%;max-width:420px;height:260px;object-fit:cover;border-radius:14px;box-shadow: 0 2px 16px rgba(0,0,0,0.16); cursor: pointer;transition:.2s;}
-    .gallery img:focus-visible{ outline: 3px solid var(--cor-foco);}
-    /* ...outros estilos... */
-    </style>
+    nav.nav-main a {
+        font-size:15px;
+        padding: 8px 10px;
+        margin: 2px 0;
+    }
+}
+.section{padding:44px 14px 24px 14px;text-align:center;}
+.tabs{display:flex;justify-content:center;gap:8px;margin-bottom:26px;flex-wrap:wrap;}
+.tab{padding:10px 26px;background:#fff1;border-radius:22px 22px 0 0;font-size:17px;color:var(--dourado);border:none;cursor:pointer;outline:none;font-weight:600;transition:.14s;}
+.tab.active,.tab:focus{background:var(--dourado);color:#0B1C3D;}
+.tab:hover{background:#D4AF37cc;color:#fff;}
+.tab:focus-visible{outline:3px solid var(--cor-foco);box-shadow:0 0 0 1.5px var(--cor-foco);}
+.gallery-block{display:none;}
+.gallery-block.active{display:block;}
+.resort-title{font-size:1.33rem;color:var(--dourado);margin-bottom:11px;font-weight:700;letter-spacing:.06em;}
+.resort-link{color:var(--dourado);font-size:1rem;text-decoration:none;font-weight:500;margin-bottom:20px;display:inline-block;}
+.gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:15px;justify-items:center;}
+.gallery img{width:100%;max-width:420px;height:260px;object-fit:cover;border-radius:14px;box-shadow: 0 2px 16px rgba(0,0,0,0.16); cursor: pointer;transition:.2s;}
+.gallery img:focus-visible{ outline: 3px solid var(--cor-foco);}
+@media (max-width:500px) {
+    .gallery img{height:130px;}
+}
+</style>
 </head>
 <body>
     <div class="faixa-logo">
@@ -90,7 +130,6 @@
         <a href="#contato">Contato</a>
     </nav>
 
-    <!-- GALERIA ATUALIZADA -->
     <div class="section" id="galeria">
         <div class="tabs" role="tablist">
             <button class="tab active" id="tab_hotbeach" aria-controls="hotbeach" aria-selected="true" tabindex="0">Hot Beach</button>
@@ -199,14 +238,12 @@
         </div>
     </div>
 
-    <!-- ...demais seções como orçamento, multi, contato, footer etc... -->
-
-    <!-- TAB SWITCHING SCRIPT (garanta esse script no final do body) -->
+    <!-- JS: Tabs das galerias -->
     <script>
     document.addEventListener('DOMContentLoaded', function() {
         const tabs = document.querySelectorAll('.tab');
         const blocks = document.querySelectorAll('.gallery-block');
-        tabs.forEach(tab => {
+        tabs.forEach((tab, idx) => {
             tab.addEventListener('click', function(){
                 tabs.forEach((t,i)=>{
                     t.classList.remove('active');
@@ -215,7 +252,6 @@
                 });
                 this.classList.add('active');
                 this.setAttribute('aria-selected','true');
-                let idx = Array.from(tabs).indexOf(this);
                 blocks[idx].classList.add('active');
             });
         });
