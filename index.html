@@ -19,7 +19,7 @@ html[data-theme="light"] body { background: var(--bg-claro); color: #191919; }
 body{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;background:var(--bg-grad);color:#fff;}
 .faixa-logo{width:100%;background:#fff;box-shadow:0 4px 20px -7px #001e3b30;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;position:relative;padding-bottom:34px;}
 nav.nav-main {width: 100%;display: flex;justify-content: center;gap: 20px;padding: 18px 0 0 0;position: absolute;top:0;left:0;z-index:22;background: transparent;}
-nav.nav-main a{display:inline-block;background:var(--azul);color:var(--dourado);font-weight:600;text-decoration:none;font-size:18px;padding:11px 23px;border-radius:30px;letter-spacing:.02em;transition: background .17s, color .17s, box-shadow .16s;box-shadow:0 2px 8px #1113;border:none;outline:none;opacity:1;visibility:visible;}
+nav.nav-main a{display:inline-block;background:var(--azul);color:var(--dourado);font-weight:600;text-decoration:none;font-size:18px;padding:11px 23px;border-radius:30px;letter-spacing:.02em;transition: background .17s, color .17s, box-shadow .16s;box-shadow:0 2px 8px #1113;border:none;outline:none;}
 nav.nav-main a:hover,nav.nav-main a:focus {background: #21315B;color: #FFD700;}
 @media (max-width:900px) {nav.nav-main {gap: 8px;}nav.nav-main a {font-size:15px;padding:8px 10px;}}
 @media (max-width:600px){nav.nav-main {flex-wrap:wrap;gap:4px;padding-top:9px;position:static;}.faixa-logo img {margin-top:14px;}}
@@ -110,7 +110,7 @@ nav.nav-main a:hover,nav.nav-main a:focus {background: #21315B;color: #FFD700;}
     </div>
 </div>
 
-<!-- GALERIA -->
+<!-- ===================== GALERIAS/TABS ===================== -->
 <div class="section" id="galeria">
     <div class="tabs" role="tablist">
         <button class="tab active" id="tab_hotbeach" aria-controls="hotbeach" aria-selected="true" tabindex="0">Hot Beach</button>
@@ -212,7 +212,58 @@ nav.nav-main a:hover,nav.nav-main a:focus {background: #21315B;color: #FFD700;}
     </div>
 </div>
 
-<!-- DEPOIMENTOS -->
+<!-- ===================== FORMULÁRIOS ===================== -->
+<div class="section" id="orcamento">
+  <h2 style="color:var(--dourado);margin-bottom:21px;">Solicite seu Orçamento Premium</h2>
+  <form class="form-premium" id="formOrcamentoPremium">
+    <label for="nome">Nome completo</label>
+    <input type="text" name="nome" id="nome" required maxlength="120">
+    <label for="destino">Destino/Resort</label>
+    <input type="text" name="destino" id="destino" required maxlength="80">
+    <label for="checkin">Data do Check-in</label>
+    <input type="date" name="checkin" id="checkin" required>
+    <label for="checkout">Data do Check-out</label>
+    <input type="date" name="checkout" id="checkout" required>
+    <label for="pessoas">Nº de Pessoas</label>
+    <input type="number" name="pessoas" id="pessoas" required min="1" max="12">
+    <label for="whats">WhatsApp</label>
+    <input type="tel" name="whats" id="whats" required pattern="[0-9]{10,13}">
+    <label for="notas">Observações</label>
+    <textarea name="notas" id="notas" maxlength="300"></textarea>
+    <button type="submit">Enviar via WhatsApp</button>
+    <div class="sucesso-msg" style="display:none;">Seu pedido foi enviado via WhatsApp!</div>
+  </form>
+</div>
+<div class="section" id="multi">
+  <h2 style="color:var(--dourado);margin-bottom:21px;">Cadastre seu Empreendimento</h2>
+  <form class="form-premium" id="formEmpreendimento">
+    <label for="nomeEmp">Nome</label>
+    <input type="text" name="nomeEmp" id="nomeEmp" required maxlength="100">
+    <label for="emailEmp">E-mail de contato</label>
+    <input type="email" name="emailEmp" id="emailEmp" required maxlength="130">
+    <label for="empreendimento">Nome do Empreendimento</label>
+    <input type="text" name="empreendimento" id="empreendimento" required maxlength="120">
+    <label for="detalhesEmp">Detalhes / Mensagem</label>
+    <textarea name="detalhesEmp" id="detalhesEmp"></textarea>
+    <button type="submit">Enviar</button>
+    <div class="sucesso-msg" style="display:none;">Recebido! Seu cadastro foi enviado.</div>
+  </form>
+</div>
+<div class="section" id="contato">
+  <h2 style="color:var(--dourado);margin-bottom:21px;">Fale Conosco</h2>
+  <form class="form-premium" id="formContato">
+    <label for="nomeContato">Nome</label>
+    <input type="text" name="nomeContato" id="nomeContato" required maxlength="100">
+    <label for="emailContato">E-mail</label>
+    <input type="email" name="emailContato" id="emailContato" required maxlength="130">
+    <label for="mensagemContato">Mensagem</label>
+    <textarea name="mensagemContato" id="mensagemContato" required maxlength="400"></textarea>
+    <button type="submit">Enviar</button>
+    <div class="sucesso-msg" style="display:none;">Mensagem enviada! Entraremos em contato.</div>
+  </form>
+</div>
+
+<!-- ===================== DEPOIMENTOS ===================== -->
 <section class="depoimentos-section" id="depoimentos">
   <h2 class="depo-title">O que nossos clientes dizem</h2>
   <div class="depo-carousel-wrap" tabindex="0" aria-label="Depoimentos em carrossel">
@@ -267,11 +318,9 @@ nav.nav-main a:hover,nav.nav-main a:focus {background: #21315B;color: #FFD700;}
   </div>
 </section>
 
-<!-- FORMULÁRIOS (ORÇAMENTO, MULTI, CONTATO) IDÊNTICOS AO EXEMPLO ANTERIOR -->
-<!-- ...reutilize os blocos do arquivo anterior, logo acima... -->
-
-<!-- JS: Tema -->
+<!-- =========== SCRIPTS ========= -->
 <script>
+// Troca de tema
 const mbtn = document.getElementById('modeToggleBtn');
 mbtn.addEventListener('click',()=>{
   let html = document.documentElement;
@@ -279,9 +328,7 @@ mbtn.addEventListener('click',()=>{
   html.setAttribute('data-theme', atual==='dark'?'light':'dark');
   mbtn.innerText = html.getAttribute('data-theme')==='dark' ? '🌓' : '🌞';
 });
-</script>
-<script>
-// Tabs galerias
+// Tabs Galeria
 document.addEventListener('DOMContentLoaded', function() {
   const tabs = document.querySelectorAll('.tab');
   const blocks = document.querySelectorAll('.gallery-block');
@@ -298,7 +345,7 @@ document.addEventListener('DOMContentLoaded', function() {
       });
   });
 });
-// Carrossel depoimentos
+// Carrossel Depoimentos
 (function(){
   const cards = document.querySelectorAll('.depo-card');
   const dots = document.querySelectorAll('.depo-carousel-dot');
@@ -317,7 +364,40 @@ document.addEventListener('DOMContentLoaded', function() {
   });
   setInterval(()=>show((current+1)%max), 8500);
 })();
+
+// FORMULÁRIOS AUTOMATIZAÇÃO (WhatsApp, e pronto para Webhook CRM/sheets)
+const WEBHOOK_URL = ""; // Preencha aqui se quiser integração com Sheets/CRM
+document.getElementById("formOrcamentoPremium").onsubmit = function(e){
+  e.preventDefault();
+  const nome = this.nome.value, dest = this.destino.value, checkin = this.checkin.value, checkout = this.checkout.value, pessoas = this.pessoas.value, whats = this.whats.value, notas = this.notas.value;
+  const msg = encodeURIComponent(
+    `*Orçamento pelo site*\nNome: ${nome}\nDestino: ${dest}\nCheck-in: ${checkin}\nCheck-out: ${checkout}\nPessoas: ${pessoas}\nWhatsApp: ${whats}\nObservações: ${notas}`
+  );
+  const fone = "5517982006382";
+  window.open("https://wa.me/"+fone+"?text="+msg, "_blank");
+  if(WEBHOOK_URL) {
+    fetch(WEBHOOK_URL, {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({nome,dest,checkin,checkout,pessoas,whats,notas})});
+  }
+  this.querySelector(".sucesso-msg").style.display="block";
+  setTimeout(()=>{this.querySelector(".sucesso-msg").style.display="none";},2900);
+  this.reset();
+};
+document.getElementById("formEmpreendimento").onsubmit = function(e){
+  e.preventDefault();
+  const nome = this.nomeEmp.value, email=this.emailEmp.value, emp=this.empreendimento.value, det=this.detalhesEmp.value;
+  if(WEBHOOK_URL) fetch(WEBHOOK_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({nome,email,emp,det})});
+  this.querySelector(".sucesso-msg").style.display="block";
+  setTimeout(()=>{this.querySelector(".sucesso-msg").style.display="none";},3000);
+  this.reset();
+};
+document.getElementById("formContato").onsubmit = function(e){
+  e.preventDefault();
+  const nome = this.nomeContato.value, email = this.emailContato.value, msg = this.mensagemContato.value;
+  if(WEBHOOK_URL) fetch(WEBHOOK_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({nome,email,msg})});
+  this.querySelector(".sucesso-msg").style.display="block";
+  setTimeout(()=>{this.querySelector(".sucesso-msg").style.display="none";},3000);
+  this.reset();
+};
 </script>
-<!-- JS dos formulários está nos exemplos anteriores, igual ao comando de automação já mostrado -->
 </body>
 </html>
