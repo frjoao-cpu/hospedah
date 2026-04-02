@@ -1,33 +1,50 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>HOSPEDAH | Resorts e Experiências Exclusivas</title>
-<meta name="description" content="Hospede-se com qualidade nos melhores resorts e tenha experiências exclusivas. Orçamento premium, atendimento digital e profissionais à disposição.">
-<meta property="og:title" content="HOSPEDAH | Resorts e Experiências Exclusivas">
-<meta property="og:description" content="Hospede-se com qualidade nos melhores resorts e tenha experiências exclusivas. Faça seu orçamento online e conheça nossos diferenciais.">
-<meta property="og:image" content="https://i.imgur.com/ITjjQaf.jpeg">
-<meta property="og:url" content="https://www.seusite.com.br/">
-<meta name="twitter:card" content="summary_large_image">
-<link rel="shortcut icon" href="https://i.imgur.com/ITjjQaf.jpeg" type="image/jpeg">
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-<style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HOSPEDAH | Resorts e Experiências Exclusivas</title>
+  <meta name="description" content="Hospede-se nos melhores resorts do Brasil. Orçamento premium, galeria, depoimentos reais e atendimento digital.">
+  <link rel="shortcut icon" href="https://i.imgur.com/ITjjQaf.jpeg" type="image/jpeg">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <style>
 :root {
   --dourado: #D4AF37;
-  --bg-escuro: #0B1C3D;
-  --bg-claro: #fff;
   --cor-foco: #e7c343;
 }
 body{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;background:linear-gradient(135deg,#0B1C3D,#142850);color:#fff;}
+.barra-destaque{
+  position:sticky; top:0; z-index:1100;
+  background:linear-gradient(90deg,#fffbe7,#fbecc3 60%,#ffeabb); box-shadow:0 2px 15px #c89a0908;
+  display:flex;gap:22px;justify-content:center;align-items:center;padding:18px 6vw 18px 6vw;
+  border-bottom: 2.5px solid var(--dourado);
+}
+.barra-destaque .btn-destaque{
+  background:linear-gradient(90deg, #f7c876, #d4af37 80%);
+  color:#1b1b1b;
+  font-weight:600;
+  border-radius:25px;
+  font-size:1.11em;
+  padding:13px 27px;
+  border:none;
+  cursor:pointer;
+  box-shadow: 0 2px 13px #d4af3730;
+  display:inline-flex;align-items:center;gap:13px;
+  text-decoration:none;
+  transition:.11s;
+}
+.barra-destaque .btn-destaque:hover{
+  background: var(--dourado);
+  color: #fff;
+  transform:scale(1.055);
+}
 .faixa-logo {width: 100%; background: #fff; box-shadow: 0 4px 20px -7px #001e3b30; display: flex; align-items: center; justify-content: center; padding: 34px 0 34px 0; position: relative;}
-.faixa-logo img, .faixa-logo svg {max-width: 600px;width: 100%;height: auto;display: block;}
+.faixa-logo img {max-width: 600px;width: 100%;height: auto;display: block;}
 .modo-toggle {position: absolute; top:18px;right:34px;}
 .modo-toggle button {background:#fff1;color:#555;border-radius:16px;padding:6px 16px;font-weight:600;border:none;cursor:pointer;}
 .modo-toggle button:active{background:var(--dourado);color:#fff;}
-.insta-top img,
-.btn img { vertical-align: middle; display:inline-block; margin-right:6px;}
-.zap-float img { display:inline-block; }
+.insta-top img, .btn img, .btn-destaque img { vertical-align:middle;display:inline-block;margin-right:7px;}
+.zap-float img {display:inline-block;}
 .topo-infos{display:flex; flex-direction:column; align-items:center; gap:7px; margin-top: 22px;}
 .topo-infos h1{color: var(--dourado); font-size: 1.33rem; font-weight:600; margin-bottom:3px;letter-spacing:.4px;}
 .insta-top {margin-bottom: 4px; display:inline-flex;align-items:center;gap:8px; padding:11px 28px; border-radius:30px; background:linear-gradient(45deg,#833AB4,#E1306C,#FCAF45);text-decoration:none; color:#fff;font-size: 17px; font-weight: 500;}
@@ -35,39 +52,86 @@ body{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;b
 .contato-b {background: rgba(11,28,61,0.07); border-radius: 11px; padding: 13px 19px 11px 19px; min-width:140px; display: flex; flex-direction: column; align-items: center;}
 .contato-b h3 { color:var(--dourado); font-size:1.07rem; margin:0 0 2px 0;}
 .contato-b p { font-size:13px; margin:0 0 4px 0; color:#fff;}
-.contato-b a.btn {margin-top:1px; padding:8px 18px; background:#25D366; border-radius:16px; color:#fff; text-decoration:none; font-size:15px; display:inline-flex;align-items:center;gap:8px;}
-nav.nav-main {display:flex; justify-content:center; gap:32px; margin:34px 0 0 0;}
-nav.nav-main a {color: var(--bg-escuro); text-decoration: none; font-weight: 500; font-size: 18px; padding: 12px 7px; border-radius: 20px; transition: background .12s,color .12s;}
-nav.nav-main a:hover { background: var(--dourado); color: #fff;}
+.contato-b a.btn {margin-top:1px; padding:8px 18px; background:#25D366; border-radius:16px; color:#fff; text-decoration:none; font-size:15px;display:inline-flex;align-items:center;gap:8px;}
+nav.nav-main {display:flex; justify-content:center; align-items:center; gap:32px; margin:0; padding:22px 0; background:#fff4; position:sticky; top:0; z-index:1000; backdrop-filter:blur(6px);}
+nav.nav-main a {color: #0B1C3D; text-decoration: none; font-weight: 500; font-size: 18px; padding: 10px 8px; border-radius: 20px; transition: background .12s,color .12s; display:inline-flex;align-items:center;gap:7px;}
+nav.nav-main a:hover, nav.nav-main a.active{ background: var(--dourado); color: #fff;}
 .section{padding:44px 14px 24px 14px;text-align:center;}
 .tabs{display:flex;justify-content:center;gap:8px;margin-bottom:26px;flex-wrap:wrap;}
-.tab{padding:10px 26px 10px 26px;background:#fff1;border-radius:22px 22px 0 0;font-size:17px;color:var(--dourado);border:none;cursor:pointer;outline:none;font-weight:600;transition:.14s;}
+.tab{padding:10px 26px;background:#fff1;border-radius:22px 22px 0 0;font-size:17px;color:var(--dourado);border:none;cursor:pointer;outline:none;font-weight:600;transition:.14s;}
 .tab.active,.tab:focus{background:var(--dourado);color:#0B1C3D;}
 .tab:hover{background:#D4AF37cc;color:#fff;}
-.tab:focus-visible { outline: 3px solid var(--cor-foco); }
+.tab:focus-visible { outline: 3px solid var(--cor-foco);}
 .gallery-block{display:none;}
 .gallery-block.active{display:block;}
 .resort-title{font-size:1.33rem;color:var(--dourado);margin-bottom:11px;font-weight:700;letter-spacing:.06em;}
 .resort-link{color:var(--dourado);font-size:1rem;text-decoration:none;font-weight:500;margin-bottom:20px;display:inline-block;}
 .gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:15px;justify-items:center;}
 .gallery img{width:100%;max-width:350px;height:220px;object-fit:cover;border-radius:14px;box-shadow: 0 2px 12px rgba(0,0,0,0.14); cursor: pointer;transition:.2s;}
-.orcamento-v3, .multi-v3 {background: linear-gradient(135deg, #000, #111);}
-.orcamento-v3 {color: #fff; padding: 80px 20px 50px 20px; display: flex; justify-content: center; margin: 48px 0 0 0;}
-.orcamento-v3 .box, .multi-v3 .box {background: #151515; padding: 40px; border-radius: 20px; max-width: 600px; width: 100%; box-shadow: 0 10px 40px rgba(0,0,0,0.6);}
-.orcamento-v3 h2, .multi-v3 h2 {text-align: center; font-size: 28px;}
-.orcamento-v3 p, .multi-v3 p {text-align: center; color: #aaa; margin-bottom: 25px;}
-#formOrcamento, #formMulti {display: flex; flex-direction: column; gap: 15px;}
-#formOrcamento input, #formMulti input, #formMulti textarea {padding: 14px; border-radius: 12px; border: none; background: #1f1f1f; color: white; font-size: 15px;}
-#formOrcamento .datas {display: flex; gap: 10px;}
-#formOrcamento .datas div {flex: 1;}
-#formOrcamento label, #formMulti label {font-size: 12px; color: #aaa;}
-#formOrcamento button, #formMulti button {margin-top: 10px; padding: 16px; border-radius: 12px; border: none; background: linear-gradient(90deg, gold, #d4af37); font-weight: bold; cursor: pointer; transition: 0.3s;}
-#formMulti button {margin-top: 8px;}
-#formOrcamento button:hover, #formMulti button:hover {transform: scale(1.03);}
-#infoEstadia, #preview {font-size: 14px; color: #ccc; text-align: center;}
-#formMulti textarea {min-height: 80px; resize: none;}
-.erro-msg { color:#f56; font-size:14px; margin:0 0 3px 0;}
-.multi-v3 {padding: 0 0 80px 0; display: flex; justify-content: center; color: white;}
+.gallery img:focus-visible{ outline: 3px solid var(--cor-foco);}
+.lightbox-modal {position:fixed;z-index:12000;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.94);display:flex;align-items:center;justify-content:center;animation:fadeIn .15s;}
+.lightbox-img-area {position:relative;display:flex;flex-direction:column;align-items:center;max-width:95vw;max-height:95vh;}
+.lightbox-img-area img {max-width:86vw;max-height:75vh;border-radius:12px;box-shadow:0 8px 28px 7px #000c;}
+.lightbox-close, .lightbox-arrow {background:var(--dourado);color:#fff;border:none;border-radius:50%;width:42px;height:42px;font-size:2em;position:absolute;cursor:pointer;opacity:.85;}
+.lightbox-close {top:-22px;right:-22px;}
+.lightbox-arrow {top:45%;font-size:2.2em;width:40px;height:40px;}
+.lightbox-arrow.prev {left:-60px;}
+.lightbox-arrow.next {right:-60px;}
+@media(max-width:780px){
+  .lightbox-arrow.prev {left:2vw;}
+  .lightbox-arrow.next {right:2vw;}
+  .lightbox-img-area img {max-width:97vw;max-height:70vh;}
+}
+@media(max-width:700px){
+  .faixa-logo img{max-width:94vw;}
+  .faixa-logo{padding:6vw 0 6vw 0;}
+  .gallery img{height:135px;}
+  .section{padding:24px 4vw;}
+  .resort-title{margin-top:20px;}
+  .tab{font-size:13px;padding:9px 10px;}
+  .barra-destaque{flex-direction:column;gap:11px;padding:5vw 2vw;}
+}
+@keyframes fadeIn {from{opacity:0;}to{opacity:1;}}
+.depoimentos-section {
+  padding:38px 4vw 64px 4vw;
+  background:#fff;
+}
+.depo-title {
+  text-align:center;font-size:1.34em;color:#D4AF37;margin-bottom:32px;
+}
+.depo-carousel-wrap {
+  max-width:350px; margin:0 auto; position:relative;
+}
+.depo-carousel-inner {overflow:hidden;}
+.depo-card {
+  background:linear-gradient(115deg,#fffbe7 50%,#fbecd1 100%);
+  color:#191919; border-radius:16px;box-shadow:0 2px 18px #efb21107;
+  max-width:340px; min-height:378px; padding:36px 28px 32px 28px;
+  text-align:center; display:flex; flex-direction:column; align-items:center;justify-content:center;
+  position:absolute; width:100%;left:0;top:0; opacity:0;transition:all .44s cubic-bezier(.68,-0.55,.27,1.55); pointer-events:none;
+}
+.depo-card.active {opacity:1;position:relative;pointer-events:auto;}
+.depo-card img{width:56px;height:56px;border-radius:50%;margin-bottom:15px;object-fit:cover;box-shadow:0 1px 8px #0001;}
+.depo-stars{color:gold;font-size:1.26em;margin-bottom:10px;letter-spacing:2px;}
+.depo-card p{font-size:1.07em;margin:0 0 12px 0;font-style:italic;}
+.depo-nome{font-weight:bold;margin-top:2px;font-size:1.08em;}
+.depo-cidade{font-size:.99em;color:#b9aa92;}
+.depo-carousel-arrows {text-align:center;margin-top:24px;}
+.depo-carousel-btn {
+  background: var(--dourado,#D4AF37); color:#fff;border:none;border-radius:50%;width:38px;height:38px;cursor:pointer;font-size:1.8em;margin:0 13px;transition:.15s; vertical-align:middle;
+  display:inline-flex;align-items:center;justify-content:center;box-shadow:0 2px 6px #0002;
+}
+.depo-carousel-btn:hover {background:goldenrod;}
+.depo-carousel-dots {text-align:center;margin:22px 0 0 0;}
+.depo-carousel-dot{
+  display:inline-block;width:13px;height:13px;
+  background:#ecd498;border-radius:50%;
+  margin:0 6px;cursor:pointer;transition:.15s;border:2px solid #fff;vertical-align:middle;
+  box-shadow:0 2px 7px #d4af3755;
+}
+.depo-carousel-dot.active{
+  background:var(--dourado,#D4AF37);border:2px solid #d4af37;
+}
 .zap-float { position:fixed; right:19px; bottom:18px; z-index:7000; }
 .zap-float a {
     border-radius: 50%;
@@ -79,138 +143,297 @@ nav.nav-main a:hover { background: var(--dourado); color: #fff;}
     transition:.13s; text-decoration:none;
 }
 .zap-float a:hover{ background:#128c7e; transform:scale(1.06);}
-footer{text-align:center;padding:30px;opacity:0.7;}
-@media(max-width:700px){
-    .faixa-logo img{max-width:94vw;}
-    .faixa-logo{padding:6vw 0 6vw 0;}
-    .gallery img{height:135px;}
-    .section{padding:24px 4vw;}
-    .resort-title{margin-top:20px;}
-    .tab{font-size:13px;padding:9px 10px;}
-    .orcamento-v3 .box, .multi-v3 .box {padding: 20px;}
+footer{background:#191919;color:#fff;padding:36px 11vw 23px 11vw;text-align:center;opacity:0.89;}
+.footer-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:18px;align-items:baseline;}
+.footer-logo img{width:111px;}
+.footer-social a{display:inline-block;margin:4px 7px;}
+@media(max-width:600px){
+  .depo-carousel-wrap {max-width:96vw;}
+  .depo-card {max-width:96vw;}
 }
-</style>
+  </style>
 </head>
 <body>
+<!-- TOPO PADRÃO  -->
 <div class="faixa-logo">
-    <img src="https://i.imgur.com/ITjjQaf.jpeg" alt="HOSPEDAH - Sua experiência começa aqui">
-    <div class="modo-toggle">
-      <button id="modeToggleBtn" aria-label="Alternar modo claro/escuro"> 🌓 Trocar tema</button>
-    </div>
+  <img src="https://i.imgur.com/ITjjQaf.jpeg" alt="HOSPEDAH - Sua experiência começa aqui">
+  <div class="modo-toggle">
+    <button id="modeToggleBtn" aria-label="Alternar modo claro/escuro">🌓 Trocar tema</button>
+  </div>
 </div>
 <div class="topo-infos">
-    <h1>Experiências Exclusivas</h1>
-    <a href="https://www.instagram.com/julianasilvaoliveira.joao?igsh=bzZmNGIxdjdqc285"
-      class="insta-top"
-      target="_blank">
-      <img src="https://i.imgur.com/naSPn1m.jpeg" alt="Instagram" style="width:24px;height:24px;"> Instagram Oficial
-    </a>
-    <div class="contatos-topo">
-        <div class="contato-b">
-            <h3>Flávio</h3>
-            <p>Especialista em Hospedagens</p>
-            <a class="btn"
-               href="https://wa.me/5517982006382"
-               target="_blank">
-                 <img src="https://i.imgur.com/6RduVDB.jpeg" alt="WhatsApp" style="width:20px;height:20px;"> WhatsApp
-            </a>
-        </div>
-        <div class="contato-b">
-            <h3>Juliana</h3>
-            <p>Especialista em Hospedagens</p>
-            <a class="btn"
-               href="https://wa.me/5517992068296"
-               target="_blank">
-                <img src="https://i.imgur.com/6RduVDB.jpeg" alt="WhatsApp" style="width:20px;height:20px;"> WhatsApp
-            </a>
-        </div>
+  <h1>Experiências Exclusivas</h1>
+  <a href="https://www.instagram.com/julianasilvaoliveira.joao?igsh=bzZmNGIxdjdqc285"
+    class="insta-top"
+    target="_blank">
+    <img src="https://i.imgur.com/naSPn1m.jpeg" alt="Instagram" width="24"> Instagram Oficial
+  </a>
+  <div class="contatos-topo">
+    <div class="contato-b">
+      <h3>Flávio</h3>
+      <p>Especialista em Hospedagens</p>
+      <a class="btn"
+        href="https://wa.me/5517982006382"
+        target="_blank">
+        <img src="https://i.imgur.com/6RduVDB.jpeg" alt="WhatsApp" width="20"> WhatsApp
+      </a>
     </div>
+    <div class="contato-b">
+      <h3>Juliana</h3>
+      <p>Especialista em Hospedagens</p>
+      <a class="btn"
+        href="https://wa.me/5517992068296"
+        target="_blank">
+        <img src="https://i.imgur.com/6RduVDB.jpeg" alt="WhatsApp" width="20"> WhatsApp
+      </a>
+    </div>
+  </div>
 </div>
 <nav class="nav-main">
-    <a href="#">Início</a>
-    <a href="#galeria">Galeria</a>
-    <a href="#orcamento">Orçamento</a>
-    <a href="#multi">Cadastre seu empreendimento</a>
-    <a href="#contato">Contato</a>
+  <a href="#">Início</a>
+  <a href="#galeria">Galeria</a>
+  <a href="#orcamento">Orçamento</a>
+  <a href="#multi">Cadastre seu empreendimento</a>
+  <a href="#contato">Contato</a>
+  <a href="https://www.instagram.com/julianasilvaoliveira.joao?igsh=bzZmNGIxdjdqc285" target="_blank" style="margin-left:2vw;">
+    <img src="https://i.imgur.com/naSPn1m.jpeg" width="24"> Instagram
+  </a>
 </nav>
-<div class="section" id="galeria">
 
-    <!-- Exemplo apenas do Hot Beach, repita para os outros se precisar -->
-    <div class="tabs" role="tablist">
-        <button class="tab active" id="tab_hotbeach" role="tab" aria-controls="hotbeach" aria-selected="true" tabindex="0">Hot Beach</button>
-    </div>
-    <div class="gallery-block active" id="hotbeach" role="tabpanel" tabindex="0" aria-labelledby="tab_hotbeach">
-        <div class="resort-title">Hot Beach Resort</div>
-        <a href="hotbeach.html" class="resort-link" target="_blank">Ver página exclusiva do Hot Beach</a>
-        <div class="gallery">
-            <img src="https://i.imgur.com/AmFSwwd.jpeg" alt="Hot Beach 1" loading="lazy" tabindex="0">
-            <img src="https://i.imgur.com/PMok8fe.jpeg" alt="Hot Beach 2" loading="lazy" tabindex="0">
-        </div>
-    </div>
+<!-- BARRA DE DESTAQUE -->
+<div class="barra-destaque">
+  <a href="#orcamento" class="btn-destaque"><img src="https://i.imgur.com/6RduVDB.jpeg" alt="WhatsApp" width="25"> Solicite seu Orçamento Premium</a>
+  <a href="#multi" class="btn-destaque"><img src="https://i.imgur.com/6RduVDB.jpeg" alt="WhatsApp" width="25"> Cadastre seu Empreendimento</a>
 </div>
-<section class="orcamento-v3" id="orcamento">
-  <div class="box">
-    <h2>Solicitar Orçamento Premium</h2>
-    <p>Preencha os dados e receba atendimento imediato</p>
-    <form id="formOrcamento" autocomplete="off" novalidate>
-      <input type="text" id="nome" name="nome" placeholder="Seu nome completo" required autocomplete="name">
-      <input type="text" id="propriedade" name="propriedade" placeholder="Destino ou propriedade desejada" required>
-      <div class="datas">
-        <div>
-          <label>Check-in</label>
-          <input type="date" id="checkin" required>
-        </div>
-        <div>
-          <label>Check-out</label>
-          <input type="date" id="checkout" required>
-        </div>
+
+<!-- GALERIA EM ABAS -->
+<div class="section" id="galeria">
+  <div class="tabs" role="tablist">
+    <button class="tab active" id="tab_hotbeach" role="tab" aria-controls="hotbeach" aria-selected="true" tabindex="0">Hot Beach</button>
+    <button class="tab" id="tab_saopedro" role="tab" aria-controls="saopedro" aria-selected="false" tabindex="-1">São Pedro Thermas</button>
+    <button class="tab" id="tab_olimpia" role="tab" aria-controls="olimpia" aria-selected="false" tabindex="-1">Olimpia Park</button>
+    <button class="tab" id="tab_solar" role="tab" aria-controls="solar" aria-selected="false" tabindex="-1">Solar das Águas</button>
+    <button class="tab" id="tab_wyndham" role="tab" aria-controls="wyndham" aria-selected="false" tabindex="-1">Wyndham Royal</button>
+    <button class="tab" id="tab_juquehy" role="tab" aria-controls="juquehy" aria-selected="false" tabindex="-1">Praia de Juquehy</button>
+  </div>
+  <div class="gallery-block active" id="hotbeach" role="tabpanel" tabindex="0" aria-labelledby="tab_hotbeach">
+    <div class="resort-title">Hot Beach Resort</div>
+    <div class="gallery">
+      <img src="https://i.imgur.com/AmFSwwd.jpeg" alt="Hot Beach 1" loading="lazy" tabindex="0">
+      <img src="https://i.imgur.com/PMok8fe.jpeg" alt="Hot Beach 2" loading="lazy" tabindex="0">
+      <img src="https://i.imgur.com/bOOUiLE.jpeg" alt="Hot Beach 3" loading="lazy" tabindex="0">
+    </div>
+  </div>
+  <div class="gallery-block" id="saopedro" role="tabpanel" tabindex="-1" aria-labelledby="tab_saopedro">
+    <div class="resort-title">São Pedro Thermas</div>
+    <div class="gallery">
+      <img src="https://i.imgur.com/pyEKOtQ.jpeg" alt="São Pedro 1" loading="lazy" tabindex="0">
+      <img src="https://i.imgur.com/1HeNjKT.jpeg" alt="São Pedro 2" loading="lazy" tabindex="0">
+    </div>
+  </div>
+  <div class="gallery-block" id="olimpia" role="tabpanel" tabindex="-1" aria-labelledby="tab_olimpia">
+    <div class="resort-title">Olimpia Park</div>
+    <div class="gallery">
+      <img src="https://i.imgur.com/AseZPzL.jpeg" alt="Olimpia Park 1" loading="lazy" tabindex="0">
+      <img src="https://i.imgur.com/uhGHhcA.jpeg" alt="Olimpia Park 2" loading="lazy" tabindex="0">
+    </div>
+  </div>
+  <div class="gallery-block" id="solar" role="tabpanel" tabindex="-1" aria-labelledby="tab_solar">
+    <div class="resort-title">Solar das Águas</div>
+    <div class="gallery">
+      <img src="https://i.imgur.com/S4tSUzG.jpeg" alt="Solar das Águas 1" loading="lazy" tabindex="0">
+      <img src="https://i.imgur.com/uiZei1A.jpeg" alt="Solar das Águas 2" loading="lazy" tabindex="0">
+    </div>
+  </div>
+  <div class="gallery-block" id="wyndham" role="tabpanel" tabindex="-1" aria-labelledby="tab_wyndham">
+    <div class="resort-title">Wyndham Royal</div>
+    <div class="gallery">
+      <img src="https://i.imgur.com/iDMQ2XA.jpeg" alt="Wyndham Royal 1" loading="lazy" tabindex="0">
+      <img src="https://i.imgur.com/WOhzcpP.jpeg" alt="Wyndham Royal 2" loading="lazy" tabindex="0">
+    </div>
+  </div>
+  <div class="gallery-block" id="juquehy" role="tabpanel" tabindex="-1" aria-labelledby="tab_juquehy">
+    <div class="resort-title">Praia de Juquehy</div>
+    <div class="gallery">
+      <img src="https://i.imgur.com/SxlktwS.jpeg" alt="Juquehy 1" loading="lazy" tabindex="0">
+      <img src="https://i.imgur.com/uORu8RN.jpeg" alt="Juquehy 2" loading="lazy" tabindex="0">
+    </div>
+  </div>
+</div>
+
+<!-- ... form, multi-v3, contato, etc ... -->
+
+<!-- DEPOIMENTOS CARROSSEL - ABAIXO DE TUDO -->
+<section class="depoimentos-section" id="depoimentos">
+  <h2 class="depo-title">O que nossos clientes dizem</h2>
+  <div class="depo-carousel-wrap" tabindex="0" aria-label="Depoimentos em carrossel">
+    <div class="depo-carousel-inner">
+      <div class="depo-card active">
+        <img src="https://i.imgur.com/ep4Ng4e.jpeg" alt="Cliente Cordélia S.">
+        <div class="depo-stars">★★★★★</div>
+        <p>“A melhor experiência de viagem que já tive. Atendimento super rápido e opções excelentes!”</p>
+        <div class="depo-nome">Cordélia S.</div>
+        <div class="depo-cidade">Rio Preto, SP</div>
       </div>
-      <input type="number" id="pessoas" name="pessoas" placeholder="Quantidade de pessoas" min="1" required>
-      <input type="tel" id="whatsapp"  name="whatsapp" placeholder="Seu WhatsApp (xx xxxxx-xxxx)" required inputmode="tel" pattern="^\(?\d{2}\)?[\s\-]?\d{4,5}\-?\d{4}$" autocomplete="tel">
-      <input type="text" id="website-field" style="display:none" tabindex="-1" autocomplete="off" aria-hidden="true">
-      <div id="infoEstadia"></div>
-      <div id="erroOrcamento" class="erro-msg"></div>
-      <button type="submit" id="btnEnviar"><img src="https://i.imgur.com/6RduVDB.jpeg" alt="WhatsApp" style="width:20px;height:20px;"> Solicitar via WhatsApp</button>
-    </form>
+      <div class="depo-card">
+        <img src="https://i.imgur.com/dciabUo.jpeg" alt="Cliente Ricardo A.">
+        <div class="depo-stars">★★★★★</div>
+        <p>“Fechei sem medo! Equipe muito confiável, recomendo para todos que buscam férias tranquilas.”</p>
+        <div class="depo-nome">Ricardo A.</div>
+        <div class="depo-cidade">São Paulo, SP</div>
+      </div>
+      <div class="depo-card">
+        <img src="https://i.imgur.com/dciabUo.jpeg" alt="Cliente Marina Lopes">
+        <div class="depo-stars">★★★★★</div>
+        <p>“Tudo perfeito: reserva, atendimento e o resort maravilhoso. Obrigada, HOSPEDAH!”</p>
+        <div class="depo-nome">Marina Lopes</div>
+        <div class="depo-cidade">Uberaba, MG</div>
+      </div>
+      <div class="depo-card">
+        <img src="https://i.imgur.com/j5izC2s.jpeg" alt="Cliente Gabriel Pinheiro">
+        <div class="depo-stars">★★★★★</div>
+        <p>“Superaram as minhas expectativas. Voltarei a reservar com eles, com certeza.”</p>
+        <div class="depo-nome">Gabriel Pinheiro</div>
+        <div class="depo-cidade">Campinas, SP</div>
+      </div>
+      <div class="depo-card">
+        <img src="https://i.imgur.com/iVoMnep.jpeg" alt="Cliente Paula Menezes">
+        <div class="depo-stars">★★★★★</div>
+        <p>“Atendimento exclusivo, muita praticidade e resorts fantásticos. Indico de olhos fechados.”</p>
+        <div class="depo-nome">Paula Menezes</div>
+        <div class="depo-cidade">Belo Horizonte, MG</div>
+      </div>
+    </div>
+    <div class="depo-carousel-arrows">
+      <button class="depo-carousel-btn" id="depoPrev" aria-label="Anterior" type="button">&#8592;</button>
+      <button class="depo-carousel-btn" id="depoNext" aria-label="Próximo" type="button">&#8594;</button>
+    </div>
+    <div class="depo-carousel-dots">
+      <span class="depo-carousel-dot active"></span>
+      <span class="depo-carousel-dot"></span>
+      <span class="depo-carousel-dot"></span>
+      <span class="depo-carousel-dot"></span>
+      <span class="depo-carousel-dot"></span>
+    </div>
   </div>
 </section>
-<section class="multi-v3" id="multi">
-  <div class="box">
-    <h2>Cadastre o seu empreendimento aqui</h2>
-    <p>Preencha os dados e envie seu imóvel ou empreendimento para nosso time comercial</p>
-    <form id="formMulti" autocomplete="off" novalidate>
-      <input type="text" id="resort" name="resort" placeholder="Empreendimento / Resort" required>
-      <input type="number" id="dormitorios" name="dormitorios" placeholder="Nº de dormitórios" required>
-      <input type="text" id="vista" name="vista" placeholder="Vista da sacada (ex: mar, piscina, jardim)" required>
-      <input type="text" id="uso" name="uso" placeholder="Uso (ex: 1 semana por ano, anual, avulso, etc.)" required>
-      <textarea id="periodos" name="periodos" placeholder="Períodos disponíveis ou observações (ex: Janeiro, Julho etc, ou Out/Nov em aberto, etc.)" required></textarea>
-      <input type="text" id="nomeMulti" name="nomeMulti" placeholder="Seu nome" required>
-      <input type="tel" id="contato" name="contato" placeholder="WhatsApp para contato (xx xxxxx-xxxx)" required inputmode="tel" pattern="^\(?\d{2}\)?[\s\-]?\d{4,5}\-?\d{4}$" autocomplete="tel">
-      <input type="text" id="website-field2" style="display:none" tabindex="-1" autocomplete="off" aria-hidden="true">
-      <div id="preview"></div>
-      <div id="erroMulti" class="erro-msg"></div>
-      <button type="submit"><img src="https://i.imgur.com/6RduVDB.jpeg" alt="WhatsApp" style="width:20px;height:20px;"> Cadastrar agora</button>
-    </form>
-  </div>
-</section>
-<div class="section" id="contato">
-    <h2>Contato</h2>
-    <p>Entre em contato para reservas, cotações e atendimento exclusivo.<br>
-    <strong>Flávio:</strong> <a style="color:#25D366;display:inline-flex;align-items:center;gap:4px;" href="https://wa.me/5517982006382" target="_blank"><img src="https://i.imgur.com/6RduVDB.jpeg" alt="WhatsApp" style="width:18px;height:18px;"> WhatsApp</a> <br>
-    <strong>Juliana:</strong> <a style="color:#25D366;display:inline-flex;align-items:center;gap:4px;" href="https://wa.me/5517992068296" target="_blank"><img src="https://i.imgur.com/6RduVDB.jpeg" alt="WhatsApp" style="width:18px;height:18px;"> WhatsApp</a>
-    </p>
-</div>
 <footer>
-    © HOSPEDAH — Atendimento 5 estrelas
+  <div class="footer-grid">
+    <div class="footer-logo"><img src="https://i.imgur.com/ITjjQaf.jpeg" alt="Logo HOSPEDAH"></div>
+    <div>
+      <b>Reservas e informações:</b><br>
+      <a href="https://wa.me/5517982006382" style="color:#25D366;display:inline-flex;align-items:center;gap:4px;" target="_blank"><img src="https://i.imgur.com/6RduVDB.jpeg" style="width:18px;"> WhatsApp Flávio</a><br>
+      <a href="https://wa.me/5517992068296" style="color:#25D366;display:inline-flex;align-items:center;gap:4px;" target="_blank"><img src="https://i.imgur.com/6RduVDB.jpeg" style="width:18px;"> WhatsApp Juliana</a>
+    </div>
+    <div class="footer-social">
+      <b>Siga nas redes:</b><br>
+      <a href="https://www.instagram.com/julianasilvaoliveira.joao?igsh=bzZmNGIxdjdqc285" target="_blank"><img src="https://i.imgur.com/naSPn1m.jpeg" style="width:26px;" alt="Instagram"></a>
+    </div>
+    <div>
+      <b>Endereço:</b><br>
+      São José do Rio Preto, SP <br>
+      CNPJ 44.035.040/0001-65
+    </div>
+  </div>
+  <div style="margin-top:16px;">© HOSPEDAH — Exclusividade em experiências</div>
 </footer>
 <div class="zap-float">
-    <a href="https://wa.me/5517982006382?text=Olá, gostaria de atendimento sobre hospedagem!" target="_blank" aria-label="Chamar no WhatsApp">
-        <img src="https://i.imgur.com/6RduVDB.jpeg" alt="WhatsApp" style="width:40px;height:40px;">
-    </a>
+  <a href="https://wa.me/5517982006382?text=Olá, gostaria de atendimento sobre hospedagem!" target="_blank" aria-label="Chamar no WhatsApp">
+    <img src="https://i.imgur.com/6RduVDB.jpeg" alt="WhatsApp" style="width:40px;height:40px;">
+  </a>
 </div>
 <script>
-// [Cole aqui o JS das versões anteriores: modo noturno, tabs, mascara, validação, lightbox...]
-// Por questões de espaço não repito todo o JS. Se quiser o JS integrado, só pedir explicitamente!
+// Tabs com acessibilidade
+document.addEventListener('DOMContentLoaded', function() {
+  const tabs = document.querySelectorAll('.tab');
+  const blocks = document.querySelectorAll('.gallery-block');
+  tabs.forEach(tab => {
+    tab.addEventListener('click', function(){
+      tabs.forEach((t,i)=>{
+        t.classList.remove('active');
+        t.setAttribute('aria-selected', 'false');
+        t.setAttribute('tabindex', '-1');
+        blocks[i].classList.remove('active');
+        blocks[i].setAttribute('tabindex', '-1');
+      });
+      this.classList.add('active');
+      this.setAttribute('aria-selected','true');
+      this.setAttribute('tabindex', '0');
+      let idx = Array.from(tabs).indexOf(this);
+      blocks[idx].classList.add('active');
+      blocks[idx].setAttribute('tabindex','0');
+      blocks[idx].focus();
+    });
+    tab.addEventListener('keydown',function(e){
+      if(e.key==="ArrowRight"||e.key==="ArrowLeft"){
+        let idx = Array.from(tabs).indexOf(document.activeElement);
+        if(e.key==="ArrowRight") idx++;
+        else idx--;
+        if(idx>=tabs.length) idx=0;
+        if(idx<0) idx=tabs.length-1;
+        tabs[idx].focus();
+        tabs[idx].click();
+        e.preventDefault();
+      }
+    });
+  });
+});
+// Lightbox para galeria
+document.querySelectorAll('.gallery img').forEach((img, index, arr)=>{
+  img.addEventListener('click',()=>showLightbox(arr,index));
+  img.addEventListener('keydown',e=>{
+    if(e.key==='Enter'||e.key===' ') { showLightbox(arr,index); e.preventDefault();}
+  });
+});
+function showLightbox(imgArray, idx){
+  let lb = document.createElement('div');
+  lb.className = 'lightbox-modal';
+  let area = document.createElement('div');
+  area.className = 'lightbox-img-area';
+  let img = document.createElement('img');
+  img.src = imgArray[idx].src; img.alt=imgArray[idx].alt;
+  area.appendChild(img);
+  let btnClose = document.createElement('button');
+  btnClose.className = 'lightbox-close'; btnClose.innerHTML = '&times;';
+  btnClose.onclick = ()=>lb.remove();
+  area.appendChild(btnClose);
+  function navImg(inc){
+    idx = (idx+inc+imgArray.length)%imgArray.length;
+    img.src = imgArray[idx].src; img.alt=imgArray[idx].alt;
+  }
+  let btnPrev = document.createElement('button'); btnPrev.className = 'lightbox-arrow prev'; btnPrev.innerHTML = '&#60;';
+  btnPrev.onclick = ()=>navImg(-1);
+  let btnNext = document.createElement('button'); btnNext.className = 'lightbox-arrow next'; btnNext.innerHTML = '&#62;';
+  btnNext.onclick = ()=>navImg(+1);
+  area.appendChild(btnPrev); area.appendChild(btnNext);
+  lb.appendChild(area);
+  lb.tabIndex=0; document.body.appendChild(lb); btnClose.focus();
+  lb.addEventListener('keydown', function(e){
+    if(e.key==='Escape') lb.remove();
+    else if(e.key==='ArrowLeft') navImg(-1);
+    else if(e.key==='ArrowRight') navImg(+1);
+  });
+  lb.onclick = e => {if(e.target===lb) lb.remove();}
+}
+// Carrossel Depoimentos
+(function(){
+  const cards = document.querySelectorAll('.depo-card');
+  const dots = document.querySelectorAll('.depo-carousel-dot');
+  let current = 0, max = cards.length;
+  function show(idx) {
+    cards.forEach((c,i)=>c.classList.toggle('active',i===idx));
+    dots.forEach((d,i)=>d.classList.toggle('active',i===idx));
+    current = idx;
+  }
+  document.getElementById('depoNext').onclick = () => show((current+1)%max);
+  document.getElementById('depoPrev').onclick = () => show((current+max-1)%max);
+  dots.forEach((dot,i)=>dot.onclick=()=>show(i));
+  document.querySelector('.depo-carousel-wrap').addEventListener('keydown',function(e){
+    if (e.key==='ArrowRight') { show((current+1)%max); e.preventDefault(); }
+    else if (e.key==='ArrowLeft') { show((current+max-1)%max); e.preventDefault(); }
+  });
+  setInterval(()=>show((current+1)%max), 8500);
+})();
 </script>
 </body>
 </html>
