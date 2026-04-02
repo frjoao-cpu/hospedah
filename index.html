@@ -3,9 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>HOSPEDAH | PAINEL ULTRA PREMIUM ZIP</title>
+<title>HOSPEDAH | PAINEL ULTRA PREMIUM</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <style>
 body{margin:0;font-family:Arial, sans-serif;background:#0B1C3D;color:#fff}
 .section{padding:40px;text-align:center}
@@ -13,6 +12,7 @@ body{margin:0;font-family:Arial, sans-serif;background:#0B1C3D;color:#fff}
 input,select,textarea{width:100%;padding:12px;margin:6px 0 10px 0;border:none;border-radius:8px;background:#1f1f1f;color:#fff}
 button{padding:12px 20px;border:none;border-radius:10px;background:gold;font-weight:bold;cursor:pointer;margin:5px 4px 5px 0;}
 button[style*=da3333]{background:#da3333;color:#fff}
+
 .card{background:#111;padding:18px 15px 18px 118px;margin:10px;border-radius:10px;text-align:left;min-height:120px;position:relative;}
 .badge{padding:4px 8px;border-radius:6px;font-size:12px}
 .novo{background:gray}
@@ -25,7 +25,7 @@ button[style*=da3333]{background:#da3333;color:#fff}
 .card .thumbs-mult{display:flex;flex-wrap:wrap;max-width:92px;}
 .card .thumbs-mult img:hover{border-color:gold;}
 textarea{min-height:48px;}
-.filtro-bloco{max-width:700px;margin:8px auto;padding:0 0 12px 0;}
+.filtro-bloco{max-width:600px;margin:8px auto;padding:0 0 12px 0;}
 .input-img-label{display:inline-block;margin-top:7px;}
 .input-img-label input{display:none;}
 .input-img-label span{
@@ -65,8 +65,8 @@ textarea{min-height:48px;}
 </head>
 <body>
 <div class="section">
-<h1>📊 Painel HOSPEDAH ULTRA PREMIUM ZIP</h1>
-<p>Gestão de clientes com <b>UPLOAD MÚLTIPLO de fotos</b>, PDF, CSV, busca, lightbox e <b>exportação ZIP</b></p>
+<h1>📊 Painel HOSPEDAH ULTRA PREMIUM</h1>
+<p>Gestão de clientes com <b>UPLOAD MÚLTIPLO de fotos</b>, PDF, CSV, busca e lightbox</p>
 </div>
 
 <div class="section">
@@ -92,7 +92,6 @@ textarea{min-height:48px;}
 <div class="filtro-bloco">
   <input id="busca" placeholder="🔍 Filtrar por nome/destino" oninput="render()">
   <button onclick="baixarCSV()">Exportar CSV</button>
-  <button onclick="baixarZIP()">Exportar Fotos ZIP</button>
 </div>
 <h2>Clientes</h2>
 <div id="lista"></div>
@@ -100,7 +99,7 @@ textarea{min-height:48px;}
 
 <script>
 const { jsPDF } = window.jspdf;
-let fotosSelecionadas = []; // base64 array temp
+let fotosSelecionadas = []; // array temporário base64
 
 function previewImgs(input){
   fotosSelecionadas = [];
@@ -136,6 +135,7 @@ function salvarCliente(){
   if(!cliente.nome||!cliente.destino||!cliente.whats){
     alert('Preencha os campos obrigatórios!');return
   }
+
   let lista=JSON.parse(localStorage.getItem('clientes')||'[]')
   lista.push(cliente)
   localStorage.setItem('clientes',JSON.stringify(lista))
@@ -215,34 +215,6 @@ function baixarCSV(){
   document.body.appendChild(a);a.click();
   setTimeout(()=>{URL.revokeObjectURL(url);a.remove()},500);
 }
-
-// ----- NOVO: EXPORTAR ZIP -----
-async function baixarZIP(){
-  let lista=JSON.parse(localStorage.getItem('clientes')||'[]');
-  if(lista.length==0) return alert("Nada para exportar!");
-  let zip = new JSZip();
-  let anyFoto = false;
-  for(let i=0;i<lista.length;i++){
-    let c=lista[i];
-    if(!c.fotos||c.fotos.length==0) continue;
-    anyFoto = true;
-    let pasta = zip.folder(`${sanitize(c.nome)}_${sanitize(c.destino)}`); // pasta por cliente
-    c.fotos.forEach((b64,ix)=>{
-      let [meta,data]=b64.split(',');
-      let ext = (meta||'').match(/image\/(.*?);/)?.[1]||'jpg';
-      pasta.file(`foto${ix+1}.${ext}`,data, {base64:true});
-    });
-  }
-  if(!anyFoto) return alert("Nenhuma foto para baixar.");
-  zip.generateAsync({type:"blob"}).then(blob=>{
-    let a=document.createElement('a');
-    a.href=URL.createObjectURL(blob);
-    a.download="hospedah_fotos.zip";
-    document.body.appendChild(a);a.click();
-    setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500);
-  });
-}
-function sanitize(s){return (s||'').replace(/[\/\\?%"<>|:]/g,'_').replace(/\s+/g,'_');}
 
 // ----- LIGHTBOX ----
 function openLightbox(imgs,idx){
