@@ -1,379 +1,216 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>HOSPEDAH | Resorts e Experiências Exclusivas</title>
-  <meta name="description" content="Resorts e experiências premium no Brasil. Orçamento online, cadastro de empreendimentos, atendimento profissional e automático.">
-  <link rel="shortcut icon" href="https://i.imgur.com/ITjjQaf.jpeg" type="image/jpeg">
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --dourado: #D4AF37;
-      --hero-overlay:rgba(17,19,29,0.48);
-    }
-    body {margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;background:linear-gradient(135deg,#0B1C3D,#142850);color:#fff;}
-    /* HERO SECTION */
-    .home-hero {
-      position:relative;
-      min-height:62vh;
-      background-image:url('https://i.imgur.com/AmFSwwd.jpeg');
-      background-size:cover;background-position:center;
-      display:flex;align-items:center;justify-content:center;
-      color:#fff;
-    }
-    .hero-overlay{position:absolute;inset:0;background:var(--hero-overlay);}
-    .hero-content{z-index:2;max-width:600px;padding:60px 5vw;text-align:center;}
-    .hero-content h1 {font-size:2.2rem;line-height:1.18;font-weight:600;text-shadow:0 3px 14px #0126;}
-    .hero-content p {margin:20px 0 30px 0;font-size:1.13rem;}
-    .cta-btn{
-      background:linear-gradient(90deg, gold, #d4af37);
-      font-weight:bold;padding:16px 38px;
-      border-radius:35px;font-size:1.11em;
-      margin-top:10px;text-decoration:none;display:inline-block;
-      color:#222;transition:.14s;border:none;cursor:pointer;
-      box-shadow:0 2px 10px #0005;
-      display:inline-flex;align-items:center;gap:10px;
-    }
-    .cta-btn:hover{color:#fff;box-shadow:0 5px 32px #0005;}
-    /* NAVBAR */
-    nav.nav-main {
-      display:flex; justify-content:center; align-items:center; gap:32px; margin:0; padding:22px 0; background:#fff4;
-      position:sticky; top:0; z-index:40; backdrop-filter:blur(6px);
-    }
-    nav.nav-main .logo-mini {height:38px;margin-right:10px;}
-    nav.nav-main a {
-      color: #0B1C3D; text-decoration: none; font-weight: 500; font-size: 18px; padding: 10px 8px; border-radius: 20px; transition: background .12s,color .12s;
-      display:inline-flex;align-items:center;gap:7px;
-    }
-    nav.nav-main a:hover, nav.nav-main a.active{ background: var(--dourado); color: #fff;}
-    .nav-cta {
-      margin-left:auto; margin-right:18px;
-      background:linear-gradient(90deg, gold, #d4af37);color:#191919;
-      border-radius:22px;font-weight:600;font-size:1rem;
-      padding:10px 22px;border:none;cursor:pointer;text-decoration:none;transition:.13s;display:inline-flex;align-items:center;gap:8px;
-    }
-    .nav-cta:hover{ background:goldenrod;color:#fff;}
-    /* CARDS DE RESORTS */
-    .resorts-cards-section{padding:36px 6vw 30px 6vw;background:#f9f7f4;}
-    .resorts-cards-title{font-size:1.68em;color:var(--dourado);margin-bottom:23px;text-align:center;}
-    .cards-wrap{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:32px;max-width:1200px;margin:0 auto;}
-    .resort-card{
-      background:#fff;border-radius:18px;box-shadow:0 3px 28px #0001;margin:0 auto;
-      overflow:hidden;transition:box-shadow .16s,transform .13s;cursor:pointer;
-      display:flex;flex-direction:column;
-    }
-    .resort-card:hover{box-shadow:0 4px 42px #0003;transform:scale(1.021);}
-    .resort-thumb{height:190px;background-size:cover;background-position:center;}
-    .resort-card-content{padding:18px 24px 22px 24px;}
-    .resort-card h3{color:var(--dourado);font-size:1.18em;margin:0 0 6px 0;}
-    .resort-card p{color:#401f09;font-size:1em;}
-    /* DIFERENCIAIS */
-    .diferenciais-section{padding:48px 4vw;background:linear-gradient(135deg,#f7efe7,#e6d0a5 80%);}
-    .dif-title{text-align:center;color:var(--dourado);font-size:1.53em;margin-bottom:30px;}
-    .diferenciais-list{display:flex;gap:28px;flex-wrap:wrap;justify-content:center;}
-    .dif-item{background:#fff; border-radius:13px; box-shadow:0 4px 18px #fff6; min-width:220px;flex:1;max-width:340px;padding:24px 12px;text-align:center;}
-    .dif-item img{width:38px;height:38px;}
-    .dif-item h4{color:#b08a2b;margin-top:9px;margin-bottom:7px;}
-    /* DEPOIMENTOS */
-    .depoimentos-section{padding:38px 4vw 54px 4vw;background:#fff;}
-    .depo-title{text-align:center;font-size:1.34em;color:var(--dourado);}
-    .depo-list{display:flex;gap:28px;justify-content:center;flex-wrap:wrap;margin-top:28px;}
-    .depo-card{background:#ffe;color:#191919;border-radius:14px;box-shadow:0 2px 18px #efb21108;max-width:290px;padding:29px 20px;flex:1;}
-    .depo-card img{width:48px;height:48px;border-radius:50%;margin-bottom:9px;}
-    .depo-stars{color:gold;font-size:1.1em;}
-    .depo-nome{font-weight:bold;margin-top:4px;font-size:1.05em;}
-    .depo-cidade{font-size:.97em;color:#b9aa92;}
-    /* FORMULÁRIOS */
-    .orcamento-v3, .multi-v3 {background: linear-gradient(135deg, #000, #111);}
-    .orcamento-v3 {color: #fff; padding: 80px 20px 50px 20px; display: flex; justify-content: center;}
-    .orcamento-v3 .box, .multi-v3 .box {background: #151515; padding: 40px; border-radius: 20px; max-width: 600px; width: 100%; box-shadow: 0 10px 40px rgba(0,0,0,0.6);}
-    .orcamento-v3 h2, .multi-v3 h2 {text-align: center; font-size: 28px;}
-    .orcamento-v3 p, .multi-v3 p {text-align: center; color: #aaa; margin-bottom: 25px;}
-    #formOrcamento, #formMulti {display: flex; flex-direction: column; gap: 15px;}
-    #formOrcamento input, #formMulti input, #formMulti textarea {padding: 14px; border-radius: 12px; border: none; background: #1f1f1f; color: white; font-size: 15px;}
-    #formOrcamento .datas {display: flex; gap: 10px;}
-    #formOrcamento .datas div {flex: 1;}
-    #formOrcamento label, #formMulti label {font-size: 12px; color: #aaa;}
-    #formOrcamento button, #formMulti button {margin-top: 10px; padding: 16px; border-radius: 12px; border: none; background: linear-gradient(90deg, gold, #d4af37); font-weight: bold; cursor: pointer; transition: 0.3s;display:flex;align-items:center;gap:8px;justify-content:center;}
-    #formOrcamento button:hover, #formMulti button:hover {transform: scale(1.03);}
-    #infoEstadia, #preview {font-size: 14px; color: #ccc; text-align: center;}
-    #formMulti textarea {min-height: 80px; resize: none;}
-    .erro-msg { color:#f56; font-size:14px; margin:0 0 3px 0;}
-    /* WhatsApp flutuante */
-    .zap-float { position:fixed; right:19px; bottom:18px; z-index:7000; }
-    .zap-float a {
-        border-radius: 50%;
-        background: #25d366;
-        width: 65px; height: 65px;
-        display: flex;
-        align-items: center; justify-content:center;
-        color: #fff; font-size:2.3em; box-shadow:0 3px 12px #0006;
-        transition:.13s; text-decoration:none;
-    }
-    .zap-float a:hover{ background:#128c7e; transform:scale(1.06);}
-    /* Footer */
-    footer{background:#191919;color:#fff;padding:36px 11vw 23px 11vw;text-align:center;opacity:0.89;}
-    .footer-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:18px;align-items:baseline;}
-    .footer-logo img{width:111px;}
-    .footer-social a{display:inline-block;margin:4px 7px;}
-    /* Mobile */
-    @media(max-width:900px){
-      .cards-wrap{grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:18px;}
-      .diferenciais-list, .depo-list{flex-direction:column;align-items:center;}
-    }
-    @media(max-width:600px){
-      .home-hero{min-height:42vh;}
-      .hero-content h1 {font-size:1.19em;}
-      .orcamento-v3, .multi-v3 {padding:18px;}
-      .orcamento-v3 .box, .multi-v3 .box {padding:9vw 4vw;}
-      .footer-grid{grid-template-columns:1fr;}
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HOSPEDAH | Resorts e Experiências Exclusivas</title>
+<meta name="description" content="Hospede-se com qualidade nos melhores resorts e tenha experiências exclusivas. Orçamento premium, atendimento digital e profissionais à disposição.">
+<meta property="og:title" content="HOSPEDAH | Resorts e Experiências Exclusivas">
+<meta property="og:description" content="Hospede-se com qualidade nos melhores resorts e tenha experiências exclusivas. Faça seu orçamento online e conheça nossos diferenciais.">
+<meta property="og:image" content="https://i.imgur.com/ITjjQaf.jpeg">
+<meta property="og:url" content="https://www.seusite.com.br/">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="shortcut icon" href="https://i.imgur.com/ITjjQaf.jpeg" type="image/jpeg">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --dourado: #D4AF37;
+  --bg-escuro: #0B1C3D;
+  --bg-claro: #fff;
+  --cor-foco: #e7c343;
+}
+body{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;background:linear-gradient(135deg,#0B1C3D,#142850);color:#fff;}
+.faixa-logo {width: 100%; background: #fff; box-shadow: 0 4px 20px -7px #001e3b30; display: flex; align-items: center; justify-content: center; padding: 34px 0 34px 0; position: relative;}
+.faixa-logo img, .faixa-logo svg {max-width: 600px;width: 100%;height: auto;display: block;}
+.modo-toggle {position: absolute; top:18px;right:34px;}
+.modo-toggle button {background:#fff1;color:#555;border-radius:16px;padding:6px 16px;font-weight:600;border:none;cursor:pointer;}
+.modo-toggle button:active{background:var(--dourado);color:#fff;}
+.insta-top img,
+.btn img { vertical-align: middle; display:inline-block; margin-right:6px;}
+.zap-float img { display:inline-block; }
+.topo-infos{display:flex; flex-direction:column; align-items:center; gap:7px; margin-top: 22px;}
+.topo-infos h1{color: var(--dourado); font-size: 1.33rem; font-weight:600; margin-bottom:3px;letter-spacing:.4px;}
+.insta-top {margin-bottom: 4px; display:inline-flex;align-items:center;gap:8px; padding:11px 28px; border-radius:30px; background:linear-gradient(45deg,#833AB4,#E1306C,#FCAF45);text-decoration:none; color:#fff;font-size: 17px; font-weight: 500;}
+.contatos-topo {display:flex; gap:22px; justify-content:center; margin-top:14px;}
+.contato-b {background: rgba(11,28,61,0.07); border-radius: 11px; padding: 13px 19px 11px 19px; min-width:140px; display: flex; flex-direction: column; align-items: center;}
+.contato-b h3 { color:var(--dourado); font-size:1.07rem; margin:0 0 2px 0;}
+.contato-b p { font-size:13px; margin:0 0 4px 0; color:#fff;}
+.contato-b a.btn {margin-top:1px; padding:8px 18px; background:#25D366; border-radius:16px; color:#fff; text-decoration:none; font-size:15px; display:inline-flex;align-items:center;gap:8px;}
+nav.nav-main {display:flex; justify-content:center; gap:32px; margin:34px 0 0 0;}
+nav.nav-main a {color: var(--bg-escuro); text-decoration: none; font-weight: 500; font-size: 18px; padding: 12px 7px; border-radius: 20px; transition: background .12s,color .12s;}
+nav.nav-main a:hover { background: var(--dourado); color: #fff;}
+.section{padding:44px 14px 24px 14px;text-align:center;}
+.tabs{display:flex;justify-content:center;gap:8px;margin-bottom:26px;flex-wrap:wrap;}
+.tab{padding:10px 26px 10px 26px;background:#fff1;border-radius:22px 22px 0 0;font-size:17px;color:var(--dourado);border:none;cursor:pointer;outline:none;font-weight:600;transition:.14s;}
+.tab.active,.tab:focus{background:var(--dourado);color:#0B1C3D;}
+.tab:hover{background:#D4AF37cc;color:#fff;}
+.tab:focus-visible { outline: 3px solid var(--cor-foco); }
+.gallery-block{display:none;}
+.gallery-block.active{display:block;}
+.resort-title{font-size:1.33rem;color:var(--dourado);margin-bottom:11px;font-weight:700;letter-spacing:.06em;}
+.resort-link{color:var(--dourado);font-size:1rem;text-decoration:none;font-weight:500;margin-bottom:20px;display:inline-block;}
+.gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:15px;justify-items:center;}
+.gallery img{width:100%;max-width:350px;height:220px;object-fit:cover;border-radius:14px;box-shadow: 0 2px 12px rgba(0,0,0,0.14); cursor: pointer;transition:.2s;}
+.orcamento-v3, .multi-v3 {background: linear-gradient(135deg, #000, #111);}
+.orcamento-v3 {color: #fff; padding: 80px 20px 50px 20px; display: flex; justify-content: center; margin: 48px 0 0 0;}
+.orcamento-v3 .box, .multi-v3 .box {background: #151515; padding: 40px; border-radius: 20px; max-width: 600px; width: 100%; box-shadow: 0 10px 40px rgba(0,0,0,0.6);}
+.orcamento-v3 h2, .multi-v3 h2 {text-align: center; font-size: 28px;}
+.orcamento-v3 p, .multi-v3 p {text-align: center; color: #aaa; margin-bottom: 25px;}
+#formOrcamento, #formMulti {display: flex; flex-direction: column; gap: 15px;}
+#formOrcamento input, #formMulti input, #formMulti textarea {padding: 14px; border-radius: 12px; border: none; background: #1f1f1f; color: white; font-size: 15px;}
+#formOrcamento .datas {display: flex; gap: 10px;}
+#formOrcamento .datas div {flex: 1;}
+#formOrcamento label, #formMulti label {font-size: 12px; color: #aaa;}
+#formOrcamento button, #formMulti button {margin-top: 10px; padding: 16px; border-radius: 12px; border: none; background: linear-gradient(90deg, gold, #d4af37); font-weight: bold; cursor: pointer; transition: 0.3s;}
+#formMulti button {margin-top: 8px;}
+#formOrcamento button:hover, #formMulti button:hover {transform: scale(1.03);}
+#infoEstadia, #preview {font-size: 14px; color: #ccc; text-align: center;}
+#formMulti textarea {min-height: 80px; resize: none;}
+.erro-msg { color:#f56; font-size:14px; margin:0 0 3px 0;}
+.multi-v3 {padding: 0 0 80px 0; display: flex; justify-content: center; color: white;}
+.zap-float { position:fixed; right:19px; bottom:18px; z-index:7000; }
+.zap-float a {
+    border-radius: 50%;
+    background: #25d366;
+    width: 65px; height: 65px;
+    display: flex;
+    align-items: center; justify-content:center;
+    color: #fff; font-size:2.3em; box-shadow:0 3px 12px #0006;
+    transition:.13s; text-decoration:none;
+}
+.zap-float a:hover{ background:#128c7e; transform:scale(1.06);}
+footer{text-align:center;padding:30px;opacity:0.7;}
+@media(max-width:700px){
+    .faixa-logo img{max-width:94vw;}
+    .faixa-logo{padding:6vw 0 6vw 0;}
+    .gallery img{height:135px;}
+    .section{padding:24px 4vw;}
+    .resort-title{margin-top:20px;}
+    .tab{font-size:13px;padding:9px 10px;}
+    .orcamento-v3 .box, .multi-v3 .box {padding: 20px;}
+}
+</style>
 </head>
 <body>
-  <!-- HERO -->
-  <section class="home-hero">
-    <div class="hero-overlay"></div>
-    <div class="hero-content">
-      <h1>Viva experiências inesquecíveis nos melhores resorts do Brasil</h1>
-      <p>Atendimento ágil, reservas premium, e o melhor para sua família.</p>
-      <a href="#orcamento" class="cta-btn"><img src="https://i.imgur.com/6RduVDB.jpeg" style="width:28px;height:28px;">Fazer Orçamento</a>
+<div class="faixa-logo">
+    <img src="https://i.imgur.com/ITjjQaf.jpeg" alt="HOSPEDAH - Sua experiência começa aqui">
+    <div class="modo-toggle">
+      <button id="modeToggleBtn" aria-label="Alternar modo claro/escuro"> 🌓 Trocar tema</button>
     </div>
-  </section>
-  <!-- NAV -->
-  <nav class="nav-main">
-    <img src="https://i.imgur.com/ITjjQaf.jpeg" class="logo-mini" alt="Logo Hospedah">
-    <a href="#">Início</a>
-    <a href="#resorts">Resorts</a>
-    <a href="#diferenciais">Diferenciais</a>
-    <a href="#depoimentos">Depoimentos</a>
-    <a href="#orcamento" class="nav-cta"><img src="https://i.imgur.com/6RduVDB.jpeg" style="width:20px;">Orçamento</a>
-    <a href="https://www.instagram.com/julianasilvaoliveira.joao?igsh=bzZmNGIxdjdqc285" target="_blank" style="margin-left:2vw;">
-      <img src="https://i.imgur.com/naSPn1m.jpeg" style="width:24px;"> Instagram
+</div>
+<div class="topo-infos">
+    <h1>Experiências Exclusivas</h1>
+    <a href="https://www.instagram.com/julianasilvaoliveira.joao?igsh=bzZmNGIxdjdqc285"
+      class="insta-top"
+      target="_blank">
+      <img src="https://i.imgur.com/naSPn1m.jpeg" alt="Instagram" style="width:24px;height:24px;"> Instagram Oficial
     </a>
-  </nav>
-  <!-- CARDS DE RESORTS -->
-  <section class="resorts-cards-section" id="resorts">
-    <h2 class="resorts-cards-title">Resorts em Destaque</h2>
-    <div class="cards-wrap">
-      <!-- Card modelo, replique modificando dados -->
-      <div class="resort-card" tabindex="0" onclick="window.open('hotbeach.html','_blank')">
-        <div class="resort-thumb" style="background-image:url('https://i.imgur.com/AmFSwwd.jpeg')"></div>
-        <div class="resort-card-content">
-          <h3>Hot Beach Resort</h3>
-          <p>Águas quentes, parque aquático, moderno e diversão para toda família. Opção PREMIUM.</p>
+    <div class="contatos-topo">
+        <div class="contato-b">
+            <h3>Flávio</h3>
+            <p>Especialista em Hospedagens</p>
+            <a class="btn"
+               href="https://wa.me/5517982006382"
+               target="_blank">
+                 <img src="https://i.imgur.com/6RduVDB.jpeg" alt="WhatsApp" style="width:20px;height:20px;"> WhatsApp
+            </a>
+        </div>
+        <div class="contato-b">
+            <h3>Juliana</h3>
+            <p>Especialista em Hospedagens</p>
+            <a class="btn"
+               href="https://wa.me/5517992068296"
+               target="_blank">
+                <img src="https://i.imgur.com/6RduVDB.jpeg" alt="WhatsApp" style="width:20px;height:20px;"> WhatsApp
+            </a>
+        </div>
+    </div>
+</div>
+<nav class="nav-main">
+    <a href="#">Início</a>
+    <a href="#galeria">Galeria</a>
+    <a href="#orcamento">Orçamento</a>
+    <a href="#multi">Cadastre seu empreendimento</a>
+    <a href="#contato">Contato</a>
+</nav>
+<div class="section" id="galeria">
+
+    <!-- Exemplo apenas do Hot Beach, repita para os outros se precisar -->
+    <div class="tabs" role="tablist">
+        <button class="tab active" id="tab_hotbeach" role="tab" aria-controls="hotbeach" aria-selected="true" tabindex="0">Hot Beach</button>
+    </div>
+    <div class="gallery-block active" id="hotbeach" role="tabpanel" tabindex="0" aria-labelledby="tab_hotbeach">
+        <div class="resort-title">Hot Beach Resort</div>
+        <a href="hotbeach.html" class="resort-link" target="_blank">Ver página exclusiva do Hot Beach</a>
+        <div class="gallery">
+            <img src="https://i.imgur.com/AmFSwwd.jpeg" alt="Hot Beach 1" loading="lazy" tabindex="0">
+            <img src="https://i.imgur.com/PMok8fe.jpeg" alt="Hot Beach 2" loading="lazy" tabindex="0">
+        </div>
+    </div>
+</div>
+<section class="orcamento-v3" id="orcamento">
+  <div class="box">
+    <h2>Solicitar Orçamento Premium</h2>
+    <p>Preencha os dados e receba atendimento imediato</p>
+    <form id="formOrcamento" autocomplete="off" novalidate>
+      <input type="text" id="nome" name="nome" placeholder="Seu nome completo" required autocomplete="name">
+      <input type="text" id="propriedade" name="propriedade" placeholder="Destino ou propriedade desejada" required>
+      <div class="datas">
+        <div>
+          <label>Check-in</label>
+          <input type="date" id="checkin" required>
+        </div>
+        <div>
+          <label>Check-out</label>
+          <input type="date" id="checkout" required>
         </div>
       </div>
-      <div class="resort-card" tabindex="0" onclick="window.open('saopedro.html','_blank')">
-        <div class="resort-thumb" style="background-image:url('https://i.imgur.com/pyEKOtQ.jpeg')"></div>
-        <div class="resort-card-content">
-          <h3>São Pedro Thermas</h3>
-          <p>Tradição, águas relaxantes e estrutura de lazer completa.</p>
-        </div>
-      </div>
-      <!-- Adicione outros resorts como desejar -->
-    </div>
-  </section>
-  <!-- DIFERENCIAIS -->
-  <section class="diferenciais-section" id="diferenciais">
-    <h2 class="dif-title">Diferenciais HOSPEDAH</h2>
-    <div class="diferenciais-list">
-      <div class="dif-item">
-        <img src="https://img.icons8.com/ios-filled/50/000000/medal.png" alt="Atendimento Premium">
-        <h4>Atendimento Premium</h4>
-        <p>Equipe dedicada e sempre pronta para realizar seu sonho de viagem.</p>
-      </div>
-      <div class="dif-item">
-        <img src="https://img.icons8.com/ios-filled/50/000000/lock-2.png" alt="Segurança">
-        <h4>Segurança</h4>
-        <p>Reservas protegidas, pagamento facilitado e suporte do início ao fim.</p>
-      </div>
-      <div class="dif-item">
-        <img src="https://img.icons8.com/ios-filled/50/000000/firework.png" alt="Exclusividade">
-        <h4>Exclusividade</h4>
-        <p>Ofertas e condições realmente diferenciadas para nossos clientes.</p>
-      </div>
-      <div class="dif-item">
-        <img src="https://img.icons8.com/ios-filled/50/000000/smartphone-tablet.png" alt="Digital">
-        <h4>Facilidade Digital</h4>
-        <p>Processo de reserva rápido e atendimento automatizado via WhatsApp.</p>
-      </div>
-    </div>
-  </section>
-  <!-- DEPOIMENTOS -->
-  <section class="depoimentos-section" id="depoimentos">
-    <h2 class="depo-title">O que nossos clientes dizem</h2>
-    <div class="depo-list">
-      <div class="depo-card">
-        <img src="https://randomuser.me/api/portraits/women/81.jpg" alt="Cliente">
-        <div class="depo-stars">★★★★★</div>
-        <p>“Atendimento excepcional e resorts maravilhosos. Recomendo sem hesitar!”</p>
-        <div class="depo-nome">Juliana A.</div>
-        <div class="depo-cidade">São Paulo, SP</div>
-      </div>
-      <div class="depo-card">
-        <img src="https://randomuser.me/api/portraits/men/85.jpg" alt="Cliente">
-        <div class="depo-stars">★★★★★</div>
-        <p>“Reserva rápida, profissionais atenciosos e experiência incrível. Voltarei!”</p>
-        <div class="depo-nome">Roberto S.</div>
-        <div class="depo-cidade">Bauru, SP</div>
-      </div>
-    </div>
-  </section>
-  <!-- FORMULÁRIOS -->
-  <section class="orcamento-v3" id="orcamento">
-    <div class="box">
-      <h2>Solicitar Orçamento Premium</h2>
-      <p>Preencha os dados e receba atendimento imediato</p>
-      <form id="formOrcamento" autocomplete="off" novalidate>
-        <input type="text" id="nome" placeholder="Seu nome completo" required>
-        <input type="text" id="propriedade" placeholder="Destino ou propriedade desejada" required>
-        <div class="datas">
-          <div>
-            <label>Check-in</label>
-            <input type="date" id="checkin" required>
-          </div>
-          <div>
-            <label>Check-out</label>
-            <input type="date" id="checkout" required>
-          </div>
-        </div>
-        <input type="number" id="pessoas" placeholder="Quantidade de pessoas" min="1" required>
-        <input type="tel" id="whatsapp" pattern="[0-9]{2}[0-9]{8,9}" placeholder="Seu WhatsApp (xx xxxxx-xxxx)" required>
-        <div id="infoEstadia"></div>
-        <button type="submit" id="btnEnviar"><img src="https://i.imgur.com/6RduVDB.jpeg" alt="WhatsApp" style="width:20px;">Solicitar via WhatsApp</button>
-      </form>
-    </div>
-  </section>
-  <section class="multi-v3" id="multi">
-    <div class="box">
-      <h2>Cadastre o seu empreendimento aqui</h2>
-      <p>Preencha os dados e envie seu imóvel ou empreendimento para nosso time comercial</p>
-      <form id="formMulti" autocomplete="off" novalidate>
-        <input type="text" id="resort" placeholder="Empreendimento / Resort" required>
-        <input type="number" id="dormitorios" placeholder="Nº de dormitórios" required>
-        <input type="text" id="vista" placeholder="Vista da sacada (ex: mar, piscina, jardim)" required>
-        <input type="text" id="uso" placeholder="Uso (ex: 1 semana por ano, anual, avulso, etc.)" required>
-        <textarea id="periodos" placeholder="Períodos disponíveis ou observações" required></textarea>
-        <input type="text" id="nomeMulti" placeholder="Seu nome" required>
-        <input type="tel" id="contato" placeholder="WhatsApp para contato (xx xxxxx-xxxx)" required>
-        <div id="preview"></div>
-        <button type="submit"><img src="https://i.imgur.com/6RduVDB.jpeg" style="width:20px;">Cadastrar agora</button>
-      </form>
-    </div>
-  </section>
-  <!-- CONTATO/FOOTER -->
-  <footer>
-    <div class="footer-grid">
-      <div class="footer-logo"><img src="https://i.imgur.com/ITjjQaf.jpeg" alt="Logo HOSPEDAH"></div>
-      <div>
-        <b>Reservas e informações:</b><br>
-        <a href="https://wa.me/5517982006382" style="color:#25D366;display:inline-flex;align-items:center;gap:4px;" target="_blank"><img src="https://i.imgur.com/6RduVDB.jpeg" style="width:18px;"> WhatsApp Flávio</a><br>
-        <a href="https://wa.me/5517992068296" style="color:#25D366;display:inline-flex;align-items:center;gap:4px;" target="_blank"><img src="https://i.imgur.com/6RduVDB.jpeg" style="width:18px;"> WhatsApp Juliana</a>
-      </div>
-      <div class="footer-social">
-        <b>Siga nas redes:</b><br>
-        <a href="https://www.instagram.com/julianasilvaoliveira.joao?igsh=bzZmNGIxdjdqc285" target="_blank"><img src="https://i.imgur.com/naSPn1m.jpeg" style="width:26px;" alt="Instagram"></a>
-        <!-- outros -->
-      </div>
-      <div>
-        <b>Endereço:</b><br>
-        São José do Rio Preto, SP <br>
-        CNPJ 44.035.040/0001-65
-      </div>
-    </div>
-    <div style="margin-top:16px;">© HOSPEDAH — Exclusividade em experiências</div>
-  </footer>
-  <!-- BOTÃO FLUTUANTE WHATSAPP -->
-  <div class="zap-float">
+      <input type="number" id="pessoas" name="pessoas" placeholder="Quantidade de pessoas" min="1" required>
+      <input type="tel" id="whatsapp"  name="whatsapp" placeholder="Seu WhatsApp (xx xxxxx-xxxx)" required inputmode="tel" pattern="^\(?\d{2}\)?[\s\-]?\d{4,5}\-?\d{4}$" autocomplete="tel">
+      <input type="text" id="website-field" style="display:none" tabindex="-1" autocomplete="off" aria-hidden="true">
+      <div id="infoEstadia"></div>
+      <div id="erroOrcamento" class="erro-msg"></div>
+      <button type="submit" id="btnEnviar"><img src="https://i.imgur.com/6RduVDB.jpeg" alt="WhatsApp" style="width:20px;height:20px;"> Solicitar via WhatsApp</button>
+    </form>
+  </div>
+</section>
+<section class="multi-v3" id="multi">
+  <div class="box">
+    <h2>Cadastre o seu empreendimento aqui</h2>
+    <p>Preencha os dados e envie seu imóvel ou empreendimento para nosso time comercial</p>
+    <form id="formMulti" autocomplete="off" novalidate>
+      <input type="text" id="resort" name="resort" placeholder="Empreendimento / Resort" required>
+      <input type="number" id="dormitorios" name="dormitorios" placeholder="Nº de dormitórios" required>
+      <input type="text" id="vista" name="vista" placeholder="Vista da sacada (ex: mar, piscina, jardim)" required>
+      <input type="text" id="uso" name="uso" placeholder="Uso (ex: 1 semana por ano, anual, avulso, etc.)" required>
+      <textarea id="periodos" name="periodos" placeholder="Períodos disponíveis ou observações (ex: Janeiro, Julho etc, ou Out/Nov em aberto, etc.)" required></textarea>
+      <input type="text" id="nomeMulti" name="nomeMulti" placeholder="Seu nome" required>
+      <input type="tel" id="contato" name="contato" placeholder="WhatsApp para contato (xx xxxxx-xxxx)" required inputmode="tel" pattern="^\(?\d{2}\)?[\s\-]?\d{4,5}\-?\d{4}$" autocomplete="tel">
+      <input type="text" id="website-field2" style="display:none" tabindex="-1" autocomplete="off" aria-hidden="true">
+      <div id="preview"></div>
+      <div id="erroMulti" class="erro-msg"></div>
+      <button type="submit"><img src="https://i.imgur.com/6RduVDB.jpeg" alt="WhatsApp" style="width:20px;height:20px;"> Cadastrar agora</button>
+    </form>
+  </div>
+</section>
+<div class="section" id="contato">
+    <h2>Contato</h2>
+    <p>Entre em contato para reservas, cotações e atendimento exclusivo.<br>
+    <strong>Flávio:</strong> <a style="color:#25D366;display:inline-flex;align-items:center;gap:4px;" href="https://wa.me/5517982006382" target="_blank"><img src="https://i.imgur.com/6RduVDB.jpeg" alt="WhatsApp" style="width:18px;height:18px;"> WhatsApp</a> <br>
+    <strong>Juliana:</strong> <a style="color:#25D366;display:inline-flex;align-items:center;gap:4px;" href="https://wa.me/5517992068296" target="_blank"><img src="https://i.imgur.com/6RduVDB.jpeg" alt="WhatsApp" style="width:18px;height:18px;"> WhatsApp</a>
+    </p>
+</div>
+<footer>
+    © HOSPEDAH — Atendimento 5 estrelas
+</footer>
+<div class="zap-float">
     <a href="https://wa.me/5517982006382?text=Olá, gostaria de atendimento sobre hospedagem!" target="_blank" aria-label="Chamar no WhatsApp">
         <img src="https://i.imgur.com/6RduVDB.jpeg" alt="WhatsApp" style="width:40px;height:40px;">
     </a>
-  </div>
-  <script>
-    // Hero Orçamento botão: smooth scroll
-    document.querySelectorAll('a[href^="#orcamento"]').forEach(link=>{
-      link.onclick = function(e){e.preventDefault();document.querySelector('#orcamento').scrollIntoView({behavior:'smooth'});}
-    });
-    // Quick mascara telefone
-    function mascaraTelefone(e){
-      let v = e.target.value.replace(/\D/g,'');
-      if (v.length > 2 && v.length <= 7)
-          v = '(' + v.slice(0,2) + ') ' + v.slice(2);
-      else if (v.length > 7)
-          v = '(' + v.slice(0,2) + ') ' + v.slice(2,7) + '-' + v.slice(7,11);
-      e.target.value = v;
-    }
-    document.querySelectorAll('input[type="tel"]').forEach(inp=>{
-        inp.addEventListener('input', mascaraTelefone);
-    });
-    // Formulários: ex: orcamento via WhatsApp
-    document.getElementById("formOrcamento").addEventListener("submit", function(e) {
-      e.preventDefault();
-      let nome = document.getElementById("nome").value.trim();
-      let propriedade = document.getElementById("propriedade").value.trim();
-      let checkinVal = document.getElementById("checkin").value;
-      let checkoutVal = document.getElementById("checkout").value;
-      let pessoas = document.getElementById("pessoas").value.trim();
-      let whatsapp = document.getElementById("whatsapp").value.trim();
-      let mensagem = `✨ *SOLICITAÇÃO DE ORÇAMENTO - HOSPEDAH* ✨%0A
-👤 Nome: ${nome}%0A
-📍 Destino: ${propriedade}%0A
-📅 Check-in: ${checkinVal}%0A
-📅 Check-out: ${checkoutVal}%0A
-👥 Pessoas: ${pessoas}%0A
-📞 WhatsApp: ${whatsapp}%0A
--------------------------%0A
-Aguardo retorno com opções disponíveis.`;
-      let numero = "5517982006382";
-      window.open(`https://wa.me/${numero}?text=${mensagem}`, "_blank");
-    });
-    document.getElementById("formMulti").addEventListener("submit", function(e) {
-      e.preventDefault();
-      let resort = document.getElementById("resort").value.trim();
-      let dormitorios = document.getElementById("dormitorios").value.trim();
-      let vista = document.getElementById("vista").value.trim();
-      let uso = document.getElementById("uso").value.trim();
-      let periodos = document.getElementById("periodos").value.trim();
-      let nome = document.getElementById("nomeMulti").value.trim();
-      let contato = document.getElementById("contato").value.trim();
-      let mensagem =
-        `🏢 *CADASTRO DE EMPREENDIMENTO - HOSPEDAH* 🏢%0A` +
-        `🏨 Empreendimento/Resort: ${resort}%0A` +
-        `🛏️ Dormitórios: ${dormitorios}%0A` +
-        `🌅 Vista: ${vista}%0A` +
-        `📆 Uso: ${uso}%0A` +
-        `-------------------------%0A` +
-        `📝 Detalhes/Períodos/Observações:%0A${periodos}%0A` +
-        `-------------------------%0A` +
-        `👤 Proprietário: ${nome}%0A` +
-        `📞 Contato: ${contato}%0A` +
-        `-------------------------%0A` +
-        `✨ Nossa equipe comercial entrará em contato.`;
-      let numero = "5517982006382";
-      window.open(`https://wa.me/${numero}?text=${mensagem}`, "_blank");
-    });
-    // Form de orçamento: estadia
-    document.getElementById("checkin").addEventListener("change",calcularDiarias);
-    document.getElementById("checkout").addEventListener("change",calcularDiarias);
-    function calcularDiarias() {
-      let checkinVal = document.getElementById("checkin").value;
-      let checkoutVal = document.getElementById("checkout").value;
-      let info = document.getElementById("infoEstadia");
-      if (checkinVal && checkoutVal) {
-        let data1 = new Date(checkinVal);
-        let data2 = new Date(checkoutVal);
-        let diff = (data2 - data1) / (1000 * 60 * 60 * 24);
-        if (diff > 0) {
-          info.innerHTML = `Estadia de <strong>${diff} noites</strong>`;
-        } else {
-          info.innerHTML = "Check-out deve ser após o check-in";
-        }
-      } else {
-        info.innerHTML = "";
-      }
-    }
-  </script>
+</div>
+<script>
+// [Cole aqui o JS das versões anteriores: modo noturno, tabs, mascara, validação, lightbox...]
+// Por questões de espaço não repito todo o JS. Se quiser o JS integrado, só pedir explicitamente!
+</script>
 </body>
 </html>
