@@ -116,8 +116,7 @@
         }
         .zap-float a:hover{ background:#128c7e; transform:scale(1.06);}
         @keyframes fadeIn {from{opacity:0;}to{opacity:1;}}
-        /* Painel discretos admin/status */
-        #painel-admin-mini {position:fixed; bottom:20px; left:18px; z-index:99999; background:rgba(15,17,33,.93); padding:8px 11px 8px 11px; border-radius:14px; box-shadow:0 2px 14px #0008; display:flex; gap:7px; align-items:center; opacity:.83;}
+        #painel-admin-mini {display:none;position:fixed; bottom:20px; left:18px; z-index:99999; background:rgba(15,17,33,.93); padding:8px 11px 8px 11px; border-radius:14px; box-shadow:0 2px 14px #0008; gap:7px; align-items:center; opacity:.83;}
         #painel-admin-mini button{font-size:14px;background:#d4af37;border:none;border-radius:7px;padding:6px 10px;cursor:pointer;}
         #btnLimpar{background:#ff3333;color:#fff;}
         #painel-status-mini {position:fixed;bottom:70px;left:25px;z-index:22222;background:#202028;color:#fff;font-size:16px;padding:10px 22px;border-radius:10px;box-shadow:0 2px 18px #0003;display:none;max-width:90vw;min-width:45px;}
@@ -164,7 +163,6 @@
             <button class="tab" id="tab_wyndham" role="tab" aria-controls="wyndham" aria-selected="false" tabindex="-1">Wyndham Royal</button>
             <button class="tab" id="tab_juquehy" role="tab" aria-controls="juquehy" aria-selected="false" tabindex="-1">Praia de Juquehy</button>
         </div>
-        <!-- suas <div class="gallery-block"> aqui -->
         <div class="gallery-block active" id="hotbeach" role="tabpanel" tabindex="0" aria-labelledby="tab_hotbeach">
             <div class="resort-title">Hot Beach Resort</div>
             <a href="hotbeach.html" class="resort-link" target="_blank">Ver página exclusiva do Hot Beach</a>
@@ -238,24 +236,58 @@
             <span style="font-size:1.3em;position:absolute;left:16px;top:17px;" aria-hidden="true">&#x1F4AC;</span>
         </a>
     </div>
-
-    <!-- PAINEL PREMIUM -->
+    <!-- PAINEL PREMIUM OCULTO -->
     <div id="painel-admin-mini">
       <button id="btnBackup">Backup</button>
       <button id="btnRestore">Restaurar</button>
       <button id="btnCSV">CSV</button>
       <button id="btnLimpar">Limpar</button>
+      <button id="btnOcultarMini" style="background:#222;color:#fff;font-size:13px;">Ocultar</button>
       <input type="file" id="arqRestore" style="display:none" accept=".json">
     </div>
     <div id="painel-status-mini"></div>
-
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
     <!-- Seu JS original permanece igual abaixo -->
     <script>
-    // (Seu JS original aqui, igual ao anterior)
+    // ... seu JS original aqui, igual ao anterior ...
     </script>
-    <!-- PREMIUM: Funções invisíveis + botões discretos + painel -->
+
+    <!-- PREMIUM: Funções invisíveis + painel seguro + status -->
     <script>
+    // Painel de status flutuante
+    function showMiniStatus(msg, tempo=2500){
+      let s=document.getElementById('painel-status-mini');
+      s.innerHTML=msg; s.style.display='block';
+      clearTimeout(showMiniStatus.tm);
+      showMiniStatus.tm=setTimeout(()=>{s.style.display='none';},tempo);
+    }
+    // Painel Oculto seguro: mostra ao digitar código secreto
+    (function(){
+      let code = "admin2026";
+      let buffer = "";
+      document.getElementById('painel-admin-mini').style.display='none';
+      document.addEventListener('keydown', function(e){
+        // Não ativa se input/textarea está focado!
+        if(document.activeElement && /input|textarea/i.test(document.activeElement.tagName)) return;
+        if(e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey){
+          buffer += e.key;
+          // Se buffer fica muito grande, corta
+          if(buffer.length > 32) buffer = buffer.slice(-32);
+          if(buffer.toLowerCase().includes(code)){
+            document.getElementById('painel-admin-mini').style.display='flex';
+            showMiniStatus("Painel premium ativado.");
+            buffer = "";
+          }
+        }
+      });
+      // Ocultar manualmente
+      document.getElementById('btnOcultarMini').onclick = function(){
+        document.getElementById('painel-admin-mini').style.display='none';
+        showMiniStatus("Painel premium oculto.");
+      }
+    })();
+    // Funções do painel
     window.hospedahCRM = {
       backup: function(){
         let data = localStorage.getItem('clientes')||'[]';
@@ -295,13 +327,7 @@
         }
       }
     };
-    // --- Painel de Status Flutuante Mini ---
-    function showMiniStatus(msg, tempo=2500){
-      let s=document.getElementById('painel-status-mini');
-      s.innerHTML=msg; s.style.display='block';
-      clearTimeout(showMiniStatus.tm);
-      showMiniStatus.tm=setTimeout(()=>{s.style.display='none';},tempo);
-    }
+    // Ações do painel
     document.getElementById('btnBackup').onclick = ()=>{
       if(window.hospedahCRM && window.hospedahCRM.backup){ window.hospedahCRM.backup(); showMiniStatus("Backup salvo."); }
     };
