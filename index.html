@@ -3,16 +3,15 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>HOSPEDAH | PAINEL PREMIUM</title>
+<title>HOSPEDAH | PAINEL PROFISSIONAL EVOLUÍDO</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
 body{margin:0;font-family:Arial, sans-serif;background:#0B1C3D;color:#fff}
 .section{padding:40px;text-align:center}
 .box{max-width:600px;margin:auto;background:#111;padding:25px;border-radius:15px}
-input,select,textarea{width:100%;padding:12px;margin:6px 0 10px 0;border:none;border-radius:8px;background:#1f1f1f;color:#fff}
+input,select,textarea{width:100%;padding:12px;margin:6px 0;border:none;border-radius:8px;background:#1f1f1f;color:#fff}
 button{padding:12px 20px;border:none;border-radius:10px;background:gold;font-weight:bold;cursor:pointer;margin:5px 4px 5px 0;}
-button[style*=da3333]{background:#da3333;color:#fff}
-.card{background:#111;padding:15px 15px 15px 110px;margin:10px;border-radius:10px;text-align:left;min-height:120px;position:relative;}
+.card{background:#111;padding:15px;margin:10px;border-radius:10px;text-align:left;position:relative;}
 .badge{padding:4px 8px;border-radius:6px;font-size:12px}
 .novo{background:gray}
 .andamento{background:orange}
@@ -21,26 +20,18 @@ button[style*=da3333]{background:#da3333;color:#fff}
 .flagzap{float:right;color:#25d366;font-weight:bold;margin-top:3px;}
 textarea{min-height:45px;}
 .filtro-bloco{max-width:600px;margin:8px auto;padding:0 0 12px 0;}
-.img-thumb{position:absolute;left:15px;top:15px;width:80px;height:80px;object-fit:cover;border-radius:11px;border:2.5px solid #222;background:#222;}
-.input-img-label{display:inline-block;margin-top:7px;}
-.input-img-label input{display:none;}
-.input-img-label span{
-  display:inline-block;padding:8px 15px;background:#444;color:#fff;border-radius:8px;cursor:pointer;font-size:13px;
-  border:1.5px solid #555;transition:.15s;
-}
-.input-img-label span:hover{background:gold;color:#222;}
 @media(max-width:650px){
   .section{padding:18px;}
   .box{padding:13px;}
-  .card{padding:17vw 7vw 18vw 38vw;min-height:160px;}
-  .img-thumb{width:32vw;height:32vw;left:4vw;top:17px;}
 }
 </style>
 </head>
+
 <body>
+
 <div class="section">
-<h1>📊 Painel HOSPEDAH PREMIUM</h1>
-<p>Gestão avançada de clientes, fotos, notas e exportação</p>
+<h1>📊 Painel HOSPEDAH</h1>
+<p>Gestão premium de clientes</p>
 </div>
 
 <div class="section">
@@ -53,11 +44,6 @@ textarea{min-height:45px;}
 <input id="pessoas" placeholder="Pessoas">
 <input id="whats" placeholder="WhatsApp (somente números)">
 <textarea id="notas" placeholder="Notas/campos adicionais"></textarea>
-<label class="input-img-label">
-  <input type="file" id="foto" accept="image/*" onchange="previewImg(this)">
-  <span>📸 Foto/Imóvel (opcional)</span>
-</label>
-<img id="foto-prev" style="display:none;margin-top:10px;width:90px;height:90px;object-fit:cover;border-radius:10px;border:2px solid #333;">
 <button onclick="salvarCliente()">Salvar + Gerar Proposta</button>
 </div>
 </div>
@@ -65,7 +51,6 @@ textarea{min-height:45px;}
 <div class="section">
 <div class="filtro-bloco">
   <input id="busca" placeholder="🔍 Filtrar por nome/destino" oninput="render()">
-  <button onclick="baixarCSV()">Exportar CSV</button>
 </div>
 <h2>Clientes</h2>
 <div id="lista"></div>
@@ -73,21 +58,7 @@ textarea{min-height:45px;}
 
 <script>
 const { jsPDF } = window.jspdf;
-let fotoBase64 = ""; // temp
 
-function previewImg(input){
-  if(input.files && input.files[0]){
-    const reader = new FileReader();
-    reader.onload=function(e){
-      fotoBase64 = e.target.result;
-      document.getElementById('foto-prev').src = fotoBase64;
-      document.getElementById('foto-prev').style.display = "inline-block";
-    }
-    reader.readAsDataURL(input.files[0]);
-  }
-}
-
-// ------------ CRUD CLIENTES -------------
 function salvarCliente(){
   let cliente={
     nome:nomeEl.value,
@@ -98,8 +69,7 @@ function salvarCliente(){
     whats:whatsEl.value,
     notas:notasEl.value,
     status:'novo',
-    zapEnviado:false,
-    foto: fotoBase64
+    zapEnviado:false
   }
 
   if(!cliente.nome||!cliente.destino||!cliente.whats){
@@ -111,11 +81,10 @@ function salvarCliente(){
   localStorage.setItem('clientes',JSON.stringify(lista))
 
   gerarPDF(cliente)
-  enviarWhats(lista.length-1) // marca flag
+  enviarWhats(lista.length-1) // marca também flag
   render()
   // Limpa campos
   nomeEl.value=destinoEl.value=checkinEl.value=checkoutEl.value=pessoasEl.value=whatsEl.value=notasEl.value=""
-  fotoBase64=""; document.getElementById('foto').value=""; document.getElementById('foto-prev').style.display="none";
 }
 
 function gerarPDF(c){
@@ -139,6 +108,7 @@ function enviarWhats(idx){
   if(c.checkin||c.checkout) msg+=`\n📅 ${c.checkin||'-'} até ${c.checkout||'-'}`
   if(c.pessoas) msg+=`\n👥 Pessoas: ${c.pessoas}`
   if(c.notas) msg+=`\n📝 ${c.notas}`
+  // Marcar flag
   c.zapEnviado=true;
   localStorage.setItem('clientes',JSON.stringify(lista))
   window.open(`https://wa.me/55${c.whats}?text=${encodeURIComponent(msg)}`,"_blank")
@@ -171,23 +141,6 @@ function cardPDF(i){
   gerarPDF(lista[i])
 }
 
-// -------- MASS CSV ----------
-function baixarCSV(){
-  let lista=JSON.parse(localStorage.getItem('clientes')||'[]')
-  if(lista.length==0) return alert("Nada para exportar!");
-  let csv = "Nome,Destino,Check-in,Check-out,Pessoas,WhatsApp,Status,Notas\n"+
-    lista.map(c=>
-      `"${c.nome}","${c.destino}","${c.checkin||''}","${c.checkout||''}","${c.pessoas||''}","${c.whats}","${c.status}","${(c.notas||"").replace(/"/g,"'")}"`
-    ).join("\n")
-  let blob = new Blob([csv],{type:"text/csv"})
-  let url=URL.createObjectURL(blob)
-  let a=document.createElement('a')
-  a.href=url;a.download="clientes_hospedah.csv";
-  document.body.appendChild(a);a.click();
-  setTimeout(()=>{URL.revokeObjectURL(url);a.remove()},500);
-}
-
-// ------------- RENDER CARDS -------------
 function render(){
   let lista=JSON.parse(localStorage.getItem('clientes')||'[]')
   let div=document.getElementById('lista')
@@ -205,11 +158,10 @@ function render(){
   }
 
   filtrado.forEach((c,ii)=>{
-    let idx = lista.indexOf(c)
+    let idx = lista.indexOf(c) // para não perder index original ao filtrar
     let cor=c.status==='novo'?'novo':c.status==='andamento'?'andamento':'fechado'
     div.innerHTML+=`
     <div class="card">
-      ${c.foto?`<img class="img-thumb" src="${c.foto}">`:""}
       <b>${c.nome}</b> - ${c.destino}
       ${(c.zapEnviado?'<span class="flagzap" title="WhatsApp enviado">✔️ Whats</span>':'')}
       <br>
@@ -231,7 +183,6 @@ function render(){
   })
 }
 
-// ----- ELEMENTOS
 const nomeEl=document.getElementById('nome')
 const destinoEl=document.getElementById('destino')
 const checkinEl=document.getElementById('checkin')
@@ -240,8 +191,8 @@ const pessoasEl=document.getElementById('pessoas')
 const whatsEl=document.getElementById('whats')
 const notasEl=document.getElementById('notas')
 
-// Inicialização
 render()
 </script>
+
 </body>
 </html>
