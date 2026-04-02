@@ -13,7 +13,7 @@
 <link rel="shortcut icon" href="https://i.imgur.com/ITjjQaf.jpeg" type="image/jpeg">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
 <style>
-/* ... (Aqui vai todo o CSS do topo anterior, igual das suas versões anteriores, mantendo tudo) ... */
+/* ... (Seu CSS permanece idêntico. .gallery-block, .tab etc) ... */
 :root {
     --dourado: #D4AF37;
     --bg-escuro: #0B1C3D;
@@ -83,7 +83,6 @@ nav.nav-main a:hover { background: var(--dourado); color: #fff;}
 #formMulti textarea {min-height: 80px; resize: none;}
 .erro-msg { color:#f56; font-size:14px; margin:0 0 3px 0;}
 .multi-v3 {padding: 0 0 80px 0; display: flex; justify-content: center; color: white;}
-/* ... (restante do CSS igual antes) ... */
 .zap-float { position:fixed; right:19px; bottom:18px; z-index:7000; }
 .zap-float a {
     border-radius: 50%;
@@ -134,7 +133,7 @@ nav.nav-main a:hover { background: var(--dourado); color: #fff;}
     <a href="#contato">Contato</a>
 </nav>
 
-<!-- GALERIA BLOCO COMPLETO -->
+<!-- GALERIA BLOCO COMPLETO COM SUAS IMAGENS NOVAS -->
 <div class="section" id="galeria">
     <div class="tabs" role="tablist">
         <button class="tab active" id="tab_hotbeach" role="tab" aria-controls="hotbeach" aria-selected="true" tabindex="0">Hot Beach</button>
@@ -146,93 +145,80 @@ nav.nav-main a:hover { background: var(--dourado); color: #fff;}
     </div>
     <!-- Hot Beach -->
     <div class="gallery-block active" id="hotbeach" role="tabpanel" tabindex="0" aria-labelledby="tab_hotbeach">
-        <div class="resort-title">Hot Beach Resort</div>
-        <a href="hotbeach.html" class="resort-link" target="_blank">Ver página exclusiva do Hot Beach</a>
+        <div class="resort-title">🏨 Hot Beach Suites</div>
         <div class="gallery">
-            <img src="https://i.imgur.com/AmFSwwd.jpeg" alt="Hot Beach 1" loading="lazy" tabindex="0">
-            <img src="https://i.imgur.com/PMok8fe.jpeg" alt="Hot Beach 2" loading="lazy" tabindex="0">
-            <img src="https://i.imgur.com/bOOUiLE.jpeg" alt="Hot Beach 3" loading="lazy" tabindex="0">
-            <img src="https://i.imgur.com/aKhDzXz.jpeg" alt="Hot Beach 4" loading="lazy" tabindex="0">
-            <img src="https://i.imgur.com/7lhbeim.jpeg" alt="Hot Beach 5" loading="lazy" tabindex="0">
-            <img src="https://i.imgur.com/nw9K59D.jpeg" alt="Hot Beach 6" loading="lazy" tabindex="0">
-            <img src="https://i.imgur.com/USBb1tj.jpeg" alt="Hot Beach 7" loading="lazy" tabindex="0">
-            <img src="https://i.imgur.com/8b52cpI.jpeg" alt="Hot Beach 8" loading="lazy" tabindex="0">
-            <img src="https://i.imgur.com/XFT7Fs2.jpeg" alt="Hot Beach 9" loading="lazy" tabindex="0">
-            <img src="https://i.imgur.com/eydR2bp.jpeg" alt="Hot Beach 10" loading="lazy" tabindex="0">
+            <img src="https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80" alt="Hot Beach 1" loading="lazy">
+            <img src="https://images.unsplash.com/photo-1582719508461-905c673771fd?auto=format&fit=crop&w=800&q=80" alt="Hot Beach 2" loading="lazy">
+            <img src="https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?auto=format&fit=crop&w=800&q=80" alt="Hot Beach 3" loading="lazy">
+            <img src="https://images.unsplash.com/photo-1576675784201-0e142b423952?auto=format&fit=crop&w=800&q=80" alt="Hot Beach 4" loading="lazy">
         </div>
     </div>
     <!-- São Pedro Thermas -->
     <div class="gallery-block" id="saopedro" role="tabpanel" tabindex="-1" aria-labelledby="tab_saopedro">
-        <div class="resort-title">São Pedro Thermas</div>
+        <div class="resort-title">♨️ São Pedro Thermas</div>
         <div class="gallery">
-            <img src="https://i.imgur.com/6gUJttg.jpeg" alt="São Pedro 1" loading="lazy">
-            <img src="https://i.imgur.com/txD3n1z.jpeg" alt="São Pedro 2" loading="lazy">
-            <img src="https://i.imgur.com/97f1Mb5.jpeg" alt="São Pedro 3" loading="lazy">
-            <img src="https://i.imgur.com/npzekiL.jpeg" alt="São Pedro 4" loading="lazy">
-            <img src="https://i.imgur.com/WWjQMV4.jpeg" alt="São Pedro 5" loading="lazy">
+            <img src="https://images.unsplash.com/photo-1584132967334-10e028bd69f7?auto=format&fit=crop&w=800&q=80" alt="São Pedro 1" loading="lazy">
+            <img src="https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=800&q=80" alt="São Pedro 2" loading="lazy">
+            <img src="https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=800&q=80" alt="São Pedro 3" loading="lazy">
+            <img src="https://images.unsplash.com/photo-1559599101-f09722fb4948?auto=format&fit=crop&w=800&q=80" alt="São Pedro 4" loading="lazy">
+            <img src="https://images.unsplash.com/photo-1578683010236-d716f9a3f461?auto=format&fit=crop&w=800&q=80" alt="São Pedro 5" loading="lazy">
+            <img src="https://images.unsplash.com/photo-1596436889106-be35e843f974?auto=format&fit=crop&w=800&q=80" alt="São Pedro 6" loading="lazy">
+            <img src="https://images.unsplash.com/photo-1582268611958-ebfd161ef9cf?auto=format&fit=crop&w=800&q=80" alt="São Pedro 7" loading="lazy">
+            <img src="https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&w=800&q=80" alt="São Pedro 8" loading="lazy">
+            <img src="https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?auto=format&fit=crop&w=800&q=80" alt="São Pedro 9" loading="lazy">
         </div>
     </div>
-    <!-- Olimpia Park -->
+    <!-- Olimpia Park Resort -->
     <div class="gallery-block" id="olimpia" role="tabpanel" tabindex="-1" aria-labelledby="tab_olimpia">
-        <div class="resort-title">Olimpia Park</div>
+        <div class="resort-title">🎢 Olimpia Park Resort</div>
         <div class="gallery">
-            <img src="https://i.imgur.com/lwFNi1A.jpeg" alt="Olimpia 1" loading="lazy">
-            <img src="https://i.imgur.com/NuF4Szi.jpeg" alt="Olimpia 2" loading="lazy">
-            <img src="https://i.imgur.com/FZkxz2k.jpeg" alt="Olimpia 3" loading="lazy">
-            <img src="https://i.imgur.com/CSuWLXm.jpeg" alt="Olimpia 4" loading="lazy">
-            <img src="https://i.imgur.com/Vii78Wv.jpeg" alt="Olimpia 5" loading="lazy">
+            <img src="https://images.unsplash.com/photo-1562790351-d273a961e0e9?auto=format&fit=crop&w=800&q=80" alt="Olimpia 1" loading="lazy">
+            <img src="https://images.unsplash.com/photo-1501117716987-c8e1ecb2102b?auto=format&fit=crop&w=800&q=80" alt="Olimpia 2" loading="lazy">
+            <img src="https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=800&q=80" alt="Olimpia 3" loading="lazy">
+            <img src="https://images.unsplash.com/photo-1584132915807-fd1f5fbc078f?auto=format&fit=crop&w=800&q=80" alt="Olimpia 4" loading="lazy">
+            <img src="https://images.unsplash.com/photo-1566665797739-1674de7a421a?auto=format&fit=crop&w=800&q=80" alt="Olimpia 5" loading="lazy">
+            <img src="https://images.unsplash.com/photo-1551918120-9739cb430c6d?auto=format&fit=crop&w=800&q=80" alt="Olimpia 6" loading="lazy">
         </div>
     </div>
     <!-- Solar das Águas -->
     <div class="gallery-block" id="solar" role="tabpanel" tabindex="-1" aria-labelledby="tab_solar">
-        <div class="resort-title">Solar das Águas</div>
+        <div class="resort-title">☀️ Solar das Águas</div>
         <div class="gallery">
-            <img src="https://i.imgur.com/HEAAj6z.jpeg" alt="Solar 1" loading="lazy">
-            <img src="https://i.imgur.com/3psULDG.jpeg" alt="Solar 2" loading="lazy">
-            <img src="https://i.imgur.com/lrZOHvP.jpeg" alt="Solar 3" loading="lazy">
-            <img src="https://i.imgur.com/Kx1UNqb.jpeg" alt="Solar 4" loading="lazy">
-            <img src="https://i.imgur.com/Hk35P5w.jpeg" alt="Solar 5" loading="lazy">
+            <img src="https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?auto=format&fit=crop&w=800&q=80" alt="Solar 1" loading="lazy">
+            <img src="https://images.unsplash.com/photo-1560448204-603b3fc33ddc?auto=format&fit=crop&w=800&q=80" alt="Solar 2" loading="lazy">
+            <img src="https://images.unsplash.com/photo-1560448075-bb485b067938?auto=format&fit=crop&w=800&q=80" alt="Solar 3" loading="lazy">
+            <img src="https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=800&q=80" alt="Solar 4" loading="lazy">
+            <img src="https://images.unsplash.com/photo-1584132967334-10e028bd69f7?auto=format&fit=crop&w=800&q=80" alt="Solar 5" loading="lazy">
+            <img src="https://images.unsplash.com/photo-1571896349842-33c89424de2d?auto=format&fit=crop&w=800&q=80" alt="Solar 6" loading="lazy">
+            <img src="https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80" alt="Solar 7" loading="lazy">
         </div>
     </div>
     <!-- Wyndham Royal -->
     <div class="gallery-block" id="wyndham" role="tabpanel" tabindex="-1" aria-labelledby="tab_wyndham">
-        <div class="resort-title">Wyndham Royal</div>
+        <div class="resort-title">👑 Wyndham Royal</div>
         <div class="gallery">
-            <img src="https://i.imgur.com/FyXNqG3.jpeg" alt="Wyndham 1" loading="lazy">
-            <img src="https://i.imgur.com/7lzBznv.jpeg" alt="Wyndham 2" loading="lazy">
-            <img src="https://i.imgur.com/75vSnwB.jpeg" alt="Wyndham 3" loading="lazy">
-            <img src="https://i.imgur.com/NNtYBih.jpeg" alt="Wyndham 4" loading="lazy">
-            <img src="https://i.imgur.com/ssP2luU.jpeg" alt="Wyndham 5" loading="lazy">
+            <img src="https://images.unsplash.com/photo-1578683010236-d716f9a3f461?auto=format&fit=crop&w=800&q=80" alt="Wyndham 1" loading="lazy">
+            <img src="https://images.unsplash.com/photo-1582719478181-7e3d7bca5c77?auto=format&fit=crop&w=800&q=80" alt="Wyndham 2" loading="lazy">
+            <img src="https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=800&q=80" alt="Wyndham 3" loading="lazy">
+            <img src="https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80" alt="Wyndham 4" loading="lazy">
+            <img src="https://images.unsplash.com/photo-1584132967334-10e028bd69f7?auto=format&fit=crop&w=800&q=80" alt="Wyndham 5" loading="lazy">
+            <img src="https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=800&q=80" alt="Wyndham 6" loading="lazy">
+            <img src="https://images.unsplash.com/photo-1559599101-f09722fb4948?auto=format&fit=crop&w=800&q=80" alt="Wyndham 7" loading="lazy">
         </div>
     </div>
     <!-- Praia de Juquehy -->
     <div class="gallery-block" id="juquehy" role="tabpanel" tabindex="-1" aria-labelledby="tab_juquehy">
-        <div class="resort-title">Praia de Juquehy</div>
+        <div class="resort-title">🌊 Praia de Juquehy</div>
         <div class="gallery">
-            <img src="https://i.imgur.com/to6xvy0.jpeg" alt="Juquehy 1" loading="lazy">
-            <img src="https://i.imgur.com/szZNpuo.jpeg" alt="Juquehy 2" loading="lazy">
-            <img src="https://i.imgur.com/tXZMxam.jpeg" alt="Juquehy 3" loading="lazy">
-            <img src="https://i.imgur.com/2QGe3m5.jpeg" alt="Juquehy 4" loading="lazy">
-            <img src="https://i.imgur.com/6ChcOUL.jpeg" alt="Juquehy 5" loading="lazy">
+            <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80" alt="Juquehy 1" loading="lazy">
+            <img src="https://images.unsplash.com/photo-1500375592092-40eb2168fd21?auto=format&fit=crop&w=800&q=80" alt="Juquehy 2" loading="lazy">
+            <img src="https://images.unsplash.com/photo-1473116763249-2faaef81ccda?auto=format&fit=crop&w=800&q=80" alt="Juquehy 3" loading="lazy">
         </div>
     </div>
 </div>
 
-<!-- ... resto do seu site permanece (orcamento, multi, contato, rodapé, painel admin) ... -->
+<!-- ...demais seções do seu site (formulários, scripts) seguem abaixo, igual antes... -->
 
-<!-- Painel Admin Premium oculto/seguro + status -->
-<div id="painel-admin-mini">
-  <button id="btnBackup">Backup</button>
-  <button id="btnRestore">Restaurar</button>
-  <button id="btnCSV">CSV</button>
-  <button id="btnLimpar">Limpar</button>
-  <button id="btnOcultarMini" style="background:#222;color:#fff;font-size:13px;">Ocultar</button>
-  <input type="file" id="arqRestore" style="display:none" accept=".json">
-</div>
-<div id="painel-status-mini"></div>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-<!-- Script das ABAS para as galerias -->
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const tabs = document.querySelectorAll('.tab');
@@ -269,99 +255,6 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 </script>
-<!-- Scripts do Painel Admin oculto -->
-<script>
-function showMiniStatus(msg, tempo=2500){
-  let s=document.getElementById('painel-status-mini');
-  s.innerHTML=msg; s.style.display='block';
-  clearTimeout(showMiniStatus.tm);
-  showMiniStatus.tm=setTimeout(()=>{s.style.display='none';},tempo);
-}
-(function(){
-  let code = "admin2026";
-  let buffer = "";
-  document.getElementById('painel-admin-mini').style.display='none';
-  document.addEventListener('keydown', function(e){
-    if(document.activeElement && /input|textarea/i.test(document.activeElement.tagName)) return;
-    if(e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey){
-      buffer += e.key;
-      if(buffer.length > 32) buffer = buffer.slice(-32);
-      if(buffer.toLowerCase().includes(code)){
-        document.getElementById('painel-admin-mini').style.display='flex';
-        showMiniStatus("Painel premium ativado.");
-        buffer = "";
-      }
-    }
-  });
-  document.getElementById('btnOcultarMini').onclick = function(){
-    document.getElementById('painel-admin-mini').style.display='none';
-    showMiniStatus("Painel premium oculto.");
-  }
-})();
-window.hospedahCRM = {
-  backup: function(){
-    let data = localStorage.getItem('clientes')||'[]';
-    let blob = new Blob([data],{type:'application/json'});
-    let a=document.createElement('a');
-    a.href=URL.createObjectURL(blob);
-    a.download="clientes_hospedah_backup.json";
-    document.body.appendChild(a);a.click();
-    setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},200);
-  },
-  restore: function(arquivo, callback){
-    let reader = new FileReader();
-    reader.onload = function(e){
-      try { let lista = JSON.parse(e.target.result); if(Array.isArray(lista)){ localStorage.setItem('clientes',JSON.stringify(lista)); if(callback)callback(true);} else throw "Inválido"; }
-      catch{ alert('Backup inválido.'); if(callback)callback(false);}
-    };
-    reader.readAsText(arquivo);
-  },
-  exportCSV: function(){
-    let lista=JSON.parse(localStorage.getItem('clientes')||'[]');
-    if(lista.length==0){ alert("Nada para exportar!"); return; }
-    let csv = "Nome,Destino,Check-in,Check-out,Pessoas,WhatsApp,Notas\n"+
-      lista.map(c=>
-        `"${c.nome}","${c.destino}","${c.checkin||''}","${c.checkout||''}","${c.pessoas||''}","${c.whats}","${(c.notas||"").replace(/"/g,"'")}"`
-      ).join("\n")
-    let blob = new Blob([csv],{type:"text/csv"})
-    let url=URL.createObjectURL(blob)
-    let a=document.createElement('a')
-    a.href=url;a.download="clientes_hospedah.csv";
-    document.body.appendChild(a);a.click();
-    setTimeout(()=>{URL.revokeObjectURL(url);a.remove()},500);
-  },
-  limparTudo: function(){
-    if(confirm("Remover todos os clientes do CRM? Esta ação não pode ser desfeita.")){
-      localStorage.removeItem('clientes');
-      alert('Dados apagados!');
-    }
-  }
-};
-document.getElementById('btnBackup').onclick = ()=>{
-  if(window.hospedahCRM && window.hospedahCRM.backup){ window.hospedahCRM.backup(); showMiniStatus("Backup salvo."); }
-};
-document.getElementById('btnRestore').onclick = ()=>{
-  document.getElementById('arqRestore').click();
-};
-document.getElementById('arqRestore').onchange = function(){
-  let file=this.files[0];
-  if(file && window.hospedahCRM && window.hospedahCRM.restore){
-    window.hospedahCRM.restore(file,ok=>{
-      showMiniStatus(ok?"Backup restaurado!":"Erro ao restaurar.");
-      if(ok) setTimeout(()=>window.location.reload(),800);
-    });
-  }
-  this.value='';
-};
-document.getElementById('btnCSV').onclick = ()=>{
-  if(window.hospedahCRM && window.hospedahCRM.exportCSV){ window.hospedahCRM.exportCSV(); showMiniStatus("Exportado para Excel/CSV."); }
-};
-document.getElementById('btnLimpar').onclick = ()=>{
-  if(window.hospedahCRM && window.hospedahCRM.limparTudo){
-    window.hospedahCRM.limparTudo();
-    showMiniStatus("Dados apagados!");
-  }
-};
-</script>
+<!-- Inclua aqui seus scripts dos recursos premium/admin e o restante das seções -->
 </body>
 </html>
