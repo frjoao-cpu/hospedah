@@ -2,9 +2,8 @@
 <html lang="pt-br">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>HOSPEDAH | Resorts e Experiências Exclusivas</title>
-  <meta name="description" content="Hospede-se com qualidade nos melhores resorts e tenha experiências exclusivas.">
+  <title>HOSPEDAH | Resorts Premium</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
   <style>
 :root {
@@ -16,301 +15,228 @@
 }
 html[data-theme="dark"] body { background: var(--bg-grad); color: #fff; }
 html[data-theme="light"] body { background: var(--bg-claro); color: #191919; }
-body {margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
+body{margin:0;padding:0;font-family:Poppins,sans-serif;background:#f4f6fa;color:#222;}
 .menu-toggle{
-  position:fixed;top:16px;left:16px;z-index:2011;
+  position:fixed;top:16px;left:16px;z-index:101;
   display:flex;align-items:center;justify-content:center;
-  font-size:32px;padding:12px 20px;cursor:pointer;background:var(--azul);color:var(--dourado);
+  font-size:32px;padding:12px 20px;cursor:pointer;background:#0B1C3D;color:#D4AF37;
   border:none;border-radius:11px;box-shadow:0 2px 8px #23244a33;
 }
-.menu-mobile-bg {display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(8,14,28,0.33);z-index:2000;}
+.menu-mobile-bg {display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(8,14,28,0.17);z-index:100;}
 .menu-mobile-bg.open {display:block;}
 .menu-mobile{
-  position:fixed;top:0;left:0;width:285px;max-width:94vw;height:100vh;background:#fff;z-index:2021;box-shadow:8px 0 22px #18181922;
-  transform:translateX(-108%);transition:transform .33s cubic-bezier(.62,.32,.48,.98);
-  display:flex;flex-direction:column;
+  position:fixed;top:0;left:0;width:243px;max-width:94vw;height:100vh;background:#fff;z-index:102;box-shadow:8px 0 22px #18181922;
+  transform:translateX(-112%);transition:transform .3s cubic-bezier(.62,.32,.48,.98);display:flex;flex-direction:column;
 }
 .menu-mobile.open { transform:translateX(0);}
-.menu-mobile .menu-close{
-  background:none;border:none;color:var(--azul);font-size:2.5em;width:44px;height:44px;align-self:flex-end;margin:14px 17px 7px 0;cursor:pointer;
+.menu-mobile .menu-close{background:none;border:none;color:#0B1C3D;font-size:2.5em;width:44px;height:44px;align-self:flex-end;margin:17px 18px 5px 0;cursor:pointer;}
+.menu-mobile nav{display:flex;flex-direction:column;align-items:flex-start;gap:16px;padding:28px 0 0 22px;}
+.menu-mobile nav a{color:#0B1C3D;font-weight:700;font-size:1.09em;padding:9px 5px;border-radius:8px;text-decoration:none;}
+.menu-mobile nav a:hover,.menu-mobile nav a:focus{background:#D4AF37;color:#0B1C3D;}
+.hero {
+  position: relative;height: 60vh;min-height: 270px;overflow:hidden;background:#101520;
 }
-.menu-mobile nav{display:flex;flex-direction:column;align-items:flex-start;gap:17px;padding:22px 0 0 30px;margin-top:8px;}
-.menu-mobile nav a{
-  color:var(--azul);background:none;border:none;font-weight:700;font-size:1.11em;padding:13px 3px 11px 3px;
-  border-radius:8px;text-decoration:none;white-space:nowrap;transition:.14s;
-}
-.menu-mobile nav a:hover,.menu-mobile nav a:focus{background:var(--dourado);color:var(--azul);}
-.modo-toggle{position:fixed;top:16px;right:16px;z-index:2010;}
-.modo-toggle button{background:#132042;color:var(--dourado);border-radius:28px;padding:8px 20px;font-weight:600;border:none;cursor:pointer;font-size:18px;box-shadow:0 2px 8px #1112;}
-.modo-toggle button:active{background:var(--dourado);color:#132042;}
-.hero {position: relative;height: 70vh; min-height: 330px; overflow: hidden;}
-.hero img.bg-slide {position: absolute; width: 100%; height: 100%; object-fit: cover; opacity: 0;animation: slide 90s infinite, zoom 90s infinite;}
+.hero img.bg-slide {position: absolute;width: 100%;height: 100%;object-fit:cover;opacity: 0;animation: slide 32s infinite, zoom 32s infinite;}
 .hero img.bg-slide:nth-child(1){animation-delay:0s;}
-.hero img.bg-slide:nth-child(2){animation-delay:6s;}
-.hero img.bg-slide:nth-child(3){animation-delay:12s;}
-.hero img.bg-slide:nth-child(4){animation-delay:18s;}
-.hero img.bg-slide:nth-child(5){animation-delay:24s;}
-.hero img.bg-slide:nth-child(6){animation-delay:30s;}
-.hero img.bg-slide:nth-child(7){animation-delay:36s;}
-.hero img.bg-slide:nth-child(8){animation-delay:42s;}
-.hero img.bg-slide:nth-child(9){animation-delay:48s;}
-.hero img.bg-slide:nth-child(10){animation-delay:54s;}
-.hero img.bg-slide:nth-child(11){animation-delay:60s;}
-.hero img.bg-slide:nth-child(12){animation-delay:66s;}
-.hero img.bg-slide:nth-child(13){animation-delay:72s;}
-.hero img.bg-slide:nth-child(14){animation-delay:78s;}
-.hero img.bg-slide:nth-child(15){animation-delay:84s;}
-.hero img.bg-slide:nth-child(16){animation-delay:90s;}
-@keyframes slide {0%{opacity:0;}7%{opacity:1;}18%{opacity:1;}25%{opacity:0;}100%{opacity:0;}}
+.hero img.bg-slide:nth-child(2){animation-delay:8s;}
+.hero img.bg-slide:nth-child(3){animation-delay:16s;}
+.hero img.bg-slide:nth-child(4){animation-delay:24s;}
+@keyframes slide {0%{opacity:0;}8%{opacity:1;}25%{opacity:1;}33%{opacity:0;}100%{opacity:0;}}
 @keyframes zoom { from{transform:scale(1);} to{transform:scale(1.09);} }
-.overlay { position:absolute; width:100%; height:100%; background:rgba(0,0,0,0.38); top:0; left:0; }
+.overlay { position:absolute; width:100%; height:100%; background:rgba(0,0,0,0.22); top:0; left:0; }
 .content-hero { position:relative; z-index:2; height:100%; display:flex; justify-content:center; align-items:center; }
-.logo-hero { width:300px; background:rgba(255,255,255,0.90); border-radius:22px; box-shadow:0 8px 38px #0002; padding:10px 10px; max-width:92vw; }
-.faixa-logo {width:100%;background:#fff;display:flex;align-items:center;justify-content:center;padding:0 0 34px 0;position:relative;border-bottom: 2px solid #eee;z-index:120;box-sizing:border-box;}
-.topo-infos{display:flex;flex-direction:column;align-items:center;gap:7px;margin-top:22px;}
-.topo-infos h1{color:#D4AF37;font-size:1.33rem;font-weight:600;margin-bottom:3px;letter-spacing:.4px;}
-.insta-top{margin-bottom:4px;display:inline-block;padding:11px 28px;border-radius:30px;background:linear-gradient(45deg,#833AB4,#E1306C,#FCAF45);text-decoration:none;color:#fff;font-size:17px;font-weight:500;}
-.contatos-topo{display:flex;gap:22px;justify-content:center;margin-top:14px;}
-.contato-b{background:rgba(11,28,61,0.07);border-radius:11px;padding:13px 19px 11px 19px;min-width:140px;display:flex;flex-direction:column;align-items:center;}
-.contato-b h3{color:#D4AF37;font-size:1.07rem;margin:0 0 2px 0;}
-.contato-b p{font-size:13px;margin:0 0 4px 0;color:var(--dourado);font-weight:600;}
-.contato-b a.btn{margin-top:1px;padding:8px 18px;background:#25D366;border-radius:16px;color:#fff;text-decoration:none;font-size:15px;}
-.section{padding:44px 14px 24px 14px;text-align:center;}
-.tabs{display:flex;justify-content:center;gap:7px;margin-bottom:22px;flex-wrap:wrap;}
-.tab{padding:10px 24px;background:#fff1;border-radius:22px 22px 0 0;font-size:17px;color:var(--dourado);border:none;cursor:pointer;outline:none;font-weight:600;transition:.14s;}
-.tab.active,.tab:focus{background:var(--dourado);color:#0B1C3D;}
-.tab:hover{background:#D4AF37cc;color:#fff;}
+.logo-hero { width:295px; background:rgba(255,255,255,0.90); border-radius:22px; box-shadow:0 8px 38px #0002; padding:8px 10px; max-width:90vw;}
+.tabs {display:flex;justify-content:center;gap:9px;margin:38px auto 18px auto;flex-wrap:wrap;max-width:98vw;}
+.tab {padding:10px 22px 8px 22px;background:#fff1;border-radius:22px 22px 0 0;font-size:17px;color:#D4AF37;border:none;cursor:pointer;outline:none;font-weight:600;transition:.14s;}
+.tab.active,.tab:focus{background:#D4AF37;color:#0B1C3D;}
+.tab:hover{background:#FFD700cc;color:#0B1C3D;}
 .gallery-block{display:none;}
 .gallery-block.active{display:block;}
-.resort-title{font-size:1.33rem;color:var(--dourado);margin-bottom:11px;font-weight:700;letter-spacing:.06em;}
-.resort-link{color:var(--dourado);font-size:1rem;text-decoration:none;font-weight:500;margin-bottom:16px;display:inline-block;}
-.gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:15px;justify-items:center;}
-.gallery img{width:100%;max-width:420px;height:260px;object-fit:cover;border-radius:14px;box-shadow: 0 2px 16px rgba(0,0,0,0.16); cursor: pointer;transition:.2s;}
-.gallery img:focus-visible{ outline: 3px solid var(--cor-foco);}
-@media (max-width:500px) {.gallery img{height:130px;}}
-.depo-section {padding:38px 4vw 64px 4vw;background:#fff;}
-.depo-title {text-align:center;font-size:1.34em;color:#D4AF37;margin-bottom:32px;}
-.depo-carousel-wrap {max-width:350px;margin:0 auto;position:relative;}
-.depo-carousel-inner {overflow:hidden;}
-.depo-card {background:linear-gradient(115deg,#fffbe7 50%,#fbecd1 100%);color:#191919;border-radius:16px;box-shadow:0 2px 18px #efb21107;max-width:340px;min-height:378px;padding:36px 28px 32px 28px;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center;position:absolute;width:100%;left:0;top:0;opacity:0;transition:all .44s cubic-bezier(.68,-0.55,.27,1.55);pointer-events:none;}
-.depo-card.active {opacity:1;position:relative;pointer-events:auto;}
-.depo-card img{width:56px;height:56px;border-radius:50%;margin-bottom:15px;object-fit:cover;box-shadow:0 1px 8px #0001;}
-.depo-stars{color:gold;font-size:1.26em;margin-bottom:10px;letter-spacing:2px;}
-.depo-card p{font-size:1.07em;margin:0 0 12px 0;font-style:italic;}
-.depo-nome{font-weight:bold;margin-top:2px;font-size:1.08em;}
-.depo-cidade{font-size:.99em;color:#b9aa92;}
-.depo-carousel-arrows {text-align:center;margin-top:24px;}
-.depo-carousel-btn {background: var(--dourado,#D4AF37); color:#fff;border:none;border-radius:50%;width:38px;height:38px;cursor:pointer;font-size:1.8em;margin:0 13px;transition:.15s; vertical-align:middle;display:inline-flex;align-items:center;justify-content:center;box-shadow:0 2px 6px #0002;}
-.depo-carousel-btn:hover {background:goldenrod;}
-.depo-carousel-dots {text-align:center;margin:22px 0 0 0;}
-.depo-carousel-dot{display:inline-block;width:13px;height:13px;background:#ecd498;border-radius:50%;margin:0 6px;cursor:pointer;transition:.15s;border:2px solid #fff;vertical-align:middle;box-shadow:0 2px 7px #d4af3755;}
-.depo-carousel-dot.active{background:var(--dourado,#D4AF37);border:2px solid #d4af37;}
-@media(max-width:480px){.depo-carousel-wrap {max-width:96vw;}.depo-card {max-width:96vw;}}
-/* PAINEL DUO responsivo */
-.painel-duo {display:grid;grid-template-columns:1fr 1fr;gap:38px;max-width:1200px;margin:45px auto 65px;}
+.resort-title{font-size:1.21rem;color:#D4AF37;margin-bottom:10px;font-weight:700;letter-spacing:.05em;}
+.gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:15px;justify-items:center;margin:0 0 20px 0;}
+.gallery img{width:100%;max-width:410px;height:220px;object-fit:cover;border-radius:13px;box-shadow: 0 2px 10px rgba(0,0,0,0.12);cursor:pointer;transition:.16s;}
+.gallery img:hover{transform:scale(1.025);}
+@media (max-width:600px) {.gallery img{height:110px;}}
+.lb-bg{
+  display:none;align-items:center;justify-content:center;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(8,10,27,0.87);z-index:9990;
+}
+.lb-bg.open{display:flex;}
+.lb-img{max-width:95vw;max-height:91vh;border-radius:13px;box-shadow:0 4px 16px #0b1c3dec;}
+.lb-close{position:absolute;top:7vw;right:7vw;background:#fff;border-radius:50%;font-size:2.5em;border:none;color:#0B1C3D;cursor:pointer;padding:0 15px;}
+@media(max-width:520px){.hero{height:40vw;min-height:115px;}
+.lb-close{top:3vw;right:3vw;font-size:2em;}
+}
+.painel-duo {display:grid;grid-template-columns:1fr 1fr;gap:38px;max-width:1200px;margin:45px auto 50px;}
 @media(max-width:900px){.painel-duo{grid-template-columns:1fr;gap:22px;}}
-.painel-box {background:#182242; box-shadow:0 2px 20px #0b1c3d13;padding:28px 23px 20px 23px;border-radius:16px;}
+.painel-box {background:#182242; box-shadow:0 2px 16px #0002;padding:28px 23px 20px 23px;border-radius:16px;}
 .painel-box h2{color:var(--dourado);margin-bottom:18px;font-size:1.28em;}
 .painel-box input, .painel-box select, .painel-box textarea {font-family:'Poppins',sans-serif;width:100%;padding:13px;margin:6px 0 17px;border-radius:12px;border:1.5px solid #274678;background:#f8f7f3;color:#222;font-size:17px;}
-.painel-box textarea{min-height:56px;resize:vertical;}
-.painel-box button {margin-top:7px; padding:12px; width:100%; border:none; border-radius:9px; background:var(--azul); color:var(--dourado); font-weight:700; font-size:17px;letter-spacing:.01em; box-shadow:0 2px 6px #0b1c3d22;cursor:pointer;transition: background .11s,color .11s;}
+.painel-box textarea{min-height:58px;resize:vertical;}
+.painel-box button {margin-top:7px; padding:12px; width:100%; border:none; border-radius:10px; background:var(--azul); color:var(--dourado); font-weight:700; font-size:17px;letter-spacing:.01em; box-shadow:0 2px 6px #0b1c3d22;cursor:pointer;transition: background .12s,color .12s;}
 .painel-box button:hover {background:var(--dourado); color:var(--azul);}
-.sucesso-msg{color:#40a050;font-size:1.08em;margin-bottom:12px;}
+.sucesso-msg{color:#44a058;font-size:1.09em;margin-bottom:12px;}
+    /* Depoimentos carrossel */
+.depo-section {padding:36px 4vw 50px 4vw;font-family:Poppins,sans-serif;background:#fff;}
+.depo-title {text-align:center;font-size:1.26em;color:#D4AF37;margin-bottom:26px;}
+.depo-carousel-wrap {max-width:355px;margin:0 auto;position:relative;}
+.depo-carousel-inner {overflow:hidden;}
+.depo-card {background:linear-gradient(115deg,#fffbe7 50%,#fbecd1 100%);color:#191919;border-radius:16px;box-shadow:0 2px 18px #efb21107;max-width:340px;min-height:285px;padding:29px 23px 26px 23px;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center;position:absolute;width:100%;left:0;top:0;opacity:0;transition:all .34s cubic-bezier(.68,-0.55,.27,1.55);pointer-events:none;}
+.depo-card.active {opacity:1;position:relative;pointer-events:auto;}
+.depo-card img{width:56px;height:56px;border-radius:50%;margin-bottom:15px;object-fit:cover;box-shadow:0 2px 8px #0001;}
+.depo-stars{color:gold;font-size:1.13em;margin-bottom:10px;letter-spacing:2px;}
+.depo-card p{font-size:1.06em;margin:0 0 12px 0;font-style:italic;}
+.depo-nome{font-weight:bold;margin-top:2px;font-size:1.07em;}
+.depo-cidade{font-size:.95em;color:#b9aa92;}
+.depo-carousel-arrows {text-align:center;margin-top:24px;}
+.depo-carousel-btn {background: var(--dourado,#D4AF37); color:#fff;border:none;border-radius:50%;width:38px;height:38px;cursor:pointer;font-size:1.8em;margin:0 13px;transition:.15s;}
+.depo-carousel-btn:hover {background:goldenrod;}
+.depo-carousel-dots {text-align:center;margin:18px 0 0 0;}
+.depo-carousel-dot{display:inline-block;width:12px;height:12px;background:#eed894;border-radius:50%;margin:0 6px;cursor:pointer;borde2px solid #fff;vertical-align:middle;box-shadow:0 2px 7px #d4af3755;}
+.depo-carousel-dot.active{background:var(--dourado,#D4AF37);}
   </style>
 </head>
 <body>
-<a id="topo"></a>
-<!-- MENU HAMBURGER PREMIUM -->
-<div class="menu-toggle" id="menuHamburger" aria-label="Abrir menu" tabindex="0">☰</div>
+<!-- MENU HAMBURGUER -->
+<div class="menu-toggle" id="menuHamburger" tabindex="0" aria-label="Abrir menu">☰</div>
 <div class="menu-mobile-bg" id="menuMobileBg"></div>
 <div class="menu-mobile" id="menuMobile">
   <button type="button" class="menu-close" id="menuClose" aria-label="Fechar Menu">&times;</button>
   <nav>
-    <a href="#topo">Início</a>
-    <a href="#galeria">Galeria</a>
-    <a href="#depoimentos">Avaliações</a>
-    <a href="#painel-duo">Consulta de disponibilidade exclusiva</a>
-    <a href="#painel-duo">Cadastre seu empreendimento</a>
-    <a href="#contato">Contato</a>
+    <a href="#hotbeach">Hot Beach</a>
+    <a href="#saopedro">São Pedro</a>
+    <a href="#olimpia">Olimpia Park</a>
+    <a href="#solar">Solar das Águas</a>
+    <a href="#wyndham">Wyndham Royal</a>
+    <a href="#juquehy">Juquehy</a>
   </nav>
 </div>
-<div class="modo-toggle"><button id="modeToggleBtn" aria-label="Trocar tema">🌓</button></div>
-
+<!-- HERO CARROSSEL -->
 <div class="hero">
-  <!-- TODAS AS FOTOS DAS GALERIAS -->
-  <img class="bg-slide" src="https://i.imgur.com/AmFSwwd.jpeg" alt="">
-  <img class="bg-slide" src="https://i.imgur.com/PMok8fe.jpeg" alt="">
-  <img class="bg-slide" src="https://i.imgur.com/bOOUiLE.jpeg" alt="">
-  <img class="bg-slide" src="https://i.imgur.com/aKhDzXz.jpeg" alt="">
-  <img class="bg-slide" src="https://i.imgur.com/7lhbeim.jpeg" alt="">
-  <img class="bg-slide" src="https://i.imgur.com/nw9K59D.jpeg" alt="">
-  <img class="bg-slide" src="https://i.imgur.com/USBb1tj.jpeg" alt="">
-  <img class="bg-slide" src="https://i.imgur.com/8b52cpI.jpeg" alt="">
-  <img class="bg-slide" src="https://i.imgur.com/XFT7Fs2.jpeg" alt="">
-  <img class="bg-slide" src="https://i.imgur.com/eydR2bp.jpeg" alt="">
-  <img class="bg-slide" src="https://i.imgur.com/pyEKOtQ.jpeg" alt="">
-  <img class="bg-slide" src="https://i.imgur.com/1HeNjKT.jpeg" alt="">
-  <img class="bg-slide" src="https://i.imgur.com/9kgfR2y.jpeg" alt="">
-  <img class="bg-slide" src="https://i.imgur.com/2MinAKg.jpeg" alt="">
-  <img class="bg-slide" src="https://i.imgur.com/1eOkkpi.jpeg" alt="">
-  <img class="bg-slide" src="https://i.imgur.com/VNUPsl2.jpeg" alt="">
-  <img class="bg-slide" src="https://i.imgur.com/5pbb4ba.jpeg" alt="">
-  <img class="bg-slide" src="https://i.imgur.com/uop7Fdo.jpeg" alt="">
-  <img class="bg-slide" src="https://i.imgur.com/JAaWFiz.jpeg" alt="">
-  <img class="bg-slide" src="https://i.imgur.com/61P9R4K.jpeg" alt="">
-  <img class="bg-slide" src="https://i.imgur.com/VVc8UtU.jpeg" alt="">
-  <img class="bg-slide" src="https://i.imgur.com/AseZPzL.jpeg" alt="">
-  <img class="bg-slide" src="https://i.imgur.com/uhGHhcA.jpeg" alt="">
-  <img class="bg-slide" src="https://i.imgur.com/1xGGlIh.jpeg" alt="">
-  <img class="bg-slide" src="https://i.imgur.com/04CvTwk.jpeg" alt="">
-  <img class="bg-slide" src="https://i.imgur.com/pCZh2Pi.jpeg" alt="">
-  <img class="bg-slide" src="https://i.imgur.com/BjgrodB.jpeg" alt="">
-  <img class="bg-slide" src="https://i.imgur.com/90Fy5Hj.jpeg" alt="">
-  <img class="bg-slide" src="https://i.imgur.com/wBiihZH.jpeg" alt="">
-  <img class="bg-slide" src="https://i.imgur.com/1J6Tm4r.jpeg" alt="">
-  <img class="bg-slide" src="https://i.imgur.com/S4tSUzG.jpeg" alt="">
-  <img class="bg-slide" src="https://i.imgur.com/uiZei1A.jpeg" alt="">
-  <img class="bg-slide" src="https://i.imgur.com/FGmyUSZ.jpeg" alt="">
-  <img class="bg-slide" src="https://i.imgur.com/0Lv8TV6.jpeg" alt="">
-  <img class="bg-slide" src="https://i.imgur.com/qkmupvj.jpeg" alt="">
-  <img class="bg-slide" src="https://i.imgur.com/oFjs88I.jpeg" alt="">
-  <img class="bg-slide" src="https://i.imgur.com/VgEN9lk.jpeg" alt="">
-  <img class="bg-slide" src="https://i.imgur.com/vMOqQgq.jpeg" alt="">
-  <img class="bg-slide" src="https://i.imgur.com/QpY0W4I.jpeg" alt="">
-  <img class="bg-slide" src="https://i.imgur.com/x0fWdLu.jpeg" alt="">
-  <img class="bg-slide" src="https://i.imgur.com/iDMQ2XA.jpeg" alt="">
-  <img class="bg-slide" src="https://i.imgur.com/WOhzcpP.jpeg" alt="">
-  <img class="bg-slide" src="https://i.imgur.com/UKiLRll.jpeg" alt="">
-  <img class="bg-slide" src="https://i.imgur.com/cD4I3pX.jpeg" alt="">
-  <img class="bg-slide" src="https://i.imgur.com/wAnVr9T.jpeg" alt="">
-  <img class="bg-slide" src="https://i.imgur.com/7ExLNbI.jpeg" alt="">
-  <img class="bg-slide" src="https://i.imgur.com/ptpX7Ti.jpeg" alt="">
-  <img class="bg-slide" src="https://i.imgur.com/GHtjGQK.jpeg" alt="">
-  <img class="bg-slide" src="https://i.imgur.com/tnuVQOh.jpeg" alt="">
-  <img class="bg-slide" src="https://i.imgur.com/KxSsPe6.jpeg" alt="">
-  <img class="bg-slide" src="https://i.imgur.com/SxlktwS.jpeg" alt="">
-  <img class="bg-slide" src="https://i.imgur.com/uORu8RN.jpeg" alt="">
-  <img class="bg-slide" src="https://i.imgur.com/6W559IH.jpeg" alt="">
-  <img class="bg-slide" src="https://i.imgur.com/OEzuUL0.jpeg" alt="">
+  <img class="bg-slide" src="https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=900&q=80" alt="">
+  <img class="bg-slide" src="https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?auto=format&fit=crop&w=900&q=80" alt="">
+  <img class="bg-slide" src="https://images.unsplash.com/photo-1582719508461-905c673771fd?auto=format&fit=crop&w=900&q=80" alt="">
+  <img class="bg-slide" src="https://images.unsplash.com/photo-1562790351-d273a961e0e9?auto=format&fit=crop&w=900&q=80" alt="">
   <div class="overlay"></div>
   <div class="content-hero">
-    <img src="https://i.imgur.com/ITjjQaf.jpeg" class="logo-hero" alt="HOSPEDAH - Sua experiência começa aqui">
+    <img src="https://i.imgur.com/ITjjQaf.jpeg" class="logo-hero" alt="HOSPEDAH">
   </div>
 </div>
-<div class="topo-infos">
-    <h1>Experiências Exclusivas</h1>
-    <a href="https://www.instagram.com/julianasilvaoliveira.joao?igsh=bzZmNGIxdjdqc285" class="insta-top" target="_blank">📸 Instagram Oficial</a>
-    <div class="contatos-topo">
-        <div class="contato-b">
-            <h3>Flávio</h3>
-            <p>Especialista em Hospedagens</p>
-            <a class="btn" href="https://wa.me/5517982006382" target="_blank">WhatsApp</a>
-        </div>
-        <div class="contato-b">
-            <h3>Juliana</h3>
-            <p>Especialista em Hospedagens</p>
-            <a class="btn" href="https://wa.me/5517992068296" target="_blank">WhatsApp</a>
-        </div>
-    </div>
+
+<!-- TABS DE GALERIA -->
+<div class="tabs">
+  <button class="tab active" data-block="hotbeach">🏨 Hot Beach</button>
+  <button class="tab" data-block="saopedro">♨️ São Pedro</button>
+  <button class="tab" data-block="olimpia">🎢 Olimpia Park</button>
+  <button class="tab" data-block="solar">☀️ Solar das Águas</button>
+  <button class="tab" data-block="wyndham">👑 Wyndham Royal</button>
+  <button class="tab" data-block="juquehy">🌊 Juquehy</button>
 </div>
-<!-- GALERIA DE RESORTS -->
-<div class="section" id="galeria">
-  <div class="tabs" role="tablist">
-    <button class="tab active" aria-controls="hotbeach" aria-selected="true" tabindex="0">Hot Beach</button>
-    <button class="tab" aria-controls="saopedro">São Pedro Thermas</button>
-    <button class="tab" aria-controls="olimpia">Olimpia Park</button>
-    <button class="tab" aria-controls="solar">Solar das Águas</button>
-    <button class="tab" aria-controls="wyndham">Wyndham Royal</button>
-    <button class="tab" aria-controls="juquehy">Praia de Juquehy</button>
-  </div>
-  <!-- Hot Beach -->
-  <div class="gallery-block active" id="hotbeach">
-    <div class="resort-title">Hot Beach Resort</div>
-    <a href="hotbeach.html" class="resort-link" target="_blank">Ver página exclusiva do Hot Beach</a>
-    <div class="gallery">
-      <img src="https://i.imgur.com/AmFSwwd.jpeg"><img src="https://i.imgur.com/PMok8fe.jpeg"><img src="https://i.imgur.com/bOOUiLE.jpeg"><img src="https://i.imgur.com/aKhDzXz.jpeg"><img src="https://i.imgur.com/7lhbeim.jpeg"><img src="https://i.imgur.com/nw9K59D.jpeg"><img src="https://i.imgur.com/USBb1tj.jpeg"><img src="https://i.imgur.com/8b52cpI.jpeg"><img src="https://i.imgur.com/XFT7Fs2.jpeg"><img src="https://i.imgur.com/eydR2bp.jpeg">
-    </div>
-  </div>
-  <!-- São Pedro Thermas -->
-  <div class="gallery-block" id="saopedro">
-    <div class="resort-title">São Pedro Thermas</div>
-    <a href="saopedro.html" class="resort-link" target="_blank">Ver página exclusiva do São Pedro Thermas</a>
-    <div class="gallery">
-      <img src="https://i.imgur.com/pyEKOtQ.jpeg" alt="São Pedro Thermas 1">
-      <img src="https://i.imgur.com/1HeNjKT.jpeg" alt="São Pedro Thermas 2">
-      <img src="https://i.imgur.com/9kgfR2y.jpeg" alt="São Pedro Thermas 3">
-      <img src="https://i.imgur.com/2MinAKg.jpeg" alt="São Pedro Thermas 4">
-      <img src="https://i.imgur.com/1eOkkpi.jpeg" alt="São Pedro Thermas 5">
-      <img src="https://i.imgur.com/VNUPsl2.jpeg" alt="São Pedro Thermas 6">
-      <img src="https://i.imgur.com/5pbb4ba.jpeg" alt="São Pedro Thermas 7">
-      <img src="https://i.imgur.com/uop7Fdo.jpeg" alt="São Pedro Thermas 8">
-      <img src="https://i.imgur.com/JAaWFiz.jpeg" alt="São Pedro Thermas 9">
-      <img src="https://i.imgur.com/61P9R4K.jpeg" alt="São Pedro Thermas 10">
-      <img src="https://i.imgur.com/VVc8UtU.jpeg" alt="São Pedro Thermas 11">
-    </div>
-  </div>
-  <!-- Olimpia Park -->
-  <div class="gallery-block" id="olimpia">
-    <div class="resort-title">Olimpia Park</div>
-    <a href="olimpia.html" class="resort-link" target="_blank">Ver página exclusiva do Olimpia Park</a>
-    <div class="gallery">
-      <img src="https://i.imgur.com/AseZPzL.jpeg" alt="Olimpia Park 1">
-      <img src="https://i.imgur.com/uhGHhcA.jpeg" alt="Olimpia Park 2">
-      <img src="https://i.imgur.com/1xGGlIh.jpeg" alt="Olimpia Park 3">
-      <img src="https://i.imgur.com/04CvTwk.jpeg" alt="Olimpia Park 4">
-      <img src="https://i.imgur.com/pCZh2Pi.jpeg" alt="Olimpia Park 5">
-      <img src="https://i.imgur.com/BjgrodB.jpeg" alt="Olimpia Park 6">
-      <img src="https://i.imgur.com/90Fy5Hj.jpeg" alt="Olimpia Park 7">
-      <img src="https://i.imgur.com/wBiihZH.jpeg" alt="Olimpia Park 8">
-      <img src="https://i.imgur.com/1J6Tm4r.jpeg" alt="Olimpia Park 9">
-    </div>
-  </div>
-  <!-- Solar das Águas -->
-  <div class="gallery-block" id="solar">
-    <div class="resort-title">Solar das Águas</div>
-    <a href="solar.html" class="resort-link" target="_blank">Ver página exclusiva do Solar das Águas</a>
-    <div class="gallery">
-      <img src="https://i.imgur.com/S4tSUzG.jpeg" alt="Solar das Águas 1">
-      <img src="https://i.imgur.com/uiZei1A.jpeg" alt="Solar das Águas 2">
-      <img src="https://i.imgur.com/FGmyUSZ.jpeg" alt="Solar das Águas 3">
-      <img src="https://i.imgur.com/0Lv8TV6.jpeg" alt="Solar das Águas 4">
-      <img src="https://i.imgur.com/qkmupvj.jpeg" alt="Solar das Águas 5">
-      <img src="https://i.imgur.com/oFjs88I.jpeg" alt="Solar das Águas 6">
-      <img src="https://i.imgur.com/VgEN9lk.jpeg" alt="Solar das Águas 7">
-      <img src="https://i.imgur.com/vMOqQgq.jpeg" alt="Solar das Águas 8">
-      <img src="https://i.imgur.com/QpY0W4I.jpeg" alt="Solar das Águas 9">
-      <img src="https://i.imgur.com/x0fWdLu.jpeg" alt="Solar das Águas 10">
-    </div>
-  </div>
-  <!-- Wyndham Royal -->
-  <div class="gallery-block" id="wyndham">
-    <div class="resort-title">Wyndham Royal</div>
-    <a href="wyndham.html" class="resort-link" target="_blank">Ver página exclusiva do Wyndham Royal</a>
-    <div class="gallery">
-      <img src="https://i.imgur.com/iDMQ2XA.jpeg" alt="Wyndham Royal 1">
-      <img src="https://i.imgur.com/WOhzcpP.jpeg" alt="Wyndham Royal 2">
-      <img src="https://i.imgur.com/UKiLRll.jpeg" alt="Wyndham Royal 3">
-      <img src="https://i.imgur.com/cD4I3pX.jpeg" alt="Wyndham Royal 4">
-      <img src="https://i.imgur.com/wAnVr9T.jpeg" alt="Wyndham Royal 5">
-      <img src="https://i.imgur.com/7ExLNbI.jpeg" alt="Wyndham Royal 6">
-      <img src="https://i.imgur.com/ptpX7Ti.jpeg" alt="Wyndham Royal 7">
-      <img src="https://i.imgur.com/GHtjGQK.jpeg" alt="Wyndham Royal 8">
-      <img src="https://i.imgur.com/tnuVQOh.jpeg" alt="Wyndham Royal 9">
-      <img src="https://i.imgur.com/KxSsPe6.jpeg" alt="Wyndham Royal 10">
-    </div>
-  </div>
-  <!-- Juquehy -->
-  <div class="gallery-block" id="juquehy">
-    <div class="resort-title">Praia de Juquehy</div>
-    <a href="juquehy.html" class="resort-link" target="_blank">Ver página exclusiva da Praia de Juquehy</a>
-    <div class="gallery">
-      <img src="https://i.imgur.com/SxlktwS.jpeg" alt="Praia de Juquehy 1">
-      <img src="https://i.imgur.com/uORu8RN.jpeg" alt="Praia de Juquehy 2">
-      <img src="https://i.imgur.com/6W559IH.jpeg" alt="Praia de Juquehy 3">
-      <img src="https://i.imgur.com/OEzuUL0.jpeg" alt="Praia de Juquehy 4">
-    </div>
+
+<!-- BLOCOS DE GALERIA -->
+<div class="gallery-block active" id="hotbeach">
+  <div class="resort-title">🏨 Hot Beach Suites</div>
+  <div class="gallery">
+    <img src="https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80" >
+    <img src="https://images.unsplash.com/photo-1582719508461-905c673771fd?auto=format&fit=crop&w=800&q=80" >
+    <img src="https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?auto=format&fit=crop&w=800&q=80" >
+    <img src="https://images.unsplash.com/photo-1576675784201-0e142b423952?auto=format&fit=crop&w=800&q=80" >
   </div>
 </div>
+<div class="gallery-block" id="saopedro">
+  <div class="resort-title">♨️ São Pedro Thermas</div>
+  <div class="gallery">
+    <img src="https://images.unsplash.com/photo-1584132967334-10e028bd69f7?auto=format&fit=crop&w=800&q=80" >
+    <img src="https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=800&q=80" >
+    <img src="https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=800&q=80" >
+    <img src="https://images.unsplash.com/photo-1559599101-f09722fb4948?auto=format&fit=crop&w=800&q=80" >
+    <img src="https://images.unsplash.com/photo-1578683010236-d716f9a3f461?auto=format&fit=crop&w=800&q=80" >
+    <img src="https://images.unsplash.com/photo-1596436889106-be35e843f974?auto=format&fit=crop&w=800&q=80" >
+    <img src="https://images.unsplash.com/photo-1582268611958-ebfd161ef9cf?auto=format&fit=crop&w=800&q=80" >
+    <img src="https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&w=800&q=80" >
+    <img src="https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?auto=format&fit=crop&w=800&q=80" >
+  </div>
+</div>
+<div class="gallery-block" id="olimpia">
+  <div class="resort-title">🎢 Olimpia Park Resort</div>
+  <div class="gallery">
+    <img src="https://images.unsplash.com/photo-1562790351-d273a961e0e9?auto=format&fit=crop&w=800&q=80" >
+    <img src="https://images.unsplash.com/photo-1501117716987-c8e1ecb2102b?auto=format&fit=crop&w=800&q=80" >
+    <img src="https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=800&q=80" >
+    <img src="https://images.unsplash.com/photo-1584132915807-fd1f5fbc078f?auto=format&fit=crop&w=800&q=80" >
+    <img src="https://images.unsplash.com/photo-1566665797739-1674de7a421a?auto=format&fit=crop&w=800&q=80" >
+    <img src="https://images.unsplash.com/photo-1551918120-9739cb430c6d?auto=format&fit=crop&w=800&q=80" >
+  </div>
+</div>
+<div class="gallery-block" id="solar">
+  <div class="resort-title">☀️ Solar das Águas</div>
+  <div class="gallery">
+    <img src="https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?auto=format&fit=crop&w=800&q=80" >
+    <img src="https://images.unsplash.com/photo-1560448204-603b3fc33ddc?auto=format&fit=crop&w=800&q=80" >
+    <img src="https://images.unsplash.com/photo-1560448075-bb485b067938?auto=format&fit=crop&w=800&q=80" >
+    <img src="https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=800&q=80" >
+    <img src="https://images.unsplash.com/photo-1571896349842-33c89424de2d?auto=format&fit=crop&w=800&q=80" >
+  </div>
+</div>
+<div class="gallery-block" id="wyndham">
+  <div class="resort-title">👑 Wyndham Royal</div>
+  <div class="gallery">
+    <img src="https://images.unsplash.com/photo-1582719478181-7e3d7bca5c77?auto=format&fit=crop&w=800&q=80" >
+    <img src="https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=800&q=80" >
+    <img src="https://images.unsplash.com/photo-1559599101-f09722fb4948?auto=format&fit=crop&w=800&q=80" >
+  </div>
+</div>
+<div class="gallery-block" id="juquehy">
+  <div class="resort-title">🌊 Praia de Juquehy</div>
+  <div class="gallery">
+    <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80" >
+    <img src="https://images.unsplash.com/photo-1500375592092-40eb2168fd21?auto=format&fit=crop&w=800&q=80" >
+    <img src="https://images.unsplash.com/photo-1473116763249-2faaef81ccda?auto=format&fit=crop&w=800&q=80" >
+  </div>
+</div>
+
+<!-- LIGHTBOX -->
+<div class="lb-bg" id="lbBg">
+  <button class="lb-close" id="lbClose" aria-label="Fechar Imagem">&times;</button>
+  <img src="" class="lb-img" id="lbImg" alt="">
+</div>
+
+<!-- PAINEL CADASTRO IMÓVEL E CONSULTA LADO A LADO -->
+<section class="painel-duo" id="painel-duo">
+  <form class="painel-box" id="painelAdmin">
+    <h2>Cadastre seu empreendimento</h2>
+    <input id="nomeImovel" placeholder="Nome do imóvel" maxlength="70" required autocomplete="off"/>
+    <input id="telefoneImovel" placeholder="Telefone" maxlength="30" required autocomplete="off"/>
+    <textarea id="obsImovel" placeholder="Observações/mensagem" maxlength="255" autocomplete="off"></textarea>
+    <input id="capacidadeImovel" type="number" placeholder="Capacidade" min="1" max="99" required autocomplete="off"/>
+    <select id="dormitoriosImovel" required>
+      <option value="">Dormitórios</option>
+      <option value="1">1 dormitório</option>
+      <option value="2">2 dormitórios</option>
+      <option value="3+">3 ou mais</option>
+    </select>
+    <input id="precoImovel" type="number" placeholder="Preço (referencial)" min="50" required autocomplete="off"/>
+    <button type="submit">Cadastrar Imóvel</button>
+    <div class="sucesso-msg" style="display:none">Cadastro realizado!</div>
+    <div id="listaImoveis"></div>
+  </form>
+  <form class="painel-box" id="consultaPainel" onsubmit="return false;">
+    <h2>Consulta de disponibilidade exclusiva</h2>
+    <input id="clienteNome" placeholder="Seu nome" maxlength="80" required autocomplete="off"/>
+    <input id="clienteContato" placeholder="Seu WhatsApp" required autocomplete="off"/>
+    <input type="date" id="entrada" required />
+    <input type="date" id="saida" required />
+    <input type="number" id="pessoas" placeholder="Pessoas" min="1" max="16" required autocomplete="off"/>
+    <select id="filtroDorm">
+      <option value="">Dormitórios</option>
+      <option value="1">1 dormitório</option>
+      <option value="2">2 dormitórios</option>
+      <option value="3+">3 ou mais</option>
+    </select>
+    <button type="button" onclick="buscarImoveis()">Buscar opções</button>
+    <div id="resultadoBusca"></div>
+  </form>
+</section>
+
 <!-- DEPOIMENTOS CARROSSEL -->
 <section class="depo-section" id="depoimentos">
   <h2 class="depo-title">O que nossos clientes dizem</h2>
@@ -365,90 +291,57 @@ body {margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;
     </div>
   </div>
 </section>
-<!-- PAINEL ADMINISTRATIVO E FORMULÁRIO DE CONSULTA -->
-<section class="section" id="painel-duo">
-  <div class="painel-duo">
-    <form class="painel-box" id="painelAdmin">
-      <h2>Cadastre seu empreendimento</h2>
-      <input id="nomeImovel" placeholder="Nome do imóvel" maxlength="70" required autocomplete="off"/>
-      <input id="telefoneImovel" placeholder="Telefone" maxlength="30" required autocomplete="off"/>
-      <textarea id="obsImovel" placeholder="Observações/mensagem" maxlength="255" autocomplete="off"></textarea>
-      <input id="capacidadeImovel" type="number" placeholder="Capacidade" min="1" max="99" required autocomplete="off"/>
-      <select id="dormitoriosImovel" required>
-        <option value="">Dormitórios</option>
-        <option value="1">1 dormitório</option>
-        <option value="2">2 dormitórios</option>
-        <option value="3+">3 ou mais</option>
-      </select>
-      <input id="precoImovel" type="number" placeholder="Preço (referencial)" min="50" required autocomplete="off"/>
-      <button type="submit">Cadastrar Imóvel</button>
-      <div class="sucesso-msg" style="display:none">Cadastro realizado!</div>
-      <div id="listaImoveis"></div>
-    </form>
-    <form class="painel-box" id="consultaPainel" onsubmit="return false;">
-      <h2>Consulta de disponibilidade exclusiva</h2>
-      <input id="clienteNome" placeholder="Seu nome" maxlength="80" required autocomplete="off"/>
-      <input id="clienteContato" placeholder="Seu WhatsApp" required autocomplete="off"/>
-      <input type="date" id="entrada" required />
-      <input type="date" id="saida" required />
-      <input type="number" id="pessoas" placeholder="Pessoas" min="1" max="16" required autocomplete="off"/>
-      <select id="filtroDorm">
-        <option value="">Dormitórios</option>
-        <option value="1">1 dormitório</option>
-        <option value="2">2 dormitórios</option>
-        <option value="3+">3 ou mais</option>
-      </select>
-      <button type="button" onclick="buscarImoveis()">Buscar opções</button>
-      <div id="resultadoBusca"></div>
-    </form>
-  </div>
-</section>
+
+<div class="modo-toggle" style="position:fixed;top:18px;right:22px;z-index:105;">
+  <button id="modeToggleBtn" aria-label="Trocar tema">🌓</button>
+</div>
 
 <script>
-// MENU hamburguer lateral
-const menuHamburger = document.getElementById('menuHamburger');
-const menuMobile = document.getElementById('menuMobile');
-const menuMobileBg = document.getElementById('menuMobileBg');
-const menuClose = document.getElementById('menuClose');
-function openMenu() {
-  menuMobileBg.classList.add('open');
-  menuMobile.classList.add('open');
-  document.body.style.overflow = 'hidden';
-}
-function closeMenu() {
-  menuMobileBg.classList.remove('open');
-  menuMobile.classList.remove('open');
-  document.body.style.overflow = '';
-}
-menuHamburger.onclick = openMenu;menuClose.onclick = closeMenu;
-menuMobileBg.onclick = function(e) { if(e.target===this) closeMenu(); };
-menuMobile.querySelectorAll('a').forEach(a=>a.onclick = closeMenu);
-const mbtn = document.getElementById('modeToggleBtn');
-mbtn.addEventListener('click',()=>{
-  let html=document.documentElement;
-  let atual=html.getAttribute('data-theme')||'dark';
-  html.setAttribute('data-theme', atual==='dark'?'light':'dark');
-  mbtn.innerText = html.getAttribute('data-theme')==='dark' ? '🌓' : '🌞';
-});
-document.addEventListener('DOMContentLoaded', function() {
-  const tabs = document.querySelectorAll('.tab');
+// MENU HAMBURGUER PREMIUM
+(function(){
+  const menuHamburger = document.getElementById('menuHamburger');
+  const menuMobile = document.getElementById('menuMobile');
+  const menuMobileBg = document.getElementById('menuMobileBg');
+  const menuClose = document.getElementById('menuClose');
+  menuHamburger.onclick = function(){menuMobileBg.classList.add('open');menuMobile.classList.add('open');};
+  menuClose.onclick = function(){menuMobileBg.classList.remove('open');menuMobile.classList.remove('open');};
+  menuMobileBg.onclick = function(e){if(e.target===this){menuMobileBg.classList.remove('open');menuMobile.classList.remove('open');}};
+  menuMobile.querySelectorAll('a').forEach(a=>a.onclick = function(){menuMobileBg.classList.remove('open');menuMobile.classList.remove('open');});
+})();
+// CARROSSEL HERO (sem JS extra: apenas CSS animation nas imagens)
+// TABS
+(function(){
+  const tabs = document.querySelectorAll('.tabs .tab');
   const blocks = document.querySelectorAll('.gallery-block');
   tabs.forEach((tab, idx) => {
     tab.addEventListener('click', function(){
-      tabs.forEach((t,i)=>{ t.classList.remove('active'); t.setAttribute('aria-selected','false'); blocks[i].classList.remove('active');});
+      tabs.forEach((t,i)=>{ t.classList.remove('active'); blocks[i].classList.remove('active');});
       this.classList.add('active');
-      this.setAttribute('aria-selected','true');
       blocks[idx].classList.add('active');
     });
   });
-});
+})();
+// LIGHTBOX
+(function(){
+  const lbBg = document.getElementById('lbBg');
+  const lbImg = document.getElementById('lbImg');
+  const lbClose = document.getElementById('lbClose');
+  document.querySelectorAll('.gallery img').forEach(img => {
+    img.onclick = function(){
+      lbImg.src = this.src;
+      lbBg.classList.add('open');
+    }
+  });
+  lbClose.onclick = function(){lbBg.classList.remove('open');lbImg.src="";};
+  lbBg.onclick = function(e){if(e.target===lbBg){lbBg.classList.remove('open');lbImg.src="";}};
+})();
 // PAINEL ADMIN (cadastro/listagem auto)
 let imoveis = JSON.parse(localStorage.getItem('imoveis') || '[]');
 function renderImoveis(){
   const div = document.getElementById('listaImoveis');
   div.innerHTML='';
   imoveis.forEach((i, idx)=>{
-    div.innerHTML += `<div style="background:#23295022;margin:9px 0 7px 0;padding:10px 7px;border-radius:8px;display:flex;justify-content:space-between;align-items:center;"><span><b>${i.nome}</b> - ${i.telefone||'-'}<br>${i.obs?'<span style="font-size:0.95em;opacity:0.8;">Obs: '+i.obs+'</span><br>':''}Cap: ${i.capacidade} - ${i.dormitorios} dorm - R$${i.preco} </span> <button onclick="removerImovel(${idx})" style="border:none;border-radius:7px;background:#d41d47;color:#fff;padding:5px 10px;cursor:pointer">Remover</button></div>`;
+    div.innerHTML += `<div style="background:#23295022;margin:7px 0 7px 0;padding:9px 7px;border-radius:8px;display:flex;justify-content:space-between;align-items:center;"><span><b>${i.nome}</b> - ${i.telefone||'-'}<br>${i.obs?'<span style="font-size:0.95em;opacity:0.8;">Obs: '+i.obs+'</span><br>':''} <span style="color:#aaa">Cap: ${i.capacidade} • ${i.dormitorios} dorm • R$${i.preco}</span></span> <button onclick="removerImovel(${idx})" style="border:none;border-radius:7px;background:#d41d47;color:#fff;padding:5px 10px;cursor:pointer">Remover</button></div>`;
   });
 }
 document.getElementById('painelAdmin').onsubmit = function(e){
@@ -473,6 +366,7 @@ function removerImovel(idx){
   renderImoveis();
 }
 renderImoveis();
+// CONSULTA
 function buscarImoveis(){
   let pessoas=Number(document.getElementById('pessoas').value)||1;
   let dorm=document.getElementById('filtroDorm').value;
@@ -497,7 +391,7 @@ function consultarImovel(nome,preco){
   let msg=encodeURIComponent(`Olá! Gostaria de consultar disponibilidade:%0A%0A👤 Nome: ${cliente}%0A📞 Contato: ${contato}%0A🏨 Imóvel: ${nome}%0A📅 Entrada: ${entrada}%0A📅 Saída: ${saida}%0A👨‍👩‍👧‍👦 Pessoas: ${pessoas}%0A🛏️ Dormitórios: ${dorm}%0A💰 Valor base: R$ ${preco}`);
   window.open(`https://wa.me/5517982006382?text=${msg}`,'_blank');
 }
-// DEPOIMENTOS
+// DEPOIMENTOS (carrossel)
 (function(){
   const cards=document.querySelectorAll('.depo-card');
   const dots=document.querySelectorAll('.depo-carousel-dot');
@@ -510,8 +404,16 @@ function consultarImovel(nome,preco){
   document.getElementById('depoNext').onclick=()=>show((current+1)%max);
   document.getElementById('depoPrev').onclick=()=>show((current+max-1)%max);
   dots.forEach((dot,i)=>dot.onclick=()=>show(i));
-  setInterval(()=>show((current+1)%max), 7500);
+  setInterval(()=>show((current+1)%max), 8000);
 })();
+// MODO NOTURNO
+const mbtn = document.getElementById('modeToggleBtn');
+mbtn.addEventListener('click',()=>{
+  let html=document.documentElement;
+  let atual=html.getAttribute('data-theme')||'dark';
+  html.setAttribute('data-theme', atual==='dark'?'light':'dark');
+  mbtn.innerText = html.getAttribute('data-theme')==='dark' ? '🌓' : '🌞';
+});
 </script>
 </body>
 </html>
