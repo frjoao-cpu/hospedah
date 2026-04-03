@@ -17,14 +17,34 @@
 html[data-theme="dark"] body { background: var(--bg-grad); color: #fff; }
 html[data-theme="light"] body { background: var(--bg-claro); color: #191919; }
 body {margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
-/* HERO CARROSSEL */
-.hero {
-  position: relative;height: 70vh; min-height: 330px; overflow: hidden;
+.menu-toggle{
+  position:fixed;top:16px;left:16px;z-index:2011;
+  display:flex;align-items:center;justify-content:center;
+  font-size:32px;padding:12px 20px;cursor:pointer;background:var(--azul);color:var(--dourado);
+  border:none;border-radius:11px;box-shadow:0 2px 8px #23244a33;
 }
-.hero img.bg-slide {
-  position: absolute; width: 100%; height: 100%; object-fit: cover; opacity: 0;
-  animation: slide 98s infinite, zoom 98s infinite;
+.menu-mobile-bg {display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(8,14,28,0.33);z-index:2000;}
+.menu-mobile-bg.open {display:block;}
+.menu-mobile{
+  position:fixed;top:0;left:0;width:285px;max-width:94vw;height:100vh;background:#fff;z-index:2021;box-shadow:8px 0 22px #18181922;
+  transform:translateX(-108%);transition:transform .33s cubic-bezier(.62,.32,.48,.98);
+  display:flex;flex-direction:column;
 }
+.menu-mobile.open { transform:translateX(0);}
+.menu-mobile .menu-close{
+  background:none;border:none;color:var(--azul);font-size:2.5em;width:44px;height:44px;align-self:flex-end;margin:14px 17px 7px 0;cursor:pointer;
+}
+.menu-mobile nav{display:flex;flex-direction:column;align-items:flex-start;gap:17px;padding:22px 0 0 30px;margin-top:8px;}
+.menu-mobile nav a{
+  color:var(--azul);background:none;border:none;font-weight:700;font-size:1.11em;padding:13px 3px 11px 3px;
+  border-radius:8px;text-decoration:none;white-space:nowrap;transition:.14s;
+}
+.menu-mobile nav a:hover,.menu-mobile nav a:focus{background:var(--dourado);color:var(--azul);}
+.modo-toggle{position:fixed;top:16px;right:16px;z-index:2010;}
+.modo-toggle button{background:#132042;color:var(--dourado);border-radius:28px;padding:8px 20px;font-weight:600;border:none;cursor:pointer;font-size:18px;box-shadow:0 2px 8px #1112;}
+.modo-toggle button:active{background:var(--dourado);color:#132042;}
+.hero {position: relative;height: 70vh; min-height: 330px; overflow: hidden;}
+.hero img.bg-slide {position: absolute; width: 100%; height: 100%; object-fit: cover; opacity: 0;animation: slide 90s infinite, zoom 90s infinite;}
 .hero img.bg-slide:nth-child(1){animation-delay:0s;}
 .hero img.bg-slide:nth-child(2){animation-delay:6s;}
 .hero img.bg-slide:nth-child(3){animation-delay:12s;}
@@ -41,48 +61,12 @@ body {margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;
 .hero img.bg-slide:nth-child(14){animation-delay:78s;}
 .hero img.bg-slide:nth-child(15){animation-delay:84s;}
 .hero img.bg-slide:nth-child(16){animation-delay:90s;}
-.hero img.bg-slide:nth-child(17){animation-delay:92s;}
-.hero img.bg-slide:nth-child(18){animation-delay:98s;}
-@keyframes slide {
-  0%{opacity:0;}
-  7%{opacity:1;}
-  18%{opacity:1;}
-  25%{opacity:0;}
-  100%{opacity:0;}
-}
+@keyframes slide {0%{opacity:0;}7%{opacity:1;}18%{opacity:1;}25%{opacity:0;}100%{opacity:0;}}
 @keyframes zoom { from{transform:scale(1);} to{transform:scale(1.09);} }
 .overlay { position:absolute; width:100%; height:100%; background:rgba(0,0,0,0.38); top:0; left:0; }
 .content-hero { position:relative; z-index:2; height:100%; display:flex; justify-content:center; align-items:center; }
 .logo-hero { width:300px; background:rgba(255,255,255,0.90); border-radius:22px; box-shadow:0 8px 38px #0002; padding:10px 10px; max-width:92vw; }
-/* MENU HAMBURGUER - PREMIUM */
-.menu-toggle{
-  display:flex;align-items:center;justify-content:center;
-  font-size:32px;padding:12px 20px;cursor:pointer;background:var(--azul);color:var(--dourado);
-  border:none;border-radius:11px;position:fixed;top:16px;left:16px;z-index:2001;box-shadow:0 2px 8px #23244a33;
-}
-.menu-mobile-bg {display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(8,14,28,0.33);z-index:2000;}
-.menu-mobile-bg.open {display:block;}
-.menu-mobile{
-  position:fixed; top:0; left:0; width:265px; height:100vh; background:#fff; z-index:2021; box-shadow:8px 0 22px #18181922;
-  transform:translateX(-112%);transition:transform .32s cubic-bezier(.62,.32,.48,.98);
-  display:flex;flex-direction:column;
-}
-.menu-mobile.open{ transform:translateX(0);}
-.menu-mobile .menu-close{
-  background:none;border:none;color:var(--azul);font-size:2.5em;width:44px;height:44px;align-self:flex-end;margin:14px 17px 7px 0;cursor:pointer;
-}
-.menu-mobile nav{display:flex;flex-direction:column;align-items:flex-start;gap:16px;padding:3px 0 0 32px;margin-top:6px;}
-.menu-mobile nav a{
-  color:var(--azul);background:none;border:none;font-weight:700;font-size:1.14em;padding:13px 6px 11px 1px;
-  border-radius:7px;text-decoration:none;white-space:nowrap;transition:.13s;
-}
-.menu-mobile nav a:hover,.menu-mobile nav a:focus{background:var(--dourado);color:var(--azul);}
-.modo-toggle{position:fixed;top:16px;right:16px;z-index:2010;}
-.modo-toggle button{background:#132042;color:var(--dourado);border-radius:28px;padding:8px 20px;font-weight:600;border:none;cursor:pointer;font-size:18px;box-shadow:0 2px 8px #1112;}
-.modo-toggle button:active{background:var(--dourado);color:#132042;}
-/* FAIXA LOGO + TOPO INFOS */
 .faixa-logo {width:100%;background:#fff;display:flex;align-items:center;justify-content:center;padding:0 0 34px 0;position:relative;border-bottom: 2px solid #eee;z-index:120;box-sizing:border-box;}
-.faixa-logo img{max-width:420px;width:94vw;height:auto;display:block;margin:35px auto 0 auto;}
 .topo-infos{display:flex;flex-direction:column;align-items:center;gap:7px;margin-top:22px;}
 .topo-infos h1{color:#D4AF37;font-size:1.33rem;font-weight:600;margin-bottom:3px;letter-spacing:.4px;}
 .insta-top{margin-bottom:4px;display:inline-block;padding:11px 28px;border-radius:30px;background:linear-gradient(45deg,#833AB4,#E1306C,#FCAF45);text-decoration:none;color:#fff;font-size:17px;font-weight:500;}
@@ -104,7 +88,6 @@ body {margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;
 .gallery img{width:100%;max-width:420px;height:260px;object-fit:cover;border-radius:14px;box-shadow: 0 2px 16px rgba(0,0,0,0.16); cursor: pointer;transition:.2s;}
 .gallery img:focus-visible{ outline: 3px solid var(--cor-foco);}
 @media (max-width:500px) {.gallery img{height:130px;}}
-/* DEPOIMENTOS CARROSSEL */
 .depo-section {padding:38px 4vw 64px 4vw;background:#fff;}
 .depo-title {text-align:center;font-size:1.34em;color:#D4AF37;margin-bottom:32px;}
 .depo-carousel-wrap {max-width:350px;margin:0 auto;position:relative;}
@@ -137,7 +120,7 @@ body {margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;
 </head>
 <body>
 <a id="topo"></a>
-<!-- MENU HAMBURGUER -->
+<!-- MENU HAMBURGER PREMIUM -->
 <div class="menu-toggle" id="menuHamburger" aria-label="Abrir menu" tabindex="0">☰</div>
 <div class="menu-mobile-bg" id="menuMobileBg"></div>
 <div class="menu-mobile" id="menuMobile">
@@ -153,9 +136,8 @@ body {margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;
 </div>
 <div class="modo-toggle"><button id="modeToggleBtn" aria-label="Trocar tema">🌓</button></div>
 
-<!-- HERO -->
 <div class="hero">
-  <!-- TODAS AS FOTOS DAS GALERIAS/TABS! -->
+  <!-- TODAS AS FOTOS DAS GALERIAS -->
   <img class="bg-slide" src="https://i.imgur.com/AmFSwwd.jpeg" alt="">
   <img class="bg-slide" src="https://i.imgur.com/PMok8fe.jpeg" alt="">
   <img class="bg-slide" src="https://i.imgur.com/bOOUiLE.jpeg" alt="">
@@ -166,7 +148,6 @@ body {margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;
   <img class="bg-slide" src="https://i.imgur.com/8b52cpI.jpeg" alt="">
   <img class="bg-slide" src="https://i.imgur.com/XFT7Fs2.jpeg" alt="">
   <img class="bg-slide" src="https://i.imgur.com/eydR2bp.jpeg" alt="">
-  <!-- São Pedro Thermas -->
   <img class="bg-slide" src="https://i.imgur.com/pyEKOtQ.jpeg" alt="">
   <img class="bg-slide" src="https://i.imgur.com/1HeNjKT.jpeg" alt="">
   <img class="bg-slide" src="https://i.imgur.com/9kgfR2y.jpeg" alt="">
@@ -178,7 +159,6 @@ body {margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;
   <img class="bg-slide" src="https://i.imgur.com/JAaWFiz.jpeg" alt="">
   <img class="bg-slide" src="https://i.imgur.com/61P9R4K.jpeg" alt="">
   <img class="bg-slide" src="https://i.imgur.com/VVc8UtU.jpeg" alt="">
-  <!-- Olimpia Park -->
   <img class="bg-slide" src="https://i.imgur.com/AseZPzL.jpeg" alt="">
   <img class="bg-slide" src="https://i.imgur.com/uhGHhcA.jpeg" alt="">
   <img class="bg-slide" src="https://i.imgur.com/1xGGlIh.jpeg" alt="">
@@ -188,7 +168,6 @@ body {margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;
   <img class="bg-slide" src="https://i.imgur.com/90Fy5Hj.jpeg" alt="">
   <img class="bg-slide" src="https://i.imgur.com/wBiihZH.jpeg" alt="">
   <img class="bg-slide" src="https://i.imgur.com/1J6Tm4r.jpeg" alt="">
-  <!-- Solar das Águas -->
   <img class="bg-slide" src="https://i.imgur.com/S4tSUzG.jpeg" alt="">
   <img class="bg-slide" src="https://i.imgur.com/uiZei1A.jpeg" alt="">
   <img class="bg-slide" src="https://i.imgur.com/FGmyUSZ.jpeg" alt="">
@@ -199,7 +178,6 @@ body {margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;
   <img class="bg-slide" src="https://i.imgur.com/vMOqQgq.jpeg" alt="">
   <img class="bg-slide" src="https://i.imgur.com/QpY0W4I.jpeg" alt="">
   <img class="bg-slide" src="https://i.imgur.com/x0fWdLu.jpeg" alt="">
-  <!-- Wyndham Royal -->
   <img class="bg-slide" src="https://i.imgur.com/iDMQ2XA.jpeg" alt="">
   <img class="bg-slide" src="https://i.imgur.com/WOhzcpP.jpeg" alt="">
   <img class="bg-slide" src="https://i.imgur.com/UKiLRll.jpeg" alt="">
@@ -210,7 +188,6 @@ body {margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;
   <img class="bg-slide" src="https://i.imgur.com/GHtjGQK.jpeg" alt="">
   <img class="bg-slide" src="https://i.imgur.com/tnuVQOh.jpeg" alt="">
   <img class="bg-slide" src="https://i.imgur.com/KxSsPe6.jpeg" alt="">
-  <!-- Juquehy -->
   <img class="bg-slide" src="https://i.imgur.com/SxlktwS.jpeg" alt="">
   <img class="bg-slide" src="https://i.imgur.com/uORu8RN.jpeg" alt="">
   <img class="bg-slide" src="https://i.imgur.com/6W559IH.jpeg" alt="">
@@ -236,8 +213,7 @@ body {margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;
         </div>
     </div>
 </div>
-
-<!-- GALERIA DE RESORTS --><!-- TÍTULO OPCIONAL -->
+<!-- GALERIA DE RESORTS -->
 <div class="section" id="galeria">
   <div class="tabs" role="tablist">
     <button class="tab active" aria-controls="hotbeach" aria-selected="true" tabindex="0">Hot Beach</button>
@@ -247,93 +223,94 @@ body {margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;
     <button class="tab" aria-controls="wyndham">Wyndham Royal</button>
     <button class="tab" aria-controls="juquehy">Praia de Juquehy</button>
   </div>
-  <div class="gallery-block active" id="hotbeach"><div class="resort-title">Hot Beach Resort</div>
+  <!-- Hot Beach -->
+  <div class="gallery-block active" id="hotbeach">
+    <div class="resort-title">Hot Beach Resort</div>
     <a href="hotbeach.html" class="resort-link" target="_blank">Ver página exclusiva do Hot Beach</a>
     <div class="gallery">
       <img src="https://i.imgur.com/AmFSwwd.jpeg"><img src="https://i.imgur.com/PMok8fe.jpeg"><img src="https://i.imgur.com/bOOUiLE.jpeg"><img src="https://i.imgur.com/aKhDzXz.jpeg"><img src="https://i.imgur.com/7lhbeim.jpeg"><img src="https://i.imgur.com/nw9K59D.jpeg"><img src="https://i.imgur.com/USBb1tj.jpeg"><img src="https://i.imgur.com/8b52cpI.jpeg"><img src="https://i.imgur.com/XFT7Fs2.jpeg"><img src="https://i.imgur.com/eydR2bp.jpeg">
     </div>
   </div>
-  <!-- SÃO PEDRO -->
+  <!-- São Pedro Thermas -->
   <div class="gallery-block" id="saopedro">
-      <div class="resort-title">São Pedro Thermas</div>
-      <a href="saopedro.html" class="resort-link" target="_blank">Ver página exclusiva do São Pedro Thermas</a>
-      <div class="gallery">
-          <img src="https://i.imgur.com/pyEKOtQ.jpeg" alt="São Pedro Thermas 1">
-          <img src="https://i.imgur.com/1HeNjKT.jpeg" alt="São Pedro Thermas 2">
-          <img src="https://i.imgur.com/9kgfR2y.jpeg" alt="São Pedro Thermas 3">
-          <img src="https://i.imgur.com/2MinAKg.jpeg" alt="São Pedro Thermas 4">
-          <img src="https://i.imgur.com/1eOkkpi.jpeg" alt="São Pedro Thermas 5">
-          <img src="https://i.imgur.com/VNUPsl2.jpeg" alt="São Pedro Thermas 6">
-          <img src="https://i.imgur.com/5pbb4ba.jpeg" alt="São Pedro Thermas 7">
-          <img src="https://i.imgur.com/uop7Fdo.jpeg" alt="São Pedro Thermas 8">
-          <img src="https://i.imgur.com/JAaWFiz.jpeg" alt="São Pedro Thermas 9">
-          <img src="https://i.imgur.com/61P9R4K.jpeg" alt="São Pedro Thermas 10">
-          <img src="https://i.imgur.com/VVc8UtU.jpeg" alt="São Pedro Thermas 11">
-      </div>
+    <div class="resort-title">São Pedro Thermas</div>
+    <a href="saopedro.html" class="resort-link" target="_blank">Ver página exclusiva do São Pedro Thermas</a>
+    <div class="gallery">
+      <img src="https://i.imgur.com/pyEKOtQ.jpeg" alt="São Pedro Thermas 1">
+      <img src="https://i.imgur.com/1HeNjKT.jpeg" alt="São Pedro Thermas 2">
+      <img src="https://i.imgur.com/9kgfR2y.jpeg" alt="São Pedro Thermas 3">
+      <img src="https://i.imgur.com/2MinAKg.jpeg" alt="São Pedro Thermas 4">
+      <img src="https://i.imgur.com/1eOkkpi.jpeg" alt="São Pedro Thermas 5">
+      <img src="https://i.imgur.com/VNUPsl2.jpeg" alt="São Pedro Thermas 6">
+      <img src="https://i.imgur.com/5pbb4ba.jpeg" alt="São Pedro Thermas 7">
+      <img src="https://i.imgur.com/uop7Fdo.jpeg" alt="São Pedro Thermas 8">
+      <img src="https://i.imgur.com/JAaWFiz.jpeg" alt="São Pedro Thermas 9">
+      <img src="https://i.imgur.com/61P9R4K.jpeg" alt="São Pedro Thermas 10">
+      <img src="https://i.imgur.com/VVc8UtU.jpeg" alt="São Pedro Thermas 11">
+    </div>
   </div>
-  <!-- OLIMPIA PARK -->
+  <!-- Olimpia Park -->
   <div class="gallery-block" id="olimpia">
-      <div class="resort-title">Olimpia Park</div>
-      <a href="olimpia.html" class="resort-link" target="_blank">Ver página exclusiva do Olimpia Park</a>
-      <div class="gallery">
-          <img src="https://i.imgur.com/AseZPzL.jpeg" alt="Olimpia Park 1">
-          <img src="https://i.imgur.com/uhGHhcA.jpeg" alt="Olimpia Park 2">
-          <img src="https://i.imgur.com/1xGGlIh.jpeg" alt="Olimpia Park 3">
-          <img src="https://i.imgur.com/04CvTwk.jpeg" alt="Olimpia Park 4">
-          <img src="https://i.imgur.com/pCZh2Pi.jpeg" alt="Olimpia Park 5">
-          <img src="https://i.imgur.com/BjgrodB.jpeg" alt="Olimpia Park 6">
-          <img src="https://i.imgur.com/90Fy5Hj.jpeg" alt="Olimpia Park 7">
-          <img src="https://i.imgur.com/wBiihZH.jpeg" alt="Olimpia Park 8">
-          <img src="https://i.imgur.com/1J6Tm4r.jpeg" alt="Olimpia Park 9">
-      </div>
+    <div class="resort-title">Olimpia Park</div>
+    <a href="olimpia.html" class="resort-link" target="_blank">Ver página exclusiva do Olimpia Park</a>
+    <div class="gallery">
+      <img src="https://i.imgur.com/AseZPzL.jpeg" alt="Olimpia Park 1">
+      <img src="https://i.imgur.com/uhGHhcA.jpeg" alt="Olimpia Park 2">
+      <img src="https://i.imgur.com/1xGGlIh.jpeg" alt="Olimpia Park 3">
+      <img src="https://i.imgur.com/04CvTwk.jpeg" alt="Olimpia Park 4">
+      <img src="https://i.imgur.com/pCZh2Pi.jpeg" alt="Olimpia Park 5">
+      <img src="https://i.imgur.com/BjgrodB.jpeg" alt="Olimpia Park 6">
+      <img src="https://i.imgur.com/90Fy5Hj.jpeg" alt="Olimpia Park 7">
+      <img src="https://i.imgur.com/wBiihZH.jpeg" alt="Olimpia Park 8">
+      <img src="https://i.imgur.com/1J6Tm4r.jpeg" alt="Olimpia Park 9">
+    </div>
   </div>
-  <!-- SOLAR DAS ÁGUAS -->
+  <!-- Solar das Águas -->
   <div class="gallery-block" id="solar">
-      <div class="resort-title">Solar das Águas</div>
-      <a href="solar.html" class="resort-link" target="_blank">Ver página exclusiva do Solar das Águas</a>
-      <div class="gallery">
-          <img src="https://i.imgur.com/S4tSUzG.jpeg" alt="Solar das Águas 1">
-          <img src="https://i.imgur.com/uiZei1A.jpeg" alt="Solar das Águas 2">
-          <img src="https://i.imgur.com/FGmyUSZ.jpeg" alt="Solar das Águas 3">
-          <img src="https://i.imgur.com/0Lv8TV6.jpeg" alt="Solar das Águas 4">
-          <img src="https://i.imgur.com/qkmupvj.jpeg" alt="Solar das Águas 5">
-          <img src="https://i.imgur.com/oFjs88I.jpeg" alt="Solar das Águas 6">
-          <img src="https://i.imgur.com/VgEN9lk.jpeg" alt="Solar das Águas 7">
-          <img src="https://i.imgur.com/vMOqQgq.jpeg" alt="Solar das Águas 8">
-          <img src="https://i.imgur.com/QpY0W4I.jpeg" alt="Solar das Águas 9">
-          <img src="https://i.imgur.com/x0fWdLu.jpeg" alt="Solar das Águas 10">
-      </div>
+    <div class="resort-title">Solar das Águas</div>
+    <a href="solar.html" class="resort-link" target="_blank">Ver página exclusiva do Solar das Águas</a>
+    <div class="gallery">
+      <img src="https://i.imgur.com/S4tSUzG.jpeg" alt="Solar das Águas 1">
+      <img src="https://i.imgur.com/uiZei1A.jpeg" alt="Solar das Águas 2">
+      <img src="https://i.imgur.com/FGmyUSZ.jpeg" alt="Solar das Águas 3">
+      <img src="https://i.imgur.com/0Lv8TV6.jpeg" alt="Solar das Águas 4">
+      <img src="https://i.imgur.com/qkmupvj.jpeg" alt="Solar das Águas 5">
+      <img src="https://i.imgur.com/oFjs88I.jpeg" alt="Solar das Águas 6">
+      <img src="https://i.imgur.com/VgEN9lk.jpeg" alt="Solar das Águas 7">
+      <img src="https://i.imgur.com/vMOqQgq.jpeg" alt="Solar das Águas 8">
+      <img src="https://i.imgur.com/QpY0W4I.jpeg" alt="Solar das Águas 9">
+      <img src="https://i.imgur.com/x0fWdLu.jpeg" alt="Solar das Águas 10">
+    </div>
   </div>
-  <!-- WYNDHAM ROYAL -->
+  <!-- Wyndham Royal -->
   <div class="gallery-block" id="wyndham">
-      <div class="resort-title">Wyndham Royal</div>
-      <a href="wyndham.html" class="resort-link" target="_blank">Ver página exclusiva do Wyndham Royal</a>
-      <div class="gallery">
-          <img src="https://i.imgur.com/iDMQ2XA.jpeg" alt="Wyndham Royal 1">
-          <img src="https://i.imgur.com/WOhzcpP.jpeg" alt="Wyndham Royal 2">
-          <img src="https://i.imgur.com/UKiLRll.jpeg" alt="Wyndham Royal 3">
-          <img src="https://i.imgur.com/cD4I3pX.jpeg" alt="Wyndham Royal 4">
-          <img src="https://i.imgur.com/wAnVr9T.jpeg" alt="Wyndham Royal 5">
-          <img src="https://i.imgur.com/7ExLNbI.jpeg" alt="Wyndham Royal 6">
-          <img src="https://i.imgur.com/ptpX7Ti.jpeg" alt="Wyndham Royal 7">
-          <img src="https://i.imgur.com/GHtjGQK.jpeg" alt="Wyndham Royal 8">
-          <img src="https://i.imgur.com/tnuVQOh.jpeg" alt="Wyndham Royal 9">
-          <img src="https://i.imgur.com/KxSsPe6.jpeg" alt="Wyndham Royal 10">
-      </div>
+    <div class="resort-title">Wyndham Royal</div>
+    <a href="wyndham.html" class="resort-link" target="_blank">Ver página exclusiva do Wyndham Royal</a>
+    <div class="gallery">
+      <img src="https://i.imgur.com/iDMQ2XA.jpeg" alt="Wyndham Royal 1">
+      <img src="https://i.imgur.com/WOhzcpP.jpeg" alt="Wyndham Royal 2">
+      <img src="https://i.imgur.com/UKiLRll.jpeg" alt="Wyndham Royal 3">
+      <img src="https://i.imgur.com/cD4I3pX.jpeg" alt="Wyndham Royal 4">
+      <img src="https://i.imgur.com/wAnVr9T.jpeg" alt="Wyndham Royal 5">
+      <img src="https://i.imgur.com/7ExLNbI.jpeg" alt="Wyndham Royal 6">
+      <img src="https://i.imgur.com/ptpX7Ti.jpeg" alt="Wyndham Royal 7">
+      <img src="https://i.imgur.com/GHtjGQK.jpeg" alt="Wyndham Royal 8">
+      <img src="https://i.imgur.com/tnuVQOh.jpeg" alt="Wyndham Royal 9">
+      <img src="https://i.imgur.com/KxSsPe6.jpeg" alt="Wyndham Royal 10">
+    </div>
   </div>
-  <!-- JUQUEHY -->
+  <!-- Juquehy -->
   <div class="gallery-block" id="juquehy">
-      <div class="resort-title">Praia de Juquehy</div>
-      <a href="juquehy.html" class="resort-link" target="_blank">Ver página exclusiva da Praia de Juquehy</a>
-      <div class="gallery">
-          <img src="https://i.imgur.com/SxlktwS.jpeg" alt="Praia de Juquehy 1">
-          <img src="https://i.imgur.com/uORu8RN.jpeg" alt="Praia de Juquehy 2">
-          <img src="https://i.imgur.com/6W559IH.jpeg" alt="Praia de Juquehy 3">
-          <img src="https://i.imgur.com/OEzuUL0.jpeg" alt="Praia de Juquehy 4">
-      </div>
+    <div class="resort-title">Praia de Juquehy</div>
+    <a href="juquehy.html" class="resort-link" target="_blank">Ver página exclusiva da Praia de Juquehy</a>
+    <div class="gallery">
+      <img src="https://i.imgur.com/SxlktwS.jpeg" alt="Praia de Juquehy 1">
+      <img src="https://i.imgur.com/uORu8RN.jpeg" alt="Praia de Juquehy 2">
+      <img src="https://i.imgur.com/6W559IH.jpeg" alt="Praia de Juquehy 3">
+      <img src="https://i.imgur.com/OEzuUL0.jpeg" alt="Praia de Juquehy 4">
+    </div>
   </div>
 </div>
-
 <!-- DEPOIMENTOS CARROSSEL -->
 <section class="depo-section" id="depoimentos">
   <h2 class="depo-title">O que nossos clientes dizem</h2>
@@ -446,8 +423,6 @@ function closeMenu() {
 menuHamburger.onclick = openMenu;menuClose.onclick = closeMenu;
 menuMobileBg.onclick = function(e) { if(e.target===this) closeMenu(); };
 menuMobile.querySelectorAll('a').forEach(a=>a.onclick = closeMenu);
-
-// Modo noturno/luz
 const mbtn = document.getElementById('modeToggleBtn');
 mbtn.addEventListener('click',()=>{
   let html=document.documentElement;
@@ -455,7 +430,6 @@ mbtn.addEventListener('click',()=>{
   html.setAttribute('data-theme', atual==='dark'?'light':'dark');
   mbtn.innerText = html.getAttribute('data-theme')==='dark' ? '🌓' : '🌞';
 });
-// Tabs galeria
 document.addEventListener('DOMContentLoaded', function() {
   const tabs = document.querySelectorAll('.tab');
   const blocks = document.querySelectorAll('.gallery-block');
@@ -499,7 +473,6 @@ function removerImovel(idx){
   renderImoveis();
 }
 renderImoveis();
-// CONSULTA
 function buscarImoveis(){
   let pessoas=Number(document.getElementById('pessoas').value)||1;
   let dorm=document.getElementById('filtroDorm').value;
