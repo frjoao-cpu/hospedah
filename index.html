@@ -13,62 +13,86 @@
   .menu-hamburger{position:fixed;top:18px;left:17px;z-index:1301;background:var(--azul);color:var(--dourado);border:none;border-radius:8px;width:48px;height:48px;display:flex;align-items:center;justify-content:center;font-size:2em;cursor:pointer;}
   .menu-hamburger:active{background:var(--dourado);color:var(--azul);}
   .menu-nav{position:fixed;top:0;left:0;height:100vh;width:0;transition:width .23s cubic-bezier(.4,1,.4,1);overflow-x:hidden;background:var(--menu-bg);z-index:1300;}
-  .menu-nav.open{width:235px;box-shadow:8px 0 28px #0002;}
-  .menu-close{position:absolute;top:17px;right:13px;background:none;border:none;font-size:2em;color:var(--azul);cursor:pointer;}
-  .menu-nav ul{list-style:none;margin:0;padding:66px 0 0 0;display:flex;flex-direction:column;gap:12px;}
-  .menu-nav a{color:var(--azul);background:none;text-decoration:none;font-weight:600;padding:12px 25px;border-radius:14px;font-size:1.09em;transition:.16s;}
-  .menu-nav a:hover,.menu-nav a:focus{background:#f7f3da;color:var(--dourado);}
+  .menu-nav.open{width:265px;box-shadow:8px 0 38px #0002;}
+  .menu-close{position:absolute;top:17px;right:19px;background:none;border:none;font-size:2.3em;color:var(--azul);cursor:pointer;}
+  .menu-nav ul{list-style:none;margin:0;padding:78px 0 0 0;display:flex;flex-direction:column;gap:19px;}
+  .menu-nav a{color:var(--azul);background:none;text-decoration:none;font-weight:700;padding:17px 27px;border-radius:15px;font-size:1.19em;transition:background .16s;}
+  .menu-nav a:hover,.menu-nav a:focus{background:var(--dourado);color:var(--azul);}
   @media(min-width:900px){
     .menu-hamburger{display:none;}
     .menu-nav{position:static;width:100vw!important;max-width:none;height:auto;box-shadow:none;}
     .menu-nav.open{box-shadow:none;}
     .menu-nav ul{flex-direction:row;padding:0;}
-    .menu-nav a{font-size:1em;padding:13px 18px;}
+    .menu-nav a{font-size:1.05em;padding:17px 23px;}
     .menu-close{display:none;}
   }
-  .modo-toggle{position:fixed;right:20px;top:17px;z-index:1401;}
-  .modo-toggle button{background:#132042;color:var(--dourado);border-radius:28px;padding:7px 17px;font-weight:600;border:none;cursor:pointer;font-size:16px;}
-  /* Carrossel topo premium */
-  #banner-carrossel-bg{position:relative;width:100vw;z-index:1;height:540px;min-height:320px;overflow:hidden;}
-  .banner-carrossel-img{width:100vw;height:100%;object-fit:cover;object-position:center;z-index:1;position:absolute;left:0;top:0;opacity:0;transition:opacity 1.6s,transform 2.3s;}
-  .banner-carrossel-img.active{opacity:1;transform:scale(1.09);}
-  #espaco-carrossel{width:100%;height:540px;}
-  @media (max-width:900px){#banner-carrossel-bg,.banner-carrossel-img,#espaco-carrossel{height:300px;}}
-  /* Faixa logo topo */
-  #faixa-topo-logo{position:relative;z-index:4;display:flex;flex-direction:column;align-items:center;margin-top:-210px;}
-  .faixa-logo-caixa{
-    background:white;
-    border-radius:42px;
-    padding:95px 44px 65px 44px; margin-bottom:19px;
-    box-shadow:0 20px 62px #2e30922c, 0 2px 20px #2222;
-    display:flex;flex-direction:column;align-items:center;
-    min-width:340px;max-width:98vw;text-align:center;
+  .modo-toggle{position:fixed;right:18px;top:19px;z-index:1401;}
+  .modo-toggle button{background:#132042;color:var(--dourado);border-radius:28px;padding:8px 17px;font-weight:700;border:none;cursor:pointer;font-size:18px;}
+  /* Carrossel topo + faixa logo premium ALTA */
+  #topo-principal {
+    width:100vw;overflow:hidden;position:relative;display:flex;flex-direction:column;align-items:center;background:#111;min-height:980px;justify-content:flex-start;
   }
-  .logo-simbolo{max-width:153px;width:27vw;background:transparent;display:block;margin:0 auto 17px auto;}
-  .insta-top{margin:9px 0;display:inline-block;padding:13px 33px;border-radius:33px;background:linear-gradient(45deg,#833AB4,#E1306C,#FCAF45);text-decoration:none;color:#fff;font-size:18px;font-weight:500;}
-  .contatos-especialistas{
-    margin-top:33px;
-    display:flex;justify-content:center;gap:53px;}
-  .contato-b{background:rgba(211,211,211,0.15);border-radius:17px;padding:18px 32px 16px 18px;min-width:163px;display:flex;flex-direction:column;align-items:center;box-shadow:0 5px 32px #0B1C3D0B;}
-  .contato-b h3{color:#0A2A3B;font-size:1.13em;font-weight:700;margin:2px 0 0 0;}
-  .contato-b p{font-size:15px;color:var(--dourado);font-weight:600;margin:7px 0;}
-  .contato-b a.btn{margin-top:6px;padding:13px 27px;background:#25D366;border-radius:20px;color:#fff;text-decoration:none;font-size:17px;font-weight:700;}
-  @media (max-width:1000px){
-    .faixa-logo-caixa{padding:61px 3vw 45px 3vw;}
-    .contatos-especialistas{gap:12px;}
+  #banner-carrossel-bg{
+    width:100vw;height:78vh;min-height:520px;max-height:930px;position:relative;display:flex;align-items:center;justify-content:center;z-index:0;
+  }
+  .banner-carrossel-img{
+    width:100vw;min-height:520px;max-height:930px;height:78vh;object-fit:cover;object-position:center;position:absolute;left:0;top:0;opacity:0;transition:opacity 2s,transform 2.7s;z-index:0;
+  }
+  .banner-carrossel-img.active{opacity:1;transform:scale(1.13);}
+  .faixa-logo-caixa{
+    position:absolute;left:50%;top:56%;transform:translate(-50%,-50%);
+    background:white;border-radius:68px;
+    padding:158px 70px 108px 70px;
+    box-shadow:0 41px 90px #2e30922a, 0 2px 34px #2222;
+    min-width:350px;max-width:99vw;text-align:center;z-index:2;
+    display:flex;flex-direction:column;align-items:center;
+  }
+  .logo-simbolo{
+    max-width:210px;width:41vw;margin:0 auto 27px auto;display:block;background:transparent;
+  }
+  .insta-top{margin:28px 0 0 0;display:inline-block;padding:19px 43px;border-radius:44px;background:linear-gradient(45deg,#833AB4,#E1306C,#FCAF45);text-decoration:none;color:#fff;font-size:25px;font-weight:700;}
+  .contatos-especialistas{margin-top:57px;display:flex;justify-content:center;gap:80px;}
+  .contato-b{
+    background:rgba(211,211,211,0.12);border-radius:28px;padding:31px 47px 23px 29px;min-width:180px;display:flex;flex-direction:column;align-items:center;
+    box-shadow:0 13px 38px #0B1C3D13;
+  }
+  .contato-b h3{color:#0A2A3B;font-size:1.22em;font-weight:700;margin:11px 0 0 0;}
+  .contato-b p{font-size:18px;color:var(--dourado);font-weight:700;margin:11px 0;}
+  .contato-b a.btn{margin-top:10px;padding:20px 35px;background:#25D366;border-radius:35px;color:#fff;text-decoration:none;font-size:20px;font-weight:900;}
+  @media (max-width:1350px){
+    .faixa-logo-caixa{padding:82px 2vw 61px 2vw;}
+    .contatos-especialistas{gap:25px;}
   }
   @media (max-width:700px){
-    .faixa-logo-caixa{padding:31px 1vw 25px 1vw;}
-    #faixa-topo-logo{margin-top:-120px;}
-    .contatos-especialistas{gap:7px;}
-    .logo-simbolo{max-width:95px;}
+    .faixa-logo-caixa{padding:27px 2vw 21px 2vw;}
+    #topo-principal{min-height:370px;}
+    .logo-simbolo{max-width:119px;}
+    #banner-carrossel-bg,.banner-carrossel-img{min-height:185px;height:205px;max-height:290px;}
+    .contatos-especialistas{gap:11px;}
   }
-  /* Painel lado-a-lado */
+  /* Depoimentos carrossel central premium */
+  .depoimentos-section {padding:48px 3vw 55px 3vw;background:#fff;border-bottom:2px solid #eee;}
+  .depo-title {text-align:center;font-size:1.22em;color:#D4AF37;margin-bottom:21px;}
+  .depo-carousel-wrap {max-width:445px;margin:0 auto;position:relative;}
+  .depo-carousel-inner {overflow:hidden;}
+  .depo-card {background:linear-gradient(100deg,#fffbe7 70%,#fbecd1 100%);color:#191919;border-radius:21px;max-width:430px;min-height:320px;padding:38px 32px 23px 32px;text-align:center;position:absolute;width:100%;left:0;top:0;opacity:0;transition:all .44s cubic-bezier(.68,-0.55,.27,1.55);}
+  .depo-card.active {opacity:1;position:relative;}
+  .depo-card img{width:69px;height:69px;border-radius:50%;margin-bottom:15px;}
+  .depo-stars{color:gold;font-size:1.23em;margin-bottom:8px;letter-spacing:1.2px;}
+  .depo-card p{font-size:1.09em;margin:0 0 13px 0;}
+  .depo-nome{font-weight:bold;margin-top:3px;font-size:1.06em;}
+  .depo-cidade{font-size:1em;color:#b9aa92;}
+  .depo-carousel-arrows {text-align:center;margin-top:23px;}
+  .depo-carousel-btn {background:var(--dourado);color:#fff;border:none;border-radius:50%;width:36px;height:36px;cursor:pointer;font-size:1.5em;margin:0 13px;}
+  .depo-carousel-dots {text-align:center;margin:27px 0 0 0;}
+  .depo-carousel-dot{display:inline-block;width:15px;height:15px;background:#ecd498;border-radius:50%;margin:0 8px;cursor:pointer;}
+  .depo-carousel-dot.active{background:var(--dourado);}
+  /* Painel lado-a-lado, barra pré-consulta, galeria, tabs igual exemplos anteriores... */
   #painel-completo{display:grid;grid-template-columns:1fr 1fr;gap:45px;max-width:1240px;margin:0 auto 64px auto;align-items:stretch;}
   #barra-preconsulta, #painel-empreendimento{
     background:#fff;box-shadow:0 2px 24px #4444;padding:28px 17px 18px 17px;border-radius:20px;display:flex;flex-direction:column;gap:10px;z-index:3;
   }
-  #painel-empreendimento{background:rgba(255,255,255,.94);}
+  #painel-empreendimento{background:rgba(255,255,255,.95);}
   label{color:#888;font-size:14px;display:block;margin-bottom:2px;font-weight:600;}
   #barra-preconsulta input,#painel-empreendimento input,#painel-empreendimento textarea,#painel-empreendimento select{width:100%;border-radius:10px;padding:11px 9px;font-size:1.07em;border:1px solid #ccc;}
   #painel-empreendimento textarea{min-height:45px;}
@@ -76,14 +100,13 @@
   #sugestoesDest button{display:block;width:100%;text-align:left;background:none;border:none;padding:13px 13px;font-size:1.1em;color:#333;font-family:'Poppins',sans-serif;cursor:pointer;}
   #sugestoesDest button:hover{background:var(--dourado);color:var(--azul);}
   #barra-preconsulta button, #painel-empreendimento button{
-    background:var(--dourado);color:var(--azul);font-weight:700;font-size:1.14em;padding:13px 0;border-radius:13px;border:none;margin-top:7px;display:flex;align-items:center;gap:11px;box-shadow:0 2px 16px #0b1c3d18;cursor:pointer;justify-content:center;
+    background:var(--dourado);color:var(--azul);font-weight:700;font-size:1.18em;padding:13px 0;border-radius:13px;border:none;margin-top:7px;display:flex;align-items:center;gap:12px;box-shadow:0 2px 16px #0b1c3d18;cursor:pointer;justify-content:center;
   }
   #painel-empreendimento button{background:var(--azul);color:var(--dourado);}
   #painel-empreendimento button:hover{background:var(--dourado);color:var(--azul);}
   #barra-preconsulta button:hover{background:goldenrod;color:#fff;}
   .sucesso-msg{color:green;font-size:1.07em;margin-top:7px;}
   @media(max-width:1100px){#painel-completo{grid-template-columns:1fr;max-width:600px;gap:35px;}}
-  /* Galeria e depoimentos igual exemplos anteriores */
   .section{padding:40px 10px 28px 10px;text-align:center;}
   .tabs{display:flex;justify-content:center;gap:7px;margin-bottom:22px;flex-wrap:wrap;}
   .tab{padding:10px 24px;background:#fff1;border-radius:22px 22px 0 0;font-size:17px;color:var(--dourado);border:none;cursor:pointer;outline:none;font-weight:600;}
@@ -95,16 +118,15 @@
   .gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;justify-items:center;}
   .gallery img{width:100%;max-width:380px;height:220px;object-fit:cover;border-radius:14px;box-shadow:0 2px 12px #0001;}
   @media (max-width:500px) {.gallery img{height:95px;}}
-  .depoimentos-section {padding:30px 3vw 44px 3vw;background:#fff;}
-  .depo-title {text-align:center;font-size:1.16em;color:#D4AF37;margin-bottom:20px;}
   </style>
 </head>
 <body>
+<!-- MENU LATERAL -->
 <button class="menu-hamburger" id="menuHamburger" aria-label="Abrir menu">☰</button>
 <nav class="menu-nav" id="menuNav" aria-label="Menu principal">
   <button class="menu-close" id="menuClose" aria-label="Fechar menu">&times;</button>
   <ul>
-    <li><a href="#faixa-topo-logo" class="nav-link">Início</a></li>
+    <li><a href="#topo-principal" class="nav-link">Início</a></li>
     <li><a href="#painel-completo" class="nav-link">Painel</a></li>
     <li><a href="#galeria" class="nav-link">Galeria</a></li>
     <li><a href="#depoimentos" class="nav-link">Avaliações</a></li>
@@ -113,19 +135,15 @@
 <div class="modo-toggle">
   <button id="modeToggleBtn" aria-label="Trocar tema">🌓</button>
 </div>
-
-<!-- CARROSSEL CINEMATOGRAFICO -->
-<div id="espaco-carrossel"></div>
-<div id="banner-carrossel-bg"></div>
-
-<div id="faixa-topo-logo">
+<div id="topo-principal">
+  <!-- CARROSSEL ALTO, TODAS FOTOS DA GALERIA -->
+  <div id="banner-carrossel-bg"></div>
   <div class="faixa-logo-caixa">
-    <!-- SVG exemplo; troque pelo PNG transparente se desejar -->
     <svg class="logo-simbolo" viewBox="0 0 140 140" width="130" height="130">
       <circle cx="70" cy="70" r="62" stroke="#D4AF37" stroke-width="6" fill="none"/>
       <path d="M70 24 L105 120 L35 120 Z" fill="#0B1C3D"/>
     </svg>
-    <!-- <img src="logo-png-simbolo.png" class="logo-simbolo" alt="Logo HOSPEDAH"> -->
+    <!--<img src="logo-png-simbolo.png" class="logo-simbolo" alt="Logo HOSPEDAH">-->
     <a href="https://www.instagram.com/julianasilvaoliveira.joao?igsh=bzZmNGIxdjdqc285" class="insta-top" target="_blank">📸 Instagram Oficial</a>
     <div class="contatos-especialistas">
       <div class="contato-b">
@@ -141,6 +159,19 @@
     </div>
   </div>
 </div>
+
+<!-- DEPOIMENTOS CARROSSEL (mantidos) -->
+<section class="depoimentos-section" id="depoimentos">
+  <h2 class="depo-title">O que nossos clientes dizem</h2>
+  <div class="depo-carousel-wrap" tabindex="0">
+    <div class="depo-carousel-inner">
+      <div class="depo-card active"><img src="https://i.imgur.com/ep4Ng4e.jpeg"><div class="depo-stars">★★★★★</div><p>“A melhor experiência de viagem que já tive. Atendimento super rápido e opções excelentes!”</p><div class="depo-nome">Cordélia S.</div><div class="depo-cidade">Rio Preto, SP</div></div>
+      <div class="depo-card"><img src="https://i.imgur.com/dciabUo.jpeg"><div class="depo-stars">★★★★★</div><p>“Fechei sem medo! Equipe muito confiável, recomendo para todos que buscam férias tranquilas.”</p><div class="depo-nome">Ricardo A.</div><div class="depo-cidade">São Paulo, SP</div></div>
+    </div>
+    <div class="depo-carousel-arrows"><button class="depo-carousel-btn" id="depoPrev">&#8592;</button><button class="depo-carousel-btn" id="depoNext">&#8594;</button></div>
+    <div class="depo-carousel-dots"><span class="depo-carousel-dot active"></span><span class="depo-carousel-dot"></span></div>
+  </div>
+</section>
 
 <!-- PAINEL LADO-A-LADO -->
 <div id="painel-completo">
@@ -248,20 +279,8 @@
     </div></div>
 </div>
 
-<section class="depoimentos-section" id="depoimentos">
-  <h2 class="depo-title">O que nossos clientes dizem</h2>
-  <div class="depo-carousel-wrap" tabindex="0">
-    <div class="depo-carousel-inner">
-      <div class="depo-card active"><img src="https://i.imgur.com/ep4Ng4e.jpeg"><div class="depo-stars">★★★★★</div><p>“A melhor experiência de viagem que já tive. Atendimento super rápido e opções excelentes!”</p><div class="depo-nome">Cordélia S.</div><div class="depo-cidade">Rio Preto, SP</div></div>
-      <div class="depo-card"><img src="https://i.imgur.com/dciabUo.jpeg"><div class="depo-stars">★★★★★</div><p>“Fechei sem medo! Equipe muito confiável, recomendo para todos que buscam férias tranquilas.”</p><div class="depo-nome">Ricardo A.</div><div class="depo-cidade">São Paulo, SP</div></div>
-    </div>
-    <div class="depo-carousel-arrows"><button class="depo-carousel-btn" id="depoPrev">&#8592;</button><button class="depo-carousel-btn" id="depoNext">&#8594;</button></div>
-    <div class="depo-carousel-dots"><span class="depo-carousel-dot active"></span><span class="depo-carousel-dot"></span></div>
-  </div>
-</section>
-
 <script>
-// Menu lateral hamburger
+// MENU
 const menuHamburger = document.getElementById('menuHamburger');
 const menuNav = document.getElementById('menuNav');
 const menuClose = document.getElementById('menuClose');
@@ -279,21 +298,15 @@ document.querySelectorAll('.nav-link').forEach(link =>{
 });
 menuHamburger.onclick = ()=>{ menuNav.classList.add('open');document.body.style.overflow='hidden'; };
 menuClose.onclick = ()=>{ menuNav.classList.remove('open');document.body.style.overflow=''; };
-// Carrossel topo = TODAS IMAGENS DA GALERIA!
+// CARROSSEL PREMIUM (TODAS AS FOTOS DA GALERIA DE TODAS AS ABAS)
 const imgs = [
-  // Hot Beach
   "https://i.imgur.com/AmFSwwd.jpeg","https://i.imgur.com/PMok8fe.jpeg","https://i.imgur.com/bOOUiLE.jpeg",
   "https://i.imgur.com/aKhDzXz.jpeg","https://i.imgur.com/7lhbeim.jpeg","https://i.imgur.com/nw9K59D.jpeg",
   "https://i.imgur.com/USBb1tj.jpeg","https://i.imgur.com/8b52cpI.jpeg","https://i.imgur.com/XFT7Fs2.jpeg","https://i.imgur.com/eydR2bp.jpeg",
-  // São Pedro
   "https://i.imgur.com/pyEKOtQ.jpeg","https://i.imgur.com/1HeNjKT.jpeg",
-  // Olimpia Park
   "https://i.imgur.com/AseZPzL.jpeg","https://i.imgur.com/uhGHhcA.jpeg",
-  // Solar das Águas
   "https://i.imgur.com/S4tSUzG.jpeg",
-  // Wyndham Royal
   "https://i.imgur.com/iDMQ2XA.jpeg",
-  // Juquehy
   "https://i.imgur.com/SxlktwS.jpeg"
 ];
 const divCarr = document.getElementById('banner-carrossel-bg');
@@ -310,6 +323,21 @@ function trocaBanner(){
 }
 setInterval(trocaBanner,4200);
 window.onload=trocaBanner;
+// Depoimentos carrossel
+(function(){
+  const cards = document.querySelectorAll('.depo-card');
+  const dots = document.querySelectorAll('.depo-carousel-dot');
+  let current = 0, max = cards.length;
+  function show(idx) {
+    cards.forEach((c,i)=>c.classList.toggle('active',i===idx));
+    dots.forEach((d,i)=>d.classList.toggle('active',i===idx));
+    current = idx;
+  }
+  document.getElementById('depoNext').onclick = () => show((current+1)%max);
+  document.getElementById('depoPrev').onclick = () => show((current+max-1)%max);
+  dots.forEach((dot,i)=>dot.onclick=()=>show(i));
+  setInterval(()=>show((current+1)%max), 7000);
+})();
 // Destino autocomplete
 const destinosArr = [
   "Hot Beach","Olimpia Park","São Pedro","Wyndham Royal","Solar das Águas","Praia de Juquehy"
@@ -329,13 +357,12 @@ sugestoes.onclick = function(ev){
 document.body.onclick = function(ev){
   if(ev.target!==destinoInput && ev.target.parentNode!==sugestoes) sugestoes.style.display='none';
 };
-// Pré-consulta
+// Pré-consulta e cadastro
 document.getElementById("barra-preconsulta").onsubmit = function(e){
   e.preventDefault();
   this.querySelector(".sucesso-msg").style.display="block";
   setTimeout(()=>{this.querySelector(".sucesso-msg").style.display="none";}, 1500);this.reset();
 };
-// Cadastro proprietário automação
 document.getElementById("painel-empreendimento").onsubmit = function(e){
   e.preventDefault();
   this.querySelector(".sucesso-msg").style.display="block";
