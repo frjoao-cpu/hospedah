@@ -9,23 +9,20 @@
 :root {
   --dourado: #D4AF37;
   --azul: #0B1C3D;
-  --bg-claro: #fff;
-  --bg-grad: linear-gradient(135deg,#0B1C3D,#142850);
-  --cor-foco: #e7c343;
 }
-html[data-theme="dark"] body { background: var(--bg-grad); color: #fff; }
-html[data-theme="light"] body { background: var(--bg-claro); color: #191919; }
-body{margin:0;padding:0;box-sizing:border-box;font-family:Poppins,sans-serif;background:#f4f6fa;}
+html[data-theme="dark"] body { background: linear-gradient(135deg,#0B1C3D,#142850); color: #fff; }
+html[data-theme="light"] body { background: #fff; color: #191919; }
+body{margin:0;padding:0;box-sizing:border-box;font-family:Poppins,sans-serif;}
 .menu-toggle{
   position:fixed;top:16px;left:16px;z-index:2021;
   display:flex;align-items:center;justify-content:center;
   font-size:32px;padding:12px 20px;cursor:pointer;background:#0B1C3D;color:#D4AF37;
   border:none;border-radius:11px;box-shadow:0 2px 8px #23244a33;
 }
-.menu-mobile-bg {display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(8,14,28,0.15);z-index:2020;}
+.menu-mobile-bg {display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(8,14,28,0.14);z-index:2020;}
 .menu-mobile-bg.open {display:block;}
 .menu-mobile{
-  position:fixed;top:0;left:0;width:265px;max-width:98vw;height:100vh;background:#fff;z-index:2022;box-shadow:8px 0 22px #18181922;
+  position:fixed;top:0;left:0;width:265px;max-width:97vw;height:100vh;background:#fff;z-index:2022;box-shadow:8px 0 22px #18181922;
   transform:translateX(-112%);transition:transform .3s cubic-bezier(.62,.32,.48,.98);display:flex;flex-direction:column;}
 .menu-mobile.open { transform:translateX(0);}
 .menu-mobile .menu-close{background:none;border:none;color:#0B1C3D;font-size:2.5em;width:44px;height:44px;align-self:flex-end;margin:16px 18px 8px 0;cursor:pointer;}
@@ -43,16 +40,11 @@ body{margin:0;padding:0;box-sizing:border-box;font-family:Poppins,sans-serif;bac
 .hero img.bg-slide:nth-child(6){animation-delay:40s;}
 @keyframes slide {0%{opacity:0;}6%{opacity:1;}25%{opacity:1;}35%{opacity:0;}100%{opacity:0;}}
 @keyframes zoom { from{transform:scale(1);} to{transform:scale(1.09);} }
-.overlay { position:absolute; width:100%; height:100%; background:rgba(0,0,0,0.21); top:0; left:0; }
+.overlay { position:absolute; width:100%; height:100%; background:rgba(0,0,0,0.20); top:0; left:0; }
 .content-hero { position:relative; z-index:2; height:100%; display:flex; justify-content:center; align-items:center; }
 .logo-hero {
-  width:410px;
-  background:rgba(255,255,255,0.90);
-  border-radius:34px;
-  box-shadow:0 8px 38px #0002;
-  padding:10px 18px;
-  max-width:98vw;
-  display:block;
+  width:410px; background:rgba(255,255,255,0.95); border-radius:34px;
+  box-shadow:0 8px 38px #0002; padding:10px 18px; max-width:98vw; display:block;
 }
 @media(max-width:480px){.logo-hero{width:98vw;padding:3vw;}}
 .tabs {display:flex;justify-content:center;gap:10px;margin:38px auto 18px auto;flex-wrap:wrap;max-width:98vw;}
@@ -125,7 +117,6 @@ body{margin:0;padding:0;box-sizing:border-box;font-family:Poppins,sans-serif;bac
     <a href="#juquehy">Juquehy</a>
   </nav>
 </div>
-<!-- HERO -->
 <div class="hero">
   <img class="bg-slide" src="https://i.imgur.com/AmFSwwd.jpeg" alt="">
   <img class="bg-slide" src="https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=crop&w=900&q=80" alt="">
@@ -138,8 +129,7 @@ body{margin:0;padding:0;box-sizing:border-box;font-family:Poppins,sans-serif;bac
     <img src="https://i.imgur.com/ITjjQaf.jpeg" class="logo-hero" alt="HOSPEDAH">
   </div>
 </div>
-
-<!-- TABS + GALERIAS -->
+<!-- TABS + GALERIAS resorts -->
 <div class="tabs">
   <button class="tab active" data-block="hotbeach">🏨 Hot Beach</button>
   <button class="tab" data-block="saopedro">♨️ São Pedro</button>
@@ -148,7 +138,6 @@ body{margin:0;padding:0;box-sizing:border-box;font-family:Poppins,sans-serif;bac
   <button class="tab" data-block="wyndham">👑 Wyndham Royal</button>
   <button class="tab" data-block="juquehy">🌊 Juquehy</button>
 </div>
-
 <div class="gallery-block active" id="hotbeach">
   <div class="resort-title">🏨 Hot Beach Suites</div>
   <a href="hotbeach.html" class="resort-link" target="_blank">Ver página exclusiva do Hot Beach</a>
@@ -233,35 +222,20 @@ body{margin:0;padding:0;box-sizing:border-box;font-family:Poppins,sans-serif;bac
     <img src="https://i.imgur.com/OEzuUL0.jpeg" alt="Praia de Juquehy 4">
   </div>
 </div>
-
-<!-- LIGHTBOX -->
 <div class="lb-bg" id="lbBg">
   <button class="lb-close" id="lbClose" aria-label="Fechar Imagem">&times;</button>
   <img src="" class="lb-img" id="lbImg" alt="">
 </div>
-
-<!-- Faixa de especialistas -->
 <div class="faixa-logo">
   <span class="faixa-logo-tit">Especialistas em hospedagens exclusivas</span>
   <a href="https://www.instagram.com/julianasilvaoliveira.joao?igsh=bzZmNGIxdjdqc285" class="insta-top" target="_blank">📸 Instagram Oficial</a>
   <div class="contatos-topo">
-    <div class="contato-b">
-      <h3>Flávio</h3>
-      <p>Especialista em Hospedagens</p>
-      <a class="btn" href="https://wa.me/5517982006382" target="_blank">WhatsApp</a>
-    </div>
-    <div class="contato-b">
-      <h3>Juliana</h3>
-      <p>Especialista em Hospedagens</p>
-      <a class="btn" href="https://wa.me/5517992068296" target="_blank">WhatsApp</a>
-    </div>
+    <div class="contato-b"><h3>Flávio</h3><p>Especialista em Hospedagens</p><a class="btn" href="https://wa.me/5517982006382" target="_blank">WhatsApp</a></div>
+    <div class="contato-b"><h3>Juliana</h3><p>Especialista em Hospedagens</p><a class="btn" href="https://wa.me/5517992068296" target="_blank">WhatsApp</a></div>
   </div>
 </div>
-
-<!-- Painel admin/consulta LADO A LADO -->
 <section class="painel-duo" id="painel-duo">
-  <form class="painel-box" id="painelAdmin">
-    <h2>Cadastre seu empreendimento</h2>
+  <form class="painel-box" id="painelAdmin"><h2>Cadastre seu empreendimento</h2>
     <input id="nomeImovel" placeholder="Nome do imóvel" maxlength="70" required autocomplete="off"/>
     <input id="telefoneImovel" placeholder="Telefone" maxlength="30" required autocomplete="off"/>
     <textarea id="obsImovel" placeholder="Observações/mensagem" maxlength="255" autocomplete="off"></textarea>
@@ -294,11 +268,9 @@ body{margin:0;padding:0;box-sizing:border-box;font-family:Poppins,sans-serif;bac
     <div id="resultadoBusca"></div>
   </form>
 </section>
-
-<!-- DEPOIMENTOS CARROSSEL -->
 <section class="depo-section" id="depoimentos">
   <h2 class="depo-title">O que nossos clientes dizem</h2>
-  <div class="depo-carousel-wrap" tabindex="0" aria-label="Depoimentos em carrossel">
+  <div class="depo-carousel-wrap" tabindex="0">
     <div class="depo-carousel-inner">
       <div class="depo-card active">
         <img src="https://i.imgur.com/ep4Ng4e.jpeg" alt="Cordélia S.">
@@ -349,13 +321,8 @@ body{margin:0;padding:0;box-sizing:border-box;font-family:Poppins,sans-serif;bac
     </div>
   </div>
 </section>
-
-<div class="modo-toggle">
-  <button id="modeToggleBtn" aria-label="Trocar tema">🌓</button>
-</div>
-
+<div class="modo-toggle"><button id="modeToggleBtn" aria-label="Trocar tema">🌓</button></div>
 <script>
-// MENU HAMBURGUER
 (function(){
   const menuHamburger = document.getElementById('menuHamburger');
   const menuMobile = document.getElementById('menuMobile');
@@ -366,7 +333,6 @@ body{margin:0;padding:0;box-sizing:border-box;font-family:Poppins,sans-serif;bac
   menuMobileBg.onclick = function(e){if(e.target===this){menuMobileBg.classList.remove('open');menuMobile.classList.remove('open');}};
   menuMobile.querySelectorAll('a').forEach(a=>a.onclick = function(){menuMobileBg.classList.remove('open');menuMobile.classList.remove('open');});
 })();
-// TABS GALERIA
 (function(){
   const tabs = document.querySelectorAll('.tabs .tab');
   const blocks = document.querySelectorAll('.gallery-block');
@@ -378,7 +344,6 @@ body{margin:0;padding:0;box-sizing:border-box;font-family:Poppins,sans-serif;bac
     });
   });
 })();
-// LIGHTBOX
 (function(){
   const lbBg = document.getElementById('lbBg');
   const lbImg = document.getElementById('lbImg');
@@ -392,7 +357,6 @@ body{margin:0;padding:0;box-sizing:border-box;font-family:Poppins,sans-serif;bac
   lbClose.onclick = function(){lbBg.classList.remove('open');lbImg.src="";};
   lbBg.onclick = function(e){if(e.target===lbBg){lbBg.classList.remove('open');lbImg.src="";}};
 })();
-// PAINEL ADMIN
 let imoveis = JSON.parse(localStorage.getItem('imoveis') || '[]');
 function renderImoveis(){
   const div = document.getElementById('listaImoveis');
@@ -423,7 +387,6 @@ function removerImovel(idx){
   renderImoveis();
 }
 renderImoveis();
-// CONSULTA
 function buscarImoveis(){
   let pessoas=Number(document.getElementById('pessoas').value)||1;
   let dorm=document.getElementById('filtroDorm').value;
@@ -448,7 +411,6 @@ function consultarImovel(nome,preco){
   let msg=encodeURIComponent(`Olá! Gostaria de consultar disponibilidade:%0A%0A👤 Nome: ${cliente}%0A📞 Contato: ${contato}%0A🏨 Imóvel: ${nome}%0A📅 Entrada: ${entrada}%0A📅 Saída: ${saida}%0A👨‍👩‍👧‍👦 Pessoas: ${pessoas}%0A🛏️ Dormitórios: ${dorm}%0A💰 Valor base: R$ ${preco}`);
   window.open(`https://wa.me/5517982006382?text=${msg}`,'_blank');
 }
-// DEPOIMENTOS CARROSSEL
 (function(){
   const cards=document.querySelectorAll('.depo-card');
   const dots=document.querySelectorAll('.depo-carousel-dot');
@@ -463,7 +425,6 @@ function consultarImovel(nome,preco){
   dots.forEach((dot,i)=>dot.onclick=()=>show(i));
   setInterval(()=>show((current+1)%max), 8000);
 })();
-// MODO NOTURNO
 const mbtn = document.getElementById('modeToggleBtn');
 mbtn.addEventListener('click',()=>{
   let html=document.documentElement;
