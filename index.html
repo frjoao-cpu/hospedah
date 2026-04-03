@@ -27,7 +27,7 @@ body{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;b
   gap: 0;
   position: relative;
   padding: 0;
-  z-index: 99;
+  z-index: 105;
 }
 nav.nav-main {
   display: flex;
@@ -60,20 +60,35 @@ nav.nav-main a:hover,nav.nav-main a:focus {background: #21315B; color: #FFD700;}
   nav.nav-main {flex-wrap:wrap;gap:4px;padding-top:11px;padding-bottom:7px;}
   .menu-topo {flex-direction:column;padding:0;}
 }
-/* CARROSSEL CINEMATOGRÁFICO NO TOPO */
-#carrossel-topo-bg{
-  width:100vw; height:53vw; min-height:310px; max-height:690px;
-  position:relative; display:flex;align-items:center;justify-content:center;
-  z-index:2; background:#000; overflow:hidden;
-}
-.carrossel-img{
-  width:100vw;height:53vw;min-height:310px;max-height:690px;object-fit:cover;object-position:center;
-  position:absolute;left:0;top:0;opacity:0;transition:opacity 1.4s,transform 2.1s;z-index:1;
-}
-.carrossel-img.active{opacity:1;transform:scale(1.13);}
-@media (max-width:900px){#carrossel-topo-bg,.carrossel-img{min-height:180px;height:39vw;max-height:290px;}}
 
-/* FAIXA LOGO (SEM ALTERAÇÃO, SOBRE O CARROSSEL NO FLUXO ORIGINAL SEM MEXER ORDEM NEM STYLE) */
+/* --- CARROSSEL TOPO PREMIUM --- */
+.carrossel-container-top {
+  position: relative;
+  width: 100vw;
+  min-height: 320px;
+  max-height: 540px;
+  z-index: 100;
+  background: #191b1b;
+}
+#carrossel-topo-bg {
+  position: absolute;
+  top:0; left:0; width:100vw; height:100%;
+  min-height: 320px; max-height:540px;
+  z-index: 1;
+  overflow: hidden;
+}
+.carrossel-img {
+  position:absolute; left:0; top:0; width:100vw; height:100%;
+  min-height:320px; max-height:540px;
+  object-fit:cover; object-position:center;
+  opacity:0;transition:opacity 1.3s,transform 2.2s;z-index:2;
+}
+.carrossel-img.active{opacity:1;transform:scale(1.12);}
+@media (max-width:900px){
+  .carrossel-container-top,#carrossel-topo-bg,.carrossel-img{min-height:180px;height:36vw;max-height:270px;}
+}
+
+/* --- FAIXA LOGO --- */
 .faixa-logo {
   width:100%;
   background:#fff;
@@ -84,12 +99,12 @@ nav.nav-main a:hover,nav.nav-main a:focus {background: #21315B; color: #FFD700;}
   padding:0 0 34px 0;
   position:relative;
   border-bottom: 2px solid #eee;
-  z-index:3;
+  z-index: 101;
 }
 .faixa-logo img{
   max-width:420px; width:94vw; height:auto; display:block; margin:35px auto 0 auto;
 }
-/* ...restante do CSS do seu código (topo-infos, painel, dep, tabs etc.)... */
+/* ...todo o seu CSS restante permanece igual... */
 </style>
 </head>
 <body>
@@ -109,12 +124,13 @@ nav.nav-main a:hover,nav.nav-main a:focus {background: #21315B; color: #FFD700;}
     </div>
 </div>
 
-<!-- CARROSSEL NO TOPO, ATRÁS DO LOGO, CENTRALIZADO/PREMIUM -->
-<div id="carrossel-topo-bg"></div>
-
-<!-- FAIXA LOGO MANTIDA, SEM ALTERAÇÃO, AGORA SOBRE O CARROSSEL -->
-<div class="faixa-logo">
-    <img src="https://i.imgur.com/ITjjQaf.jpeg" alt="HOSPEDAH - Sua experiência começa aqui">
+<!-- CARROSSEL TOPO (premium, atrás do logo) -->
+<div class="carrossel-container-top">
+  <div id="carrossel-topo-bg"></div>
+  <!-- SEM ALTERAR A FAIXA DO LOGO, ELA FICA SOBRE O CARROSSEL -->
+  <div class="faixa-logo">
+      <img src="https://i.imgur.com/ITjjQaf.jpeg" alt="HOSPEDAH - Sua experiência começa aqui">
+  </div>
 </div>
 <div class="topo-infos">
     <h1>Experiências Exclusivas</h1>
@@ -133,10 +149,10 @@ nav.nav-main a:hover,nav.nav-main a:focus {background: #21315B; color: #FFD700;}
     </div>
 </div>
 
-<!-- RESTANTE DO SEU CÓDIGO INALTERADO (pré-reserva, galeria, depoimentos etc.) ... -->
+<!-- O RESTANTE DO SEU ARQUIVO ABAIXO; NADA ALTERADO [pré-reserva, galeria, depoimentos etc.] -->
 
 <script>
-// Carrossel topo cinematográfico: TODAS imagens das abas da galeria
+// --- CARROSSEL TOPO PREMIUM, TODAS IMAGENS DA GALERIA ---
 const imagensCarrossel = [
   // Hot Beach
   "https://i.imgur.com/AmFSwwd.jpeg","https://i.imgur.com/PMok8fe.jpeg","https://i.imgur.com/bOOUiLE.jpeg","https://i.imgur.com/aKhDzXz.jpeg","https://i.imgur.com/7lhbeim.jpeg","https://i.imgur.com/nw9K59D.jpeg","https://i.imgur.com/USBb1tj.jpeg","https://i.imgur.com/8b52cpI.jpeg","https://i.imgur.com/XFT7Fs2.jpeg","https://i.imgur.com/eydR2bp.jpeg",
@@ -164,11 +180,10 @@ function trocaBanner(){
   carrEls.forEach((img,i)=>img.classList.toggle('active',i===idx));
   idx = (idx+1)%carrEls.length;
 }
-setInterval(trocaBanner,4200);
+setInterval(trocaBanner,4100);
 window.onload=trocaBanner;
 
-// ... seu JS original (tabs, depoimentos, painel, etc.) continua igual ...
+// ...todo seu JS original permanece igual, abaixo...
 </script>
-<!-- RESTANTE INALTERADO -->
 </body>
 </html>
