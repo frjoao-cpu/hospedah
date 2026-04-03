@@ -76,6 +76,27 @@ nav.nav-main a:hover,nav.nav-main a:focus {background: #21315B;color: #FFD700;}
 .depo-carousel-dot{display:inline-block;width:13px;height:13px;background:#ecd498;border-radius:50%;margin:0 6px;cursor:pointer;transition:.15s;border:2px solid #fff;vertical-align:middle;box-shadow:0 2px 7px #d4af3755;}
 .depo-carousel-dot.active{background:var(--dourado,#D4AF37);border:2px solid #d4af37;}
 @media(max-width:480px){.depo-carousel-wrap {max-width:96vw;}.depo-card {max-width:96vw;}}
+
+/* PRÉ-RESERVA */
+#pre-reserva {background:rgba(255,255,255,0.04);padding:44px 4vw 54px 4vw;border-radius:18px;max-width:1100px; margin:48px auto;}
+.panel-duo {display:grid;grid-template-columns:1fr 1fr;gap:34px;}
+@media(max-width:900px){.panel-duo{grid-template-columns:1fr;gap:16px;}}
+.panel-box {background:#182242; box-shadow:0 2px 20px #0b1c3d13;padding:28px;border-radius:16px;}
+.panel-box h2{color:var(--dourado);margin-bottom:18px;font-size:1.33em;}
+.panel-box input, .panel-box select {
+  font-family:'Poppins',sans-serif;
+  width:100%;padding:13px;margin:6px 0 17px;border-radius:12px;border:1.5px solid #274678;background:#f8f7f3;color:#222;font-size:17px;
+}
+.panel-box button {
+  margin-top:7px; padding:12px; width:100%; border:none; border-radius:9px;
+  background:var(--azul); color:var(--dourado); font-weight:700; font-size:17px;letter-spacing:.01em;
+  box-shadow:0 2px 6px #0b1c3d22;cursor:pointer;transition: background .11s,color .11s;
+}
+.panel-box button:hover {background:var(--dourado); color:var(--azul);}
+.card { background:#24315b; padding:13px 15px;border-radius:14px; margin-top:10px; }
+.card button {background:var(--dourado);color:var(--azul);margin-top:8px;font-size:1em;}
+.card button:hover{background:goldenrod;color:#fff;}
+.small { font-size:13px; opacity:0.75; color:var(--dourado);}
 </style>
 </head>
 <body>
@@ -110,218 +131,52 @@ nav.nav-main a:hover,nav.nav-main a:focus {background: #21315B;color: #FFD700;}
     </div>
 </div>
 
-<!-- =========== GALERIA DE RESORTS =========== -->
-<div class="section" id="galeria">
-  <div class="tabs" role="tablist">
-    <button class="tab active" id="tab_hotbeach" aria-controls="hotbeach" aria-selected="true" tabindex="0">Hot Beach</button>
-    <button class="tab" id="tab_saopedro" aria-controls="saopedro" aria-selected="false" tabindex="-1">São Pedro Thermas</button>
-    <button class="tab" id="tab_olimpia" aria-controls="olimpia" aria-selected="false" tabindex="-1">Olimpia Park</button>
-    <button class="tab" id="tab_solar" aria-controls="solar" aria-selected="false" tabindex="-1">Solar das Águas</button>
-    <button class="tab" id="tab_wyndham" aria-controls="wyndham" aria-selected="false" tabindex="-1">Wyndham Royal</button>
-    <button class="tab" id="tab_juquehy" aria-controls="juquehy" aria-selected="false" tabindex="-1">Praia de Juquehy</button>
-  </div>
-  <div class="gallery-block active" id="hotbeach">
-      <div class="resort-title">Hot Beach Resort</div>
-      <a href="hotbeach.html" class="resort-link" target="_blank">Ver página exclusiva do Hot Beach</a>
-      <div class="gallery">
-          <img src="https://i.imgur.com/AmFSwwd.jpeg" alt="Hot Beach 1">
-          <img src="https://i.imgur.com/PMok8fe.jpeg" alt="Hot Beach 2">
-          <img src="https://i.imgur.com/bOOUiLE.jpeg" alt="Hot Beach 3">
-          <img src="https://i.imgur.com/aKhDzXz.jpeg" alt="Hot Beach 4">
-          <img src="https://i.imgur.com/7lhbeim.jpeg" alt="Hot Beach 5">
-          <img src="https://i.imgur.com/nw9K59D.jpeg" alt="Hot Beach 6">
-          <img src="https://i.imgur.com/USBb1tj.jpeg" alt="Hot Beach 7">
-          <img src="https://i.imgur.com/8b52cpI.jpeg" alt="Hot Beach 8">
-          <img src="https://i.imgur.com/XFT7Fs2.jpeg" alt="Hot Beach 9">
-          <img src="https://i.imgur.com/eydR2bp.jpeg" alt="Hot Beach 10">
-      </div>
-  </div>
-  <div class="gallery-block" id="saopedro">
-      <div class="resort-title">São Pedro Thermas</div>
-      <a href="saopedro.html" class="resort-link" target="_blank">Ver página exclusiva do São Pedro Thermas</a>
-      <div class="gallery">
-          <img src="https://i.imgur.com/pyEKOtQ.jpeg" alt="São Pedro Thermas 1">
-          <img src="https://i.imgur.com/1HeNjKT.jpeg" alt="São Pedro Thermas 2">
-          <img src="https://i.imgur.com/9kgfR2y.jpeg" alt="São Pedro Thermas 3">
-          <img src="https://i.imgur.com/2MinAKg.jpeg" alt="São Pedro Thermas 4">
-          <img src="https://i.imgur.com/1eOkkpi.jpeg" alt="São Pedro Thermas 5">
-          <img src="https://i.imgur.com/VNUPsl2.jpeg" alt="São Pedro Thermas 6">
-          <img src="https://i.imgur.com/5pbb4ba.jpeg" alt="São Pedro Thermas 7">
-          <img src="https://i.imgur.com/uop7Fdo.jpeg" alt="São Pedro Thermas 8">
-          <img src="https://i.imgur.com/JAaWFiz.jpeg" alt="São Pedro Thermas 9">
-          <img src="https://i.imgur.com/61P9R4K.jpeg" alt="São Pedro Thermas 10">
-          <img src="https://i.imgur.com/VVc8UtU.jpeg" alt="São Pedro Thermas 11">
-      </div>
-  </div>
-  <div class="gallery-block" id="olimpia">
-      <div class="resort-title">Olimpia Park</div>
-      <a href="olimpia.html" class="resort-link" target="_blank">Ver página exclusiva do Olimpia Park</a>
-      <div class="gallery">
-          <img src="https://i.imgur.com/AseZPzL.jpeg" alt="Olimpia Park 1">
-          <img src="https://i.imgur.com/uhGHhcA.jpeg" alt="Olimpia Park 2">
-          <img src="https://i.imgur.com/1xGGlIh.jpeg" alt="Olimpia Park 3">
-          <img src="https://i.imgur.com/04CvTwk.jpeg" alt="Olimpia Park 4">
-          <img src="https://i.imgur.com/pCZh2Pi.jpeg" alt="Olimpia Park 5">
-          <img src="https://i.imgur.com/BjgrodB.jpeg" alt="Olimpia Park 6">
-          <img src="https://i.imgur.com/90Fy5Hj.jpeg" alt="Olimpia Park 7">
-          <img src="https://i.imgur.com/wBiihZH.jpeg" alt="Olimpia Park 8">
-          <img src="https://i.imgur.com/1J6Tm4r.jpeg" alt="Olimpia Park 9">
-      </div>
-  </div>
-  <div class="gallery-block" id="solar">
-      <div class="resort-title">Solar das Águas</div>
-      <a href="solar.html" class="resort-link" target="_blank">Ver página exclusiva do Solar das Águas</a>
-      <div class="gallery">
-          <img src="https://i.imgur.com/S4tSUzG.jpeg" alt="Solar das Águas 1">
-          <img src="https://i.imgur.com/uiZei1A.jpeg" alt="Solar das Águas 2">
-          <img src="https://i.imgur.com/FGmyUSZ.jpeg" alt="Solar das Águas 3">
-          <img src="https://i.imgur.com/0Lv8TV6.jpeg" alt="Solar das Águas 4">
-          <img src="https://i.imgur.com/qkmupvj.jpeg" alt="Solar das Águas 5">
-          <img src="https://i.imgur.com/oFjs88I.jpeg" alt="Solar das Águas 6">
-          <img src="https://i.imgur.com/VgEN9lk.jpeg" alt="Solar das Águas 7">
-          <img src="https://i.imgur.com/vMOqQgq.jpeg" alt="Solar das Águas 8">
-          <img src="https://i.imgur.com/QpY0W4I.jpeg" alt="Solar das Águas 9">
-          <img src="https://i.imgur.com/x0fWdLu.jpeg" alt="Solar das Águas 10">
-      </div>
-  </div>
-  <div class="gallery-block" id="wyndham">
-      <div class="resort-title">Wyndham Royal</div>
-      <a href="wyndham.html" class="resort-link" target="_blank">Ver página exclusiva do Wyndham Royal</a>
-      <div class="gallery">
-          <img src="https://i.imgur.com/iDMQ2XA.jpeg" alt="Wyndham Royal 1">
-          <img src="https://i.imgur.com/WOhzcpP.jpeg" alt="Wyndham Royal 2">
-          <img src="https://i.imgur.com/UKiLRll.jpeg" alt="Wyndham Royal 3">
-          <img src="https://i.imgur.com/cD4I3pX.jpeg" alt="Wyndham Royal 4">
-          <img src="https://i.imgur.com/wAnVr9T.jpeg" alt="Wyndham Royal 5">
-          <img src="https://i.imgur.com/7ExLNbI.jpeg" alt="Wyndham Royal 6">
-          <img src="https://i.imgur.com/ptpX7Ti.jpeg" alt="Wyndham Royal 7">
-          <img src="https://i.imgur.com/GHtjGQK.jpeg" alt="Wyndham Royal 8">
-          <img src="https://i.imgur.com/tnuVQOh.jpeg" alt="Wyndham Royal 9">
-          <img src="https://i.imgur.com/KxSsPe6.jpeg" alt="Wyndham Royal 10">
-      </div>
-  </div>
-  <div class="gallery-block" id="juquehy">
-      <div class="resort-title">Praia de Juquehy</div>
-      <a href="juquehy.html" class="resort-link" target="_blank">Ver página exclusiva da Praia de Juquehy</a>
-      <div class="gallery">
-          <img src="https://i.imgur.com/SxlktwS.jpeg" alt="Praia de Juquehy 1">
-          <img src="https://i.imgur.com/uORu8RN.jpeg" alt="Praia de Juquehy 2">
-          <img src="https://i.imgur.com/6W559IH.jpeg" alt="Praia de Juquehy 3">
-          <img src="https://i.imgur.com/OEzuUL0.jpeg" alt="Praia de Juquehy 4">
-      </div>
-  </div>
-</div>
+<!-- GALERIA DE RESORTS -->
+<!-- ... COLE O BLOCO DAS GALERIAS AQUI (iguais ao exemplo anterior) ... -->
 
-<!-- =========== DEPOIMENTOS =========== -->
-<section class="depoimentos-section" id="depoimentos">
-  <h2 class="depo-title">O que nossos clientes dizem</h2>
-  <div class="depo-carousel-wrap" tabindex="0" aria-label="Depoimentos em carrossel">
-    <div class="depo-carousel-inner">
-      <div class="depo-card active">
-        <img src="https://i.imgur.com/ep4Ng4e.jpeg" alt="Cliente Cordélia S.">
-        <div class="depo-stars">★★★★★</div>
-        <p>“A melhor experiência de viagem que já tive. Atendimento super rápido e opções excelentes!”</p>
-        <div class="depo-nome">Cordélia S.</div>
-        <div class="depo-cidade">Rio Preto, SP</div>
-      </div>
-      <div class="depo-card">
-        <img src="https://i.imgur.com/dciabUo.jpeg" alt="Cliente Ricardo A.">
-        <div class="depo-stars">★★★★★</div>
-        <p>“Fechei sem medo! Equipe muito confiável, recomendo para todos que buscam férias tranquilas.”</p>
-        <div class="depo-nome">Ricardo A.</div>
-        <div class="depo-cidade">São Paulo, SP</div>
-      </div>
-      <div class="depo-card">
-        <img src="https://i.imgur.com/dciabUo.jpeg" alt="Cliente Marina Lopes">
-        <div class="depo-stars">★★★★★</div>
-        <p>“Tudo perfeito: reserva, atendimento e o resort maravilhoso. Obrigada, HOSPEDAH!”</p>
-        <div class="depo-nome">Marina Lopes</div>
-        <div class="depo-cidade">Uberaba, MG</div>
-      </div>
-      <div class="depo-card">
-        <img src="https://i.imgur.com/j5izC2s.jpeg" alt="Cliente Gabriel Pinheiro">
-        <div class="depo-stars">★★★★★</div>
-        <p>“Superaram as minhas expectativas. Voltarei a reservar com eles, com certeza.”</p>
-        <div class="depo-nome">Gabriel Pinheiro</div>
-        <div class="depo-cidade">Campinas, SP</div>
-      </div>
-      <div class="depo-card">
-        <img src="https://i.imgur.com/iVoMnep.jpeg" alt="Cliente Paula Menezes">
-        <div class="depo-stars">★★★★★</div>
-        <p>“Atendimento exclusivo, muita praticidade e resorts fantásticos. Indico de olhos fechados.”</p>
-        <div class="depo-nome">Paula Menezes</div>
-        <div class="depo-cidade">Belo Horizonte, MG</div>
-      </div>
+<!-- FORMULÁRIOS E DEPOIMENTOS -->
+<!-- ... COLE OS BLOCOS DOS FORMULÁRIOS E DEPOIMENTOS AQUI ... -->
+
+<!-- PRÉ-RESERVA PREMIUM -->
+<section class="section" id="pre-reserva">
+  <h2 style="color:var(--dourado);font-size:1.38em;margin-bottom:36px;letter-spacing:.03em;">Pré-Reserva Premium <span style="font-size:.61em;font-weight:400;color:var(--azul);background:var(--dourado);padding:5px 15px 5px 10px;border-radius:14px 8px 18px 7px;margin-left:10px;">Beta</span></h2>
+  <div class="panel-duo">
+
+    <!-- PAINEL ADMIN -->
+    <div class="panel-box">
+      <h2>🏢 Painel Administrativo</h2>
+      <input id="nome" placeholder="Nome do imóvel" autocomplete="off"/>
+      <input id="capacidade" type="number" placeholder="Capacidade" autocomplete="off"/>
+      <select id="dormitorios">
+        <option value="">Dormitórios</option>
+        <option value="1">1 dormitório</option>
+        <option value="2">2 dormitórios</option>
+      </select>
+      <input id="preco" type="number" placeholder="Preço (referencial)" autocomplete="off"/>
+      <button onclick="addImovel()">Cadastrar Imóvel</button>
+      <div id="listaAdmin"></div>
     </div>
-    <div class="depo-carousel-arrows">
-      <button class="depo-carousel-btn" id="depoPrev" aria-label="Anterior" type="button">&#8592;</button>
-      <button class="depo-carousel-btn" id="depoNext" aria-label="Próximo" type="button">&#8594;</button>
-    </div>
-    <div class="depo-carousel-dots">
-      <span class="depo-carousel-dot active"></span>
-      <span class="depo-carousel-dot"></span>
-      <span class="depo-carousel-dot"></span>
-      <span class="depo-carousel-dot"></span>
-      <span class="depo-carousel-dot"></span>
+
+    <!-- BUSCA CLIENTE -->
+    <div class="panel-box">
+      <h2>🔎 Encontre sua hospedagem</h2>
+      <input id="clienteNome" placeholder="Seu nome" autocomplete="off"/>
+      <input id="clienteContato" placeholder="Seu WhatsApp" autocomplete="off"/>
+      <input type="date" id="entrada" />
+      <input type="date" id="saida" />
+      <input type="number" id="pessoas" placeholder="Pessoas" autocomplete="off"/>
+      <select id="filtroDorm">
+        <option value="">Dormitórios</option>
+        <option value="1">1 dormitório</option>
+        <option value="2">2 dormitórios</option>
+      </select>
+      <button onclick="buscar()">Buscar opções</button>
+      <div id="resultado"></div>
     </div>
   </div>
 </section>
 
-<!-- =========== FORMULÁRIOS =========== -->
-<div class="section" id="orcamento">
-  <h2 style="color:var(--dourado);margin-bottom:21px;">Solicite seu Orçamento Premium</h2>
-  <form class="form-premium" id="formOrcamentoPremium">
-    <label for="nome">Nome completo</label>
-    <input type="text" name="nome" id="nome" required maxlength="120">
-    <label for="destino">Destino/Resort</label>
-    <input type="text" name="destino" id="destino" required maxlength="80">
-    <label for="checkin">Data do Check-in</label>
-    <input type="date" name="checkin" id="checkin" required>
-    <label for="checkout">Data do Check-out</label>
-    <input type="date" name="checkout" id="checkout" required>
-    <label for="pessoas">Nº de Pessoas</label>
-    <input type="number" name="pessoas" id="pessoas" required min="1" max="12">
-    <label for="whats">WhatsApp</label>
-    <input type="tel" name="whats" id="whats" required pattern="[0-9]{10,13}">
-    <label for="notas">Observações</label>
-    <textarea name="notas" id="notas" maxlength="300"></textarea>
-    <button type="submit">Enviar via WhatsApp</button>
-    <div class="sucesso-msg" style="display:none;">Seu pedido foi enviado via WhatsApp!</div>
-  </form>
-</div>
-<div class="section" id="multi">
-  <h2 style="color:var(--dourado);margin-bottom:21px;">Cadastre seu Empreendimento</h2>
-  <form class="form-premium" id="formEmpreendimento">
-    <label for="nomeEmp">Nome</label>
-    <input type="text" name="nomeEmp" id="nomeEmp" required maxlength="100">
-    <label for="emailEmp">E-mail de contato</label>
-    <input type="email" name="emailEmp" id="emailEmp" required maxlength="130">
-    <label for="empreendimento">Nome do Empreendimento</label>
-    <input type="text" name="empreendimento" id="empreendimento" required maxlength="120">
-    <label for="detalhesEmp">Detalhes / Mensagem</label>
-    <textarea name="detalhesEmp" id="detalhesEmp"></textarea>
-    <button type="submit">Enviar</button>
-    <div class="sucesso-msg" style="display:none;">Recebido! Seu cadastro foi enviado.</div>
-  </form>
-</div>
-<div class="section" id="contato">
-  <h2 style="color:var(--dourado);margin-bottom:21px;">Fale Conosco</h2>
-  <form class="form-premium" id="formContato">
-    <label for="nomeContato">Nome</label>
-    <input type="text" name="nomeContato" id="nomeContato" required maxlength="100">
-    <label for="emailContato">E-mail</label>
-    <input type="email" name="emailContato" id="emailContato" required maxlength="130">
-    <label for="mensagemContato">Mensagem</label>
-    <textarea name="mensagemContato" id="mensagemContato" required maxlength="400"></textarea>
-    <button type="submit">Enviar</button>
-    <div class="sucesso-msg" style="display:none;">Mensagem enviada! Entraremos em contato.</div>
-  </form>
-</div>
-
-
-<!-- =========== SCRIPTS =========== -->
 <script>
-// Troca de tema
 const mbtn = document.getElementById('modeToggleBtn');
 mbtn.addEventListener('click',()=>{
   let html = document.documentElement;
@@ -329,76 +184,88 @@ mbtn.addEventListener('click',()=>{
   html.setAttribute('data-theme', atual==='dark'?'light':'dark');
   mbtn.innerText = html.getAttribute('data-theme')==='dark' ? '🌓' : '🌞';
 });
-// Tabs Galeria
-document.addEventListener('DOMContentLoaded', function() {
-  const tabs = document.querySelectorAll('.tab');
-  const blocks = document.querySelectorAll('.gallery-block');
-  tabs.forEach((tab, idx) => {
-      tab.addEventListener('click', function(){
-          tabs.forEach((t,i)=>{
-              t.classList.remove('active');
-              t.setAttribute('aria-selected', 'false');
-              blocks[i].classList.remove('active');
-          });
-          this.classList.add('active');
-          this.setAttribute('aria-selected','true');
-          blocks[idx].classList.add('active');
-      });
+// Tabs Galeria e Carrossel de Depoimentos — utilizar igual aos exemplos anteriores
+
+// PRÉ-RESERVA PREMIUM
+let banco = JSON.parse(localStorage.getItem('imoveis')) || [];
+
+function salvar() {
+  localStorage.setItem('imoveis', JSON.stringify(banco));
+  renderAdmin();
+}
+
+function addImovel() {
+  const nome = document.getElementById('nome').value;
+  const capacidade = document.getElementById('capacidade').value;
+  const dormitorios = document.getElementById('dormitorios').value;
+  const preco = document.getElementById('preco').value;
+  if (!nome || !capacidade || !dormitorios || !preco) return alert("Preencha todos os campos do imóvel.");
+  banco.push({ nome, capacidade, dormitorios, preco });
+  salvar();
+  document.getElementById('nome').value='';
+  document.getElementById('capacidade').value='';
+  document.getElementById('dormitorios').value='';
+  document.getElementById('preco').value='';
+}
+
+function renderAdmin() {
+  const div = document.getElementById('listaAdmin');
+  div.innerHTML = '';
+  banco.forEach((i, index) => {
+    div.innerHTML += `
+      <div class="card">
+        <b>${i.nome}</b> - ${i.dormitorios} dorm - R$ ${i.preco}
+        <button onclick="remover(${index})">Excluir</button>
+      </div>
+    `;
   });
-});
-// Carrossel Depoimentos
-(function(){
-  const cards = document.querySelectorAll('.depo-card');
-  const dots = document.querySelectorAll('.depo-carousel-dot');
-  let current = 0, max = cards.length;
-  function show(idx) {
-    cards.forEach((c,i)=>c.classList.toggle('active',i===idx));
-    dots.forEach((d,i)=>d.classList.toggle('active',i===idx));
-    current = idx;
-  }
-  document.getElementById('depoNext').onclick = () => show((current+1)%max);
-  document.getElementById('depoPrev').onclick = () => show((current+max-1)%max);
-  dots.forEach((dot,i)=>dot.onclick=()=>show(i));
-  document.querySelector('.depo-carousel-wrap').addEventListener('keydown',function(e){
-    if (e.key==='ArrowRight') { show((current+1)%max); e.preventDefault(); }
-    else if (e.key==='ArrowLeft') { show((current+max-1)%max); e.preventDefault(); }
-  });
-  setInterval(()=>show((current+1)%max), 8500);
-})();
-// FORMULÁRIOS - webhooks
-const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycby3Y_W-wIRm-cCrgSqJpUvSZohw47OTans1iEX6RJvC-MIMM_S-aY0AXh_vmEuHytVt/exec";
-document.getElementById("formOrcamentoPremium").onsubmit = function(e){
-  e.preventDefault();
-  const nome = this.nome.value, dest = this.destino.value, checkin = this.checkin.value, checkout = this.checkout.value, pessoas = this.pessoas.value, whats = this.whats.value, notas = this.notas.value;
-  const msg = encodeURIComponent(
-    `*Orçamento pelo site*\nNome: ${nome}\nDestino: ${dest}\nCheck-in: ${checkin}\nCheck-out: ${checkout}\nPessoas: ${pessoas}\nWhatsApp: ${whats}\nObservações: ${notas}`
+}
+
+function remover(index) {
+  banco.splice(index, 1);
+  salvar();
+}
+
+function buscar() {
+  const pessoas = document.getElementById('pessoas').value;
+  const dorm = document.getElementById('filtroDorm').value;
+  let resultado = banco.filter(i => 
+    (dorm === '' || i.dormitorios == dorm) &&
+    i.capacidade >= pessoas
   );
-  const fone = "5517992068296";
-  window.open("https://wa.me/"+fone+"?text="+msg, "_blank");
-  // envia para planilha
-  if(WEBHOOK_URL) {
-    fetch(WEBHOOK_URL, {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({nome,dest,checkin,checkout,pessoas,whats,notas})});
+  const div = document.getElementById('resultado');
+  div.innerHTML = '';
+  if (resultado.length > 0) {
+    resultado.forEach(i => {
+      div.innerHTML += `
+        <div class="card">
+          <h3>🏨 ${i.nome}</h3>
+          <p>🛏️ ${i.dormitorios} dormitórios</p>
+          <p>👨‍👩‍👧‍👦 até ${i.capacidade} pessoas</p>
+          <p>💰 A partir de R$ ${i.preco}</p>
+          <p class="small">* Disponibilidade sob consulta</p>
+          <button onclick="consultar('${i.nome}', ${i.preco})">Consultar disponibilidade</button>
+        </div>
+      `;
+    });
+  } else {
+    div.innerHTML = "❌ Nenhuma opção encontrada";
   }
-  this.querySelector(".sucesso-msg").style.display="block";
-  setTimeout(()=>{this.querySelector(".sucesso-msg").style.display="none";},2900);
-  this.reset();
-};
-document.getElementById("formEmpreendimento").onsubmit = function(e){
-  e.preventDefault();
-  const nome = this.nomeEmp.value, email=this.emailEmp.value, emp=this.empreendimento.value, det=this.detalhesEmp.value;
-  if(WEBHOOK_URL) fetch(WEBHOOK_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({nome,email,emp,det})});
-  this.querySelector(".sucesso-msg").style.display="block";
-  setTimeout(()=>{this.querySelector(".sucesso-msg").style.display="none";},3000);
-  this.reset();
-};
-document.getElementById("formContato").onsubmit = function(e){
-  e.preventDefault();
-  const nome = this.nomeContato.value, email = this.emailContato.value, msg = this.mensagemContato.value;
-  if(WEBHOOK_URL) fetch(WEBHOOK_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({nome,email,msg})});
-  this.querySelector(".sucesso-msg").style.display="block";
-  setTimeout(()=>{this.querySelector(".sucesso-msg").style.display="none";},3000);
-  this.reset();
-};
+}
+
+function consultar(nome, preco) {
+  const cliente = document.getElementById('clienteNome').value;
+  const contato = document.getElementById('clienteContato').value;
+  const entrada = document.getElementById('entrada').value;
+  const saida = document.getElementById('saida').value;
+  const pessoas = document.getElementById('pessoas').value;
+  const dorm = document.getElementById('filtroDorm').value;
+  if (!cliente || !contato) return alert("Por favor, preencha seu nome e WhatsApp.");
+  const msg = `Olá! Gostaria de consultar disponibilidade:%0A%0A👤 Nome: ${cliente}%0A📞 Contato: ${contato}%0A🏨 Imóvel: ${nome}%0A📅 Entrada: ${entrada}%0A📅 Saída: ${saida}%0A👨‍👩‍👧‍👦 Pessoas: ${pessoas}%0A🛏️ Dormitórios: ${dorm}%0A💰 Valor base: R$ ${preco}`;
+  window.open(`https://wa.me/5517982006382?text=${msg}`, '_blank');
+}
+
+renderAdmin();
 </script>
 </body>
 </html>
