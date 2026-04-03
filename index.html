@@ -5,7 +5,7 @@
   <title>HOSPEDAH | Resorts Premium</title>
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap">
-<style>
+  <style>
 :root {
   --dourado: #D4AF37;
   --azul: #0B1C3D;
@@ -106,7 +106,10 @@ body{margin:0;padding:0;box-sizing:border-box;font-family:Poppins,sans-serif;bac
 .depo-carousel-dots {text-align:center;margin:9px 0 0 0;}
 .depo-carousel-dot{display:inline-block;width:12px;height:12px;background:#eed894;border-radius:50%;margin:0 6px;cursor:pointer;vertical-align:middle;box-shadow:0 2px 7px #d4af3755;}
 .depo-carousel-dot.active{background:var(--dourado);}
-</style>
+.modo-toggle{position:fixed;top:18px;right:22px;z-index:105;}
+.modo-toggle button{background:#132042;color:var(--dourado);border-radius:28px;padding:8px 20px;font-weight:600;border:none;cursor:pointer;font-size:18px;box-shadow:0 2px 8px #1112;}
+.modo-toggle button:active{background:var(--dourado);color:#132042;}
+  </style>
 </head>
 <body>
 <div class="menu-toggle" id="menuHamburger" tabindex="0" aria-label="Abrir menu">☰</div>
@@ -136,7 +139,7 @@ body{margin:0;padding:0;box-sizing:border-box;font-family:Poppins,sans-serif;bac
   </div>
 </div>
 
-<!-- TABS e GALERIA DOS RESORTS -->
+<!-- TABS + GALERIAS -->
 <div class="tabs">
   <button class="tab active" data-block="hotbeach">🏨 Hot Beach</button>
   <button class="tab" data-block="saopedro">♨️ São Pedro</button>
@@ -156,7 +159,6 @@ body{margin:0;padding:0;box-sizing:border-box;font-family:Poppins,sans-serif;bac
     <img src="https://i.imgur.com/aKhDzXz.jpeg" alt="Hot Beach 4">
   </div>
 </div>
-
 <div class="gallery-block" id="saopedro">
   <div class="resort-title">♨️ São Pedro Thermas</div>
   <a href="saopedro.html" class="resort-link" target="_blank">Ver página exclusiva do São Pedro Thermas</a>
@@ -238,7 +240,7 @@ body{margin:0;padding:0;box-sizing:border-box;font-family:Poppins,sans-serif;bac
   <img src="" class="lb-img" id="lbImg" alt="">
 </div>
 
-<!-- FAIXA DE ESPECIALISTAS COM INSTA -->
+<!-- Faixa de especialistas -->
 <div class="faixa-logo">
   <span class="faixa-logo-tit">Especialistas em hospedagens exclusivas</span>
   <a href="https://www.instagram.com/julianasilvaoliveira.joao?igsh=bzZmNGIxdjdqc285" class="insta-top" target="_blank">📸 Instagram Oficial</a>
@@ -256,11 +258,104 @@ body{margin:0;padding:0;box-sizing:border-box;font-family:Poppins,sans-serif;bac
   </div>
 </div>
 
-<!-- RESTANTE: painel admin, consulta, depoimentos, modo noturno, scripts -->
-<!-- (siga igual aos exemplos anteriores do arquivo que já está 100% revisado) -->
+<!-- Painel admin/consulta LADO A LADO -->
+<section class="painel-duo" id="painel-duo">
+  <form class="painel-box" id="painelAdmin">
+    <h2>Cadastre seu empreendimento</h2>
+    <input id="nomeImovel" placeholder="Nome do imóvel" maxlength="70" required autocomplete="off"/>
+    <input id="telefoneImovel" placeholder="Telefone" maxlength="30" required autocomplete="off"/>
+    <textarea id="obsImovel" placeholder="Observações/mensagem" maxlength="255" autocomplete="off"></textarea>
+    <input id="capacidadeImovel" type="number" placeholder="Capacidade" min="1" max="99" required autocomplete="off"/>
+    <select id="dormitoriosImovel" required>
+      <option value="">Dormitórios</option>
+      <option value="1">1 dormitório</option>
+      <option value="2">2 dormitórios</option>
+      <option value="3+">3 ou mais</option>
+    </select>
+    <input id="precoImovel" type="number" placeholder="Preço (referencial)" min="50" required autocomplete="off"/>
+    <button type="submit">Cadastrar Imóvel</button>
+    <div class="sucesso-msg" style="display:none">Cadastro realizado!</div>
+    <div id="listaImoveis"></div>
+  </form>
+  <form class="painel-box" id="consultaPainel" onsubmit="return false;">
+    <h2>Consulta de disponibilidade exclusiva</h2>
+    <input id="clienteNome" placeholder="Seu nome" maxlength="80" required autocomplete="off"/>
+    <input id="clienteContato" placeholder="Seu WhatsApp" required autocomplete="off"/>
+    <input type="date" id="entrada" required />
+    <input type="date" id="saida" required />
+    <input type="number" id="pessoas" placeholder="Pessoas" min="1" max="16" required autocomplete="off"/>
+    <select id="filtroDorm">
+      <option value="">Dormitórios</option>
+      <option value="1">1 dormitório</option>
+      <option value="2">2 dormitórios</option>
+      <option value="3+">3 ou mais</option>
+    </select>
+    <button type="button" onclick="buscarImoveis()">Buscar opções</button>
+    <div id="resultadoBusca"></div>
+  </form>
+</section>
+
+<!-- DEPOIMENTOS CARROSSEL -->
+<section class="depo-section" id="depoimentos">
+  <h2 class="depo-title">O que nossos clientes dizem</h2>
+  <div class="depo-carousel-wrap" tabindex="0" aria-label="Depoimentos em carrossel">
+    <div class="depo-carousel-inner">
+      <div class="depo-card active">
+        <img src="https://i.imgur.com/ep4Ng4e.jpeg" alt="Cordélia S.">
+        <div class="depo-stars">★★★★★</div>
+        <p>“A melhor experiência de viagem que já tive. Atendimento super rápido e opções excelentes!”</p>
+        <div class="depo-nome">Cordélia S.</div>
+        <div class="depo-cidade">Rio Preto, SP</div>
+      </div>
+      <div class="depo-card">
+        <img src="https://i.imgur.com/dciabUo.jpeg" alt="Ricardo A.">
+        <div class="depo-stars">★★★★★</div>
+        <p>“Fechei sem medo! Equipe muito confiável, recomendo para todos que buscam férias tranquilas.”</p>
+        <div class="depo-nome">Ricardo A.</div>
+        <div class="depo-cidade">São Paulo, SP</div>
+      </div>
+      <div class="depo-card">
+        <img src="https://i.imgur.com/dciabUo.jpeg" alt="Marina Lopes">
+        <div class="depo-stars">★★★★★</div>
+        <p>“Tudo perfeito: reserva, atendimento e o resort maravilhoso. Obrigada, HOSPEDAH!”</p>
+        <div class="depo-nome">Marina Lopes</div>
+        <div class="depo-cidade">Uberaba, MG</div>
+      </div>
+      <div class="depo-card">
+        <img src="https://i.imgur.com/j5izC2s.jpeg" alt="Gabriel Pinheiro">
+        <div class="depo-stars">★★★★★</div>
+        <p>“Superaram as minhas expectativas. Voltarei a reservar com eles, com certeza.”</p>
+        <div class="depo-nome">Gabriel Pinheiro</div>
+        <div class="depo-cidade">Campinas, SP</div>
+      </div>
+      <div class="depo-card">
+        <img src="https://i.imgur.com/iVoMnep.jpeg" alt="Paula Menezes">
+        <div class="depo-stars">★★★★★</div>
+        <p>“Atendimento exclusivo, muita praticidade e resorts fantásticos. Indico de olhos fechados.”</p>
+        <div class="depo-nome">Paula Menezes</div>
+        <div class="depo-cidade">Belo Horizonte, MG</div>
+      </div>
+    </div>
+    <div class="depo-carousel-arrows">
+      <button class="depo-carousel-btn" id="depoPrev" aria-label="Anterior" type="button">&#8592;</button>
+      <button class="depo-carousel-btn" id="depoNext" aria-label="Próximo" type="button">&#8594;</button>
+    </div>
+    <div class="depo-carousel-dots">
+      <span class="depo-carousel-dot active"></span>
+      <span class="depo-carousel-dot"></span>
+      <span class="depo-carousel-dot"></span>
+      <span class="depo-carousel-dot"></span>
+      <span class="depo-carousel-dot"></span>
+    </div>
+  </div>
+</section>
+
+<div class="modo-toggle">
+  <button id="modeToggleBtn" aria-label="Trocar tema">🌓</button>
+</div>
 
 <script>
-// MENU HAMBURGUER PREMIUM E FUNCIONAL
+// MENU HAMBURGUER
 (function(){
   const menuHamburger = document.getElementById('menuHamburger');
   const menuMobile = document.getElementById('menuMobile');
@@ -271,7 +366,7 @@ body{margin:0;padding:0;box-sizing:border-box;font-family:Poppins,sans-serif;bac
   menuMobileBg.onclick = function(e){if(e.target===this){menuMobileBg.classList.remove('open');menuMobile.classList.remove('open');}};
   menuMobile.querySelectorAll('a').forEach(a=>a.onclick = function(){menuMobileBg.classList.remove('open');menuMobile.classList.remove('open');});
 })();
-// TABS
+// TABS GALERIA
 (function(){
   const tabs = document.querySelectorAll('.tabs .tab');
   const blocks = document.querySelectorAll('.gallery-block');
@@ -297,6 +392,85 @@ body{margin:0;padding:0;box-sizing:border-box;font-family:Poppins,sans-serif;bac
   lbClose.onclick = function(){lbBg.classList.remove('open');lbImg.src="";};
   lbBg.onclick = function(e){if(e.target===lbBg){lbBg.classList.remove('open');lbImg.src="";}};
 })();
+// PAINEL ADMIN
+let imoveis = JSON.parse(localStorage.getItem('imoveis') || '[]');
+function renderImoveis(){
+  const div = document.getElementById('listaImoveis');
+  div.innerHTML='';
+  imoveis.forEach((i, idx)=>{
+    div.innerHTML += `<div style="background:#23295022;margin:7px 0 7px 0;padding:9px 7px;border-radius:8px;display:flex;justify-content:space-between;align-items:center;"><span><b>${i.nome}</b> - ${i.telefone||'-'}<br>${i.obs?'<span style="font-size:0.95em;opacity:0.8;">Obs: '+i.obs+'</span><br>':''} <span style="color:#aaa">Cap: ${i.capacidade} • ${i.dormitorios} dorm • R$${i.preco}</span></span> <button onclick="removerImovel(${idx})" style="border:none;border-radius:7px;background:#d41d47;color:#fff;padding:5px 10px;cursor:pointer">Remover</button></div>`;
+  });
+}
+document.getElementById('painelAdmin').onsubmit = function(e){
+  e.preventDefault();
+  let nome = document.getElementById('nomeImovel').value.trim();
+  let telefone = document.getElementById('telefoneImovel').value.trim();
+  let obs = document.getElementById('obsImovel').value.trim();
+  let capacidade = document.getElementById('capacidadeImovel').value;
+  let dormitorios = document.getElementById('dormitoriosImovel').value;
+  let preco = document.getElementById('precoImovel').value;
+  if(!nome||!capacidade||!dormitorios||!preco||!telefone)return;
+  imoveis.push({nome,telefone,obs,capacidade,dormitorios,preco});
+  localStorage.setItem('imoveis',JSON.stringify(imoveis));
+  this.reset();
+  renderImoveis();
+  this.querySelector('.sucesso-msg').style.display='block';
+  setTimeout(()=>{this.querySelector('.sucesso-msg').style.display='none';},1200);
+}
+function removerImovel(idx){
+  imoveis.splice(idx,1);
+  localStorage.setItem('imoveis',JSON.stringify(imoveis));
+  renderImoveis();
+}
+renderImoveis();
+// CONSULTA
+function buscarImoveis(){
+  let pessoas=Number(document.getElementById('pessoas').value)||1;
+  let dorm=document.getElementById('filtroDorm').value;
+  let rdiv=document.getElementById('resultadoBusca');
+  let results=imoveis.filter(i=>(!dorm||i.dormitorios==dorm||dorm=='3+'&&/+/.test(i.dormitorios))&&i.capacidade>=pessoas);
+  rdiv.innerHTML='';
+  if(results.length)
+    results.forEach(i=>{
+      rdiv.innerHTML += `<div style="background:#1d2a3d19;border:1px solid #24315b33;padding:11px 12px;margin:10px auto 9px auto;border-radius:8px;">🏨 <b>${i.nome}</b> (${i.telefone||'-'})<br>${i.obs?'<span style="font-size:0.95em;opacity:.82;">'+i.obs+'</span><br>':''}${i.dormitorios} dorm. • Até <b>${i.capacidade}</b> pessoas<br>💰 R$${i.preco}<br><button onclick="consultarImovel('${i.nome.replace(/'/g,'')}',${i.preco})" style="margin:10px 0 0 0; background:#25D366;color:#fff;font-weight:bold;border:none;border-radius:7px;padding:7px 27px;cursor:pointer;">Consultar Disponibilidade</button></div>`;
+    });
+  else
+    rdiv.innerHTML='<span style="color:#b11;font-weight:500;">Nenhuma opção encontrada</span>';
+}
+function consultarImovel(nome,preco){
+  let cliente=document.getElementById('clienteNome').value;
+  let contato=document.getElementById('clienteContato').value;
+  let entrada=document.getElementById('entrada').value;
+  let saida=document.getElementById('saida').value;
+  let pessoas=document.getElementById('pessoas').value;
+  let dorm=document.getElementById('filtroDorm').value;
+  if(!cliente||!contato)return alert("Nome e WhatsApp obrigatórios.");
+  let msg=encodeURIComponent(`Olá! Gostaria de consultar disponibilidade:%0A%0A👤 Nome: ${cliente}%0A📞 Contato: ${contato}%0A🏨 Imóvel: ${nome}%0A📅 Entrada: ${entrada}%0A📅 Saída: ${saida}%0A👨‍👩‍👧‍👦 Pessoas: ${pessoas}%0A🛏️ Dormitórios: ${dorm}%0A💰 Valor base: R$ ${preco}`);
+  window.open(`https://wa.me/5517982006382?text=${msg}`,'_blank');
+}
+// DEPOIMENTOS CARROSSEL
+(function(){
+  const cards=document.querySelectorAll('.depo-card');
+  const dots=document.querySelectorAll('.depo-carousel-dot');
+  let current=0,max=cards.length;
+  function show(idx){
+    cards.forEach((c,i)=>c.classList.toggle('active',i===idx));
+    dots.forEach((d,i)=>d.classList.toggle('active',i===idx));
+    current=idx;
+  }
+  document.getElementById('depoNext').onclick=()=>show((current+1)%max);
+  document.getElementById('depoPrev').onclick=()=>show((current+max-1)%max);
+  dots.forEach((dot,i)=>dot.onclick=()=>show(i));
+  setInterval(()=>show((current+1)%max), 8000);
+})();
+// MODO NOTURNO
+const mbtn = document.getElementById('modeToggleBtn');
+mbtn.addEventListener('click',()=>{
+  let html=document.documentElement;
+  let atual=html.getAttribute('data-theme')||'dark';
+  html.setAttribute('data-theme', atual==='dark'?'light':'dark');
+  mbtn.innerText = html.getAttribute('data-theme')==='dark' ? '🌓' : '🌞';
+});
 </script>
 </body>
 </html>
