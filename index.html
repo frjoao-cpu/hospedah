@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>HOSPEDAH | Cadastre seu Imóvel/Empreendimento</title>
+<title>HOSPEDAH | Cadastre seu Empreendimento</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
 <style>
 :root { --dourado: #D4AF37; --azul: #0B1C3D; --menu-bg: #fff;}
@@ -43,7 +43,33 @@ body{margin:0;padding:0; box-sizing:border-box; font-family:'Poppins',sans-serif
 .form-premium button{padding:10px 25px;border-radius:8px;border:none;background:var(--azul);color:var(--dourado);font-weight:bold;font-size:15px;cursor:pointer;}
 .form-premium button:hover{background:var(--dourado);color:var(--azul);}
 .sucesso-msg {color:green;font-size:0.99em;margin-bottom:11px;}
-/* ... Galeria e depoimentos seguem igual exemplos anteriores ... */
+/* Tabs galeria e depoimentos para consistência */
+.tabs{display:flex;justify-content:center;gap:7px;margin-bottom:22px;flex-wrap:wrap;}
+.tab{padding:10px 24px;background:#fff1;border-radius:22px 22px 0 0;font-size:17px;color:var(--dourado);border:none;cursor:pointer;outline:none;font-weight:600;transition:.14s;}
+.tab.active,.tab:focus{background:var(--dourado);color:#0B1C3D;}
+.tab:hover{background:#D4AF37cc;color:#fff;}
+.gallery-block{display:none;}
+.gallery-block.active{display:block;}
+.resort-title{font-size:1.23rem;color:var(--dourado);margin-bottom:11px;font-weight:700;}
+.gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;justify-items:center;}
+.gallery img{width:100%;max-width:360px;height:210px;object-fit:cover;border-radius:14px;box-shadow:0 2px 12px #0001;}
+@media (max-width:500px) {.gallery img{height:95px;}}
+.depoimentos-section {padding:30px 3vw 44px 3vw;background:#fff;}
+.depo-title {text-align:center;font-size:1.16em;color:#D4AF37;margin-bottom:20px;}
+.depo-carousel-wrap {max-width:350px;margin:0 auto;position:relative;}
+.depo-carousel-inner {overflow:hidden;}
+.depo-card {background:linear-gradient(115deg,#fffbe7 50%,#fbecd1 100%);color:#191919;border-radius:16px;max-width:340px;min-height:310px;padding:34px 22px 27px 22px;text-align:center;position:absolute;width:100%;left:0;top:0;opacity:0;transition:all .44s cubic-bezier(.68,-0.55,.27,1.55);}
+.depo-card.active {opacity:1;position:relative;}
+.depo-card img{width:56px;height:56px;border-radius:50%;margin-bottom:12px;}
+.depo-stars{color:gold;font-size:1.16em;margin-bottom:8px;letter-spacing:1.2px;}
+.depo-card p{font-size:1em;margin:0 0 7px 0;}
+.depo-nome{font-weight:bold;margin-top:2px;font-size:.97em;}
+.depo-cidade{font-size:.93em;color:#b9aa92;}
+.depo-carousel-arrows {text-align:center;margin-top:17px;}
+.depo-carousel-btn {background:var(--dourado);color:#fff;border:none;border-radius:50%;width:32px;height:32px;cursor:pointer;font-size:1.47em;margin:0 8px;}
+.depo-carousel-dots {text-align:center;margin:14px 0 0 0;}
+.depo-carousel-dot{display:inline-block;width:11px;height:11px;background:#ecd498;border-radius:50%;margin:0 5px;cursor:pointer;}
+.depo-carousel-dot.active{background:var(--dourado);}
 </style>
 </head>
 <body>
@@ -65,12 +91,11 @@ body{margin:0;padding:0; box-sizing:border-box; font-family:'Poppins',sans-serif
     <img src="https://i.imgur.com/ITjjQaf.jpeg" alt="HOSPEDAH - Logo">
     <div class="lupa-btn-reserva">
       <button onclick="document.getElementById('cad-empreendimento').scrollIntoView({behavior:'smooth'})">
-        <span style="font-size:1.2em;">🔍</span> Faça sua reserva
+        <span style="font-size:1.22em;">🔍</span> Faça sua reserva
       </button>
     </div>
 </div>
 
-<!-- PAINEL ÚNICO -->
 <div class="section" id="cad-empreendimento">
   <h2 style="color:var(--dourado);margin-bottom:15px;">Cadastre o seu empreendimento</h2>
   <form class="form-premium" id="formEmpreendimento">
@@ -105,7 +130,6 @@ body{margin:0;padding:0; box-sizing:border-box; font-family:'Poppins',sans-serif
   </form>
 </div>
 
-<!-- GALERIA -->
 <div class="section" id="galeria">
   <div class="tabs" role="tablist">
     <button class="tab active" aria-controls="hotbeach">Hot Beach</button>
@@ -128,6 +152,7 @@ body{margin:0;padding:0; box-sizing:border-box; font-family:'Poppins',sans-serif
   <div class="gallery-block" id="juquehy"><div class="resort-title">Praia de Juquehy</div>
     <div class="gallery"><img src="https://i.imgur.com/SxlktwS.jpeg"></div></div>
 </div>
+
 <section class="depoimentos-section" id="depoimentos">
   <h2 class="depo-title">O que nossos clientes dizem</h2>
   <div class="depo-carousel-wrap" tabindex="0">
