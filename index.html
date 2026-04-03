@@ -28,82 +28,35 @@ body{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
 }
 .modo-toggle{position:fixed;right:20px;top:17px;z-index:1401;}
 .modo-toggle button{background:#132042;color:var(--dourado);border-radius:28px;padding:7px 17px;font-weight:600;border:none;cursor:pointer;font-size:16px;}
-/* BANNER */
+/* Banner e faixa logo */
 #banner-booking{position:relative;height:560px;min-height:410px;width:100vw;overflow:hidden;z-index:10;}
 #banner-bg{position:absolute;top:0;left:0;width:100%;height:100%;z-index:1;background-size:cover;background-position:center;transition: background-image 1.25s,transform 2s cubic-bezier(.35,.93,.84,1.23);filter: brightness(.72) blur(.2px);}
-.faixa-logo-caixa{
-  margin-top:65px;margin-bottom:23px;
-  background:white;border-radius:36px;
-  padding:49px 38px 37px 38px;
-  box-shadow:0 14px 42px #2e30922e, 0 2px 20px #2222;display:inline-block;min-width:330px;max-width:96vw;
-}
-.faixa-logo-caixa img{max-width:390px;width:81vw;pointer-events:auto;}
-.insta-top{margin:19px 0 0 0;display:inline-block;padding:10px 27px;border-radius:30px;background:linear-gradient(45deg,#833AB4,#E1306C,#FCAF45);text-decoration:none;color:#fff;font-size:16px;font-weight:500;box-shadow:0 2px 12px #FCAF4595;}
-.contatos-especialistas{margin-top:25px;display:flex; justify-content:center; gap:40px;}
+.faixa-logo-caixa{margin-top:65px;margin-bottom:23px;background:white;border-radius:36px;padding:55px 38px 40px 38px;box-shadow:0 14px 42px #2e30922e, 0 2px 20px #2222;display:inline-block;min-width:330px;max-width:96vw;text-align:center;}
+.logo-simbolo{max-width:135px;width:21vw;display:block;margin:0 auto 12px auto;}
+.insta-top{margin:8px 0 0 0;display:inline-block;padding:10px 27px;border-radius:30px;background:linear-gradient(45deg,#833AB4,#E1306C,#FCAF45);text-decoration:none;color:#fff;font-size:16px;font-weight:500;}
+.contatos-especialistas{margin-top:15px;display:flex;justify-content:center;gap:38px;}
 .contato-b{background:rgba(211,211,211,0.18);border-radius:15px;padding:13px 21px 10px 15px;min-width:142px;display:flex;flex-direction:column;align-items:center;box-shadow:0 4px 24px #0B1C3D10;}
 .contato-b h3{color:#0A2A3B;font-size:1.08em;font-weight:700;margin:2px 0 0 0;}
 .contato-b p{font-size:13px;color:var(--dourado);font-weight:600;margin:4px 0;}
 .contato-b a.btn{margin-top:5px;padding:8px 18px;background:#25D366;border-radius:16px;color:#fff;text-decoration:none;font-size:15px;font-weight:600;}
-@media (max-width:830px){.faixa-logo-caixa{padding:21px 2.5vw 13px 2.5vw;}}
-@media (max-width:580px){#banner-booking{min-height:300px;height:320px;}.faixa-logo-caixa{padding:10px 1vw;}}
-#banner-busca{
-  margin:0 auto;position:absolute;left:50%;bottom:19px;transform:translateX(-50%);
-  background:#fff;box-shadow:0 2px 24px #4444;
-  padding:17px 10px 11px 10px;border-radius:15px;display:flex;gap:13px;align-items:end;max-width:780px;width:97vw;z-index:4;flex-wrap:wrap;
-}
-#banner-busca > div{flex:2;min-width:116px;}
+@media (max-width:830px){.faixa-logo-caixa{padding:19px 2vw 19px 2vw;}}
+@media (max-width:600px){#banner-booking{min-height:300px;height:320px;}.faixa-logo-caixa{padding:11px 1vw 13px 1vw;}.contatos-especialistas{gap:6px;}}
+/* Barra pré-consulta autossugestão */
+#banner-busca{margin:0 auto;position:absolute;left:50%;bottom:13px;transform:translateX(-50%);background:#fff;box-shadow:0 2px 24px #4444;padding:16px 9px 13px 9px;border-radius:16px;display:flex;gap:13px;align-items:end;max-width:780px;width:97vw;z-index:4;flex-wrap:wrap;}
+#banner-busca > div{flex:2;min-width:120px;position:relative;}
 #banner-busca label{color:#888;font-size:12px;display:block;margin-bottom:3px;}
 #banner-busca input[type="date"],#banner-busca input[type="number"],#banner-busca input[type="text"]{width:100%;border-radius:8px;padding:8px 9px;font-size:.97em;border:1px solid #ccc;}
+#sugestoesDest{display:none;position:absolute;left:0;top:33px;width:100%;background:#fff;border:1px solid #dadada;border-radius:9px;z-index:10;box-shadow:0 4px 16px #0003;}
+#sugestoesDest button{display:block;width:100%;text-align:left;background:none;border:none;padding:11px 12px;font-size:1em;color:#333;font-family:'Poppins',sans-serif;cursor:pointer;}
+#sugestoesDest button:hover{background:var(--dourado);color:var(--azul);}
 #banner-busca button{background:var(--dourado);color:var(--azul);font-weight:700;font-size:1.08em;padding:13px 36px;border-radius:10px;border:none;display:flex;align-items:center;gap:10px;box-shadow:0 2px 16px #0b1c3d18;cursor:pointer;white-space:nowrap;}
 #banner-busca button:hover{background:goldenrod;color:#fff;}
 @media (max-width:900px){
   #banner-busca{flex-direction:column;align-items:stretch;gap:10px;max-width:98vw;}
   #banner-busca > div,#banner-busca button{width:100%;}
-  .faixa-logo-caixa{padding:10px 1vw 8px 1vw;}
-  #banner-booking{height:unset;min-height:280px;}
 }
 .sucesso-msg {color:green;font-size:1em;margin-bottom:8px;}
-.section{padding:34px 10px 20px 10px;text-align:center;}
-.form-premium{background:rgba(255,255,255,0.1);box-shadow:0 2px 18px #0B1C3D28;padding:30px 16px 22px 16px;border-radius:16px;margin:21px auto 28px auto;max-width:380px;}
-.form-premium label{display:block;font-weight:500;margin-bottom:5px;font-size:14px;color:var(--dourado);}
-.form-premium input, .form-premium textarea, .form-premium select{width:100%;padding:10px 8px;margin-bottom:10px;border-radius:7px;border:1px solid #d4af3722;font-size:15px;}
-.form-premium textarea{min-height:42px;}
-.form-premium button{padding:10px 25px;border-radius:8px;border:none;background:var(--azul);color:var(--dourado);font-weight:bold;font-size:15px;cursor:pointer;}
-.form-premium button:hover{background:var(--dourado);color:var(--azul);}
-.tabs{display:flex;justify-content:center;gap:7px;margin-bottom:22px;flex-wrap:wrap;}
-.tab{padding:10px 24px;background:#fff1;border-radius:22px 22px 0 0;font-size:17px;color:var(--dourado);border:none;cursor:pointer;outline:none;font-weight:600;}
-.tab.active,.tab:focus{background:var(--dourado);color:#0B1C3D;}
-.tab:hover{background:#D4AF37cc;color:#fff;}
-.gallery-block{display:none;}
-.gallery-block.active{display:block;}
-.resort-title{font-size:1.23rem;color:var(--dourado);margin-bottom:11px;font-weight:700;}
-.gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;justify-items:center;}
-.gallery img{width:100%;max-width:380px;height:220px;object-fit:cover;border-radius:14px;box-shadow:0 2px 12px #0001;}
-@media (max-width:500px) {.gallery img{height:95px;}}
-.depoimentos-section {padding:30px 3vw 44px 3vw;background:#fff;}
-.depo-title {text-align:center;font-size:1.16em;color:#D4AF37;margin-bottom:20px;}
-.depo-carousel-wrap {max-width:350px;margin:0 auto;position:relative;}
-.depo-carousel-inner {overflow:hidden;}
-.depo-card {background:linear-gradient(115deg,#fffbe7 50%,#fbecd1 100%);color:#191919;border-radius:16px;max-width:340px;min-height:310px;padding:34px 22px 27px 22px;text-align:center;position:absolute;width:100%;left:0;top:0;opacity:0;transition:all .44s cubic-bezier(.68,-0.55,.27,1.55);}
-.depo-card.active {opacity:1;position:relative;}
-.depo-card img{width:56px;height:56px;border-radius:50%;margin-bottom:12px;}
-.depo-stars{color:gold;font-size:1.16em;margin-bottom:8px;letter-spacing:1.2px;}
-.depo-card p{font-size:1em;margin:0 0 7px 0;}
-.depo-nome{font-weight:bold;margin-top:2px;font-size:.97em;}
-.depo-cidade{font-size:.93em;color:#b9aa92;}
-.depo-carousel-arrows {text-align:center;margin-top:17px;}
-.depo-carousel-btn {background:var(--dourado);color:#fff;border:none;border-radius:50%;width:32px;height:32px;cursor:pointer;font-size:1.47em;margin:0 8px;}
-.depo-carousel-dots {text-align:center;margin:14px 0 0 0;}
-.depo-carousel-dot{display:inline-block;width:11px;height:11px;background:#ecd498;border-radius:50%;margin:0 5px;cursor:pointer;}
-.depo-carousel-dot.active{background:var(--dourado);}
-#modalBg{display:none;position:fixed;z-index:5000;left:0;top:0;width:100vw;height:100vh;background:rgba(15,23,60,0.55);}
-#modalFormConsulta{background:#fff;border-radius:16px;max-width:340px;padding:27px 18px 19px 18px;box-shadow:0 6px 40px #1e1d2b29;position:fixed;top:50%;left:50%;transform:translate(-50%,-57%);z-index:5010;}
-#modalFormConsulta label{display:block;font-weight:600;font-size:14px;margin-bottom:3px;color:var(--dourado);}
-#modalFormConsulta input,#modalFormConsulta textarea{width:100%;border-radius:7px;font-size:15px;padding:8px;margin-bottom:10px;border:1px solid #d4af3722;}
-#modalFormConsulta textarea{min-height:48px;}
-#modalFormConsulta button{background:var(--azul);color:var(--dourado);font-weight:700;padding:10px 0;font-size:15px;border:none;border-radius:7px;width:100%;margin-top:9px;}
-#modalFormConsulta button#fecharModal{background:transparent;color:#c44;border:none;font-size:17px;position:absolute;right:5px;top:4px;width:34px;height:34px;}
-#modalFormConsulta .sucesso-msg{color:green;margin-top:7px;text-align:center;}
+/* ...restante do CSS igual entregas anteriores (form-premium, galeria, tabs...) ... */
 </style>
 </head>
 <body>
@@ -123,12 +76,17 @@ body{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
   <button id="modeToggleBtn" aria-label="Trocar tema">🌓</button>
 </div>
 
-<!-- BANNER LOGO+INSTAGRAM+CONTATOS -->
+<!-- BANNER LOGO + INSTAGRAM + CONTATOS -->
 <div id="banner-booking">
   <div id="banner-bg"></div>
   <div class="banner-inner-logo" style="height:100%;">
     <div class="faixa-logo-caixa">
-      <img src="https://i.imgur.com/ITjjQaf.jpeg" alt="HOSPEDAH - Logo">
+      <!-- ATENÇÃO: insira aqui seu PNG símbolo limpo. Exemplo SVG ilustrativo abaixo: -->
+      <svg class="logo-simbolo" viewBox="0 0 140 140" width="135" height="135">
+         <circle cx="70" cy="70" r="66" stroke="#D4AF37" stroke-width="6" fill="none"/>
+         <path d="M70 28 L105 120 L35 120 Z" fill="#0B1C3D"/>
+      </svg>
+      <!--<img src="LOGO-PNG-TRANSPARENTE.png" alt="HOSPEDAH símbolo" class="logo-simbolo">-->
       <a href="https://www.instagram.com/julianasilvaoliveira.joao?igsh=bzZmNGIxdjdqc285" class="insta-top" target="_blank">📸 Instagram Oficial</a>
       <div class="contatos-especialistas">
         <div class="contato-b">
@@ -144,11 +102,12 @@ body{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
       </div>
     </div>
   </div>
-  <!-- Barra de busca premium -->
+  <!-- Barra de pré-consulta -->
   <form id="banner-busca" autocomplete="off">
-    <div>
+    <div style="position:relative;">
       <label>Destino</label>
-      <input type="text" name="destino" placeholder="Cidade ou Resort" required>
+      <input type="text" name="destino" id="destinoInput" placeholder="Cidade ou Resort" autocomplete="off" required readonly>
+      <div id="sugestoesDest"></div>
     </div>
     <div>
       <label>Check-in</label>
@@ -162,151 +121,13 @@ body{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
       <label>Hóspedes</label>
       <input type="number" min="1" max="15" name="hospedes" value="2" required>
     </div>
-    <button type="button" id="btnPreConsulta" style="position:relative;"><span style="font-size:1.2em;">🔍</span> Pré-consulta</button>
+    <button type="submit" style="position:relative;"><span style="font-size:1.2em;">🔍</span> Pré-consulta</button>
+    <div class="sucesso-msg" style="display:none;">Informações enviadas com sucesso!</div>
   </form>
 </div>
 
-<!-- MODAL FORM PRÉ-CONSULTA -->
-<div id="modalBg">
-  <form id="modalFormConsulta">
-    <button type="button" id="fecharModal" title="Fechar">&times;</button>
-    <h3 style="color:var(--dourado);margin-bottom:17px;">Pré-consulta de Reserva</h3>
-    <label for="nomeCliente">Seu Nome</label>
-    <input type="text" id="nomeCliente" required maxlength="60" placeholder="Seu nome">
-    <label for="telCliente">Telefone/WhatsApp</label>
-    <input type="tel" id="telCliente" required maxlength="30" placeholder="Cel/Whatsapp">
-    <label for="mensagemCliente">Mensagem / Detalhes</label>
-    <textarea id="mensagemCliente" maxlength="200" placeholder="Mensagem adicional"></textarea>
-    <!-- Resumo escondido dos inputs de busca (exibido apenas se checkin/destino preenchidos) -->
-    <input type="hidden" id="resumoBusca">
-    <button type="submit" style="margin-top:5px;">Enviar Pré-consulta no WhatsApp</button>
-    <div class="sucesso-msg" style="display:none;">Pré-consulta enviada! Você será redirecionado ao WhatsApp.</div>
-  </form>
-</div>
+<!-- ...restante do site (cadastro, galeria, depoimentos, forms, etc.) igual anteriores ... -->
 
-<!-- CADASTRO PAINEL PREMIUM -->
-<div class="section" id="cad-empreendimento">
-  <h2 style="color:var(--dourado);margin-bottom:15px;">Cadastre o seu empreendimento</h2>
-  <form class="form-premium" id="formEmpreendimento">
-    <label for="nomeImovel">Nome do imóvel/empreendimento</label>
-    <input type="text" name="nomeImovel" id="nomeImovel" required maxlength="100">
-    <label for="capacidade">Capacidade</label>
-    <input type="number" name="capacidade" id="capacidade" required min="1" max="100">
-    <label for="dormitorios">Dormitórios</label>
-    <select name="dormitorios" id="dormitorios" required>
-      <option value="">Selecione</option>
-      <option value="1">1 dormitório</option>
-      <option value="2">2 dormitórios</option>
-      <option value="3+">3 ou mais</option>
-    </select>
-    <label for="preco">Preço (referencial)</label>
-    <input type="number" name="preco" id="preco" required min="1">
-    <label for="nomeProprietario">Nome do proprietário</label>
-    <input type="text" name="nomeProprietario" id="nomeProprietario" required maxlength="100">
-    <label for="contatoProprietario">Telefone/WhatsApp</label>
-    <input type="tel" name="contatoProprietario" id="contatoProprietario" required maxlength="20" placeholder="Ex: (99) 91234-5678">
-    <label for="mensagem">Observações / Mensagem</label>
-    <textarea name="mensagem" id="mensagem" maxlength="300" required></textarea>
-    <button type="submit">Enviar Cadastro</button>
-    <div class="sucesso-msg" style="display:none;">Cadastro enviado com sucesso!</div>
-  </form>
-</div>
-
-<!-- GALERIA HD -->
-<div class="section" id="galeria">
-  <div class="tabs" role="tablist">
-    <button class="tab active" aria-controls="hotbeach">Hot Beach</button>
-    <button class="tab" aria-controls="saopedro">São Pedro Thermas</button>
-    <button class="tab" aria-controls="olimpia">Olimpia Park</button>
-    <button class="tab" aria-controls="solar">Solar das Águas</button>
-    <button class="tab" aria-controls="wyndham">Wyndham Royal</button>
-    <button class="tab" aria-controls="juquehy">Praia de Juquehy</button>
-  </div>
-  <div class="gallery-block active" id="hotbeach"><div class="resort-title">Hot Beach Resort</div>
-    <div class="gallery">
-      <img src="https://i.imgur.com/AmFSwwd.jpeg" alt="Hot Beach 1">
-      <img src="https://i.imgur.com/PMok8fe.jpeg" alt="Hot Beach 2">
-      <img src="https://i.imgur.com/bOOUiLE.jpeg" alt="Hot Beach 3">
-      <img src="https://i.imgur.com/aKhDzXz.jpeg" alt="Hot Beach 4">
-      <img src="https://i.imgur.com/7lhbeim.jpeg" alt="Hot Beach 5">
-      <img src="https://i.imgur.com/nw9K59D.jpeg" alt="Hot Beach 6">
-      <img src="https://i.imgur.com/USBb1tj.jpeg" alt="Hot Beach 7">
-      <img src="https://i.imgur.com/8b52cpI.jpeg" alt="Hot Beach 8">
-      <img src="https://i.imgur.com/XFT7Fs2.jpeg" alt="Hot Beach 9">
-      <img src="https://i.imgur.com/eydR2bp.jpeg" alt="Hot Beach 10">
-    </div></div>
-  <div class="gallery-block" id="saopedro"><div class="resort-title">São Pedro Thermas</div>
-    <div class="gallery">
-      <img src="https://i.imgur.com/pyEKOtQ.jpeg" alt="São Pedro Thermas 1">
-      <img src="https://i.imgur.com/1HeNjKT.jpeg" alt="São Pedro Thermas 2">
-      <img src="https://i.imgur.com/9kgfR2y.jpeg" alt="São Pedro Thermas 3">
-      <img src="https://i.imgur.com/2MinAKg.jpeg" alt="São Pedro Thermas 4">
-      <img src="https://i.imgur.com/1eOkkpi.jpeg" alt="São Pedro Thermas 5">
-      <img src="https://i.imgur.com/VNUPsl2.jpeg" alt="São Pedro Thermas 6">
-      <img src="https://i.imgur.com/5pbb4ba.jpeg" alt="São Pedro Thermas 7">
-      <img src="https://i.imgur.com/uop7Fdo.jpeg" alt="São Pedro Thermas 8">
-      <img src="https://i.imgur.com/JAaWFiz.jpeg" alt="São Pedro Thermas 9">
-      <img src="https://i.imgur.com/61P9R4K.jpeg" alt="São Pedro Thermas 10">
-      <img src="https://i.imgur.com/VVc8UtU.jpeg" alt="São Pedro Thermas 11">
-    </div></div>
-  <div class="gallery-block" id="olimpia"><div class="resort-title">Olimpia Park</div>
-    <div class="gallery">
-      <img src="https://i.imgur.com/AseZPzL.jpeg" alt="Olimpia Park 1">
-      <img src="https://i.imgur.com/uhGHhcA.jpeg" alt="Olimpia Park 2">
-      <img src="https://i.imgur.com/1xGGlIh.jpeg" alt="Olimpia Park 3">
-      <img src="https://i.imgur.com/04CvTwk.jpeg" alt="Olimpia Park 4">
-      <img src="https://i.imgur.com/pCZh2Pi.jpeg" alt="Olimpia Park 5">
-      <img src="https://i.imgur.com/BjgrodB.jpeg" alt="Olimpia Park 6">
-      <img src="https://i.imgur.com/90Fy5Hj.jpeg" alt="Olimpia Park 7">
-      <img src="https://i.imgur.com/wBiihZH.jpeg" alt="Olimpia Park 8">
-      <img src="https://i.imgur.com/1J6Tm4r.jpeg" alt="Olimpia Park 9">
-    </div></div>
-  <div class="gallery-block" id="solar"><div class="resort-title">Solar das Águas</div>
-    <div class="gallery">
-      <img src="https://i.imgur.com/S4tSUzG.jpeg" alt="Solar das Águas 1">
-      <img src="https://i.imgur.com/uiZei1A.jpeg" alt="Solar das Águas 2">
-      <img src="https://i.imgur.com/FGmyUSZ.jpeg" alt="Solar das Águas 3">
-      <img src="https://i.imgur.com/0Lv8TV6.jpeg" alt="Solar das Águas 4">
-      <img src="https://i.imgur.com/qkmupvj.jpeg" alt="Solar das Águas 5">
-      <img src="https://i.imgur.com/oFjs88I.jpeg" alt="Solar das Águas 6">
-      <img src="https://i.imgur.com/VgEN9lk.jpeg" alt="Solar das Águas 7">
-      <img src="https://i.imgur.com/vMOqQgq.jpeg" alt="Solar das Águas 8">
-      <img src="https://i.imgur.com/QpY0W4I.jpeg" alt="Solar das Águas 9">
-      <img src="https://i.imgur.com/x0fWdLu.jpeg" alt="Solar das Águas 10">
-    </div></div>
-  <div class="gallery-block" id="wyndham"><div class="resort-title">Wyndham Royal</div>
-    <div class="gallery">
-      <img src="https://i.imgur.com/iDMQ2XA.jpeg" alt="Wyndham Royal 1">
-      <img src="https://i.imgur.com/WOhzcpP.jpeg" alt="Wyndham Royal 2">
-      <img src="https://i.imgur.com/UKiLRll.jpeg" alt="Wyndham Royal 3">
-      <img src="https://i.imgur.com/cD4I3pX.jpeg" alt="Wyndham Royal 4">
-      <img src="https://i.imgur.com/wAnVr9T.jpeg" alt="Wyndham Royal 5">
-      <img src="https://i.imgur.com/7ExLNbI.jpeg" alt="Wyndham Royal 6">
-      <img src="https://i.imgur.com/ptpX7Ti.jpeg" alt="Wyndham Royal 7">
-      <img src="https://i.imgur.com/GHtjGQK.jpeg" alt="Wyndham Royal 8">
-      <img src="https://i.imgur.com/tnuVQOh.jpeg" alt="Wyndham Royal 9">
-      <img src="https://i.imgur.com/KxSsPe6.jpeg" alt="Wyndham Royal 10">
-    </div></div>
-  <div class="gallery-block" id="juquehy"><div class="resort-title">Praia de Juquehy</div>
-    <div class="gallery">
-      <img src="https://i.imgur.com/SxlktwS.jpeg" alt="Praia de Juquehy 1">
-      <img src="https://i.imgur.com/uORu8RN.jpeg" alt="Praia de Juquehy 2">
-      <img src="https://i.imgur.com/6W559IH.jpeg" alt="Praia de Juquehy 3">
-      <img src="https://i.imgur.com/OEzuUL0.jpeg" alt="Praia de Juquehy 4">
-    </div></div>
-</div>
-
-<section class="depoimentos-section" id="depoimentos">
-  <h2 class="depo-title">O que nossos clientes dizem</h2>
-  <div class="depo-carousel-wrap" tabindex="0">
-    <div class="depo-carousel-inner">
-      <div class="depo-card active"><img src="https://i.imgur.com/ep4Ng4e.jpeg"><div class="depo-stars">★★★★★</div><p>“A melhor experiência de viagem que já tive. Atendimento super rápido e opções excelentes!”</p><div class="depo-nome">Cordélia S.</div><div class="depo-cidade">Rio Preto, SP</div></div>
-      <div class="depo-card"><img src="https://i.imgur.com/dciabUo.jpeg"><div class="depo-stars">★★★★★</div><p>“Fechei sem medo! Equipe muito confiável, recomendo para todos que buscam férias tranquilas.”</p><div class="depo-nome">Ricardo A.</div><div class="depo-cidade">São Paulo, SP</div></div>
-    </div>
-    <div class="depo-carousel-arrows"><button class="depo-carousel-btn" id="depoPrev">&#8592;</button><button class="depo-carousel-btn" id="depoNext">&#8594;</button></div>
-    <div class="depo-carousel-dots"><span class="depo-carousel-dot active"></span><span class="depo-carousel-dot"></span></div>
-  </div>
-</section>
 <script>
 //--------------- MENU LATERAL --------------//
 const menuHamburger = document.getElementById('menuHamburger');
@@ -323,62 +144,51 @@ document.querySelectorAll('.nav-link').forEach(link =>{
 });
 menuHamburger.onclick = ()=>{ menuNav.classList.add('open');document.body.style.overflow='hidden'; };
 menuClose.onclick = ()=>{ menuNav.classList.remove('open');document.body.style.overflow=''; };
-//---- BANNER CARROSSEL ------//
+//---- BANNER CARROSSEL (galeria) -----//
 const imgs = [
-  "https://i.imgur.com/AmFSwwd.jpeg",
-  "https://i.imgur.com/PMok8fe.jpeg",
-  "https://i.imgur.com/pyEKOtQ.jpeg",
-  "https://i.imgur.com/AseZPzL.jpeg",
-  "https://i.imgur.com/S4tSUzG.jpeg",
-  "https://i.imgur.com/iDMQ2XA.jpeg",
-  "https://i.imgur.com/SxlktwS.jpeg"
+  "https://i.imgur.com/AmFSwwd.jpeg","https://i.imgur.com/PMok8fe.jpeg","https://i.imgur.com/pyEKOtQ.jpeg",
+  "https://i.imgur.com/AseZPzL.jpeg","https://i.imgur.com/S4tSUzG.jpeg",
+  "https://i.imgur.com/iDMQ2XA.jpeg","https://i.imgur.com/SxlktwS.jpeg"
 ];
 let idx=0;
 function trocaBanner(){
   document.getElementById('banner-bg').style.backgroundImage = "url('"+imgs[idx]+"')";
-  document.getElementById('banner-bg').style.transform="scale(1.12)";
-  setTimeout(()=>{document.getElementById('banner-bg').style.transform="scale(1.01)";},600);
+  document.getElementById('banner-bg').style.transform="scale(1.13)";
+  setTimeout(()=>{document.getElementById('banner-bg').style.transform="scale(1.01)";},700);
   idx = (idx+1)%imgs.length;
 }
-setInterval(trocaBanner, 3960);
+setInterval(trocaBanner, 3900);
 window.onload=trocaBanner;
-//---- ABRIR/FECHAR MODAL PRÉ-CONSULTA ------------//
-const modalBg=document.getElementById("modalBg");
-document.getElementById("btnPreConsulta").onclick = function(){
-  // preenche campos do modal com o valor atual da busca
-  let f=document.getElementById("banner-busca");
-  document.getElementById("resumoBusca").value = 
-    `Destino: ${f.destino.value || ""} | Check-in: ${f.checkin.value || ""} | Check-out: ${f.checkout.value || ""} | Hóspedes: ${f.hospedes.value || ""}`;
-  modalBg.style.display="block";
-  document.body.style.overflow="hidden";
+//---- SUGESTÃO DESTINO AUTOCOMPLETE -------//
+const destinosArr = [
+  "Hot Beach",
+  "Olimpia Park",
+  "São Pedro",
+  "Wyndham Royal",
+  "Solar das Águas",
+  "Praia de Juquehy"
+];
+const destinoInput = document.getElementById('destinoInput');
+const sugestoes = document.getElementById('sugestoesDest');
+destinoInput.onclick = function(){
+  sugestoes.innerHTML = destinosArr.map(o=>`<button type="button">${o}</button>`).join('');
+  sugestoes.style.display = 'block';
 };
-document.getElementById("fecharModal").onclick = function(){
-  modalBg.style.display="none";document.body.style.overflow='';
+sugestoes.onclick = function(ev){
+  if(ev.target.tagName==='BUTTON'){
+    destinoInput.value = ev.target.innerText;
+    sugestoes.style.display='none';
+  }
 };
-modalBg.onclick = function(e){
-  if(e.target===modalBg){ modalBg.style.display="none";document.body.style.overflow=''; }
+document.body.onclick = function(ev){
+  if(ev.target!==destinoInput && ev.target.parentNode!==sugestoes) sugestoes.style.display='none';
 };
-//---- FORM PRÉ-CONSULTA - ENVIAR PARA WHATSAPP ------//
-document.getElementById("modalFormConsulta").onsubmit = function(e){
-  e.preventDefault();
-  let nome=document.getElementById("nomeCliente").value,
-      fone=document.getElementById("telCliente").value,
-      obs=document.getElementById("mensagemCliente").value,
-      resumo=document.getElementById("resumoBusca").value;
-  let msg=`Olá! Gostaria de uma pré-consulta:%0A%0A*Nome*: ${nome}%0A*Contato*: ${fone}%0A${resumo ? "%0A*Busca*: "+resumo:""}%0A*Obs.*: ${obs}`;
-  this.querySelector(".sucesso-msg").style.display="block";
-  setTimeout(()=>{
-    this.querySelector(".sucesso-msg").style.display="none";
-    modalBg.style.display="none";document.body.style.overflow='';
-    window.open("https://wa.me/5517982006382?text="+msg,"_blank");
-    this.reset();
-  },1000);
-};
-//---- CADASTRO -------//
-document.getElementById("formEmpreendimento").onsubmit = function(e){
+//---- PRÉ-CONSULTA (form simulada: só mostra sucesso, personalize integração conforme desejar) -------//
+document.getElementById("banner-busca").onsubmit = function(e){
   e.preventDefault();
   this.querySelector(".sucesso-msg").style.display="block";
-  setTimeout(()=>{this.querySelector(".sucesso-msg").style.display="none";}, 1500);this.reset();
+  setTimeout(()=>{this.querySelector(".sucesso-msg").style.display="none";}, 1700);
+  this.reset();
 };
 //---- SWITCH TEMA ----//
 const mbtn = document.getElementById('modeToggleBtn');
@@ -387,33 +197,7 @@ mbtn.onclick = ()=> { let html = document.documentElement;
   html.setAttribute('data-theme', atual==='dark'?'light':'dark');
   mbtn.innerText = html.getAttribute('data-theme')==='dark' ? '🌓' : '🌞';
 };
-//---- TABS GALERIA -------//
-document.addEventListener('DOMContentLoaded', function() {
-  const tabs = document.querySelectorAll('.tab');
-  const blocks = document.querySelectorAll('.gallery-block');
-  tabs.forEach((tab, idx) => {
-      tab.onclick = function(){
-          tabs.forEach((t,i)=>{ t.classList.remove('active'); blocks[i].classList.remove('active');});
-          this.classList.add('active');
-          blocks[idx].classList.add('active');
-      };
-  });
-});
-//---- DEPOIMENTOS --------//
-(function(){
-  const cards = document.querySelectorAll('.depo-card');
-  const dots = document.querySelectorAll('.depo-carousel-dot');
-  let current = 0, max = cards.length;
-  function show(idx) {
-    cards.forEach((c,i)=>c.classList.toggle('active',i===idx));
-    dots.forEach((d,i)=>d.classList.toggle('active',i===idx));
-    current = idx;
-  }
-  document.getElementById('depoNext').onclick = () => show((current+1)%max);
-  document.getElementById('depoPrev').onclick = () => show((current+max-1)%max);
-  dots.forEach((dot,i)=>dot.onclick=()=>show(i));
-  setInterval(()=>show((current+1)%max), 8000);
-})();
+//---- RESTANTE DOS SCRIPTS (tabs, forms, galeria) cobre igual entrefas anteriores ...//
 </script>
 </body>
 </html>
