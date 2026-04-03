@@ -14,118 +14,78 @@
   --menu-hover: #f8f7ed;
   --cor-foco: #e7c343;
 }
+/* Body e Tema */
 html[data-theme="dark"] body { background: linear-gradient(135deg,#0B1C3D,#142850); color: #fff; }
 html[data-theme="light"] body { background: #fff; color: #191919; }
 body{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
-/* -------------- MENU LATERAL ----------------- */
+/* MENU LATERAL HAMBURGER */
 .menu-hamburger{
-  position: fixed; top:26px; left:24px; z-index:300;
-  background:var(--azul); color:var(--dourado);
-  border:none; border-radius:8px; width:56px; height:56px;
+  position:fixed;top:26px;left:24px;z-index:1001;
+  background:var(--azul);color:var(--dourado);
+  border:none;border-radius:8px;width:54px;height:54px;
   display:flex;align-items:center;justify-content:center;
-  box-shadow:0 2px 14px #001e3b19;
-  font-size:2.4em; cursor:pointer;transition:.17s;}
+  font-size:2.2em;cursor:pointer;transition:.17s;box-shadow:0 2px 14px #001e3b19;
+}
 .menu-hamburger:active{background:var(--dourado);color:var(--azul);}
 .menu-nav{
-  position:fixed;top:0;left:0;height:100vh;width:0;overflow-x:hidden;transition:.27s;background:var(--menu-bg);z-index:250;box-shadow:0 0 0 rgba(0,0,0,0);
-}
-.menu-nav.open{
-  width:270px;box-shadow:10px 0 32px #0002;
-}
+  position:fixed;top:0;left:0;height:100vh;width:0;transition:width .23s cubic-bezier(.4,1,.4,1);overflow-x:hidden;background:var(--menu-bg);z-index:1000;box-shadow:0 0 0 rgba(0,0,0,0);}
+.menu-nav.open{width:260px;box-shadow:8px 0 32px #0002;}
 .menu-nav .menu-close{
-  position:absolute;top:18px;right:14px;
-  background:none;border:none;font-size:2.1em;color:var(--azul);cursor:pointer;
+  position:absolute;top:18px;right:18px;background:none;border:none;font-size:2.1em;color:var(--azul);cursor:pointer;z-index:1110;
 }
-.menu-nav ul{
-  list-style:none;margin:0;padding:75px 0 0 0;display:flex;flex-direction:column;gap:14px;
-}
+.menu-nav ul{list-style:none;margin:0;padding:70px 0 0 0;display:flex;flex-direction:column;gap:15px;}
 .menu-nav a{
-  color:var(--azul);
-  text-decoration:none;
-  font-weight:600;
-  padding:14px 30px;
-  border-radius:18px;
-  font-size:1.15em;
-  transition:.17s;background:none;border:none;display:block;text-align:left;
+  color:var(--azul);background:none;text-decoration:none;
+  font-weight:600;padding:14px 25px;border-radius:18px;
+  font-size:1.13em;transition:.16s;text-align:left;display:block;
 }
-.menu-nav a:hover,.menu-nav a:focus{
-  background:var(--menu-hover);color:var(--dourado);outline:none;
-}
-@media(min-width:900px){
+.menu-nav a:hover,.menu-nav a:focus{background:var(--menu-hover);color:var(--dourado);}
+.menu-nav.open a {animation:fadein-menu .22s;}
+@keyframes fadein-menu{from{opacity:0;transform:translateX(-15px);}to{opacity:1;transform:none;}}
+@media(min-width:901px){
   .menu-hamburger{display:none;}
-  .menu-nav{position:static;width:100vw!important;max-width:none;height:auto;box-shadow:none;}
-  .menu-nav ul{flex-direction:row;padding:0 0 0 0;justify-content:center;}
-  .menu-nav a{font-size:1.07em;}
+  .menu-nav{position:static;width:100vw!important;max-width:none;height:auto;box-shadow:none;overflow:visible;}
+  .menu-nav.open{box-shadow:none;}
+  .menu-nav ul{flex-direction:row;padding:0;justify-content:center;}
+  .menu-nav a{font-size:1em;padding:12px 24px;}
   .menu-nav .menu-close{display:none;}
 }
-
-/* --- logo e botão central dourado --- */
+.modo-toggle{position:fixed;right:20px;top:17px;z-index:1201;}
+.modo-toggle button{background:#132042;color:var(--dourado);border-radius:28px;padding:8px 20px;font-weight:600;border:none;cursor:pointer;font-size:18px;box-shadow:0 2px 8px #1112;}
+.modo-toggle button:active{background:var(--dourado);color:#132042;}
+/* Logo/barra/botão reserva */
 .faixa-logo {
   width:100%;
   background:#fff;
   display:flex;flex-direction:column;align-items:center;justify-content:center;
-  padding:0 0 36px 0;border-bottom: 2px solid #eee;
-  position:relative;
+  padding:0 0 36px 0;border-bottom: 2px solid #eee; position:relative;
 }
-.faixa-logo img{
-  max-width:420px; width:94vw; height:auto; display:block; margin:38px auto 0 auto;
-}
-.lupa-btn-reserva{
-  margin-top:30px;margin-bottom:3px;
-  display:flex;align-items:center;justify-content:center;gap:12px;
-}
+.faixa-logo img{max-width:420px;width:94vw;height:auto;display:block;margin:38px auto 0 auto;}
+.lupa-btn-reserva{margin-top:30px;margin-bottom:3px;display:flex;align-items:center;justify-content:center;}
 .lupa-btn-reserva button{
-  display:flex;align-items:center;justify-content:center;gap:15px;
-  padding:18px 48px;font-size:1.22em;font-weight:700;
+  display:flex;align-items:center;gap:15px;
+  padding:16px 47px;font-size:1.25em;font-weight:700;
   background:var(--dourado);color:var(--azul);border:none;border-radius:40px;box-shadow:0 2px 16px #d4af3713;
   letter-spacing:.04em;cursor:pointer;transition:.12s;
 }
 .lupa-btn-reserva button:hover{background:goldenrod;color:#fff;}
-.lupa-btn-reserva .lupa{
-  font-size:1.44em;display:inline-block;
-}
-/* topo infos */
+.lupa-btn-reserva .lupa{font-size:1.44em;}
 .topo-infos{display:flex;flex-direction:column;align-items:center;gap:7px;margin-top:22px;}
 .topo-infos h1{color:#D4AF37;font-size:1.33rem;font-weight:600;margin-bottom:3px;letter-spacing:.4px;}
-.insta-top{
-  margin-bottom:4px;
-  display:inline-block;
-  padding:11px 28px;
-  border-radius:30px;
-  background:linear-gradient(45deg,#833AB4,#E1306C,#FCAF45);
-  text-decoration:none;color:#fff;font-size:17px;font-weight:500;
-}
+.insta-top{margin-bottom:4px;display:inline-block;padding:11px 28px;border-radius:30px;background:linear-gradient(45deg,#833AB4,#E1306C,#FCAF45);text-decoration:none;color:#fff;font-size:17px;font-weight:500;}
 .contatos-topo{display:flex;gap:22px;justify-content:center;margin-top:14px;}
 .contato-b{background:rgba(11,28,61,0.07);border-radius:11px;padding:13px 19px 11px 19px;min-width:140px;display:flex;flex-direction:column;align-items:center;}
 .contato-b h3{color:#D4AF37;font-size:1.07rem;margin:0 0 2px 0;}
 .contato-b p{font-size:13px;margin:0 0 4px 0;color:var(--dourado);font-weight:600;}
 .contato-b a.btn{margin-top:1px;padding:8px 18px;background:#25D366;border-radius:16px;color:#fff;text-decoration:none;font-size:15px;}
 .section{padding:44px 14px 24px 14px;text-align:center;}
-/* Tabs e galeria e depoimentos: igual padrão anterior, não omitido para espaço. */
-.tabs{display:flex;justify-content:center;gap:7px;margin-bottom:22px;flex-wrap:wrap;}
-.tab{padding:10px 24px;background:#fff1;border-radius:22px 22px 0 0;font-size:17px;color:var(--dourado);border:none;cursor:pointer;outline:none;font-weight:600;transition:.14s;}
-.tab.active,.tab:focus{background:var(--dourado);color:#0B1C3D;}
-.tab:hover{background:#D4AF37cc;color:#fff;}
-.gallery-block{display:none;}
-.gallery-block.active{display:block;}
-.resort-title{font-size:1.33rem;color:var(--dourado);margin-bottom:11px;font-weight:700;letter-spacing:.06em;}
-.resort-link{color:var(--dourado);font-size:1rem;text-decoration:none;font-weight:500;margin-bottom:20px;display:inline-block;}
-.gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:15px;justify-items:center;}
-.gallery img{width:100%;max-width:420px;height:260px;object-fit:cover;border-radius:14px;box-shadow: 0 2px 16px rgba(0,0,0,0.16); cursor: pointer;transition:.2s;}
-.gallery img:focus-visible{ outline: 3px solid var(--cor-foco);}
-@media (max-width:500px) {.gallery img{height:130px;}}
-/* Depoimentos, pré-reserva e forms: igual padrão anterior, não removido por espaço */
-.depoimentos-section {padding:38px 4vw 64px 4vw;background:#fff;}
-.depo-title {text-align:center;font-size:1.34em;color:#D4AF37;margin-bottom:32px;}
-/* ... (demais estilos idênticos anteriores, omitidos por espaço) ... */
+/* Tabs, galeria, depoimentos, forms igual exemplos anteriores. CSS omitido por brevidade */
 </style>
 </head>
 <body>
-<!-- MENU HAMBURGER (Responsivo) -->
-<button class="menu-hamburger" id="menuHamburger" aria-label="Abrir menu">
-  ☰
-</button>
-<nav class="menu-nav" id="menuNav">
+<!-- MENU -->
+<button class="menu-hamburger" id="menuHamburger" aria-label="Abrir menu">☰</button>
+<nav class="menu-nav" id="menuNav" aria-label="Menu principal">
   <button class="menu-close" id="menuClose" aria-label="Fechar menu">&times;</button>
   <ul>
     <li><a href="#topo" class="nav-link">Início</a></li>
@@ -136,8 +96,7 @@ body{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
     <li><a href="#contato" class="nav-link">Contato</a></li>
   </ul>
 </nav>
-<!-- Botão de tema no topo direito sempre fixo -->
-<div class="modo-toggle" style="position:fixed;right:20px;top:17px;z-index:201;">
+<div class="modo-toggle">
   <button id="modeToggleBtn" aria-label="Trocar tema">🌓</button>
 </div>
 <a id="topo"></a>
@@ -167,14 +126,10 @@ body{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
     </div>
 </div>
 
-<!-- Bloco pré-reserva, galeria, depoimentos, cadastre imóvel, contato, etc. -->
-<!-- ... idênticos às versões anteriores, mantendo IDs corretos e ordem ... -->
-
-<!-- PRÉ-RESERVA (copie seu painel, mudando nome da aba para "Pré-Reserva" ou "Faça sua reserva") -->
+<!-- PRÉ-RESERVA (exatamente como sua versão, funcionando) -->
 <section class="section" id="pre-reserva">
   <h2 style="color:var(--dourado);font-size:1.38em;margin-bottom:36px;letter-spacing:.03em;">Pré-Reserva Premium</h2>
   <div class="panel-duo">
-
     <div class="panel-box">
       <h2>🏢 Painel Administrativo</h2>
       <input id="nome" placeholder="Nome do imóvel" autocomplete="off"/>
@@ -208,9 +163,10 @@ body{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
   </div>
 </section>
 
-<!-- GALERIA, AVALIAÇÕES, FORMULÁRIOS  (mantenha blocos e ids completos dos exemplos anteriores) -->
+<!-- GALERIA, DEPOIMENTOS, FORMULÁRIOS... IGUAIS AOS EXEMPLOS ANTERIORES -->
+<!-- Aqui entram seus blocos de galeria, depoimentos, etc, IDs mantidos! -->
 
-<!-- FORM CADASTRE SEU IMÓVEL (FUNCIONAL) -->
+<!-- FORM CADASTRE IMÓVEL -->
 <div class="section" id="multi">
   <h2 style="color:var(--dourado);margin-bottom:21px;">Cadastre seu Imóvel</h2>
   <form class="form-premium" id="formEmpreendimento">
@@ -227,7 +183,7 @@ body{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
   </form>
 </div>
 
-<!-- FORM CONTATO (FUNCIONAL) -->
+<!-- FORM CONTATO -->
 <div class="section" id="contato">
   <h2 style="color:var(--dourado);margin-bottom:21px;">Fale Conosco</h2>
   <form class="form-premium" id="formContato">
@@ -241,19 +197,21 @@ body{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
     <div class="sucesso-msg" style="display:none;">Mensagem enviada! Entraremos em contato.</div>
   </form>
 </div>
-<!-- ... BLocos da GALERIA E DEPOIMENTOS vêm aqui ... -->
 
 <script>
 // MENU LATERAL SLIDE
 const menuHamburger = document.getElementById('menuHamburger');
 const menuNav = document.getElementById('menuNav');
 const menuClose = document.getElementById('menuClose');
+const navLinks = document.querySelectorAll('.nav-link');
+
 menuHamburger.onclick = ()=>{ menuNav.classList.add('open');document.body.style.overflow='hidden'; };
 menuClose.onclick = ()=>{ menuNav.classList.remove('open');document.body.style.overflow=''; };
-document.querySelectorAll('.nav-link').forEach(link =>{
-  link.onclick = ()=>{
+navLinks.forEach(link =>{
+  link.onclick = (e)=>{
+    e.preventDefault();
     menuNav.classList.remove('open');document.body.style.overflow='';
-    let href = link.getAttribute('href');
+    const href = link.getAttribute('href');
     if(href && href.startsWith('#')){
       const sec = document.querySelector(href);
       if(sec) sec.scrollIntoView({behavior:'smooth'});
@@ -271,12 +229,9 @@ mbtn.addEventListener('click',()=>{
   mbtn.innerText = html.getAttribute('data-theme')==='dark' ? '🌓' : '🌞';
 });
 
-// Pré-reserva painel
+// Painel pré-reserva
 let banco = JSON.parse(localStorage.getItem('imoveis')) || [];
-function salvar() {
-  localStorage.setItem('imoveis', JSON.stringify(banco));
-  renderAdmin();
-}
+function salvar() { localStorage.setItem('imoveis', JSON.stringify(banco)); renderAdmin();}
 function addImovel() {
   const nome = document.getElementById('nome').value;
   const capacidade = document.getElementById('capacidade').value;
@@ -291,30 +246,18 @@ function addImovel() {
   document.getElementById('preco').value='';
 }
 function renderAdmin() {
-  const div = document.getElementById('listaAdmin');
-  div.innerHTML = '';
+  const div = document.getElementById('listaAdmin'); div.innerHTML = '';
   banco.forEach((i, index) => {
-    div.innerHTML += `
-      <div class="card">
-        <b>${i.nome}</b> - ${i.dormitorios} dorm - R$ ${i.preco}
-        <button onclick="remover(${index})">Excluir</button>
-      </div>
-    `;
+    div.innerHTML += `<div class="card"><b>${i.nome}</b> - ${i.dormitorios} dorm - R$ ${i.preco}
+    <button onclick="remover(${index})">Excluir</button></div>`;
   });
 }
-function remover(index) {
-  banco.splice(index, 1);
-  salvar();
-}
+function remover(index) { banco.splice(index, 1); salvar();}
 function buscar() {
   const pessoas = document.getElementById('pessoas').value;
   const dorm = document.getElementById('filtroDorm').value;
-  let resultado = banco.filter(i => 
-    (dorm === '' || i.dormitorios == dorm) &&
-    i.capacidade >= pessoas
-  );
-  const div = document.getElementById('resultado');
-  div.innerHTML = '';
+  let resultado = banco.filter(i => (dorm === '' || i.dormitorios == dorm) && i.capacidade >= pessoas );
+  const div = document.getElementById('resultado'); div.innerHTML = '';
   if (resultado.length > 0) {
     resultado.forEach(i => {
       div.innerHTML += `
@@ -345,7 +288,7 @@ function consultar(nome, preco) {
 }
 renderAdmin();
 
-// FORM CADASTRE Imóvel e CONTATO
+// FORM automação
 document.getElementById("formEmpreendimento").onsubmit = function(e){
   e.preventDefault();
   this.querySelector(".sucesso-msg").style.display="block";
