@@ -47,7 +47,16 @@ body{margin:0;padding:0;font-family:Poppins,sans-serif;background:#f4f6fa;color:
 @keyframes zoom { from{transform:scale(1);} to{transform:scale(1.09);} }
 .overlay { position:absolute; width:100%; height:100%; background:rgba(0,0,0,0.24); top:0; left:0; }
 .content-hero { position:relative; z-index:2; height:100%; display:flex; justify-content:center; align-items:center; }
-.logo-hero { width:260px; background:rgba(255,255,255,0.90); border-radius:22px; box-shadow:0 8px 38px #0002; padding:8px 10px; max-width:90vw;}
+.logo-hero {
+  width:410px;
+  background:rgba(255,255,255,0.90);
+  border-radius:34px;
+  box-shadow:0 8px 38px #0002;
+  padding:10px 18px;
+  max-width:98vw;
+  display:block;
+}
+@media(max-width:440px){.logo-hero{width:99vw;padding:0;}}
 .faixa-logo {width:100%;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:28px 0 23px 0;position:relative;z-index:120;border-bottom: 2px solid #eee;box-sizing:border-box;}
 .faixa-logo-tit{font-size:1.15rem;letter-spacing:.06em;color:#D4AF37;margin-bottom:7px;font-weight:600;}
 .faixa-logo .insta-top{margin:7px 0 15px 0;display:inline-block;padding:11px 28px 10px 28px;border-radius:30px;background:linear-gradient(45deg,#833AB4,#E1306C,#FCAF45);text-decoration:none;color:#fff;font-size:16px;font-weight:500;}
@@ -129,7 +138,7 @@ body{margin:0;padding:0;font-family:Poppins,sans-serif;background:#f4f6fa;color:
   <img class="bg-slide" src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=900&q=80" alt="">
   <div class="overlay"></div>
   <div class="content-hero">
-    <img src="https://i.imgur.com/ITjjQaf.jpeg" class="logo-hero" alt="HOSPEDAH">
+    <img src="https://i.imgur.com/gDUMsLQ.jpeg" class="logo-hero" alt="HOSPEDAH">
   </div>
 </div>
 <!-- FAIXA DE ESPECIALISTAS E INSTA -->
