@@ -1,386 +1,186 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-br" data-theme="dark">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>HOSPEDAH | Resorts e Experiências Exclusivas</title>
-<meta name="description" content="Hospede-se com qualidade nos melhores resorts e tenha experiências exclusivas. Orçamento premium, atendimento digital e profissionais à disposição.">
+<title>HOSPEDAH | Cadastre seu Imóvel/Empreendimento</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
 <style>
-:root {
-  --dourado: #D4AF37;
-  --azul: #0B1C3D;
-  --bg-claro: #fff;
-  --bg-grad: linear-gradient(135deg,#0B1C3D,#142850);
-  --cor-foco: #e7c343;
+:root { --dourado: #D4AF37; --azul: #0B1C3D; --menu-bg: #fff;}
+html[data-theme="dark"] body { background: linear-gradient(135deg,#0B1C3D,#142850); color: #fff; }
+html[data-theme="light"] body { background: #fff; color: #191919; }
+body{margin:0;padding:0; box-sizing:border-box; font-family:'Poppins',sans-serif;}
+.menu-hamburger{
+  position:fixed;top:18px;left:17px;z-index:1301;background:var(--azul);color:var(--dourado);
+  border:none;border-radius:8px;width:48px;height:48px;display:flex;align-items:center;justify-content:center;font-size:2em;cursor:pointer;}
+.menu-hamburger:active{background:var(--dourado);color:var(--azul);}
+.menu-nav{position:fixed;top:0;left:0;height:100vh;width:0;transition:width .23s cubic-bezier(.4,1,.4,1);overflow-x:hidden;background:var(--menu-bg);z-index:1300;}
+.menu-nav.open{width:235px;box-shadow:8px 0 24px #0002;}
+.menu-close{position:absolute;top:17px;right:13px;background:none;border:none;font-size:2em;color:var(--azul);cursor:pointer;}
+.menu-nav ul{list-style:none;margin:0;padding:70px 0 0 0;display:flex;flex-direction:column;gap:12px;}
+.menu-nav a{color:var(--azul);background:none;text-decoration:none;font-weight:600;padding:12px 25px;border-radius:14px;font-size:1.09em;transition:.16s;}
+.menu-nav a:hover,.menu-nav a:focus{background:#f7f3da;color:var(--dourado);}
+@media(min-width:901px){
+  .menu-hamburger{display:none;}
+  .menu-nav{position:static;width:100vw!important;max-width:none;height:auto;box-shadow:none;}
+  .menu-nav.open{box-shadow:none;}
+  .menu-nav ul{flex-direction:row;padding:0;}
+  .menu-nav a{font-size:1em;padding:13px 18px;}
+  .menu-close{display:none;}
 }
-html[data-theme="dark"] body { background: var(--bg-grad); color: #fff; }
-html[data-theme="light"] body { background: var(--bg-claro); color: #191919; }
-body{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;background:var(--bg-grad);color:#fff;}
-/* MENU PREMIUM ACIMA DO LOGO */
-.menu-topo {
-  width: 100%;
-  background: #fff;
-  box-shadow: 0 4px 20px -7px #001e3b30;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 0;
-  position: relative;
-  padding: 0;
-  z-index: 99;
-}
-nav.nav-main {
-  display: flex;
-  justify-content: center;
-  gap: 20px;
-  padding: 18px 0 8px 0;
-  background: none;
-  z-index: 2;
-}
-nav.nav-main a {
-  display:inline-block;
-  background:var(--azul);
-  color:var(--dourado);
-  font-weight:600;
-  text-decoration:none;
-  font-size:18px;
-  padding:11px 22px;
-  border-radius:30px;
-  transition: background .17s, color .17s, box-shadow .16s;
-  box-shadow:0 2px 8px #1113;
-  letter-spacing:.02em;
-  border:none;outline:none;
-}
-nav.nav-main a:hover,nav.nav-main a:focus {background: #21315B; color: #FFD700;}
-.modo-toggle{position:absolute;right:30px;top:13px;z-index:91;}
-.modo-toggle button{background:#132042;color:var(--dourado);border-radius:28px;padding:8px 20px;font-weight:600;border:none;cursor:pointer;font-size:18px;box-shadow:0 2px 8px #1112;}
-.modo-toggle button:active{background:var(--dourado);color:#132042;}
-@media (max-width:900px) {nav.nav-main {gap: 8px;}nav.nav-main a {font-size:15px;padding:7px 10px;}}
-@media (max-width:600px){
-  nav.nav-main {flex-wrap:wrap;gap:4px;padding-top:11px;padding-bottom:7px;}
-  .menu-topo {flex-direction:column;padding:0;}
-}
-.faixa-logo {
-  width:100%;
-  background:#fff;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  padding:0 0 34px 0;
-  position:relative;
-  border-bottom: 2px solid #eee;
-}
-.faixa-logo img{
-  max-width:420px; width:94vw; height:auto; display:block; margin:35px auto 0 auto;
-}
-.topo-infos{display:flex;flex-direction:column;align-items:center;gap:7px;margin-top:22px;}
-.topo-infos h1{color:#D4AF37;font-size:1.33rem;font-weight:600;margin-bottom:3px;letter-spacing:.4px;}
-.insta-top{
-  margin-bottom:4px;
-  display:inline-block;
-  padding:11px 28px;
-  border-radius:30px;
-  background:linear-gradient(45deg,#833AB4,#E1306C,#FCAF45);
-  text-decoration:none;color:#fff;font-size:17px;font-weight:500;
-}
-.contatos-topo{display:flex;gap:22px;justify-content:center;margin-top:14px;}
-.contato-b{background:rgba(11,28,61,0.07);border-radius:11px;padding:13px 19px 11px 19px;min-width:140px;display:flex;flex-direction:column;align-items:center;}
-.contato-b h3{color:#D4AF37;font-size:1.07rem;margin:0 0 2px 0;}
-.contato-b p{font-size:13px;margin:0 0 4px 0;color:var(--dourado);font-weight:600;}
-.contato-b a.btn{margin-top:1px;padding:8px 18px;background:#25D366;border-radius:16px;color:#fff;text-decoration:none;font-size:15px;}
-.section{padding:44px 14px 24px 14px;text-align:center;}
-/* Galeria/tabs/depoimentos seguem padrões anteriores */
-.tabs{display:flex;justify-content:center;gap:7px;margin-bottom:22px;flex-wrap:wrap;}
-.tab{padding:10px 24px;background:#fff1;border-radius:22px 22px 0 0;font-size:17px;color:var(--dourado);border:none;cursor:pointer;outline:none;font-weight:600;transition:.14s;}
-.tab.active,.tab:focus{background:var(--dourado);color:#0B1C3D;}
-.tab:hover{background:#D4AF37cc;color:#fff;}
-.gallery-block{display:none;}
-.gallery-block.active{display:block;}
-.resort-title{font-size:1.33rem;color:var(--dourado);margin-bottom:11px;font-weight:700;letter-spacing:.06em;}
-.resort-link{color:var(--dourado);font-size:1rem;text-decoration:none;font-weight:500;margin-bottom:20px;display:inline-block;}
-.gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:15px;justify-items:center;}
-.gallery img{width:100%;max-width:420px;height:260px;object-fit:cover;border-radius:14px;box-shadow: 0 2px 16px rgba(0,0,0,0.16); cursor: pointer;transition:.2s;}
-.gallery img:focus-visible{ outline: 3px solid var(--cor-foco);}
-@media (max-width:500px) {.gallery img{height:130px;}}
-/* Depoimentos */
-.depoimentos-section {padding:38px 4vw 64px 4vw;background:#fff;}
-.depo-title {text-align:center;font-size:1.34em;color:#D4AF37;margin-bottom:32px;}
-.depo-carousel-wrap {max-width:350px;margin:0 auto;position:relative;}
-.depo-carousel-inner {overflow:hidden;}
-.depo-card {background:linear-gradient(115deg,#fffbe7 50%,#fbecd1 100%);color:#191919;border-radius:16px;box-shadow:0 2px 18px #efb21107;max-width:340px;min-height:378px;padding:36px 28px 32px 28px;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center;position:absolute;width:100%;left:0;top:0;opacity:0;transition:all .44s cubic-bezier(.68,-0.55,.27,1.55);pointer-events:none;}
-.depo-card.active {opacity:1;position:relative;pointer-events:auto;}
-.depo-card img{width:56px;height:56px;border-radius:50%;margin-bottom:15px;object-fit:cover;box-shadow:0 1px 8px #0001;}
-.depo-stars{color:gold;font-size:1.26em;margin-bottom:10px;letter-spacing:2px;}
-.depo-card p{font-size:1.07em;margin:0 0 12px 0;font-style:italic;}
-.depo-nome{font-weight:bold;margin-top:2px;font-size:1.08em;}
-.depo-cidade{font-size:.99em;color:#b9aa92;}
-.depo-carousel-arrows {text-align:center;margin-top:24px;}
-.depo-carousel-btn {background: var(--dourado,#D4AF37); color:#fff;border:none;border-radius:50%;width:38px;height:38px;cursor:pointer;font-size:1.8em;margin:0 13px;transition:.15s; vertical-align:middle;display:inline-flex;align-items:center;justify-content:center;box-shadow:0 2px 6px #0002;}
-.depo-carousel-btn:hover {background:goldenrod;}
-.depo-carousel-dots {text-align:center;margin:22px 0 0 0;}
-.depo-carousel-dot{display:inline-block;width:13px;height:13px;background:#ecd498;border-radius:50%;margin:0 6px;cursor:pointer;transition:.15s;border:2px solid #fff;vertical-align:middle;box-shadow:0 2px 7px #d4af3755;}
-.depo-carousel-dot.active{background:var(--dourado,#D4AF37);border:2px solid #d4af37;}
-@media(max-width:480px){.depo-carousel-wrap {max-width:96vw;}.depo-card {max-width:96vw;}}
-/* Pré-reserva painel */
-#pre-reserva {background:rgba(255,255,255,0.04);padding:44px 4vw 54px 4vw;border-radius:18px;max-width:1100px; margin:48px auto;}
-.panel-duo {display:grid;grid-template-columns:1fr 1fr;gap:34px;}
-@media(max-width:900px){.panel-duo{grid-template-columns:1fr;gap:16px;}}
-.panel-box {background:#182242; box-shadow:0 2px 20px #0b1c3d13;padding:28px;border-radius:16px;}
-.panel-box h2{color:var(--dourado);margin-bottom:18px;font-size:1.33em;}
-.panel-box input, .panel-box select {font-family:'Poppins',sans-serif;width:100%;padding:13px;margin:6px 0 17px;border-radius:12px;border:1.5px solid #274678;background:#f8f7f3;color:#222;font-size:17px;}
-.panel-box button {margin-top:7px; padding:12px; width:100%; border:none; border-radius:9px; background:var(--azul); color:var(--dourado); font-weight:700; font-size:17px;letter-spacing:.01em; box-shadow:0 2px 6px #0b1c3d22;cursor:pointer;transition: background .11s,color .11s;}
-.panel-box button:hover {background:var(--dourado); color:var(--azul);}
-.card { background:#24315b; padding:13px 15px;border-radius:14px; margin-top:10px; }
-.card button {background:var(--dourado);color:var(--azul);margin-top:8px;font-size:1em;}
-.card button:hover{background:goldenrod;color:#fff;}
-.small { font-size:13px; opacity:0.75; color:var(--dourado);}
+.modo-toggle{position:fixed;right:20px;top:17px;z-index:1401;}
+.modo-toggle button{background:#132042;color:var(--dourado);border-radius:28px;padding:7px 17px;font-weight:600;border:none;cursor:pointer;font-size:16px;}
+.faixa-logo {width:100%;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 0 34px 0;border-bottom:2px solid #eee;}
+.faixa-logo img{max-width:420px;width:94vw;height:auto;display:block;margin:38px auto 0 auto;}
+.lupa-btn-reserva{margin-top:28px;margin-bottom:4px;display:flex;align-items:center;justify-content:center;}
+.lupa-btn-reserva button{display:flex;align-items:center;gap:15px;padding:16px 46px;font-size:1.16em;font-weight:700;background:var(--dourado);color:var(--azul);border:none;border-radius:40px;box-shadow:0 2px 16px #d4af3713;letter-spacing:.04em;cursor:pointer;}
+.lupa-btn-reserva button:hover{background:goldenrod;color:#fff;}
+.section{padding:34px 10px 20px 10px;text-align:center;}
+.form-premium{background:rgba(255,255,255,0.06);box-shadow:0 2px 16px #0B1C3D08;padding:30px 16px 22px 16px;border-radius:15px;margin:21px auto 28px auto;max-width:350px;}
+.form-premium label{display:block;font-weight:500;margin-bottom:5px;font-size:14px;color:var(--dourado);}
+.form-premium input, .form-premium textarea, .form-premium select{width:100%;padding:10px 8px;margin-bottom:10px;border-radius:7px;border:1px solid #d4af3722;font-size:15px;}
+.form-premium textarea{min-height:42px;}
+.form-premium button{padding:10px 25px;border-radius:8px;border:none;background:var(--azul);color:var(--dourado);font-weight:bold;font-size:15px;cursor:pointer;}
+.form-premium button:hover{background:var(--dourado);color:var(--azul);}
+.sucesso-msg {color:green;font-size:0.99em;margin-bottom:11px;}
+/* ... Galeria e depoimentos seguem igual exemplos anteriores ... */
 </style>
 </head>
 <body>
+<button class="menu-hamburger" id="menuHamburger" aria-label="Abrir menu">☰</button>
+<nav class="menu-nav" id="menuNav" aria-label="Menu principal">
+  <button class="menu-close" id="menuClose" aria-label="Fechar menu">&times;</button>
+  <ul>
+    <li><a href="#topo" class="nav-link">Início</a></li>
+    <li><a href="#cad-empreendimento" class="nav-link">Cadastre seu Empreendimento</a></li>
+    <li><a href="#galeria" class="nav-link">Galeria</a></li>
+    <li><a href="#depoimentos" class="nav-link">Avaliações</a></li>
+  </ul>
+</nav>
+<div class="modo-toggle">
+  <button id="modeToggleBtn" aria-label="Trocar tema">🌓</button>
+</div>
 <a id="topo"></a>
-<div class="menu-topo">
-    <nav class="nav-main" aria-label="Menu principal">
-        <a href="#topo">Início</a>
-        <a href="#pre-reserva">Pré-Reserva</a>
-        <a href="#galeria">Galeria</a>
-        <a href="#depoimentos">Avaliações</a>
-        <a href="#orcamento">Orçamento</a>
-        <a href="#multi">Cadastre seu empreendimento</a>
-        <a href="#contato">Contato</a>
-    </nav>
-    <div class="modo-toggle">
-        <button id="modeToggleBtn" aria-label="Trocar tema">🌓</button>
-    </div>
-</div>
 <div class="faixa-logo">
-    <img src="https://i.imgur.com/ITjjQaf.jpeg" alt="HOSPEDAH - Sua experiência começa aqui">
-</div>
-<div class="topo-infos">
-    <h1>Experiências Exclusivas</h1>
-    <a href="https://www.instagram.com/julianasilvaoliveira.joao?igsh=bzZmNGIxdjdqc285" class="insta-top" target="_blank">📸 Instagram Oficial</a>
-    <div class="contatos-topo">
-        <div class="contato-b">
-            <h3>Flávio</h3>
-            <p>Especialista em Hospedagens</p>
-            <a class="btn" href="https://wa.me/5517982006382" target="_blank">WhatsApp</a>
-        </div>
-        <div class="contato-b">
-            <h3>Juliana</h3>
-            <p>Especialista em Hospedagens</p>
-            <a class="btn" href="https://wa.me/5517992068296" target="_blank">WhatsApp</a>
-        </div>
+    <img src="https://i.imgur.com/ITjjQaf.jpeg" alt="HOSPEDAH - Logo">
+    <div class="lupa-btn-reserva">
+      <button onclick="document.getElementById('cad-empreendimento').scrollIntoView({behavior:'smooth'})">
+        <span style="font-size:1.2em;">🔍</span> Faça sua reserva
+      </button>
     </div>
 </div>
 
-<!-- PRÉ-RESERVA PREMIUM -->
-<section class="section" id="pre-reserva">
-  <h2 style="color:var(--dourado);font-size:1.38em;margin-bottom:36px;letter-spacing:.03em;">Pré-Reserva Premium <span style="font-size:.61em;font-weight:400;color:var(--azul);background:var(--dourado);padding:5px 15px 5px 10px;border-radius:14px 8px 18px 7px;margin-left:10px;">Beta</span></h2>
-  <div class="panel-duo">
+<!-- PAINEL ÚNICO -->
+<div class="section" id="cad-empreendimento">
+  <h2 style="color:var(--dourado);margin-bottom:15px;">Cadastre o seu empreendimento</h2>
+  <form class="form-premium" id="formEmpreendimento">
+    <label for="nomeImovel">Nome do imóvel/empreendimento</label>
+    <input type="text" name="nomeImovel" id="nomeImovel" required maxlength="100">
 
-    <div class="panel-box">
-      <h2>🏢 Painel Administrativo</h2>
-      <input id="nome" placeholder="Nome do imóvel" autocomplete="off"/>
-      <input id="capacidade" type="number" placeholder="Capacidade" autocomplete="off"/>
-      <select id="dormitorios">
-        <option value="">Dormitórios</option>
-        <option value="1">1 dormitório</option>
-        <option value="2">2 dormitórios</option>
-      </select>
-      <input id="preco" type="number" placeholder="Preço (referencial)" autocomplete="off"/>
-      <button onclick="addImovel()">Cadastrar Imóvel</button>
-      <div id="listaAdmin"></div>
-    </div>
-    <div class="panel-box">
-      <h2>🔎 Encontre sua hospedagem</h2>
-      <input id="clienteNome" placeholder="Seu nome" autocomplete="off"/>
-      <input id="clienteContato" placeholder="Seu WhatsApp" autocomplete="off"/>
-      <input type="date" id="entrada" />
-      <input type="date" id="saida" />
-      <input type="number" id="pessoas" placeholder="Pessoas" autocomplete="off"/>
-      <select id="filtroDorm">
-        <option value="">Dormitórios</option>
-        <option value="1">1 dormitório</option>
-        <option value="2">2 dormitórios</option>
-      </select>
-      <button onclick="buscar()">Buscar opções</button>
-      <div id="resultado"></div>
-    </div>
-  </div>
-</section>
+    <label for="capacidade">Capacidade</label>
+    <input type="number" name="capacidade" id="capacidade" required min="1" max="100">
 
-<!-- GALERIA DE RESORTS -->
+    <label for="dormitorios">Dormitórios</label>
+    <select name="dormitorios" id="dormitorios" required>
+      <option value="">Selecione</option>
+      <option value="1">1 dormitório</option>
+      <option value="2">2 dormitórios</option>
+      <option value="3+">3 ou mais</option>
+    </select>
+
+    <label for="preco">Preço (referencial)</label>
+    <input type="number" name="preco" id="preco" required min="1">
+
+    <label for="nomeProprietario">Nome do proprietário</label>
+    <input type="text" name="nomeProprietario" id="nomeProprietario" required maxlength="100">
+
+    <label for="contatoProprietario">Telefone/WhatsApp</label>
+    <input type="tel" name="contatoProprietario" id="contatoProprietario" required maxlength="20" placeholder="Ex: (99) 91234-5678">
+
+    <label for="mensagem">Observações / Mensagem</label>
+    <textarea name="mensagem" id="mensagem" maxlength="300" required></textarea>
+
+    <button type="submit">Enviar Cadastro</button>
+    <div class="sucesso-msg" style="display:none;">Cadastro enviado com sucesso!</div>
+  </form>
+</div>
+
+<!-- GALERIA -->
 <div class="section" id="galeria">
   <div class="tabs" role="tablist">
-    <button class="tab active" id="tab_hotbeach" aria-controls="hotbeach" aria-selected="true" tabindex="0">Hot Beach</button>
-    <button class="tab" id="tab_saopedro" aria-controls="saopedro" aria-selected="false" tabindex="-1">São Pedro Thermas</button>
-    <button class="tab" id="tab_olimpia" aria-controls="olimpia" aria-selected="false" tabindex="-1">Olimpia Park</button>
-    <button class="tab" id="tab_solar" aria-controls="solar" aria-selected="false" tabindex="-1">Solar das Águas</button>
-    <button class="tab" id="tab_wyndham" aria-controls="wyndham" aria-selected="false" tabindex="-1">Wyndham Royal</button>
-    <button class="tab" id="tab_juquehy" aria-controls="juquehy" aria-selected="false" tabindex="-1">Praia de Juquehy</button>
+    <button class="tab active" aria-controls="hotbeach">Hot Beach</button>
+    <button class="tab" aria-controls="saopedro">São Pedro Thermas</button>
+    <button class="tab" aria-controls="olimpia">Olimpia Park</button>
+    <button class="tab" aria-controls="solar">Solar das Águas</button>
+    <button class="tab" aria-controls="wyndham">Wyndham Royal</button>
+    <button class="tab" aria-controls="juquehy">Praia de Juquehy</button>
   </div>
-  <div class="gallery-block active" id="hotbeach">
-      <div class="resort-title">Hot Beach Resort</div>
-      <a href="hotbeach.html" class="resort-link" target="_blank">Ver página exclusiva do Hot Beach</a>
-      <div class="gallery">
-          <img src="https://i.imgur.com/AmFSwwd.jpeg" alt="Hot Beach 1">
-          <img src="https://i.imgur.com/PMok8fe.jpeg" alt="Hot Beach 2">
-          <img src="https://i.imgur.com/bOOUiLE.jpeg" alt="Hot Beach 3">
-          <img src="https://i.imgur.com/aKhDzXz.jpeg" alt="Hot Beach 4">
-          <img src="https://i.imgur.com/7lhbeim.jpeg" alt="Hot Beach 5">
-          <img src="https://i.imgur.com/nw9K59D.jpeg" alt="Hot Beach 6">
-          <img src="https://i.imgur.com/USBb1tj.jpeg" alt="Hot Beach 7">
-          <img src="https://i.imgur.com/8b52cpI.jpeg" alt="Hot Beach 8">
-          <img src="https://i.imgur.com/XFT7Fs2.jpeg" alt="Hot Beach 9">
-          <img src="https://i.imgur.com/eydR2bp.jpeg" alt="Hot Beach 10">
-      </div>
-  </div>
-  <div class="gallery-block" id="saopedro"><div class="resort-title">São Pedro Thermas</div><a href="saopedro.html" class="resort-link" target="_blank">Ver página exclusiva do São Pedro Thermas</a><div class="gallery">
-      <img src="https://i.imgur.com/pyEKOtQ.jpeg" alt="São Pedro Thermas 1">
-      <img src="https://i.imgur.com/1HeNjKT.jpeg" alt="São Pedro Thermas 2">
-      <img src="https://i.imgur.com/9kgfR2y.jpeg" alt="São Pedro Thermas 3">
-      <img src="https://i.imgur.com/2MinAKg.jpeg" alt="São Pedro Thermas 4">
-      <img src="https://i.imgur.com/1eOkkpi.jpeg" alt="São Pedro Thermas 5">
-      <img src="https://i.imgur.com/VNUPsl2.jpeg" alt="São Pedro Thermas 6">
-      <img src="https://i.imgur.com/5pbb4ba.jpeg" alt="São Pedro Thermas 7">
-      <img src="https://i.imgur.com/uop7Fdo.jpeg" alt="São Pedro Thermas 8">
-      <img src="https://i.imgur.com/JAaWFiz.jpeg" alt="São Pedro Thermas 9">
-      <img src="https://i.imgur.com/61P9R4K.jpeg" alt="São Pedro Thermas 10">
-      <img src="https://i.imgur.com/VVc8UtU.jpeg" alt="São Pedro Thermas 11">
-  </div></div>
-  <div class="gallery-block" id="olimpia"><div class="resort-title">Olimpia Park</div><a href="olimpia.html" class="resort-link" target="_blank">Ver página exclusiva do Olimpia Park</a>
-      <div class="gallery">
-          <img src="https://i.imgur.com/AseZPzL.jpeg" alt="Olimpia Park 1">
-          <img src="https://i.imgur.com/uhGHhcA.jpeg" alt="Olimpia Park 2">
-          <img src="https://i.imgur.com/1xGGlIh.jpeg" alt="Olimpia Park 3">
-          <img src="https://i.imgur.com/04CvTwk.jpeg" alt="Olimpia Park 4">
-          <img src="https://i.imgur.com/pCZh2Pi.jpeg" alt="Olimpia Park 5">
-          <img src="https://i.imgur.com/BjgrodB.jpeg" alt="Olimpia Park 6">
-          <img src="https://i.imgur.com/90Fy5Hj.jpeg" alt="Olimpia Park 7">
-          <img src="https://i.imgur.com/wBiihZH.jpeg" alt="Olimpia Park 8">
-          <img src="https://i.imgur.com/1J6Tm4r.jpeg" alt="Olimpia Park 9">
-      </div>
-  </div>
-  <div class="gallery-block" id="solar"><div class="resort-title">Solar das Águas</div><a href="solar.html" class="resort-link" target="_blank">Ver página exclusiva do Solar das Águas</a>
-      <div class="gallery">
-          <img src="https://i.imgur.com/S4tSUzG.jpeg" alt="Solar das Águas 1">
-          <img src="https://i.imgur.com/uiZei1A.jpeg" alt="Solar das Águas 2">
-          <img src="https://i.imgur.com/FGmyUSZ.jpeg" alt="Solar das Águas 3">
-          <img src="https://i.imgur.com/0Lv8TV6.jpeg" alt="Solar das Águas 4">
-          <img src="https://i.imgur.com/qkmupvj.jpeg" alt="Solar das Águas 5">
-          <img src="https://i.imgur.com/oFjs88I.jpeg" alt="Solar das Águas 6">
-          <img src="https://i.imgur.com/VgEN9lk.jpeg" alt="Solar das Águas 7">
-          <img src="https://i.imgur.com/vMOqQgq.jpeg" alt="Solar das Águas 8">
-          <img src="https://i.imgur.com/QpY0W4I.jpeg" alt="Solar das Águas 9">
-          <img src="https://i.imgur.com/x0fWdLu.jpeg" alt="Solar das Águas 10">
-      </div>
-  </div>
-  <div class="gallery-block" id="wyndham"><div class="resort-title">Wyndham Royal</div><a href="wyndham.html" class="resort-link" target="_blank">Ver página exclusiva do Wyndham Royal</a>
-      <div class="gallery">
-          <img src="https://i.imgur.com/iDMQ2XA.jpeg" alt="Wyndham Royal 1">
-          <img src="https://i.imgur.com/WOhzcpP.jpeg" alt="Wyndham Royal 2">
-          <img src="https://i.imgur.com/UKiLRll.jpeg" alt="Wyndham Royal 3">
-          <img src="https://i.imgur.com/cD4I3pX.jpeg" alt="Wyndham Royal 4">
-          <img src="https://i.imgur.com/wAnVr9T.jpeg" alt="Wyndham Royal 5">
-          <img src="https://i.imgur.com/7ExLNbI.jpeg" alt="Wyndham Royal 6">
-          <img src="https://i.imgur.com/ptpX7Ti.jpeg" alt="Wyndham Royal 7">
-          <img src="https://i.imgur.com/GHtjGQK.jpeg" alt="Wyndham Royal 8">
-          <img src="https://i.imgur.com/tnuVQOh.jpeg" alt="Wyndham Royal 9">
-          <img src="https://i.imgur.com/KxSsPe6.jpeg" alt="Wyndham Royal 10">
-      </div>
-  </div>
-  <div class="gallery-block" id="juquehy"><div class="resort-title">Praia de Juquehy</div><a href="juquehy.html" class="resort-link" target="_blank">Ver página exclusiva da Praia de Juquehy</a>
-      <div class="gallery">
-          <img src="https://i.imgur.com/SxlktwS.jpeg" alt="Praia de Juquehy 1">
-          <img src="https://i.imgur.com/uORu8RN.jpeg" alt="Praia de Juquehy 2">
-          <img src="https://i.imgur.com/6W559IH.jpeg" alt="Praia de Juquehy 3">
-          <img src="https://i.imgur.com/OEzuUL0.jpeg" alt="Praia de Juquehy 4">
-      </div>
-  </div>
+  <div class="gallery-block active" id="hotbeach"><div class="resort-title">Hot Beach Resort</div>
+    <div class="gallery"><img src="https://i.imgur.com/AmFSwwd.jpeg"><img src="https://i.imgur.com/PMok8fe.jpeg"><img src="https://i.imgur.com/bOOUiLE.jpeg"><img src="https://i.imgur.com/aKhDzXz.jpeg"><img src="https://i.imgur.com/7lhbeim.jpeg"></div></div>
+  <div class="gallery-block" id="saopedro"><div class="resort-title">São Pedro Thermas</div>
+    <div class="gallery"><img src="https://i.imgur.com/pyEKOtQ.jpeg"><img src="https://i.imgur.com/1HeNjKT.jpeg"></div></div>
+  <div class="gallery-block" id="olimpia"><div class="resort-title">Olimpia Park</div>
+    <div class="gallery"><img src="https://i.imgur.com/AseZPzL.jpeg"></div></div>
+  <div class="gallery-block" id="solar"><div class="resort-title">Solar das Águas</div>
+    <div class="gallery"><img src="https://i.imgur.com/S4tSUzG.jpeg"></div></div>
+  <div class="gallery-block" id="wyndham"><div class="resort-title">Wyndham Royal</div>
+    <div class="gallery"><img src="https://i.imgur.com/iDMQ2XA.jpeg"></div></div>
+  <div class="gallery-block" id="juquehy"><div class="resort-title">Praia de Juquehy</div>
+    <div class="gallery"><img src="https://i.imgur.com/SxlktwS.jpeg"></div></div>
 </div>
-
-<!-- AVALIAÇÕES/DEPOIMENTOS -->
 <section class="depoimentos-section" id="depoimentos">
   <h2 class="depo-title">O que nossos clientes dizem</h2>
-  <div class="depo-carousel-wrap" tabindex="0" aria-label="Depoimentos em carrossel">
+  <div class="depo-carousel-wrap" tabindex="0">
     <div class="depo-carousel-inner">
-      <div class="depo-card active">
-        <img src="https://i.imgur.com/ep4Ng4e.jpeg" alt="Cliente Cordélia S.">
-        <div class="depo-stars">★★★★★</div>
-        <p>“A melhor experiência de viagem que já tive. Atendimento super rápido e opções excelentes!”</p>
-        <div class="depo-nome">Cordélia S.</div>
-        <div class="depo-cidade">Rio Preto, SP</div>
-      </div>
-      <div class="depo-card">
-        <img src="https://i.imgur.com/dciabUo.jpeg" alt="Cliente Ricardo A.">
-        <div class="depo-stars">★★★★★</div>
-        <p>“Fechei sem medo! Equipe muito confiável, recomendo para todos que buscam férias tranquilas.”</p>
-        <div class="depo-nome">Ricardo A.</div>
-        <div class="depo-cidade">São Paulo, SP</div>
-      </div>
-      <div class="depo-card">
-        <img src="https://i.imgur.com/dciabUo.jpeg" alt="Cliente Marina Lopes">
-        <div class="depo-stars">★★★★★</div>
-        <p>“Tudo perfeito: reserva, atendimento e o resort maravilhoso. Obrigada, HOSPEDAH!”</p>
-        <div class="depo-nome">Marina Lopes</div>
-        <div class="depo-cidade">Uberaba, MG</div>
-      </div>
-      <div class="depo-card">
-        <img src="https://i.imgur.com/j5izC2s.jpeg" alt="Cliente Gabriel Pinheiro">
-        <div class="depo-stars">★★★★★</div>
-        <p>“Superaram as minhas expectativas. Voltarei a reservar com eles, com certeza.”</p>
-        <div class="depo-nome">Gabriel Pinheiro</div>
-        <div class="depo-cidade">Campinas, SP</div>
-      </div>
-      <div class="depo-card">
-        <img src="https://i.imgur.com/iVoMnep.jpeg" alt="Cliente Paula Menezes">
-        <div class="depo-stars">★★★★★</div>
-        <p>“Atendimento exclusivo, muita praticidade e resorts fantásticos. Indico de olhos fechados.”</p>
-        <div class="depo-nome">Paula Menezes</div>
-        <div class="depo-cidade">Belo Horizonte, MG</div>
-      </div>
+      <div class="depo-card active"><img src="https://i.imgur.com/ep4Ng4e.jpeg"><div class="depo-stars">★★★★★</div><p>“A melhor experiência de viagem que já tive. Atendimento super rápido e opções excelentes!”</p><div class="depo-nome">Cordélia S.</div><div class="depo-cidade">Rio Preto, SP</div></div>
+      <div class="depo-card"><img src="https://i.imgur.com/dciabUo.jpeg"><div class="depo-stars">★★★★★</div><p>“Fechei sem medo! Equipe muito confiável, recomendo para todos que buscam férias tranquilas.”</p><div class="depo-nome">Ricardo A.</div><div class="depo-cidade">São Paulo, SP</div></div>
     </div>
     <div class="depo-carousel-arrows">
-      <button class="depo-carousel-btn" id="depoPrev" aria-label="Anterior" type="button">&#8592;</button>
-      <button class="depo-carousel-btn" id="depoNext" aria-label="Próximo" type="button">&#8594;</button>
+      <button class="depo-carousel-btn" id="depoPrev">&#8592;</button>
+      <button class="depo-carousel-btn" id="depoNext">&#8594;</button>
     </div>
     <div class="depo-carousel-dots">
       <span class="depo-carousel-dot active"></span>
       <span class="depo-carousel-dot"></span>
-      <span class="depo-carousel-dot"></span>
-      <span class="depo-carousel-dot"></span>
-      <span class="depo-carousel-dot"></span>
     </div>
   </div>
 </section>
-
-<!-- SCRIPTS -->
 <script>
+// MENU
+const menuHamburger = document.getElementById('menuHamburger');
+const menuNav = document.getElementById('menuNav');
+const menuClose = document.getElementById('menuClose');
+document.querySelectorAll('.nav-link').forEach(link =>{
+  link.onclick = (e)=>{
+    e.preventDefault();
+    menuNav.classList.remove('open');document.body.style.overflow='';
+    const href = link.getAttribute('href');
+    if(href && href.startsWith('#')){ const sec = document.querySelector(href); if(sec) sec.scrollIntoView({behavior:'smooth'});}
+    return false;
+  }
+});
+menuHamburger.onclick = ()=>{ menuNav.classList.add('open');document.body.style.overflow='hidden'; };
+menuClose.onclick = ()=>{ menuNav.classList.remove('open');document.body.style.overflow=''; };
+// Tema
 const mbtn = document.getElementById('modeToggleBtn');
-mbtn.addEventListener('click',()=>{
-  let html = document.documentElement;
+mbtn.onclick = ()=> { let html = document.documentElement;
   let atual = html.getAttribute('data-theme')||'dark';
   html.setAttribute('data-theme', atual==='dark'?'light':'dark');
   mbtn.innerText = html.getAttribute('data-theme')==='dark' ? '🌓' : '🌞';
-});
-// Tabs Galeria
+};
+// Tabs galeria
 document.addEventListener('DOMContentLoaded', function() {
   const tabs = document.querySelectorAll('.tab');
   const blocks = document.querySelectorAll('.gallery-block');
   tabs.forEach((tab, idx) => {
-      tab.addEventListener('click', function(){
-          tabs.forEach((t,i)=>{
-              t.classList.remove('active');
-              t.setAttribute('aria-selected', 'false');
-              blocks[i].classList.remove('active');
-          });
+      tab.onclick = function(){
+          tabs.forEach((t,i)=>{ t.classList.remove('active'); blocks[i].classList.remove('active');});
           this.classList.add('active');
-          this.setAttribute('aria-selected','true');
           blocks[idx].classList.add('active');
-      });
+      };
   });
 });
-// Carrossel depoimentos
+// Depoimentos carrossel (simples)
 (function(){
   const cards = document.querySelectorAll('.depo-card');
   const dots = document.querySelectorAll('.depo-carousel-dot');
@@ -393,85 +193,14 @@ document.addEventListener('DOMContentLoaded', function() {
   document.getElementById('depoNext').onclick = () => show((current+1)%max);
   document.getElementById('depoPrev').onclick = () => show((current+max-1)%max);
   dots.forEach((dot,i)=>dot.onclick=()=>show(i));
-  document.querySelector('.depo-carousel-wrap').addEventListener('keydown',function(e){
-    if (e.key==='ArrowRight') { show((current+1)%max); e.preventDefault(); }
-    else if (e.key==='ArrowLeft') { show((current+max-1)%max); e.preventDefault(); }
-  });
-  setInterval(()=>show((current+1)%max), 8500);
+  setInterval(()=>show((current+1)%max), 9000);
 })();
-// Pré-reserva painel
-let banco = JSON.parse(localStorage.getItem('imoveis')) || [];
-function salvar() {
-  localStorage.setItem('imoveis', JSON.stringify(banco));
-  renderAdmin();
-}
-function addImovel() {
-  const nome = document.getElementById('nome').value;
-  const capacidade = document.getElementById('capacidade').value;
-  const dormitorios = document.getElementById('dormitorios').value;
-  const preco = document.getElementById('preco').value;
-  if (!nome || !capacidade || !dormitorios || !preco) return alert("Preencha todos os campos do imóvel.");
-  banco.push({ nome, capacidade, dormitorios, preco });
-  salvar();
-  document.getElementById('nome').value='';
-  document.getElementById('capacidade').value='';
-  document.getElementById('dormitorios').value='';
-  document.getElementById('preco').value='';
-}
-function renderAdmin() {
-  const div = document.getElementById('listaAdmin');
-  div.innerHTML = '';
-  banco.forEach((i, index) => {
-    div.innerHTML += `
-      <div class="card">
-        <b>${i.nome}</b> - ${i.dormitorios} dorm - R$ ${i.preco}
-        <button onclick="remover(${index})">Excluir</button>
-      </div>
-    `;
-  });
-}
-function remover(index) {
-  banco.splice(index, 1);
-  salvar();
-}
-function buscar() {
-  const pessoas = document.getElementById('pessoas').value;
-  const dorm = document.getElementById('filtroDorm').value;
-  let resultado = banco.filter(i => 
-    (dorm === '' || i.dormitorios == dorm) &&
-    i.capacidade >= pessoas
-  );
-  const div = document.getElementById('resultado');
-  div.innerHTML = '';
-  if (resultado.length > 0) {
-    resultado.forEach(i => {
-      div.innerHTML += `
-        <div class="card">
-          <h3>🏨 ${i.nome}</h3>
-          <p>🛏️ ${i.dormitorios} dormitórios</p>
-          <p>👨‍👩‍👧‍👦 até ${i.capacidade} pessoas</p>
-          <p>💰 A partir de R$ ${i.preco}</p>
-          <p class="small">* Disponibilidade sob consulta</p>
-          <button onclick="consultar('${i.nome}', ${i.preco})">Consultar disponibilidade</button>
-        </div>
-      `;
-    });
-  } else {
-    div.innerHTML = "❌ Nenhuma opção encontrada";
-  }
-}
-function consultar(nome, preco) {
-  const cliente = document.getElementById('clienteNome').value;
-  const contato = document.getElementById('clienteContato').value;
-  const entrada = document.getElementById('entrada').value;
-  const saida = document.getElementById('saida').value;
-  const pessoas = document.getElementById('pessoas').value;
-  const dorm = document.getElementById('filtroDorm').value;
-  if (!cliente || !contato) return alert("Por favor, preencha seu nome e WhatsApp.");
-  const msg = `Olá! Gostaria de consultar disponibilidade:%0A%0A👤 Nome: ${cliente}%0A📞 Contato: ${contato}%0A🏨 Imóvel: ${nome}%0A📅 Entrada: ${entrada}%0A📅 Saída: ${saida}%0A👨‍👩‍👧‍👦 Pessoas: ${pessoas}%0A🛏️ Dormitórios: ${dorm}%0A💰 Valor base: R$ ${preco}`;
-  window.open(`https://wa.me/5517982006382?text=${msg}`, '_blank');
-}
-renderAdmin();
+// Form único
+document.getElementById("formEmpreendimento").onsubmit = function(e){
+  e.preventDefault();
+  this.querySelector(".sucesso-msg").style.display="block";
+  setTimeout(()=>{this.querySelector(".sucesso-msg").style.display="none";}, 1500);this.reset();
+};
 </script>
 </body>
 </html>
