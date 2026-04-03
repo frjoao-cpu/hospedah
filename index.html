@@ -28,20 +28,29 @@ body{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
 }
 .modo-toggle{position:fixed;right:20px;top:17px;z-index:1401;}
 .modo-toggle button{background:#132042;color:var(--dourado);border-radius:28px;padding:7px 17px;font-weight:600;border:none;cursor:pointer;font-size:16px;}
-/* BANNER CINEMATOGRÁFICO */
-#banner-booking{position:relative;height:520px;min-height:390px;width:100vw;overflow:hidden;z-index:10;}
+/* BANNER */
+#banner-booking{position:relative;height:560px;min-height:410px;width:100vw;overflow:hidden;z-index:10;}
 #banner-bg{position:absolute;top:0;left:0;width:100%;height:100%;z-index:1;background-size:cover;background-position:center;transition: background-image 1.25s,transform 2s cubic-bezier(.35,.93,.84,1.23);filter: brightness(.72) blur(.2px);}
-.banner-inner-logo{position:relative;z-index:3;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;pointer-events:none;}
-.logo-box{margin-top:60px;margin-bottom:12px;background:white;border-radius:36px;padding:48px 38px 35px 38px;box-shadow:0 12px 38px #2e30922e, 0 2px 28px #2222;display:inline-block;min-width:328px;max-width:97vw;}
-.logo-box img{max-width:390px;width:84vw;pointer-events:auto;}
-.contatos-especialistas{margin-top:26px;display:flex; justify-content:center; gap:40px;}
-.contato-b{background:rgba(211,211,211,0.18);border-radius:15px;padding:14px 21px 12px 15px;min-width:142px;display:flex;flex-direction:column;align-items:center;box-shadow:0 4px 24px #0B1C3D10;}
+.faixa-logo-caixa{
+  margin-top:65px;margin-bottom:23px;
+  background:white;border-radius:36px;
+  padding:49px 38px 37px 38px;
+  box-shadow:0 14px 42px #2e30922e, 0 2px 20px #2222;display:inline-block;min-width:330px;max-width:96vw;
+}
+.faixa-logo-caixa img{max-width:390px;width:81vw;pointer-events:auto;}
+.insta-top{margin:19px 0 0 0;display:inline-block;padding:10px 27px;border-radius:30px;background:linear-gradient(45deg,#833AB4,#E1306C,#FCAF45);text-decoration:none;color:#fff;font-size:16px;font-weight:500;box-shadow:0 2px 12px #FCAF4595;}
+.contatos-especialistas{margin-top:25px;display:flex; justify-content:center; gap:40px;}
+.contato-b{background:rgba(211,211,211,0.18);border-radius:15px;padding:13px 21px 10px 15px;min-width:142px;display:flex;flex-direction:column;align-items:center;box-shadow:0 4px 24px #0B1C3D10;}
 .contato-b h3{color:#0A2A3B;font-size:1.08em;font-weight:700;margin:2px 0 0 0;}
 .contato-b p{font-size:13px;color:var(--dourado);font-weight:600;margin:4px 0;}
 .contato-b a.btn{margin-top:5px;padding:8px 18px;background:#25D366;border-radius:16px;color:#fff;text-decoration:none;font-size:15px;font-weight:600;}
-@media (max-width:830px){.logo-box{padding:23px 5vw 14px 5vw;}}
-@media (max-width:580px){#banner-booking{min-height:300px;height:325px;}.logo-box{padding:13px 2vw;}}
-#banner-busca{margin:0 auto;position:absolute;left:50%;bottom:29px;transform:translateX(-50%);background:#fff;box-shadow:0 2px 24px #4444;padding:16px 13px 11px 13px;border-radius:18px;display:flex;gap:13px;align-items:end;max-width:780px;width:97vw;z-index:4;flex-wrap:wrap;}
+@media (max-width:830px){.faixa-logo-caixa{padding:21px 2.5vw 13px 2.5vw;}}
+@media (max-width:580px){#banner-booking{min-height:300px;height:320px;}.faixa-logo-caixa{padding:10px 1vw;}}
+#banner-busca{
+  margin:0 auto;position:absolute;left:50%;bottom:19px;transform:translateX(-50%);
+  background:#fff;box-shadow:0 2px 24px #4444;
+  padding:17px 10px 11px 10px;border-radius:15px;display:flex;gap:13px;align-items:end;max-width:780px;width:97vw;z-index:4;flex-wrap:wrap;
+}
 #banner-busca > div{flex:2;min-width:116px;}
 #banner-busca label{color:#888;font-size:12px;display:block;margin-bottom:3px;}
 #banner-busca input[type="date"],#banner-busca input[type="number"],#banner-busca input[type="text"]{width:100%;border-radius:8px;padding:8px 9px;font-size:.97em;border:1px solid #ccc;}
@@ -50,9 +59,10 @@ body{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
 @media (max-width:900px){
   #banner-busca{flex-direction:column;align-items:stretch;gap:10px;max-width:98vw;}
   #banner-busca > div,#banner-busca button{width:100%;}
-  .logo-box{padding:10px 1vw 8px 1vw;}
-  #banner-booking{height:unset;min-height:272px;}
+  .faixa-logo-caixa{padding:10px 1vw 8px 1vw;}
+  #banner-booking{height:unset;min-height:280px;}
 }
+.sucesso-msg {color:green;font-size:1em;margin-bottom:8px;}
 .section{padding:34px 10px 20px 10px;text-align:center;}
 .form-premium{background:rgba(255,255,255,0.1);box-shadow:0 2px 18px #0B1C3D28;padding:30px 16px 22px 16px;border-radius:16px;margin:21px auto 28px auto;max-width:380px;}
 .form-premium label{display:block;font-weight:500;margin-bottom:5px;font-size:14px;color:var(--dourado);}
@@ -60,7 +70,6 @@ body{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
 .form-premium textarea{min-height:42px;}
 .form-premium button{padding:10px 25px;border-radius:8px;border:none;background:var(--azul);color:var(--dourado);font-weight:bold;font-size:15px;cursor:pointer;}
 .form-premium button:hover{background:var(--dourado);color:var(--azul);}
-.sucesso-msg {color:green;font-size:0.99em;margin-bottom:11px;}
 .tabs{display:flex;justify-content:center;gap:7px;margin-bottom:22px;flex-wrap:wrap;}
 .tab{padding:10px 24px;background:#fff1;border-radius:22px 22px 0 0;font-size:17px;color:var(--dourado);border:none;cursor:pointer;outline:none;font-weight:600;}
 .tab.active,.tab:focus{background:var(--dourado);color:#0B1C3D;}
@@ -87,6 +96,14 @@ body{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
 .depo-carousel-dots {text-align:center;margin:14px 0 0 0;}
 .depo-carousel-dot{display:inline-block;width:11px;height:11px;background:#ecd498;border-radius:50%;margin:0 5px;cursor:pointer;}
 .depo-carousel-dot.active{background:var(--dourado);}
+#modalBg{display:none;position:fixed;z-index:5000;left:0;top:0;width:100vw;height:100vh;background:rgba(15,23,60,0.55);}
+#modalFormConsulta{background:#fff;border-radius:16px;max-width:340px;padding:27px 18px 19px 18px;box-shadow:0 6px 40px #1e1d2b29;position:fixed;top:50%;left:50%;transform:translate(-50%,-57%);z-index:5010;}
+#modalFormConsulta label{display:block;font-weight:600;font-size:14px;margin-bottom:3px;color:var(--dourado);}
+#modalFormConsulta input,#modalFormConsulta textarea{width:100%;border-radius:7px;font-size:15px;padding:8px;margin-bottom:10px;border:1px solid #d4af3722;}
+#modalFormConsulta textarea{min-height:48px;}
+#modalFormConsulta button{background:var(--azul);color:var(--dourado);font-weight:700;padding:10px 0;font-size:15px;border:none;border-radius:7px;width:100%;margin-top:9px;}
+#modalFormConsulta button#fecharModal{background:transparent;color:#c44;border:none;font-size:17px;position:absolute;right:5px;top:4px;width:34px;height:34px;}
+#modalFormConsulta .sucesso-msg{color:green;margin-top:7px;text-align:center;}
 </style>
 </head>
 <body>
@@ -105,12 +122,14 @@ body{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
 <div class="modo-toggle">
   <button id="modeToggleBtn" aria-label="Trocar tema">🌓</button>
 </div>
-<!-- BANNER PREMIUM + LOGO + CONTATOS + BUSCA -->
+
+<!-- BANNER LOGO+INSTAGRAM+CONTATOS -->
 <div id="banner-booking">
   <div id="banner-bg"></div>
-  <div class="banner-inner-logo">
-    <div class="logo-box">
+  <div class="banner-inner-logo" style="height:100%;">
+    <div class="faixa-logo-caixa">
       <img src="https://i.imgur.com/ITjjQaf.jpeg" alt="HOSPEDAH - Logo">
+      <a href="https://www.instagram.com/julianasilvaoliveira.joao?igsh=bzZmNGIxdjdqc285" class="insta-top" target="_blank">📸 Instagram Oficial</a>
       <div class="contatos-especialistas">
         <div class="contato-b">
           <h3>Flávio</h3>
@@ -129,22 +148,39 @@ body{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
   <form id="banner-busca" autocomplete="off">
     <div>
       <label>Destino</label>
-      <input type="text" placeholder="Cidade ou Resort" required>
+      <input type="text" name="destino" placeholder="Cidade ou Resort" required>
     </div>
     <div>
       <label>Check-in</label>
-      <input type="date" required>
+      <input type="date" name="checkin" required>
     </div>
     <div>
       <label>Check-out</label>
-      <input type="date" required>
+      <input type="date" name="checkout" required>
     </div>
     <div>
       <label>Hóspedes</label>
-      <input type="number" min="1" max="15" value="2" required>
+      <input type="number" min="1" max="15" name="hospedes" value="2" required>
     </div>
-    <button type="submit"><span style="font-size:1.2em;">🔍</span> Pré-consulta</button>
-    <div class="sucesso-msg" style="display:none;">Informações enviadas com sucesso!</div>
+    <button type="button" id="btnPreConsulta" style="position:relative;"><span style="font-size:1.2em;">🔍</span> Pré-consulta</button>
+  </form>
+</div>
+
+<!-- MODAL FORM PRÉ-CONSULTA -->
+<div id="modalBg">
+  <form id="modalFormConsulta">
+    <button type="button" id="fecharModal" title="Fechar">&times;</button>
+    <h3 style="color:var(--dourado);margin-bottom:17px;">Pré-consulta de Reserva</h3>
+    <label for="nomeCliente">Seu Nome</label>
+    <input type="text" id="nomeCliente" required maxlength="60" placeholder="Seu nome">
+    <label for="telCliente">Telefone/WhatsApp</label>
+    <input type="tel" id="telCliente" required maxlength="30" placeholder="Cel/Whatsapp">
+    <label for="mensagemCliente">Mensagem / Detalhes</label>
+    <textarea id="mensagemCliente" maxlength="200" placeholder="Mensagem adicional"></textarea>
+    <!-- Resumo escondido dos inputs de busca (exibido apenas se checkin/destino preenchidos) -->
+    <input type="hidden" id="resumoBusca">
+    <button type="submit" style="margin-top:5px;">Enviar Pré-consulta no WhatsApp</button>
+    <div class="sucesso-msg" style="display:none;">Pré-consulta enviada! Você será redirecionado ao WhatsApp.</div>
   </form>
 </div>
 
@@ -287,7 +323,7 @@ document.querySelectorAll('.nav-link').forEach(link =>{
 });
 menuHamburger.onclick = ()=>{ menuNav.classList.add('open');document.body.style.overflow='hidden'; };
 menuClose.onclick = ()=>{ menuNav.classList.remove('open');document.body.style.overflow=''; };
-//---- BANNER CARROSSEL (fotos da galeria) ---//
+//---- BANNER CARROSSEL ------//
 const imgs = [
   "https://i.imgur.com/AmFSwwd.jpeg",
   "https://i.imgur.com/PMok8fe.jpeg",
@@ -300,18 +336,43 @@ const imgs = [
 let idx=0;
 function trocaBanner(){
   document.getElementById('banner-bg').style.backgroundImage = "url('"+imgs[idx]+"')";
-  document.getElementById('banner-bg').style.transform="scale(1.09)";
-  setTimeout(()=>{document.getElementById('banner-bg').style.transform="scale(1.01)";},700);
+  document.getElementById('banner-bg').style.transform="scale(1.12)";
+  setTimeout(()=>{document.getElementById('banner-bg').style.transform="scale(1.01)";},600);
   idx = (idx+1)%imgs.length;
 }
-setInterval(trocaBanner, 3840); // fade suave
+setInterval(trocaBanner, 3960);
 window.onload=trocaBanner;
-//---- BUSCA DO BANNER -------//
-document.getElementById("banner-busca").onsubmit = function(e){
+//---- ABRIR/FECHAR MODAL PRÉ-CONSULTA ------------//
+const modalBg=document.getElementById("modalBg");
+document.getElementById("btnPreConsulta").onclick = function(){
+  // preenche campos do modal com o valor atual da busca
+  let f=document.getElementById("banner-busca");
+  document.getElementById("resumoBusca").value = 
+    `Destino: ${f.destino.value || ""} | Check-in: ${f.checkin.value || ""} | Check-out: ${f.checkout.value || ""} | Hóspedes: ${f.hospedes.value || ""}`;
+  modalBg.style.display="block";
+  document.body.style.overflow="hidden";
+};
+document.getElementById("fecharModal").onclick = function(){
+  modalBg.style.display="none";document.body.style.overflow='';
+};
+modalBg.onclick = function(e){
+  if(e.target===modalBg){ modalBg.style.display="none";document.body.style.overflow=''; }
+};
+//---- FORM PRÉ-CONSULTA - ENVIAR PARA WHATSAPP ------//
+document.getElementById("modalFormConsulta").onsubmit = function(e){
   e.preventDefault();
+  let nome=document.getElementById("nomeCliente").value,
+      fone=document.getElementById("telCliente").value,
+      obs=document.getElementById("mensagemCliente").value,
+      resumo=document.getElementById("resumoBusca").value;
+  let msg=`Olá! Gostaria de uma pré-consulta:%0A%0A*Nome*: ${nome}%0A*Contato*: ${fone}%0A${resumo ? "%0A*Busca*: "+resumo:""}%0A*Obs.*: ${obs}`;
   this.querySelector(".sucesso-msg").style.display="block";
-  setTimeout(()=>{this.querySelector(".sucesso-msg").style.display="none";}, 1700);
-  this.reset();
+  setTimeout(()=>{
+    this.querySelector(".sucesso-msg").style.display="none";
+    modalBg.style.display="none";document.body.style.overflow='';
+    window.open("https://wa.me/5517982006382?text="+msg,"_blank");
+    this.reset();
+  },1000);
 };
 //---- CADASTRO -------//
 document.getElementById("formEmpreendimento").onsubmit = function(e){
