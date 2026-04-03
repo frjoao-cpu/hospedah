@@ -3,8 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>HOSPEDAH | Plataforma de Hospedagens</title>
+<title>HOSPEDAH | Sistema Premium</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
 
@@ -16,36 +15,26 @@
 
 body{
 margin:0;
-font-family:'Poppins',sans-serif;
+font-family:Poppins;
 background:#0B1C3D;
 color:#fff;
 }
 
 /* MENU */
 .menu{
-background:#fff;
 display:flex;
 justify-content:space-between;
-align-items:center;
-padding:12px 20px;
-position:relative;
+background:#fff;
+padding:15px;
 }
 
-.menu-toggle{
-font-size:26px;
-cursor:pointer;
-display:none;
-}
+.menu-toggle{display:none;font-size:26px;cursor:pointer;}
 
-.nav{
-display:flex;
-gap:12px;
-}
-
+.nav{display:flex;gap:10px;}
 .nav a{
 background:#0B1C3D;
 color:#D4AF37;
-padding:8px 14px;
+padding:8px 15px;
 border-radius:20px;
 text-decoration:none;
 }
@@ -57,18 +46,16 @@ display:none;
 flex-direction:column;
 position:absolute;
 top:60px;
-left:0;
-width:100%;
 background:#fff;
-padding:20px;
+width:100%;
 }
 .nav.active{display:flex;}
 }
 
 /* HERO */
 .hero{
-position:relative;
 height:90vh;
+position:relative;
 overflow:hidden;
 }
 
@@ -78,19 +65,18 @@ width:100%;
 height:100%;
 object-fit:cover;
 opacity:0;
-animation:fade 18s infinite, zoom 18s infinite;
+animation:slide 20s infinite, zoom 20s infinite;
 }
 
 .hero img:nth-child(1){animation-delay:0s;}
-.hero img:nth-child(2){animation-delay:6s;}
-.hero img:nth-child(3){animation-delay:12s;}
+.hero img:nth-child(2){animation-delay:5s;}
+.hero img:nth-child(3){animation-delay:10s;}
 
-@keyframes fade{
+@keyframes slide{
 0%{opacity:0;}
 5%{opacity:1;}
-30%{opacity:1;}
-35%{opacity:0;}
-100%{opacity:0;}
+25%{opacity:1;}
+30%{opacity:0;}
 }
 
 @keyframes zoom{
@@ -105,42 +91,38 @@ height:100%;
 background:rgba(0,0,0,0.5);
 }
 
-.hero-content{
+.content{
 position:relative;
 z-index:2;
-height:100%;
 display:flex;
 flex-direction:column;
-justify-content:center;
 align-items:center;
+justify-content:center;
+height:100%;
 }
 
-.logo{
-width:260px;
-margin-bottom:20px;
-}
+.logo{width:250px;margin-bottom:20px;}
 
 /* BUSCA */
 .busca{
 background:#fff;
-padding:18px;
-border-radius:12px;
+padding:20px;
+border-radius:10px;
 display:flex;
-gap:10px;
 flex-wrap:wrap;
-justify-content:center;
+gap:10px;
 }
 
 .busca input,.busca select{
 padding:10px;
-border-radius:8px;
+border-radius:6px;
 border:1px solid #ccc;
 }
 
 .busca button{
 background:var(--dourado);
 border:none;
-padding:12px 20px;
+padding:12px;
 font-weight:bold;
 cursor:pointer;
 }
@@ -148,35 +130,31 @@ cursor:pointer;
 /* RESULTADOS */
 .resultados{
 padding:40px;
-display:grid;
-grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
-gap:20px;
 }
 
 .card{
 background:#1c2b52;
 padding:15px;
-border-radius:12px;
-}
-
-.card button{
-margin-top:10px;
-background:var(--dourado);
-border:none;
-padding:10px;
-cursor:pointer;
+border-radius:10px;
+margin:10px 0;
 }
 
 /* ADMIN */
 .admin{
 padding:30px;
-background:#111;
+background:#142850;
 }
 
-.admin input,.admin select{
+input,select{
 width:100%;
+margin:5px 0;
 padding:10px;
-margin:6px 0;
+border-radius:6px;
+border:none;
+}
+
+button{
+cursor:pointer;
 }
 
 /* WHATS */
@@ -187,26 +165,23 @@ right:20px;
 background:#25D366;
 padding:15px;
 border-radius:50%;
-text-decoration:none;
 color:#fff;
-font-size:20px;
+text-decoration:none;
 }
 </style>
 </head>
 
 <body>
 
-<!-- MENU -->
 <div class="menu">
 <div class="menu-toggle" onclick="toggleMenu()">☰</div>
 <div class="nav">
 <a href="#">Início</a>
-<a href="#">Hospedagens</a>
-<a href="#">Contato</a>
+<a href="#busca">Buscar</a>
+<a href="#admin">Admin</a>
 </div>
 </div>
 
-<!-- HERO -->
 <section class="hero">
 
 <img src="https://i.imgur.com/AmFSwwd.jpeg">
@@ -215,99 +190,119 @@ font-size:20px;
 
 <div class="overlay"></div>
 
-<div class="hero-content">
+<div class="content">
 <img src="https://i.imgur.com/ITjjQaf.jpeg" class="logo">
 
-<div class="busca">
+<div class="busca" id="busca">
 <input type="date" id="entrada">
 <input type="date" id="saida">
 <input type="number" id="pessoas" placeholder="Pessoas">
-
 <select id="dorm">
 <option value="">Dormitórios</option>
 <option value="1">1</option>
 <option value="2">2</option>
 </select>
-
 <button onclick="buscar()">Buscar</button>
 </div>
 
 </div>
 </section>
 
-<!-- RESULTADOS -->
-<div class="resultados" id="resultados"></div>
+<div class="resultados" id="resultado"></div>
 
-<!-- ADMIN -->
-<div class="admin">
+<div class="admin" id="admin">
 <h2>Painel de Imóveis</h2>
-
 <input id="nome" placeholder="Nome do imóvel">
-<input id="capacidade" type="number" placeholder="Capacidade">
+<input id="capacidade" placeholder="Capacidade">
 <select id="dormitorios">
 <option value="">Dormitórios</option>
 <option value="1">1</option>
 <option value="2">2</option>
 </select>
-<input id="preco" type="number" placeholder="Preço">
-
+<input id="preco" placeholder="Preço">
 <button onclick="add()">Cadastrar</button>
+
+<div id="lista"></div>
 </div>
 
 <a class="whats" href="https://wa.me/5517982006382">💬</a>
 
 <script>
 
-let banco = JSON.parse(localStorage.getItem('imoveis')) || [];
+function toggleMenu(){
+document.querySelector('.nav').classList.toggle('active');
+}
+
+/* BANCO */
+let banco = JSON.parse(localStorage.getItem('db')) || [];
 
 function salvar(){
-localStorage.setItem('imoveis',JSON.stringify(banco));
+localStorage.setItem('db', JSON.stringify(banco));
+render();
 }
 
+/* ADMIN */
 function add(){
-let nome = document.getElementById('nome').value;
-let capacidade = document.getElementById('capacidade').value;
-let dorm = document.getElementById('dormitorios').value;
-let preco = document.getElementById('preco').value;
+let nome = nomeEl.value;
+let cap = capacidade.value;
+let dorm = dormitorios.value;
+let preco = precoEl.value;
 
-banco.push({nome,capacidade,dorm,preco});
+if(!nome || !cap || !dorm || !preco) return alert("Preencha tudo");
+
+banco.push({nome,cap,dorm,preco});
 salvar();
-alert("Imóvel cadastrado!");
 }
 
+function render(){
+let div = document.getElementById('lista');
+div.innerHTML="";
+banco.forEach((i,index)=>{
+div.innerHTML+=`
+<div class="card">
+${i.nome} - ${i.dorm} dorm - R$ ${i.preco}
+<button onclick="del(${index})">Excluir</button>
+</div>`;
+});
+}
+
+function del(i){
+banco.splice(i,1);
+salvar();
+}
+
+/* BUSCA */
 function buscar(){
 let pessoas = document.getElementById('pessoas').value;
 let dorm = document.getElementById('dorm').value;
 
 let res = banco.filter(i =>
-(i.capacidade >= pessoas) &&
-(dorm=="" || i.dorm==dorm)
+(!dorm || i.dorm==dorm) &&
+i.cap >= pessoas
 );
 
-let div = document.getElementById('resultados');
-div.innerHTML = "";
+let div = document.getElementById('resultado');
+div.innerHTML="";
 
 res.forEach(i=>{
-div.innerHTML += `
+div.innerHTML+=`
 <div class="card">
 <h3>${i.nome}</h3>
 <p>${i.dorm} dormitórios</p>
-<p>Até ${i.capacidade} pessoas</p>
+<p>Até ${i.cap} pessoas</p>
 <p>R$ ${i.preco}</p>
-<button onclick="whats('${i.nome}',${i.preco})">Reservar</button>
-</div>
-`;
+<button onclick="whats('${i.nome}','${i.preco}')">Consultar</button>
+</div>`;
 });
 }
 
+/* WHATS */
 function whats(nome,preco){
-let msg = `Olá! Quero reservar ${nome} - R$ ${preco}`;
+let msg = `Olá, quero consultar ${nome} valor R$ ${preco}`;
 window.open(`https://wa.me/5517982006382?text=${msg}`);
 }
 
-function toggleMenu(){
-document.querySelector('.nav').classList.toggle('active');
-}
+render();
 
 </script>
 
