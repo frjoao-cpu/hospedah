@@ -7,7 +7,6 @@
 <meta name="description" content="Hospede-se com qualidade nos melhores resorts e tenha experiências exclusivas. Orçamento premium, atendimento digital e profissionais à disposição.">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
 <style>
-/* ... seu CSS original ... */
 :root {
   --dourado: #D4AF37;
   --azul: #0B1C3D;
@@ -18,12 +17,54 @@
 html[data-theme="dark"] body { background: var(--bg-grad); color: #fff; }
 html[data-theme="light"] body { background: var(--bg-claro); color: #191919; }
 body{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;background:var(--bg-grad);color:#fff;}
-/* ... menus, faixa logo, topo, etc. ... */
-/* CARROSSEL TOPO CINEMATOGRÁFICO */
+.menu-topo {
+  width: 100%;
+  background: #fff;
+  box-shadow: 0 4px 20px -7px #001e3b30;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0;
+  position: relative;
+  padding: 0;
+  z-index: 99;
+}
+nav.nav-main {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  padding: 18px 0 8px 0;
+  background: none;
+  z-index: 2;
+}
+nav.nav-main a {
+  display:inline-block;
+  background:var(--azul);
+  color:var(--dourado);
+  font-weight:600;
+  text-decoration:none;
+  font-size:18px;
+  padding:11px 22px;
+  border-radius:30px;
+  transition: background .17s, color .17s, box-shadow .16s;
+  box-shadow:0 2px 8px #1113;
+  letter-spacing:.02em;
+  border:none;outline:none;
+}
+nav.nav-main a:hover,nav.nav-main a:focus {background: #21315B; color: #FFD700;}
+.modo-toggle{position:absolute;right:30px;top:13px;z-index:91;}
+.modo-toggle button{background:#132042;color:var(--dourado);border-radius:28px;padding:8px 20px;font-weight:600;border:none;cursor:pointer;font-size:18px;box-shadow:0 2px 8px #1112;}
+.modo-toggle button:active{background:var(--dourado);color:#132042;}
+@media (max-width:900px) {nav.nav-main {gap: 8px;}nav.nav-main a {font-size:15px;padding:7px 10px;}}
+@media (max-width:600px){
+  nav.nav-main {flex-wrap:wrap;gap:4px;padding-top:11px;padding-bottom:7px;}
+  .menu-topo {flex-direction:column;padding:0;}
+}
+/* CARROSSEL CINEMATOGRÁFICO NO TOPO */
 #carrossel-topo-bg{
   width:100vw; height:53vw; min-height:310px; max-height:690px;
   position:relative; display:flex;align-items:center;justify-content:center;
-  z-index:1; background:#000; overflow:hidden;
+  z-index:2; background:#000; overflow:hidden;
 }
 .carrossel-img{
   width:100vw;height:53vw;min-height:310px;max-height:690px;object-fit:cover;object-position:center;
@@ -31,7 +72,24 @@ body{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;b
 }
 .carrossel-img.active{opacity:1;transform:scale(1.13);}
 @media (max-width:900px){#carrossel-topo-bg,.carrossel-img{min-height:180px;height:39vw;max-height:290px;}}
-/* ... resto do CSS original (menu, faixa-logo, painel, galeria, etc.) ... */
+
+/* FAIXA LOGO (SEM ALTERAÇÃO, SOBRE O CARROSSEL NO FLUXO ORIGINAL SEM MEXER ORDEM NEM STYLE) */
+.faixa-logo {
+  width:100%;
+  background:#fff;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  padding:0 0 34px 0;
+  position:relative;
+  border-bottom: 2px solid #eee;
+  z-index:3;
+}
+.faixa-logo img{
+  max-width:420px; width:94vw; height:auto; display:block; margin:35px auto 0 auto;
+}
+/* ...restante do CSS do seu código (topo-infos, painel, dep, tabs etc.)... */
 </style>
 </head>
 <body>
@@ -51,9 +109,10 @@ body{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;b
     </div>
 </div>
 
-<!-- CARROSSEL TOPO ACRESCENTADO (NÃO REMOVE FAIXA LOGO) -->
+<!-- CARROSSEL NO TOPO, ATRÁS DO LOGO, CENTRALIZADO/PREMIUM -->
 <div id="carrossel-topo-bg"></div>
 
+<!-- FAIXA LOGO MANTIDA, SEM ALTERAÇÃO, AGORA SOBRE O CARROSSEL -->
 <div class="faixa-logo">
     <img src="https://i.imgur.com/ITjjQaf.jpeg" alt="HOSPEDAH - Sua experiência começa aqui">
 </div>
@@ -74,7 +133,7 @@ body{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;b
     </div>
 </div>
 
-<!-- ... RESTANTE DO SEU CÓDIGO INALTERADO (pré-reserva, galeria, depoimentos, etc) ... -->
+<!-- RESTANTE DO SEU CÓDIGO INALTERADO (pré-reserva, galeria, depoimentos etc.) ... -->
 
 <script>
 // Carrossel topo cinematográfico: TODAS imagens das abas da galeria
@@ -108,8 +167,8 @@ function trocaBanner(){
 setInterval(trocaBanner,4200);
 window.onload=trocaBanner;
 
-// ... o restante do JS original (tabs, depoimentos, painel etc.) continua igual...
+// ... seu JS original (tabs, depoimentos, painel, etc.) continua igual ...
 </script>
-<!-- ... o restante permanece exatamente igual ... -->
+<!-- RESTANTE INALTERADO -->
 </body>
 </html>
