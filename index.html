@@ -10,7 +10,6 @@
 html[data-theme="dark"] body { background: linear-gradient(135deg,#0B1C3D,#142850); color: #fff; }
 html[data-theme="light"] body { background: #fff; color: #191919; }
 body{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
-/* ----- MENU HAMBURGER ----- */
 .menu-hamburger{position:fixed;top:18px;left:17px;z-index:1301;background:var(--azul);color:var(--dourado);border:none;border-radius:8px;width:48px;height:48px;display:flex;align-items:center;justify-content:center;font-size:2em;cursor:pointer;}
 .menu-hamburger:active{background:var(--dourado);color:var(--azul);}
 .menu-nav{position:fixed;top:0;left:0;height:100vh;width:0;transition:width .23s cubic-bezier(.4,1,.4,1);overflow-x:hidden;background:var(--menu-bg);z-index:1300;}
@@ -30,41 +29,51 @@ body{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
 .modo-toggle{position:fixed;right:20px;top:17px;z-index:1401;}
 .modo-toggle button{background:#132042;color:var(--dourado);border-radius:28px;padding:7px 17px;font-weight:600;border:none;cursor:pointer;font-size:16px;}
 /* ----- BANNER PREMIUM ----- */
-#banner-booking{position:relative;height:460px;min-height:360px;width:100vw;overflow:hidden;z-index:10;}
-#banner-bg{position:absolute;top:0;left:0;width:100%;height:100%;z-index:1;background-size:cover;background-position:center;transition: background-image 1.1s,filter 1s;filter: brightness(.74) blur(.1px) scale(1.06);}
-.banner-inner-logo{position:relative;z-index:3;display:flex;justify-content:center;}
-.banner-inner-logo .logo-box{margin-top:27px;background:white;border-radius:22px;padding:25px 32px;box-shadow:0 4px 32px #4442;display:inline-block;}
-.banner-inner-logo img{max-width:370px;width:79vw;}
-#banner-busca{margin:0 auto;position:absolute;left:50%;bottom:24px;transform:translateX(-50%);background:#fff;box-shadow:0 2px 24px #4444;padding:18px 17px 13px 17px;border-radius:16px;display:flex;gap:13px;align-items:end;max-width:690px;width:95vw;z-index:4;flex-wrap:wrap;}
+#banner-booking{position:relative;height:500px;min-height:375px;width:100vw;overflow:hidden;z-index:10;}
+#banner-bg{position:absolute;top:0;left:0;width:100%;height:100%;z-index:1;background-size:cover;background-position:center;transition: background-image 1.05s,filter .95s;filter: brightness(.68) blur(.2px) scale(1.07);}
+.banner-inner-logo{position:relative;z-index:3;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;pointer-events:none;}
+.logo-box{margin-top:63px;background:white;border-radius:34px;padding:45px 33px 35px 33px;box-shadow:0 10px 38px #2e30922e, 0 2px 20px #2222;display:inline-block;min-width:320px;max-width:90vw;}
+.logo-box img{max-width:370px;width:80vw;pointer-events:auto;}
+.contatos-especialistas{margin-top:24px;display:flex; justify-content:center; gap:40px;}
+.contato-b{background:rgba(211,211,211,0.18);border-radius:15px;padding:11px 19px 9px 13px;min-width:142px;display:flex;flex-direction:column;align-items:center;box-shadow:0 4px 24px #0B1C3D10;}
+.contato-b h3{color:#0A2A3B;font-size:1.07em;font-weight:700;margin:1px 0 1px 0;}
+.contato-b p{font-size:13px;color:var(--dourado);font-weight:600;margin:2px 0;}
+.contato-b a.btn{margin-top:3px;padding:8px 18px;background:#25D366;border-radius:16px;color:#fff;text-decoration:none;font-size:15px;font-weight:600;}
+@media (max-width:829px){.logo-box{padding:25px 8vw 22px 8vw;}}
+@media (max-width:600px){
+  #banner-booking{min-height:320px;height:360px;}
+  .logo-box{margin-top:21px;}
+  .contatos-especialistas{gap:9px;}
+  .contato-b{min-width:110px;padding:9px 8px;}
+}
+#banner-busca{margin:0 auto;position:absolute;left:50%;bottom:27px;transform:translateX(-50%);background:#fff;box-shadow:0 2px 24px #4444;padding:18px 17px 13px 17px;border-radius:17px;display:flex;gap:13px;align-items:end;max-width:740px;width:96vw;z-index:4;flex-wrap:wrap;}
 #banner-busca > div{flex:2;min-width:116px;}
 #banner-busca label{color:#888;font-size:12px;display:block;margin-bottom:3px;}
 #banner-busca input[type="date"],#banner-busca input[type="number"],#banner-busca input[type="text"]{width:100%;border-radius:8px;padding:8px 9px;font-size:.97em;border:1px solid #ccc;}
 #banner-busca button{background:var(--dourado);color:var(--azul);font-weight:700;font-size:1.08em;padding:13px 36px;border-radius:9px;border:none;display:flex;align-items:center;gap:10px;box-shadow:0 2px 16px #0b1c3d18;cursor:pointer;white-space:nowrap;}
 #banner-busca button:hover{background:goldenrod;color:#fff;}
-@media (max-width:790px){
+@media (max-width:900px){
   #banner-busca{flex-direction:column;align-items:stretch;gap:10px;padding:13px 8px 9px 8px;}
   #banner-busca > div,#banner-busca button{width:100%;}
-  .banner-inner-logo .logo-box{padding:13px 13px;}
-  #banner-booking{height:unset;min-height:350px;}
+  .logo-box{padding:15px 7vw 18px 7vw;}
 }
 .section{padding:34px 10px 20px 10px;text-align:center;}
-.form-premium{background:rgba(255,255,255,0.09);box-shadow:0 2px 18px #0B1C3D13;padding:30px 16px 22px 16px;border-radius:16px;margin:21px auto 28px auto;max-width:370px;}
+.form-premium{background:rgba(255,255,255,0.1);box-shadow:0 2px 18px #0B1C3D28;padding:30px 16px 22px 16px;border-radius:16px;margin:21px auto 28px auto;max-width:380px;}
 .form-premium label{display:block;font-weight:500;margin-bottom:5px;font-size:14px;color:var(--dourado);}
 .form-premium input, .form-premium textarea, .form-premium select{width:100%;padding:10px 8px;margin-bottom:10px;border-radius:7px;border:1px solid #d4af3722;font-size:15px;}
 .form-premium textarea{min-height:42px;}
 .form-premium button{padding:10px 25px;border-radius:8px;border:none;background:var(--azul);color:var(--dourado);font-weight:bold;font-size:15px;cursor:pointer;}
 .form-premium button:hover{background:var(--dourado);color:var(--azul);}
 .sucesso-msg {color:green;font-size:0.99em;margin-bottom:11px;}
-/* Tabs galeria, depoimentos - como exemplo anterior */
 .tabs{display:flex;justify-content:center;gap:7px;margin-bottom:22px;flex-wrap:wrap;}
-.tab{padding:10px 24px;background:#fff1;border-radius:22px 22px 0 0;font-size:17px;color:var(--dourado);border:none;cursor:pointer;outline:none;font-weight:600;transition:.14s;}
+.tab{padding:10px 24px;background:#fff1;border-radius:22px 22px 0 0;font-size:17px;color:var(--dourado);border:none;cursor:pointer;outline:none;font-weight:600;}
 .tab.active,.tab:focus{background:var(--dourado);color:#0B1C3D;}
 .tab:hover{background:#D4AF37cc;color:#fff;}
 .gallery-block{display:none;}
 .gallery-block.active{display:block;}
 .resort-title{font-size:1.23rem;color:var(--dourado);margin-bottom:11px;font-weight:700;}
 .gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;justify-items:center;}
-.gallery img{width:100%;max-width:360px;height:210px;object-fit:cover;border-radius:14px;box-shadow:0 2px 12px #0001;}
+.gallery img{width:100%;max-width:380px;height:220px;object-fit:cover;border-radius:14px;box-shadow:0 2px 12px #0001;}
 @media (max-width:500px) {.gallery img{height:95px;}}
 .depoimentos-section {padding:30px 3vw 44px 3vw;background:#fff;}
 .depo-title {text-align:center;font-size:1.16em;color:#D4AF37;margin-bottom:20px;}
@@ -101,11 +110,22 @@ body{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
 </div>
 <!-- TOPO: BANNER CARROSSEL + LOGO + BARRA DE BUSCA -->
 <div id="banner-booking">
-  <!-- Carrossel de fundo (imagem será mudada via JS) -->
   <div id="banner-bg"></div>
   <div class="banner-inner-logo">
     <div class="logo-box">
       <img src="https://i.imgur.com/ITjjQaf.jpeg" alt="HOSPEDAH - Logo">
+      <div class="contatos-especialistas">
+        <div class="contato-b">
+          <h3>Flávio</h3>
+          <p>Especialista em Hospedagens</p>
+          <a class="btn" href="https://wa.me/5517982006382" target="_blank">WhatsApp</a>
+        </div>
+        <div class="contato-b">
+          <h3>Juliana</h3>
+          <p>Especialista em Hospedagens</p>
+          <a class="btn" href="https://wa.me/5517992068296" target="_blank">WhatsApp</a>
+        </div>
+      </div>
     </div>
   </div>
   <!-- Barra de busca premium -->
@@ -158,7 +178,7 @@ body{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
   </form>
 </div>
 
-<!-- GALERIA -->
+<!-- GALERIA HD -->
 <div class="section" id="galeria">
   <div class="tabs" role="tablist">
     <button class="tab active" aria-controls="hotbeach">Hot Beach</button>
@@ -169,17 +189,38 @@ body{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
     <button class="tab" aria-controls="juquehy">Praia de Juquehy</button>
   </div>
   <div class="gallery-block active" id="hotbeach"><div class="resort-title">Hot Beach Resort</div>
-    <div class="gallery"><img src="https://i.imgur.com/AmFSwwd.jpeg"><img src="https://i.imgur.com/PMok8fe.jpeg"><img src="https://i.imgur.com/bOOUiLE.jpeg"><img src="https://i.imgur.com/aKhDzXz.jpeg"><img src="https://i.imgur.com/7lhbeim.jpeg"></div></div>
+    <div class="gallery">
+      <img src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=600&q=80" alt="Parque aquático Hot Beach 1">
+      <img src="https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=crop&w=600&q=80" alt="Parque aquático Hot Beach 2">
+      <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=600&q=80" alt="Praia 1">
+      <img src="https://i.imgur.com/AmFSwwd.jpeg" alt="Hot Beach 3">
+      <img src="https://i.imgur.com/7lhbeim.jpeg" alt="Hot Beach 4">
+    </div></div>
   <div class="gallery-block" id="saopedro"><div class="resort-title">São Pedro Thermas</div>
-    <div class="gallery"><img src="https://i.imgur.com/pyEKOtQ.jpeg"><img src="https://i.imgur.com/1HeNjKT.jpeg"></div></div>
+    <div class="gallery">
+      <img src="https://images.unsplash.com/photo-1454368096042-7c31a2d1e4b5?auto=format&fit=crop&w=600&q=80" alt="Piscina São Pedro 1">
+      <img src="https://i.imgur.com/pyEKOtQ.jpeg" alt="São Pedro Thermas 2">
+    </div></div>
   <div class="gallery-block" id="olimpia"><div class="resort-title">Olimpia Park</div>
-    <div class="gallery"><img src="https://i.imgur.com/AseZPzL.jpeg"></div></div>
+    <div class="gallery">
+      <img src="https://images.unsplash.com/photo-1502082553048-f009c37129b9?auto=format&fit=crop&w=600&q=80" alt="Piscina Olimpia 1">
+      <img src="https://i.imgur.com/AseZPzL.jpeg" alt="Olimpia Park 2">
+    </div></div>
   <div class="gallery-block" id="solar"><div class="resort-title">Solar das Águas</div>
-    <div class="gallery"><img src="https://i.imgur.com/S4tSUzG.jpeg"></div></div>
+    <div class="gallery">
+      <img src="https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=600&q=80" alt="Piscina Solar das Águas 1">
+      <img src="https://i.imgur.com/S4tSUzG.jpeg" alt="Solar das Águas 2">
+    </div></div>
   <div class="gallery-block" id="wyndham"><div class="resort-title">Wyndham Royal</div>
-    <div class="gallery"><img src="https://i.imgur.com/iDMQ2XA.jpeg"></div></div>
+    <div class="gallery">
+      <img src="https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=600&q=80" alt="Piscina Wyndham Royal 1">
+      <img src="https://i.imgur.com/iDMQ2XA.jpeg" alt="Wyndham Royal 2">
+    </div></div>
   <div class="gallery-block" id="juquehy"><div class="resort-title">Praia de Juquehy</div>
-    <div class="gallery"><img src="https://i.imgur.com/SxlktwS.jpeg"></div></div>
+    <div class="gallery">
+      <img src="https://images.unsplash.com/photo-1465156799763-2c087c332922?auto=format&fit=crop&w=600&q=80" alt="Praia de Juquehy HD">
+      <img src="https://i.imgur.com/SxlktwS.jpeg" alt="Praia de Juquehy 2">
+    </div></div>
 </div>
 
 <section class="depoimentos-section" id="depoimentos">
@@ -213,32 +254,33 @@ menuClose.onclick = ()=>{ menuNav.classList.remove('open');document.body.style.o
 const imgs = [
   "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1200&q=80",
   "https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=crop&w=1200&q=80",
-  "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80"
+  "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80",
+  "https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=1200&q=80"
 ];
 let idx=0;
 function trocaBanner(){document.getElementById('banner-bg').style.backgroundImage = "url('"+imgs[idx]+"')";idx = (idx+1)%imgs.length;}
-setInterval(trocaBanner, 3900);
+setInterval(trocaBanner, 4100);
 window.onload=trocaBanner;
-//--------------- BUSCA DO BANNER (apenas ilustrativo) --------------//
+//---- BUSCA DO BANNER (simulado) ------//
 document.getElementById("banner-busca").onsubmit = function(e){
   e.preventDefault();
-  alert("Busca enviada! (Integração com busca real, disponível sob demanda.)");
+  alert("Busca enviada! (Integração futura sob demanda)");
   this.reset();
 };
-//--------------- PAINEL DE CADASTRO/FORM -------------//
+//---- PAINEL DE CADASTRO/FORM -------//
 document.getElementById("formEmpreendimento").onsubmit = function(e){
   e.preventDefault();
   this.querySelector(".sucesso-msg").style.display="block";
-  setTimeout(()=>{this.querySelector(".sucesso-msg").style.display="none";}, 1500);this.reset();
+  setTimeout(()=>{this.querySelector(".sucesso-msg").style.display="none";}, 1600);this.reset();
 };
-//--------------- TEMA --------------//
+//---- SWITCH TEMA ----------//
 const mbtn = document.getElementById('modeToggleBtn');
 mbtn.onclick = ()=> { let html = document.documentElement;
   let atual = html.getAttribute('data-theme')||'dark';
   html.setAttribute('data-theme', atual==='dark'?'light':'dark');
   mbtn.innerText = html.getAttribute('data-theme')==='dark' ? '🌓' : '🌞';
 };
-//--------------- TABS GALERIA ---------------//
+//---- TABS GALERIA -------//
 document.addEventListener('DOMContentLoaded', function() {
   const tabs = document.querySelectorAll('.tab');
   const blocks = document.querySelectorAll('.gallery-block');
@@ -250,7 +292,7 @@ document.addEventListener('DOMContentLoaded', function() {
       };
   });
 });
-//--------------- DEPOIMENTOS --------------//
+//---- DEPOIMENTOS --------//
 (function(){
   const cards = document.querySelectorAll('.depo-card');
   const dots = document.querySelectorAll('.depo-carousel-dot');
