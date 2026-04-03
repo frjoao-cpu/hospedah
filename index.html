@@ -28,32 +28,65 @@
   }
   .modo-toggle{position:fixed;right:20px;top:17px;z-index:1401;}
   .modo-toggle button{background:#132042;color:var(--dourado);border-radius:28px;padding:7px 17px;font-weight:600;border:none;cursor:pointer;font-size:16px;}
-  /* BANNER/LOGO/INSTAGRAM/CONTATO */
-  #banner-topo{background:linear-gradient(135deg,#fff 96%,#f2efe9 100%);box-shadow:0 6px 40px #0b1c3d13;position:relative;padding:44px 0 36px 0;}
-  .logo-simbolo{max-width:130px;width:23vw;display:block;margin:0 auto 13px auto;}
-  .insta-top{margin:8px 0;display:inline-block;padding:10px 27px;border-radius:30px;background:linear-gradient(45deg,#833AB4,#E1306C,#FCAF45);text-decoration:none;color:#fff;font-size:16px;font-weight:500;}
-  .contatos-especialistas{margin-top:18px;display:flex;justify-content:center;gap:32px;}
-  .contato-b{background:rgba(211,211,211,0.16);border-radius:15px;padding:13px 21px 10px 15px;min-width:142px;display:flex;flex-direction:column;align-items:center;box-shadow:0 4px 24px #0B1C3D0B;}
-  .contato-b h3{color:#0A2A3B;font-size:1.08em;font-weight:700;margin:2px 0 0 0;}
-  .contato-b p{font-size:13px;color:var(--dourado);font-weight:600;margin:4px 0;}
-  .contato-b a.btn{margin-top:5px;padding:8px 18px;background:#25D366;border-radius:16px;color:#fff;text-decoration:none;font-size:15px;font-weight:600;}
-  /* BARRA PRE-CONSULTA */
-  #barra-preconsulta{margin:0 auto 34px auto;background:#fff;box-shadow:0 2px 24px #4444;padding:18px 13px 11px 13px;border-radius:16px;display:flex;gap:13px;align-items:end;max-width:950px;width:98vw;z-index:4;flex-wrap:wrap;}
-  #barra-preconsulta > div{flex:2;min-width:110px;position:relative;}
-  #barra-preconsulta label{color:#888;font-size:12px;display:block;margin-bottom:3px;}
-  #barra-preconsulta input[type="date"],#barra-preconsulta input[type="number"],#barra-preconsulta input[type="text"],#barra-preconsulta input[type="tel"]{width:100%;border-radius:8px;padding:8px 9px;font-size:.97em;border:1px solid #ccc;}
-  #sugestoesDest{display:none;position:absolute;left:0;top:34px;width:100%;background:#fff;border:1px solid #dadada;border-radius:9px;z-index:10;box-shadow:0 4px 16px #0003;}
-  #sugestoesDest button{display:block;width:100%;text-align:left;background:none;border:none;padding:11px 12px;font-size:1em;color:#333;font-family:'Poppins',sans-serif;cursor:pointer;}
-  #sugestoesDest button:hover{background:var(--dourado);color:var(--azul);}
-  #barra-preconsulta button{background:var(--dourado);color:var(--azul);font-weight:700;font-size:1.08em;padding:13px 34px;border-radius:10px;border:none;display:flex;align-items:center;gap:10px;box-shadow:0 2px 16px #0b1c3d18;cursor:pointer;white-space:nowrap;}
-  #barra-preconsulta button:hover{background:goldenrod;color:#fff;}
-  @media (max-width:900px){
-    #barra-preconsulta{flex-direction:column;align-items:stretch;gap:9px;}
-    #barra-preconsulta > div,#barra-preconsulta button{width:100%;}
-    .contatos-especialistas{gap:7px;}
+  /* Banner/faixa logo */
+  #banner-topo{background:linear-gradient(135deg,#fff 96%,#f2efe9 100%);box-shadow:0 9px 42px #0b1c3d20;position:relative;padding:0 0 0 0;}
+  .faixa-logo-caixa{
+    margin-top:0px;
+    margin-bottom:18px;
+    background:white;
+    border-radius:38px;
+    padding:85px 38px 64px 38px;
+    box-shadow:0 24px 52px #2e309225, 0 2px 20px #2222;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    min-width:340px;max-width:96vw;text-align:center;
+    position:relative;
+    top:72px;
+    z-index:4;
   }
-  .sucesso-msg {color:green;font-size:.96em;margin-top:7px;}
-  /* ...restante do CSS (form-premium, galeria, depoimentos, tabs) igual entregas anteriores... */
+  .logo-simbolo{max-width:153px;width:27vw;display:block;margin:0 auto 13px auto;}
+  .insta-top{margin:12px 0;display:inline-block;padding:12px 29px;border-radius:32px;background:linear-gradient(45deg,#833AB4,#E1306C,#FCAF45);text-decoration:none;color:#fff;font-size:18px;font-weight:500;}
+  .contatos-especialistas{
+    margin-top:33px; /* FAIXA AUMENTADA: contatos descem mais */
+    display:flex;justify-content:center;gap:52px;}
+  .contato-b{background:rgba(211,211,211,0.16);border-radius:15px;padding:18px 32px 16px 18px;min-width:162px;display:flex;flex-direction:column;align-items:center;box-shadow:0 5px 30px #0B1C3D0B;}
+  .contato-b h3{color:#0A2A3B;font-size:1.13em;font-weight:700;margin:2px 0 0 0;}
+  .contato-b p{font-size:15px;color:var(--dourado);font-weight:600;margin:7px 0;}
+  .contato-b a.btn{margin-top:6px;padding:12px 27px;background:#25D366;border-radius:18px;color:#fff;text-decoration:none;font-size:18px;font-weight:700;}
+  @media (max-width:1000px){
+    .faixa-logo-caixa{padding:60px 10vw 50px 10vw;}
+    .contatos-especialistas{gap:12px;}
+  }
+  @media (max-width:600px){
+    #banner-topo{padding:0;}
+    .faixa-logo-caixa{padding:33px 1vw 33px 1vw;top:29px;}
+    .contatos-especialistas{gap:3px;}
+    .logo-simbolo{max-width:85px;}
+  }
+  /* Carrossel */
+  #banner-carrossel-bg{position:absolute;left:0;top:0;width:100vw;z-index:1;height:450px;min-height:320px;overflow:hidden;}
+  .banner-carrossel-img{width:100vw;height:100%;object-fit:cover;object-position:center;z-index:1;position:absolute;left:0;top:0;opacity:0;transition:opacity 1.85s,transform 2.5s;}
+  .banner-carrossel-img.active{opacity:1;transform:scale(1.11);}
+  /**/
+  #espaco-carrossel{width:100%;height:450px;}
+  @media (max-width:700px){#banner-carrossel-bg,.banner-carrossel-img,#espaco-carrossel{height:260px;}}
+  /* Barra pré-consulta */
+  #barra-preconsulta{margin:80px auto 30px auto;background:#fff;box-shadow:0 2px 24px #4444;padding:28px 13px 17px 13px;border-radius:20px;display:flex;gap:18px;align-items:end;max-width:1030px;width:99vw;z-index:5;flex-wrap:wrap;position:relative;}
+  #barra-preconsulta > div{flex:2;min-width:120px;position:relative;}
+  #barra-preconsulta label{color:#888;font-size:14px;display:block;margin-bottom:3px;}
+  #barra-preconsulta input[type="date"],#barra-preconsulta input[type="number"],#barra-preconsulta input[type="text"],#barra-preconsulta input[type="tel"]{width:100%;border-radius:10px;padding:12px 11px;font-size:1.06em;border:1px solid #ccc;}
+  #sugestoesDest{display:none;position:absolute;left:0;top:44px;width:100%;background:#fff;border:1px solid #dadada;border-radius:12px;z-index:10;box-shadow:0 4px 16px #0003;}
+  #sugestoesDest button{display:block;width:100%;text-align:left;background:none;border:none;padding:13px 13px;font-size:1.1em;color:#333;font-family:'Poppins',sans-serif;cursor:pointer;}
+  #sugestoesDest button:hover{background:var(--dourado);color:var(--azul);}
+  #barra-preconsulta button{background:var(--dourado);color:var(--azul);font-weight:700;font-size:1.13em;padding:15px 36px;border-radius:13px;border:none;display:flex;align-items:center;gap:14px;box-shadow:0 2px 16px #0b1c3d18;cursor:pointer;white-space:nowrap;}
+  #barra-preconsulta button:hover{background:goldenrod;color:#fff;}
+  @media (max-width:1000px){
+    #barra-preconsulta{flex-direction:column;align-items:stretch;gap:13px;}
+    #barra-preconsulta > div,#barra-preconsulta button{width:100%;}
+  }
+  .sucesso-msg{color:green;font-size:1.07em;margin-top:7px;}
+  /* O RESTO (forms, tabs, galeria, depoimentos) igual entregas anteriores */
   </style>
 </head>
 <body>
@@ -73,30 +106,36 @@
   <button id="modeToggleBtn" aria-label="Trocar tema">🌓</button>
 </div>
 
-<!-- TOPO: LOGO PURO + INSTAGRAM + CONTATOS -->
-<div id="banner-topo">
-  <!-- Exemplo SVG, troque pelo seu PNG símbolo puro transparente -->
-  <svg class="logo-simbolo" viewBox="0 0 140 140" width="120" height="120">
-    <circle cx="70" cy="70" r="60" stroke="#D4AF37" stroke-width="6" fill="none"/>
-    <path d="M70 28 L105 120 L35 120 Z" fill="#0B1C3D"/>
-  </svg>
-  <!-- <img src="logo-simbolo.png" class="logo-simbolo" alt="Logo HOSPEDAH"> -->
-  <a href="https://www.instagram.com/julianasilvaoliveira.joao?igsh=bzZmNGIxdjdqc285" class="insta-top" target="_blank">📸 Instagram Oficial</a>
-  <div class="contatos-especialistas">
-    <div class="contato-b">
-      <h3>Flávio</h3>
-      <p>Especialista em Hospedagens</p>
-      <a class="btn" href="https://wa.me/5517982006382" target="_blank">WhatsApp</a>
-    </div>
-    <div class="contato-b">
-      <h3>Juliana</h3>
-      <p>Especialista em Hospedagens</p>
-      <a class="btn" href="https://wa.me/5517992068296" target="_blank">WhatsApp</a>
+<!-- CARROSSEL DE FUNDO TOPO -->
+<div id="espaco-carrossel"></div>
+<div id="banner-carrossel-bg"></div>
+
+<!-- FAIXA DO LOGO -->
+<div id="banner-topo" style="position:relative;z-index:12;">
+  <div class="faixa-logo-caixa">
+    <!-- SVG de símbolo puro como exemplo, troque pelo PNG se preferir -->
+    <svg class="logo-simbolo" viewBox="0 0 140 140" width="130" height="130">
+      <circle cx="70" cy="70" r="62" stroke="#D4AF37" stroke-width="6" fill="none"/>
+      <path d="M70 24 L105 120 L35 120 Z" fill="#0B1C3D"/>
+    </svg>
+    <!-- <img src="logo-simbolo.png" class="logo-simbolo" alt="Logo HOSPEDAH"> -->
+    <a href="https://www.instagram.com/julianasilvaoliveira.joao?igsh=bzZmNGIxdjdqc285" class="insta-top" target="_blank">📸 Instagram Oficial</a>
+    <div class="contatos-especialistas">
+      <div class="contato-b">
+        <h3>Flávio</h3>
+        <p>Especialista em Hospedagens</p>
+        <a class="btn" href="https://wa.me/5517982006382" target="_blank">WhatsApp</a>
+      </div>
+      <div class="contato-b">
+        <h3>Juliana</h3>
+        <p>Especialista em Hospedagens</p>
+        <a class="btn" href="https://wa.me/5517992068296" target="_blank">WhatsApp</a>
+      </div>
     </div>
   </div>
 </div>
 
-<!-- BARRA DE PRÉ-CONSULTA -->
+<!-- BARRA DE PRÉ CONSULTA (ABAIXO DA FAIXA, MAIS PROFISSIONAL) -->
 <form id="barra-preconsulta" autocomplete="off">
   <div>
     <label>Destino</label>
@@ -127,10 +166,10 @@
   <div class="sucesso-msg" style="display:none;">Informações enviadas com sucesso!</div>
 </form>
 
-<!-- RESTANTE DO SITE: galeria, cadastro, depoimentos, etc. igual aos exemplos anteriores -->
+<!-- ... RESTANTE DO SITE (cadastro, galeria, depoimentos, etc. iguais exemplos anteriores!) ... -->
 
 <script>
-// MENU hamburger
+// Menu hamburger
 const menuHamburger = document.getElementById('menuHamburger');
 const menuNav = document.getElementById('menuNav');
 const menuClose = document.getElementById('menuClose');
@@ -149,7 +188,28 @@ document.querySelectorAll('.nav-link').forEach(link =>{
 menuHamburger.onclick = ()=>{ menuNav.classList.add('open');document.body.style.overflow='hidden'; };
 menuClose.onclick = ()=>{ menuNav.classList.remove('open');document.body.style.overflow=''; };
 
-// DESTINO autocomplete
+// Carrossel premium
+const imgs = [
+  "https://i.imgur.com/AmFSwwd.jpeg","https://i.imgur.com/PMok8fe.jpeg","https://i.imgur.com/pyEKOtQ.jpeg",
+  "https://i.imgur.com/AseZPzL.jpeg","https://i.imgur.com/S4tSUzG.jpeg",
+  "https://i.imgur.com/iDMQ2XA.jpeg","https://i.imgur.com/SxlktwS.jpeg"
+];
+const divCarr = document.getElementById('banner-carrossel-bg');
+imgs.forEach((src,i)=>{
+  let img=document.createElement('img');
+  img.src=src;
+  img.className="banner-carrossel-img"+(i==0?" active":"");
+  divCarr.appendChild(img);
+});
+let idx=0, carrEls=document.querySelectorAll('.banner-carrossel-img');
+function trocaBanner(){
+  carrEls.forEach((img,i)=>img.classList.toggle('active',i===idx));
+  idx = (idx+1)%imgs.length;
+}
+setInterval(trocaBanner,4000);
+window.onload=trocaBanner;
+
+// DESTINO autocomplete profissional
 const destinosArr = [
   "Hot Beach",
   "Olimpia Park",
@@ -180,7 +240,6 @@ document.getElementById("barra-preconsulta").onsubmit = function(e){
   this.querySelector(".sucesso-msg").style.display="block";
   setTimeout(()=>{this.querySelector(".sucesso-msg").style.display="none";}, 1500);this.reset();
 };
-
 // Switch tema
 const mbtn = document.getElementById('modeToggleBtn');
 mbtn.onclick = ()=> { let html = document.documentElement;
