@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>HOSPEDAH | Resorts e Experiências Exclusivas</title>
-  <meta name="description" content="Hospede-se com qualidade nos melhores resorts e tenha experiências exclusivas. Orçamento premium, atendimento digital e profissionais à disposição.">
+  <meta name="description" content="Hospede-se com qualidade nos melhores resorts e tenha experiências exclusivas.">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
   <style>
 :root {
@@ -19,10 +19,10 @@ html[data-theme="light"] body { background: var(--bg-claro); color: #191919; }
 body {margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
 /* HERO CARROSSEL */
 .hero {
-  position: relative;height: 70vh; min-height: 330px; overflow: hidden;
+  position: relative; height: 70vh; min-height: 330px; overflow: hidden;
 }
 .hero img.bg-slide {
-  position: absolute; width: 100%;height: 100%;object-fit: cover;opacity: 0;
+  position: absolute; width: 100%; height: 100%; object-fit: cover; opacity: 0;
   animation: slide 92s infinite, zoom 92s infinite;
 }
 .hero img.bg-slide:nth-child(1){animation-delay:0s;}
@@ -48,30 +48,17 @@ body {margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;
   25%{opacity:0;}
   100%{opacity:0;}
 }
-@keyframes zoom {
-  from{transform:scale(1);}
-  to{transform:scale(1.09);}
-}
-.overlay {
-  position:absolute;width:100%;height:100%;background:rgba(0,0,0,0.38);top:0;left:0;
-}
-.content-hero {
-  position:relative;z-index:2;height:100%;display:flex;justify-content:center;align-items:center;
-}
-.logo-hero {
-  width:300px;background:rgba(255,255,255,0.90);border-radius:22px;box-shadow:0 8px 38px #0002;
-  padding:10px 10px;max-width:92vw;
-}
-
-/* MENU PREMIUM - HAMBURGUER UNIVERSAL */
-.menu-toggle{
+@keyframes zoom { from{transform:scale(1);} to{transform:scale(1.09);} }
+.overlay { position:absolute; width:100%; height:100%; background:rgba(0,0,0,0.38); top:0; left:0; }
+.content-hero { position:relative; z-index:2; height:100%; display:flex; justify-content:center; align-items:center; }
+.logo-hero { width:300px; background:rgba(255,255,255,0.90); border-radius:22px; box-shadow:0 8px 38px #0002; padding:10px 10px; max-width:92vw; }
+/* MENU HAMBURGUER - PREMIUM */
+.menu-toggle {
   display:flex;align-items:center;justify-content:center;
   font-size:32px;padding:12px 20px;cursor:pointer;background:var(--azul);color:var(--dourado);
   border:none;border-radius:11px;position:fixed;top:16px;left:16px;z-index:2001;box-shadow:0 2px 8px #23244a33;
 }
-.menu-mobile-bg {
-  display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(8,14,28,0.33);z-index:2000;
-}
+.menu-mobile-bg {display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(8,14,28,0.33);z-index:2000;}
 .menu-mobile-bg.open {display:block;}
 .menu-mobile{
   position:fixed; top:0; left:0; width:265px; height:100vh; background:#fff; z-index:2021; box-shadow:8px 0 22px #18181922;
@@ -91,7 +78,6 @@ body {margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;
 .modo-toggle{position:fixed;top:16px;right:16px;z-index:2010;}
 .modo-toggle button{background:#132042;color:var(--dourado);border-radius:28px;padding:8px 20px;font-weight:600;border:none;cursor:pointer;font-size:18px;box-shadow:0 2px 8px #1112;}
 .modo-toggle button:active{background:var(--dourado);color:#132042;}
-
 /* FAIXA LOGO + TOPO INFOS */
 .faixa-logo {width:100%;background:#fff;display:flex;align-items:center;justify-content:center;padding:0 0 34px 0;position:relative;border-bottom: 2px solid #eee;z-index:120;box-sizing:border-box;}
 .faixa-logo img{max-width:420px;width:94vw;height:auto;display:block;margin:35px auto 0 auto;}
@@ -115,7 +101,6 @@ body {margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;
 .gallery img{width:100%;max-width:420px;height:260px;object-fit:cover;border-radius:14px;box-shadow: 0 2px 16px rgba(0,0,0,0.16); cursor: pointer;transition:.2s;}
 .gallery img:focus-visible{ outline: 3px solid var(--cor-foco);}
 @media (max-width:500px) {.gallery img{height:130px;}}
-
 /* DEPOIMENTOS CARROSSEL */
 .depo-section {padding:38px 4vw 64px 4vw;background:#fff;}
 .depo-title {text-align:center;font-size:1.34em;color:#D4AF37;margin-bottom:32px;}
@@ -141,7 +126,7 @@ body {margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;
 .painel-box {background:#182242; box-shadow:0 2px 20px #0b1c3d13;padding:28px 23px 20px 23px;border-radius:16px;}
 .painel-box h2{color:var(--dourado);margin-bottom:18px;font-size:1.28em;}
 .painel-box input, .painel-box select, .painel-box textarea {font-family:'Poppins',sans-serif;width:100%;padding:13px;margin:6px 0 17px;border-radius:12px;border:1.5px solid #274678;background:#f8f7f3;color:#222;font-size:17px;}
-.painel-box textarea{min-height:43px;resize:vertical;}
+.painel-box textarea{min-height:56px;resize:vertical;}
 .painel-box button {margin-top:7px; padding:12px; width:100%; border:none; border-radius:9px; background:var(--azul); color:var(--dourado); font-weight:700; font-size:17px;letter-spacing:.01em; box-shadow:0 2px 6px #0b1c3d22;cursor:pointer;transition: background .11s,color .11s;}
 .painel-box button:hover {background:var(--dourado); color:var(--azul);}
 .sucesso-msg{color:#40a050;font-size:1.08em;margin-bottom:12px;}
@@ -149,6 +134,8 @@ body {margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;
 </head>
 <body>
 <a id="topo"></a>
+
+<!-- MENU HAMBURGUER -->
 <div class="menu-toggle" id="menuHamburger" aria-label="Abrir menu" tabindex="0">☰</div>
 <div class="menu-mobile-bg" id="menuMobileBg"></div>
 <div class="menu-mobile" id="menuMobile">
@@ -159,14 +146,12 @@ body {margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;
     <a href="#depoimentos">Avaliações</a>
     <a href="#painel-duo">Consulta de disponibilidade exclusiva</a>
     <a href="#painel-duo">Cadastre seu empreendimento</a>
-    <a href="#multi">Perguntas frequentes</a>
     <a href="#contato">Contato</a>
   </nav>
 </div>
-<div class="modo-toggle">
-  <button id="modeToggleBtn" aria-label="Trocar tema">🌓</button>
-</div>
+<div class="modo-toggle"><button id="modeToggleBtn" aria-label="Trocar tema">🌓</button></div>
 
+<!-- HERO -->
 <div class="hero">
   <!-- Hot Beach -->
   <img class="bg-slide" src="https://i.imgur.com/AmFSwwd.jpeg" alt="">
@@ -212,7 +197,7 @@ body {margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;
   <img class="bg-slide" src="https://i.imgur.com/vMOqQgq.jpeg" alt="">
   <img class="bg-slide" src="https://i.imgur.com/QpY0W4I.jpeg" alt="">
   <img class="bg-slide" src="https://i.imgur.com/x0fWdLu.jpeg" alt="">
-  <!-- Wyndham Royal (IMAGENS NOVAS SUBSTITUIDAS, SE ALGUMA NÃO ABRIR TROQUE PARA OUTRA DESEJADA) -->
+  <!-- Wyndham Royal -->
   <img class="bg-slide" src="https://i.imgur.com/iDMQ2XA.jpeg" alt="">
   <img class="bg-slide" src="https://i.imgur.com/WOhzcpP.jpeg" alt="">
   <img class="bg-slide" src="https://i.imgur.com/UKiLRll.jpeg" alt="">
@@ -249,6 +234,7 @@ body {margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;
         </div>
     </div>
 </div>
+
 <!-- GALERIA -->
 <div class="section" id="galeria">
   <div class="tabs" role="tablist">
@@ -262,8 +248,7 @@ body {margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;
   <div class="gallery-block active" id="hotbeach"><div class="resort-title">Hot Beach Resort</div>
     <div class="gallery">
       <img src="https://i.imgur.com/AmFSwwd.jpeg"><img src="https://i.imgur.com/PMok8fe.jpeg"><img src="https://i.imgur.com/bOOUiLE.jpeg"><img src="https://i.imgur.com/aKhDzXz.jpeg"><img src="https://i.imgur.com/7lhbeim.jpeg"><img src="https://i.imgur.com/nw9K59D.jpeg"><img src="https://i.imgur.com/USBb1tj.jpeg"><img src="https://i.imgur.com/8b52cpI.jpeg"><img src="https://i.imgur.com/XFT7Fs2.jpeg"><img src="https://i.imgur.com/eydR2bp.jpeg">
-    </div>
-  </div>
+    </div></div>
   <div class="gallery-block" id="saopedro"><div class="resort-title">São Pedro Thermas</div>
     <div class="gallery">
       <img src="https://i.imgur.com/pyEKOtQ.jpeg"><img src="https://i.imgur.com/1HeNjKT.jpeg"><img src="https://i.imgur.com/9kgfR2y.jpeg"><img src="https://i.imgur.com/2MinAKg.jpeg"><img src="https://i.imgur.com/1eOkkpi.jpeg"><img src="https://i.imgur.com/VNUPsl2.jpeg"><img src="https://i.imgur.com/5pbb4ba.jpeg"><img src="https://i.imgur.com/uop7Fdo.jpeg"><img src="https://i.imgur.com/JAaWFiz.jpeg"><img src="https://i.imgur.com/61P9R4K.jpeg"><img src="https://i.imgur.com/VVc8UtU.jpeg">
@@ -285,6 +270,7 @@ body {margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;
       <img src="https://i.imgur.com/SxlktwS.jpeg"><img src="https://i.imgur.com/uORu8RN.jpeg"><img src="https://i.imgur.com/6W559IH.jpeg"><img src="https://i.imgur.com/OEzuUL0.jpeg">
     </div></div>
 </div>
+
 <!-- DEPOIMENTOS CARROSSEL -->
 <section class="depo-section" id="depoimentos">
   <h2 class="depo-title">O que nossos clientes dizem</h2>
@@ -321,7 +307,7 @@ body {margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;
       <div class="depo-card">
         <img src="https://i.imgur.com/iVoMnep.jpeg" alt="Cliente Paula Menezes">
         <div class="depo-stars">★★★★★</div>
-        <p>��Atendimento exclusivo, muita praticidade e resorts fantásticos. Indico de olhos fechados.”</p>
+        <p>“Atendimento exclusivo, muita praticidade e resorts fantásticos. Indico de olhos fechados.”</p>
         <div class="depo-nome">Paula Menezes</div>
         <div class="depo-cidade">Belo Horizonte, MG</div>
       </div>
@@ -345,6 +331,8 @@ body {margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;
     <form class="painel-box" id="painelAdmin">
       <h2>Cadastre seu empreendimento</h2>
       <input id="nomeImovel" placeholder="Nome do imóvel" maxlength="70" required autocomplete="off"/>
+      <input id="telefoneImovel" placeholder="Telefone" maxlength="30" required autocomplete="off"/>
+      <textarea id="obsImovel" placeholder="Observações/mensagem" maxlength="255" autocomplete="off"></textarea>
       <input id="capacidadeImovel" type="number" placeholder="Capacidade" min="1" max="99" required autocomplete="off"/>
       <select id="dormitoriosImovel" required>
         <option value="">Dormitórios</option>
@@ -392,8 +380,7 @@ function closeMenu() {
   menuMobile.classList.remove('open');
   document.body.style.overflow = '';
 }
-menuHamburger.onclick = openMenu;
-menuClose.onclick = closeMenu;
+menuHamburger.onclick = openMenu;menuClose.onclick = closeMenu;
 menuMobileBg.onclick = function(e) { if(e.target===this) closeMenu(); };
 menuMobile.querySelectorAll('a').forEach(a=>a.onclick = closeMenu);
 
@@ -424,22 +411,24 @@ function renderImoveis(){
   const div = document.getElementById('listaImoveis');
   div.innerHTML='';
   imoveis.forEach((i, idx)=>{
-    div.innerHTML += `<div style="background:#23295022;margin:9px 0 7px 0;padding:10px 7px;border-radius:8px;display:flex;justify-content:space-between;align-items:center;"><span><b>${i.nome}</b> - Cap: ${i.capacidade} - ${i.dormitorios} dorm - R$${i.preco} </span> <button onclick="removerImovel(${idx})" style="border:none;border-radius:7px;background:#d41d47;color:#fff;padding:5px 10px;cursor:pointer">Remover</button></div>`;
+    div.innerHTML += `<div style="background:#23295022;margin:9px 0 7px 0;padding:10px 7px;border-radius:8px;display:flex;justify-content:space-between;align-items:center;"><span><b>${i.nome}</b> - ${i.telefone||'-'}<br>${i.obs?'<span style='font-size:0.95em;opacity:0.8;'>Obs: '+i.obs+'</span><br>':''}Cap: ${i.capacidade} - ${i.dormitorios} dorm - R$${i.preco} </span> <button onclick="removerImovel(${idx})" style="border:none;border-radius:7px;background:#d41d47;color:#fff;padding:5px 10px;cursor:pointer">Remover</button></div>`;
   });
 }
 document.getElementById('painelAdmin').onsubmit = function(e){
   e.preventDefault();
   let nome = document.getElementById('nomeImovel').value.trim();
+  let telefone = document.getElementById('telefoneImovel').value.trim();
+  let obs = document.getElementById('obsImovel').value.trim();
   let capacidade = document.getElementById('capacidadeImovel').value;
   let dormitorios = document.getElementById('dormitoriosImovel').value;
   let preco = document.getElementById('precoImovel').value;
-  if(!nome||!capacidade||!dormitorios||!preco)return;
-  imoveis.push({nome,capacidade,dormitorios,preco});
+  if(!nome||!capacidade||!dormitorios||!preco||!telefone)return;
+  imoveis.push({nome,telefone,obs,capacidade,dormitorios,preco});
   localStorage.setItem('imoveis',JSON.stringify(imoveis));
   this.reset();
   renderImoveis();
   this.querySelector('.sucesso-msg').style.display='block';
-  setTimeout(()=>{this.querySelector('.sucesso-msg').style.display='none';},900);
+  setTimeout(()=>{this.querySelector('.sucesso-msg').style.display='none';},1200);
 }
 function removerImovel(idx){
   imoveis.splice(idx,1);
@@ -456,7 +445,7 @@ function buscarImoveis(){
   rdiv.innerHTML='';
   if(results.length)
     results.forEach(i=>{
-      rdiv.innerHTML += `<div style="background:#1d2a3d19;border:1px solid #24315b33;padding:11px 12px;margin:10px auto 9px auto;border-radius:8px;">🏨 <b>${i.nome}</b> • ${i.dormitorios} dorm. • Até <b>${i.capacidade}</b> pessoas<br>💰 R$${i.preco}<br><button onclick="consultarImovel('${i.nome.replace(/'/g,'')}',${i.preco})" style="margin:10px 0 0 0; background:#25D366;color:#fff;font-weight:bold;border:none;border-radius:7px;padding:7px 27px;cursor:pointer;">Consultar Disponibilidade</button></div>`;
+      rdiv.innerHTML += `<div style="background:#1d2a3d19;border:1px solid #24315b33;padding:11px 12px;margin:10px auto 9px auto;border-radius:8px;">🏨 <b>${i.nome}</b> (${i.telefone||'-'})<br>${i.obs?'<span style=\'font-size:0.95em;opacity:.82;\'>'+i.obs+'</span><br>':''}${i.dormitorios} dorm. • Até <b>${i.capacidade}</b> pessoas<br>💰 R$${i.preco}<br><button onclick="consultarImovel('${i.nome.replace(/'/g,'')}',${i.preco})" style="margin:10px 0 0 0; background:#25D366;color:#fff;font-weight:bold;border:none;border-radius:7px;padding:7px 27px;cursor:pointer;">Consultar Disponibilidade</button></div>`;
     });
   else
     rdiv.innerHTML='<span style="color:#b11;font-weight:500;">Nenhuma opção encontrada</span>';
@@ -472,7 +461,7 @@ function consultarImovel(nome,preco){
   let msg=encodeURIComponent(`Olá! Gostaria de consultar disponibilidade:%0A%0A👤 Nome: ${cliente}%0A📞 Contato: ${contato}%0A🏨 Imóvel: ${nome}%0A📅 Entrada: ${entrada}%0A📅 Saída: ${saida}%0A👨‍👩‍👧‍👦 Pessoas: ${pessoas}%0A🛏️ Dormitórios: ${dorm}%0A💰 Valor base: R$ ${preco}`);
   window.open(`https://wa.me/5517982006382?text=${msg}`,'_blank');
 }
-// DEPOIMENTOS (carrossel automático/clicar)
+// DEPOIMENTOS
 (function(){
   const cards=document.querySelectorAll('.depo-card');
   const dots=document.querySelectorAll('.depo-carousel-dot');
