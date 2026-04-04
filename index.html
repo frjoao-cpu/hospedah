@@ -927,21 +927,36 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           padding:4px 12px;border-radius:14px 8px 18px 7px;margin-left:10px;">Beta</span>
   </h2>
   <div class="panel-duo">
-    <!-- Painel Admin -->
+    <!-- Cadastre seu Empreendimento -->
     <div class="panel-box">
-      <h2>🏢 Painel Administrativo</h2>
-      <input id="nome"        placeholder="Nome do imóvel" autocomplete="off">
-      <input id="capacidade"  type="number" placeholder="Capacidade (pessoas)" min="1" autocomplete="off">
-      <select id="dormitorios">
-        <option value="">Dormitórios</option>
-        <option value="1">1 dormitório</option>
-        <option value="2">2 dormitórios</option>
-        <option value="3">3 dormitórios</option>
-        <option value="4">4+ dormitórios</option>
-      </select>
-      <input id="preco" type="number" placeholder="Preço referencial (R$)" autocomplete="off">
-      <button class="btn-painel" onclick="addImovel()">➕ Cadastrar Imóvel</button>
-      <div id="listaAdmin"></div>
+      <h2>🏢 Cadastre seu Empreendimento</h2>
+      <form id="formCadastroEmp" onsubmit="enviarCadastroEmp(event)">
+        <input id="empNome"      placeholder="Nome do empreendimento" required autocomplete="organization">
+        <select id="empTipo" required>
+          <option value="">Tipo de imóvel</option>
+          <option value="Resort">Resort</option>
+          <option value="Hotel">Hotel</option>
+          <option value="Pousada">Pousada</option>
+          <option value="Chácara">Chácara</option>
+          <option value="Flat / Apart-hotel">Flat / Apart-hotel</option>
+          <option value="Casa de temporada">Casa de temporada</option>
+          <option value="Outro">Outro</option>
+        </select>
+        <select id="empDorm" required>
+          <option value="">Dormitórios</option>
+          <option value="1">1 dormitório</option>
+          <option value="2">2 dormitórios</option>
+          <option value="3">3 dormitórios</option>
+          <option value="4">4+ dormitórios</option>
+        </select>
+        <input id="empCapacidade" type="number" placeholder="Capacidade (pessoas)" min="1" required>
+        <input id="empPreco"      type="number" placeholder="Preço referencial (R$/noite)" min="1" required>
+        <input id="empCidade"     placeholder="Cidade / Localização" required>
+        <input id="empContato"    placeholder="Seu nome (responsável)" required autocomplete="name">
+        <input id="empWhatsapp"   placeholder="WhatsApp com DDD" required autocomplete="tel">
+        <button class="btn-painel" type="submit">📲 Enviar Cadastro</button>
+        <div id="msgCadastro"></div>
+      </form>
     </div>
     <!-- Busca Cliente -->
     <div class="panel-box">
@@ -1486,13 +1501,6 @@ document.addEventListener('DOMContentLoaded', function () {
 /* =====================
    PRÉ-RESERVA
 ===================== */
-var banco = [];
-try { banco = JSON.parse(localStorage.getItem('hospedah_imoveis')) || []; } catch (e) { banco = []; }
-
-function salvar() {
-  try { localStorage.setItem('hospedah_imoveis', JSON.stringify(banco)); } catch (e) {}
-  renderAdmin();
-}
 function esc(str) {
   return String(str)
     .replace(/&/g,'&amp;').replace(/</g,'&lt;')
@@ -1500,59 +1508,61 @@ function esc(str) {
 }
 function escJs(str) { return String(str).replace(/'/g,"\\'"); }
 
-function addImovel() {
-  var nome        = document.getElementById('nome').value.trim();
-  var capacidade  = parseInt(document.getElementById('capacidade').value, 10);
-  var dormitorios = document.getElementById('dormitorios').value;
-  var preco       = parseFloat(document.getElementById('preco').value);
-  if (!nome || !capacidade || !dormitorios || !preco) {
-    alert('Preencha todos os campos do imóvel.'); return;
-  }
-  banco.push({ nome: nome, capacidade: capacidade, dormitorios: dormitorios, preco: preco });
-  salvar();
-  ['nome','capacidade','preco'].forEach(function (id) { document.getElementById(id).value = ''; });
-  document.getElementById('dormitorios').value = '';
+function enviarCadastroEmp(e) {
+  e.preventDefault();
+  var nome     = document.getElementById('empNome').value.trim();
+  var tipo     = document.getElementById('empTipo').value;
+  var dorm     = document.getElementById('empDorm').value;
+  var cap      = document.getElementById('empCapacidade').value;
+  var preco    = document.getElementById('empPreco').value;
+  var cidade   = document.getElementById('empCidade').value.trim();
+  var contato  = document.getElementById('empContato').value.trim();
+  var whatsapp = document.getElementById('empWhatsapp').value.trim();
+  var msg =
+    '🏢 *CADASTRO DE EMPREENDIMENTO - HOSPEDAH*\n\n' +
+    '📌 *Nome:* ' + nome + '\n' +
+    '🏨 *Tipo:* ' + tipo + '\n' +
+    '🛏️ *Dormitórios:* ' + dorm + '\n' +
+    '👥 *Capacidade:* ' + cap + ' pessoas\n' +
+    '💰 *Preço:* R$ ' + Number(preco).toLocaleString('pt-BR') + '/noite\n' +
+    '📍 *Cidade:* ' + cidade + '\n' +
+    '👤 *Responsável:* ' + contato + '\n' +
+    '📱 *WhatsApp:* ' + whatsapp;
+  var msgEl = document.getElementById('msgCadastro');
+  msgEl.style.cssText = 'margin-top:10px;color:#25D366;font-size:13px;';
+  msgEl.textContent = '✅ Redirecionando para o WhatsApp...';
+  setTimeout(function () {
+    window.open('https://wa.me/5517982006382?text=' + encodeURIComponent(msg), '_blank');
+  }, 800);
 }
-function renderAdmin() {
-  var div = document.getElementById('listaAdmin');
-  if (!banco.length) {
-    div.innerHTML = '<p style="opacity:.6;font-size:13px;margin-top:12px;">Nenhum imóvel cadastrado.</p>';
-    return;
-  }
-  div.innerHTML = banco.map(function (item, i) {
-    return '<div class="card-imovel">' +
-      '<b>' + esc(item.nome) + '</b> — ' + esc(item.dormitorios) + ' dorm' +
-      ' — R$ ' + Number(item.preco).toLocaleString('pt-BR') +
-      ' — até ' + item.capacidade + ' pess.' +
-      '<br><button class="btn-painel" style="margin-top:6px;" onclick="remover(' + i + ')">🗑 Excluir</button>' +
-      '</div>';
-  }).join('');
-}
-function remover(idx) {
-  if (!confirm('Excluir "' + banco[idx].nome + '"?')) return;
-  banco.splice(idx, 1); salvar();
-}
+
 function buscar() {
-  var pessoas = parseInt(document.getElementById('pessoas').value, 10) || 0;
+  var cliente = document.getElementById('clienteNome').value.trim();
+  var contato = document.getElementById('clienteContato').value.trim();
+  var entrada = document.getElementById('entrada').value;
+  var saida   = document.getElementById('saida').value;
+  var pessoas = document.getElementById('pessoas').value;
   var dorm    = document.getElementById('filtroDorm').value;
-  var res = banco.filter(function (i) {
-    return (dorm === '' || String(i.dormitorios) === String(dorm)) && i.capacidade >= pessoas;
-  });
-  var div = document.getElementById('resultado');
-  if (!res.length) {
-    div.innerHTML = '<p style="margin-top:12px;opacity:.8;">❌ Nenhuma opção. <a href="#contato" style="color:var(--dourado);">Fale conosco</a></p>';
+  var div     = document.getElementById('resultado');
+  if (!cliente || !contato) {
+    div.innerHTML = '<p style="margin-top:12px;color:#f87;font-size:13px;">⚠️ Preencha seu nome e WhatsApp antes de buscar.</p>';
     return;
   }
-  div.innerHTML = res.map(function (i) {
-    return '<div class="card-imovel">' +
-      '<h3>🏨 ' + esc(i.nome) + '</h3>' +
-      '<p>🛏️ ' + esc(i.dormitorios) + ' dormitório(s)</p>' +
-      '<p>👥 Até ' + i.capacidade + ' pessoas</p>' +
-      '<p>💰 A partir de R$ ' + Number(i.preco).toLocaleString('pt-BR') + '</p>' +
-      '<p class="small">* Disponibilidade sob consulta</p>' +
-      '<button class="btn-painel" onclick="consultar(\'' + escJs(i.nome) + '\',' + i.preco + ')">📲 Consultar</button>' +
-      '</div>';
-  }).join('');
+  if (typeof fbq === 'function') fbq('track', 'Lead');
+  if (window.dataLayer) dataLayer.push({ event: 'busca_hospedagem' });
+  div.innerHTML = '<p style="margin-top:12px;color:#25D366;font-size:13px;">✅ Redirecionando para o WhatsApp...</p>';
+  var msg = encodeURIComponent(
+    'Olá! Gostaria de consultar disponibilidade:\n\n' +
+    '👤 Nome: '        + cliente + '\n' +
+    '📞 Contato: '     + contato + '\n' +
+    '📅 Entrada: '     + (entrada || 'A definir') + '\n' +
+    '📅 Saída: '       + (saida   || 'A definir') + '\n' +
+    '👥 Pessoas: '     + (pessoas || 'A definir') + '\n' +
+    '🛏️ Dormitórios: ' + (dorm    || 'Qualquer')
+  );
+  setTimeout(function () {
+    window.open('https://wa.me/5517982006382?text=' + msg, '_blank');
+  }, 800);
 }
 function consultar(nome, preco) {
   var cliente = document.getElementById('clienteNome').value.trim();
@@ -1693,9 +1703,8 @@ window.addEventListener('scroll', function () {
 }, { passive: true });
 
 /* =====================
-   INICIA PAINEL ADMIN
+   INICIA
 ===================== */
-document.addEventListener('DOMContentLoaded', renderAdmin);
 </script>
 </body>
 </html>

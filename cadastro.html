@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cadastre seu Empreendimento | HOSPEDAH</title>
+<meta name="description" content="Cadastre seu empreendimento na HOSPEDAH e alcance hóspedes que buscam experiências exclusivas.">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
+
+:root{
+--azul:#0B1C3D;
+--dourado:#D4AF37;
+}
+
+body{
+background:linear-gradient(135deg,#0B1C3D,#142850);
+color:#fff;
+min-height:100vh;
+}
+
+/* TOPO */
+.topo{
+display:flex;
+align-items:center;
+gap:16px;
+padding:20px 30px;
+background:rgba(0,0,0,0.3);
+backdrop-filter:blur(10px);
+position:sticky;
+top:0;
+z-index:100;
+}
+
+.logo{
+color:var(--dourado);
+font-weight:600;
+font-size:20px;
+text-decoration:none;
+}
+
+.btn-voltar{
+background:#007AFF;
+color:#fff;
+padding:8px 16px;
+border-radius:8px;
+text-decoration:none;
+font-size:13px;
+}
+
+/* HERO */
+.hero{
+text-align:center;
+padding:60px 20px 30px;
+}
+
+.hero h1{
+font-size:32px;
+color:var(--dourado);
+margin-bottom:10px;
+}
+
+.hero p{
+opacity:.8;
+max-width:560px;
+margin:auto;
+font-size:15px;
+}
+
+/* FORMULÁRIO */
+.form-wrap{
+max-width:680px;
+margin:40px auto 60px;
+padding:0 20px;
+}
+
+.form-box{
+background:rgba(255,255,255,0.06);
+border:1px solid rgba(212,175,55,0.2);
+border-radius:18px;
+padding:36px 32px;
+}
+
+.form-box h2{
+color:var(--dourado);
+margin-bottom:24px;
+font-size:1.15em;
+}
+
+.form-group{
+margin-bottom:18px;
+}
+
+.form-group label{
+display:block;
+font-size:13px;
+opacity:.8;
+margin-bottom:6px;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea{
+width:100%;
+background:rgba(255,255,255,0.08);
+border:1px solid rgba(255,255,255,0.15);
+border-radius:10px;
+padding:12px 14px;
+color:#fff;
+font-size:14px;
+font-family:'Poppins',sans-serif;
+transition:border-color .2s;
+}
+
+.form-group input::placeholder,
+.form-group textarea::placeholder{
+color:rgba(255,255,255,0.4);
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus{
+outline:none;
+border-color:var(--dourado);
+}
+
+.form-group select option{
+background:#0B1C3D;
+color:#fff;
+}
+
+.form-group textarea{
+resize:vertical;
+min-height:100px;
+}
+
+.form-row{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:14px;
+}
+
+@media(max-width:540px){
+.form-row{grid-template-columns:1fr;}
+.form-box{padding:24px 18px;}
+}
+
+.btn-enviar{
+width:100%;
+padding:14px;
+background:var(--dourado);
+color:var(--azul);
+border:none;
+border-radius:12px;
+font-size:16px;
+font-weight:600;
+cursor:pointer;
+margin-top:8px;
+transition:background .2s,transform .1s;
+}
+
+.btn-enviar:hover{
+background:#c49b2a;
+transform:translateY(-1px);
+}
+
+.aviso{
+text-align:center;
+font-size:12px;
+opacity:.6;
+margin-top:14px;
+}
+
+/* SUCESSO */
+.mensagem-ok{
+display:none;
+background:rgba(37,211,102,0.1);
+border:1px solid rgba(37,211,102,0.3);
+border-radius:12px;
+padding:20px;
+text-align:center;
+margin-top:20px;
+color:#25D366;
+font-weight:600;
+}
+</style>
+</head>
+
+<body>
+
+<!-- TOPO -->
+<div class="topo">
+<a href="index.html" class="logo">HOSPEDAH</a>
+<a href="index.html" class="btn-voltar">← Voltar</a>
+</div>
+
+<!-- HERO -->
+<div class="hero">
+<h1>🏢 Cadastre seu Empreendimento</h1>
+<p>Anuncie seu imóvel ou resort na HOSPEDAH e conecte-se a hóspedes que buscam experiências exclusivas.</p>
+</div>
+
+<!-- FORMULÁRIO -->
+<div class="form-wrap">
+<div class="form-box">
+<h2>📋 Dados do Empreendimento</h2>
+
+<form id="formCadastro" onsubmit="enviarCadastro(event)">
+
+  <div class="form-group">
+    <label>Nome do empreendimento *</label>
+    <input type="text" id="nomeEmp" placeholder="Ex.: Residencial Paraíso" required autocomplete="organization">
+  </div>
+
+  <div class="form-row">
+    <div class="form-group">
+      <label>Tipo de imóvel *</label>
+      <select id="tipoImovel" required>
+        <option value="">Selecione...</option>
+        <option value="resort">Resort</option>
+        <option value="hotel">Hotel</option>
+        <option value="pousada">Pousada</option>
+        <option value="chacara">Chácara</option>
+        <option value="flat">Flat / Apart-hotel</option>
+        <option value="casa">Casa de temporada</option>
+        <option value="outro">Outro</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Nº de dormitórios *</label>
+      <select id="dormitorios" required>
+        <option value="">Selecione...</option>
+        <option value="1">1 dormitório</option>
+        <option value="2">2 dormitórios</option>
+        <option value="3">3 dormitórios</option>
+        <option value="4">4+ dormitórios</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="form-row">
+    <div class="form-group">
+      <label>Capacidade (pessoas) *</label>
+      <input type="number" id="capacidade" placeholder="Ex.: 8" min="1" required>
+    </div>
+    <div class="form-group">
+      <label>Preço referencial (R$/noite) *</label>
+      <input type="number" id="preco" placeholder="Ex.: 350" min="1" required>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label>Cidade / Localização *</label>
+    <input type="text" id="cidade" placeholder="Ex.: Olímpia - SP" required>
+  </div>
+
+  <div class="form-group">
+    <label>Descrição breve</label>
+    <textarea id="descricao" placeholder="Descreva os diferenciais do seu imóvel (piscina, churrasqueira, vista, etc.)"></textarea>
+  </div>
+
+  <div class="form-group">
+    <label>Seu nome (responsável) *</label>
+    <input type="text" id="nomeContato" placeholder="Nome completo" required autocomplete="name">
+  </div>
+
+  <div class="form-row">
+    <div class="form-group">
+      <label>WhatsApp (com DDD) *</label>
+      <input type="tel" id="whatsapp" placeholder="Ex.: 17982006382" required autocomplete="tel">
+    </div>
+    <div class="form-group">
+      <label>E-mail</label>
+      <input type="email" id="email" placeholder="seu@email.com" autocomplete="email">
+    </div>
+  </div>
+
+  <button type="submit" class="btn-enviar">📲 Enviar Cadastro via WhatsApp</button>
+  <p class="aviso">Ao enviar, você será redirecionado ao WhatsApp para confirmar o cadastro com nossa equipe.</p>
+
+</form>
+
+<div class="mensagem-ok" id="msgOk">
+  ✅ Redirecionando para o WhatsApp... Aguarde!
+</div>
+
+</div>
+</div>
+
+<script>
+function enviarCadastro(e) {
+  e.preventDefault();
+
+  var nome       = document.getElementById('nomeEmp').value.trim();
+  var tipo       = document.getElementById('tipoImovel').value;
+  var dorm       = document.getElementById('dormitorios').value;
+  var cap        = document.getElementById('capacidade').value;
+  var preco      = document.getElementById('preco').value;
+  var cidade     = document.getElementById('cidade').value.trim();
+  var desc       = document.getElementById('descricao').value.trim();
+  var contato    = document.getElementById('nomeContato').value.trim();
+  var whatsapp   = document.getElementById('whatsapp').value.trim();
+  var email      = document.getElementById('email').value.trim();
+
+  var msg =
+    '🏢 *CADASTRO DE EMPREENDIMENTO - HOSPEDAH*\n\n' +
+    '📌 *Nome:* ' + nome + '\n' +
+    '🏨 *Tipo:* ' + tipo + '\n' +
+    '🛏️ *Dormitórios:* ' + dorm + '\n' +
+    '👥 *Capacidade:* ' + cap + ' pessoas\n' +
+    '💰 *Preço:* R$ ' + Number(preco).toLocaleString('pt-BR') + '/noite\n' +
+    '📍 *Cidade:* ' + cidade + '\n' +
+    (desc ? '📝 *Descrição:* ' + desc + '\n' : '') +
+    '\n👤 *Responsável:* ' + contato + '\n' +
+    '📱 *WhatsApp:* ' + whatsapp + '\n' +
+    (email ? '✉️ *E-mail:* ' + email + '\n' : '');
+
+  document.getElementById('msgOk').style.display = 'block';
+
+  setTimeout(function () {
+    window.open(
+      'https://wa.me/5517982006382?text=' + encodeURIComponent(msg),
+      '_blank'
+    );
+  }, 800);
+}
+</script>
+
+</body>
+</html>
