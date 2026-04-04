@@ -6,10 +6,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap">
   <style>
-:root {
-  --dourado: #D4AF37;
-  --azul: #0B1C3D;
-}
+:root { --dourado: #D4AF37; --azul: #0B1C3D;}
 html[data-theme="dark"] body { background: linear-gradient(135deg,#0B1C3D,#142850); color: #fff; }
 html[data-theme="light"] body { background: #fff; color: #191919; }
 body{margin:0;padding:0;box-sizing:border-box;font-family:Poppins,sans-serif;}
@@ -22,19 +19,20 @@ body{margin:0;padding:0;box-sizing:border-box;font-family:Poppins,sans-serif;}
 .menu-mobile nav{display:flex;flex-direction:column;align-items:flex-start;gap:17px;padding:15px 0 0 26px;}
 .menu-mobile nav a{color:#0B1C3D;font-weight:700;font-size:1.09em;padding:9px 5px;border-radius:8px;text-decoration:none;}
 .menu-mobile nav a:hover,.menu-mobile nav a:focus{background:#D4AF37;color:#0B1C3D;}
-.hero {position: relative;height: 56vw;min-height: 220px;max-height:420px;overflow:hidden;background:#101520;}
-.hero img.bg-slide {position: absolute;width: 100%;height: 100%;object-fit:cover;opacity: 0;animation: slide 80s infinite, zoom 80s infinite;}
-.hero img.bg-slide:nth-child(1) {animation-delay:0s;}
-.hero img.bg-slide:nth-child(2) {animation-delay:8s;}
-.hero img.bg-slide:nth-child(3) {animation-delay:16s;}
-.hero img.bg-slide:nth-child(4) {animation-delay:24s;}
-.hero img.bg-slide:nth-child(5) {animation-delay:32s;}
-.hero img.bg-slide:nth-child(6) {animation-delay:40s;}
-.hero img.bg-slide:nth-child(7) {animation-delay:48s;}
-.hero img.bg-slide:nth-child(8) {animation-delay:56s;}
-.hero img.bg-slide:nth-child(9) {animation-delay:64s;}
-.hero img.bg-slide:nth-child(10) {animation-delay:72s;}
-@keyframes slide {0%{opacity:0;}6%{opacity:1;}10%{opacity:1;}15%{opacity:0;}100%{opacity:0;}}
+.hero {position: relative;height: 56vw;min-height:220px;max-height:420px;overflow:hidden;background:#101520;}
+.hero img.bg-slide {position: absolute;width: 100%;height: 100%;object-fit:cover;opacity: 0;animation: slide 57s infinite, zoom 57s infinite;}
+.hero img.bg-slide:nth-child(1){animation-delay:0s;}
+.hero img.bg-slide:nth-child(2){animation-delay:5s;}
+.hero img.bg-slide:nth-child(3){animation-delay:10s;}
+.hero img.bg-slide:nth-child(4){animation-delay:15s;}
+.hero img.bg-slide:nth-child(5){animation-delay:20s;}
+.hero img.bg-slide:nth-child(6){animation-delay:25s;}
+.hero img.bg-slide:nth-child(7){animation-delay:30s;}
+.hero img.bg-slide:nth-child(8){animation-delay:35s;}
+.hero img.bg-slide:nth-child(9){animation-delay:40s;}
+.hero img.bg-slide:nth-child(10){animation-delay:45s;}
+.hero img.bg-slide:nth-child(11){animation-delay:50s;}
+@keyframes slide {0%{opacity:0;}6%{opacity:1;}15%{opacity:1;}17%{opacity:0;}100%{opacity:0;}}
 @keyframes zoom { from{transform:scale(1);} to{transform:scale(1.09);} }
 .overlay { position:absolute; width:100%; height:100%; background:rgba(0,0,0,0.20); top:0; left:0; }
 .content-hero { position:relative; z-index:2; height:100%; display:flex; justify-content:center; align-items:center; }
@@ -110,8 +108,8 @@ body{margin:0;padding:0;box-sizing:border-box;font-family:Poppins,sans-serif;}
     <a href="#juquehy">Juquehy</a>
   </nav>
 </div>
+
 <div class="hero">
-  <!-- Hot Beach -->
   <img class="bg-slide" src="https://i.imgur.com/AmFSwwd.jpeg" alt="">
   <img class="bg-slide" src="https://i.imgur.com/PMok8fe.jpeg" alt="">
   <img class="bg-slide" src="https://i.imgur.com/bOOUiLE.jpeg" alt="">
@@ -122,7 +120,6 @@ body{margin:0;padding:0;box-sizing:border-box;font-family:Poppins,sans-serif;}
   <img class="bg-slide" src="https://i.imgur.com/8b52cpI.jpeg" alt="">
   <img class="bg-slide" src="https://i.imgur.com/XFT7Fs2.jpeg" alt="">
   <img class="bg-slide" src="https://i.imgur.com/eydR2bp.jpeg" alt="">
-  <!-- São Pedro Thermas -->
   <img class="bg-slide" src="https://i.imgur.com/pyEKOtQ.jpeg" alt="">
   <img class="bg-slide" src="https://i.imgur.com/1HeNjKT.jpeg" alt="">
   <img class="bg-slide" src="https://i.imgur.com/9kgfR2y.jpeg" alt="">
@@ -134,7 +131,6 @@ body{margin:0;padding:0;box-sizing:border-box;font-family:Poppins,sans-serif;}
   <img class="bg-slide" src="https://i.imgur.com/JAaWFiz.jpeg" alt="">
   <img class="bg-slide" src="https://i.imgur.com/61P9R4K.jpeg" alt="">
   <img class="bg-slide" src="https://i.imgur.com/VVc8UtU.jpeg" alt="">
-  <!-- Olimpia Park -->
   <img class="bg-slide" src="https://i.imgur.com/AseZPzL.jpeg" alt="">
   <img class="bg-slide" src="https://i.imgur.com/uhGHhcA.jpeg" alt="">
   <img class="bg-slide" src="https://i.imgur.com/1xGGlIh.jpeg" alt="">
@@ -144,7 +140,6 @@ body{margin:0;padding:0;box-sizing:border-box;font-family:Poppins,sans-serif;}
   <img class="bg-slide" src="https://i.imgur.com/90Fy5Hj.jpeg" alt="">
   <img class="bg-slide" src="https://i.imgur.com/wBiihZH.jpeg" alt="">
   <img class="bg-slide" src="https://i.imgur.com/1J6Tm4r.jpeg" alt="">
-  <!-- Solar das Águas -->
   <img class="bg-slide" src="https://i.imgur.com/S4tSUzG.jpeg" alt="">
   <img class="bg-slide" src="https://i.imgur.com/uiZei1A.jpeg" alt="">
   <img class="bg-slide" src="https://i.imgur.com/FGmyUSZ.jpeg" alt="">
@@ -155,7 +150,6 @@ body{margin:0;padding:0;box-sizing:border-box;font-family:Poppins,sans-serif;}
   <img class="bg-slide" src="https://i.imgur.com/vMOqQgq.jpeg" alt="">
   <img class="bg-slide" src="https://i.imgur.com/QpY0W4I.jpeg" alt="">
   <img class="bg-slide" src="https://i.imgur.com/x0fWdLu.jpeg" alt="">
-  <!-- Wyndham Royal -->
   <img class="bg-slide" src="https://i.imgur.com/iDMQ2XA.jpeg" alt="">
   <img class="bg-slide" src="https://i.imgur.com/WOhzcpP.jpeg" alt="">
   <img class="bg-slide" src="https://i.imgur.com/UKiLRll.jpeg" alt="">
@@ -166,7 +160,6 @@ body{margin:0;padding:0;box-sizing:border-box;font-family:Poppins,sans-serif;}
   <img class="bg-slide" src="https://i.imgur.com/GHtjGQK.jpeg" alt="">
   <img class="bg-slide" src="https://i.imgur.com/tnuVQOh.jpeg" alt="">
   <img class="bg-slide" src="https://i.imgur.com/KxSsPe6.jpeg" alt="">
-  <!-- Juquehy -->
   <img class="bg-slide" src="https://i.imgur.com/SxlktwS.jpeg" alt="">
   <img class="bg-slide" src="https://i.imgur.com/uORu8RN.jpeg" alt="">
   <img class="bg-slide" src="https://i.imgur.com/6W559IH.jpeg" alt="">
@@ -182,95 +175,94 @@ body{margin:0;padding:0;box-sizing:border-box;font-family:Poppins,sans-serif;}
   <button class="tab" data-block="wyndham">👑 Wyndham Royal</button>
   <button class="tab" data-block="juquehy">🌊 Juquehy</button>
 </div>
-<!-- Galeria resorts começa -->
 <div class="gallery-block active" id="hotbeach">
   <div class="resort-title">🏨 Hot Beach Suites</div>
   <a href="hotbeach.html" class="resort-link" target="_blank">Ver página exclusiva do Hot Beach</a>
   <div class="gallery">
-    <img src="https://i.imgur.com/AmFSwwd.jpeg" alt="Hot Beach 1">
-    <img src="https://i.imgur.com/PMok8fe.jpeg" alt="Hot Beach 2">
-    <img src="https://i.imgur.com/bOOUiLE.jpeg" alt="Hot Beach 3">
-    <img src="https://i.imgur.com/aKhDzXz.jpeg" alt="Hot Beach 4">
-    <img src="https://i.imgur.com/7lhbeim.jpeg" alt="Hot Beach 5">
-    <img src="https://i.imgur.com/nw9K59D.jpeg" alt="Hot Beach 6">
-    <img src="https://i.imgur.com/USBb1tj.jpeg" alt="Hot Beach 7">
-    <img src="https://i.imgur.com/8b52cpI.jpeg" alt="Hot Beach 8">
-    <img src="https://i.imgur.com/XFT7Fs2.jpeg" alt="Hot Beach 9">
-    <img src="https://i.imgur.com/eydR2bp.jpeg" alt="Hot Beach 10">
+    <img src="https://i.imgur.com/AmFSwwd.jpeg" alt="">
+    <img src="https://i.imgur.com/PMok8fe.jpeg" alt="">
+    <img src="https://i.imgur.com/bOOUiLE.jpeg" alt="">
+    <img src="https://i.imgur.com/aKhDzXz.jpeg" alt="">
+    <img src="https://i.imgur.com/7lhbeim.jpeg" alt="">
+    <img src="https://i.imgur.com/nw9K59D.jpeg" alt="">
+    <img src="https://i.imgur.com/USBb1tj.jpeg" alt="">
+    <img src="https://i.imgur.com/8b52cpI.jpeg" alt="">
+    <img src="https://i.imgur.com/XFT7Fs2.jpeg" alt="">
+    <img src="https://i.imgur.com/eydR2bp.jpeg" alt="">
   </div>
 </div>
 <div class="gallery-block" id="saopedro">
   <div class="resort-title">♨️ São Pedro Thermas</div>
   <a href="saopedro.html" class="resort-link" target="_blank">Ver página exclusiva do São Pedro Thermas</a>
   <div class="gallery">
-    <img src="https://i.imgur.com/pyEKOtQ.jpeg" alt="São Pedro 1">
-    <img src="https://i.imgur.com/1HeNjKT.jpeg" alt="São Pedro 2">
-    <img src="https://i.imgur.com/9kgfR2y.jpeg" alt="São Pedro 3">
-    <img src="https://i.imgur.com/2MinAKg.jpeg" alt="São Pedro 4">
-    <img src="https://i.imgur.com/1eOkkpi.jpeg" alt="São Pedro 5">
-    <img src="https://i.imgur.com/VNUPsl2.jpeg" alt="São Pedro 6">
-    <img src="https://i.imgur.com/5pbb4ba.jpeg" alt="São Pedro 7">
-    <img src="https://i.imgur.com/uop7Fdo.jpeg" alt="São Pedro 8">
-    <img src="https://i.imgur.com/JAaWFiz.jpeg" alt="São Pedro 9">
-    <img src="https://i.imgur.com/61P9R4K.jpeg" alt="São Pedro 10">
-    <img src="https://i.imgur.com/VVc8UtU.jpeg" alt="São Pedro 11">
+    <img src="https://i.imgur.com/pyEKOtQ.jpeg" alt="">
+    <img src="https://i.imgur.com/1HeNjKT.jpeg" alt="">
+    <img src="https://i.imgur.com/9kgfR2y.jpeg" alt="">
+    <img src="https://i.imgur.com/2MinAKg.jpeg" alt="">
+    <img src="https://i.imgur.com/1eOkkpi.jpeg" alt="">
+    <img src="https://i.imgur.com/VNUPsl2.jpeg" alt="">
+    <img src="https://i.imgur.com/5pbb4ba.jpeg" alt="">
+    <img src="https://i.imgur.com/uop7Fdo.jpeg" alt="">
+    <img src="https://i.imgur.com/JAaWFiz.jpeg" alt="">
+    <img src="https://i.imgur.com/61P9R4K.jpeg" alt="">
+    <img src="https://i.imgur.com/VVc8UtU.jpeg" alt="">
   </div>
 </div>
 <div class="gallery-block" id="olimpia">
   <div class="resort-title">🎢 Olimpia Park Resort</div>
   <a href="olimpia.html" class="resort-link" target="_blank">Ver página exclusiva do Olimpia Park</a>
   <div class="gallery">
-    <img src="https://i.imgur.com/AseZPzL.jpeg" alt="Olimpia 1">
-    <img src="https://i.imgur.com/uhGHhcA.jpeg" alt="Olimpia 2">
-    <img src="https://i.imgur.com/1xGGlIh.jpeg" alt="Olimpia 3">
-    <img src="https://i.imgur.com/04CvTwk.jpeg" alt="Olimpia 4">
-    <img src="https://i.imgur.com/pCZh2Pi.jpeg" alt="Olimpia 5">
-    <img src="https://i.imgur.com/BjgrodB.jpeg" alt="Olimpia 6">
-    <img src="https://i.imgur.com/90Fy5Hj.jpeg" alt="Olimpia 7">
-    <img src="https://i.imgur.com/wBiihZH.jpeg" alt="Olimpia 8">
-    <img src="https://i.imgur.com/1J6Tm4r.jpeg" alt="Olimpia 9">
+    <img src="https://i.imgur.com/AseZPzL.jpeg" alt="">
+    <img src="https://i.imgur.com/uhGHhcA.jpeg" alt="">
+    <img src="https://i.imgur.com/1xGGlIh.jpeg" alt="">
+    <img src="https://i.imgur.com/04CvTwk.jpeg" alt="">
+    <img src="https://i.imgur.com/pCZh2Pi.jpeg" alt="">
+    <img src="https://i.imgur.com/BjgrodB.jpeg" alt="">
+    <img src="https://i.imgur.com/90Fy5Hj.jpeg" alt="">
+    <img src="https://i.imgur.com/wBiihZH.jpeg" alt="">
+    <img src="https://i.imgur.com/1J6Tm4r.jpeg" alt="">
   </div>
 </div>
 <div class="gallery-block" id="solar">
   <div class="resort-title">☀️ Solar das Águas</div>
   <a href="solar.html" class="resort-link" target="_blank">Ver página exclusiva do Solar das Águas</a>
   <div class="gallery">
-    <img src="https://i.imgur.com/S4tSUzG.jpeg" alt="Solar 1">
-    <img src="https://i.imgur.com/uiZei1A.jpeg" alt="Solar 2">
-    <img src="https://i.imgur.com/FGmyUSZ.jpeg" alt="Solar 3">
-    <img src="https://i.imgur.com/0Lv8TV6.jpeg" alt="Solar 4">
-    <img src="https://i.imgur.com/qkmupvj.jpeg" alt="Solar 5">
-    <img src="https://i.imgur.com/oFjs88I.jpeg" alt="Solar 6">
-    <img src="https://i.imgur.com/VgEN9lk.jpeg" alt="Solar 7">
-    <img src="https://i.imgur.com/vMOqQgq.jpeg" alt="Solar 8">
-    <img src="https://i.imgur.com/QpY0W4I.jpeg" alt="Solar 9">
-    <img src="https://i.imgur.com/x0fWdLu.jpeg" alt="Solar 10">
+    <img src="https://i.imgur.com/S4tSUzG.jpeg" alt="">
+    <img src="https://i.imgur.com/uiZei1A.jpeg" alt="">
+    <img src="https://i.imgur.com/FGmyUSZ.jpeg" alt="">
+    <img src="https://i.imgur.com/0Lv8TV6.jpeg" alt="">
+    <img src="https://i.imgur.com/qkmupvj.jpeg" alt="">
+    <img src="https://i.imgur.com/oFjs88I.jpeg" alt="">
+    <img src="https://i.imgur.com/VgEN9lk.jpeg" alt="">
+    <img src="https://i.imgur.com/vMOqQgq.jpeg" alt="">
+    <img src="https://i.imgur.com/QpY0W4I.jpeg" alt="">
+    <img src="https://i.imgur.com/x0fWdLu.jpeg" alt="">
   </div>
 </div>
 <div class="gallery-block" id="wyndham">
   <div class="resort-title">👑 Wyndham Royal</div>
   <a href="wyndham.html" class="resort-link" target="_blank">Ver página exclusiva do Wyndham Royal</a>
   <div class="gallery">
-    <img src="https://i.imgur.com/iDMQ2XA.jpeg" alt="Wyndham 1">
-    <img src="https://i.imgur.com/WOhzcpP.jpeg" alt="Wyndham 2">
-    <img src="https://i.imgur.com/UKiLRll.jpeg" alt="Wyndham 3">
-    <img src="https://i.imgur.com/cD4I3pX.jpeg" alt="Wyndham 4">
-    <img src="https://i.imgur.com/wAnVr9T.jpeg" alt="Wyndham 5">
-    <img src="https://i.imgur.com/7ExLNbI.jpeg" alt="Wyndham 6">
-    <img src="https://i.imgur.com/ptpX7Ti.jpeg" alt="Wyndham 7">
-    <img src="https://i.imgur.com/GHtjGQK.jpeg" alt="Wyndham 8">
-    <img src="https://i.imgur.com/tnuVQOh.jpeg" alt="Wyndham 9">
-    <img src="https://i.imgur.com/KxSsPe6.jpeg" alt="Wyndham 10">
+    <img src="https://i.imgur.com/iDMQ2XA.jpeg" alt="">
+    <img src="https://i.imgur.com/WOhzcpP.jpeg" alt="">
+    <img src="https://i.imgur.com/UKiLRll.jpeg" alt="">
+    <img src="https://i.imgur.com/cD4I3pX.jpeg" alt="">
+    <img src="https://i.imgur.com/wAnVr9T.jpeg" alt="">
+    <img src="https://i.imgur.com/7ExLNbI.jpeg" alt="">
+    <img src="https://i.imgur.com/ptpX7Ti.jpeg" alt="">
+    <img src="https://i.imgur.com/GHtjGQK.jpeg" alt="">
+    <img src="https://i.imgur.com/tnuVQOh.jpeg" alt="">
+    <img src="https://i.imgur.com/KxSsPe6.jpeg" alt="">
   </div>
 </div>
 <div class="gallery-block" id="juquehy">
   <div class="resort-title">🌊 Praia de Juquehy</div>
   <a href="juquehy.html" class="resort-link" target="_blank">Ver página exclusiva da Praia de Juquehy</a>
   <div class="gallery">
-    <img src="https://i.imgur.com/SxlktwS.jpeg" alt="Juquehy 1">
-    <img src="https://i.imgur.com/uORu8RN.jpeg" alt="Juquehy 2">
-    <img src="https://i.imgur.com/6W559IH.jpeg" alt="Juquehy 3">
-    <img src="https://i.imgur.com/OEzuUL0.jpeg" alt="Juquehy 4">
+    <img src="https://i.imgur.com/SxlktwS.jpeg" alt="">
+    <img src="https://i.imgur.com/uORu8RN.jpeg" alt="">
+    <img src="https://i.imgur.com/6W559IH.jpeg" alt="">
+    <img src="https://i.imgur.com/OEzuUL0.jpeg" alt="">
   </div>
 </div>
 <!-- Lightbox -->
@@ -278,7 +270,7 @@ body{margin:0;padding:0;box-sizing:border-box;font-family:Poppins,sans-serif;}
   <button class="lb-close" id="lbClose" aria-label="Fechar Imagem">&times;</button>
   <img src="" class="lb-img" id="lbImg" alt="">
 </div>
-<!-- Faixa de especialistas + Instagram-->
+<!-- Faixa de especialistas + Instagram -->
 <div class="faixa-logo">
   <span class="faixa-logo-tit">Especialistas em hospedagens exclusivas</span>
   <a href="https://www.instagram.com/julianasilvaoliveira.joao?igsh=bzZmNGIxdjdqc285" class="insta-top" target="_blank">📸 Instagram Oficial</a>
@@ -287,7 +279,6 @@ body{margin:0;padding:0;box-sizing:border-box;font-family:Poppins,sans-serif;}
     <div class="contato-b"><h3>Juliana</h3><p>Especialista em Hospedagens</p><a class="btn" href="https://wa.me/5517992068296" target="_blank">WhatsApp</a></div>
   </div>
 </div>
-<!-- Painel admin/consulta -->
 <section class="painel-duo" id="painel-duo">
   <form class="painel-box" id="painelAdmin">
     <h2>Cadastre seu empreendimento</h2>
@@ -323,46 +314,15 @@ body{margin:0;padding:0;box-sizing:border-box;font-family:Poppins,sans-serif;}
     <div id="resultadoBusca"></div>
   </form>
 </section>
-<!-- Depoimentos carrossel -->
 <section class="depo-section" id="depoimentos">
   <h2 class="depo-title">O que nossos clientes dizem</h2>
   <div class="depo-carousel-wrap" tabindex="0" aria-label="Depoimentos em carrossel">
     <div class="depo-carousel-inner">
-      <div class="depo-card active">
-        <img src="https://i.imgur.com/ep4Ng4e.jpeg" alt="Cordélia S.">
-        <div class="depo-stars">★★★★★</div>
-        <p>“A melhor experiência de viagem que já tive. Atendimento super rápido e opções excelentes!”</p>
-        <div class="depo-nome">Cordélia S.</div>
-        <div class="depo-cidade">Rio Preto, SP</div>
-      </div>
-      <div class="depo-card">
-        <img src="https://i.imgur.com/dciabUo.jpeg" alt="Ricardo A.">
-        <div class="depo-stars">★★★★★</div>
-        <p>“Fechei sem medo! Equipe muito confiável, recomendo para todos que buscam férias tranquilas.”</p>
-        <div class="depo-nome">Ricardo A.</div>
-        <div class="depo-cidade">São Paulo, SP</div>
-      </div>
-      <div class="depo-card">
-        <img src="https://i.imgur.com/dciabUo.jpeg" alt="Marina Lopes">
-        <div class="depo-stars">★★★★★</div>
-        <p>“Tudo perfeito: reserva, atendimento e o resort maravilhoso. Obrigada, HOSPEDAH!”</p>
-        <div class="depo-nome">Marina Lopes</div>
-        <div class="depo-cidade">Uberaba, MG</div>
-      </div>
-      <div class="depo-card">
-        <img src="https://i.imgur.com/j5izC2s.jpeg" alt="Gabriel Pinheiro">
-        <div class="depo-stars">★★★★★</div>
-        <p>“Superaram as minhas expectativas. Voltarei a reservar com eles, com certeza.”</p>
-        <div class="depo-nome">Gabriel Pinheiro</div>
-        <div class="depo-cidade">Campinas, SP</div>
-      </div>
-      <div class="depo-card">
-        <img src="https://i.imgur.com/iVoMnep.jpeg" alt="Paula Menezes">
-        <div class="depo-stars">★★★★★</div>
-        <p>“Atendimento exclusivo, muita praticidade e resorts fantásticos. Indico de olhos fechados.”</p>
-        <div class="depo-nome">Paula Menezes</div>
-        <div class="depo-cidade">Belo Horizonte, MG</div>
-      </div>
+      <div class="depo-card active"><img src="https://i.imgur.com/ep4Ng4e.jpeg" alt="Cordélia S."><div class="depo-stars">★★★★★</div><p>“A melhor experiência de viagem que já tive. Atendimento super rápido e opções excelentes!”</p><div class="depo-nome">Cordélia S.</div><div class="depo-cidade">Rio Preto, SP</div></div>
+      <div class="depo-card"><img src="https://i.imgur.com/dciabUo.jpeg" alt="Ricardo A."><div class="depo-stars">★★★★★</div><p>“Fechei sem medo! Equipe muito confiável, recomendo para todos que buscam férias tranquilas.”</p><div class="depo-nome">Ricardo A.</div><div class="depo-cidade">São Paulo, SP</div></div>
+      <div class="depo-card"><img src="https://i.imgur.com/dciabUo.jpeg" alt="Marina Lopes"><div class="depo-stars">★★★★★</div><p>“Tudo perfeito: reserva, atendimento e o resort maravilhoso. Obrigada, HOSPEDAH!”</p><div class="depo-nome">Marina Lopes</div><div class="depo-cidade">Uberaba, MG</div></div>
+      <div class="depo-card"><img src="https://i.imgur.com/j5izC2s.jpeg" alt="Gabriel Pinheiro"><div class="depo-stars">★★★★★</div><p>“Superaram as minhas expectativas. Voltarei a reservar com eles, com certeza.”</p><div class="depo-nome">Gabriel Pinheiro</div><div class="depo-cidade">Campinas, SP</div></div>
+      <div class="depo-card"><img src="https://i.imgur.com/iVoMnep.jpeg" alt="Paula Menezes"><div class="depo-stars">★★★★★</div><p>“Atendimento exclusivo, muita praticidade e resorts fantásticos. Indico de olhos fechados.”</p><div class="depo-nome">Paula Menezes</div><div class="depo-cidade">Belo Horizonte, MG</div></div>
     </div>
     <div class="depo-carousel-arrows">
       <button class="depo-carousel-btn" id="depoPrev" aria-label="Anterior" type="button">&#8592;</button>
