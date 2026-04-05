@@ -1919,7 +1919,7 @@ window.addEventListener('scroll', function () {
 (function () {
   var banner  = document.getElementById('cookie-banner');
   var consent = localStorage.getItem('hospedah_consent');
-  if (consent) { banner.classList.add('hidden'); return; }
+  if (consent === 'accepted' || consent === 'declined') { banner.classList.add('hidden'); return; }
   banner.style.display = 'flex';
   document.getElementById('btnCookieAccept').addEventListener('click', function () {
     localStorage.setItem('hospedah_consent', 'accepted');
@@ -1946,7 +1946,7 @@ function updateNightsBadge(nights, containerId) {
   var el = document.getElementById(containerId);
   if (!el) return;
   el.innerHTML = nights > 0
-    ? '<span class="nights-badge">🌙 ' + nights + (nights === 1 ? ' noite' : ' noites') + ' selecionada' + (nights === 1 ? '' : 's') + '</span>'
+    ? '<span class="nights-badge">\uD83C\uDF19 ' + nights + (nights === 1 ? ' noite selecionada' : ' noites selecionadas') + '</span>'
     : '';
 }
 document.addEventListener('DOMContentLoaded', function () {
