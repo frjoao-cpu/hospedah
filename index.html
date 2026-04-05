@@ -7,28 +7,69 @@
 <meta name="description" content="Hospede-se com qualidade nos melhores resorts e tenha experiências exclusivas. Orçamento premium, atendimento digital e profissionais à disposição.">
 <link rel="canonical" href="https://hospedah.com.br/">
 
-<!-- ✅ Google Tag Manager -->
-<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-})(window,document,'script','dataLayer','GTM-XXXXXXX');</script>
-<!-- Troque GTM-XXXXXXX pelo seu ID do Google Tag Manager -->
-
-<!-- ✅ Meta Pixel -->
+<!-- Google Tag Manager & Meta Pixel — carregados somente após consentimento LGPD -->
 <script>
-!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
-n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
-t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}
-(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
-fbq('init', 'SEU_PIXEL_ID'); // ← Troque pelo seu Meta Pixel ID
-fbq('track', 'PageView');
+function initTracking() {
+  // Google Tag Manager
+  (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+  new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+  j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+  'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+  })(window,document,'script','dataLayer','GTM-1258221909856324');
+  // Meta Pixel — substitua SEU_PIXEL_ID pelo ID real do seu pixel
+  !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+  n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+  n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+  t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}
+  (window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
+  fbq('init', 'SEU_PIXEL_ID');
+  fbq('track', 'PageView');
+}
+if (localStorage.getItem('hospedah_consent') === 'accepted') { initTracking(); }
 </script>
-<noscript><img height="1" width="1" style="display:none"
-src="https://www.facebook.com/tr?id=SEU_PIXEL_ID&ev=PageView&noscript=1"/></noscript>
 
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+<!-- Schema.org — Rich Snippets para Google -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "TravelAgency",
+  "name": "HOSPEDAH",
+  "url": "https://hospedah.com.br",
+  "logo": "https://i.imgur.com/ITjjQaf.jpeg",
+  "description": "Hospede-se com qualidade nos melhores resorts e tenha experiências exclusivas. Orçamento premium, atendimento digital e profissionais à disposição.",
+  "address": {
+    "@type": "PostalAddress",
+    "addressRegion": "SP",
+    "addressCountry": "BR"
+  },
+  "contactPoint": [
+    {
+      "@type": "ContactPoint",
+      "telephone": "+55-17-98200-6382",
+      "contactType": "customer service",
+      "contactOption": "TollFree",
+      "availableLanguage": "Portuguese"
+    }
+  ],
+  "sameAs": [
+    "https://www.instagram.com/julianasilvaoliveira.joao"
+  ],
+  "hasOfferCatalog": {
+    "@type": "OfferCatalog",
+    "name": "Resorts e Hospedagens",
+    "itemListElement": [
+      { "@type": "Offer", "itemOffered": { "@type": "LodgingBusiness", "name": "Hot Beach Resort", "address": { "@type": "PostalAddress", "addressLocality": "Olímpia", "addressRegion": "SP", "addressCountry": "BR" } } },
+      { "@type": "Offer", "itemOffered": { "@type": "LodgingBusiness", "name": "São Pedro Thermas", "address": { "@type": "PostalAddress", "addressLocality": "São Pedro", "addressRegion": "SP", "addressCountry": "BR" } } },
+      { "@type": "Offer", "itemOffered": { "@type": "LodgingBusiness", "name": "Olimpia Park Resort", "address": { "@type": "PostalAddress", "addressLocality": "Olímpia", "addressRegion": "SP", "addressCountry": "BR" } } },
+      { "@type": "Offer", "itemOffered": { "@type": "LodgingBusiness", "name": "Solar das Águas", "address": { "@type": "PostalAddress", "addressLocality": "Olímpia", "addressRegion": "SP", "addressCountry": "BR" } } },
+      { "@type": "Offer", "itemOffered": { "@type": "LodgingBusiness", "name": "Wyndham Royal Resort", "address": { "@type": "PostalAddress", "addressLocality": "Olímpia", "addressRegion": "SP", "addressCountry": "BR" } } },
+      { "@type": "Offer", "itemOffered": { "@type": "LodgingBusiness", "name": "Praia de Juquehy", "address": { "@type": "PostalAddress", "addressLocality": "São Sebastião", "addressRegion": "SP", "addressCountry": "BR" } } }
+    ]
+  }
+}
+</script>
 <style>
 /* ==========================================
    VARIÁVEIS GLOBAIS
@@ -773,6 +814,95 @@ footer {
   transition: background .3s;
 }
 footer a { color: var(--dourado); text-decoration: none; }
+
+/* ==========================================
+   BANNER LGPD
+========================================== */
+#cookie-banner {
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 99999;
+  background: rgba(11,28,61,0.97); backdrop-filter: blur(10px);
+  color: #fff; padding: 18px 24px;
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 16px; flex-wrap: wrap;
+  box-shadow: 0 -4px 24px rgba(0,0,0,0.4);
+  border-top: 2px solid var(--dourado);
+  transition: transform .35s ease;
+}
+#cookie-banner.hidden { transform: translateY(110%); }
+#cookie-banner p { margin: 0; font-size: 13px; line-height: 1.55; max-width: 680px; }
+#cookie-banner p a { color: var(--dourado); text-decoration: underline; }
+.cookie-btns { display: flex; gap: 10px; flex-shrink: 0; }
+.btn-cookie-accept {
+  background: var(--dourado); color: var(--azul);
+  border: none; border-radius: 22px;
+  padding: 9px 22px; font-family: 'Poppins', sans-serif;
+  font-weight: 700; font-size: 13px; cursor: pointer;
+  transition: background .15s;
+}
+.btn-cookie-accept:hover { background: var(--dourado-hover); }
+.btn-cookie-decline {
+  background: transparent; color: rgba(255,255,255,0.65);
+  border: 1px solid rgba(255,255,255,0.3); border-radius: 22px;
+  padding: 9px 18px; font-family: 'Poppins', sans-serif;
+  font-size: 13px; cursor: pointer;
+  transition: border-color .15s, color .15s;
+}
+.btn-cookie-decline:hover { border-color: #fff; color: #fff; }
+
+/* ==========================================
+   CALCULADORA DE NOITES
+========================================== */
+.nights-badge {
+  display: inline-block; background: var(--dourado);
+  color: var(--azul); font-weight: 700; font-size: 12px;
+  border-radius: 14px; padding: 3px 12px; margin-top: 6px;
+}
+
+/* ==========================================
+   FAQ ACCORDION
+========================================== */
+.faq-section {
+  padding: 52px 4vw 60px;
+  transition: background .3s;
+}
+html[data-theme="light"] .faq-section { background: #f4f4ef; }
+.faq-wrap { max-width: 760px; margin: 0 auto; }
+.faq-item {
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+  overflow: hidden;
+}
+html[data-theme="light"] .faq-item { border-bottom-color: rgba(11,28,61,0.12); }
+.faq-btn {
+  width: 100%; background: none; border: none;
+  text-align: left; padding: 18px 0;
+  display: flex; justify-content: space-between; align-items: center;
+  gap: 12px; cursor: pointer;
+  font-family: 'Poppins', sans-serif; font-size: 15px; font-weight: 600;
+  color: #fff; transition: color .15s;
+}
+html[data-theme="light"] .faq-btn { color: var(--azul); }
+.faq-btn:hover { color: var(--dourado); }
+.faq-icon {
+  flex-shrink: 0; width: 26px; height: 26px; border-radius: 50%;
+  background: rgba(212,175,55,0.15); color: var(--dourado);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.1rem; transition: transform .3s, background .15s;
+}
+.faq-btn[aria-expanded="true"] .faq-icon {
+  transform: rotate(45deg); background: var(--dourado); color: var(--azul);
+}
+.faq-body {
+  max-height: 0; overflow: hidden;
+  transition: max-height .38s cubic-bezier(.4,0,.2,1), padding .3s;
+  padding: 0;
+}
+.faq-body.open {
+  padding-bottom: 16px;
+}
+.faq-body p {
+  font-size: 14px; line-height: 1.65; opacity: .88;
+  margin: 0;
+}
 </style>
 </head>
 <body>
@@ -780,6 +910,20 @@ footer a { color: var(--dourado); text-decoration: none; }
 <!-- ✅ Google Tag Manager (noscript) -->
 <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-1258221909856324"
 height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+
+<!-- ==========================================
+     BANNER LGPD / COOKIES
+=========================================== -->
+<div id="cookie-banner" role="dialog" aria-live="polite" aria-label="Aviso de cookies">
+  <p>
+    🍪 Usamos cookies e tecnologias de rastreamento (Google Tag Manager e Meta Pixel) para melhorar sua experiência e exibir anúncios relevantes.
+    Ao clicar em <strong>Aceitar</strong>, você concorda com nossa política de privacidade e uso de dados, nos termos da <strong>LGPD</strong>.
+  </p>
+  <div class="cookie-btns">
+    <button class="btn-cookie-accept" id="btnCookieAccept" type="button">✓ Aceitar</button>
+    <button class="btn-cookie-decline" id="btnCookieDecline" type="button">Recusar</button>
+  </div>
+</div>
 
 <!-- ==========================================
      ✅ NAVBAR + MENU SANDUÍCHE
@@ -793,6 +937,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <li><a href="#galeria">Galeria</a></li>
     <li><a href="#depoimentos">Avaliações</a></li>
     <li><a href="#orcamento">Orçamento</a></li>
+    <li><a href="#faq">FAQ</a></li>
     <li><a href="#multi">Anuncie</a></li>
     <li><a href="#contato">Contato</a></li>
   </ul>
@@ -813,6 +958,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   <a href="#galeria"     onclick="closeDrawer()">🖼️ Galeria</a>
   <a href="#depoimentos" onclick="closeDrawer()">⭐ Avaliações</a>
   <a href="#orcamento"   onclick="closeDrawer()">💰 Orçamento</a>
+  <a href="#faq"        onclick="closeDrawer()">❓ FAQ</a>
   <a href="#multi"       onclick="closeDrawer()">🏨 Anuncie</a>
   <a href="#contato"     onclick="closeDrawer()">📬 Contato</a>
   <hr style="border-color:rgba(255,255,255,0.1);margin:8px 0;">
@@ -881,6 +1027,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           🔍 Buscar
         </button>
       </div>
+      <div id="hs_nights_display" style="margin-top:8px;text-align:right;"></div>
     </div>
   </div>
 
@@ -1181,6 +1328,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       <input type="date"   id="orc_entrada" required>
       <label>Data de saída</label>
       <input type="date"   id="orc_saida"   required>
+      <div id="orc_nights_display"></div>
       <textarea id="orc_obs" placeholder="Observações ou dúvidas (opcional)"></textarea>
       <button type="submit">📩 Enviar orçamento via WhatsApp</button>
     </form>
@@ -1232,6 +1380,64 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
          class="btn-insta" target="_blank" rel="noopener">📸 Instagram</a>
       <a href="https://wa.me/5517982006382" class="btn-wpp" target="_blank" rel="noopener">💬 Flávio</a>
       <a href="https://wa.me/5517992068296" class="btn-wpp" target="_blank" rel="noopener">💬 Juliana</a>
+    </div>
+  </div>
+</section>
+
+<!-- ==========================================
+     FAQ
+=========================================== -->
+<section class="faq-section" id="faq" aria-labelledby="faq-titulo">
+  <div class="faq-wrap">
+    <h2 class="section-title" id="faq-titulo" style="margin-bottom:32px;">❓ Perguntas Frequentes</h2>
+    <div class="faq-item">
+      <button class="faq-btn" aria-expanded="false" data-faq="0">
+        Como funciona o processo de reserva?
+        <span class="faq-icon" aria-hidden="true">+</span>
+      </button>
+      <div class="faq-body" id="faq-body-0"><p>Você preenche o formulário de orçamento ou nos chama diretamente no WhatsApp. Nossa equipe responde rapidamente com as opções disponíveis, valores e condições. Após confirmação e pagamento, sua reserva está garantida!</p></div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-btn" aria-expanded="false" data-faq="1">
+        Quais formas de pagamento são aceitas?
+        <span class="faq-icon" aria-hidden="true">+</span>
+      </button>
+      <div class="faq-body" id="faq-body-1"><p>Trabalhamos com Pix, transferência bancária e cartão de crédito (parcelamento disponível). As condições específicas são combinadas diretamente com o nosso time via WhatsApp.</p></div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-btn" aria-expanded="false" data-faq="2">
+        É possível cancelar ou alterar a reserva?
+        <span class="faq-icon" aria-hidden="true">+</span>
+      </button>
+      <div class="faq-body" id="faq-body-2"><p>Sim! A política de cancelamento e alteração varia conforme o resort e o período. Entre em contato com nossa equipe para verificar as condições específicas da sua reserva antes de confirmar.</p></div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-btn" aria-expanded="false" data-faq="3">
+        Os resorts aceitam animais de estimação?
+        <span class="faq-icon" aria-hidden="true">+</span>
+      </button>
+      <div class="faq-body" id="faq-body-3"><p>A política pet varia por resort. Alguns aceitam pets de pequeno porte, outros não permitem animais. Consulte nossa equipe ao fazer o orçamento para verificar a política do resort desejado.</p></div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-btn" aria-expanded="false" data-faq="4">
+        O café da manhã está incluído?
+        <span class="faq-icon" aria-hidden="true">+</span>
+      </button>
+      <div class="faq-body" id="faq-body-4"><p>Depende do pacote escolhido. Alguns resorts oferecem café da manhã incluso, outros cobram à parte. Ao solicitar o orçamento, informe sua preferência e nossa equipe apresentará as opções disponíveis.</p></div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-btn" aria-expanded="false" data-faq="5">
+        Há estacionamento nos resorts?
+        <span class="faq-icon" aria-hidden="true">+</span>
+      </button>
+      <div class="faq-body" id="faq-body-5"><p>A maioria dos resorts parceiros oferece estacionamento gratuito para hóspedes. Consulte nossa equipe para confirmar a disponibilidade de vagas no resort de sua escolha.</p></div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-btn" aria-expanded="false" data-faq="6">
+        Qual é o prazo de confirmação da reserva?
+        <span class="faq-icon" aria-hidden="true">+</span>
+      </button>
+      <div class="faq-body" id="faq-body-6"><p>Após o envio do orçamento via WhatsApp, nossa equipe retorna em até 2 horas em horário comercial. A confirmação definitiva ocorre após a confirmação do pagamento.</p></div>
     </div>
   </div>
 </section>
@@ -1706,6 +1912,83 @@ window.addEventListener('scroll', function () {
 /* =====================
    INICIA
 ===================== */
+
+/* =====================
+   BANNER LGPD
+===================== */
+(function () {
+  var banner  = document.getElementById('cookie-banner');
+  var consent = localStorage.getItem('hospedah_consent');
+  if (consent) { banner.classList.add('hidden'); return; }
+  banner.style.display = 'flex';
+  document.getElementById('btnCookieAccept').addEventListener('click', function () {
+    localStorage.setItem('hospedah_consent', 'accepted');
+    banner.classList.add('hidden');
+    initTracking();
+  });
+  document.getElementById('btnCookieDecline').addEventListener('click', function () {
+    localStorage.setItem('hospedah_consent', 'declined');
+    banner.classList.add('hidden');
+  });
+})();
+
+/* =====================
+   CALCULADORA DE NOITES
+===================== */
+function calcNights(startId, endId) {
+  var s = document.getElementById(startId).value;
+  var e = document.getElementById(endId).value;
+  if (!s || !e) return 0;
+  var diff = (new Date(e) - new Date(s)) / 86400000;
+  return diff > 0 ? diff : 0;
+}
+function updateNightsBadge(nights, containerId) {
+  var el = document.getElementById(containerId);
+  if (!el) return;
+  el.innerHTML = nights > 0
+    ? '<span class="nights-badge">🌙 ' + nights + (nights === 1 ? ' noite' : ' noites') + ' selecionada' + (nights === 1 ? '' : 's') + '</span>'
+    : '';
+}
+document.addEventListener('DOMContentLoaded', function () {
+  ['hs_entrada', 'hs_saida'].forEach(function (id) {
+    var el = document.getElementById(id);
+    if (el) el.addEventListener('change', function () {
+      updateNightsBadge(calcNights('hs_entrada', 'hs_saida'), 'hs_nights_display');
+    });
+  });
+  ['orc_entrada', 'orc_saida'].forEach(function (id) {
+    var el = document.getElementById(id);
+    if (el) el.addEventListener('change', function () {
+      updateNightsBadge(calcNights('orc_entrada', 'orc_saida'), 'orc_nights_display');
+    });
+  });
+});
+
+/* =====================
+   FAQ ACCORDION
+===================== */
+(function () {
+  var btns = document.querySelectorAll('.faq-btn');
+  btns.forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var idx  = btn.getAttribute('data-faq');
+      var body = document.getElementById('faq-body-' + idx);
+      var open = btn.getAttribute('aria-expanded') === 'true';
+      btns.forEach(function (b) {
+        var i = b.getAttribute('data-faq');
+        var bd = document.getElementById('faq-body-' + i);
+        b.setAttribute('aria-expanded', 'false');
+        bd.classList.remove('open');
+        bd.style.maxHeight = '0';
+      });
+      if (!open) {
+        btn.setAttribute('aria-expanded', 'true');
+        body.classList.add('open');
+        body.style.maxHeight = body.scrollHeight + 'px';
+      }
+    });
+  });
+})();
 </script>
 </body>
 </html>
