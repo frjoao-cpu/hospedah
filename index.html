@@ -7,7 +7,38 @@
 <meta name="description" content="Hospede-se com qualidade nos melhores resorts e tenha experiências exclusivas. Orçamento premium, atendimento digital e profissionais à disposição.">
 <link rel="canonical" href="https://hospedah.tur.br/">
 
-<!-- Google Tag Manager & Meta Pixel — carregados somente após consentimento LGPD -->
+<!-- PWA -->
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#D4AF37">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="HOSPEDAH">
+<link rel="apple-touch-icon" href="https://i.imgur.com/ITjjQaf.jpeg">
+
+<!-- Open Graph — compartilhamento no WhatsApp, Facebook, Instagram -->
+<meta property="og:type"        content="website">
+<meta property="og:url"         content="https://hospedah.tur.br/">
+<meta property="og:site_name"   content="HOSPEDAH">
+<meta property="og:title"       content="HOSPEDAH | Resorts e Experiências Exclusivas">
+<meta property="og:description" content="Hospede-se com qualidade nos melhores resorts. Orçamento premium, atendimento digital e profissionais à disposição.">
+<meta property="og:image"       content="https://i.imgur.com/AmFSwwd.jpeg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:locale"      content="pt_BR">
+
+<!-- Twitter / X Cards -->
+<meta name="twitter:card"        content="summary_large_image">
+<meta name="twitter:title"       content="HOSPEDAH | Resorts e Experiências Exclusivas">
+<meta name="twitter:description" content="Hospede-se com qualidade nos melhores resorts. Orçamento premium e atendimento digital.">
+<meta name="twitter:image"       content="https://i.imgur.com/AmFSwwd.jpeg">
+
+<!-- Preconnect — reduz latência de recursos externos -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://i.imgur.com">
+<link rel="preconnect" href="https://www.googletagmanager.com">
+
+<!-- Google Tag Manager & Microsoft Clarity — carregados somente após consentimento LGPD -->
 <script>
 function initTracking() {
   // Google Tag Manager
@@ -16,6 +47,11 @@ function initTracking() {
   j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
   'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
   })(window,document,'script','dataLayer','GTM-1258221909856324');
+  // Microsoft Clarity — mapas de calor e gravação de sessões
+  (function(c,l,a,r,i,t,y){c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+  t=l.createElement(r);t.async=1;t.src='https://www.clarity.ms/tag/'+i;
+  y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+  })(window,document,'clarity','script','s5xr9k4m2p');
 }
 if (localStorage.getItem('hospedah_consent') === 'accepted') { initTracking(); }
 </script>
@@ -60,6 +96,72 @@ if (localStorage.getItem('hospedah_consent') === 'accepted') { initTracking(); }
       { "@type": "Offer", "itemOffered": { "@type": "LodgingBusiness", "name": "Praia de Juquehy", "address": { "@type": "PostalAddress", "addressLocality": "São Sebastião", "addressRegion": "SP", "addressCountry": "BR" } } }
     ]
   }
+}
+</script>
+
+<!-- Schema.org FAQPage — exibe as FAQs diretamente no resultado do Google -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Como funciona o processo de reserva?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Você preenche o formulário de orçamento ou nos chama diretamente no WhatsApp. Nossa equipe responde rapidamente com as opções disponíveis, valores e condições. Após confirmação e pagamento, sua reserva está garantida!"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Quais formas de pagamento são aceitas?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Trabalhamos com Pix, transferência bancária e cartão de crédito (parcelamento disponível). As condições específicas são combinadas diretamente com o nosso time via WhatsApp."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "É possível cancelar ou alterar a reserva?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Sim! A política de cancelamento e alteração varia conforme o resort e o período. Entre em contato com nossa equipe para verificar as condições específicas da sua reserva antes de confirmar."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Os resorts aceitam animais de estimação?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "A política pet varia por resort. Alguns aceitam pets de pequeno porte, outros não permitem animais. Consulte nossa equipe ao fazer o orçamento para verificar a política do resort desejado."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "O café da manhã está incluído?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Depende do pacote escolhido. Alguns resorts oferecem café da manhã incluso, outros cobram à parte. Ao solicitar o orçamento, informe sua preferência e nossa equipe apresentará as opções disponíveis."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Há estacionamento nos resorts?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "A maioria dos resorts parceiros oferece estacionamento gratuito para hóspedes. Consulte nossa equipe para confirmar a disponibilidade de vagas no resort de sua escolha."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Qual é o prazo de confirmação da reserva?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Após o envio do orçamento via WhatsApp, nossa equipe retorna em até 2 horas em horário comercial. A confirmação definitiva ocorre após a confirmação do pagamento."
+      }
+    }
+  ]
 }
 </script>
 <style>
@@ -1055,7 +1157,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 =========================================== -->
 <div id="cookie-banner" role="dialog" aria-live="polite" aria-label="Aviso de cookies" style="display:none">
   <p>
-    🍪 Usamos cookies e tecnologias de rastreamento (Google Tag Manager e Meta Pixel) para melhorar sua experiência e exibir anúncios relevantes.
+    🍪 Usamos cookies e tecnologias de rastreamento (Google Tag Manager e Microsoft Clarity) para melhorar sua experiência e exibir anúncios relevantes.
     Ao clicar em <strong>Aceitar</strong>, você concorda com nossa política de privacidade e uso de dados, nos termos da <strong>LGPD</strong>.
   </p>
   <div class="cookie-btns">
@@ -1286,16 +1388,16 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <div class="resort-title">Hot Beach Resort</div>
     <a href="resorts/hotbeach.html" class="resort-link" target="_blank" rel="noopener">Ver página exclusiva →</a>
     <div class="gallery">
-      <img src="https://i.imgur.com/AmFSwwd.jpeg" alt="Hot Beach 1" tabindex="0">
-      <img src="https://i.imgur.com/PMok8fe.jpeg" alt="Hot Beach 2" tabindex="0">
-      <img src="https://i.imgur.com/bOOUiLE.jpeg" alt="Hot Beach 3" tabindex="0">
-      <img src="https://i.imgur.com/aKhDzXz.jpeg" alt="Hot Beach 4" tabindex="0">
-      <img src="https://i.imgur.com/7lhbeim.jpeg" alt="Hot Beach 5" tabindex="0">
-      <img src="https://i.imgur.com/nw9K59D.jpeg" alt="Hot Beach 6" tabindex="0">
-      <img src="https://i.imgur.com/USBb1tj.jpeg" alt="Hot Beach 7" tabindex="0">
-      <img src="https://i.imgur.com/8b52cpI.jpeg" alt="Hot Beach 8" tabindex="0">
-      <img src="https://i.imgur.com/XFT7Fs2.jpeg" alt="Hot Beach 9" tabindex="0">
-      <img src="https://i.imgur.com/eydR2bp.jpeg" alt="Hot Beach 10" tabindex="0">
+      <img src="https://i.imgur.com/AmFSwwd.jpeg" alt="Hot Beach 1" loading="lazy" width="800" height="600" tabindex="0">
+      <img src="https://i.imgur.com/PMok8fe.jpeg" alt="Hot Beach 2" loading="lazy" width="800" height="600" tabindex="0">
+      <img src="https://i.imgur.com/bOOUiLE.jpeg" alt="Hot Beach 3" loading="lazy" width="800" height="600" tabindex="0">
+      <img src="https://i.imgur.com/aKhDzXz.jpeg" alt="Hot Beach 4" loading="lazy" width="800" height="600" tabindex="0">
+      <img src="https://i.imgur.com/7lhbeim.jpeg" alt="Hot Beach 5" loading="lazy" width="800" height="600" tabindex="0">
+      <img src="https://i.imgur.com/nw9K59D.jpeg" alt="Hot Beach 6" loading="lazy" width="800" height="600" tabindex="0">
+      <img src="https://i.imgur.com/USBb1tj.jpeg" alt="Hot Beach 7" loading="lazy" width="800" height="600" tabindex="0">
+      <img src="https://i.imgur.com/8b52cpI.jpeg" alt="Hot Beach 8" loading="lazy" width="800" height="600" tabindex="0">
+      <img src="https://i.imgur.com/XFT7Fs2.jpeg" alt="Hot Beach 9" loading="lazy" width="800" height="600" tabindex="0">
+      <img src="https://i.imgur.com/eydR2bp.jpeg" alt="Hot Beach 10" loading="lazy" width="800" height="600" tabindex="0">
     </div>
   </div>
 
@@ -1303,17 +1405,17 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <div class="resort-title">São Pedro Thermas</div>
     <a href="resorts/saopedro.html" class="resort-link" target="_blank" rel="noopener">Ver página exclusiva →</a>
     <div class="gallery">
-      <img src="https://i.imgur.com/pyEKOtQ.jpeg" alt="São Pedro 1" tabindex="0">
-      <img src="https://i.imgur.com/1HeNjKT.jpeg" alt="São Pedro 2" tabindex="0">
-      <img src="https://i.imgur.com/9kgfR2y.jpeg" alt="São Pedro 3" tabindex="0">
-      <img src="https://i.imgur.com/2MinAKg.jpeg" alt="São Pedro 4" tabindex="0">
-      <img src="https://i.imgur.com/1eOkkpi.jpeg" alt="São Pedro 5" tabindex="0">
-      <img src="https://i.imgur.com/VNUPsl2.jpeg" alt="São Pedro 6" tabindex="0">
-      <img src="https://i.imgur.com/5pbb4ba.jpeg" alt="São Pedro 7" tabindex="0">
-      <img src="https://i.imgur.com/uop7Fdo.jpeg" alt="São Pedro 8" tabindex="0">
-      <img src="https://i.imgur.com/JAaWFiz.jpeg" alt="São Pedro 9" tabindex="0">
-      <img src="https://i.imgur.com/61P9R4K.jpeg" alt="São Pedro 10" tabindex="0">
-      <img src="https://i.imgur.com/VVc8UtU.jpeg" alt="São Pedro 11" tabindex="0">
+      <img src="https://i.imgur.com/pyEKOtQ.jpeg" alt="São Pedro 1" loading="lazy" width="800" height="600" tabindex="0">
+      <img src="https://i.imgur.com/1HeNjKT.jpeg" alt="São Pedro 2" loading="lazy" width="800" height="600" tabindex="0">
+      <img src="https://i.imgur.com/9kgfR2y.jpeg" alt="São Pedro 3" loading="lazy" width="800" height="600" tabindex="0">
+      <img src="https://i.imgur.com/2MinAKg.jpeg" alt="São Pedro 4" loading="lazy" width="800" height="600" tabindex="0">
+      <img src="https://i.imgur.com/1eOkkpi.jpeg" alt="São Pedro 5" loading="lazy" width="800" height="600" tabindex="0">
+      <img src="https://i.imgur.com/VNUPsl2.jpeg" alt="São Pedro 6" loading="lazy" width="800" height="600" tabindex="0">
+      <img src="https://i.imgur.com/5pbb4ba.jpeg" alt="São Pedro 7" loading="lazy" width="800" height="600" tabindex="0">
+      <img src="https://i.imgur.com/uop7Fdo.jpeg" alt="São Pedro 8" loading="lazy" width="800" height="600" tabindex="0">
+      <img src="https://i.imgur.com/JAaWFiz.jpeg" alt="São Pedro 9" loading="lazy" width="800" height="600" tabindex="0">
+      <img src="https://i.imgur.com/61P9R4K.jpeg" alt="São Pedro 10" loading="lazy" width="800" height="600" tabindex="0">
+      <img src="https://i.imgur.com/VVc8UtU.jpeg" alt="São Pedro 11" loading="lazy" width="800" height="600" tabindex="0">
     </div>
   </div>
 
@@ -1321,15 +1423,15 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <div class="resort-title">Olimpia Park Resort</div>
     <a href="resorts/olimpia.html" class="resort-link" target="_blank" rel="noopener">Ver página exclusiva →</a>
     <div class="gallery">
-      <img src="https://i.imgur.com/AseZPzL.jpeg" alt="Olimpia Park 1" tabindex="0">
-      <img src="https://i.imgur.com/uhGHhcA.jpeg" alt="Olimpia Park 2" tabindex="0">
-      <img src="https://i.imgur.com/1xGGlIh.jpeg" alt="Olimpia Park 3" tabindex="0">
-      <img src="https://i.imgur.com/04CvTwk.jpeg" alt="Olimpia Park 4" tabindex="0">
-      <img src="https://i.imgur.com/pCZh2Pi.jpeg" alt="Olimpia Park 5" tabindex="0">
-      <img src="https://i.imgur.com/BjgrodB.jpeg" alt="Olimpia Park 6" tabindex="0">
-      <img src="https://i.imgur.com/90Fy5Hj.jpeg" alt="Olimpia Park 7" tabindex="0">
-      <img src="https://i.imgur.com/wBiihZH.jpeg" alt="Olimpia Park 8" tabindex="0">
-      <img src="https://i.imgur.com/1J6Tm4r.jpeg" alt="Olimpia Park 9" tabindex="0">
+      <img src="https://i.imgur.com/AseZPzL.jpeg" alt="Olimpia Park 1" loading="lazy" width="800" height="600" tabindex="0">
+      <img src="https://i.imgur.com/uhGHhcA.jpeg" alt="Olimpia Park 2" loading="lazy" width="800" height="600" tabindex="0">
+      <img src="https://i.imgur.com/1xGGlIh.jpeg" alt="Olimpia Park 3" loading="lazy" width="800" height="600" tabindex="0">
+      <img src="https://i.imgur.com/04CvTwk.jpeg" alt="Olimpia Park 4" loading="lazy" width="800" height="600" tabindex="0">
+      <img src="https://i.imgur.com/pCZh2Pi.jpeg" alt="Olimpia Park 5" loading="lazy" width="800" height="600" tabindex="0">
+      <img src="https://i.imgur.com/BjgrodB.jpeg" alt="Olimpia Park 6" loading="lazy" width="800" height="600" tabindex="0">
+      <img src="https://i.imgur.com/90Fy5Hj.jpeg" alt="Olimpia Park 7" loading="lazy" width="800" height="600" tabindex="0">
+      <img src="https://i.imgur.com/wBiihZH.jpeg" alt="Olimpia Park 8" loading="lazy" width="800" height="600" tabindex="0">
+      <img src="https://i.imgur.com/1J6Tm4r.jpeg" alt="Olimpia Park 9" loading="lazy" width="800" height="600" tabindex="0">
     </div>
   </div>
 
@@ -1337,16 +1439,16 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <div class="resort-title">Solar das Águas</div>
     <a href="resorts/solar.html" class="resort-link" target="_blank" rel="noopener">Ver página exclusiva →</a>
     <div class="gallery">
-      <img src="https://i.imgur.com/S4tSUzG.jpeg" alt="Solar das Águas 1" tabindex="0">
-      <img src="https://i.imgur.com/uiZei1A.jpeg" alt="Solar das Águas 2" tabindex="0">
-      <img src="https://i.imgur.com/FGmyUSZ.jpeg" alt="Solar das Águas 3" tabindex="0">
-      <img src="https://i.imgur.com/0Lv8TV6.jpeg" alt="Solar das Águas 4" tabindex="0">
-      <img src="https://i.imgur.com/qkmupvj.jpeg" alt="Solar das Águas 5" tabindex="0">
-      <img src="https://i.imgur.com/oFjs88I.jpeg" alt="Solar das Águas 6" tabindex="0">
-      <img src="https://i.imgur.com/VgEN9lk.jpeg" alt="Solar das Águas 7" tabindex="0">
-      <img src="https://i.imgur.com/vMOqQgq.jpeg" alt="Solar das Águas 8" tabindex="0">
-      <img src="https://i.imgur.com/QpY0W4I.jpeg" alt="Solar das Águas 9" tabindex="0">
-      <img src="https://i.imgur.com/x0fWdLu.jpeg" alt="Solar das Águas 10" tabindex="0">
+      <img src="https://i.imgur.com/S4tSUzG.jpeg" alt="Solar das Águas 1" loading="lazy" width="800" height="600" tabindex="0">
+      <img src="https://i.imgur.com/uiZei1A.jpeg" alt="Solar das Águas 2" loading="lazy" width="800" height="600" tabindex="0">
+      <img src="https://i.imgur.com/FGmyUSZ.jpeg" alt="Solar das Águas 3" loading="lazy" width="800" height="600" tabindex="0">
+      <img src="https://i.imgur.com/0Lv8TV6.jpeg" alt="Solar das Águas 4" loading="lazy" width="800" height="600" tabindex="0">
+      <img src="https://i.imgur.com/qkmupvj.jpeg" alt="Solar das Águas 5" loading="lazy" width="800" height="600" tabindex="0">
+      <img src="https://i.imgur.com/oFjs88I.jpeg" alt="Solar das Águas 6" loading="lazy" width="800" height="600" tabindex="0">
+      <img src="https://i.imgur.com/VgEN9lk.jpeg" alt="Solar das Águas 7" loading="lazy" width="800" height="600" tabindex="0">
+      <img src="https://i.imgur.com/vMOqQgq.jpeg" alt="Solar das Águas 8" loading="lazy" width="800" height="600" tabindex="0">
+      <img src="https://i.imgur.com/QpY0W4I.jpeg" alt="Solar das Águas 9" loading="lazy" width="800" height="600" tabindex="0">
+      <img src="https://i.imgur.com/x0fWdLu.jpeg" alt="Solar das Águas 10" loading="lazy" width="800" height="600" tabindex="0">
     </div>
   </div>
 
@@ -1354,16 +1456,16 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <div class="resort-title">Wyndham Royal Resort</div>
     <a href="resorts/wyndham.html" class="resort-link" target="_blank" rel="noopener">Ver página exclusiva →</a>
     <div class="gallery">
-      <img src="https://i.imgur.com/iDMQ2XA.jpeg" alt="Wyndham 1" tabindex="0">
-      <img src="https://i.imgur.com/WOhzcpP.jpeg" alt="Wyndham 2" tabindex="0">
-      <img src="https://i.imgur.com/UKiLRll.jpeg" alt="Wyndham 3" tabindex="0">
-      <img src="https://i.imgur.com/cD4I3pX.jpeg" alt="Wyndham 4" tabindex="0">
-      <img src="https://i.imgur.com/wAnVr9T.jpeg" alt="Wyndham 5" tabindex="0">
-      <img src="https://i.imgur.com/7ExLNbI.jpeg" alt="Wyndham 6" tabindex="0">
-      <img src="https://i.imgur.com/ptpX7Ti.jpeg" alt="Wyndham 7" tabindex="0">
-      <img src="https://i.imgur.com/GHtjGQK.jpeg" alt="Wyndham 8" tabindex="0">
-      <img src="https://i.imgur.com/tnuVQOh.jpeg" alt="Wyndham 9" tabindex="0">
-      <img src="https://i.imgur.com/KxSsPe6.jpeg" alt="Wyndham 10" tabindex="0">
+      <img src="https://i.imgur.com/iDMQ2XA.jpeg" alt="Wyndham 1" loading="lazy" width="800" height="600" tabindex="0">
+      <img src="https://i.imgur.com/WOhzcpP.jpeg" alt="Wyndham 2" loading="lazy" width="800" height="600" tabindex="0">
+      <img src="https://i.imgur.com/UKiLRll.jpeg" alt="Wyndham 3" loading="lazy" width="800" height="600" tabindex="0">
+      <img src="https://i.imgur.com/cD4I3pX.jpeg" alt="Wyndham 4" loading="lazy" width="800" height="600" tabindex="0">
+      <img src="https://i.imgur.com/wAnVr9T.jpeg" alt="Wyndham 5" loading="lazy" width="800" height="600" tabindex="0">
+      <img src="https://i.imgur.com/7ExLNbI.jpeg" alt="Wyndham 6" loading="lazy" width="800" height="600" tabindex="0">
+      <img src="https://i.imgur.com/ptpX7Ti.jpeg" alt="Wyndham 7" loading="lazy" width="800" height="600" tabindex="0">
+      <img src="https://i.imgur.com/GHtjGQK.jpeg" alt="Wyndham 8" loading="lazy" width="800" height="600" tabindex="0">
+      <img src="https://i.imgur.com/tnuVQOh.jpeg" alt="Wyndham 9" loading="lazy" width="800" height="600" tabindex="0">
+      <img src="https://i.imgur.com/KxSsPe6.jpeg" alt="Wyndham 10" loading="lazy" width="800" height="600" tabindex="0">
     </div>
   </div>
 
@@ -1371,10 +1473,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <div class="resort-title">Praia de Juquehy</div>
     <a href="resorts/juquehy.html" class="resort-link" target="_blank" rel="noopener">Ver página exclusiva →</a>
     <div class="gallery">
-      <img src="https://i.imgur.com/SxlktwS.jpeg" alt="Juquehy 1" tabindex="0">
-      <img src="https://i.imgur.com/uORu8RN.jpeg" alt="Juquehy 2" tabindex="0">
-      <img src="https://i.imgur.com/6W559IH.jpeg" alt="Juquehy 3" tabindex="0">
-      <img src="https://i.imgur.com/OEzuUL0.jpeg" alt="Juquehy 4" tabindex="0">
+      <img src="https://i.imgur.com/SxlktwS.jpeg" alt="Juquehy 1" loading="lazy" width="800" height="600" tabindex="0">
+      <img src="https://i.imgur.com/uORu8RN.jpeg" alt="Juquehy 2" loading="lazy" width="800" height="600" tabindex="0">
+      <img src="https://i.imgur.com/6W559IH.jpeg" alt="Juquehy 3" loading="lazy" width="800" height="600" tabindex="0">
+      <img src="https://i.imgur.com/OEzuUL0.jpeg" alt="Juquehy 4" loading="lazy" width="800" height="600" tabindex="0">
     </div>
   </div>
 </div>
@@ -1395,35 +1497,35 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   <div class="depo-carousel-wrap" tabindex="0" role="region" aria-label="Carrossel de depoimentos">
     <div class="depo-carousel-inner">
       <div class="depo-card active">
-        <img src="https://i.imgur.com/ep4Ng4e.jpeg" alt="Foto Cordélia S.">
+        <img src="https://i.imgur.com/ep4Ng4e.jpeg" alt="Foto Cordélia S." loading="lazy" width="80" height="80">
         <div class="depo-stars">★★★★★</div>
         <p>"A melhor experiência de viagem que já tive. Atendimento super rápido e opções excelentes!"</p>
         <div class="depo-nome">Cordélia S.</div>
         <div class="depo-cidade">Rio Preto, SP</div>
       </div>
       <div class="depo-card">
-        <img src="https://i.imgur.com/dciabUo.jpeg" alt="Foto Ricardo A.">
+        <img src="https://i.imgur.com/dciabUo.jpeg" alt="Foto Ricardo A." loading="lazy" width="80" height="80">
         <div class="depo-stars">★★★★★</div>
         <p>"Fechei sem medo! Equipe muito confiável, recomendo para todos que buscam férias tranquilas."</p>
         <div class="depo-nome">Ricardo A.</div>
         <div class="depo-cidade">São Paulo, SP</div>
       </div>
       <div class="depo-card">
-        <img src="https://i.imgur.com/dciabUo.jpeg" alt="Foto Marina Lopes">
+        <img src="https://i.imgur.com/dciabUo.jpeg" alt="Foto Marina Lopes" loading="lazy" width="80" height="80">
         <div class="depo-stars">★★★★★</div>
         <p>"Tudo perfeito: reserva, atendimento e o resort maravilhoso. Obrigada, HOSPEDAH!"</p>
         <div class="depo-nome">Marina Lopes</div>
         <div class="depo-cidade">Uberaba, MG</div>
       </div>
       <div class="depo-card">
-        <img src="https://i.imgur.com/j5izC2s.jpeg" alt="Foto Gabriel Pinheiro">
+        <img src="https://i.imgur.com/j5izC2s.jpeg" alt="Foto Gabriel Pinheiro" loading="lazy" width="80" height="80">
         <div class="depo-stars">★★★★★</div>
         <p>"Superaram as minhas expectativas. Voltarei a reservar com eles, com certeza."</p>
         <div class="depo-nome">Gabriel Pinheiro</div>
         <div class="depo-cidade">Campinas, SP</div>
       </div>
       <div class="depo-card">
-        <img src="https://i.imgur.com/iVoMnep.jpeg" alt="Foto Paula Menezes">
+        <img src="https://i.imgur.com/iVoMnep.jpeg" alt="Foto Paula Menezes" loading="lazy" width="80" height="80">
         <div class="depo-stars">★★★★★</div>
         <p>"Atendimento exclusivo, muita praticidade e resorts fantásticos. Indico de olhos fechados."</p>
         <div class="depo-nome">Paula Menezes</div>
@@ -2286,6 +2388,15 @@ document.addEventListener('DOMContentLoaded', function () {
   })();
 
 })();
+</script>
+
+<!-- PWA — Registro do Service Worker -->
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function () {
+    navigator.serviceWorker.register('/sw.js').catch(function () {});
+  });
+}
 </script>
 </body>
 </html>

@@ -1,0 +1,51 @@
+{
+  "name": "HOSPEDAH — Resorts e Experiências Exclusivas",
+  "short_name": "HOSPEDAH",
+  "description": "Hospede-se com qualidade nos melhores resorts e tenha experiências exclusivas. Orçamento premium e atendimento digital.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#0B1C3D",
+  "theme_color": "#D4AF37",
+  "lang": "pt-BR",
+  "categories": ["travel", "lifestyle"],
+  "icons": [
+    {
+      "src": "https://i.imgur.com/ITjjQaf.jpeg",
+      "sizes": "192x192",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://i.imgur.com/ITjjQaf.jpeg",
+      "sizes": "512x512",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Solicitar Orçamento",
+      "short_name": "Orçamento",
+      "description": "Solicite um orçamento rápido via WhatsApp",
+      "url": "/#orcamento",
+      "icons": [{ "src": "https://i.imgur.com/ITjjQaf.jpeg", "sizes": "96x96" }]
+    },
+    {
+      "name": "Ver Galeria",
+      "short_name": "Galeria",
+      "description": "Veja as fotos dos resorts",
+      "url": "/#galeria",
+      "icons": [{ "src": "https://i.imgur.com/ITjjQaf.jpeg", "sizes": "96x96" }]
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "https://i.imgur.com/AmFSwwd.jpeg",
+      "sizes": "1280x720",
+      "type": "image/jpeg",
+      "label": "Página inicial — Hot Beach Resort"
+    }
+  ]
+}
