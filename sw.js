@@ -52,9 +52,9 @@ self.addEventListener('fetch', function (event) {
   /* Ignora requisições não-GET e extensões externas que não cachear */
   if (req.method !== 'GET') return;
   if (url.origin !== self.location.origin &&
-      !url.hostname.includes('fonts.googleapis.com') &&
-      !url.hostname.includes('fonts.gstatic.com') &&
-      !url.hostname.includes('i.imgur.com')) return;
+      url.hostname !== 'fonts.googleapis.com' &&
+      url.hostname !== 'fonts.gstatic.com' &&
+      url.hostname !== 'i.imgur.com') return;
 
   /* Imagens Imgur: Cache-First com fallback de rede */
   if (url.hostname === 'i.imgur.com') {
@@ -75,8 +75,8 @@ self.addEventListener('fetch', function (event) {
   }
 
   /* Google Fonts: Cache-First */
-  if (url.hostname.includes('fonts.googleapis.com') ||
-      url.hostname.includes('fonts.gstatic.com')) {
+  if (url.hostname === 'fonts.googleapis.com' ||
+      url.hostname === 'fonts.gstatic.com') {
     event.respondWith(
       caches.open(ASSETS_CACHE).then(function (cache) {
         return cache.match(req).then(function (cached) {

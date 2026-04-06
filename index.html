@@ -916,13 +916,13 @@ footer a { color: var(--dourado); text-decoration: none; }
   position: fixed; bottom: 0; left: 0; right: 0; z-index: 99999;
   background: rgba(11,28,61,0.97); backdrop-filter: blur(10px);
   color: #fff; padding: 18px 24px;
-  display: flex; align-items: center; justify-content: space-between;
+  display: none; align-items: center; justify-content: space-between;
   gap: 16px; flex-wrap: wrap;
   box-shadow: 0 -4px 24px rgba(0,0,0,0.4);
   border-top: 2px solid var(--dourado);
   transition: transform .35s ease;
 }
-#cookie-banner.hidden { transform: translateY(110%); }
+#cookie-banner.visible { display: flex; }
 #cookie-banner p { margin: 0; font-size: 13px; line-height: 1.55; max-width: 680px; }
 #cookie-banner p a { color: var(--dourado); text-decoration: underline; }
 .cookie-btns { display: flex; gap: 10px; flex-shrink: 0; }
@@ -1155,7 +1155,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <!-- ==========================================
      BANNER LGPD / COOKIES
 =========================================== -->
-<div id="cookie-banner" role="dialog" aria-live="polite" aria-label="Aviso de cookies" style="display:none">
+<div id="cookie-banner" role="dialog" aria-live="polite" aria-label="Aviso de cookies">
   <p>
     🍪 Usamos cookies e tecnologias de rastreamento (Google Tag Manager e Microsoft Clarity) para melhorar sua experiência e exibir anúncios relevantes.
     Ao clicar em <strong>Aceitar</strong>, você concorda com nossa política de privacidade e uso de dados, nos termos da <strong>LGPD</strong>.
@@ -2160,16 +2160,16 @@ window.addEventListener('scroll', function () {
 (function () {
   var banner  = document.getElementById('cookie-banner');
   var consent = localStorage.getItem('hospedah_consent');
-  if (consent === 'accepted' || consent === 'declined') { banner.classList.add('hidden'); return; }
-  banner.style.display = 'flex';
+  if (consent === 'accepted' || consent === 'declined') { return; }
+  banner.classList.add('visible');
   document.getElementById('btnCookieAccept').addEventListener('click', function () {
     localStorage.setItem('hospedah_consent', 'accepted');
-    banner.classList.add('hidden');
+    banner.classList.remove('visible');
     initTracking();
   });
   document.getElementById('btnCookieDecline').addEventListener('click', function () {
     localStorage.setItem('hospedah_consent', 'declined');
-    banner.classList.add('hidden');
+    banner.classList.remove('visible');
   });
 })();
 
