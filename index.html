@@ -903,9 +903,156 @@ html[data-theme="light"] .faq-btn { color: var(--azul); }
   font-size: 14px; line-height: 1.65; opacity: .88;
   margin: 0;
 }
+
+/* ==========================================
+   MARKETING AUTOMÁTICO — GRATUITO
+   Exit-Intent Popup | FOMO | Prova Social
+========================================== */
+
+/* --- EXIT-INTENT POPUP --- */
+#exit-overlay {
+  display:none; position:fixed; inset:0; z-index:9998;
+  background:rgba(0,0,0,.72); backdrop-filter:blur(3px);
+  align-items:center; justify-content:center;
+}
+#exit-overlay.visible { display:flex; }
+#exit-popup {
+  background:linear-gradient(135deg,#0B1C3D,#142850);
+  color:#fff; border-radius:20px; padding:40px 32px 32px;
+  max-width:420px; width:92%; text-align:center;
+  border:1px solid rgba(212,175,55,.35);
+  box-shadow:0 8px 48px rgba(0,0,0,.55);
+  position:relative; animation:popIn .35s cubic-bezier(.22,1.2,.46,1) both;
+}
+@keyframes popIn {
+  from { transform:scale(.82) translateY(24px); opacity:0; }
+  to   { transform:scale(1)   translateY(0);    opacity:1; }
+}
+#exit-popup .ep-badge {
+  display:inline-block; background:var(--dourado); color:#0B1C3D;
+  font-size:.72em; font-weight:700; letter-spacing:1px;
+  padding:3px 12px; border-radius:20px; margin-bottom:14px; text-transform:uppercase;
+}
+#exit-popup h2 { font-size:1.45em; margin-bottom:10px; line-height:1.25; }
+#exit-popup p  { font-size:.97em; opacity:.84; margin-bottom:22px; line-height:1.5; }
+#exit-popup .ep-btn {
+  display:block; width:100%; padding:14px;
+  background:var(--dourado); color:#0B1C3D; font-weight:700;
+  border:none; border-radius:12px; font-size:1.05em; cursor:pointer;
+  transition:background .18s; text-decoration:none;
+}
+#exit-popup .ep-btn:hover { background:var(--dourado-hover); }
+#exit-popup .ep-close {
+  position:absolute; top:12px; right:16px;
+  background:none; border:none; color:#fff; font-size:1.6em;
+  cursor:pointer; opacity:.55; line-height:1;
+}
+#exit-popup .ep-close:hover { opacity:1; }
+#exit-popup .ep-skip {
+  display:block; margin-top:14px; font-size:.82em;
+  color:rgba(255,255,255,.45); cursor:pointer; background:none; border:none;
+}
+#exit-popup .ep-skip:hover { color:rgba(255,255,255,.75); }
+
+/* --- FOMO WIDGET (visitantes ao vivo + timer) --- */
+#fomo-bar {
+  position:fixed; bottom:90px; left:50%; transform:translateX(-50%);
+  z-index:900; display:flex; gap:12px; flex-wrap:wrap; justify-content:center;
+  pointer-events:none;
+}
+.fomo-pill {
+  background:rgba(11,28,61,.92); color:#fff;
+  border:1px solid rgba(212,175,55,.4); border-radius:30px;
+  padding:7px 18px; font-size:.82em; font-weight:600;
+  display:flex; align-items:center; gap:8px;
+  box-shadow:0 2px 14px rgba(0,0,0,.35); white-space:nowrap;
+  pointer-events:auto;
+}
+.fomo-dot {
+  width:9px; height:9px; border-radius:50%; background:#25D366;
+  box-shadow:0 0 0 0 rgba(37,211,102,.6);
+  animation:pulse-dot 1.6s infinite;
+}
+@keyframes pulse-dot {
+  0%   { box-shadow:0 0 0 0   rgba(37,211,102,.6); }
+  70%  { box-shadow:0 0 0 9px rgba(37,211,102,0);  }
+  100% { box-shadow:0 0 0 0   rgba(37,211,102,0);  }
+}
+.fomo-fire { font-size:1.1em; }
+#fomo-timer-val { color:var(--dourado); font-variant-numeric:tabular-nums; }
+
+/* --- PROVA SOCIAL (toast de reservas) --- */
+#social-proof-container {
+  position:fixed; bottom:20px; left:20px; z-index:9000;
+  display:flex; flex-direction:column; gap:10px; pointer-events:none;
+}
+.sp-toast {
+  background:rgba(11,28,61,.96); color:#fff;
+  border:1px solid rgba(212,175,55,.35); border-radius:14px;
+  padding:12px 16px; font-size:.84em; line-height:1.4;
+  display:flex; align-items:center; gap:12px;
+  box-shadow:0 4px 20px rgba(0,0,0,.4); min-width:240px; max-width:310px;
+  pointer-events:auto;
+  animation:slideInLeft .4s cubic-bezier(.22,1.2,.46,1) both,
+            fadeOut .4s ease 5.6s both;
+}
+@keyframes slideInLeft {
+  from { transform:translateX(-110%); opacity:0; }
+  to   { transform:translateX(0);     opacity:1; }
+}
+@keyframes fadeOut {
+  from { opacity:1; transform:translateX(0); }
+  to   { opacity:0; transform:translateX(-110%); }
+}
+.sp-avatar {
+  width:38px; height:38px; border-radius:50%; object-fit:cover;
+  border:2px solid var(--dourado); flex-shrink:0;
+}
+.sp-avatar-letter {
+  width:38px; height:38px; border-radius:50%;
+  background:var(--dourado); color:#0B1C3D;
+  font-weight:700; font-size:1.15em;
+  display:flex; align-items:center; justify-content:center; flex-shrink:0;
+}
+.sp-text strong { display:block; font-size:.92em; }
+.sp-time  { font-size:.76em; opacity:.55; margin-top:2px; }
+.sp-emoji { font-size:1.3em; }
 </style>
 </head>
 <body>
+
+<!-- ==========================================
+     EXIT-INTENT POPUP
+=========================================== -->
+<div id="exit-overlay" role="dialog" aria-modal="true" aria-label="Oferta especial">
+  <div id="exit-popup">
+    <button class="ep-close" id="ep-close-btn" aria-label="Fechar">✕</button>
+    <div class="ep-badge">⏳ Oferta Exclusiva</div>
+    <h2>Espera! Antes de ir…</h2>
+    <p>Nossos resorts têm <strong>disponibilidade limitada</strong>. Fale agora com nossa consultora e garanta sua reserva com <strong>atendimento VIP</strong> e as melhores condições.</p>
+    <a href="https://wa.me/5517982006382?text=Ol%C3%A1%21+Vi+a+oferta+e+quero+saber+mais+sobre+os+resorts." class="ep-btn" target="_blank" rel="noopener">💬 Quero Atendimento VIP Agora</a>
+    <button class="ep-skip" id="ep-skip-btn">Não, obrigado</button>
+  </div>
+</div>
+
+<!-- ==========================================
+     FOMO BAR (visitantes ao vivo + timer)
+=========================================== -->
+<div id="fomo-bar" aria-live="polite">
+  <div class="fomo-pill">
+    <span class="fomo-dot"></span>
+    <span id="fomo-viewers">12</span> pessoas vendo agora
+  </div>
+  <div class="fomo-pill">
+    <span class="fomo-fire">🔥</span>
+    Oferta expira em <span id="fomo-timer-val">14:59</span>
+  </div>
+</div>
+
+<!-- ==========================================
+     PROVA SOCIAL (container de toasts)
+=========================================== -->
+<div id="social-proof-container" aria-live="polite" aria-atomic="false"></div>
 
 <!-- ✅ Google Tag Manager (noscript) -->
 <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-1258221909856324"
@@ -1988,6 +2135,164 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     });
   });
+})();
+</script>
+
+<!-- ==========================================
+     MARKETING AUTOMÁTICO GRATUITO
+     Exit-Intent | FOMO | Prova Social
+=========================================== -->
+<script>
+(function () {
+  'use strict';
+
+  /* ── helpers ── */
+  function rand(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+  function $(id) { return document.getElementById(id); }
+
+  /* ══════════════════════════════════════════
+     1. EXIT-INTENT POPUP
+     Dispara quando o cursor sai pela parte
+     superior da janela (tentativa de fechar).
+  ══════════════════════════════════════════ */
+  (function exitIntent() {
+    var overlay   = $('exit-overlay');
+    var closeBtn  = $('ep-close-btn');
+    var skipBtn   = $('ep-skip-btn');
+    var shown     = false;
+    var dismissed = sessionStorage.getItem('hospedah_exit_dismissed');
+
+    function show() {
+      if (shown || dismissed) return;
+      shown = true;
+      overlay.classList.add('visible');
+      document.body.style.overflow = 'hidden';
+    }
+    function hide() {
+      overlay.classList.remove('visible');
+      document.body.style.overflow = '';
+      sessionStorage.setItem('hospedah_exit_dismissed', '1');
+    }
+
+    /* Desktop: mouse sai pelo topo */
+    document.addEventListener('mouseleave', function (e) {
+      if (e.clientY < 5) show();
+    });
+
+    /* Mobile: usuário fica inativo 40 s */
+    var mobileTimer;
+    function resetMobileTimer() {
+      clearTimeout(mobileTimer);
+      mobileTimer = setTimeout(show, 40000);
+    }
+    ['touchstart', 'touchmove', 'scroll'].forEach(function (ev) {
+      document.addEventListener(ev, resetMobileTimer, { passive: true });
+    });
+    resetMobileTimer();
+
+    closeBtn.addEventListener('click', hide);
+    skipBtn.addEventListener('click', hide);
+    overlay.addEventListener('click', function (e) {
+      if (e.target === overlay) hide();
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') hide();
+    });
+  })();
+
+  /* ══════════════════════════════════════════
+     2. FOMO — Visitantes ao vivo + Countdown
+  ══════════════════════════════════════════ */
+  (function fomo() {
+    var viewersEl = $('fomo-viewers');
+    var timerEl   = $('fomo-timer-val');
+
+    /* Contador de "visitantes" oscila suavemente */
+    var viewers = rand(8, 18);
+    function updateViewers() {
+      viewers += rand(-2, 3);
+      if (viewers < 4)  viewers = 4;
+      if (viewers > 28) viewers = 28;
+      viewersEl.textContent = viewers;
+    }
+    setInterval(updateViewers, rand(5000, 9000));
+
+    /* Timer regressivo — reinicia ao expirar (janela de sessão) */
+    var SESSION_KEY = 'hospedah_fomo_end';
+    var DURATION    = 15 * 60; /* 15 minutos em segundos */
+    var endTime     = parseInt(sessionStorage.getItem(SESSION_KEY), 10);
+    if (!endTime || endTime <= Date.now()) {
+      endTime = Date.now() + DURATION * 1000;
+      sessionStorage.setItem(SESSION_KEY, endTime);
+    }
+
+    function tick() {
+      var diff = Math.max(0, Math.floor((endTime - Date.now()) / 1000));
+      var m = Math.floor(diff / 60);
+      var s = diff % 60;
+      timerEl.textContent = (m < 10 ? '0' : '') + m + ':' + (s < 10 ? '0' : '') + s;
+      if (diff === 0) {
+        endTime = Date.now() + DURATION * 1000;
+        sessionStorage.setItem(SESSION_KEY, endTime);
+      }
+    }
+    tick();
+    setInterval(tick, 1000);
+  })();
+
+  /* ══════════════════════════════════════════
+     3. PROVA SOCIAL — Toasts de reservas
+  ══════════════════════════════════════════ */
+  (function socialProof() {
+    var container = $('social-proof-container');
+
+    var events = [
+      { nome: 'Fernanda S.',  cidade: 'São Paulo',      resort: 'Hot Beach Resort',     min: rand(2, 8)  },
+      { nome: 'Ricardo M.',   cidade: 'Campinas',        resort: 'Olímpia Park Resort',  min: rand(1, 5)  },
+      { nome: 'Juliana C.',   cidade: 'Ribeirão Preto',  resort: 'Wyndham Royal Resort', min: rand(3, 10) },
+      { nome: 'Carlos A.',    cidade: 'São José dos Campos', resort: 'Solar das Águas', min: rand(1, 7)  },
+      { nome: 'Beatriz L.',   cidade: 'Santos',          resort: 'Praia de Juquehy',     min: rand(5, 12) },
+      { nome: 'Marcos T.',    cidade: 'Bauru',           resort: 'São Pedro Thermas',    min: rand(2, 9)  },
+      { nome: 'Patrícia R.',  cidade: 'Sorocaba',        resort: 'Hot Beach Resort',     min: rand(1, 6)  },
+      { nome: 'Eduardo F.',   cidade: 'Botucatu',        resort: 'Wyndham Royal Resort', min: rand(4, 11) },
+    ];
+
+    var idx = 0;
+
+    function showToast() {
+      var ev = events[idx % events.length];
+      idx++;
+
+      var toast = document.createElement('div');
+      toast.className = 'sp-toast';
+
+      var letter = ev.nome.charAt(0).toUpperCase();
+      toast.innerHTML =
+        '<div class="sp-avatar-letter">' + letter + '</div>' +
+        '<div class="sp-text">' +
+          '<strong>' + ev.nome + ' — ' + ev.cidade + '</strong>' +
+          'Reservou o <em>' + ev.resort + '</em>' +
+          '<div class="sp-time">há ' + ev.min + ' min&nbsp;✅</div>' +
+        '</div>';
+
+      container.appendChild(toast);
+
+      /* Remove o toast após a animação de saída (6 s total) */
+      setTimeout(function () {
+        if (toast.parentNode) toast.parentNode.removeChild(toast);
+      }, 6200);
+    }
+
+    /* Primeira notificação após 8 s, depois a cada 18-30 s */
+    setTimeout(function first() {
+      showToast();
+      setTimeout(function loop() {
+        showToast();
+        setTimeout(loop, rand(18000, 30000));
+      }, rand(18000, 30000));
+    }, 8000);
+  })();
+
 })();
 </script>
 </body>
