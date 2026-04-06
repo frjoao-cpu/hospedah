@@ -16,14 +16,6 @@ function initTracking() {
   j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
   'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
   })(window,document,'script','dataLayer','GTM-1258221909856324');
-  // Meta Pixel — substitua SEU_PIXEL_ID pelo ID real do seu pixel
-  !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-  n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
-  n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
-  t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}
-  (window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
-  fbq('init', 'SEU_PIXEL_ID');
-  fbq('track', 'PageView');
 }
 if (localStorage.getItem('hospedah_consent') === 'accepted') { initTracking(); }
 </script>
@@ -1061,7 +1053,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <!-- ==========================================
      BANNER LGPD / COOKIES
 =========================================== -->
-<div id="cookie-banner" role="dialog" aria-live="polite" aria-label="Aviso de cookies">
+<div id="cookie-banner" role="dialog" aria-live="polite" aria-label="Aviso de cookies" style="display:none">
   <p>
     🍪 Usamos cookies e tecnologias de rastreamento (Google Tag Manager e Meta Pixel) para melhorar sua experiência e exibir anúncios relevantes.
     Ao clicar em <strong>Aceitar</strong>, você concorda com nossa política de privacidade e uso de dados, nos termos da <strong>LGPD</strong>.
