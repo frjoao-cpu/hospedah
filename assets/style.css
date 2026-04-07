@@ -129,6 +129,26 @@ h1 {
     padding: 10px 0;
 }
 
+.payment-btn {
+    position: fixed;
+    bottom: 80px;
+    right: 20px;
+    background: #00b237;
+    color: white;
+    padding: 14px 20px;
+    border-radius: 30px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 15px;
+    box-shadow: 0 4px 12px rgba(0,178,55,0.4);
+    z-index: 999;
+    text-align: center;
+}
+
+.payment-btn:hover {
+    background: #00963a;
+}
+
 @media (max-width: 768px) {
     .navbar {
         flex-direction: column;
