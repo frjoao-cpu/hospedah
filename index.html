@@ -818,6 +818,44 @@ html[data-theme="light"] .resort-link { color: var(--azul); }
 .card-imovel .btn-painel:hover { background: goldenrod; color: #fff; }
 .small { font-size: 12px; opacity: .7; }
 
+/* Períodos disponíveis */
+.btn-toggle-periodos {
+  width: 100%; padding: 10px; margin: 4px 0 10px;
+  border: 1.5px dashed var(--dourado); border-radius: 10px;
+  background: transparent; color: var(--dourado);
+  font-family: 'Poppins', sans-serif; font-size: 13px;
+  font-weight: 600; cursor: pointer; text-align: left;
+  transition: background .15s, color .15s;
+}
+.btn-toggle-periodos:hover { background: rgba(212,175,55,0.12); }
+.periodos-container { display: none; }
+.periodos-container.aberto { display: block; }
+.periodo-row {
+  display: grid; grid-template-columns: 1fr 1fr auto;
+  gap: 8px; align-items: center; margin-bottom: 8px;
+}
+.periodo-row input { margin: 0 !important; }
+.btn-add-periodo, .btn-rem-periodo {
+  padding: 8px 10px; border: none; border-radius: 8px;
+  font-size: 16px; cursor: pointer; line-height: 1;
+  font-family: 'Poppins', sans-serif;
+}
+.btn-add-periodo { background: rgba(212,175,55,0.2); color: var(--dourado); }
+.btn-add-periodo:hover { background: rgba(212,175,55,0.4); }
+.btn-rem-periodo { background: rgba(248,113,113,0.15); color: #f87171; }
+.btn-rem-periodo:hover { background: rgba(248,113,113,0.3); }
+.panel-box textarea {
+  font-family: 'Poppins', sans-serif;
+  width: 100%; padding: 11px 13px;
+  margin: 4px 0 12px; border-radius: 10px;
+  border: 1.5px solid #274678;
+  font-size: 14px; transition: border .15s;
+  resize: vertical; min-height: 80px;
+}
+.panel-box textarea:focus { outline: none; border-color: var(--dourado); }
+html[data-theme="dark"] .panel-box textarea { background: #f8f7f3; color: #222; border-color: #274678; }
+html[data-theme="light"] .panel-box textarea { background: #fafaf6; color: #222; border-color: #ccc; }
+
 /* ==========================================
    FORMULÁRIOS PADRÃO (orçamento, multi, contato)
 ========================================== */
@@ -1370,6 +1408,23 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         </select>
         <input id="empCapacidade" type="number" placeholder="Capacidade (pessoas)" min="1" required>
         <input id="empPreco"      type="number" placeholder="Preço referencial (R$/noite)" min="1" required>
+
+        <!-- Períodos disponíveis (oculto, expande ao clicar) -->
+        <button type="button" class="btn-toggle-periodos" id="btnTogglePeriodos" onclick="togglePeriodos()">
+          ➕ Adicionar períodos disponíveis (opcional)
+        </button>
+        <div class="periodos-container" id="periodosContainer">
+          <label>Período disponível e valor (ex.: de 04 a 10/05 | R$ 1.200,00)</label>
+          <div id="periodosList">
+            <div class="periodo-row">
+              <input type="text" placeholder="Ex.: de 04 a 10/05" class="emp-periodo-de">
+              <input type="text" placeholder="Ex.: R$ 1.200,00" class="emp-periodo-valor">
+              <button type="button" class="btn-rem-periodo" onclick="removerPeriodo(this)" title="Remover">✕</button>
+            </div>
+          </div>
+          <button type="button" class="btn-add-periodo" id="btnAddPeriodo" onclick="adicionarPeriodo()">+ Adicionar período</button>
+        </div>
+
         <input id="empCidade"     placeholder="Cidade / Localização" required>
         <input id="empContato"    placeholder="Seu nome (responsável)" required autocomplete="name">
         <input id="empWhatsapp"   placeholder="WhatsApp com DDD" required autocomplete="tel">
@@ -1394,6 +1449,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <option value="3">3 dormitórios</option>
         <option value="4">4+ dormitórios</option>
       </select>
+      <label>Observações</label>
+      <textarea id="clienteObs" placeholder="Ex.: prefiro piscina aquecida, viagem em família, aniversário..."></textarea>
       <button class="btn-painel" onclick="buscar()">🔍 Buscar opções</button>
       <div id="resultado"></div>
     </div>
@@ -2033,7 +2090,38 @@ function esc(str) {
 }
 function escJs(str) { return String(str).replace(/'/g,"\\'"); }
 
-function enviarCadastroEmp(e) {
+function togglePeriodos() {
+  var container = document.getElementById('periodosContainer');
+  var btn = document.getElementById('btnTogglePeriodos');
+  var aberto = container.classList.toggle('aberto');
+  btn.textContent = aberto ? '➖ Ocultar períodos disponíveis' : '➕ Adicionar períodos disponíveis (opcional)';
+}
+
+function adicionarPeriodo() {
+  var list = document.getElementById('periodosList');
+  if (list.children.length >= 8) {
+    document.getElementById('btnAddPeriodo').style.display = 'none';
+    return;
+  }
+  var row = document.createElement('div');
+  row.className = 'periodo-row';
+  row.innerHTML =
+    '<input type="text" placeholder="Ex.: de 04 a 10/05" class="emp-periodo-de">' +
+    '<input type="text" placeholder="Ex.: R$ 1.200,00" class="emp-periodo-valor">' +
+    '<button type="button" class="btn-rem-periodo" onclick="removerPeriodo(this)" title="Remover">✕</button>';
+  list.appendChild(row);
+  if (list.children.length >= 8) {
+    document.getElementById('btnAddPeriodo').style.display = 'none';
+  }
+}
+
+function removerPeriodo(btn) {
+  var row = btn.parentElement;
+  row.parentElement.removeChild(row);
+  document.getElementById('btnAddPeriodo').style.display = '';
+}
+
+
   e.preventDefault();
   var nome     = document.getElementById('empNome').value.trim();
   var tipo     = document.getElementById('empTipo').value;
@@ -2042,7 +2130,19 @@ function enviarCadastroEmp(e) {
   var preco    = document.getElementById('empPreco').value;
   var cidade   = document.getElementById('empCidade').value.trim();
   var contato  = document.getElementById('empContato').value.trim();
-  var whatsapp = document.getElementById('empWhatsapp').value.trim();
+  var whatsapp = document.getElementById('empWhatsapp').value;
+
+  var periodosDes = document.querySelectorAll('.emp-periodo-de');
+  var periodosVal = document.querySelectorAll('.emp-periodo-valor');
+  var periodosStr = '';
+  for (var i = 0; i < periodosDes.length; i++) {
+    var de  = periodosDes[i].value.trim();
+    var val = periodosVal[i].value.trim();
+    if (de || val) {
+      periodosStr += '\n   ' + (i + 1) + '. ' + (de || '—') + ' | ' + (val || '—');
+    }
+  }
+
   var msg =
     '🏢 *CADASTRO DE EMPREENDIMENTO - HOSPEDAH*\n\n' +
     '📌 *Nome:* ' + nome + '\n' +
@@ -2050,6 +2150,7 @@ function enviarCadastroEmp(e) {
     '🛏️ *Dormitórios:* ' + dorm + '\n' +
     '👥 *Capacidade:* ' + cap + ' pessoas\n' +
     '💰 *Preço:* R$ ' + Number(preco).toLocaleString('pt-BR') + '/noite\n' +
+    (periodosStr ? '📅 *Períodos disponíveis:*' + periodosStr + '\n' : '') +
     '📍 *Cidade:* ' + cidade + '\n' +
     '👤 *Responsável:* ' + contato + '\n' +
     '📱 *WhatsApp:* ' + whatsapp;
@@ -2068,6 +2169,7 @@ function buscar() {
   var saida   = document.getElementById('saida').value;
   var pessoas = document.getElementById('pessoas').value;
   var dorm    = document.getElementById('filtroDorm').value;
+  var obs     = document.getElementById('clienteObs').value.trim();
   var div     = document.getElementById('resultado');
   if (!cliente || !contato) {
     div.innerHTML = '<p style="margin-top:12px;color:#f87;font-size:13px;">⚠️ Preencha seu nome e WhatsApp antes de buscar.</p>';
@@ -2084,6 +2186,7 @@ function buscar() {
     '📅 Saída: '       + (saida   || 'A definir') + '\n' +
     '👥 Pessoas: '     + (pessoas || 'A definir') + '\n' +
     '🛏️ Dormitórios: ' + (dorm    || 'Qualquer')  + '\n' +
+    (obs ? '📝 Observações: ' + obs + '\n' : '') +
     getUtmSuffix()
   );
   setTimeout(function () {
