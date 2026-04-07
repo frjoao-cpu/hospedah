@@ -1,0 +1,5 @@
+Contact: https://wa.me/5517982006382
+Contact: https://www.instagram.com/julianasilvaoliveira.joao
+Preferred-Languages: pt-BR, en
+Canonical: https://hospedah.tur.br/.well-known/security.txt
+Expires: 2027-04-07T00:00:00.000Z

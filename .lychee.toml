@@ -1,0 +1,14 @@
+# Configuração do verificador de links Lychee
+# Exclui links dinâmicos ou que requerem autenticação
+
+exclude = [
+  "https://wa\\.me/.*",                       # WhatsApp (redirecionamento dinâmico)
+  "https://api\\.openweathermap\\.org/.*",     # API (requer chave)
+  "https://www\\.googletagmanager\\.com/.*",   # GTM (carregado condicionalmente)
+  "https://www\\.clarity\\.ms/.*",             # Clarity (carregado condicionalmente)
+  "https://fonts\\.gstatic\\.com/.*",          # Google Fonts estáticos
+]
+
+max_concurrency = 5
+timeout = 30
+max_retries = 2

@@ -1,3 +1,6 @@
+// ⚠️ SEGURANÇA: Esta chave é visível no código-fonte (site estático).
+// Para reduzir o risco de uso indevido, restrinja-a por HTTP Referer
+// no painel da OpenWeatherMap: https://home.openweathermap.org/api_keys
 const API_KEY = 'b6fd43b74eda4370d4f4948410281366';
 const BASE_URL = 'https://api.openweathermap.org/data/2.5';
 
