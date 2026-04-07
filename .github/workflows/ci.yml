@@ -1,4 +1,4 @@
-name: CI — Validação HTML e Deploy
+name: CI — Validação, Qualidade e Deploy
 
 on:
   push:
@@ -10,7 +10,7 @@ jobs:
   # ──────────────────────────────────────────────
   # 1. Valida HTML com htmlhint
   # ──────────────────────────────────────────────
-  validate:
+  validate-html:
     name: Validação HTML
     runs-on: ubuntu-latest
     permissions:
@@ -30,11 +30,94 @@ jobs:
         run: htmlhint "**/*.html" --config .htmlhintrc
 
   # ──────────────────────────────────────────────
-  # 2. Publica no GitHub Pages (somente na main)
+  # 2. Valida JavaScript com ESLint
+  # ──────────────────────────────────────────────
+  validate-js:
+    name: Validação JavaScript
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Instalar ESLint
+        run: npm install -g eslint@8
+
+      - name: Validar JavaScript
+        run: eslint . --ext .js
+
+  # ──────────────────────────────────────────────
+  # 3. Valida CSS com Stylelint
+  # ──────────────────────────────────────────────
+  validate-css:
+    name: Validação CSS
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Instalar Stylelint
+        run: npm install -g stylelint
+
+      - name: Validar CSS
+        run: stylelint "**/*.css" --config .stylelintrc.json
+
+  # ──────────────────────────────────────────────
+  # 4. Verifica links quebrados com Lychee
+  # ──────────────────────────────────────────────
+  check-links:
+    name: Verificar Links
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verificar links em HTML e Markdown
+        uses: lycheeverse/lychee-action@v2
+        with:
+          args: --no-progress --config .lychee.toml '**/*.html' '**/*.md'
+          fail: false
+
+  # ──────────────────────────────────────────────
+  # 5. Auditoria de qualidade com Lighthouse CI
+  # ──────────────────────────────────────────────
+  lighthouse:
+    name: Lighthouse CI
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Instalar Lighthouse CI
+        run: npm install -g @lhci/cli
+
+      - name: Executar Lighthouse CI
+        run: lhci autorun
+
+  # ──────────────────────────────────────────────
+  # 6. Publica no GitHub Pages (somente na main)
   # ──────────────────────────────────────────────
   deploy:
     name: Deploy GitHub Pages
-    needs: validate
+    needs: [validate-html, validate-js, validate-css]
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     runs-on: ubuntu-latest
     permissions:
@@ -45,6 +128,53 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Instalar ferramentas de minificação
+        run: npm install -g html-minifier-terser terser csso-cli
+
+      - name: Atualizar data do sitemap
+        run: |
+          TODAY=$(date +%Y-%m-%d)
+          sed -i "s|<lastmod>[0-9]\{4\}-[0-9]\{2\}-[0-9]\{2\}</lastmod>|<lastmod>${TODAY}</lastmod>|g" sitemap.xml
+
+      - name: Minificar HTML
+        run: |
+          set -e
+          while IFS= read -r f; do
+            echo "Minificando: $f"
+            html-minifier-terser \
+              --collapse-whitespace \
+              --remove-comments \
+              --remove-optional-tags \
+              --remove-redundant-attributes \
+              --remove-script-type-attributes \
+              -o "$f.min" "$f" && mv "$f.min" "$f"
+          done < <(find . -name "*.html" -not -path "./.git/*")
+
+      - name: Minificar CSS
+        run: |
+          set -e
+          for f in style.css assets/style.css; do
+            if [ -f "$f" ]; then
+              echo "Minificando: $f"
+              csso "$f" -o "$f.min" && mv "$f.min" "$f"
+            fi
+          done
+
+      - name: Minificar JavaScript
+        run: |
+          set -e
+          for f in script.js sw.js; do
+            if [ -f "$f" ]; then
+              echo "Minificando: $f"
+              terser "$f" -o "$f.min" --compress --mangle && mv "$f.min" "$f"
+            fi
+          done
 
       - name: Configurar GitHub Pages
         uses: actions/configure-pages@v4
