@@ -5,6 +5,9 @@
    ============================================================ */
 'use strict';
 
+/* OneSignal Web Push — importa o SW do SDK para compatibilidade */
+
+importScripts('https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.sw.js');
 var CACHE_NAME = 'hospedah-v1';
 var ASSETS_CACHE = 'hospedah-assets-v1';
 

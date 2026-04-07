@@ -6,7 +6,43 @@
 <title>Cadastre seu Empreendimento | HOSPEDAH</title>
 <meta name="description" content="Cadastre seu empreendimento na HOSPEDAH e alcance hóspedes que buscam experiências exclusivas.">
 <link rel="canonical" href="https://hospedah.tur.br/cadastro.html">
+<link rel="preconnect" href="https://www.googletagmanager.com">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+
+<!-- Google Tag Manager, Clarity, Meta Pixel, OneSignal — carregados somente após consentimento LGPD -->
+<script>
+function initTracking() {
+  // Google Tag Manager
+  (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+  new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+  j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+  'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+  })(window,document,'script','dataLayer','GTM-1258221909856324');
+  // Microsoft Clarity
+  (function(c,l,a,r,i,t,y){c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+  t=l.createElement(r);t.async=1;t.src='https://www.clarity.ms/tag/'+i;
+  y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+  })(window,document,'clarity','script','s5xr9k4m2p');
+  // Meta Pixel (substitua SEU_PIXEL_ID pelo ID real)
+  !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+  n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+  n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+  t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
+  document,'script','https://connect.facebook.net/en_US/fbevents.js');
+  fbq('init','SEU_PIXEL_ID');
+  fbq('track','PageView');
+  // OneSignal Web Push
+  window.OneSignalDeferred = window.OneSignalDeferred || [];
+  OneSignalDeferred.push(function(OneSignal) {
+    OneSignal.init({ appId: 'SEU_ONESIGNAL_APP_ID', allowLocalhostAsSecureOrigin: true });
+  });
+  var _os = document.createElement('script');
+  _os.src = 'https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js';
+  _os.defer = true;
+  document.head.appendChild(_os);
+}
+if (localStorage.getItem('hospedah_consent') === 'accepted') { initTracking(); }
+</script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
 
@@ -185,10 +221,35 @@ margin-top:20px;
 color:#25D366;
 font-weight:600;
 }
+
+/* LGPD Banner */
+#cookie-banner-cad{
+display:none;position:fixed;bottom:0;left:0;right:0;z-index:9999;
+background:rgba(11,28,61,.97);color:#fff;padding:16px 20px;
+border-top:1px solid rgba(212,175,55,.3);font-size:13px;line-height:1.5;
+}
+#cookie-banner-cad.visible{display:block;}
+#cookie-banner-cad p{margin-bottom:10px;opacity:.9;}
+.cad-cookie-btns{display:flex;gap:10px;flex-wrap:wrap;}
+.btn-cad-accept{background:#D4AF37;color:#0B1C3D;border:none;padding:8px 18px;border-radius:8px;font-weight:700;cursor:pointer;font-family:inherit;font-size:13px;}
+.btn-cad-decline{background:transparent;color:rgba(255,255,255,.55);border:1px solid rgba(255,255,255,.2);padding:8px 14px;border-radius:8px;cursor:pointer;font-family:inherit;font-size:13px;}
 </style>
 </head>
 
 <body>
+
+<!-- LGPD Banner -->
+<div id="cookie-banner-cad">
+  <p>🍪 Usamos cookies, Google Tag Manager, Microsoft Clarity, Meta Pixel e notificações push para melhorar sua experiência, nos termos da <strong>LGPD</strong>.</p>
+  <div class="cad-cookie-btns">
+    <button class="btn-cad-accept" id="btnCadAccept">✓ Aceitar</button>
+    <button class="btn-cad-decline" id="btnCadDecline">Recusar</button>
+  </div>
+</div>
+
+<!-- GTM noscript -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-1258221909856324"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
 <!-- TOPO -->
 <div class="topo">
@@ -290,6 +351,40 @@ font-weight:600;
 </div>
 
 <script>
+/* UTM Tracking */
+var _utmStr = (function () {
+  try {
+    var p = new URLSearchParams(location.search);
+    var keys = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term'];
+    var parts = keys.filter(function (k) { return p.get(k); })
+                    .map(function (k) { return k + '=' + p.get(k); });
+    if (parts.length) sessionStorage.setItem('hospedah_utm', parts.join('&'));
+  } catch (ex) {}
+  return sessionStorage.getItem('hospedah_utm') || '';
+})();
+
+function getUtmSuffix() {
+  if (!_utmStr) return '';
+  return '\n📊 Origem: ' + _utmStr.replace(/utm_/g,'').replace(/=/g,': ').replace(/&/g,' | ');
+}
+
+/* LGPD Banner */
+(function () {
+  var banner  = document.getElementById('cookie-banner-cad');
+  var consent = localStorage.getItem('hospedah_consent');
+  if (consent === 'accepted' || consent === 'declined') { return; }
+  banner.classList.add('visible');
+  document.getElementById('btnCadAccept').addEventListener('click', function () {
+    localStorage.setItem('hospedah_consent', 'accepted');
+    banner.classList.remove('visible');
+    initTracking();
+  });
+  document.getElementById('btnCadDecline').addEventListener('click', function () {
+    localStorage.setItem('hospedah_consent', 'declined');
+    banner.classList.remove('visible');
+  });
+})();
+
 function enviarCadastro(e) {
   e.preventDefault();
 
@@ -304,6 +399,10 @@ function enviarCadastro(e) {
   var whatsapp   = document.getElementById('whatsapp').value.trim();
   var email      = document.getElementById('email').value.trim();
 
+  /* Meta Pixel — evento de conversão */
+  if (typeof fbq === 'function') fbq('track', 'Lead', { content_name: tipo });
+  if (window.dataLayer) dataLayer.push({ event: 'cadastro_empreendimento_ext', tipo: tipo });
+
   var msg =
     '🏢 *CADASTRO DE EMPREENDIMENTO - HOSPEDAH*\n\n' +
     '📌 *Nome:* ' + nome + '\n' +
@@ -315,7 +414,8 @@ function enviarCadastro(e) {
     (desc ? '📝 *Descrição:* ' + desc + '\n' : '') +
     '\n👤 *Responsável:* ' + contato + '\n' +
     '📱 *WhatsApp:* ' + whatsapp + '\n' +
-    (email ? '✉️ *E-mail:* ' + email + '\n' : '');
+    (email ? '✉️ *E-mail:* ' + email + '\n' : '') +
+    getUtmSuffix();
 
   document.getElementById('msgOk').style.display = 'block';
 
@@ -327,7 +427,7 @@ function enviarCadastro(e) {
       empreendimento: nome, tipo: tipo, dormitorios: dorm,
       capacidade: cap, preco: 'R$ ' + Number(preco).toLocaleString('pt-BR') + '/noite',
       cidade: cidade, descricao: desc, responsavel: contato,
-      whatsapp: whatsapp, email: email
+      whatsapp: whatsapp, email: email, utm: _utmStr
     })
   }).catch(function() { /* falha silenciosa — WhatsApp ainda envia */ });
 

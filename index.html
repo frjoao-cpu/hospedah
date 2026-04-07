@@ -52,6 +52,23 @@ function initTracking() {
   t=l.createElement(r);t.async=1;t.src='https://www.clarity.ms/tag/'+i;
   y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
   })(window,document,'clarity','script','s5xr9k4m2p');
+  // Meta Pixel — retargeting e lookalike audiences (substitua SEU_PIXEL_ID pelo ID real)
+  !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+  n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+  n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+  t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
+  document,'script','https://connect.facebook.net/en_US/fbevents.js');
+  fbq('init','SEU_PIXEL_ID');
+  fbq('track','PageView');
+  // OneSignal Web Push — notificações de promoções e novas propriedades
+  window.OneSignalDeferred = window.OneSignalDeferred || [];
+  OneSignalDeferred.push(function(OneSignal) {
+    OneSignal.init({ appId: 'SEU_ONESIGNAL_APP_ID', allowLocalhostAsSecureOrigin: true });
+  });
+  var _os = document.createElement('script');
+  _os.src = 'https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js';
+  _os.defer = true;
+  document.head.appendChild(_os);
 }
 if (localStorage.getItem('hospedah_consent') === 'accepted') { initTracking(); }
 </script>
@@ -1130,8 +1147,14 @@ html[data-theme="light"] .faq-btn { color: var(--azul); }
     <button class="ep-close" id="ep-close-btn" aria-label="Fechar">✕</button>
     <div class="ep-badge">⏳ Oferta Exclusiva</div>
     <h2>Espera! Antes de ir…</h2>
-    <p>Nossos resorts têm <strong>disponibilidade limitada</strong>. Fale agora com nossa consultora e garanta sua reserva com <strong>atendimento VIP</strong> e as melhores condições.</p>
-    <a href="https://wa.me/5517982006382?text=Ol%C3%A1%21+Vi+a+oferta+e+quero+saber+mais+sobre+os+resorts." class="ep-btn" target="_blank" rel="noopener">💬 Quero Atendimento VIP Agora</a>
+    <p>Nossos resorts têm <strong>disponibilidade limitada</strong>. Deixe seu e-mail e nossa consultora entra em contato com <strong>condições especiais e atendimento VIP</strong>.</p>
+    <form id="ep-email-form" onsubmit="exitIntentSubmit(event)" novalidate>
+      <input type="email" id="ep-email-input" placeholder="Seu melhor e-mail" autocomplete="email" required
+        style="width:100%;padding:12px 14px;border-radius:10px;border:1px solid rgba(212,175,55,.5);background:rgba(255,255,255,.1);color:#fff;font-size:14px;margin-bottom:10px;font-family:inherit;box-sizing:border-box;">
+      <button type="submit" class="ep-btn">🎁 Quero Condições Especiais</button>
+    </form>
+    <a href="https://wa.me/5517982006382?text=Ol%C3%A1%21+Vi+a+oferta+e+quero+saber+mais+sobre+os+resorts." class="ep-btn" target="_blank" rel="noopener"
+      style="display:block;margin-top:10px;background:var(--wpp);">💬 Falar no WhatsApp agora</a>
     <button class="ep-skip" id="ep-skip-btn">Não, obrigado</button>
   </div>
 </div>
@@ -1164,7 +1187,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 =========================================== -->
 <div id="cookie-banner" role="dialog" aria-live="polite" aria-label="Aviso de cookies">
   <p>
-    🍪 Usamos cookies e tecnologias de rastreamento (Google Tag Manager e Microsoft Clarity) para melhorar sua experiência e exibir anúncios relevantes.
+    🍪 Usamos cookies e tecnologias de rastreamento (Google Tag Manager, Microsoft Clarity, Meta Pixel e notificações push via OneSignal) para melhorar sua experiência e exibir anúncios relevantes.
     Ao clicar em <strong>Aceitar</strong>, você concorda com nossa política de privacidade e uso de dados, nos termos da <strong>LGPD</strong>.
   </p>
   <div class="cookie-btns">
@@ -1607,6 +1630,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <form class="form-std" id="formOrcamento" onsubmit="enviarOrcamento(event)" novalidate>
       <input type="text"   id="orc_nome"    placeholder="Seu nome completo"         required autocomplete="name">
       <input type="tel"    id="orc_wpp"     placeholder="Seu WhatsApp (com DDD)"    required autocomplete="tel">
+      <input type="email"  id="orc_email"   placeholder="Seu e-mail (para receber confirmação)" autocomplete="email">
       <select id="orc_resort" required>
         <option value="">Selecione o resort desejado</option>
         <option>Hot Beach Resort</option>
@@ -1883,7 +1907,8 @@ function heroSearch() {
     '🏖️ Resort: '    + resort  + '\n' +
     '📅 Check-in: '  + entrada + '\n' +
     '📅 Check-out: ' + saida   + '\n' +
-    '👥 Pessoas: '   + pessoas
+    '👥 Pessoas: '   + pessoas + '\n' +
+    getUtmSuffix()
   );
   window.open('https://wa.me/5517982006382?text=' + msg, '_blank');
 }
@@ -2058,7 +2083,8 @@ function buscar() {
     '📅 Entrada: '     + (entrada || 'A definir') + '\n' +
     '📅 Saída: '       + (saida   || 'A definir') + '\n' +
     '👥 Pessoas: '     + (pessoas || 'A definir') + '\n' +
-    '🛏️ Dormitórios: ' + (dorm    || 'Qualquer')
+    '🛏️ Dormitórios: ' + (dorm    || 'Qualquer')  + '\n' +
+    getUtmSuffix()
   );
   setTimeout(function () {
     window.open('https://wa.me/5517982006382?text=' + msg, '_blank');
@@ -2086,7 +2112,8 @@ function consultar(nome, preco) {
     '📅 Saída: '        + (saida   || 'A definir') + '\n' +
     '👥 Pessoas: '      + (pessoas || 'A definir') + '\n' +
     '🛏️ Dormitórios: '  + (dorm    || 'Qualquer') + '\n' +
-    '💰 Valor base: R$ ' + Number(preco).toLocaleString('pt-BR')
+    '💰 Valor base: R$ ' + Number(preco).toLocaleString('pt-BR') + '\n' +
+    getUtmSuffix()
   );
   window.open('https://wa.me/5517982006382?text=' + msg, '_blank');
 }
@@ -2098,6 +2125,7 @@ function enviarOrcamento(e) {
   e.preventDefault();
   var nome    = document.getElementById('orc_nome').value.trim();
   var wpp     = document.getElementById('orc_wpp').value.trim();
+  var email   = document.getElementById('orc_email').value.trim();
   var resort  = document.getElementById('orc_resort').value;
   var pessoas = document.getElementById('orc_pessoas').value;
   var entrada = document.getElementById('orc_entrada').value;
@@ -2109,15 +2137,30 @@ function enviarOrcamento(e) {
   if (typeof fbq === 'function') fbq('track', 'Lead', { content_name: resort });
   if (window.dataLayer) dataLayer.push({ event: 'orcamento_enviado', resort: resort });
 
+  /* Formspree — captura lead para e-mail marketing */
+  if (email) {
+    fetch('https://formspree.io/f/xeepnbkk', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify({
+        tipo: 'orcamento', nome: nome, whatsapp: wpp, email: email,
+        resort: resort, pessoas: pessoas, entrada: entrada, saida: saida,
+        obs: obs, utm: getUtmStr()
+      })
+    }).catch(function() {});
+  }
+
   var msg = encodeURIComponent(
     '🏨 *Solicitação de Orçamento — HOSPEDAH*\n\n' +
     '👤 Nome: '     + nome    + '\n' +
     '📞 WhatsApp: ' + wpp     + '\n' +
+    (email ? '📧 E-mail: ' + email + '\n' : '') +
     '🏖️ Resort: '   + resort  + '\n' +
     '👥 Pessoas: '  + pessoas + '\n' +
     '📅 Entrada: '  + entrada + '\n' +
     '📅 Saída: '    + saida   + '\n' +
-    (obs ? '📝 Obs: ' + obs : '')
+    (obs ? '📝 Obs: ' + obs + '\n' : '') +
+    getUtmSuffix()
   );
   window.open('https://wa.me/5517982006382?text=' + msg, '_blank');
   e.target.reset();
@@ -2137,7 +2180,18 @@ function enviarCadastro(e) {
   if (!nome || !responsavel || !tel || !tipo || !cidade) {
     alert('Preencha todos os campos obrigatórios.'); return;
   }
+  if (typeof fbq === 'function') fbq('track', 'Lead', { content_name: tipo });
   if (window.dataLayer) dataLayer.push({ event: 'cadastro_empreendimento', tipo: tipo });
+
+  /* Formspree — notifica equipe e alimenta CRM */
+  fetch('https://formspree.io/f/xeepnbkk', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+    body: JSON.stringify({
+      tipo: 'cadastro_empreendimento', empreendimento: nome, responsavel: responsavel,
+      telefone: tel, email: email, tipo_imovel: tipo, cidade: cidade, utm: getUtmStr()
+    })
+  }).catch(function() {});
 
   var msg = encodeURIComponent(
     '🏨 *Cadastro de Empreendimento — HOSPEDAH*\n\n' +
@@ -2146,7 +2200,8 @@ function enviarCadastro(e) {
     '📞 Telefone: '       + tel         + '\n' +
     (email ? '📧 E-mail: ' + email + '\n' : '') +
     '🏷️ Tipo: '           + tipo        + '\n' +
-    '📍 Cidade: '         + cidade
+    '📍 Cidade: '         + cidade      + '\n' +
+    getUtmSuffix()
   );
   window.open('https://wa.me/5517982006382?text=' + msg, '_blank');
   e.target.reset();
@@ -2168,7 +2223,8 @@ function enviarContato(e) {
     '📬 *Contato — HOSPEDAH*\n\n' +
     '👤 Nome: '     + nome + '\n' +
     '📞 WhatsApp: ' + wpp  + '\n' +
-    '💬 Mensagem: ' + msg2
+    '💬 Mensagem: ' + msg2 + '\n' +
+    getUtmSuffix()
   );
   window.open('https://wa.me/5517982006382?text=' + msg, '_blank');
   e.target.reset();
@@ -2282,6 +2338,60 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   });
 })();
+
+/* =====================
+   UTM TRACKING
+   Captura parâmetros UTM da URL, persiste em
+   sessionStorage e os anexa a todas as mensagens
+   do WhatsApp e envios para o Formspree.
+===================== */
+var _utmStr = (function () {
+  try {
+    var p = new URLSearchParams(location.search);
+    var keys = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term'];
+    var parts = keys.filter(function (k) { return p.get(k); })
+                    .map(function (k) { return k + '=' + p.get(k); });
+    if (parts.length) sessionStorage.setItem('hospedah_utm', parts.join('&'));
+  } catch (ex) {}
+  return sessionStorage.getItem('hospedah_utm') || '';
+})();
+
+function getUtmStr() { return _utmStr; }
+
+function getUtmSuffix() {
+  if (!_utmStr) return '';
+  var readable = _utmStr
+    .replace(/utm_/g, '')
+    .replace(/=/g, ': ')
+    .replace(/&/g, ' | ');
+  return '📊 Origem: ' + readable;
+}
+
+/* =====================
+   EXIT-INTENT — CAPTURA DE E-MAIL
+   Envia lead para Formspree e abre WhatsApp
+===================== */
+function exitIntentSubmit(e) {
+  e.preventDefault();
+  var email = document.getElementById('ep-email-input').value.trim();
+  if (!email) return;
+  if (typeof fbq === 'function') fbq('track', 'Lead', { content_name: 'exit_intent' });
+  if (window.dataLayer) dataLayer.push({ event: 'exit_intent_lead', email: email });
+  fetch('https://formspree.io/f/xeepnbkk', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+    body: JSON.stringify({ tipo: 'exit_intent', email: email, utm: getUtmStr() })
+  }).catch(function () {});
+  /* Redireciona para WhatsApp após capturar o e-mail */
+  window.open(
+    'https://wa.me/5517982006382?text=' +
+    encodeURIComponent('Olá! Tenho interesse nas ofertas exclusivas da HOSPEDAH. Meu e-mail: ' + email),
+    '_blank'
+  );
+  document.getElementById('exit-overlay').classList.remove('visible');
+  document.body.style.overflow = '';
+  sessionStorage.setItem('hospedah_exit_dismissed', '1');
+}
 </script>
 
 <!-- ==========================================
