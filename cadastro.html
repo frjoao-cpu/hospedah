@@ -319,8 +319,8 @@ function enviarCadastro(e) {
 
   document.getElementById('msgOk').style.display = 'block';
 
-  /* Envio paralelo via Formspree (substitua YOUR_FORM_ID pelo ID do seu formulário em formspree.io) */
-  fetch('https://formspree.io/f/YOUR_FORM_ID', {
+  /* Envio paralelo via Formspree */
+  fetch('https://formspree.io/f/xeepnbkk', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
     body: JSON.stringify({
