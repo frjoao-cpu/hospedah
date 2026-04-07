@@ -1,0 +1,57 @@
+name: CI — Validação HTML e Deploy
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  # ──────────────────────────────────────────────
+  # 1. Valida HTML com htmlhint
+  # ──────────────────────────────────────────────
+  validate:
+    name: Validação HTML
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Instalar htmlhint
+        run: npm install -g htmlhint
+
+      - name: Validar HTML
+        run: htmlhint "**/*.html" --config .htmlhintrc
+
+  # ──────────────────────────────────────────────
+  # 2. Publica no GitHub Pages (somente na main)
+  # ──────────────────────────────────────────────
+  deploy:
+    name: Deploy GitHub Pages
+    needs: validate
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configurar GitHub Pages
+        uses: actions/configure-pages@v4
+
+      - name: Fazer upload dos arquivos estáticos
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: '.'
+
+      - name: Publicar no GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
