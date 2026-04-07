@@ -107,6 +107,33 @@
     background: #1ebe5e;
 }
 
+.instagram {
+    position: fixed;
+    bottom: 20px;
+    right: 235px;
+    background: linear-gradient(45deg, #833AB4, #E1306C, #FCAF45);
+    color: white;
+    padding: 14px 20px;
+    border-radius: 30px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 15px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    z-index: 999;
+}
+
+.instagram:hover {
+    opacity: 0.9;
+}
+
+@media (max-width: 600px) {
+    .instagram {
+        right: auto;
+        left: 20px;
+        bottom: 20px;
+    }
+}
+
 .close {
     position: absolute;
     top: 20px;
