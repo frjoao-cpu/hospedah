@@ -1,0 +1,56 @@
+name: Merge PR
+
+on:
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: 'Número do Pull Request'
+        required: true
+        type: number
+      merge_method:
+        description: 'Método de merge'
+        required: true
+        default: 'squash'
+        type: choice
+        options:
+          - squash
+          - merge
+          - rebase
+
+jobs:
+  merge:
+    name: Fazer Merge do PR
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      contents: write
+    steps:
+      - name: Merge do Pull Request
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const pr = await github.rest.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: ${{ inputs.pr_number }}
+            });
+
+            if (pr.data.state !== 'open') {
+              core.setFailed(`PR #${{ inputs.pr_number }} não está aberto (estado: ${pr.data.state})`);
+              return;
+            }
+
+            if (!pr.data.mergeable) {
+              core.setFailed(`PR #${{ inputs.pr_number }} não pode ser mergeado (conflitos ou checks pendentes)`);
+              return;
+            }
+
+            await github.rest.pulls.merge({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: ${{ inputs.pr_number }},
+              merge_method: '${{ inputs.merge_method }}'
+            });
+
+            core.notice(`✅ PR #${{ inputs.pr_number }} mergeado com sucesso (${pr.data.title})`);
