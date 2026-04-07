@@ -319,6 +319,18 @@ function enviarCadastro(e) {
 
   document.getElementById('msgOk').style.display = 'block';
 
+  /* Envio paralelo via Formspree */
+  fetch('https://formspree.io/f/xeepnbkk', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+    body: JSON.stringify({
+      empreendimento: nome, tipo: tipo, dormitorios: dorm,
+      capacidade: cap, preco: 'R$ ' + Number(preco).toLocaleString('pt-BR') + '/noite',
+      cidade: cidade, descricao: desc, responsavel: contato,
+      whatsapp: whatsapp, email: email
+    })
+  }).catch(function() { /* falha silenciosa — WhatsApp ainda envia */ });
+
   setTimeout(function () {
     window.open(
       'https://wa.me/5517982006382?text=' + encodeURIComponent(msg),

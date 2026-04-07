@@ -4,8 +4,22 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Praia de Juquehy - HOSPEDAH</title>
-<meta name="description" content="Praia de Juquehy - Hospedagem premium com a HOSPEDAH">
+<meta name="description" content="Praia de Juquehy: mar azul, natureza exuberante e hospedagem premium. Reserve com a HOSPEDAH.">
 <link rel="canonical" href="https://hospedah.tur.br/resorts/juquehy.html">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#D4AF37">
+<!-- Open Graph -->
+<meta property="og:type"        content="website">
+<meta property="og:url"         content="https://hospedah.tur.br/resorts/juquehy.html">
+<meta property="og:site_name"   content="HOSPEDAH">
+<meta property="og:title"       content="Praia de Juquehy | HOSPEDAH">
+<meta property="og:description" content="Praia de Juquehy: mar azul, natureza exuberante e hospedagem premium com a HOSPEDAH.">
+<meta property="og:image"       content="https://i.imgur.com/SxlktwS.jpeg">
+<meta property="og:locale"      content="pt_BR">
+<!-- Schema.org -->
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Resort","name":"Praia de Juquehy","description":"Hospedagem premium na Praia de Juquehy com mar azul e natureza exuberante.","url":"https://hospedah.tur.br/resorts/juquehy.html","telephone":"+5517982006382","address":{"@type":"PostalAddress","addressLocality":"São Sebastião","addressRegion":"SP","addressCountry":"BR"},"sameAs":["https://wa.me/5517982006382"]}
+</script>
 <link rel="stylesheet" href="../assets/style.css">
 </head>
 
@@ -14,9 +28,9 @@
 <h1>🌊 Praia de Juquehy</h1>
 
 <div class="gallery">
-<img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80" alt="Praia de Juquehy - vista da praia" onclick="openImg(this)">
-<img src="https://images.unsplash.com/photo-1500375592092-40eb2168fd21?auto=format&fit=crop&w=800&q=80" alt="Praia de Juquehy - mar" onclick="openImg(this)">
-<img src="https://images.unsplash.com/photo-1473116763249-2faaef81ccda?auto=format&fit=crop&w=800&q=80" alt="Praia de Juquehy - natureza" onclick="openImg(this)">
+<img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80" alt="Praia de Juquehy - vista da praia" loading="lazy" width="800" height="600" onclick="openImg(this)">
+<img src="https://images.unsplash.com/photo-1500375592092-40eb2168fd21?auto=format&fit=crop&w=800&q=80" alt="Praia de Juquehy - mar" loading="lazy" width="800" height="600" onclick="openImg(this)">
+<img src="https://images.unsplash.com/photo-1473116763249-2faaef81ccda?auto=format&fit=crop&w=800&q=80" alt="Praia de Juquehy - natureza" loading="lazy" width="800" height="600" onclick="openImg(this)">
 </div>
 
 <div id="lightbox" onclick="closeImg()">
@@ -24,7 +38,7 @@
 <img id="lightbox-img" alt="Foto ampliada do resort">
 </div>
 
-<a href="https://wa.me/5517982006382?text=Quero%20Juquehy" class="whatsapp" target="_blank">
+<a href="https://wa.me/5517982006382?text=Ol%C3%A1%21+Tenho+interesse+na+Praia+de+Juquehy.+Pode+me+enviar+mais+informa%C3%A7%C3%B5es+e+valores%3F" class="whatsapp" target="_blank">
 💬 Solicitar orçamento
 </a>
 
@@ -42,6 +56,8 @@ function closeImg(){
 
 document.getElementById("lightbox").style.cssText = "position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.95);display:none;align-items:center;justify-content:center;z-index:9999;";
 </script>
+
+<script>if ('serviceWorker' in navigator) { navigator.serviceWorker.register('/sw.js').catch(function(){}); }</script>
 
 </body>
 </html>
