@@ -1,0 +1,1426 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HOSPEDA-SISTEMA | Gestão Financeira</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#D4AF37">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+/* ==========================================
+   VARIÁVEIS GLOBAIS
+========================================== */
+:root {
+  --dourado: #D4AF37;
+  --dourado-hover: #f0c93a;
+  --azul: #0B1C3D;
+  --azul2: #142850;
+  --azul3: #182242;
+  --verde: #25D366;
+  --vermelho: #e74c3c;
+  --amarelo: #f39c12;
+  --cinza: #8899aa;
+  --bg: #0d1b2e;
+  --bg2: #10233c;
+  --radius: 12px;
+  --sombra: 0 4px 24px rgba(0,0,0,0.3);
+  --cor-texto: #e8eaf0;
+  --cor-sub: #aab4c4;
+  --borda: rgba(212,175,55,0.15);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Poppins', sans-serif;
+  background: var(--bg);
+  color: var(--cor-texto);
+  min-height: 100vh;
+  font-size: 14px;
+}
+
+/* ==========================================
+   HEADER
+========================================== */
+.sys-header {
+  background: linear-gradient(135deg, var(--azul), var(--azul2));
+  border-bottom: 2px solid var(--dourado);
+  padding: 14px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: var(--sombra);
+}
+
+.sys-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sys-logo span {
+  font-size: 1.3em;
+  font-weight: 700;
+  color: var(--dourado);
+  letter-spacing: 1px;
+}
+
+.sys-logo small {
+  font-size: 0.65em;
+  color: var(--cor-sub);
+  font-weight: 400;
+  display: block;
+  line-height: 1;
+}
+
+.sys-nav {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.sys-nav a {
+  color: var(--cor-sub);
+  text-decoration: none;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 0.85em;
+  transition: all 0.2s;
+  border: 1px solid var(--borda);
+}
+
+.sys-nav a:hover, .sys-nav a.active {
+  background: var(--dourado);
+  color: var(--azul);
+  border-color: var(--dourado);
+}
+
+/* ==========================================
+   MAIN LAYOUT
+========================================== */
+.sys-main {
+  max-width: 1300px;
+  margin: 0 auto;
+  padding: 24px 16px 60px;
+}
+
+.section-title {
+  font-size: 1.15em;
+  font-weight: 600;
+  color: var(--dourado);
+  margin-bottom: 16px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--borda);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ==========================================
+   DASHBOARD CARDS
+========================================== */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 14px;
+  margin-bottom: 32px;
+}
+
+.dash-card {
+  background: var(--bg2);
+  border: 1px solid var(--borda);
+  border-radius: var(--radius);
+  padding: 20px 18px;
+  text-align: center;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.dash-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+}
+
+.dash-card .dash-icon {
+  font-size: 1.8em;
+  margin-bottom: 8px;
+}
+
+.dash-card .dash-label {
+  font-size: 0.75em;
+  color: var(--cor-sub);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 6px;
+}
+
+.dash-card .dash-value {
+  font-size: 1.4em;
+  font-weight: 700;
+  color: var(--dourado);
+  line-height: 1.2;
+}
+
+.dash-card.verde .dash-value  { color: var(--verde); }
+.dash-card.vermelho .dash-value { color: var(--vermelho); }
+.dash-card.amarelo .dash-value  { color: var(--amarelo); }
+
+/* ==========================================
+   CALCULADORA
+========================================== */
+.calc-section {
+  background: var(--bg2);
+  border: 1px solid var(--borda);
+  border-radius: var(--radius);
+  padding: 24px;
+  margin-bottom: 32px;
+}
+
+.calc-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.field-group label {
+  font-size: 0.78em;
+  color: var(--cor-sub);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.field-group input,
+.field-group select,
+.field-group textarea {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(212,175,55,0.2);
+  border-radius: 8px;
+  color: var(--cor-texto);
+  font-family: inherit;
+  font-size: 0.92em;
+  padding: 9px 12px;
+  width: 100%;
+  transition: border-color 0.2s;
+}
+
+.field-group input:focus,
+.field-group select:focus,
+.field-group textarea:focus {
+  outline: none;
+  border-color: var(--dourado);
+}
+
+.field-group select option { background: var(--azul2); }
+
+.calc-result {
+  background: rgba(212,175,55,0.06);
+  border: 1px solid rgba(212,175,55,0.25);
+  border-radius: 10px;
+  padding: 16px;
+  margin-bottom: 16px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px;
+}
+
+.calc-result-item {
+  text-align: center;
+}
+
+.calc-result-item .r-label {
+  font-size: 0.72em;
+  color: var(--cor-sub);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  margin-bottom: 4px;
+}
+
+.calc-result-item .r-value {
+  font-size: 1.15em;
+  font-weight: 700;
+  color: var(--dourado);
+}
+
+.calc-result-item.verde .r-value  { color: var(--verde); }
+.calc-result-item.azul  .r-value  { color: #4da6ff; }
+
+.btn-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.btn {
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: none;
+  font-family: inherit;
+  font-size: 0.9em;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-primary {
+  background: var(--dourado);
+  color: var(--azul);
+}
+
+.btn-primary:hover { background: var(--dourado-hover); }
+
+.btn-secondary {
+  background: rgba(255,255,255,0.07);
+  color: var(--cor-texto);
+  border: 1px solid var(--borda);
+}
+
+.btn-secondary:hover { background: rgba(255,255,255,0.12); }
+
+.btn-danger {
+  background: rgba(231,76,60,0.15);
+  color: var(--vermelho);
+  border: 1px solid rgba(231,76,60,0.3);
+}
+
+.btn-danger:hover { background: rgba(231,76,60,0.25); }
+
+.btn-success {
+  background: rgba(37,211,102,0.12);
+  color: var(--verde);
+  border: 1px solid rgba(37,211,102,0.3);
+}
+
+.btn-success:hover { background: rgba(37,211,102,0.22); }
+
+.btn-sm {
+  padding: 5px 10px;
+  font-size: 0.8em;
+  border-radius: 6px;
+}
+
+/* ==========================================
+   FILTROS
+========================================== */
+.filter-bar {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+  align-items: flex-end;
+}
+
+.filter-bar .field-group { flex: 1; min-width: 130px; max-width: 240px; }
+
+/* ==========================================
+   TABELA
+========================================== */
+.table-wrap {
+  background: var(--bg2);
+  border: 1px solid var(--borda);
+  border-radius: var(--radius);
+  padding: 20px;
+  margin-bottom: 32px;
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 700px;
+}
+
+thead th {
+  background: rgba(212,175,55,0.1);
+  color: var(--dourado);
+  font-size: 0.75em;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 10px 12px;
+  text-align: left;
+  white-space: nowrap;
+  border-bottom: 1px solid var(--borda);
+}
+
+tbody tr {
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  transition: background 0.15s;
+}
+
+tbody tr:hover { background: rgba(255,255,255,0.03); }
+tbody tr:last-child { border-bottom: none; }
+
+tbody td {
+  padding: 10px 12px;
+  font-size: 0.88em;
+  color: var(--cor-texto);
+  vertical-align: middle;
+}
+
+.badge {
+  display: inline-block;
+  padding: 3px 9px;
+  border-radius: 20px;
+  font-size: 0.78em;
+  font-weight: 600;
+}
+
+.badge-pago    { background: rgba(37,211,102,0.15); color: var(--verde); }
+.badge-pendente{ background: rgba(243,156,18,0.15);  color: var(--amarelo); }
+.badge-cancelado{ background: rgba(231,76,60,0.15); color: var(--vermelho); }
+
+.actions { display: flex; gap: 5px; flex-wrap: wrap; }
+
+.empty-state {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--cor-sub);
+}
+
+.empty-state .empty-icon { font-size: 2.5em; margin-bottom: 10px; }
+
+/* ==========================================
+   RESUMO MENSAL
+========================================== */
+.monthly-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 14px;
+  margin-bottom: 32px;
+}
+
+.month-card {
+  background: var(--bg2);
+  border: 1px solid var(--borda);
+  border-radius: var(--radius);
+  padding: 18px;
+}
+
+.month-card .month-name {
+  font-size: 0.85em;
+  font-weight: 600;
+  color: var(--dourado);
+  margin-bottom: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.month-card .month-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  font-size: 0.82em;
+}
+
+.month-card .month-row:last-child { border-bottom: none; }
+.month-card .month-row span:last-child { color: var(--dourado); font-weight: 600; }
+.month-card .month-row.lucro span:last-child { color: var(--verde); }
+
+/* ==========================================
+   MODAL DE EDIÇÃO
+========================================== */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  z-index: 999;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.modal-overlay.open { display: flex; }
+
+.modal-box {
+  background: var(--azul2);
+  border: 1px solid var(--borda);
+  border-radius: var(--radius);
+  padding: 28px;
+  width: 100%;
+  max-width: 560px;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+}
+
+.modal-box h3 {
+  color: var(--dourado);
+  font-size: 1.05em;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--borda);
+}
+
+.modal-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+@media (max-width: 480px) { .modal-grid { grid-template-columns: 1fr; } }
+
+.modal-close {
+  position: absolute;
+  top: 14px;
+  right: 16px;
+  background: none;
+  border: none;
+  color: var(--cor-sub);
+  font-size: 1.4em;
+  cursor: pointer;
+  line-height: 1;
+  padding: 4px;
+}
+
+.modal-close:hover { color: var(--cor-texto); }
+
+/* ==========================================
+   TOAST
+========================================== */
+.toast-container {
+  position: fixed;
+  bottom: 24px;
+  right: 20px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.toast {
+  background: var(--azul2);
+  border: 1px solid var(--borda);
+  border-left: 3px solid var(--dourado);
+  border-radius: 8px;
+  padding: 12px 16px;
+  font-size: 0.88em;
+  max-width: 300px;
+  animation: slideIn 0.3s ease;
+  box-shadow: var(--sombra);
+}
+
+.toast.success { border-left-color: var(--verde); }
+.toast.error   { border-left-color: var(--vermelho); }
+
+@keyframes slideIn {
+  from { transform: translateX(100%); opacity: 0; }
+  to   { transform: translateX(0);   opacity: 1; }
+}
+
+/* ==========================================
+   PRINT
+========================================== */
+@media print {
+  .sys-header, .calc-section, .filter-bar, .btn-row, .actions, .toast-container, .modal-overlay { display: none !important; }
+  body { background: white; color: black; }
+  .table-wrap { border: 1px solid #ccc; }
+  tbody td, thead th { color: black; }
+}
+
+/* ==========================================
+   RESPONSIVO
+========================================== */
+@media (max-width: 600px) {
+  .sys-header { padding: 10px 14px; }
+  .sys-logo span { font-size: 1.1em; }
+  .sys-nav a { padding: 5px 10px; font-size: 0.8em; }
+  .calc-section, .table-wrap { padding: 16px; }
+}
+</style>
+</head>
+
+<body>
+
+<!-- HEADER -->
+<header class="sys-header">
+  <div class="sys-logo">
+    <div>
+      <span>💼 HOSPEDA-SISTEMA</span>
+      <small>Gestão Financeira · HOSPEDAH</small>
+    </div>
+  </div>
+  <nav class="sys-nav">
+    <a href="#dashboard" class="active">📊 Dashboard</a>
+    <a href="#nova-reserva">➕ Nova Reserva</a>
+    <a href="#reservas">📋 Reservas</a>
+    <a href="#mensal">📅 Mensal</a>
+    <a href="index.html">🏠 Site</a>
+  </nav>
+</header>
+
+<!-- MAIN -->
+<main class="sys-main">
+
+  <!-- ==========================================
+       DASHBOARD
+  =========================================== -->
+  <section id="dashboard">
+    <div class="section-title">📊 Resumo Geral</div>
+    <div class="dashboard-grid">
+      <div class="dash-card">
+        <div class="dash-icon">📋</div>
+        <div class="dash-label">Total de Reservas</div>
+        <div class="dash-value" id="dash-total">0</div>
+      </div>
+      <div class="dash-card verde">
+        <div class="dash-icon">💰</div>
+        <div class="dash-label">Receita Total</div>
+        <div class="dash-value" id="dash-receita">R$ 0,00</div>
+      </div>
+      <div class="dash-card">
+        <div class="dash-icon">🏷️</div>
+        <div class="dash-label">Comissão Total</div>
+        <div class="dash-value" id="dash-comissao">R$ 0,00</div>
+      </div>
+      <div class="dash-card amarelo">
+        <div class="dash-icon">⏳</div>
+        <div class="dash-label">Pendente</div>
+        <div class="dash-value" id="dash-pendente">R$ 0,00</div>
+      </div>
+      <div class="dash-card">
+        <div class="dash-icon">🌙</div>
+        <div class="dash-label">Total de Noites</div>
+        <div class="dash-value" id="dash-noites">0</div>
+      </div>
+      <div class="dash-card vermelho">
+        <div class="dash-icon">❌</div>
+        <div class="dash-label">Canceladas</div>
+        <div class="dash-value" id="dash-canceladas">0</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================
+       CALCULADORA / NOVA RESERVA
+  =========================================== -->
+  <section id="nova-reserva" class="calc-section">
+    <div class="section-title">➕ Nova Reserva — Calculadora Financeira</div>
+
+    <div class="calc-grid">
+      <div class="field-group" style="grid-column: span 2;">
+        <label>Nome do Cliente *</label>
+        <input type="text" id="c_cliente" placeholder="Nome completo do cliente" autocomplete="off">
+      </div>
+
+      <div class="field-group">
+        <label>Resort / Imóvel *</label>
+        <select id="c_resort">
+          <option value="">Selecione o resort</option>
+          <option>Hot Beach Resort</option>
+          <option>São Pedro Thermas</option>
+          <option>Olimpia Park Resort</option>
+          <option>Solar das Águas</option>
+          <option>Wyndham Royal Resort</option>
+          <option>Praia de Juquehy</option>
+          <option>Ipioca Beach Resort</option>
+          <option>Porto 2 Life</option>
+          <option>Outro</option>
+        </select>
+      </div>
+
+      <div class="field-group">
+        <label>Status de Pagamento</label>
+        <select id="c_status">
+          <option value="pendente">⏳ Pendente</option>
+          <option value="pago">✅ Pago</option>
+          <option value="cancelado">❌ Cancelado</option>
+        </select>
+      </div>
+
+      <div class="field-group">
+        <label>Check-in *</label>
+        <input type="date" id="c_entrada">
+      </div>
+
+      <div class="field-group">
+        <label>Check-out *</label>
+        <input type="date" id="c_saida">
+      </div>
+
+      <div class="field-group">
+        <label>Noites (automático)</label>
+        <input type="number" id="c_noites" min="1" placeholder="Calculado automaticamente" readonly>
+      </div>
+
+      <div class="field-group">
+        <label>Valor por Noite (R$) *</label>
+        <input type="number" id="c_valor_noite" min="0" step="0.01" placeholder="Ex.: 450,00">
+      </div>
+
+      <div class="field-group">
+        <label>Valor Total (R$)</label>
+        <input type="number" id="c_valor_total" min="0" step="0.01" placeholder="Calculado automaticamente" readonly>
+      </div>
+
+      <div class="field-group">
+        <label>Comissão (%)</label>
+        <input type="number" id="c_comissao_pct" min="0" max="100" step="0.1" placeholder="Ex.: 15" value="15">
+      </div>
+
+      <div class="field-group">
+        <label>Valor da Comissão (R$)</label>
+        <input type="number" id="c_comissao_val" min="0" step="0.01" placeholder="Calculado automaticamente" readonly>
+      </div>
+
+      <div class="field-group" style="grid-column: span 2;">
+        <label>Observações</label>
+        <input type="text" id="c_obs" placeholder="Pacote especial, inclusões, etc.">
+      </div>
+    </div>
+
+    <!-- Resultado da Calculadora -->
+    <div class="calc-result" id="calcResult">
+      <div class="calc-result-item">
+        <div class="r-label">🌙 Noites</div>
+        <div class="r-value" id="res-noites">—</div>
+      </div>
+      <div class="calc-result-item verde">
+        <div class="r-label">💰 Valor Total</div>
+        <div class="r-value" id="res-total">—</div>
+      </div>
+      <div class="calc-result-item">
+        <div class="r-label">🏷️ Comissão</div>
+        <div class="r-value" id="res-comissao">—</div>
+      </div>
+      <div class="calc-result-item azul">
+        <div class="r-label">📤 Repasse</div>
+        <div class="r-value" id="res-repasse">—</div>
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="adicionarReserva()">➕ Adicionar à Planilha</button>
+      <button class="btn btn-secondary" onclick="limparFormulario()">🗑️ Limpar</button>
+    </div>
+  </section>
+
+  <!-- ==========================================
+       TABELA DE RESERVAS
+  =========================================== -->
+  <section id="reservas" class="table-wrap">
+    <div class="section-title">
+      📋 Planilha de Reservas
+      <span style="margin-left:auto; display:flex; gap:8px;">
+        <button class="btn btn-secondary btn-sm" onclick="exportarCSV()">📥 Exportar CSV</button>
+        <button class="btn btn-secondary btn-sm" onclick="window.print()">🖨️ Imprimir</button>
+      </span>
+    </div>
+
+    <!-- Filtros -->
+    <div class="filter-bar">
+      <div class="field-group">
+        <label>🔍 Buscar</label>
+        <input type="text" id="f_busca" placeholder="Cliente ou resort..." oninput="renderTabela()">
+      </div>
+      <div class="field-group">
+        <label>Resort</label>
+        <select id="f_resort" onchange="renderTabela()">
+          <option value="">Todos</option>
+          <option>Hot Beach Resort</option>
+          <option>São Pedro Thermas</option>
+          <option>Olimpia Park Resort</option>
+          <option>Solar das Águas</option>
+          <option>Wyndham Royal Resort</option>
+          <option>Praia de Juquehy</option>
+          <option>Ipioca Beach Resort</option>
+          <option>Porto 2 Life</option>
+          <option>Outro</option>
+        </select>
+      </div>
+      <div class="field-group">
+        <label>Status</label>
+        <select id="f_status" onchange="renderTabela()">
+          <option value="">Todos</option>
+          <option value="pago">✅ Pago</option>
+          <option value="pendente">⏳ Pendente</option>
+          <option value="cancelado">❌ Cancelado</option>
+        </select>
+      </div>
+      <div class="field-group">
+        <label>Mês</label>
+        <input type="month" id="f_mes" oninput="renderTabela()">
+      </div>
+      <div class="field-group" style="justify-content:flex-end; padding-top:18px;">
+        <button class="btn btn-secondary btn-sm" onclick="limparFiltros()">✕ Limpar filtros</button>
+      </div>
+    </div>
+
+    <table id="tabelaReservas">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Cliente</th>
+          <th>Resort</th>
+          <th>Check-in</th>
+          <th>Check-out</th>
+          <th>Noites</th>
+          <th>Valor Total</th>
+          <th>Comissão</th>
+          <th>Repasse</th>
+          <th>Status</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody id="tabelaBody">
+        <tr>
+          <td colspan="11">
+            <div class="empty-state">
+              <div class="empty-icon">📋</div>
+              <div>Nenhuma reserva cadastrada ainda.</div>
+              <div style="font-size:0.85em; margin-top:6px; color: var(--cinza)">
+                Use o formulário acima para adicionar a primeira reserva.
+              </div>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ==========================================
+       RESUMO MENSAL
+  =========================================== -->
+  <section id="mensal">
+    <div class="section-title">📅 Resumo por Mês</div>
+    <div class="monthly-grid" id="monthlyGrid">
+      <div style="color: var(--cor-sub); font-size:0.9em; padding:10px;">
+        Nenhum dado disponível. Adicione reservas para ver o resumo mensal.
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- ==========================================
+     MODAL DE EDIÇÃO
+=========================================== -->
+<div class="modal-overlay" id="editModal">
+  <div class="modal-box">
+    <button class="modal-close" onclick="fecharModal()" aria-label="Fechar">✕</button>
+    <h3>✏️ Editar Reserva</h3>
+    <input type="hidden" id="edit_id">
+    <div class="modal-grid">
+      <div class="field-group" style="grid-column: span 2;">
+        <label>Cliente</label>
+        <input type="text" id="edit_cliente">
+      </div>
+      <div class="field-group">
+        <label>Resort</label>
+        <select id="edit_resort">
+          <option>Hot Beach Resort</option>
+          <option>São Pedro Thermas</option>
+          <option>Olimpia Park Resort</option>
+          <option>Solar das Águas</option>
+          <option>Wyndham Royal Resort</option>
+          <option>Praia de Juquehy</option>
+          <option>Ipioca Beach Resort</option>
+          <option>Porto 2 Life</option>
+          <option>Outro</option>
+        </select>
+      </div>
+      <div class="field-group">
+        <label>Status</label>
+        <select id="edit_status">
+          <option value="pendente">⏳ Pendente</option>
+          <option value="pago">✅ Pago</option>
+          <option value="cancelado">❌ Cancelado</option>
+        </select>
+      </div>
+      <div class="field-group">
+        <label>Check-in</label>
+        <input type="date" id="edit_entrada" oninput="calcEditNoites()">
+      </div>
+      <div class="field-group">
+        <label>Check-out</label>
+        <input type="date" id="edit_saida" oninput="calcEditNoites()">
+      </div>
+      <div class="field-group">
+        <label>Noites</label>
+        <input type="number" id="edit_noites" min="1" readonly>
+      </div>
+      <div class="field-group">
+        <label>Valor por Noite (R$)</label>
+        <input type="number" id="edit_valor_noite" min="0" step="0.01" oninput="calcEditTotal()">
+      </div>
+      <div class="field-group">
+        <label>Valor Total (R$)</label>
+        <input type="number" id="edit_valor_total" min="0" step="0.01" readonly>
+      </div>
+      <div class="field-group">
+        <label>Comissão (%)</label>
+        <input type="number" id="edit_comissao_pct" min="0" max="100" step="0.1" oninput="calcEditComissao()">
+      </div>
+      <div class="field-group">
+        <label>Comissão (R$)</label>
+        <input type="number" id="edit_comissao_val" min="0" step="0.01" readonly>
+      </div>
+      <div class="field-group" style="grid-column: span 2;">
+        <label>Observações</label>
+        <input type="text" id="edit_obs">
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="salvarEdicao()">💾 Salvar</button>
+      <button class="btn btn-secondary" onclick="fecharModal()">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+'use strict';
+
+/* ==========================================
+   STORAGE
+========================================== */
+var STORAGE_KEY = 'hospeda_reservas';
+
+function carregarReservas() {
+  try {
+    var data = localStorage.getItem(STORAGE_KEY);
+    return data ? JSON.parse(data) : [];
+  } catch (e) {
+    return [];
+  }
+}
+
+function salvarReservas(lista) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(lista));
+  } catch (e) {
+    mostrarToast('Erro ao salvar dados.', 'error');
+  }
+}
+
+var reservas = carregarReservas();
+
+/* ==========================================
+   UTILITÁRIOS
+========================================== */
+function formatBRL(valor) {
+  if (isNaN(valor) || valor === null || valor === undefined) return 'R$ 0,00';
+  return 'R$ ' + Number(valor).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+function calcularNoites(entrada, saida) {
+  if (!entrada || !saida) return 0;
+  var d1 = new Date(entrada + 'T00:00:00');
+  var d2 = new Date(saida   + 'T00:00:00');
+  var diff = Math.round((d2 - d1) / 86400000);
+  return diff > 0 ? diff : 0;
+}
+
+function formatarData(val) {
+  if (!val) return '—';
+  var parts = val.split('-');
+  if (parts.length !== 3) return val;
+  return parts[2] + '/' + parts[1] + '/' + parts[0];
+}
+
+function gerarId() {
+  return Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+}
+
+function mostrarToast(msg, tipo) {
+  var container = document.getElementById('toastContainer');
+  var toast = document.createElement('div');
+  toast.className = 'toast ' + (tipo || '');
+  toast.textContent = msg;
+  container.appendChild(toast);
+  setTimeout(function () {
+    if (toast.parentNode) toast.parentNode.removeChild(toast);
+  }, 3500);
+}
+
+/* ==========================================
+   CALCULADORA — FORMULÁRIO PRINCIPAL
+========================================== */
+function calcularFormulario() {
+  var entrada   = document.getElementById('c_entrada').value;
+  var saida     = document.getElementById('c_saida').value;
+  var valorNoite = parseFloat(document.getElementById('c_valor_noite').value) || 0;
+  var comPct     = parseFloat(document.getElementById('c_comissao_pct').value);
+  if (isNaN(comPct) || comPct < 0 || comPct > 100) comPct = 0;
+
+  var noites     = calcularNoites(entrada, saida);
+  var total      = noites * valorNoite;
+  var comissao   = total * (comPct / 100);
+  var repasse    = total - comissao;
+
+  // Preenche campos readonly
+  document.getElementById('c_noites').value      = noites > 0 ? noites : '';
+  document.getElementById('c_valor_total').value = total > 0  ? total.toFixed(2) : '';
+  document.getElementById('c_comissao_val').value = comissao > 0 ? comissao.toFixed(2) : '';
+
+  // Atualiza card de resultado
+  document.getElementById('res-noites').textContent   = noites > 0 ? noites + (noites === 1 ? ' noite' : ' noites') : '—';
+  document.getElementById('res-total').textContent    = total > 0   ? formatBRL(total)    : '—';
+  document.getElementById('res-comissao').textContent = comissao > 0 ? formatBRL(comissao) : '—';
+  document.getElementById('res-repasse').textContent  = repasse > 0  ? formatBRL(repasse)  : '—';
+}
+
+// Recalcula sempre que um campo muda
+['c_entrada', 'c_saida', 'c_valor_noite', 'c_comissao_pct'].forEach(function (id) {
+  var el = document.getElementById(id);
+  if (el) {
+    el.addEventListener('input',  calcularFormulario);
+    el.addEventListener('change', calcularFormulario);
+  }
+});
+
+/* ==========================================
+   ADICIONAR RESERVA
+========================================== */
+function adicionarReserva() {
+  var cliente    = document.getElementById('c_cliente').value.trim();
+  var resort     = document.getElementById('c_resort').value;
+  var status     = document.getElementById('c_status').value;
+  var entrada    = document.getElementById('c_entrada').value;
+  var saida      = document.getElementById('c_saida').value;
+  var valorNoite = parseFloat(document.getElementById('c_valor_noite').value) || 0;
+  var comPct     = parseFloat(document.getElementById('c_comissao_pct').value);
+  var obs        = document.getElementById('c_obs').value.trim();
+
+  if (!cliente)   { mostrarToast('⚠️ Informe o nome do cliente.', 'error');  return; }
+  if (!resort)    { mostrarToast('⚠️ Selecione o resort.', 'error');          return; }
+  if (!entrada)   { mostrarToast('⚠️ Informe a data de check-in.', 'error'); return; }
+  if (!saida)     { mostrarToast('⚠️ Informe a data de check-out.', 'error'); return; }
+  if (valorNoite <= 0) { mostrarToast('⚠️ Informe o valor por noite.', 'error'); return; }
+
+  var noites = calcularNoites(entrada, saida);
+  if (noites <= 0) {
+    mostrarToast('⚠️ O check-out deve ser posterior ao check-in.', 'error');
+    return;
+  }
+
+  if (isNaN(comPct) || comPct < 0 || comPct > 100) comPct = 15;
+
+  var total    = noites * valorNoite;
+  var comissao = total * (comPct / 100);
+  var repasse  = total - comissao;
+
+  var reserva = {
+    id:          gerarId(),
+    cliente:     cliente,
+    resort:      resort,
+    status:      status || 'pendente',
+    entrada:     entrada,
+    saida:       saida,
+    noites:      noites,
+    valorNoite:  valorNoite,
+    total:       parseFloat(total.toFixed(2)),
+    comissaoPct: parseFloat(comPct),
+    comissao:    parseFloat(comissao.toFixed(2)),
+    repasse:     parseFloat(repasse.toFixed(2)),
+    obs:         obs,
+    criadoEm:    new Date().toISOString()
+  };
+
+  reservas.push(reserva);
+  salvarReservas(reservas);
+  limparFormulario();
+  renderTabela();
+  atualizarDashboard();
+  atualizarMensal();
+  mostrarToast('✅ Reserva adicionada com sucesso!', 'success');
+
+  // Rola para a tabela
+  document.getElementById('reservas').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+/* ==========================================
+   LIMPAR FORMULÁRIO
+========================================== */
+function limparFormulario() {
+  ['c_cliente','c_resort','c_status','c_entrada','c_saida',
+   'c_valor_noite','c_obs'].forEach(function (id) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    if (el.tagName === 'SELECT') el.selectedIndex = 0;
+    else el.value = '';
+  });
+  document.getElementById('c_comissao_pct').value = '15';
+  document.getElementById('c_noites').value       = '';
+  document.getElementById('c_valor_total').value  = '';
+  document.getElementById('c_comissao_val').value = '';
+  document.getElementById('res-noites').textContent   = '—';
+  document.getElementById('res-total').textContent    = '—';
+  document.getElementById('res-comissao').textContent = '—';
+  document.getElementById('res-repasse').textContent  = '—';
+}
+
+/* ==========================================
+   FILTROS
+========================================== */
+function limparFiltros() {
+  document.getElementById('f_busca').value  = '';
+  document.getElementById('f_resort').value = '';
+  document.getElementById('f_status').value = '';
+  document.getElementById('f_mes').value    = '';
+  renderTabela();
+}
+
+function getReservasFiltradas() {
+  var busca  = (document.getElementById('f_busca').value  || '').toLowerCase().trim();
+  var resort = document.getElementById('f_resort').value  || '';
+  var status = document.getElementById('f_status').value  || '';
+  var mes    = document.getElementById('f_mes').value     || '';
+
+  return reservas.filter(function (r) {
+    if (busca  && !r.cliente.toLowerCase().includes(busca) && !r.resort.toLowerCase().includes(busca)) return false;
+    if (resort && r.resort !== resort) return false;
+    if (status && r.status !== status) return false;
+    if (mes) {
+      var mesEntrada = r.entrada ? r.entrada.slice(0, 7) : '';
+      if (mesEntrada !== mes) return false;
+    }
+    return true;
+  });
+}
+
+/* ==========================================
+   RENDERIZAR TABELA
+========================================== */
+function renderTabela() {
+  var tbody = document.getElementById('tabelaBody');
+  var lista = getReservasFiltradas();
+
+  if (lista.length === 0) {
+    tbody.innerHTML =
+      '<tr><td colspan="11"><div class="empty-state">' +
+      '<div class="empty-icon">📋</div>' +
+      '<div>' + (reservas.length === 0 ? 'Nenhuma reserva cadastrada ainda.' : 'Nenhuma reserva corresponde aos filtros.') + '</div>' +
+      '</div></td></tr>';
+    return;
+  }
+
+  var html = '';
+  lista.forEach(function (r, i) {
+    var badgeClass = r.status === 'pago' ? 'badge-pago' : r.status === 'cancelado' ? 'badge-cancelado' : 'badge-pendente';
+    var badgeText  = r.status === 'pago' ? '✅ Pago' : r.status === 'cancelado' ? '❌ Cancelado' : '⏳ Pendente';
+
+    html +=
+      '<tr>' +
+      '<td>' + (i + 1) + '</td>' +
+      '<td><strong>' + r.cliente + '</strong>' + (r.obs ? '<br><small style="color:var(--cor-sub);">' + r.obs + '</small>' : '') + '</td>' +
+      '<td>' + r.resort + '</td>' +
+      '<td>' + formatarData(r.entrada) + '</td>' +
+      '<td>' + formatarData(r.saida) + '</td>' +
+      '<td style="text-align:center;">' + r.noites + '</td>' +
+      '<td style="color:var(--dourado);font-weight:600;">' + formatBRL(r.total) + '</td>' +
+      '<td>' + formatBRL(r.comissao) + ' <small style="color:var(--cor-sub);">(' + r.comissaoPct + '%)</small></td>' +
+      '<td style="color:#4da6ff;">' + formatBRL(r.repasse) + '</td>' +
+      '<td><span class="badge ' + badgeClass + '">' + badgeText + '</span></td>' +
+      '<td><div class="actions">' +
+        '<button class="btn btn-secondary btn-sm" onclick="abrirEdicao(\'' + r.id + '\')" title="Editar">✏️</button>' +
+        (r.status !== 'pago' ? '<button class="btn btn-success btn-sm" onclick="marcarPago(\'' + r.id + '\')" title="Marcar como pago">✅</button>' : '') +
+        '<button class="btn btn-danger btn-sm" onclick="excluirReserva(\'' + r.id + '\')" title="Excluir">🗑️</button>' +
+      '</div></td>' +
+      '</tr>';
+  });
+
+  tbody.innerHTML = html;
+}
+
+/* ==========================================
+   AÇÕES NA TABELA
+========================================== */
+function marcarPago(id) {
+  var r = reservas.find(function (x) { return x.id === id; });
+  if (!r) return;
+  r.status = 'pago';
+  salvarReservas(reservas);
+  renderTabela();
+  atualizarDashboard();
+  atualizarMensal();
+  mostrarToast('✅ Reserva marcada como paga!', 'success');
+}
+
+function excluirReserva(id) {
+  if (!confirm('Tem certeza que deseja excluir esta reserva?')) return;
+  reservas = reservas.filter(function (x) { return x.id !== id; });
+  salvarReservas(reservas);
+  renderTabela();
+  atualizarDashboard();
+  atualizarMensal();
+  mostrarToast('🗑️ Reserva excluída.', '');
+}
+
+/* ==========================================
+   MODAL DE EDIÇÃO
+========================================== */
+function abrirEdicao(id) {
+  var r = reservas.find(function (x) { return x.id === id; });
+  if (!r) return;
+
+  document.getElementById('edit_id').value          = r.id;
+  document.getElementById('edit_cliente').value     = r.cliente;
+  document.getElementById('edit_resort').value      = r.resort;
+  document.getElementById('edit_status').value      = r.status;
+  document.getElementById('edit_entrada').value     = r.entrada;
+  document.getElementById('edit_saida').value       = r.saida;
+  document.getElementById('edit_noites').value      = r.noites;
+  document.getElementById('edit_valor_noite').value = r.valorNoite;
+  document.getElementById('edit_valor_total').value = r.total;
+  document.getElementById('edit_comissao_pct').value = r.comissaoPct;
+  document.getElementById('edit_comissao_val').value = r.comissao;
+  document.getElementById('edit_obs').value         = r.obs || '';
+
+  document.getElementById('editModal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function fecharModal() {
+  document.getElementById('editModal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function calcEditNoites() {
+  var entrada    = document.getElementById('edit_entrada').value;
+  var saida      = document.getElementById('edit_saida').value;
+  var noites     = calcularNoites(entrada, saida);
+  document.getElementById('edit_noites').value = noites > 0 ? noites : '';
+  calcEditTotal();
+}
+
+function calcEditTotal() {
+  var noites     = parseInt(document.getElementById('edit_noites').value)       || 0;
+  var valorNoite = parseFloat(document.getElementById('edit_valor_noite').value) || 0;
+  var comPct     = parseFloat(document.getElementById('edit_comissao_pct').value);
+  if (isNaN(comPct) || comPct < 0 || comPct > 100) comPct = 0;
+
+  var total    = noites * valorNoite;
+  var comissao = total * (comPct / 100);
+
+  document.getElementById('edit_valor_total').value  = total > 0    ? total.toFixed(2)    : '';
+  document.getElementById('edit_comissao_val').value = comissao > 0 ? comissao.toFixed(2) : '';
+}
+
+function calcEditComissao() {
+  calcEditTotal();
+}
+
+function salvarEdicao() {
+  var id         = document.getElementById('edit_id').value;
+  var cliente    = document.getElementById('edit_cliente').value.trim();
+  var resort     = document.getElementById('edit_resort').value;
+  var status     = document.getElementById('edit_status').value;
+  var entrada    = document.getElementById('edit_entrada').value;
+  var saida      = document.getElementById('edit_saida').value;
+  var valorNoite = parseFloat(document.getElementById('edit_valor_noite').value) || 0;
+  var comPct     = parseFloat(document.getElementById('edit_comissao_pct').value);
+  var obs        = document.getElementById('edit_obs').value.trim();
+
+  if (!cliente)   { mostrarToast('⚠️ Informe o nome do cliente.', 'error'); return; }
+  if (!entrada || !saida) { mostrarToast('⚠️ Informe as datas.', 'error'); return; }
+  if (valorNoite <= 0) { mostrarToast('⚠️ Informe o valor por noite.', 'error'); return; }
+
+  var noites = calcularNoites(entrada, saida);
+  if (noites <= 0) { mostrarToast('⚠️ Datas inválidas.', 'error'); return; }
+
+  if (isNaN(comPct) || comPct < 0 || comPct > 100) comPct = 15;
+
+  var total    = noites * valorNoite;
+  var comissao = total * (comPct / 100);
+  var repasse  = total - comissao;
+
+  var idx = reservas.findIndex(function (x) { return x.id === id; });
+  if (idx === -1) { mostrarToast('Reserva não encontrada.', 'error'); return; }
+
+  reservas[idx] = Object.assign({}, reservas[idx], {
+    cliente:     cliente,
+    resort:      resort,
+    status:      status,
+    entrada:     entrada,
+    saida:       saida,
+    noites:      noites,
+    valorNoite:  valorNoite,
+    total:       parseFloat(total.toFixed(2)),
+    comissaoPct: parseFloat(comPct),
+    comissao:    parseFloat(comissao.toFixed(2)),
+    repasse:     parseFloat(repasse.toFixed(2)),
+    obs:         obs
+  });
+
+  salvarReservas(reservas);
+  fecharModal();
+  renderTabela();
+  atualizarDashboard();
+  atualizarMensal();
+  mostrarToast('✅ Reserva atualizada com sucesso!', 'success');
+}
+
+// Fechar modal com ESC
+document.addEventListener('keydown', function (e) {
+  if (e.key === 'Escape') fecharModal();
+});
+
+// Fechar modal clicando fora
+document.getElementById('editModal').addEventListener('click', function (e) {
+  if (e.target === this) fecharModal();
+});
+
+/* ==========================================
+   DASHBOARD
+========================================== */
+function atualizarDashboard() {
+  var total      = reservas.length;
+  var receita    = 0;
+  var comissao   = 0;
+  var pendente   = 0;
+  var canceladas = 0;
+  var noites     = 0;
+
+  reservas.forEach(function (r) {
+    if (r.status === 'cancelado') { canceladas++; return; }
+    receita  += r.total    || 0;
+    comissao += r.comissao || 0;
+    noites   += r.noites   || 0;
+    if (r.status === 'pendente') pendente += r.total || 0;
+  });
+
+  document.getElementById('dash-total').textContent     = total;
+  document.getElementById('dash-receita').textContent   = formatBRL(receita);
+  document.getElementById('dash-comissao').textContent  = formatBRL(comissao);
+  document.getElementById('dash-pendente').textContent  = formatBRL(pendente);
+  document.getElementById('dash-noites').textContent    = noites;
+  document.getElementById('dash-canceladas').textContent = canceladas;
+}
+
+/* ==========================================
+   RESUMO MENSAL
+========================================== */
+function atualizarMensal() {
+  var meses = {};
+
+  reservas.forEach(function (r) {
+    if (r.status === 'cancelado') return;
+    var mes = r.entrada ? r.entrada.slice(0, 7) : 'desconhecido';
+    if (!meses[mes]) {
+      meses[mes] = { reservas: 0, receita: 0, comissao: 0, repasse: 0, noites: 0 };
+    }
+    meses[mes].reservas++;
+    meses[mes].receita   += r.total    || 0;
+    meses[mes].comissao  += r.comissao || 0;
+    meses[mes].repasse   += r.repasse  || 0;
+    meses[mes].noites    += r.noites   || 0;
+  });
+
+  var chaves = Object.keys(meses).sort().reverse();
+  var grid = document.getElementById('monthlyGrid');
+
+  if (chaves.length === 0) {
+    grid.innerHTML = '<div style="color: var(--cor-sub); font-size:0.9em; padding:10px;">Nenhum dado disponível. Adicione reservas para ver o resumo mensal.</div>';
+    return;
+  }
+
+  var html = '';
+  chaves.forEach(function (key) {
+    var m   = meses[key];
+    var partes = key.split('-');
+    var nomeMes = new Date(parseInt(partes[0]), parseInt(partes[1]) - 1, 1)
+      .toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+
+    html +=
+      '<div class="month-card">' +
+      '<div class="month-name">📅 ' + nomeMes.charAt(0).toUpperCase() + nomeMes.slice(1) + '</div>' +
+      '<div class="month-row"><span>Reservas</span><span>' + m.reservas + '</span></div>' +
+      '<div class="month-row"><span>🌙 Noites</span><span>' + m.noites + '</span></div>' +
+      '<div class="month-row"><span>💰 Receita</span><span>' + formatBRL(m.receita) + '</span></div>' +
+      '<div class="month-row lucro"><span>🏷️ Comissão</span><span>' + formatBRL(m.comissao) + '</span></div>' +
+      '<div class="month-row"><span>📤 Repasse</span><span>' + formatBRL(m.repasse) + '</span></div>' +
+      '</div>';
+  });
+
+  grid.innerHTML = html;
+}
+
+/* ==========================================
+   EXPORTAR CSV
+========================================== */
+function exportarCSV() {
+  var lista = getReservasFiltradas();
+  if (lista.length === 0) {
+    mostrarToast('⚠️ Nenhuma reserva para exportar.', 'error');
+    return;
+  }
+
+  var cabecalho = ['#', 'Cliente', 'Resort', 'Check-in', 'Check-out', 'Noites',
+                   'Valor/Noite', 'Total', 'Comissao%', 'Comissao R$', 'Repasse', 'Status', 'Obs'];
+
+  var linhas = lista.map(function (r, i) {
+    return [
+      i + 1,
+      '"' + (r.cliente || '').replace(/"/g, '""') + '"',
+      '"' + (r.resort  || '').replace(/"/g, '""') + '"',
+      formatarData(r.entrada),
+      formatarData(r.saida),
+      r.noites,
+      r.valorNoite.toFixed(2).replace('.', ','),
+      r.total.toFixed(2).replace('.', ','),
+      r.comissaoPct,
+      r.comissao.toFixed(2).replace('.', ','),
+      r.repasse.toFixed(2).replace('.', ','),
+      r.status,
+      '"' + (r.obs || '').replace(/"/g, '""') + '"'
+    ].join(';');
+  });
+
+  var csv  = '\uFEFF' + cabecalho.join(';') + '\n' + linhas.join('\n');
+  var blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  var url  = URL.createObjectURL(blob);
+  var a    = document.createElement('a');
+  a.href     = url;
+  a.download = 'hospeda-sistema-' + new Date().toISOString().slice(0, 10) + '.csv';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  mostrarToast('📥 CSV exportado com sucesso!', 'success');
+}
+
+/* ==========================================
+   INICIALIZAÇÃO
+========================================== */
+(function init() {
+  renderTabela();
+  atualizarDashboard();
+  atualizarMensal();
+})();
+</script>
+
+<!-- PWA -->
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function () {
+    navigator.serviceWorker.register('/sw.js').catch(function () {});
+  });
+}
+</script>
+
+</body>
+</html>
