@@ -105,7 +105,7 @@ if (localStorage.getItem('hospedah_consent') === 'accepted') { initTracking(); }
     "@type": "OfferCatalog",
     "name": "Resorts e Hospedagens",
     "itemListElement": [
-      { "@type": "Offer", "itemOffered": { "@type": "LodgingBusiness", "name": "Hot Beach Resort", "address": { "@type": "PostalAddress", "addressLocality": "Olímpia", "addressRegion": "SP", "addressCountry": "BR" } } },
+      { "@type": "Offer", "itemOffered": { "@type": "LodgingBusiness", "name": "Hot Beach Suites", "address": { "@type": "PostalAddress", "addressLocality": "Olímpia", "addressRegion": "SP", "addressCountry": "BR" } } },
       { "@type": "Offer", "itemOffered": { "@type": "LodgingBusiness", "name": "São Pedro Thermas", "address": { "@type": "PostalAddress", "addressLocality": "São Pedro", "addressRegion": "SP", "addressCountry": "BR" } } },
       { "@type": "Offer", "itemOffered": { "@type": "LodgingBusiness", "name": "Olimpia Park Resort", "address": { "@type": "PostalAddress", "addressLocality": "Olímpia", "addressRegion": "SP", "addressCountry": "BR" } } },
       { "@type": "Offer", "itemOffered": { "@type": "LodgingBusiness", "name": "Solar das Águas", "address": { "@type": "PostalAddress", "addressLocality": "Olímpia", "addressRegion": "SP", "addressCountry": "BR" } } },
@@ -1465,7 +1465,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <div class="section-wrap" id="galeria">
   <h2 class="section-title">🏖️ Nossos Resorts</h2>
   <div class="tabs" role="tablist" aria-label="Selecionar resort">
-    <button class="tab active" id="tab_hotbeach" role="tab" aria-controls="hotbeach" aria-selected="true"  tabindex="0">Hot Beach</button>
+    <button class="tab active" id="tab_hotbeach" role="tab" aria-controls="hotbeach" aria-selected="true"  tabindex="0">Hot Beach Suites</button>
     <button class="tab"        id="tab_saopedro" role="tab" aria-controls="saopedro" aria-selected="false" tabindex="-1">São Pedro</button>
     <button class="tab"        id="tab_olimpia"  role="tab" aria-controls="olimpia"  aria-selected="false" tabindex="-1">Olimpia Park</button>
     <button class="tab"        id="tab_solar"    role="tab" aria-controls="solar"    aria-selected="false" tabindex="-1">Solar das Águas</button>
@@ -1476,9 +1476,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   </div>
 
   <div class="gallery-block active" id="hotbeach" role="tabpanel" aria-labelledby="tab_hotbeach">
-    <div class="resort-title">Hot Beach Resort</div>
+    <div class="resort-title">Hot Beach Suites</div>
     <a href="resorts/hotbeach.html" class="resort-link" target="_blank" rel="noopener">Ver página exclusiva →</a>
-    <a href="https://wa.me/5517982006382?text=Ol%C3%A1%21+Tenho+interesse+no+Hot+Beach+Resort.+Pode+me+enviar+mais+informa%C3%A7%C3%B5es%3F" class="resort-wpp-btn" target="_blank" rel="noopener">💬 Orçamento Hot Beach</a>
+    <a href="https://wa.me/5517982006382?text=Ol%C3%A1%21+Tenho+interesse+no+Hot+Beach+Suites.+Pode+me+enviar+mais+informa%C3%A7%C3%B5es%3F" class="resort-wpp-btn" target="_blank" rel="noopener">💬 Orçamento Hot Beach Suites</a>
     <div class="gallery">
       <img src="https://i.imgur.com/AmFSwwd.jpeg" alt="Hot Beach 1" loading="lazy" width="800" height="600" tabindex="0">
       <img src="https://i.imgur.com/PMok8fe.jpeg" alt="Hot Beach 2" loading="lazy" width="800" height="600" tabindex="0">
@@ -1692,7 +1692,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       <input type="email"  id="orc_email"   placeholder="Seu e-mail (para receber confirmação)" autocomplete="email">
       <select id="orc_resort" required>
         <option value="">Selecione o resort desejado</option>
-        <option>Hot Beach Resort</option>
+        <option>Hot Beach Suites</option>
         <option>São Pedro Thermas</option>
         <option>Olimpia Park</option>
         <option>Solar das Águas</option>
@@ -2608,13 +2608,13 @@ function exitIntentSubmit(e) {
     var container = $('social-proof-container');
 
     var events = [
-      { nome: 'Fernanda S.',  cidade: 'São Paulo',      resort: 'Hot Beach Resort',     min: rand(2, 8)  },
+      { nome: 'Fernanda S.',  cidade: 'São Paulo',      resort: 'Hot Beach Suites',     min: rand(2, 8)  },
       { nome: 'Ricardo M.',   cidade: 'Campinas',        resort: 'Olímpia Park Resort',  min: rand(1, 5)  },
       { nome: 'Juliana C.',   cidade: 'Ribeirão Preto',  resort: 'Wyndham Royal Resort', min: rand(3, 10) },
       { nome: 'Carlos A.',    cidade: 'São José dos Campos', resort: 'Solar das Águas', min: rand(1, 7)  },
       { nome: 'Beatriz L.',   cidade: 'Santos',          resort: 'Praia de Juquehy',     min: rand(5, 12) },
       { nome: 'Marcos T.',    cidade: 'Bauru',           resort: 'São Pedro Thermas',    min: rand(2, 9)  },
-      { nome: 'Patrícia R.',  cidade: 'Sorocaba',        resort: 'Hot Beach Resort',     min: rand(1, 6)  },
+      { nome: 'Patrícia R.',  cidade: 'Sorocaba',        resort: 'Hot Beach Suites',     min: rand(1, 6)  },
       { nome: 'Eduardo F.',   cidade: 'Botucatu',        resort: 'Wyndham Royal Resort', min: rand(4, 11) },
     ];
 
