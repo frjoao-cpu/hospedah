@@ -10,6 +10,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 /* ==========================================
    VARIÁVEIS GLOBAIS
@@ -722,18 +723,23 @@ tbody td {
 
 <body>
 
-<!-- TELA DE SENHA -->
+<!-- TELA DE LOGIN -->
 <div class="lock-overlay" id="lockOverlay">
   <div class="lock-box">
     <div style="font-size:2.5em; margin-bottom:12px;">🔐</div>
     <h2>HOSPEDA-SISTEMA</h2>
-    <p class="lock-sub">Área restrita. Digite a senha para continuar.</p>
+    <p class="lock-sub">Área restrita. Faça login para continuar.</p>
     <div class="field-group" style="text-align:left; margin-bottom:4px;">
-      <label>Senha de Acesso</label>
+      <label>E-mail</label>
+      <input type="email" id="lockEmail" placeholder="seu@email.com"
+             onkeydown="if(event.key==='Enter') tentarLogin()">
+    </div>
+    <div class="field-group" style="text-align:left; margin-bottom:4px;">
+      <label>Senha</label>
       <input type="password" id="lockInput" placeholder="••••••••"
              onkeydown="if(event.key==='Enter') tentarLogin()">
     </div>
-    <div id="lockError" class="lock-error">❌ Senha incorreta. Tente novamente.</div>
+    <div id="lockError" class="lock-error">❌ Credenciais inválidas. Tente novamente.</div>
     <button class="btn btn-primary" style="width:100%; margin-top:16px;" onclick="tentarLogin()">🔓 Entrar</button>
   </div>
 </div>
@@ -757,6 +763,7 @@ tbody td {
     <a href="javascript:void(0)" onclick="exportarBackup()">💾 Backup</a>
     <a href="javascript:void(0)" onclick="importarBackup()">📂 Importar</a>
     <a href="index.html">🏠 Site</a>
+    <a href="javascript:void(0)" onclick="fazerLogout()">🚪 Sair</a>
   </nav>
 </header>
 
@@ -1636,44 +1643,70 @@ tbody td {
 /* ==========================================
    CONFIGURAÇÃO DO SISTEMA
    Edite aqui para personalizar o sistema.
-   NOTA: Como o sistema é estático (sem servidor), a senha abaixo
-   protege apenas acidentalmente — quem visualizar o código-fonte
-   pode vê-la. Para maior segurança, migre para Supabase Auth.
 ========================================== */
 var CONFIG = {
-  senha: 'hospedah2024',   // 🔑 Senha de acesso — altere aqui
-  whatsappNumero: '',       // 📱 Seu nº WhatsApp p/ contato (ex: 5511999999999) — opcional
-  metaPadrao: 10000         // 🎯 Meta mensal padrão (R$)
+  whatsappNumero: '',   // 📱 Seu nº WhatsApp p/ contato (ex: 5511999999999) — opcional
+  metaPadrao: 10000     // 🎯 Meta mensal padrão (R$)
 };
 
 /* ==========================================
-   PROTEÇÃO POR SENHA
+   SUPABASE AUTH
+   Substitua os valores abaixo pelas credenciais
+   do seu projeto em supabase.com > Project Settings > API
+========================================== */
+var SUPABASE_URL  = 'https://ydrmjoppjxtmnwtvtinb.supabase.co';
+var SUPABASE_ANON = 'sb_publishable_GBmfYhy8hANTG3yGfHPSwA_sVp0T7F_';       // chave pública (anon/public)
+
+var _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+
+/* ==========================================
+   PROTEÇÃO POR LOGIN
 ========================================== */
 function verificarAcesso() {
-  if (sessionStorage.getItem('hospeda_auth') === CONFIG.senha) {
-    return true;
-  }
-  document.getElementById('lockOverlay').classList.add('show');
-  setTimeout(function() {
-    var el = document.getElementById('lockInput');
-    if (el) el.focus();
-  }, 100);
-  return false;
+  _supabase.auth.getSession().then(function(result) {
+    var session = result.data && result.data.session;
+    if (session) {
+      document.getElementById('lockOverlay').classList.remove('show');
+      inicializarSistema();
+    } else {
+      document.getElementById('lockOverlay').classList.add('show');
+      setTimeout(function() {
+        var el = document.getElementById('lockEmail');
+        if (el) el.focus();
+      }, 100);
+    }
+  });
 }
 
 function tentarLogin() {
-  var valor = document.getElementById('lockInput').value;
-  if (valor === CONFIG.senha) {
-    sessionStorage.setItem('hospeda_auth', CONFIG.senha);
-    document.getElementById('lockOverlay').classList.remove('show');
-    inicializarSistema();
-  } else {
-    var err = document.getElementById('lockError');
+  var email = (document.getElementById('lockEmail').value || '').trim();
+  var senha = document.getElementById('lockInput').value;
+  var err   = document.getElementById('lockError');
+  err.style.display = 'none';
+
+  if (!email || !senha) {
     err.style.display = 'block';
-    document.getElementById('lockInput').value = '';
-    document.getElementById('lockInput').focus();
-    setTimeout(function() { err.style.display = 'none'; }, 3000);
+    return;
   }
+
+  _supabase.auth.signInWithPassword({ email: email, password: senha })
+    .then(function(result) {
+      if (result.error) {
+        err.style.display = 'block';
+        document.getElementById('lockInput').value = '';
+        document.getElementById('lockInput').focus();
+        setTimeout(function() { err.style.display = 'none'; }, 3000);
+      } else {
+        document.getElementById('lockOverlay').classList.remove('show');
+        inicializarSistema();
+      }
+    });
+}
+
+function fazerLogout() {
+  _supabase.auth.signOut().then(function() {
+    window.location.reload();
+  });
 }
 
 /* ==========================================
@@ -3229,8 +3262,7 @@ function inicializarSistema() {
 
 /* Verifica acesso na carga da página */
 (function() {
-  if (!verificarAcesso()) return;
-  inicializarSistema();
+  verificarAcesso();
 })();
 </script>
 
