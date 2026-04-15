@@ -639,6 +639,23 @@ tbody td {
   font-size: 0.75em;
   white-space: nowrap;
 }
+
+/* ==========================================
+   CAPTAÇÃO
+========================================== */
+.badge-sim      { background: rgba(37,211,102,0.15); color: var(--verde); }
+.badge-nao      { background: rgba(231,76,60,0.15);  color: var(--vermelho); }
+.badge-parcelas { background: rgba(77,166,255,0.15); color: #4da6ff; }
+
+.cap-parcelas-wrap {
+  display: none;
+  grid-column: span 2;
+}
+.cap-parcelas-wrap.show {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
 </style>
 </head>
 
@@ -674,6 +691,7 @@ tbody td {
     <a href="#reservas">📋 Reservas</a>
     <a href="#mensal">📅 Mensal</a>
     <a href="#graficos">📈 Gráficos</a>
+    <a href="#captacao">🏡 Captação</a>
     <a href="javascript:void(0)" onclick="exportarBackup()">💾 Backup</a>
     <a href="javascript:void(0)" onclick="importarBackup()">📂 Importar</a>
     <a href="index.html">🏠 Site</a>
@@ -950,6 +968,298 @@ tbody td {
     </div>
   </section>
 
+  <!-- ==========================================
+       CAPTAÇÃO — RESUMO
+  =========================================== -->
+  <section id="captacao-resumo">
+    <div class="section-title">🏡 Captações — Resumo</div>
+    <div class="dashboard-grid">
+      <div class="dash-card">
+        <div class="dash-icon">🏡</div>
+        <div class="dash-label">Total de Captações</div>
+        <div class="dash-value" id="capDash-total">0</div>
+      </div>
+      <div class="dash-card">
+        <div class="dash-icon">💵</div>
+        <div class="dash-label">Valor Total do Período</div>
+        <div class="dash-value" id="capDash-periodo">R$ 0,00</div>
+      </div>
+      <div class="dash-card verde">
+        <div class="dash-icon">✅</div>
+        <div class="dash-label">Total Pago</div>
+        <div class="dash-value" id="capDash-pago">R$ 0,00</div>
+      </div>
+      <div class="dash-card amarelo">
+        <div class="dash-icon">⚠️</div>
+        <div class="dash-label">Valor em Aberto</div>
+        <div class="dash-value" id="capDash-aberto">R$ 0,00</div>
+      </div>
+      <div class="dash-card verde">
+        <div class="dash-icon">📋</div>
+        <div class="dash-label">Reservas Confirmadas</div>
+        <div class="dash-value" id="capDash-confirmadas">0</div>
+      </div>
+      <div class="dash-card vermelho">
+        <div class="dash-icon">🔔</div>
+        <div class="dash-label">Com Pendências</div>
+        <div class="dash-value" id="capDash-pendencias">0</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================
+       CAPTAÇÃO — FORMULÁRIO
+  =========================================== -->
+  <section id="captacao" class="calc-section">
+    <div class="section-title">➕ Nova Captação — Cadastro de Propriedade</div>
+
+    <div class="calc-grid">
+      <div class="field-group" style="grid-column: span 2;">
+        <label>Nome do Proprietário *</label>
+        <input type="text" id="cap_proprietario" placeholder="Nome completo do proprietário" autocomplete="off">
+      </div>
+
+      <div class="field-group">
+        <label>Telefone / WhatsApp</label>
+        <input type="tel" id="cap_telefone" placeholder="(00) 00000-0000">
+      </div>
+
+      <div class="field-group">
+        <label>Nome da Propriedade *</label>
+        <input type="text" id="cap_nome" placeholder="Ex.: Apt 302 — Olimpia" autocomplete="off">
+      </div>
+
+      <div class="field-group">
+        <label>Data Inicial *</label>
+        <input type="date" id="cap_data_ini" oninput="calcularDiasCaptacao()">
+      </div>
+
+      <div class="field-group">
+        <label>Data Final *</label>
+        <input type="date" id="cap_data_fim" oninput="calcularDiasCaptacao()">
+      </div>
+
+      <div class="field-group">
+        <label>Número de Dias (automático)</label>
+        <input type="number" id="cap_dias" min="0" placeholder="Calculado automaticamente" readonly>
+      </div>
+
+      <div class="field-group">
+        <label>Valor do Período (R$) *</label>
+        <input type="number" id="cap_valor_periodo" min="0" step="0.01" placeholder="Ex.: 3500,00" oninput="calcularAbertoCaptacao()">
+      </div>
+
+      <div class="field-group">
+        <label>Valor Pago (R$)</label>
+        <input type="number" id="cap_valor_pago" min="0" step="0.01" placeholder="Ex.: 1750,00" oninput="calcularAbertoCaptacao()">
+      </div>
+
+      <div class="field-group">
+        <label>Valor em Aberto (R$)</label>
+        <input type="number" id="cap_valor_aberto" min="0" step="0.01" placeholder="Calculado automaticamente" readonly>
+      </div>
+
+      <div class="field-group">
+        <label>Data de Pagamento</label>
+        <input type="date" id="cap_data_pag">
+      </div>
+
+      <div class="field-group">
+        <label>Forma de Pagamento</label>
+        <select id="cap_forma_pag" onchange="onFormaPagCaptacao()">
+          <option value="pix">⚡ Pix</option>
+          <option value="cartao">💳 Cartão de Crédito</option>
+          <option value="boleto">📄 Boleto</option>
+          <option value="transferencia">🏦 Transferência Bancária</option>
+          <option value="dinheiro">💵 Dinheiro</option>
+        </select>
+      </div>
+
+      <div class="field-group">
+        <label>Status da Reserva</label>
+        <select id="cap_status_reserva">
+          <option value="nao">❌ Não confirmada</option>
+          <option value="sim">✅ Confirmada</option>
+        </select>
+      </div>
+
+      <!-- Parcelas — aparece apenas para Cartão/Boleto -->
+      <div id="capParcelasWrap" class="cap-parcelas-wrap">
+        <div class="field-group">
+          <label>Número de Parcelas</label>
+          <input type="number" id="cap_num_parcelas" min="1" max="24" value="1" placeholder="Ex.: 3">
+        </div>
+        <div class="field-group">
+          <label>Parcela Atual</label>
+          <input type="number" id="cap_parcela_atual" min="1" max="24" value="1" placeholder="Ex.: 1">
+        </div>
+      </div>
+
+      <div class="field-group">
+        <label>Período (01 – 13)</label>
+        <select id="cap_periodo">
+          <option value="">— Selecionar —</option>
+          <option value="01">01</option>
+          <option value="02">02</option>
+          <option value="03">03</option>
+          <option value="04">04</option>
+          <option value="05">05</option>
+          <option value="06">06</option>
+          <option value="07">07</option>
+          <option value="08">08</option>
+          <option value="09">09</option>
+          <option value="10">10</option>
+          <option value="11">11</option>
+          <option value="12">12</option>
+          <option value="13">13</option>
+        </select>
+      </div>
+
+      <div class="field-group">
+        <label>Cota (01 – 13)</label>
+        <select id="cap_cota">
+          <option value="">— Selecionar —</option>
+          <option value="01">01</option>
+          <option value="02">02</option>
+          <option value="03">03</option>
+          <option value="04">04</option>
+          <option value="05">05</option>
+          <option value="06">06</option>
+          <option value="07">07</option>
+          <option value="08">08</option>
+          <option value="09">09</option>
+          <option value="10">10</option>
+          <option value="11">11</option>
+          <option value="12">12</option>
+          <option value="13">13</option>
+        </select>
+      </div>
+
+      <div class="field-group" style="grid-column: span 2;">
+        <label>Observações</label>
+        <input type="text" id="cap_obs" placeholder="Notas adicionais sobre a captação ou propriedade">
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="adicionarCaptacao()">🏡 Adicionar Captação</button>
+      <button class="btn btn-secondary" onclick="limparFormCaptacao()">🗑️ Limpar</button>
+    </div>
+  </section>
+
+  <!-- ==========================================
+       CAPTAÇÃO — TABELA
+  =========================================== -->
+  <section id="captacoes" class="table-wrap">
+    <div class="section-title">
+      🏡 Captações Cadastradas
+      <span style="margin-left:auto; display:flex; gap:8px;">
+        <button class="btn btn-secondary btn-sm" onclick="exportarCSVCaptacao()">📥 Exportar CSV</button>
+        <button class="btn btn-secondary btn-sm" onclick="window.print()">🖨️ Imprimir</button>
+      </span>
+    </div>
+
+    <!-- Filtros -->
+    <div class="filter-bar">
+      <div class="field-group">
+        <label>🔍 Buscar</label>
+        <input type="text" id="cf_busca" placeholder="Proprietário ou propriedade..." oninput="renderTabelaCaptacao()">
+      </div>
+      <div class="field-group">
+        <label>Status da Reserva</label>
+        <select id="cf_status_reserva" onchange="renderTabelaCaptacao()">
+          <option value="">Todas</option>
+          <option value="sim">✅ Confirmadas</option>
+          <option value="nao">❌ Não confirmadas</option>
+        </select>
+      </div>
+      <div class="field-group">
+        <label>Forma de Pagamento</label>
+        <select id="cf_forma_pag" onchange="renderTabelaCaptacao()">
+          <option value="">Todas</option>
+          <option value="pix">⚡ Pix</option>
+          <option value="cartao">💳 Cartão</option>
+          <option value="boleto">📄 Boleto</option>
+          <option value="transferencia">🏦 Transferência</option>
+          <option value="dinheiro">💵 Dinheiro</option>
+        </select>
+      </div>
+      <div class="field-group">
+        <label>Financeiro</label>
+        <select id="cf_pendente" onchange="renderTabelaCaptacao()">
+          <option value="">Todos</option>
+          <option value="pendente">⏳ Com pendência</option>
+          <option value="quitado">✅ Quitados</option>
+        </select>
+      </div>
+      <div class="field-group">
+        <label>📅 Período — De</label>
+        <input type="date" id="cf_periodo_ini" onchange="renderTabelaCaptacao()">
+      </div>
+      <div class="field-group">
+        <label>📅 Período — Até</label>
+        <input type="date" id="cf_periodo_fim" onchange="renderTabelaCaptacao()">
+      </div>
+      <div class="field-group">
+        <label>Cota</label>
+        <select id="cf_cota" onchange="renderTabelaCaptacao()">
+          <option value="">Todas</option>
+          <option value="01">01</option>
+          <option value="02">02</option>
+          <option value="03">03</option>
+          <option value="04">04</option>
+          <option value="05">05</option>
+          <option value="06">06</option>
+          <option value="07">07</option>
+          <option value="08">08</option>
+          <option value="09">09</option>
+          <option value="10">10</option>
+          <option value="11">11</option>
+          <option value="12">12</option>
+          <option value="13">13</option>
+        </select>
+      </div>
+      <div class="field-group" style="justify-content:flex-end; padding-top:18px;">
+        <button class="btn btn-secondary btn-sm" onclick="limparFiltrosCaptacao()">✕ Limpar filtros</button>
+      </div>
+    </div>
+
+    <table id="tabelaCaptacoes">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Proprietário</th>
+          <th>Telefone</th>
+          <th>Propriedade</th>
+          <th>Período</th>
+          <th>Dias</th>
+          <th>Período</th>
+          <th>Cota</th>
+          <th>Valor Período</th>
+          <th>Valor Pago</th>
+          <th>Valor em Aberto</th>
+          <th>Dt. Pagamento</th>
+          <th>Pagamento</th>
+          <th>Reserva</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody id="capTabelaBody">
+        <tr>
+          <td colspan="15">
+            <div class="empty-state">
+              <div class="empty-icon">🏡</div>
+              <div>Nenhuma captação cadastrada ainda.</div>
+              <div style="font-size:0.85em; margin-top:6px; color: var(--cinza)">
+                Use o formulário acima para adicionar a primeira captação.
+              </div>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
 </main>
 
 <!-- ==========================================
@@ -1023,6 +1333,132 @@ tbody td {
     <div class="btn-row">
       <button class="btn btn-primary" onclick="salvarEdicao()">💾 Salvar</button>
       <button class="btn btn-secondary" onclick="fecharModal()">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ==========================================
+     MODAL DE EDIÇÃO — CAPTAÇÃO
+=========================================== -->
+<div class="modal-overlay" id="editModalCaptacao">
+  <div class="modal-box" style="max-width:640px;">
+    <button class="modal-close" onclick="fecharModalCaptacao()" aria-label="Fechar">✕</button>
+    <h3>✏️ Editar Captação</h3>
+    <input type="hidden" id="editCap_id">
+    <div class="modal-grid">
+      <div class="field-group" style="grid-column: span 2;">
+        <label>Proprietário</label>
+        <input type="text" id="editCap_proprietario">
+      </div>
+      <div class="field-group">
+        <label>Telefone</label>
+        <input type="tel" id="editCap_telefone">
+      </div>
+      <div class="field-group">
+        <label>Nome da Propriedade</label>
+        <input type="text" id="editCap_nome">
+      </div>
+      <div class="field-group">
+        <label>Data Inicial</label>
+        <input type="date" id="editCap_data_ini" oninput="calcEditDiasCaptacao()">
+      </div>
+      <div class="field-group">
+        <label>Data Final</label>
+        <input type="date" id="editCap_data_fim" oninput="calcEditDiasCaptacao()">
+      </div>
+      <div class="field-group">
+        <label>Número de Dias</label>
+        <input type="number" id="editCap_dias" min="0" readonly>
+      </div>
+      <div class="field-group">
+        <label>Valor do Período (R$)</label>
+        <input type="number" id="editCap_valor_periodo" min="0" step="0.01" oninput="calcEditAbertoCaptacao()">
+      </div>
+      <div class="field-group">
+        <label>Valor Pago (R$)</label>
+        <input type="number" id="editCap_valor_pago" min="0" step="0.01" oninput="calcEditAbertoCaptacao()">
+      </div>
+      <div class="field-group">
+        <label>Valor em Aberto (R$)</label>
+        <input type="number" id="editCap_valor_aberto" min="0" step="0.01" readonly>
+      </div>
+      <div class="field-group">
+        <label>Data de Pagamento</label>
+        <input type="date" id="editCap_data_pag">
+      </div>
+      <div class="field-group">
+        <label>Forma de Pagamento</label>
+        <select id="editCap_forma_pag" onchange="onEditFormaPagCaptacao()">
+          <option value="pix">⚡ Pix</option>
+          <option value="cartao">💳 Cartão de Crédito</option>
+          <option value="boleto">📄 Boleto</option>
+          <option value="transferencia">🏦 Transferência Bancária</option>
+          <option value="dinheiro">💵 Dinheiro</option>
+        </select>
+      </div>
+      <div class="field-group">
+        <label>Status da Reserva</label>
+        <select id="editCap_status_reserva">
+          <option value="nao">❌ Não confirmada</option>
+          <option value="sim">✅ Confirmada</option>
+        </select>
+      </div>
+      <div id="editCapParcelasWrap" class="cap-parcelas-wrap" style="grid-column: span 2;">
+        <div class="field-group">
+          <label>Número de Parcelas</label>
+          <input type="number" id="editCap_num_parcelas" min="1" max="24" value="1">
+        </div>
+        <div class="field-group">
+          <label>Parcela Atual</label>
+          <input type="number" id="editCap_parcela_atual" min="1" max="24" value="1">
+        </div>
+      </div>
+      <div class="field-group">
+        <label>Período (01 – 13)</label>
+        <select id="editCap_periodo">
+          <option value="">— Selecionar —</option>
+          <option value="01">01</option>
+          <option value="02">02</option>
+          <option value="03">03</option>
+          <option value="04">04</option>
+          <option value="05">05</option>
+          <option value="06">06</option>
+          <option value="07">07</option>
+          <option value="08">08</option>
+          <option value="09">09</option>
+          <option value="10">10</option>
+          <option value="11">11</option>
+          <option value="12">12</option>
+          <option value="13">13</option>
+        </select>
+      </div>
+      <div class="field-group">
+        <label>Cota (01 – 13)</label>
+        <select id="editCap_cota">
+          <option value="">— Selecionar —</option>
+          <option value="01">01</option>
+          <option value="02">02</option>
+          <option value="03">03</option>
+          <option value="04">04</option>
+          <option value="05">05</option>
+          <option value="06">06</option>
+          <option value="07">07</option>
+          <option value="08">08</option>
+          <option value="09">09</option>
+          <option value="10">10</option>
+          <option value="11">11</option>
+          <option value="12">12</option>
+          <option value="13">13</option>
+        </select>
+      </div>
+      <div class="field-group" style="grid-column: span 2;">
+        <label>Observações</label>
+        <input type="text" id="editCap_obs">
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="salvarEdicaoCaptacao()">💾 Salvar</button>
+      <button class="btn btn-secondary" onclick="fecharModalCaptacao()">Cancelar</button>
     </div>
   </div>
 </div>
@@ -1815,7 +2251,8 @@ function exportarBackup() {
   var dados = {
     versao: '2.0',
     exportadoEm: new Date().toISOString(),
-    reservas: reservas
+    reservas: reservas,
+    captacoes: captacoes
   };
   var blob = new Blob([JSON.stringify(dados, null, 2)], { type: 'application/json' });
   var url  = URL.createObjectURL(blob);
@@ -1848,6 +2285,12 @@ function importarBackup() {
         if (!confirm('Importar ' + lista.length + ' reservas?\nOs dados atuais serão substituídos.')) return;
         reservas = lista;
         salvarReservas(reservas);
+        if (dados.captacoes && Array.isArray(dados.captacoes)) {
+          captacoes = dados.captacoes;
+          salvarCaptacoes(captacoes);
+          renderTabelaCaptacao();
+          atualizarDashboardCaptacao();
+        }
         renderTabela();
         atualizarDashboard();
         atualizarMensal();
@@ -1863,13 +2306,472 @@ function importarBackup() {
 }
 
 /* ==========================================
+   CAPTAÇÃO — STORAGE
+========================================== */
+var CAP_KEY  = 'hospeda_captacoes';
+var captacoes = [];
+
+function carregarCaptacoes() {
+  try {
+    var data = localStorage.getItem(CAP_KEY);
+    return data ? JSON.parse(data) : [];
+  } catch (e) { return []; }
+}
+
+function salvarCaptacoes(lista) {
+  try {
+    localStorage.setItem(CAP_KEY, JSON.stringify(lista));
+  } catch (e) {
+    mostrarToast('Erro ao salvar captações.', 'error');
+  }
+}
+
+/* ==========================================
+   CAPTAÇÃO — CÁLCULOS DO FORMULÁRIO
+========================================== */
+function calcularDiasCaptacao() {
+  var ini = document.getElementById('cap_data_ini').value;
+  var fim = document.getElementById('cap_data_fim').value;
+  var dias = 0;
+  if (ini && fim) {
+    var d1 = new Date(ini + 'T00:00:00');
+    var d2 = new Date(fim + 'T00:00:00');
+    dias = Math.round((d2 - d1) / 86400000);
+    if (dias < 0) dias = 0;
+  }
+  document.getElementById('cap_dias').value = dias > 0 ? dias : '';
+}
+
+function calcularAbertoCaptacao() {
+  var periodo = parseFloat(document.getElementById('cap_valor_periodo').value) || 0;
+  var pago    = parseFloat(document.getElementById('cap_valor_pago').value) || 0;
+  document.getElementById('cap_valor_aberto').value = Math.max(0, periodo - pago).toFixed(2);
+}
+
+function onFormaPagCaptacao() {
+  var forma = document.getElementById('cap_forma_pag').value;
+  var wrap  = document.getElementById('capParcelasWrap');
+  if (forma === 'cartao' || forma === 'boleto') {
+    wrap.classList.add('show');
+  } else {
+    wrap.classList.remove('show');
+  }
+}
+
+/* ==========================================
+   CAPTAÇÃO — ADICIONAR
+========================================== */
+function adicionarCaptacao() {
+  var proprietario = document.getElementById('cap_proprietario').value.trim();
+  var telefone     = document.getElementById('cap_telefone').value.trim();
+  var nome         = document.getElementById('cap_nome').value.trim();
+  var obs          = document.getElementById('cap_obs').value.trim();
+  var periodo      = document.getElementById('cap_periodo').value;
+  var cota         = document.getElementById('cap_cota').value;
+  var dataIni      = document.getElementById('cap_data_ini').value;
+  var dataFim      = document.getElementById('cap_data_fim').value;
+  var dias         = parseInt(document.getElementById('cap_dias').value) || 0;
+  var valorPeriodo = parseFloat(document.getElementById('cap_valor_periodo').value) || 0;
+  var valorPago    = parseFloat(document.getElementById('cap_valor_pago').value) || 0;
+  var valorAberto  = parseFloat(document.getElementById('cap_valor_aberto').value) || 0;
+  var dataPag      = document.getElementById('cap_data_pag').value;
+  var formaPag     = document.getElementById('cap_forma_pag').value;
+  var numParcelas  = parseInt(document.getElementById('cap_num_parcelas').value) || 1;
+  var parcelaAtual = parseInt(document.getElementById('cap_parcela_atual').value) || 1;
+  var statusRes    = document.getElementById('cap_status_reserva').value;
+
+  if (!proprietario) { mostrarToast('⚠️ Informe o nome do proprietário.', 'error'); return; }
+  if (!nome)         { mostrarToast('⚠️ Informe o nome da propriedade.', 'error'); return; }
+  if (!dataIni)      { mostrarToast('⚠️ Informe a data inicial.', 'error'); return; }
+  if (!dataFim)      { mostrarToast('⚠️ Informe a data final.', 'error'); return; }
+  if (valorPeriodo <= 0) { mostrarToast('⚠️ Informe o valor do período.', 'error'); return; }
+
+  var cap = {
+    id:            gerarId(),
+    proprietario:  proprietario,
+    telefone:      telefone,
+    nome:          nome,
+    obs:           obs,
+    periodo:       periodo,
+    cota:          cota,
+    dataIni:       dataIni,
+    dataFim:       dataFim,
+    dias:          dias,
+    valorPeriodo:  parseFloat(valorPeriodo.toFixed(2)),
+    valorPago:     parseFloat(valorPago.toFixed(2)),
+    valorAberto:   parseFloat(valorAberto.toFixed(2)),
+    dataPag:       dataPag,
+    formaPag:      formaPag,
+    numParcelas:   numParcelas,
+    parcelaAtual:  parcelaAtual,
+    statusReserva: statusRes,
+    criadoEm:      new Date().toISOString()
+  };
+
+  captacoes.push(cap);
+  salvarCaptacoes(captacoes);
+  limparFormCaptacao();
+  renderTabelaCaptacao();
+  atualizarDashboardCaptacao();
+  mostrarToast('✅ Captação adicionada com sucesso!', 'success');
+  document.getElementById('captacoes').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function limparFormCaptacao() {
+  ['cap_proprietario','cap_telefone','cap_nome','cap_obs','cap_data_ini',
+   'cap_data_fim','cap_dias','cap_valor_periodo','cap_valor_pago',
+   'cap_valor_aberto','cap_data_pag'].forEach(function (id) {
+    var el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+  document.getElementById('cap_forma_pag').value       = 'pix';
+  document.getElementById('cap_status_reserva').value  = 'nao';
+  document.getElementById('cap_periodo').value         = '';
+  document.getElementById('cap_cota').value            = '';
+  document.getElementById('cap_num_parcelas').value    = '1';
+  document.getElementById('cap_parcela_atual').value   = '1';
+  document.getElementById('capParcelasWrap').classList.remove('show');
+}
+
+/* ==========================================
+   CAPTAÇÃO — TABELA
+========================================== */
+function renderTabelaCaptacao() {
+  var busca    = (document.getElementById('cf_busca').value || '').toLowerCase();
+  var fStatus  = document.getElementById('cf_status_reserva').value;
+  var fForma   = document.getElementById('cf_forma_pag').value;
+  var fPend    = document.getElementById('cf_pendente').value;
+  var fPeriodoIni = document.getElementById('cf_periodo_ini').value;
+  var fPeriodoFim = document.getElementById('cf_periodo_fim').value;
+  var fCota    = document.getElementById('cf_cota').value;
+
+  var lista = captacoes.filter(function (c) {
+    if (busca && !(
+      c.proprietario.toLowerCase().includes(busca) ||
+      c.nome.toLowerCase().includes(busca)
+    )) return false;
+    if (fStatus  && c.statusReserva !== fStatus)  return false;
+    if (fForma   && c.formaPag !== fForma)         return false;
+    if (fPend === 'pendente' && c.valorAberto <= 0) return false;
+    if (fPend === 'quitado'  && c.valorAberto  > 0) return false;
+    if (fPeriodoIni && c.dataFim   < fPeriodoIni)   return false;
+    if (fPeriodoFim && c.dataIni   > fPeriodoFim)   return false;
+    if (fCota    && c.cota    !== fCota)            return false;
+    return true;
+  });
+
+  var tbody = document.getElementById('capTabelaBody');
+  if (!lista.length) {
+    tbody.innerHTML =
+      '<tr><td colspan="15"><div class="empty-state">' +
+      '<div class="empty-icon">🏡</div>' +
+      '<div>Nenhuma captação encontrada.</div>' +
+      '<div style="font-size:0.85em;margin-top:6px;color:var(--cinza)">Use o formulário acima para adicionar a primeira captação.</div>' +
+      '</div></td></tr>';
+    return;
+  }
+
+  var formaLabel = { pix:'⚡ Pix', cartao:'💳 Cartão', boleto:'📄 Boleto', transferencia:'🏦 Transf.', dinheiro:'💵 Dinheiro' };
+
+  tbody.innerHTML = lista.map(function (c, i) {
+    var statusBadge = c.statusReserva === 'sim'
+      ? '<span class="badge badge-sim">✅ Sim</span>'
+      : '<span class="badge badge-nao">❌ Não</span>';
+
+    var abertoCel = c.valorAberto > 0
+      ? '<span style="color:var(--amarelo);font-weight:600;">' + formatBRL(c.valorAberto) + '</span>'
+      : '<span style="color:var(--verde);font-weight:600;">Quitado</span>';
+
+    var parcInfo = (c.formaPag === 'cartao' || c.formaPag === 'boleto') && c.numParcelas > 1
+      ? '<br><span class="badge badge-parcelas" style="margin-top:3px;">' + c.parcelaAtual + '/' + c.numParcelas + 'x</span>'
+      : '';
+
+    var telLink = c.telefone
+      ? '<a href="https://wa.me/55' + c.telefone.replace(/\D/g,'') + '" target="_blank" style="color:var(--verde);">📱 ' + c.telefone + '</a>'
+      : '—';
+
+    return '<tr>' +
+      '<td>' + (i + 1) + '</td>' +
+      '<td><strong>' + c.proprietario + '</strong></td>' +
+      '<td>' + telLink + '</td>' +
+      '<td>' + c.nome + (c.obs ? '<br><small style="color:var(--cinza)">' + c.obs + '</small>' : '') + '</td>' +
+      '<td>' + formatarData(c.dataIni) + '<br><small>até ' + formatarData(c.dataFim) + '</small></td>' +
+      '<td style="text-align:center;">' + (c.dias || '—') + '</td>' +
+      '<td style="text-align:center;">' + (c.periodo || '—') + '</td>' +
+      '<td style="text-align:center;">' + (c.cota    || '—') + '</td>' +
+      '<td>' + formatBRL(c.valorPeriodo) + '</td>' +
+      '<td style="color:var(--verde);">' + formatBRL(c.valorPago) + '</td>' +
+      '<td>' + abertoCel + '</td>' +
+      '<td>' + (c.dataPag ? formatarData(c.dataPag) : '—') + '</td>' +
+      '<td>' + (formaLabel[c.formaPag] || c.formaPag) + parcInfo + '</td>' +
+      '<td>' + statusBadge + '</td>' +
+      '<td class="actions">' +
+        '<button class="btn btn-secondary btn-sm" onclick="editarCaptacao(\'' + c.id + '\')">✏️</button>' +
+        '<button class="btn btn-success btn-sm" onclick="enviarWhatsAppCaptacao(\'' + c.id + '\')">📱</button>' +
+        '<button class="btn btn-danger btn-sm" onclick="excluirCaptacao(\'' + c.id + '\')">🗑️</button>' +
+      '</td>' +
+      '</tr>';
+  }).join('');
+}
+
+function limparFiltrosCaptacao() {
+  document.getElementById('cf_busca').value          = '';
+  document.getElementById('cf_status_reserva').value = '';
+  document.getElementById('cf_forma_pag').value      = '';
+  document.getElementById('cf_pendente').value       = '';
+  document.getElementById('cf_periodo_ini').value    = '';
+  document.getElementById('cf_periodo_fim').value    = '';
+  document.getElementById('cf_cota').value           = '';
+  renderTabelaCaptacao();
+}
+
+/* ==========================================
+   CAPTAÇÃO — EDIÇÃO
+========================================== */
+function editarCaptacao(id) {
+  var c = captacoes.find(function (x) { return x.id === id; });
+  if (!c) return;
+
+  document.getElementById('editCap_id').value           = c.id;
+  document.getElementById('editCap_proprietario').value = c.proprietario;
+  document.getElementById('editCap_telefone').value     = c.telefone     || '';
+  document.getElementById('editCap_nome').value         = c.nome;
+  document.getElementById('editCap_obs').value          = c.obs          || '';
+  document.getElementById('editCap_periodo').value      = c.periodo      || '';
+  document.getElementById('editCap_cota').value         = c.cota         || '';
+  document.getElementById('editCap_data_ini').value     = c.dataIni      || '';
+  document.getElementById('editCap_data_fim').value     = c.dataFim      || '';
+  document.getElementById('editCap_dias').value         = c.dias         || '';
+  document.getElementById('editCap_valor_periodo').value= c.valorPeriodo || '';
+  document.getElementById('editCap_valor_pago').value   = c.valorPago    || '';
+  document.getElementById('editCap_valor_aberto').value = c.valorAberto  || '';
+  document.getElementById('editCap_data_pag').value     = c.dataPag      || '';
+  document.getElementById('editCap_forma_pag').value    = c.formaPag     || 'pix';
+  document.getElementById('editCap_num_parcelas').value = c.numParcelas  || 1;
+  document.getElementById('editCap_parcela_atual').value= c.parcelaAtual || 1;
+  document.getElementById('editCap_status_reserva').value = c.statusReserva || 'nao';
+
+  var wrap = document.getElementById('editCapParcelasWrap');
+  if (c.formaPag === 'cartao' || c.formaPag === 'boleto') {
+    wrap.classList.add('show');
+  } else {
+    wrap.classList.remove('show');
+  }
+
+  document.getElementById('editModalCaptacao').classList.add('open');
+}
+
+function fecharModalCaptacao() {
+  document.getElementById('editModalCaptacao').classList.remove('open');
+}
+
+function calcEditDiasCaptacao() {
+  var ini = document.getElementById('editCap_data_ini').value;
+  var fim = document.getElementById('editCap_data_fim').value;
+  if (ini && fim) {
+    var d1   = new Date(ini + 'T00:00:00');
+    var d2   = new Date(fim + 'T00:00:00');
+    var dias = Math.round((d2 - d1) / 86400000);
+    document.getElementById('editCap_dias').value = dias > 0 ? dias : 0;
+  }
+}
+
+function calcEditAbertoCaptacao() {
+  var periodo = parseFloat(document.getElementById('editCap_valor_periodo').value) || 0;
+  var pago    = parseFloat(document.getElementById('editCap_valor_pago').value)    || 0;
+  document.getElementById('editCap_valor_aberto').value = Math.max(0, periodo - pago).toFixed(2);
+}
+
+function onEditFormaPagCaptacao() {
+  var forma = document.getElementById('editCap_forma_pag').value;
+  var wrap  = document.getElementById('editCapParcelasWrap');
+  if (forma === 'cartao' || forma === 'boleto') {
+    wrap.classList.add('show');
+  } else {
+    wrap.classList.remove('show');
+  }
+}
+
+function salvarEdicaoCaptacao() {
+  var id           = document.getElementById('editCap_id').value;
+  var proprietario = document.getElementById('editCap_proprietario').value.trim();
+  var telefone     = document.getElementById('editCap_telefone').value.trim();
+  var nome         = document.getElementById('editCap_nome').value.trim();
+  var obs          = document.getElementById('editCap_obs').value.trim();
+  var periodo      = document.getElementById('editCap_periodo').value;
+  var cota         = document.getElementById('editCap_cota').value;
+  var dataIni      = document.getElementById('editCap_data_ini').value;
+  var dataFim      = document.getElementById('editCap_data_fim').value;
+  var dias         = parseInt(document.getElementById('editCap_dias').value)          || 0;
+  var valorPeriodo = parseFloat(document.getElementById('editCap_valor_periodo').value) || 0;
+  var valorPago    = parseFloat(document.getElementById('editCap_valor_pago').value)    || 0;
+  var valorAberto  = parseFloat(document.getElementById('editCap_valor_aberto').value)  || 0;
+  var dataPag      = document.getElementById('editCap_data_pag').value;
+  var formaPag     = document.getElementById('editCap_forma_pag').value;
+  var numParcelas  = parseInt(document.getElementById('editCap_num_parcelas').value)  || 1;
+  var parcelaAtual = parseInt(document.getElementById('editCap_parcela_atual').value) || 1;
+  var statusRes    = document.getElementById('editCap_status_reserva').value;
+
+  if (!proprietario) { mostrarToast('⚠️ Informe o nome do proprietário.', 'error'); return; }
+  if (!nome)         { mostrarToast('⚠️ Informe o nome da propriedade.', 'error');  return; }
+
+  var idx = captacoes.findIndex(function (x) { return x.id === id; });
+  if (idx === -1) { mostrarToast('Captação não encontrada.', 'error'); return; }
+
+  captacoes[idx] = Object.assign({}, captacoes[idx], {
+    proprietario:  proprietario,
+    telefone:      telefone,
+    nome:          nome,
+    obs:           obs,
+    periodo:       periodo,
+    cota:          cota,
+    dataIni:       dataIni,
+    dataFim:       dataFim,
+    dias:          dias,
+    valorPeriodo:  parseFloat(valorPeriodo.toFixed(2)),
+    valorPago:     parseFloat(valorPago.toFixed(2)),
+    valorAberto:   parseFloat(valorAberto.toFixed(2)),
+    dataPag:       dataPag,
+    formaPag:      formaPag,
+    numParcelas:   numParcelas,
+    parcelaAtual:  parcelaAtual,
+    statusReserva: statusRes
+  });
+
+  salvarCaptacoes(captacoes);
+  fecharModalCaptacao();
+  renderTabelaCaptacao();
+  atualizarDashboardCaptacao();
+  mostrarToast('✅ Captação atualizada!', 'success');
+}
+
+function excluirCaptacao(id) {
+  if (!confirm('Excluir esta captação? Esta ação não pode ser desfeita.')) return;
+  captacoes = captacoes.filter(function (x) { return x.id !== id; });
+  salvarCaptacoes(captacoes);
+  renderTabelaCaptacao();
+  atualizarDashboardCaptacao();
+  mostrarToast('🗑️ Captação excluída.', 'success');
+}
+
+/* ==========================================
+   CAPTAÇÃO — WHATSAPP / COBRANÇA
+========================================== */
+function enviarWhatsAppCaptacao(id) {
+  var c = captacoes.find(function (x) { return x.id === id; });
+  if (!c) return;
+
+  var formaLabel = {
+    pix: 'Pix', cartao: 'Cartão de Crédito',
+    boleto: 'Boleto', transferencia: 'Transferência Bancária', dinheiro: 'Dinheiro'
+  };
+
+  var parcInfo = (c.formaPag === 'cartao' || c.formaPag === 'boleto') && c.numParcelas > 1
+    ? ' (' + c.parcelaAtual + '/' + c.numParcelas + 'x)'
+    : '';
+
+  var msg =
+    '🏡 *HOSPEDAH — Notificação de Captação*\n\n' +
+    '👤 *Proprietário:* ' + c.proprietario + '\n' +
+    '🏠 *Propriedade:* ' + c.nome + '\n' +
+    '📅 *Período:* ' + formatarData(c.dataIni) + ' a ' + formatarData(c.dataFim) +
+      ' (' + (c.dias || 0) + ' dias)\n' +
+    '💰 *Valor do Período:* ' + formatBRL(c.valorPeriodo) + '\n' +
+    '✅ *Valor Pago:* ' + formatBRL(c.valorPago) + '\n' +
+    (c.valorAberto > 0
+      ? '⚠️ *Valor em Aberto:* ' + formatBRL(c.valorAberto) + '\n'
+      : '✅ *Situação:* Quitado\n') +
+    '💳 *Forma de Pagamento:* ' + (formaLabel[c.formaPag] || c.formaPag) + parcInfo + '\n' +
+    (c.dataPag ? '📆 *Vencimento:* ' + formatarData(c.dataPag) + '\n' : '') +
+    '📋 *Reserva Confirmada:* ' + (c.statusReserva === 'sim' ? 'Sim ✅' : 'Não ❌') + '\n' +
+    (c.obs ? '📝 *Obs:* ' + c.obs + '\n' : '') +
+    '\n_HOSPEDAH — Gestão de Captação_';
+
+  var tel  = c.telefone ? c.telefone.replace(/\D/g, '') : '';
+  var base = tel ? 'https://wa.me/55' + tel : 'https://api.whatsapp.com/send';
+  window.open(base + '?text=' + encodeURIComponent(msg), '_blank');
+}
+
+/* ==========================================
+   CAPTAÇÃO — DASHBOARD
+========================================== */
+function atualizarDashboardCaptacao() {
+  var total        = captacoes.length;
+  var totalPeriodo = 0;
+  var totalPago    = 0;
+  var totalAberto  = 0;
+  var confirmadas  = 0;
+  var comPend      = 0;
+
+  captacoes.forEach(function (c) {
+    totalPeriodo += c.valorPeriodo || 0;
+    totalPago    += c.valorPago    || 0;
+    totalAberto  += c.valorAberto  || 0;
+    if (c.statusReserva === 'sim') confirmadas++;
+    if (c.valorAberto > 0) comPend++;
+  });
+
+  function _set(elId, val) {
+    var el = document.getElementById(elId);
+    if (el) el.textContent = val;
+  }
+  _set('capDash-total',       total);
+  _set('capDash-periodo',     formatBRL(totalPeriodo));
+  _set('capDash-pago',        formatBRL(totalPago));
+  _set('capDash-aberto',      formatBRL(totalAberto));
+  _set('capDash-confirmadas', confirmadas);
+  _set('capDash-pendencias',  comPend);
+}
+
+/* ==========================================
+   CAPTAÇÃO — EXPORTAR CSV
+========================================== */
+function exportarCSVCaptacao() {
+  if (!captacoes.length) { mostrarToast('Nenhuma captação para exportar.', 'error'); return; }
+
+  var cols = [
+    'Proprietário','Telefone','Propriedade','Observações',
+    'Período','Cota','Data Inicial','Data Final','Dias','Valor Período (R$)',
+    'Valor Pago (R$)','Valor em Aberto (R$)','Data Pagamento',
+    'Forma Pagamento','Nº Parcelas','Parcela Atual','Reserva Confirmada','Criado Em'
+  ];
+
+  var rows = captacoes.map(function (c) {
+    return [
+      c.proprietario, c.telefone, c.nome, c.obs,
+      c.periodo || '', c.cota || '',
+      c.dataIni, c.dataFim, c.dias, c.valorPeriodo,
+      c.valorPago, c.valorAberto, c.dataPag,
+      c.formaPag, c.numParcelas, c.parcelaAtual,
+      c.statusReserva === 'sim' ? 'Sim' : 'Não',
+      c.criadoEm ? c.criadoEm.slice(0, 10) : ''
+    ].map(function (v) { return '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"'; }).join(',');
+  });
+
+  var csv  = '\uFEFF' + cols.join(',') + '\n' + rows.join('\n');
+  var blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  var url  = URL.createObjectURL(blob);
+  var a    = document.createElement('a');
+  a.href     = url;
+  a.download = 'captacoes-' + new Date().toISOString().slice(0, 10) + '.csv';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  mostrarToast('📥 CSV de captações exportado!', 'success');
+}
+
+/* ==========================================
    INICIALIZAÇÃO
 ========================================== */
 function inicializarSistema() {
+  captacoes = carregarCaptacoes();
   renderTabela();
   atualizarDashboard();
   atualizarMensal();
   renderGraficos();
+  renderTabelaCaptacao();
+  atualizarDashboardCaptacao();
   var metaSalva = parseFloat(localStorage.getItem('hospeda_meta')) || CONFIG.metaPadrao;
   document.getElementById('inputMeta').value = metaSalva;
 }
