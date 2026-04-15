@@ -639,6 +639,67 @@ tbody td {
   font-size: 0.75em;
   white-space: nowrap;
 }
+
+/* ==========================================
+   AVALIAÇÃO POR ESTRELAS
+========================================== */
+.stars-display {
+  color: var(--dourado);
+  font-size: 1em;
+  letter-spacing: 1px;
+  white-space: nowrap;
+}
+.stars-display .star-empty { color: rgba(212,175,55,0.25); }
+
+/* ==========================================
+   LUCRO — cor verde destaque
+========================================== */
+.calc-result-item.lucro-cor { border-color: rgba(37,211,102,0.35); }
+.calc-result-item.lucro-cor .r-label { color: #25D366; }
+.calc-result-item.lucro-cor .r-value { color: #25D366; }
+.lucro-neg { color: var(--vermelho) !important; }
+
+/* ==========================================
+   RELATÓRIO DE DESEMPENHO
+========================================== */
+.relatorio-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+  margin-top: 16px;
+}
+.relatorio-card {
+  background: var(--bg2);
+  border: 1px solid var(--borda);
+  border-radius: var(--radius);
+  padding: 18px;
+}
+.relatorio-card-title {
+  font-size: 0.85em;
+  font-weight: 600;
+  color: var(--dourado);
+  margin-bottom: 12px;
+  letter-spacing: 0.5px;
+}
+.relatorio-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  font-size: 0.82em;
+}
+.relatorio-row:last-child { border-bottom: none; }
+.relatorio-row .rel-label { color: var(--cor-sub); }
+.relatorio-row .rel-val   { font-weight: 600; color: var(--cor-texto); }
+.relatorio-row .rel-val.verde { color: #25D366; }
+.relatorio-row .rel-val.vermelho { color: var(--vermelho); }
+.charts-section-3 {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 16px;
+  margin-top: 16px;
+}
 </style>
 </head>
 
@@ -674,6 +735,7 @@ tbody td {
     <a href="#reservas">📋 Reservas</a>
     <a href="#mensal">📅 Mensal</a>
     <a href="#graficos">📈 Gráficos</a>
+    <a href="#relatorio">🏆 Relatório</a>
     <a href="javascript:void(0)" onclick="exportarBackup()">💾 Backup</a>
     <a href="javascript:void(0)" onclick="importarBackup()">📂 Importar</a>
     <a href="index.html">🏠 Site</a>
@@ -719,6 +781,16 @@ tbody td {
         <div class="dash-label">Canceladas</div>
         <div class="dash-value" id="dash-canceladas">0</div>
       </div>
+      <div class="dash-card verde">
+        <div class="dash-icon">📈</div>
+        <div class="dash-label">Lucro Total</div>
+        <div class="dash-value" id="dash-lucro">R$ 0,00</div>
+      </div>
+      <div class="dash-card">
+        <div class="dash-icon">⭐</div>
+        <div class="dash-label">Avaliação Média</div>
+        <div class="dash-value" id="dash-avaliacao">—</div>
+      </div>
       <div class="dash-card">
         <div class="dash-icon">🎯</div>
         <div class="dash-label">Meta Mensal</div>
@@ -761,6 +833,23 @@ tbody td {
       <div class="field-group" style="grid-column: span 2;">
         <label>Nome do Cliente *</label>
         <input type="text" id="c_cliente" placeholder="Nome completo do cliente" autocomplete="off">
+      </div>
+
+      <div class="field-group">
+        <label>Canal de Venda</label>
+        <select id="c_canal">
+          <option value="Direta">🤝 Direta</option>
+          <option value="Facebook">📘 Facebook</option>
+          <option value="Instagram">📷 Instagram</option>
+          <option value="Airbnb">🏠 Airbnb</option>
+          <option value="Booking">🛏️ Booking</option>
+          <option value="Outros">🌐 Outros</option>
+        </select>
+      </div>
+
+      <div class="field-group">
+        <label>Avaliação do Hóspede (0–5)</label>
+        <input type="number" id="c_avaliacao" min="0" max="5" step="0.5" placeholder="Ex.: 4.5" value="">
       </div>
 
       <div class="field-group">
@@ -827,6 +916,16 @@ tbody td {
         <label>Observações</label>
         <input type="text" id="c_obs" placeholder="Pacote especial, inclusões, etc.">
       </div>
+
+      <div class="field-group">
+        <label>Data de Captação</label>
+        <input type="date" id="c_data_captacao">
+      </div>
+
+      <div class="field-group">
+        <label>Valor Captado (R$) — Custo de Compra</label>
+        <input type="number" id="c_valor_captacao" min="0" step="0.01" placeholder="Ex.: 300,00" oninput="calcularFormulario()">
+      </div>
     </div>
 
     <!-- Resultado da Calculadora -->
@@ -846,6 +945,10 @@ tbody td {
       <div class="calc-result-item azul">
         <div class="r-label">📤 Repasse</div>
         <div class="r-value" id="res-repasse">—</div>
+      </div>
+      <div class="calc-result-item lucro-cor">
+        <div class="r-label">📈 Lucro</div>
+        <div class="r-value" id="res-lucro">—</div>
       </div>
     </div>
 
@@ -898,6 +1001,18 @@ tbody td {
         </select>
       </div>
       <div class="field-group">
+        <label>Canal de Venda</label>
+        <select id="f_canal" onchange="renderTabela()">
+          <option value="">Todos</option>
+          <option value="Direta">🤝 Direta</option>
+          <option value="Facebook">📘 Facebook</option>
+          <option value="Instagram">📷 Instagram</option>
+          <option value="Airbnb">🏠 Airbnb</option>
+          <option value="Booking">🛏️ Booking</option>
+          <option value="Outros">🌐 Outros</option>
+        </select>
+      </div>
+      <div class="field-group">
         <label>Mês</label>
         <input type="month" id="f_mes" oninput="renderTabela()">
       </div>
@@ -911,20 +1026,24 @@ tbody td {
         <tr>
           <th>#</th>
           <th>Cliente</th>
+          <th>Canal</th>
           <th>Resort</th>
           <th>Check-in</th>
           <th>Check-out</th>
           <th>Noites</th>
+          <th>Captação</th>
           <th>Valor Total</th>
+          <th>Lucro</th>
           <th>Comissão</th>
           <th>Repasse</th>
+          <th>Avaliação</th>
           <th>Status</th>
           <th>Ações</th>
         </tr>
       </thead>
       <tbody id="tabelaBody">
         <tr>
-          <td colspan="11">
+          <td colspan="15">
             <div class="empty-state">
               <div class="empty-icon">📋</div>
               <div>Nenhuma reserva cadastrada ainda.</div>
@@ -950,6 +1069,28 @@ tbody td {
     </div>
   </section>
 
+  <!-- ==========================================
+       RELATÓRIO DE DESEMPENHO
+  =========================================== -->
+  <section id="relatorio">
+    <div class="section-title">🏆 Relatório de Desempenho</div>
+    <div class="relatorio-grid" id="relatorioGrid">
+      <div style="color: var(--cor-sub); font-size:0.9em; padding:10px;">
+        Carregando relatório…
+      </div>
+    </div>
+    <div class="charts-section-3" style="margin-top:24px;">
+      <div class="chart-card">
+        <div class="chart-card-title">📡 Reservas por Canal</div>
+        <canvas id="chartCanal"></canvas>
+      </div>
+      <div class="chart-card">
+        <div class="chart-card-title">📈 Lucro — Últimos 12 Meses</div>
+        <canvas id="chartLucro12"></canvas>
+      </div>
+    </div>
+  </section>
+
 </main>
 
 <!-- ==========================================
@@ -964,6 +1105,21 @@ tbody td {
       <div class="field-group" style="grid-column: span 2;">
         <label>Cliente</label>
         <input type="text" id="edit_cliente">
+      </div>
+      <div class="field-group">
+        <label>Canal de Venda</label>
+        <select id="edit_canal">
+          <option value="Direta">🤝 Direta</option>
+          <option value="Facebook">📘 Facebook</option>
+          <option value="Instagram">📷 Instagram</option>
+          <option value="Airbnb">🏠 Airbnb</option>
+          <option value="Booking">🛏️ Booking</option>
+          <option value="Outros">🌐 Outros</option>
+        </select>
+      </div>
+      <div class="field-group">
+        <label>Avaliação do Hóspede (0–5)</label>
+        <input type="number" id="edit_avaliacao" min="0" max="5" step="0.5" placeholder="Ex.: 4.5">
       </div>
       <div class="field-group">
         <label>Resort</label>
@@ -1018,6 +1174,18 @@ tbody td {
       <div class="field-group" style="grid-column: span 2;">
         <label>Observações</label>
         <input type="text" id="edit_obs">
+      </div>
+      <div class="field-group">
+        <label>Data de Captação</label>
+        <input type="date" id="edit_data_captacao">
+      </div>
+      <div class="field-group">
+        <label>Valor Captado (R$) — Custo de Compra</label>
+        <input type="number" id="edit_valor_captacao" min="0" step="0.01" oninput="calcEditLucro()">
+      </div>
+      <div class="field-group">
+        <label>Lucro (R$)</label>
+        <input type="number" id="edit_lucro" min="0" step="0.01" readonly>
       </div>
     </div>
     <div class="btn-row">
@@ -1147,11 +1315,13 @@ function calcularFormulario() {
   var valorNoite = parseFloat(document.getElementById('c_valor_noite').value) || 0;
   var comPct     = parseFloat(document.getElementById('c_comissao_pct').value);
   if (isNaN(comPct) || comPct < 0 || comPct > 100) comPct = 0;
+  var valorCaptacao = parseFloat(document.getElementById('c_valor_captacao').value) || 0;
 
   var noites     = calcularNoites(entrada, saida);
   var total      = noites * valorNoite;
   var comissao   = total * (comPct / 100);
   var repasse    = total - comissao;
+  var lucro      = valorCaptacao > 0 ? total - valorCaptacao : null;
 
   // Preenche campos readonly
   document.getElementById('c_noites').value      = noites > 0 ? noites : '';
@@ -1163,6 +1333,14 @@ function calcularFormulario() {
   document.getElementById('res-total').textContent    = total > 0   ? formatBRL(total)    : '—';
   document.getElementById('res-comissao').textContent = comissao > 0 ? formatBRL(comissao) : '—';
   document.getElementById('res-repasse').textContent  = repasse > 0  ? formatBRL(repasse)  : '—';
+  var lucroEl = document.getElementById('res-lucro');
+  if (lucro !== null) {
+    lucroEl.textContent = formatBRL(lucro);
+    lucroEl.className = 'r-value' + (lucro < 0 ? ' lucro-neg' : '');
+  } else {
+    lucroEl.textContent = '—';
+    lucroEl.className = 'r-value';
+  }
 }
 
 // Recalcula sempre que um campo muda
@@ -1186,6 +1364,11 @@ function adicionarReserva() {
   var valorNoite = parseFloat(document.getElementById('c_valor_noite').value) || 0;
   var comPct     = parseFloat(document.getElementById('c_comissao_pct').value);
   var obs        = document.getElementById('c_obs').value.trim();
+  var canal      = document.getElementById('c_canal').value || 'Direta';
+  var avaliacaoRaw = document.getElementById('c_avaliacao').value;
+  var avaliacao  = avaliacaoRaw !== '' ? Math.min(5, Math.max(0, parseFloat(avaliacaoRaw))) : null;
+  var dataCaptacao  = document.getElementById('c_data_captacao').value;
+  var valorCaptacao = parseFloat(document.getElementById('c_valor_captacao').value) || 0;
 
   if (!cliente)   { mostrarToast('⚠️ Informe o nome do cliente.', 'error');  return; }
   if (!resort)    { mostrarToast('⚠️ Selecione o resort.', 'error');          return; }
@@ -1206,20 +1389,25 @@ function adicionarReserva() {
   var repasse  = total - comissao;
 
   var reserva = {
-    id:          gerarId(),
-    cliente:     cliente,
-    resort:      resort,
-    status:      status || 'pendente',
-    entrada:     entrada,
-    saida:       saida,
-    noites:      noites,
-    valorNoite:  valorNoite,
-    total:       parseFloat(total.toFixed(2)),
-    comissaoPct: parseFloat(comPct),
-    comissao:    parseFloat(comissao.toFixed(2)),
-    repasse:     parseFloat(repasse.toFixed(2)),
-    obs:         obs,
-    criadoEm:    new Date().toISOString()
+    id:            gerarId(),
+    cliente:       cliente,
+    resort:        resort,
+    canal:         canal,
+    avaliacao:     avaliacao,
+    status:        status || 'pendente',
+    entrada:       entrada,
+    saida:         saida,
+    noites:        noites,
+    valorNoite:    valorNoite,
+    total:         parseFloat(total.toFixed(2)),
+    comissaoPct:   parseFloat(comPct),
+    comissao:      parseFloat(comissao.toFixed(2)),
+    repasse:       parseFloat(repasse.toFixed(2)),
+    valorCaptacao: parseFloat(valorCaptacao.toFixed(2)),
+    lucro:         parseFloat((total - valorCaptacao).toFixed(2)),
+    dataCaptacao:  dataCaptacao,
+    obs:           obs,
+    criadoEm:      new Date().toISOString()
   };
 
   reservas.push(reserva);
@@ -1228,6 +1416,7 @@ function adicionarReserva() {
   renderTabela();
   atualizarDashboard();
   atualizarMensal();
+  renderRelatorioDesempenho();
   mostrarToast('✅ Reserva adicionada com sucesso!', 'success');
 
   // Rola para a tabela
@@ -1239,12 +1428,14 @@ function adicionarReserva() {
 ========================================== */
 function limparFormulario() {
   ['c_cliente','c_resort','c_status','c_entrada','c_saida',
-   'c_valor_noite','c_obs'].forEach(function (id) {
+   'c_valor_noite','c_obs','c_data_captacao','c_valor_captacao'].forEach(function (id) {
     var el = document.getElementById(id);
     if (!el) return;
     if (el.tagName === 'SELECT') el.selectedIndex = 0;
     else el.value = '';
   });
+  document.getElementById('c_canal').selectedIndex = 0;
+  document.getElementById('c_avaliacao').value = '';
   document.getElementById('c_comissao_pct').value = '15';
   document.getElementById('c_noites').value       = '';
   document.getElementById('c_valor_total').value  = '';
@@ -1253,6 +1444,7 @@ function limparFormulario() {
   document.getElementById('res-total').textContent    = '—';
   document.getElementById('res-comissao').textContent = '—';
   document.getElementById('res-repasse').textContent  = '—';
+  document.getElementById('res-lucro').textContent    = '—';
 }
 
 /* ==========================================
@@ -1262,6 +1454,7 @@ function limparFiltros() {
   document.getElementById('f_busca').value  = '';
   document.getElementById('f_resort').value = '';
   document.getElementById('f_status').value = '';
+  document.getElementById('f_canal').value  = '';
   document.getElementById('f_mes').value    = '';
   renderTabela();
 }
@@ -1270,12 +1463,14 @@ function getReservasFiltradas() {
   var busca  = (document.getElementById('f_busca').value  || '').toLowerCase().trim();
   var resort = document.getElementById('f_resort').value  || '';
   var status = document.getElementById('f_status').value  || '';
+  var canal  = document.getElementById('f_canal').value   || '';
   var mes    = document.getElementById('f_mes').value     || '';
 
   return reservas.filter(function (r) {
     if (busca  && !r.cliente.toLowerCase().includes(busca) && !r.resort.toLowerCase().includes(busca)) return false;
     if (resort && r.resort !== resort) return false;
     if (status && r.status !== status) return false;
+    if (canal  && (r.canal || 'Direta') !== canal) return false;
     if (mes) {
       var mesEntrada = r.entrada ? r.entrada.slice(0, 7) : '';
       if (mesEntrada !== mes) return false;
@@ -1293,7 +1488,7 @@ function renderTabela() {
 
   if (lista.length === 0) {
     tbody.innerHTML =
-      '<tr><td colspan="11"><div class="empty-state">' +
+      '<tr><td colspan="15"><div class="empty-state">' +
       '<div class="empty-icon">📋</div>' +
       '<div>' + (reservas.length === 0 ? 'Nenhuma reserva cadastrada ainda.' : 'Nenhuma reserva corresponde aos filtros.') + '</div>' +
       '</div></td></tr>';
@@ -1304,18 +1499,29 @@ function renderTabela() {
   lista.forEach(function (r, i) {
     var badgeClass = r.status === 'pago' ? 'badge-pago' : r.status === 'cancelado' ? 'badge-cancelado' : 'badge-pendente';
     var badgeText  = r.status === 'pago' ? '✅ Pago' : r.status === 'cancelado' ? '❌ Cancelado' : '⏳ Pendente';
+    var canal      = r.canal || 'Direta';
+    var lucro      = (r.valorCaptacao > 0) ? (r.total - r.valorCaptacao) : null;
+    var lucroHtml  = lucro !== null
+      ? '<span style="color:' + (lucro >= 0 ? '#25D366' : 'var(--vermelho)') + ';font-weight:600;">' + formatBRL(lucro) + '</span>'
+      : '<span style="color:var(--cinza);">—</span>';
+    var captacaoHtml = r.valorCaptacao > 0 ? formatBRL(r.valorCaptacao) : '<span style="color:var(--cinza);">—</span>';
+    var avalHtml = formatarEstrelas(r.avaliacao);
 
     html +=
       '<tr>' +
       '<td>' + (i + 1) + '</td>' +
       '<td><strong>' + r.cliente + '</strong>' + (r.obs ? '<br><small style="color:var(--cor-sub);">' + r.obs + '</small>' : '') + '</td>' +
+      '<td><small>' + canal + '</small></td>' +
       '<td>' + r.resort + '</td>' +
       '<td>' + formatarData(r.entrada) + '</td>' +
       '<td>' + formatarData(r.saida) + '</td>' +
       '<td style="text-align:center;">' + r.noites + '</td>' +
+      '<td>' + captacaoHtml + '</td>' +
       '<td style="color:var(--dourado);font-weight:600;">' + formatBRL(r.total) + '</td>' +
+      '<td>' + lucroHtml + '</td>' +
       '<td>' + formatBRL(r.comissao) + ' <small style="color:var(--cor-sub);">(' + r.comissaoPct + '%)</small></td>' +
       '<td style="color:#4da6ff;">' + formatBRL(r.repasse) + '</td>' +
+      '<td>' + avalHtml + '</td>' +
       '<td><span class="badge ' + badgeClass + '">' + badgeText + '</span></td>' +
       '<td><div class="actions">' +
         '<button class="btn btn-secondary btn-sm" onclick="abrirEdicao(\'' + r.id + '\')" title="Editar">✏️</button>' +
@@ -1341,6 +1547,7 @@ function marcarPago(id) {
   renderTabela();
   atualizarDashboard();
   atualizarMensal();
+  renderRelatorioDesempenho();
   mostrarToast('✅ Reserva marcada como paga!', 'success');
 }
 
@@ -1351,6 +1558,7 @@ function excluirReserva(id) {
   renderTabela();
   atualizarDashboard();
   atualizarMensal();
+  renderRelatorioDesempenho();
   mostrarToast('🗑️ Reserva excluída.', '');
 }
 
@@ -1363,6 +1571,8 @@ function abrirEdicao(id) {
 
   document.getElementById('edit_id').value          = r.id;
   document.getElementById('edit_cliente').value     = r.cliente;
+  document.getElementById('edit_canal').value       = r.canal || 'Direta';
+  document.getElementById('edit_avaliacao').value   = r.avaliacao !== null && r.avaliacao !== undefined ? r.avaliacao : '';
   document.getElementById('edit_resort').value      = r.resort;
   document.getElementById('edit_status').value      = r.status;
   document.getElementById('edit_entrada').value     = r.entrada;
@@ -1373,6 +1583,9 @@ function abrirEdicao(id) {
   document.getElementById('edit_comissao_pct').value = r.comissaoPct;
   document.getElementById('edit_comissao_val').value = r.comissao;
   document.getElementById('edit_obs').value         = r.obs || '';
+  document.getElementById('edit_data_captacao').value  = r.dataCaptacao || '';
+  document.getElementById('edit_valor_captacao').value = r.valorCaptacao > 0 ? r.valorCaptacao : '';
+  document.getElementById('edit_lucro').value        = r.valorCaptacao > 0 ? (r.total - r.valorCaptacao).toFixed(2) : '';
 
   document.getElementById('editModal').classList.add('open');
   document.body.style.overflow = 'hidden';
@@ -1402,10 +1615,17 @@ function calcEditTotal() {
 
   document.getElementById('edit_valor_total').value  = total > 0    ? total.toFixed(2)    : '';
   document.getElementById('edit_comissao_val').value = comissao > 0 ? comissao.toFixed(2) : '';
+  calcEditLucro();
 }
 
 function calcEditComissao() {
   calcEditTotal();
+}
+
+function calcEditLucro() {
+  var total        = parseFloat(document.getElementById('edit_valor_total').value) || 0;
+  var valorCaptado = parseFloat(document.getElementById('edit_valor_captacao').value) || 0;
+  document.getElementById('edit_lucro').value = valorCaptado > 0 && total > 0 ? (total - valorCaptado).toFixed(2) : '';
 }
 
 function salvarEdicao() {
@@ -1413,11 +1633,16 @@ function salvarEdicao() {
   var cliente    = document.getElementById('edit_cliente').value.trim();
   var resort     = document.getElementById('edit_resort').value;
   var status     = document.getElementById('edit_status').value;
+  var canal      = document.getElementById('edit_canal').value || 'Direta';
+  var avaliacaoRaw = document.getElementById('edit_avaliacao').value;
+  var avaliacao  = avaliacaoRaw !== '' ? Math.min(5, Math.max(0, parseFloat(avaliacaoRaw))) : null;
   var entrada    = document.getElementById('edit_entrada').value;
   var saida      = document.getElementById('edit_saida').value;
   var valorNoite = parseFloat(document.getElementById('edit_valor_noite').value) || 0;
   var comPct     = parseFloat(document.getElementById('edit_comissao_pct').value);
   var obs        = document.getElementById('edit_obs').value.trim();
+  var dataCaptacao  = document.getElementById('edit_data_captacao').value;
+  var valorCaptacao = parseFloat(document.getElementById('edit_valor_captacao').value) || 0;
 
   if (!cliente)   { mostrarToast('⚠️ Informe o nome do cliente.', 'error'); return; }
   if (!entrada || !saida) { mostrarToast('⚠️ Informe as datas.', 'error'); return; }
@@ -1436,18 +1661,23 @@ function salvarEdicao() {
   if (idx === -1) { mostrarToast('Reserva não encontrada.', 'error'); return; }
 
   reservas[idx] = Object.assign({}, reservas[idx], {
-    cliente:     cliente,
-    resort:      resort,
-    status:      status,
-    entrada:     entrada,
-    saida:       saida,
-    noites:      noites,
-    valorNoite:  valorNoite,
-    total:       parseFloat(total.toFixed(2)),
-    comissaoPct: parseFloat(comPct),
-    comissao:    parseFloat(comissao.toFixed(2)),
-    repasse:     parseFloat(repasse.toFixed(2)),
-    obs:         obs
+    cliente:       cliente,
+    resort:        resort,
+    canal:         canal,
+    avaliacao:     avaliacao,
+    status:        status,
+    entrada:       entrada,
+    saida:         saida,
+    noites:        noites,
+    valorNoite:    valorNoite,
+    total:         parseFloat(total.toFixed(2)),
+    comissaoPct:   parseFloat(comPct),
+    comissao:      parseFloat(comissao.toFixed(2)),
+    repasse:       parseFloat(repasse.toFixed(2)),
+    valorCaptacao: parseFloat(valorCaptacao.toFixed(2)),
+    lucro:         parseFloat((total - valorCaptacao).toFixed(2)),
+    dataCaptacao:  dataCaptacao,
+    obs:           obs
   });
 
   salvarReservas(reservas);
@@ -1455,6 +1685,7 @@ function salvarEdicao() {
   renderTabela();
   atualizarDashboard();
   atualizarMensal();
+  renderRelatorioDesempenho();
   mostrarToast('✅ Reserva atualizada com sucesso!', 'success');
 }
 
@@ -1478,6 +1709,9 @@ function atualizarDashboard() {
   var pendente   = 0;
   var canceladas = 0;
   var noites     = 0;
+  var lucroTotal = 0;
+  var somaAval   = 0;
+  var countAval  = 0;
 
   /* Receita do mês atual para a meta */
   var mesAtual = new Date().toISOString().slice(0, 7);
@@ -1488,6 +1722,11 @@ function atualizarDashboard() {
     receita  += r.total    || 0;
     comissao += r.comissao || 0;
     noites   += r.noites   || 0;
+    lucroTotal += (r.valorCaptacao > 0) ? (r.total - r.valorCaptacao) : 0;
+    if (r.avaliacao !== null && r.avaliacao !== undefined && !isNaN(r.avaliacao)) {
+      somaAval += r.avaliacao;
+      countAval++;
+    }
     if (r.status === 'pendente') pendente += r.total || 0;
     if (r.entrada && r.entrada.slice(0, 7) === mesAtual) receitaMes += r.total || 0;
   });
@@ -1498,6 +1737,8 @@ function atualizarDashboard() {
   document.getElementById('dash-pendente').textContent  = formatBRL(pendente);
   document.getElementById('dash-noites').textContent    = noites;
   document.getElementById('dash-canceladas').textContent = canceladas;
+  document.getElementById('dash-lucro').textContent     = formatBRL(lucroTotal);
+  document.getElementById('dash-avaliacao').textContent = countAval > 0 ? (somaAval / countAval).toFixed(1) + ' ⭐' : '—';
 
   /* Meta mensal */
   var meta = parseFloat(localStorage.getItem('hospeda_meta')) || CONFIG.metaPadrao;
@@ -1519,13 +1760,15 @@ function atualizarMensal() {
     if (r.status === 'cancelado') return;
     var mes = r.entrada ? r.entrada.slice(0, 7) : 'desconhecido';
     if (!meses[mes]) {
-      meses[mes] = { reservas: 0, receita: 0, comissao: 0, repasse: 0, noites: 0 };
+      meses[mes] = { reservas: 0, receita: 0, comissao: 0, repasse: 0, noites: 0, captacao: 0, lucro: 0 };
     }
     meses[mes].reservas++;
     meses[mes].receita   += r.total    || 0;
     meses[mes].comissao  += r.comissao || 0;
     meses[mes].repasse   += r.repasse  || 0;
     meses[mes].noites    += r.noites   || 0;
+    meses[mes].captacao  += r.valorCaptacao || 0;
+    meses[mes].lucro     += (r.valorCaptacao > 0) ? (r.total - r.valorCaptacao) : 0;
   });
 
   var chaves = Object.keys(meses).sort().reverse();
@@ -1543,12 +1786,16 @@ function atualizarMensal() {
     var nomeMes = new Date(parseInt(partes[0]), parseInt(partes[1]) - 1, 1)
       .toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
 
+    var lucroColor = m.lucro >= 0 ? '#25D366' : 'var(--vermelho)';
+
     html +=
       '<div class="month-card">' +
       '<div class="month-name">📅 ' + nomeMes.charAt(0).toUpperCase() + nomeMes.slice(1) + '</div>' +
       '<div class="month-row"><span>Reservas</span><span>' + m.reservas + '</span></div>' +
       '<div class="month-row"><span>🌙 Noites</span><span>' + m.noites + '</span></div>' +
-      '<div class="month-row"><span>💰 Receita</span><span>' + formatBRL(m.receita) + '</span></div>' +
+      '<div class="month-row"><span>💰 Receita (Venda)</span><span>' + formatBRL(m.receita) + '</span></div>' +
+      (m.captacao > 0 ? '<div class="month-row"><span>🛒 Captação</span><span>' + formatBRL(m.captacao) + '</span></div>' : '') +
+      (m.captacao > 0 ? '<div class="month-row lucro"><span>📈 Lucro</span><span style="color:' + lucroColor + ';font-weight:700;">' + formatBRL(m.lucro) + '</span></div>' : '') +
       '<div class="month-row lucro"><span>🏷️ Comissão</span><span>' + formatBRL(m.comissao) + '</span></div>' +
       '<div class="month-row"><span>📤 Repasse</span><span>' + formatBRL(m.repasse) + '</span></div>' +
       '</div>';
@@ -1568,23 +1815,28 @@ function exportarCSV() {
     return;
   }
 
-  var cabecalho = ['#', 'Cliente', 'Resort', 'Check-in', 'Check-out', 'Noites',
-                   'Valor/Noite', 'Total', 'Comissao%', 'Comissao R$', 'Repasse', 'Status', 'Obs'];
+  var cabecalho = ['#', 'Cliente', 'Canal', 'Resort', 'Check-in', 'Check-out', 'Noites',
+                   'Captacao R$', 'Valor/Noite', 'Total', 'Lucro R$', 'Comissao%', 'Comissao R$', 'Repasse', 'Status', 'Avaliacao', 'Obs'];
 
   var linhas = lista.map(function (r, i) {
+    var lucro = r.valorCaptacao > 0 ? (r.total - r.valorCaptacao).toFixed(2).replace('.', ',') : '';
     return [
       i + 1,
       '"' + (r.cliente || '').replace(/"/g, '""') + '"',
+      '"' + (r.canal   || 'Direta').replace(/"/g, '""') + '"',
       '"' + (r.resort  || '').replace(/"/g, '""') + '"',
       formatarData(r.entrada),
       formatarData(r.saida),
       r.noites,
+      r.valorCaptacao > 0 ? r.valorCaptacao.toFixed(2).replace('.', ',') : '',
       r.valorNoite.toFixed(2).replace('.', ','),
       r.total.toFixed(2).replace('.', ','),
+      lucro,
       r.comissaoPct,
       r.comissao.toFixed(2).replace('.', ','),
       r.repasse.toFixed(2).replace('.', ','),
       r.status,
+      r.avaliacao !== null && r.avaliacao !== undefined ? r.avaliacao : '',
       '"' + (r.obs || '').replace(/"/g, '""') + '"'
     ].join(';');
   });
@@ -1603,15 +1855,36 @@ function exportarCSV() {
 }
 
 /* ==========================================
+   UTILIDADE — ESTRELAS
+========================================== */
+function formatarEstrelas(avaliacao) {
+  if (avaliacao === null || avaliacao === undefined || isNaN(avaliacao)) {
+    return '<span style="color:var(--cinza);font-size:0.8em;">—</span>';
+  }
+  var val = Math.round(avaliacao * 2) / 2; // arredonda para 0.5
+  var html = '';
+  for (var i = 1; i <= 5; i++) {
+    if (i <= val) html += '<span style="color:var(--dourado);">★</span>';
+    else if (i - 0.5 === val) html += '<span style="color:var(--dourado);">½</span>';
+    else html += '<span style="color:rgba(212,175,55,0.25);">★</span>';
+  }
+  return '<span style="font-size:0.9em;" title="' + val + '/5">' + html + '</span>';
+}
+
+/* ==========================================
    GRÁFICOS (Chart.js)
 ========================================== */
 var _chartReceita = null;
 var _chartStatus  = null;
+var _chartCanal   = null;
+var _chartLucro12 = null;
 
 function renderGraficos() {
   if (typeof Chart === 'undefined') return;
   renderGraficoReceita();
   renderGraficoStatus();
+  renderGraficoCanal();
+  renderGraficoLucro12();
 }
 
 function renderGraficoReceita() {
@@ -1695,6 +1968,178 @@ function renderGraficoStatus() {
   });
 }
 
+function renderGraficoCanal() {
+  var canais = {};
+  reservas.forEach(function (r) {
+    if (r.status === 'cancelado') return;
+    var c = r.canal || 'Direta';
+    canais[c] = (canais[c] || 0) + 1;
+  });
+
+  var labels = Object.keys(canais);
+  var dados  = labels.map(function (c) { return canais[c]; });
+
+  var ctx = document.getElementById('chartCanal');
+  if (!ctx) return;
+  if (_chartCanal) _chartCanal.destroy();
+
+  _chartCanal = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: labels,
+      datasets: [{
+        data: dados,
+        backgroundColor: [
+          'rgba(212,175,55,0.7)', 'rgba(37,211,102,0.7)', 'rgba(77,166,255,0.7)',
+          'rgba(231,76,60,0.7)', 'rgba(155,89,182,0.7)', 'rgba(243,156,18,0.7)'
+        ],
+        borderWidth: 1
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { labels: { color: '#aab4c4', font: { family: 'Poppins' } } } }
+    }
+  });
+}
+
+function renderGraficoLucro12() {
+  var hoje = new Date();
+  var labels = [], dadosReceita = [], dadosCaptacao = [], dadosLucro = [];
+
+  for (var i = 11; i >= 0; i--) {
+    var d   = new Date(hoje.getFullYear(), hoje.getMonth() - i, 1);
+    var key = d.toISOString().slice(0, 7);
+    labels.push(d.toLocaleDateString('pt-BR', { month: 'short', year: '2-digit' }));
+    var rec = 0, cap = 0;
+    reservas.forEach(function (r) {
+      if (r.status !== 'cancelado' && r.entrada && r.entrada.slice(0, 7) === key) {
+        rec += r.total || 0;
+        cap += r.valorCaptacao || 0;
+      }
+    });
+    dadosReceita.push(rec);
+    dadosCaptacao.push(cap);
+    dadosLucro.push(rec - cap);
+  }
+
+  var ctx = document.getElementById('chartLucro12');
+  if (!ctx) return;
+  if (_chartLucro12) _chartLucro12.destroy();
+
+  _chartLucro12 = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [
+        { label: 'Venda',    data: dadosReceita,  backgroundColor: 'rgba(212,175,55,0.5)',  borderColor: '#D4AF37', borderWidth: 1 },
+        { label: 'Captação', data: dadosCaptacao, backgroundColor: 'rgba(77,166,255,0.4)',  borderColor: '#4da6ff', borderWidth: 1 },
+        { label: 'Lucro',    data: dadosLucro,    backgroundColor: 'rgba(37,211,102,0.55)', borderColor: '#25D366', borderWidth: 1, type: 'line', fill: false, tension: 0.3 }
+      ]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { labels: { color: '#aab4c4', font: { family: 'Poppins' } } } },
+      scales: {
+        x: { ticks: { color: '#aab4c4' }, grid: { color: 'rgba(255,255,255,0.04)' } },
+        y: {
+          ticks: {
+            color: '#aab4c4',
+            callback: function (v) {
+              return 'R$\u202F' + v.toLocaleString('pt-BR', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+            }
+          },
+          grid: { color: 'rgba(255,255,255,0.04)' }
+        }
+      }
+    }
+  });
+}
+
+/* ==========================================
+   RELATÓRIO DE DESEMPENHO
+========================================== */
+function renderRelatorioDesempenho() {
+  var grid = document.getElementById('relatorioGrid');
+  if (!grid) return;
+
+  var canais    = {};
+  var somaAval  = 0;
+  var countAval = 0;
+  var totalVenda    = 0;
+  var totalCaptacao = 0;
+  var lucroTotal    = 0;
+  var reservasAtivas = 0;
+
+  reservas.forEach(function (r) {
+    if (r.status === 'cancelado') return;
+    reservasAtivas++;
+    var c = r.canal || 'Direta';
+    if (!canais[c]) canais[c] = { count: 0, receita: 0, avaliacao: 0, countAval: 0 };
+    canais[c].count++;
+    canais[c].receita += r.total || 0;
+    if (r.avaliacao !== null && r.avaliacao !== undefined && !isNaN(r.avaliacao)) {
+      canais[c].avaliacao  += r.avaliacao;
+      canais[c].countAval++;
+      somaAval += r.avaliacao;
+      countAval++;
+    }
+    totalVenda    += r.total || 0;
+    totalCaptacao += r.valorCaptacao || 0;
+    lucroTotal    += r.valorCaptacao > 0 ? (r.total - r.valorCaptacao) : 0;
+  });
+
+  var avalMedia = countAval > 0 ? (somaAval / countAval).toFixed(1) : null;
+
+  var canalKeys = Object.keys(canais).sort(function (a, b) { return canais[b].count - canais[a].count; });
+
+  /* ---- BLOCO 1: Resumo Financeiro ---- */
+  var html = '<div class="relatorio-card">' +
+    '<div class="relatorio-card-title">💰 Resumo Financeiro</div>' +
+    '<div class="relatorio-row"><span class="rel-label">Total de Venda</span><span class="rel-val">' + formatBRL(totalVenda) + '</span></div>' +
+    '<div class="relatorio-row"><span class="rel-label">Total de Captação</span><span class="rel-val">' + formatBRL(totalCaptacao) + '</span></div>' +
+    '<div class="relatorio-row"><span class="rel-label">Lucro Consolidado</span><span class="rel-val ' + (lucroTotal >= 0 ? 'verde' : 'vermelho') + '">' + formatBRL(lucroTotal) + '</span></div>' +
+    (totalVenda > 0 && totalCaptacao > 0 ? '<div class="relatorio-row"><span class="rel-label">Margem de Lucro</span><span class="rel-val ' + (lucroTotal >= 0 ? 'verde' : 'vermelho') + '">' + ((lucroTotal / totalVenda) * 100).toFixed(1) + '%</span></div>' : '') +
+    '<div class="relatorio-row"><span class="rel-label">Avaliação Média</span><span class="rel-val">' + (avalMedia ? avalMedia + ' ⭐ (' + countAval + ' avaliações)' : '—') + '</span></div>' +
+    '</div>';
+
+  /* ---- BLOCO 2: Canais de Venda ---- */
+  if (canalKeys.length > 0) {
+    html += '<div class="relatorio-card">' +
+      '<div class="relatorio-card-title">📡 Origem por Canal de Venda</div>';
+    canalKeys.forEach(function (c) {
+      var d = canais[c];
+      var pct = reservasAtivas > 0 ? ((d.count / reservasAtivas) * 100).toFixed(0) : 0;
+      var avalCanalStr = d.countAval > 0 ? ' · ⭐ ' + (d.avaliacao / d.countAval).toFixed(1) : '';
+      html += '<div class="relatorio-row">' +
+        '<span class="rel-label">' + c + '</span>' +
+        '<span class="rel-val">' + d.count + ' (' + pct + '%)' + avalCanalStr + '</span>' +
+        '</div>';
+    });
+    html += '</div>';
+  }
+
+  /* ---- BLOCO 3: Receita por Canal ---- */
+  if (canalKeys.length > 0) {
+    html += '<div class="relatorio-card">' +
+      '<div class="relatorio-card-title">💵 Receita por Canal</div>';
+    canalKeys.forEach(function (c) {
+      var d   = canais[c];
+      var pct = totalVenda > 0 ? ((d.receita / totalVenda) * 100).toFixed(0) : 0;
+      html += '<div class="relatorio-row">' +
+        '<span class="rel-label">' + c + '</span>' +
+        '<span class="rel-val">' + formatBRL(d.receita) + ' (' + pct + '%)' + '</span>' +
+        '</div>';
+    });
+    html += '</div>';
+  }
+
+  grid.innerHTML = html || '<div style="color:var(--cor-sub);font-size:0.9em;padding:10px;">Nenhum dado disponível ainda.</div>';
+
+  renderGraficoCanal();
+  renderGraficoLucro12();
+}
+
 /* ==========================================
    VOUCHER PDF (jsPDF)
 ========================================== */
@@ -1727,13 +2172,17 @@ function gerarVoucher(id) {
   var y = 56;
   var linhas = [
     ['Cliente',           r.cliente],
+    ['Canal de Venda',    r.canal || 'Direta'],
     ['Resort',            r.resort],
     ['Check-in',          formatarData(r.entrada)],
     ['Check-out',         formatarData(r.saida)],
     ['Noites',            String(r.noites)],
+    ['Captação',          r.valorCaptacao > 0 ? formatBRL(r.valorCaptacao) : '—'],
     ['Valor Total',       formatBRL(r.total)],
+    ['Lucro',             r.valorCaptacao > 0 ? formatBRL(r.total - r.valorCaptacao) : '—'],
     ['Comissão (' + r.comissaoPct + '%)', formatBRL(r.comissao)],
     ['Repasse',           formatBRL(r.repasse)],
+    ['Avaliação',         r.avaliacao !== null && r.avaliacao !== undefined ? String(r.avaliacao) + '/5' : '—'],
     ['Status',            r.status === 'pago' ? 'PAGO' : r.status === 'cancelado' ? 'CANCELADO' : 'PENDENTE'],
     ['Observações',       r.obs || '—']
   ];
@@ -1782,13 +2231,17 @@ function enviarWhatsApp(id) {
   var msg =
     '🏨 *HOSPEDAH — Confirmação de Reserva*\n\n' +
     '👤 *Cliente:* ' + r.cliente + '\n' +
+    '📡 *Canal:* ' + (r.canal || 'Direta') + '\n' +
     '🏖️ *Resort:* ' + r.resort + '\n' +
     '📅 *Check-in:* ' + formatarData(r.entrada) + '\n' +
     '📅 *Check-out:* ' + formatarData(r.saida) + '\n' +
     '🌙 *Noites:* ' + r.noites + '\n' +
+    (r.valorCaptacao > 0 ? '🛒 *Captação:* ' + formatBRL(r.valorCaptacao) + '\n' : '') +
     '💰 *Valor Total:* ' + formatBRL(r.total) + '\n' +
+    (r.valorCaptacao > 0 ? '📈 *Lucro:* ' + formatBRL(r.total - r.valorCaptacao) + '\n' : '') +
     '🏷️ *Comissão (' + r.comissaoPct + '%):* ' + formatBRL(r.comissao) + '\n' +
     '💳 *Status:* ' + statusTexto + '\n' +
+    (r.avaliacao !== null && r.avaliacao !== undefined ? '⭐ *Avaliação:* ' + r.avaliacao + '/5\n' : '') +
     (r.obs ? '📝 *Obs:* ' + r.obs + '\n' : '') +
     '\n_HOSPEDAH — Resorts e Experiências Exclusivas_';
 
@@ -1852,6 +2305,7 @@ function importarBackup() {
         atualizarDashboard();
         atualizarMensal();
         renderGraficos();
+        renderRelatorioDesempenho();
         mostrarToast('✅ Backup importado! ' + lista.length + ' reserva(s).', 'success');
       } catch (err) {
         mostrarToast('❌ Erro ao importar: arquivo inválido.', 'error');
@@ -1870,6 +2324,7 @@ function inicializarSistema() {
   atualizarDashboard();
   atualizarMensal();
   renderGraficos();
+  renderRelatorioDesempenho();
   var metaSalva = parseFloat(localStorage.getItem('hospeda_meta')) || CONFIG.metaPadrao;
   document.getElementById('inputMeta').value = metaSalva;
 }
