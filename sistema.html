@@ -578,6 +578,11 @@ tbody td {
 .lock-box h2 { color: var(--dourado); font-size: 1.3em; margin-bottom: 8px; }
 .lock-box .lock-sub { color: var(--cor-sub); font-size: 0.85em; margin-bottom: 24px; }
 .lock-box .lock-error { color: var(--vermelho); font-size: 0.85em; margin-top: 8px; display: none; }
+.lock-box .lock-success { color: var(--verde); font-size: 0.85em; margin-top: 8px; display: none; }
+.lock-link { background: none; border: none; color: var(--dourado); font-size: 0.82em; cursor: pointer; margin-top: 12px; text-decoration: underline; font-family: inherit; }
+.lock-link:hover { color: var(--dourado-hover); }
+.lock-view { display: none; }
+.lock-view.ativo { display: block; }
 
 /* ==========================================
    GRÁFICOS
@@ -728,19 +733,57 @@ tbody td {
   <div class="lock-box">
     <div style="font-size:2.5em; margin-bottom:12px;">🔐</div>
     <h2>HOSPEDA-SISTEMA</h2>
-    <p class="lock-sub">Área restrita. Faça login para continuar.</p>
-    <div class="field-group" style="text-align:left; margin-bottom:4px;">
-      <label>E-mail</label>
-      <input type="email" id="lockEmail" placeholder="seu@email.com"
-             onkeydown="if(event.key==='Enter') tentarLogin()">
+
+    <!-- VIEW 1: Login normal -->
+    <div class="lock-view ativo" id="lockViewLogin">
+      <p class="lock-sub">Área restrita. Faça login para continuar.</p>
+      <div class="field-group" style="text-align:left; margin-bottom:4px;">
+        <label>E-mail</label>
+        <input type="email" id="lockEmail" placeholder="seu@email.com"
+               onkeydown="if(event.key==='Enter') tentarLogin()">
+      </div>
+      <div class="field-group" style="text-align:left; margin-bottom:4px;">
+        <label>Senha</label>
+        <input type="password" id="lockInput" placeholder="••••••••"
+               onkeydown="if(event.key==='Enter') tentarLogin()">
+      </div>
+      <div id="lockError" class="lock-error">❌ Credenciais inválidas. Tente novamente.</div>
+      <button class="btn btn-primary" style="width:100%; margin-top:16px;" onclick="tentarLogin()">🔓 Entrar</button>
+      <br>
+      <button class="lock-link" onclick="mostrarViewReset()">🔑 Esqueci minha senha / Primeiro acesso</button>
     </div>
-    <div class="field-group" style="text-align:left; margin-bottom:4px;">
-      <label>Senha</label>
-      <input type="password" id="lockInput" placeholder="••••••••"
-             onkeydown="if(event.key==='Enter') tentarLogin()">
+
+    <!-- VIEW 2: Solicitar redefinição de senha -->
+    <div class="lock-view" id="lockViewReset">
+      <p class="lock-sub">Informe seu e-mail para receber o link de definição de senha.</p>
+      <div class="field-group" style="text-align:left; margin-bottom:4px;">
+        <label>E-mail</label>
+        <input type="email" id="lockResetEmail" placeholder="seu@email.com"
+               onkeydown="if(event.key==='Enter') enviarResetSenha()">
+      </div>
+      <div id="lockResetError" class="lock-error">❌ Informe um e-mail válido.</div>
+      <div id="lockResetSuccess" class="lock-success">✅ Link enviado! Verifique seu e-mail e clique no link para definir sua senha.</div>
+      <button class="btn btn-primary" style="width:100%; margin-top:16px;" onclick="enviarResetSenha()">📧 Enviar link de acesso</button>
+      <br>
+      <button class="lock-link" onclick="mostrarViewLogin()">← Voltar ao login</button>
     </div>
-    <div id="lockError" class="lock-error">❌ Credenciais inválidas. Tente novamente.</div>
-    <button class="btn btn-primary" style="width:100%; margin-top:16px;" onclick="tentarLogin()">🔓 Entrar</button>
+
+    <!-- VIEW 3: Definir nova senha (após clicar no link do e-mail) -->
+    <div class="lock-view" id="lockViewNovaSenha">
+      <p class="lock-sub">Crie sua nova senha de acesso.</p>
+      <div class="field-group" style="text-align:left; margin-bottom:4px;">
+        <label>Nova senha</label>
+        <input type="password" id="lockNovaSenha" placeholder="Mínimo 6 caracteres"
+               onkeydown="if(event.key==='Enter') definirNovaSenha()">
+      </div>
+      <div class="field-group" style="text-align:left; margin-bottom:4px;">
+        <label>Confirmar senha</label>
+        <input type="password" id="lockConfirmaSenha" placeholder="Repita a senha"
+               onkeydown="if(event.key==='Enter') definirNovaSenha()">
+      </div>
+      <div id="lockNovaSenhaError" class="lock-error">❌ As senhas não coincidem ou são muito curtas (mínimo 6 caracteres).</div>
+      <button class="btn btn-primary" style="width:100%; margin-top:16px;" onclick="definirNovaSenha()">✅ Salvar nova senha</button>
+    </div>
   </div>
 </div>
 
@@ -1662,6 +1705,17 @@ var _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 /* ==========================================
    PROTEÇÃO POR LOGIN
 ========================================== */
+
+/* Escuta eventos de autenticação — detecta retorno do link de recuperação de senha */
+_supabase.auth.onAuthStateChange(function(event, session) {
+  if (event === 'PASSWORD_RECOVERY') {
+    document.getElementById('lockOverlay').classList.add('show');
+    mostrarViewNovaSenha();
+  } else if (event === 'SIGNED_IN' && session) {
+    document.getElementById('lockOverlay').classList.remove('show');
+  }
+});
+
 function verificarAcesso() {
   _supabase.auth.getSession().then(function(result) {
     var session = result.data && result.data.session;
@@ -1670,12 +1724,38 @@ function verificarAcesso() {
       inicializarSistema();
     } else {
       document.getElementById('lockOverlay').classList.add('show');
-      setTimeout(function() {
-        var el = document.getElementById('lockEmail');
-        if (el) el.focus();
-      }, 100);
+      _focarElemento('lockEmail');
     }
   });
+}
+
+/* Navegar entre as views da tela de login */
+function _focarElemento(id) {
+  setTimeout(function() { var el = document.getElementById(id); if (el) el.focus(); }, 100);
+}
+
+function mostrarViewLogin() {
+  document.getElementById('lockViewLogin').classList.add('ativo');
+  document.getElementById('lockViewReset').classList.remove('ativo');
+  document.getElementById('lockViewNovaSenha').classList.remove('ativo');
+  _focarElemento('lockEmail');
+}
+
+function mostrarViewReset() {
+  document.getElementById('lockViewLogin').classList.remove('ativo');
+  document.getElementById('lockViewReset').classList.add('ativo');
+  document.getElementById('lockViewNovaSenha').classList.remove('ativo');
+  document.getElementById('lockResetError').style.display = 'none';
+  document.getElementById('lockResetSuccess').style.display = 'none';
+  _focarElemento('lockResetEmail');
+}
+
+function mostrarViewNovaSenha() {
+  document.getElementById('lockViewLogin').classList.remove('ativo');
+  document.getElementById('lockViewReset').classList.remove('ativo');
+  document.getElementById('lockViewNovaSenha').classList.add('ativo');
+  document.getElementById('lockNovaSenhaError').style.display = 'none';
+  _focarElemento('lockNovaSenha');
 }
 
 function tentarLogin() {
@@ -1696,6 +1776,54 @@ function tentarLogin() {
         document.getElementById('lockInput').value = '';
         document.getElementById('lockInput').focus();
         setTimeout(function() { err.style.display = 'none'; }, 3000);
+      } else {
+        document.getElementById('lockOverlay').classList.remove('show');
+        inicializarSistema();
+      }
+    });
+}
+
+function enviarResetSenha() {
+  var email = (document.getElementById('lockResetEmail').value || '').trim();
+  var err   = document.getElementById('lockResetError');
+  var ok    = document.getElementById('lockResetSuccess');
+  err.style.display = 'none';
+  ok.style.display  = 'none';
+
+  var emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!email || !emailRe.test(email)) {
+    err.style.display = 'block';
+    return;
+  }
+
+  var redirectUrl = window.location.origin + window.location.pathname;
+  _supabase.auth.resetPasswordForEmail(email, { redirectTo: redirectUrl })
+    .then(function(result) {
+      if (result.error) {
+        err.textContent = '❌ ' + result.error.message;
+        err.style.display = 'block';
+      } else {
+        ok.style.display = 'block';
+      }
+    });
+}
+
+function definirNovaSenha() {
+  var nova     = document.getElementById('lockNovaSenha').value;
+  var confirma = document.getElementById('lockConfirmaSenha').value;
+  var err      = document.getElementById('lockNovaSenhaError');
+  err.style.display = 'none';
+
+  if (!nova || nova.length < 6 || nova !== confirma) {
+    err.style.display = 'block';
+    return;
+  }
+
+  _supabase.auth.updateUser({ password: nova })
+    .then(function(result) {
+      if (result.error) {
+        err.textContent = '❌ ' + result.error.message;
+        err.style.display = 'block';
       } else {
         document.getElementById('lockOverlay').classList.remove('show');
         inicializarSistema();
