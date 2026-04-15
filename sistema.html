@@ -1834,7 +1834,9 @@ function enviarResetSenha() {
     return;
   }
 
-  var redirectUrl = window.location.origin + window.location.pathname;
+  var redirectUrl = (window.location.hostname === 'localhost' || window.location.protocol === 'file:')
+    ? 'https://hospedah.tur.br/sistema.html'
+    : window.location.origin + window.location.pathname;
   _supabase.auth.resetPasswordForEmail(email, { redirectTo: redirectUrl })
     .then(function(result) {
       if (result.error) {
@@ -1859,7 +1861,9 @@ function enviarLinkMagico() {
     return;
   }
 
-  var redirectUrl = window.location.origin + window.location.pathname;
+  var redirectUrl = (window.location.hostname === 'localhost' || window.location.protocol === 'file:')
+    ? 'https://hospedah.tur.br/sistema.html'
+    : window.location.origin + window.location.pathname;
   _supabase.auth.signInWithOtp({ email: email, options: { emailRedirectTo: redirectUrl } })
     .then(function(result) {
       if (result.error) {
