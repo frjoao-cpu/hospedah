@@ -1731,10 +1731,16 @@ _supabase.auth.onAuthStateChange(function(event, session) {
     _aguardandoNovaSenha = true;
     document.getElementById('lockOverlay').classList.add('show');
     mostrarViewNovaSenha();
-  } else if (event === 'SIGNED_IN' && session) {
+  } else if ((event === 'SIGNED_IN' || event === 'INITIAL_SESSION') && session) {
     if (_aguardandoNovaSenha) return; // aguarda o usuário definir a nova senha
     document.getElementById('lockOverlay').classList.remove('show');
     inicializarSistema();
+  } else if (event === 'INITIAL_SESSION' && !session) {
+    document.getElementById('lockOverlay').classList.add('show');
+    _focarElemento('lockEmail');
+  } else if (event === 'SIGNED_OUT') {
+    document.getElementById('lockOverlay').classList.add('show');
+    mostrarViewLogin();
   }
 });
 
