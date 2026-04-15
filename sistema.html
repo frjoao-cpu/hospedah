@@ -1861,7 +1861,7 @@ function formatarEstrelas(avaliacao) {
   if (avaliacao === null || avaliacao === undefined || isNaN(avaliacao)) {
     return '<span style="color:var(--cinza);font-size:0.8em;">—</span>';
   }
-  var val = Math.round(avaliacao * 2) / 2; // arredonda para 0.5
+  var val = Math.round(avaliacao * 2) / 2; // arredonda para o incremento de 0,5 mais próximo (ex.: 3.7 → 3.5)
   var html = '';
   for (var i = 1; i <= 5; i++) {
     if (i <= val) html += '<span style="color:var(--dourado);">★</span>';
