@@ -1193,23 +1193,12 @@ tbody td {
         </select>
       </div>
       <div class="field-group">
-        <label>Período</label>
-        <select id="cf_periodo" onchange="renderTabelaCaptacao()">
-          <option value="">Todos</option>
-          <option value="01">01</option>
-          <option value="02">02</option>
-          <option value="03">03</option>
-          <option value="04">04</option>
-          <option value="05">05</option>
-          <option value="06">06</option>
-          <option value="07">07</option>
-          <option value="08">08</option>
-          <option value="09">09</option>
-          <option value="10">10</option>
-          <option value="11">11</option>
-          <option value="12">12</option>
-          <option value="13">13</option>
-        </select>
+        <label>📅 Período — De</label>
+        <input type="date" id="cf_periodo_ini" onchange="renderTabelaCaptacao()">
+      </div>
+      <div class="field-group">
+        <label>📅 Período — Até</label>
+        <input type="date" id="cf_periodo_fim" onchange="renderTabelaCaptacao()">
       </div>
       <div class="field-group">
         <label>Cota</label>
@@ -2452,7 +2441,8 @@ function renderTabelaCaptacao() {
   var fStatus  = document.getElementById('cf_status_reserva').value;
   var fForma   = document.getElementById('cf_forma_pag').value;
   var fPend    = document.getElementById('cf_pendente').value;
-  var fPeriodo = document.getElementById('cf_periodo').value;
+  var fPeriodoIni = document.getElementById('cf_periodo_ini').value;
+  var fPeriodoFim = document.getElementById('cf_periodo_fim').value;
   var fCota    = document.getElementById('cf_cota').value;
 
   var lista = captacoes.filter(function (c) {
@@ -2464,7 +2454,8 @@ function renderTabelaCaptacao() {
     if (fForma   && c.formaPag !== fForma)         return false;
     if (fPend === 'pendente' && c.valorAberto <= 0) return false;
     if (fPend === 'quitado'  && c.valorAberto  > 0) return false;
-    if (fPeriodo && c.periodo !== fPeriodo)         return false;
+    if (fPeriodoIni && c.dataFim   < fPeriodoIni)   return false;
+    if (fPeriodoFim && c.dataIni   > fPeriodoFim)   return false;
     if (fCota    && c.cota    !== fCota)            return false;
     return true;
   });
@@ -2528,7 +2519,8 @@ function limparFiltrosCaptacao() {
   document.getElementById('cf_status_reserva').value = '';
   document.getElementById('cf_forma_pag').value      = '';
   document.getElementById('cf_pendente').value       = '';
-  document.getElementById('cf_periodo').value        = '';
+  document.getElementById('cf_periodo_ini').value    = '';
+  document.getElementById('cf_periodo_fim').value    = '';
   document.getElementById('cf_cota').value           = '';
   renderTabelaCaptacao();
 }
