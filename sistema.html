@@ -750,10 +750,26 @@ tbody td {
       <div id="lockError" class="lock-error">❌ Credenciais inválidas. Tente novamente.</div>
       <button class="btn btn-primary" style="width:100%; margin-top:16px;" onclick="tentarLogin()">🔓 Entrar</button>
       <br>
+      <button class="lock-link" onclick="mostrarViewOTP()">✉️ Entrar via link mágico (sem senha)</button>
       <button class="lock-link" onclick="mostrarViewReset()">🔑 Esqueci minha senha / Primeiro acesso</button>
     </div>
 
-    <!-- VIEW 2: Solicitar redefinição de senha -->
+    <!-- VIEW 2: Login por link mágico (OTP) -->
+    <div class="lock-view" id="lockViewOTP">
+      <p class="lock-sub">Informe seu e-mail e enviaremos um link de acesso direto — sem precisar de senha.</p>
+      <div class="field-group" style="text-align:left; margin-bottom:4px;">
+        <label>E-mail</label>
+        <input type="email" id="lockOTPEmail" placeholder="seu@email.com"
+               onkeydown="if(event.key==='Enter') enviarLinkMagico()">
+      </div>
+      <div id="lockOTPError" class="lock-error">❌ Informe um e-mail válido.</div>
+      <div id="lockOTPSuccess" class="lock-success">✅ Link enviado! Verifique seu e-mail e clique no link para entrar.</div>
+      <button class="btn btn-primary" style="width:100%; margin-top:16px;" onclick="enviarLinkMagico()">✉️ Enviar link de acesso</button>
+      <br>
+      <button class="lock-link" onclick="mostrarViewLogin()">← Voltar ao login</button>
+    </div>
+
+    <!-- VIEW 3: Solicitar redefinição de senha -->
     <div class="lock-view" id="lockViewReset">
       <p class="lock-sub">Informe seu e-mail para receber o link de definição de senha.</p>
       <div class="field-group" style="text-align:left; margin-bottom:4px;">
@@ -768,7 +784,7 @@ tbody td {
       <button class="lock-link" onclick="mostrarViewLogin()">← Voltar ao login</button>
     </div>
 
-    <!-- VIEW 3: Definir nova senha (após clicar no link do e-mail) -->
+    <!-- VIEW 4: Definir nova senha (após clicar no link do e-mail) -->
     <div class="lock-view" id="lockViewNovaSenha">
       <p class="lock-sub">Crie sua nova senha de acesso.</p>
       <div class="field-group" style="text-align:left; margin-bottom:4px;">
@@ -1706,13 +1722,14 @@ var _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
    PROTEÇÃO POR LOGIN
 ========================================== */
 
-/* Escuta eventos de autenticação — detecta retorno do link de recuperação de senha */
+/* Escuta eventos de autenticação — detecta retorno do link de recuperação de senha e magic link */
 _supabase.auth.onAuthStateChange(function(event, session) {
   if (event === 'PASSWORD_RECOVERY') {
     document.getElementById('lockOverlay').classList.add('show');
     mostrarViewNovaSenha();
   } else if (event === 'SIGNED_IN' && session) {
     document.getElementById('lockOverlay').classList.remove('show');
+    inicializarSistema();
   }
 });
 
@@ -1736,13 +1753,25 @@ function _focarElemento(id) {
 
 function mostrarViewLogin() {
   document.getElementById('lockViewLogin').classList.add('ativo');
+  document.getElementById('lockViewOTP').classList.remove('ativo');
   document.getElementById('lockViewReset').classList.remove('ativo');
   document.getElementById('lockViewNovaSenha').classList.remove('ativo');
   _focarElemento('lockEmail');
 }
 
+function mostrarViewOTP() {
+  document.getElementById('lockViewLogin').classList.remove('ativo');
+  document.getElementById('lockViewOTP').classList.add('ativo');
+  document.getElementById('lockViewReset').classList.remove('ativo');
+  document.getElementById('lockViewNovaSenha').classList.remove('ativo');
+  document.getElementById('lockOTPError').style.display = 'none';
+  document.getElementById('lockOTPSuccess').style.display = 'none';
+  _focarElemento('lockOTPEmail');
+}
+
 function mostrarViewReset() {
   document.getElementById('lockViewLogin').classList.remove('ativo');
+  document.getElementById('lockViewOTP').classList.remove('ativo');
   document.getElementById('lockViewReset').classList.add('ativo');
   document.getElementById('lockViewNovaSenha').classList.remove('ativo');
   document.getElementById('lockResetError').style.display = 'none';
@@ -1752,6 +1781,7 @@ function mostrarViewReset() {
 
 function mostrarViewNovaSenha() {
   document.getElementById('lockViewLogin').classList.remove('ativo');
+  document.getElementById('lockViewOTP').classList.remove('ativo');
   document.getElementById('lockViewReset').classList.remove('ativo');
   document.getElementById('lockViewNovaSenha').classList.add('ativo');
   document.getElementById('lockNovaSenhaError').style.display = 'none';
@@ -1765,6 +1795,7 @@ function tentarLogin() {
   err.style.display = 'none';
 
   if (!email || !senha) {
+    err.textContent = '❌ Preencha e-mail e senha.';
     err.style.display = 'block';
     return;
   }
@@ -1772,10 +1803,17 @@ function tentarLogin() {
   _supabase.auth.signInWithPassword({ email: email, password: senha })
     .then(function(result) {
       if (result.error) {
+        var msg = result.error.message || 'Credenciais inválidas.';
+        if (msg.toLowerCase().indexOf('email not confirmed') !== -1) {
+          msg = 'E-mail não confirmado. Verifique sua caixa de entrada e clique no link de confirmação.';
+        } else if (msg.toLowerCase().indexOf('invalid login') !== -1 || msg.toLowerCase().indexOf('invalid credentials') !== -1) {
+          msg = 'E-mail ou senha incorretos. Tente novamente ou use "Entrar via link mágico".';
+        }
+        err.textContent = '❌ ' + msg;
         err.style.display = 'block';
         document.getElementById('lockInput').value = '';
         document.getElementById('lockInput').focus();
-        setTimeout(function() { err.style.display = 'none'; }, 3000);
+        setTimeout(function() { err.style.display = 'none'; }, 6000);
       } else {
         document.getElementById('lockOverlay').classList.remove('show');
         inicializarSistema();
@@ -1798,6 +1836,31 @@ function enviarResetSenha() {
 
   var redirectUrl = window.location.origin + window.location.pathname;
   _supabase.auth.resetPasswordForEmail(email, { redirectTo: redirectUrl })
+    .then(function(result) {
+      if (result.error) {
+        err.textContent = '❌ ' + result.error.message;
+        err.style.display = 'block';
+      } else {
+        ok.style.display = 'block';
+      }
+    });
+}
+
+function enviarLinkMagico() {
+  var email = (document.getElementById('lockOTPEmail').value || '').trim();
+  var err   = document.getElementById('lockOTPError');
+  var ok    = document.getElementById('lockOTPSuccess');
+  err.style.display = 'none';
+  ok.style.display  = 'none';
+
+  var emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!email || !emailRe.test(email)) {
+    err.style.display = 'block';
+    return;
+  }
+
+  var redirectUrl = window.location.origin + window.location.pathname;
+  _supabase.auth.signInWithOtp({ email: email, options: { emailRedirectTo: redirectUrl } })
     .then(function(result) {
       if (result.error) {
         err.textContent = '❌ ' + result.error.message;
