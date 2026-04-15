@@ -1722,19 +1722,26 @@ var _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
    PROTEÇÃO POR LOGIN
 ========================================== */
 
+/* Flag: true enquanto aguarda o usuário definir nova senha via link de recuperação */
+var _aguardandoNovaSenha = false;
+
 /* Escuta eventos de autenticação — detecta retorno do link de recuperação de senha e magic link */
 _supabase.auth.onAuthStateChange(function(event, session) {
   if (event === 'PASSWORD_RECOVERY') {
+    _aguardandoNovaSenha = true;
     document.getElementById('lockOverlay').classList.add('show');
     mostrarViewNovaSenha();
   } else if (event === 'SIGNED_IN' && session) {
+    if (_aguardandoNovaSenha) return; // aguarda o usuário definir a nova senha
     document.getElementById('lockOverlay').classList.remove('show');
     inicializarSistema();
   }
 });
 
 function verificarAcesso() {
+  if (_aguardandoNovaSenha) return; // aguarda o usuário definir a nova senha
   _supabase.auth.getSession().then(function(result) {
+    if (_aguardandoNovaSenha) return;
     var session = result.data && result.data.session;
     if (session) {
       document.getElementById('lockOverlay').classList.remove('show');
@@ -1892,6 +1899,7 @@ function definirNovaSenha() {
         err.textContent = '❌ ' + result.error.message;
         err.style.display = 'block';
       } else {
+        _aguardandoNovaSenha = false;
         document.getElementById('lockOverlay').classList.remove('show');
         inicializarSistema();
       }
