@@ -729,7 +729,7 @@ tbody td {
 <body>
 
 <!-- TELA DE LOGIN -->
-<div class="lock-overlay" id="lockOverlay">
+<div class="lock-overlay show" id="lockOverlay">
   <div class="lock-box">
     <div style="font-size:2.5em; margin-bottom:12px;">🔐</div>
     <h2>HOSPEDA-SISTEMA</h2>
@@ -1743,6 +1743,9 @@ function verificarAcesso() {
       document.getElementById('lockOverlay').classList.add('show');
       _focarElemento('lockEmail');
     }
+  }).catch(function() {
+    document.getElementById('lockOverlay').classList.add('show');
+    _focarElemento('lockEmail');
   });
 }
 
