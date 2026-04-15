@@ -1725,6 +1725,9 @@ var _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 /* Flag: true enquanto aguarda o usuário definir nova senha via link de recuperação */
 var _aguardandoNovaSenha = false;
 
+/* Flag: impede que inicializarSistema() seja chamada mais de uma vez por sessão */
+var _sistemaInicializado = false;
+
 /* Escuta eventos de autenticação — detecta retorno do link de recuperação de senha e magic link */
 _supabase.auth.onAuthStateChange(function(event, session) {
   if (event === 'PASSWORD_RECOVERY') {
@@ -1739,6 +1742,7 @@ _supabase.auth.onAuthStateChange(function(event, session) {
     document.getElementById('lockOverlay').classList.add('show');
     _focarElemento('lockEmail');
   } else if (event === 'SIGNED_OUT') {
+    _sistemaInicializado = false;
     document.getElementById('lockOverlay').classList.add('show');
     mostrarViewLogin();
   }
@@ -3460,6 +3464,8 @@ function exportarCSVCaptacao() {
    INICIALIZAÇÃO
 ========================================== */
 function inicializarSistema() {
+  if (_sistemaInicializado) return;
+  _sistemaInicializado = true;
   captacoes = carregarCaptacoes();
   renderTabela();
   atualizarDashboard();
@@ -3472,10 +3478,10 @@ function inicializarSistema() {
   document.getElementById('inputMeta').value = metaSalva;
 }
 
-/* Verifica acesso na carga da página */
-(function() {
-  verificarAcesso();
-})();
+/* A verificação de acesso é gerenciada exclusivamente pelo evento INITIAL_SESSION
+   do onAuthStateChange (adicionado para compatibilidade com Supabase v2).
+   O overlay já inicia visível via HTML (class="lock-overlay show") como barreira
+   de segurança antes do JS executar. */
 </script>
 
 <!-- PWA -->
