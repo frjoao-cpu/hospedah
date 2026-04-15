@@ -1095,6 +1095,46 @@ tbody td {
         </div>
       </div>
 
+      <div class="field-group">
+        <label>Período (01 – 13)</label>
+        <select id="cap_periodo">
+          <option value="">— Selecionar —</option>
+          <option value="01">01</option>
+          <option value="02">02</option>
+          <option value="03">03</option>
+          <option value="04">04</option>
+          <option value="05">05</option>
+          <option value="06">06</option>
+          <option value="07">07</option>
+          <option value="08">08</option>
+          <option value="09">09</option>
+          <option value="10">10</option>
+          <option value="11">11</option>
+          <option value="12">12</option>
+          <option value="13">13</option>
+        </select>
+      </div>
+
+      <div class="field-group">
+        <label>Cota (01 – 13)</label>
+        <select id="cap_cota">
+          <option value="">— Selecionar —</option>
+          <option value="01">01</option>
+          <option value="02">02</option>
+          <option value="03">03</option>
+          <option value="04">04</option>
+          <option value="05">05</option>
+          <option value="06">06</option>
+          <option value="07">07</option>
+          <option value="08">08</option>
+          <option value="09">09</option>
+          <option value="10">10</option>
+          <option value="11">11</option>
+          <option value="12">12</option>
+          <option value="13">13</option>
+        </select>
+      </div>
+
       <div class="field-group" style="grid-column: span 2;">
         <label>Observações</label>
         <input type="text" id="cap_obs" placeholder="Notas adicionais sobre a captação ou propriedade">
@@ -1152,6 +1192,44 @@ tbody td {
           <option value="quitado">✅ Quitados</option>
         </select>
       </div>
+      <div class="field-group">
+        <label>Período</label>
+        <select id="cf_periodo" onchange="renderTabelaCaptacao()">
+          <option value="">Todos</option>
+          <option value="01">01</option>
+          <option value="02">02</option>
+          <option value="03">03</option>
+          <option value="04">04</option>
+          <option value="05">05</option>
+          <option value="06">06</option>
+          <option value="07">07</option>
+          <option value="08">08</option>
+          <option value="09">09</option>
+          <option value="10">10</option>
+          <option value="11">11</option>
+          <option value="12">12</option>
+          <option value="13">13</option>
+        </select>
+      </div>
+      <div class="field-group">
+        <label>Cota</label>
+        <select id="cf_cota" onchange="renderTabelaCaptacao()">
+          <option value="">Todas</option>
+          <option value="01">01</option>
+          <option value="02">02</option>
+          <option value="03">03</option>
+          <option value="04">04</option>
+          <option value="05">05</option>
+          <option value="06">06</option>
+          <option value="07">07</option>
+          <option value="08">08</option>
+          <option value="09">09</option>
+          <option value="10">10</option>
+          <option value="11">11</option>
+          <option value="12">12</option>
+          <option value="13">13</option>
+        </select>
+      </div>
       <div class="field-group" style="justify-content:flex-end; padding-top:18px;">
         <button class="btn btn-secondary btn-sm" onclick="limparFiltrosCaptacao()">✕ Limpar filtros</button>
       </div>
@@ -1166,6 +1244,8 @@ tbody td {
           <th>Propriedade</th>
           <th>Período</th>
           <th>Dias</th>
+          <th>Período</th>
+          <th>Cota</th>
           <th>Valor Período</th>
           <th>Valor Pago</th>
           <th>Valor em Aberto</th>
@@ -1177,7 +1257,7 @@ tbody td {
       </thead>
       <tbody id="capTabelaBody">
         <tr>
-          <td colspan="13">
+          <td colspan="15">
             <div class="empty-state">
               <div class="empty-icon">🏡</div>
               <div>Nenhuma captação cadastrada ainda.</div>
@@ -1343,6 +1423,44 @@ tbody td {
           <label>Parcela Atual</label>
           <input type="number" id="editCap_parcela_atual" min="1" max="24" value="1">
         </div>
+      </div>
+      <div class="field-group">
+        <label>Período (01 – 13)</label>
+        <select id="editCap_periodo">
+          <option value="">— Selecionar —</option>
+          <option value="01">01</option>
+          <option value="02">02</option>
+          <option value="03">03</option>
+          <option value="04">04</option>
+          <option value="05">05</option>
+          <option value="06">06</option>
+          <option value="07">07</option>
+          <option value="08">08</option>
+          <option value="09">09</option>
+          <option value="10">10</option>
+          <option value="11">11</option>
+          <option value="12">12</option>
+          <option value="13">13</option>
+        </select>
+      </div>
+      <div class="field-group">
+        <label>Cota (01 – 13)</label>
+        <select id="editCap_cota">
+          <option value="">— Selecionar —</option>
+          <option value="01">01</option>
+          <option value="02">02</option>
+          <option value="03">03</option>
+          <option value="04">04</option>
+          <option value="05">05</option>
+          <option value="06">06</option>
+          <option value="07">07</option>
+          <option value="08">08</option>
+          <option value="09">09</option>
+          <option value="10">10</option>
+          <option value="11">11</option>
+          <option value="12">12</option>
+          <option value="13">13</option>
+        </select>
       </div>
       <div class="field-group" style="grid-column: span 2;">
         <label>Observações</label>
@@ -2259,6 +2377,8 @@ function adicionarCaptacao() {
   var telefone     = document.getElementById('cap_telefone').value.trim();
   var nome         = document.getElementById('cap_nome').value.trim();
   var obs          = document.getElementById('cap_obs').value.trim();
+  var periodo      = document.getElementById('cap_periodo').value;
+  var cota         = document.getElementById('cap_cota').value;
   var dataIni      = document.getElementById('cap_data_ini').value;
   var dataFim      = document.getElementById('cap_data_fim').value;
   var dias         = parseInt(document.getElementById('cap_dias').value) || 0;
@@ -2283,6 +2403,8 @@ function adicionarCaptacao() {
     telefone:      telefone,
     nome:          nome,
     obs:           obs,
+    periodo:       periodo,
+    cota:          cota,
     dataIni:       dataIni,
     dataFim:       dataFim,
     dias:          dias,
@@ -2315,6 +2437,8 @@ function limparFormCaptacao() {
   });
   document.getElementById('cap_forma_pag').value       = 'pix';
   document.getElementById('cap_status_reserva').value  = 'nao';
+  document.getElementById('cap_periodo').value         = '';
+  document.getElementById('cap_cota').value            = '';
   document.getElementById('cap_num_parcelas').value    = '1';
   document.getElementById('cap_parcela_atual').value   = '1';
   document.getElementById('capParcelasWrap').classList.remove('show');
@@ -2328,23 +2452,27 @@ function renderTabelaCaptacao() {
   var fStatus  = document.getElementById('cf_status_reserva').value;
   var fForma   = document.getElementById('cf_forma_pag').value;
   var fPend    = document.getElementById('cf_pendente').value;
+  var fPeriodo = document.getElementById('cf_periodo').value;
+  var fCota    = document.getElementById('cf_cota').value;
 
   var lista = captacoes.filter(function (c) {
     if (busca && !(
       c.proprietario.toLowerCase().includes(busca) ||
       c.nome.toLowerCase().includes(busca)
     )) return false;
-    if (fStatus && c.statusReserva !== fStatus) return false;
-    if (fForma  && c.formaPag !== fForma)        return false;
+    if (fStatus  && c.statusReserva !== fStatus)  return false;
+    if (fForma   && c.formaPag !== fForma)         return false;
     if (fPend === 'pendente' && c.valorAberto <= 0) return false;
     if (fPend === 'quitado'  && c.valorAberto  > 0) return false;
+    if (fPeriodo && c.periodo !== fPeriodo)         return false;
+    if (fCota    && c.cota    !== fCota)            return false;
     return true;
   });
 
   var tbody = document.getElementById('capTabelaBody');
   if (!lista.length) {
     tbody.innerHTML =
-      '<tr><td colspan="13"><div class="empty-state">' +
+      '<tr><td colspan="15"><div class="empty-state">' +
       '<div class="empty-icon">🏡</div>' +
       '<div>Nenhuma captação encontrada.</div>' +
       '<div style="font-size:0.85em;margin-top:6px;color:var(--cinza)">Use o formulário acima para adicionar a primeira captação.</div>' +
@@ -2378,6 +2506,8 @@ function renderTabelaCaptacao() {
       '<td>' + c.nome + (c.obs ? '<br><small style="color:var(--cinza)">' + c.obs + '</small>' : '') + '</td>' +
       '<td>' + formatarData(c.dataIni) + '<br><small>até ' + formatarData(c.dataFim) + '</small></td>' +
       '<td style="text-align:center;">' + (c.dias || '—') + '</td>' +
+      '<td style="text-align:center;">' + (c.periodo || '—') + '</td>' +
+      '<td style="text-align:center;">' + (c.cota    || '—') + '</td>' +
       '<td>' + formatBRL(c.valorPeriodo) + '</td>' +
       '<td style="color:var(--verde);">' + formatBRL(c.valorPago) + '</td>' +
       '<td>' + abertoCel + '</td>' +
@@ -2398,6 +2528,8 @@ function limparFiltrosCaptacao() {
   document.getElementById('cf_status_reserva').value = '';
   document.getElementById('cf_forma_pag').value      = '';
   document.getElementById('cf_pendente').value       = '';
+  document.getElementById('cf_periodo').value        = '';
+  document.getElementById('cf_cota').value           = '';
   renderTabelaCaptacao();
 }
 
@@ -2413,6 +2545,8 @@ function editarCaptacao(id) {
   document.getElementById('editCap_telefone').value     = c.telefone     || '';
   document.getElementById('editCap_nome').value         = c.nome;
   document.getElementById('editCap_obs').value          = c.obs          || '';
+  document.getElementById('editCap_periodo').value      = c.periodo      || '';
+  document.getElementById('editCap_cota').value         = c.cota         || '';
   document.getElementById('editCap_data_ini').value     = c.dataIni      || '';
   document.getElementById('editCap_data_fim').value     = c.dataFim      || '';
   document.getElementById('editCap_dias').value         = c.dias         || '';
@@ -2472,6 +2606,8 @@ function salvarEdicaoCaptacao() {
   var telefone     = document.getElementById('editCap_telefone').value.trim();
   var nome         = document.getElementById('editCap_nome').value.trim();
   var obs          = document.getElementById('editCap_obs').value.trim();
+  var periodo      = document.getElementById('editCap_periodo').value;
+  var cota         = document.getElementById('editCap_cota').value;
   var dataIni      = document.getElementById('editCap_data_ini').value;
   var dataFim      = document.getElementById('editCap_data_fim').value;
   var dias         = parseInt(document.getElementById('editCap_dias').value)          || 0;
@@ -2495,6 +2631,8 @@ function salvarEdicaoCaptacao() {
     telefone:      telefone,
     nome:          nome,
     obs:           obs,
+    periodo:       periodo,
+    cota:          cota,
     dataIni:       dataIni,
     dataFim:       dataFim,
     dias:          dias,
@@ -2601,7 +2739,7 @@ function exportarCSVCaptacao() {
 
   var cols = [
     'Proprietário','Telefone','Propriedade','Observações',
-    'Data Inicial','Data Final','Dias','Valor Período (R$)',
+    'Período','Cota','Data Inicial','Data Final','Dias','Valor Período (R$)',
     'Valor Pago (R$)','Valor em Aberto (R$)','Data Pagamento',
     'Forma Pagamento','Nº Parcelas','Parcela Atual','Reserva Confirmada','Criado Em'
   ];
@@ -2609,6 +2747,7 @@ function exportarCSVCaptacao() {
   var rows = captacoes.map(function (c) {
     return [
       c.proprietario, c.telefone, c.nome, c.obs,
+      c.periodo || '', c.cota || '',
       c.dataIni, c.dataFim, c.dias, c.valorPeriodo,
       c.valorPago, c.valorAberto, c.dataPag,
       c.formaPag, c.numParcelas, c.parcelaAtual,
