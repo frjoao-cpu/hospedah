@@ -1752,7 +1752,7 @@ _supabase.auth.onAuthStateChange(function(event, session) {
       /* Chegou via link de e-mail: permite acesso direto */
       document.getElementById('lockOverlay').classList.remove('show');
       inicializarSistema();
-    } else {
+    } else if (event === 'INITIAL_SESSION') {
       /* Sessão em cache encontrada: exige novo login para segurança máxima */
       var emailInput = document.getElementById('lockEmail');
       if (emailInput && session.user && session.user.email && !emailInput.value) {
@@ -1761,6 +1761,7 @@ _supabase.auth.onAuthStateChange(function(event, session) {
       document.getElementById('lockOverlay').classList.add('show');
       _focarElemento(emailInput && emailInput.value ? 'lockInput' : 'lockEmail');
     }
+    /* SIGNED_IN sem _isAuthRedirect: login manual já tratado por tentarLogin() */
   } else if (event === 'INITIAL_SESSION' && !session) {
     document.getElementById('lockOverlay').classList.add('show');
     _focarElemento('lockEmail');
