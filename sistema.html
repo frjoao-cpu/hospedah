@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>HOSPEDA-SISTEMA | Gestão Financeira</title>
 <meta name="robots" content="noindex, nofollow">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://ydrmjoppjxtmnwtvtinb.supabase.co; img-src 'self' data:; object-src 'none'; base-uri 'self';">
 <link rel="manifest" href="/manifest.json">
 <meta name="theme-color" content="#D4AF37">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
@@ -786,7 +787,7 @@ tbody td {
       <p class="lock-sub">Crie sua nova senha de acesso.</p>
       <div class="field-group" style="text-align:left; margin-bottom:4px;">
         <label>Nova senha</label>
-        <input type="password" id="lockNovaSenha" placeholder="Mínimo 8 caracteres"
+        <input type="password" id="lockNovaSenha" placeholder="Mínimo 12 caracteres"
                onkeydown="if(event.key==='Enter') definirNovaSenha()">
       </div>
       <div class="field-group" style="text-align:left; margin-bottom:4px;">
@@ -794,7 +795,7 @@ tbody td {
         <input type="password" id="lockConfirmaSenha" placeholder="Repita a senha"
                onkeydown="if(event.key==='Enter') definirNovaSenha()">
       </div>
-      <div id="lockNovaSenhaError" class="lock-error">❌ As senhas não coincidem ou são muito curtas (mínimo 8 caracteres).</div>
+      <div id="lockNovaSenhaError" class="lock-error">❌ A senha deve ter no mínimo 12 caracteres, incluindo maiúscula, minúscula, número e símbolo (ex: !@#$%).</div>
       <button class="btn btn-primary" style="width:100%; margin-top:16px;" onclick="definirNovaSenha()">✅ Salvar nova senha</button>
     </div>
   </div>
@@ -1959,7 +1960,13 @@ function definirNovaSenha() {
   var err      = document.getElementById('lockNovaSenhaError');
   err.style.display = 'none';
 
-  if (!nova || nova.length < 8 || nova !== confirma) {
+  var senhaForte = nova.length >= 12 &&
+                   /[A-Z]/.test(nova) &&
+                   /[a-z]/.test(nova) &&
+                   /[0-9]/.test(nova) &&
+                   /[^A-Za-z0-9]/.test(nova);
+
+  if (!nova || !senhaForte || nova !== confirma) {
     err.style.display = 'block';
     return;
   }
@@ -1982,6 +1989,20 @@ function fazerLogout() {
     window.location.reload();
   });
 }
+
+/* Timeout de sessão por inatividade: 8 horas sem interação fazem logout automático */
+var IDLE_TIMEOUT_MS = 8 * 60 * 60 * 1000;
+var _idleTimer = null;
+function _resetarIdleTimer() {
+  clearTimeout(_idleTimer);
+  _idleTimer = setTimeout(function() {
+    fazerLogout();
+  }, IDLE_TIMEOUT_MS);
+}
+['mousemove', 'keydown', 'pointerdown', 'scroll', 'touchstart'].forEach(function(ev) {
+  document.addEventListener(ev, _resetarIdleTimer, { passive: true });
+});
+_resetarIdleTimer();
 
 /* ==========================================
    STORAGE
