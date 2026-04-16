@@ -1026,12 +1026,6 @@ footer a { color: var(--dourado); text-decoration: none; }
 }
 .btn-calc-navbar:hover { background: var(--dourado); color: var(--azul); }
 
-.calc-popup-overlay {
-  display: none; position: fixed; inset: 0;
-  background: rgba(0,0,0,0.45); z-index: 10000;
-}
-.calc-popup-overlay.open { display: block; }
-
 .calc-popup {
   position: fixed; top: 72px; right: 24px;
   z-index: 10001;
@@ -1042,6 +1036,7 @@ footer a { color: var(--dourado); text-decoration: none; }
   min-width: 280px; max-width: 320px;
   box-shadow: 0 8px 40px rgba(0,0,0,0.45);
   display: none;
+  user-select: none;
   animation: calcPopIn .28s cubic-bezier(.22,1.2,.46,1) both;
 }
 .calc-popup.open { display: block; }
@@ -1058,6 +1053,7 @@ html[data-theme="light"] .calc-popup {
 .calc-popup-header {
   display: flex; align-items: center; justify-content: space-between;
   margin-bottom: 16px;
+  cursor: grab;
 }
 .calc-popup-title {
   font-size: 15px; font-weight: 700; color: var(--dourado);
@@ -1070,6 +1066,10 @@ html[data-theme="light"] .calc-popup {
 }
 html[data-theme="light"] .calc-popup-close { color: rgba(11,28,61,0.4); }
 .calc-popup-close:hover { color: var(--dourado); }
+.calc-popup.dragging .calc-popup-header { cursor: grabbing; }
+.calc-popup-header .drag-hint {
+  font-size: 10px; opacity: .4; margin-left: 4px; pointer-events: none;
+}
 
 .calc-popup label {
   display: block; font-size: 12px; font-weight: 600;
@@ -1100,7 +1100,7 @@ html[data-theme="light"] .calc-popup input[type="date"] {
 }
 
 @media (max-width: 480px) {
-  .calc-popup { right: 12px; left: 12px; min-width: unset; max-width: unset; }
+  .calc-popup:not(.was-dragged) { right: 12px; left: 12px; min-width: unset; max-width: unset; }
 }
 
 /* ==========================================
@@ -1351,10 +1351,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </nav>
 
 <!-- CALCULADORA VIRTUAL FLUTUANTE -->
-<div class="calc-popup-overlay" id="calcOverlay"></div>
 <div class="calc-popup" id="calcPopup" role="dialog" aria-modal="true" aria-label="Calculadora de noites">
   <div class="calc-popup-header">
     <span class="calc-popup-title">🌙 Calculadora de Noites</span>
+    <span class="drag-hint" aria-hidden="true">⠿ arraste</span>
     <button class="calc-popup-close" id="calcClose" aria-label="Fechar calculadora">✕</button>
   </div>
   <label for="calc_entrada">Check-in</label>
@@ -2545,16 +2545,18 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 /* =====================
-   CALCULADORA VIRTUAL (NAVBAR)
+   CALCULADORA VIRTUAL (NAVBAR) — DRAGGABLE
 ===================== */
 (function () {
-  var btn     = document.getElementById('btnCalcNavbar');
-  var popup   = document.getElementById('calcPopup');
-  var overlay = document.getElementById('calcOverlay');
-  var close   = document.getElementById('calcClose');
-  var inEl    = document.getElementById('calc_entrada');
-  var outEl   = document.getElementById('calc_saida');
-  var result  = document.getElementById('calc_result');
+  var btn    = document.getElementById('btnCalcNavbar');
+  var popup  = document.getElementById('calcPopup');
+  var close  = document.getElementById('calcClose');
+  var inEl   = document.getElementById('calc_entrada');
+  var outEl  = document.getElementById('calc_saida');
+  var result = document.getElementById('calc_result');
+  var header = popup.querySelector('.calc-popup-header');
+
+  var defaultTop = 72, defaultRight = 24;
 
   function updateCalcResult() {
     if (!inEl.value || !outEl.value) { result.innerHTML = ''; return; }
@@ -2567,15 +2569,18 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   function openCalc() {
+    if (!popup.classList.contains('was-dragged')) {
+      popup.style.top  = defaultTop + 'px';
+      popup.style.right = defaultRight + 'px';
+      popup.style.left  = '';
+    }
     popup.classList.add('open');
-    overlay.classList.add('open');
     btn.setAttribute('aria-expanded', 'true');
     inEl.focus();
   }
 
   function closeCalc() {
     popup.classList.remove('open');
-    overlay.classList.remove('open');
     btn.setAttribute('aria-expanded', 'false');
   }
 
@@ -2583,12 +2588,69 @@ document.addEventListener('DOMContentLoaded', function () {
     popup.classList.contains('open') ? closeCalc() : openCalc();
   });
   close.addEventListener('click', closeCalc);
-  overlay.addEventListener('click', closeCalc);
   document.addEventListener('keydown', function (e) {
     if (e.key === 'Escape') closeCalc();
   });
   inEl.addEventListener('change', updateCalcResult);
   outEl.addEventListener('change', updateCalcResult);
+
+  /* ---- Drag logic ---- */
+  var dragging = false, startX, startY, origLeft, origTop;
+
+  function getPopupRect() {
+    var r = popup.getBoundingClientRect();
+    return { left: r.left, top: r.top, width: r.width, height: r.height };
+  }
+
+  function clamp(val, min, max) { return Math.min(Math.max(val, min), max); }
+
+  function onDragStart(e) {
+    if (e.target === close || close.contains(e.target)) return;
+    if (e.target.tagName === 'INPUT') return;
+    var r = getPopupRect();
+    /* Normalise to left/top so we can freely reposition */
+    popup.style.right = '';
+    popup.style.left  = r.left + 'px';
+    popup.style.top   = r.top  + 'px';
+    origLeft = r.left;
+    origTop  = r.top;
+    var pt = e.touches ? e.touches[0] : e;
+    startX = pt.clientX;
+    startY = pt.clientY;
+    dragging = true;
+    popup.classList.add('dragging');
+    e.preventDefault();
+  }
+
+  function onDragMove(e) {
+    if (!dragging) return;
+    var pt = e.touches ? e.touches[0] : e;
+    var dx = pt.clientX - startX;
+    var dy = pt.clientY - startY;
+    var vw = window.innerWidth  || document.documentElement.clientWidth;
+    var vh = window.innerHeight || document.documentElement.clientHeight;
+    var r  = getPopupRect();
+    var newLeft = clamp(origLeft + dx, 0, vw - r.width);
+    var newTop  = clamp(origTop  + dy, 0, vh - r.height);
+    popup.style.left = newLeft + 'px';
+    popup.style.top  = newTop  + 'px';
+    e.preventDefault();
+  }
+
+  function onDragEnd() {
+    if (!dragging) return;
+    dragging = false;
+    popup.classList.remove('dragging');
+    popup.classList.add('was-dragged');
+  }
+
+  header.addEventListener('mousedown',  onDragStart);
+  document.addEventListener('mousemove', onDragMove);
+  document.addEventListener('mouseup',   onDragEnd);
+
+  header.addEventListener('touchstart', onDragStart, { passive: false });
+  document.addEventListener('touchmove', onDragMove, { passive: false });
+  document.addEventListener('touchend',  onDragEnd);
 })();
 
 /* =====================
