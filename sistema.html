@@ -1751,6 +1751,10 @@ _supabase.auth.onAuthStateChange(function(event, session) {
     if (_isAuthRedirect) {
       /* Chegou via link de e-mail: permite acesso direto */
       document.getElementById('lockOverlay').classList.remove('show');
+      /* Limpa os parâmetros de autenticação da URL para evitar bypass do login em visitas futuras */
+      if (window.history && window.history.replaceState) {
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
       inicializarSistema();
     } else if (event === 'INITIAL_SESSION') {
       /* Sessão em cache encontrada: exige novo login para segurança máxima */
