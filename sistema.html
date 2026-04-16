@@ -789,7 +789,7 @@ tbody td {
       <p class="lock-sub">Crie sua nova senha de acesso.</p>
       <div class="field-group" style="text-align:left; margin-bottom:4px;">
         <label>Nova senha</label>
-        <input type="password" id="lockNovaSenha" placeholder="Mínimo 6 caracteres"
+        <input type="password" id="lockNovaSenha" placeholder="Mínimo 8 caracteres"
                onkeydown="if(event.key==='Enter') definirNovaSenha()">
       </div>
       <div class="field-group" style="text-align:left; margin-bottom:4px;">
@@ -797,7 +797,7 @@ tbody td {
         <input type="password" id="lockConfirmaSenha" placeholder="Repita a senha"
                onkeydown="if(event.key==='Enter') definirNovaSenha()">
       </div>
-      <div id="lockNovaSenhaError" class="lock-error">❌ As senhas não coincidem ou são muito curtas (mínimo 6 caracteres).</div>
+      <div id="lockNovaSenhaError" class="lock-error">❌ As senhas não coincidem ou são muito curtas (mínimo 8 caracteres).</div>
       <button class="btn btn-primary" style="width:100%; margin-top:16px;" onclick="definirNovaSenha()">✅ Salvar nova senha</button>
     </div>
   </div>
@@ -1728,6 +1728,18 @@ var _aguardandoNovaSenha = false;
 /* Flag: impede que inicializarSistema() seja chamada mais de uma vez por sessão */
 var _sistemaInicializado = false;
 
+/* Detecta se a página foi aberta via link de autenticação (magic link ou recuperação de senha).
+   Neste caso o login automático é permitido; caso contrário, o login manual é sempre exigido. */
+var _isAuthRedirect = (function() {
+  var s = window.location.search;
+  var h = window.location.hash;
+  return s.indexOf('code=') !== -1 ||
+         s.indexOf('token=') !== -1 ||
+         s.indexOf('type=recovery') !== -1 ||
+         h.indexOf('access_token=') !== -1 ||
+         h.indexOf('type=recovery') !== -1;
+})();
+
 /* Escuta eventos de autenticação — detecta retorno do link de recuperação de senha e magic link */
 _supabase.auth.onAuthStateChange(function(event, session) {
   if (event === 'PASSWORD_RECOVERY') {
@@ -1736,8 +1748,19 @@ _supabase.auth.onAuthStateChange(function(event, session) {
     mostrarViewNovaSenha();
   } else if ((event === 'SIGNED_IN' || event === 'INITIAL_SESSION') && session) {
     if (_aguardandoNovaSenha) return; // aguarda o usuário definir a nova senha
-    document.getElementById('lockOverlay').classList.remove('show');
-    inicializarSistema();
+    if (_isAuthRedirect) {
+      /* Chegou via link de e-mail: permite acesso direto */
+      document.getElementById('lockOverlay').classList.remove('show');
+      inicializarSistema();
+    } else {
+      /* Sessão em cache encontrada: exige novo login para segurança máxima */
+      var emailInput = document.getElementById('lockEmail');
+      if (emailInput && session.user && session.user.email && !emailInput.value) {
+        emailInput.value = session.user.email;
+      }
+      document.getElementById('lockOverlay').classList.add('show');
+      _focarElemento(emailInput && emailInput.value ? 'lockInput' : 'lockEmail');
+    }
   } else if (event === 'INITIAL_SESSION' && !session) {
     document.getElementById('lockOverlay').classList.add('show');
     _focarElemento('lockEmail');
@@ -1808,11 +1831,27 @@ function mostrarViewNovaSenha() {
   _focarElemento('lockNovaSenha');
 }
 
+/* Proteção contra força bruta: bloqueia após MAX_LOGIN_ATTEMPTS erros consecutivos.
+   Os contadores são persistidos em sessionStorage para resistir a recarregamentos de página. */
+var MAX_LOGIN_ATTEMPTS = 5;
+var LOGIN_BLOCK_MS = 60000; // 60 segundos
+var _loginAttempts = parseInt(sessionStorage.getItem('_loginAttempts') || '0', 10);
+var _loginBlockedUntil = parseInt(sessionStorage.getItem('_loginBlockedUntil') || '0', 10);
+
 function tentarLogin() {
+  var now  = Date.now();
+  var err  = document.getElementById('lockError');
+  err.style.display = 'none';
+
+  if (_loginBlockedUntil > now) {
+    var secsLeft = Math.ceil((_loginBlockedUntil - now) / 1000);
+    err.textContent = '🔒 Muitas tentativas incorretas. Aguarde ' + secsLeft + ' segundo(s) e tente novamente.';
+    err.style.display = 'block';
+    return;
+  }
+
   var email = (document.getElementById('lockEmail').value || '').trim();
   var senha = document.getElementById('lockInput').value;
-  var err   = document.getElementById('lockError');
-  err.style.display = 'none';
 
   if (!email || !senha) {
     err.textContent = '❌ Preencha e-mail e senha.';
@@ -1823,18 +1862,35 @@ function tentarLogin() {
   _supabase.auth.signInWithPassword({ email: email, password: senha })
     .then(function(result) {
       if (result.error) {
+        _loginAttempts++;
+        sessionStorage.setItem('_loginAttempts', _loginAttempts);
+        if (_loginAttempts >= MAX_LOGIN_ATTEMPTS) {
+          _loginBlockedUntil = Date.now() + LOGIN_BLOCK_MS;
+          _loginAttempts = 0;
+          sessionStorage.setItem('_loginBlockedUntil', _loginBlockedUntil);
+          sessionStorage.setItem('_loginAttempts', '0');
+          err.textContent = '🔒 Conta bloqueada por 60 segundos após ' + MAX_LOGIN_ATTEMPTS + ' tentativas incorretas.';
+          err.style.display = 'block';
+          document.getElementById('lockInput').value = '';
+          document.getElementById('lockInput').focus();
+          return;
+        }
+        var restantes = MAX_LOGIN_ATTEMPTS - _loginAttempts;
         var msg = result.error.message || 'Credenciais inválidas.';
         if (msg.toLowerCase().indexOf('email not confirmed') !== -1) {
           msg = 'E-mail não confirmado. Verifique sua caixa de entrada e clique no link de confirmação.';
         } else if (msg.toLowerCase().indexOf('invalid login') !== -1 || msg.toLowerCase().indexOf('invalid credentials') !== -1) {
-          msg = 'E-mail ou senha incorretos. Tente novamente ou use "Entrar via link mágico".';
+          msg = 'E-mail ou senha incorretos. ' + restantes + ' tentativa(s) restante(s) antes do bloqueio.';
         }
         err.textContent = '❌ ' + msg;
         err.style.display = 'block';
         document.getElementById('lockInput').value = '';
         document.getElementById('lockInput').focus();
-        setTimeout(function() { err.style.display = 'none'; }, 6000);
+        setTimeout(function() { err.style.display = 'none'; }, 8000);
       } else {
+        _loginAttempts = 0;
+        sessionStorage.removeItem('_loginAttempts');
+        sessionStorage.removeItem('_loginBlockedUntil');
         document.getElementById('lockOverlay').classList.remove('show');
         inicializarSistema();
       }
@@ -1901,7 +1957,7 @@ function definirNovaSenha() {
   var err      = document.getElementById('lockNovaSenhaError');
   err.style.display = 'none';
 
-  if (!nova || nova.length < 6 || nova !== confirma) {
+  if (!nova || nova.length < 8 || nova !== confirma) {
     err.style.display = 'block';
     return;
   }
