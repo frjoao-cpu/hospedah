@@ -709,6 +709,31 @@ tbody td {
 }
 
 /* ==========================================
+   ROADMAP DE AUTOMAÇÃO E EXPANSÃO
+========================================== */
+.roadmap-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 14px;
+}
+.roadmap-card {
+  background: var(--bg2);
+  border: 1px solid var(--borda);
+  border-radius: var(--radius);
+  padding: 16px;
+}
+.roadmap-card h3 {
+  font-size: 0.86em;
+  color: var(--dourado);
+  margin-bottom: 8px;
+}
+.roadmap-card p {
+  font-size: 0.82em;
+  color: var(--cor-sub);
+  line-height: 1.55;
+}
+
+/* ==========================================
    CAPTAÇÃO
 ========================================== */
 .badge-sim      { background: rgba(37,211,102,0.15); color: var(--verde); }
@@ -816,6 +841,7 @@ tbody td {
     <a href="#mensal">📅 Mensal</a>
     <a href="#graficos">📈 Gráficos</a>
     <a href="#relatorio">🏆 Relatório</a>
+    <a href="#roadmap">🚀 Inovação</a>
     <a href="#captacao">🏡 Captação</a>
     <a href="javascript:void(0)" onclick="exportarBackup()">💾 Backup</a>
     <a href="javascript:void(0)" onclick="importarBackup()">📂 Importar</a>
@@ -1170,6 +1196,63 @@ tbody td {
         <div class="chart-card-title">📈 Lucro — Últimos 12 Meses</div>
         <canvas id="chartLucro12"></canvas>
       </div>
+    </div>
+  </section>
+
+  <!-- ==========================================
+       ROADMAP DE AUTOMAÇÃO E RECURSOS
+  =========================================== -->
+  <section id="roadmap" class="calc-section">
+    <div class="section-title">🚀 Sugestões para Evolução do HOSPEDA-SISTEMA</div>
+    <div class="roadmap-grid">
+      <article class="roadmap-card">
+        <h3>⚙️ Gestão Operacional</h3>
+        <p>Automatizar tarefas recorrentes (checklist de check-in/out, repasses e contratos) com fluxos por status e responsáveis.</p>
+      </article>
+      <article class="roadmap-card">
+        <h3>🧭 Experiência do Usuário</h3>
+        <p>Criar jornadas guiadas por perfil (atendente, gestor e captação), com atalhos rápidos e onboarding contextual.</p>
+      </article>
+      <article class="roadmap-card">
+        <h3>💳 Pagamentos Integrados</h3>
+        <p>Conectar Pix, cartão e split de pagamento, com conciliação automática e alertas de divergência financeira.</p>
+      </article>
+      <article class="roadmap-card">
+        <h3>📲 Comunicação Automática</h3>
+        <p>Disparar mensagens automáticas para hóspedes e proprietários em marcos da reserva (confirmação, pré-check-in e pós-estadia).</p>
+      </article>
+      <article class="roadmap-card">
+        <h3>📊 Relatórios Avançados</h3>
+        <p>Adicionar análises de sazonalidade, rentabilidade por imóvel/canal e previsão de receita por período.</p>
+      </article>
+      <article class="roadmap-card">
+        <h3>🌐 Canais Externos</h3>
+        <p>Sincronizar disponibilidade, tarifas e reservas com Booking/Airbnb e centralizar atendimento no WhatsApp Business API.</p>
+      </article>
+      <article class="roadmap-card">
+        <h3>🔔 Alertas Inteligentes</h3>
+        <p>Usar regras para avisar risco de overbooking, atraso de pagamento, baixa avaliação e ociosidade de unidades.</p>
+      </article>
+      <article class="roadmap-card">
+        <h3>🤖 Assistente Virtual</h3>
+        <p>Implementar assistente para responder dúvidas, sugerir ações operacionais e gerar mensagens prontas com contexto.</p>
+      </article>
+      <article class="roadmap-card">
+        <h3>📈 Painel de BI</h3>
+        <p>Publicar indicadores estratégicos em tempo real (ocupação, ADR, RevPAR, CAC, LTV e margem líquida).</p>
+      </article>
+      <article class="roadmap-card">
+        <h3>✅ Aprovação de Reservas</h3>
+        <p>Incluir fluxo de aprovação por etapas para reservas especiais, com trilha de auditoria e histórico de decisão.</p>
+      </article>
+      <article class="roadmap-card">
+        <h3>🎯 Dashboard de Metas</h3>
+        <p>Definir metas por canal, equipe e período com acompanhamento visual de atingimento e ranking de performance.</p>
+      </article>
+      <article class="roadmap-card">
+        <h3>💡 Inovação Contínua</h3>
+        <p>Adotar score de prioridade (impacto x esforço) para roadmap trimestral, testes A/B e melhorias baseadas em dados.</p>
+      </article>
     </div>
   </section>
 
