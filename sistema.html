@@ -816,6 +816,7 @@ tbody td {
     <a href="#mensal">📅 Mensal</a>
     <a href="#graficos">📈 Gráficos</a>
     <a href="#relatorio">🏆 Relatório</a>
+    <a href="#automacoes">🤖 Automações</a>
     <a href="#captacao">🏡 Captação</a>
     <a href="javascript:void(0)" onclick="exportarBackup()">💾 Backup</a>
     <a href="javascript:void(0)" onclick="importarBackup()">📂 Importar</a>
@@ -1171,6 +1172,157 @@ tbody td {
         <canvas id="chartLucro12"></canvas>
       </div>
     </div>
+  </section>
+
+  <!-- ==========================================
+       AUTOMAÇÕES E EXPERIÊNCIA
+  =========================================== -->
+  <section id="automacoes" class="table-wrap">
+    <div class="section-title">
+      🤖 Automações e Experiência do Usuário
+      <span style="margin-left:auto; display:flex; gap:8px;">
+        <button class="btn btn-secondary btn-sm" onclick="sincronizarAutomacoes()">🔄 Sincronizar automações</button>
+      </span>
+    </div>
+
+    <div class="dashboard-grid" style="margin-bottom:14px;">
+      <div class="dash-card">
+        <div class="dash-icon">📬</div>
+        <div class="dash-label">Pós-checkout pendente</div>
+        <div class="dash-value" id="autoDash-posCheckout">0</div>
+      </div>
+      <div class="dash-card">
+        <div class="dash-icon">🔑</div>
+        <div class="dash-label">Instruções pendentes</div>
+        <div class="dash-value" id="autoDash-instrucoes">0</div>
+      </div>
+      <div class="dash-card">
+        <div class="dash-icon">🧰</div>
+        <div class="dash-label">Manutenções pendentes</div>
+        <div class="dash-value" id="autoDash-manutencao">0</div>
+      </div>
+      <div class="dash-card">
+        <div class="dash-icon">🧾</div>
+        <div class="dash-label">Onboarding pendente</div>
+        <div class="dash-value" id="autoDash-onboarding">0</div>
+      </div>
+    </div>
+
+    <h3 style="margin:8px 0 10px;">📨 Comunicação automatizada (checkout / check-in / avaliações)</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Tipo</th>
+          <th>Cliente</th>
+          <th>Data Agendada</th>
+          <th>Status</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody id="automacoesBody"></tbody>
+    </table>
+
+    <h3 style="margin:20px 0 10px;">🧾 Workflow de aprovação (contratos/onboarding de proprietários)</h3>
+    <div class="filter-bar">
+      <div class="field-group">
+        <label>Proprietário</label>
+        <input type="text" id="onb_nome" placeholder="Nome do proprietário">
+      </div>
+      <div class="field-group">
+        <label>Propriedade</label>
+        <input type="text" id="onb_propriedade" placeholder="Nome da propriedade">
+      </div>
+      <div class="field-group">
+        <label>Etapa inicial</label>
+        <select id="onb_status">
+          <option value="documentos_pendentes">📄 Documentos pendentes</option>
+          <option value="em_aprovacao">🕒 Em aprovação</option>
+          <option value="aprovado">✅ Aprovado</option>
+          <option value="rejeitado">❌ Rejeitado</option>
+        </select>
+      </div>
+      <div class="field-group" style="justify-content:flex-end; padding-top:18px;">
+        <button class="btn btn-primary btn-sm" onclick="adicionarOnboarding()">➕ Adicionar</button>
+      </div>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Proprietário</th>
+          <th>Propriedade</th>
+          <th>Status</th>
+          <th>Atualizado em</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody id="onboardingBody"></tbody>
+    </table>
+
+    <h3 style="margin:20px 0 10px;">🧰 Tarefas e alertas automáticos (manutenção preventiva e pós-estada)</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Tarefa</th>
+          <th>Resort</th>
+          <th>Data</th>
+          <th>Status</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody id="manutencaoBody"></tbody>
+    </table>
+
+    <h3 style="margin:20px 0 10px;">💬 FAQ programável (respostas automáticas)</h3>
+    <div class="filter-bar">
+      <div class="field-group">
+        <label>Pergunta-chave</label>
+        <input type="text" id="faq_pergunta" placeholder="Ex.: horário de check-in">
+      </div>
+      <div class="field-group">
+        <label>Resposta automática</label>
+        <input type="text" id="faq_resposta" placeholder="Resposta padrão para esse tema">
+      </div>
+      <div class="field-group" style="justify-content:flex-end; padding-top:18px;">
+        <button class="btn btn-primary btn-sm" onclick="adicionarFAQ()">➕ Salvar FAQ</button>
+      </div>
+    </div>
+    <div class="filter-bar">
+      <div class="field-group" style="grid-column: span 3;">
+        <label>Simular pergunta do hóspede</label>
+        <input type="text" id="faq_simulacao" placeholder="Digite a pergunta para testar resposta automática">
+      </div>
+      <div class="field-group" style="justify-content:flex-end; padding-top:18px;">
+        <button class="btn btn-secondary btn-sm" onclick="simularFAQ()">⚙️ Responder automaticamente</button>
+      </div>
+    </div>
+    <div id="faqResultado" style="font-size:0.92em; color:var(--cor-sub); margin:4px 0 10px;">—</div>
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Pergunta-chave</th>
+          <th>Resposta</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody id="faqBody"></tbody>
+    </table>
+
+    <h3 style="margin:20px 0 10px;">🔐 Log de auditoria de operações</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Quando</th>
+          <th>Ação</th>
+          <th>Detalhes</th>
+        </tr>
+      </thead>
+      <tbody id="auditBody"></tbody>
+    </table>
   </section>
 
   <!-- ==========================================
@@ -2027,6 +2179,437 @@ function salvarReservas(lista) {
 }
 
 var reservas = carregarReservas();
+var AUTO_KEY = 'hospeda_automacoes';
+var ONB_KEY  = 'hospeda_onboarding';
+var MAINT_KEY = 'hospeda_manutencoes';
+var FAQ_KEY  = 'hospeda_faq';
+var AUDIT_KEY = 'hospeda_auditoria';
+var automacoes = [];
+var onboardingFluxos = [];
+var manutencoes = [];
+var faqRespostas = [];
+var auditLogs = [];
+var MAX_AUDIT_LOGS = 500;
+var MAX_DISPLAYED_AUDIT_LOGS = 150;
+var AUTO_CHECKIN_WINDOW_DAYS = 2;
+var AUTO_CHECKOUT_WINDOW_DAYS = 1;
+var AUTO_SURVEY_TRIGGER_WINDOW_START = 2;
+var AUTO_SURVEY_TRIGGER_WINDOW_AFTER = 2;
+var ISO_DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+
+function carregarListaStorage(chave) {
+  try {
+    var data = localStorage.getItem(chave);
+    return data ? JSON.parse(data) : [];
+  } catch (e) {
+    return [];
+  }
+}
+
+function salvarListaStorage(chave, lista) {
+  try {
+    localStorage.setItem(chave, JSON.stringify(lista));
+  } catch (e) {}
+}
+
+function registrarAuditoria(acao, detalhes) {
+  if (!acao) return;
+  auditLogs.unshift({
+    id: gerarId(),
+    quando: new Date().toISOString(),
+    acao: acao,
+    detalhes: detalhes || ''
+  });
+  if (auditLogs.length > MAX_AUDIT_LOGS) auditLogs = auditLogs.slice(0, MAX_AUDIT_LOGS);
+  salvarListaStorage(AUDIT_KEY, auditLogs);
+  renderAuditoria();
+}
+
+function statusLabelOnboarding(st) {
+  if (st === 'aprovado') return '✅ Aprovado';
+  if (st === 'rejeitado') return '❌ Rejeitado';
+  if (st === 'em_aprovacao') return '🕒 Em aprovação';
+  return '📄 Documentos pendentes';
+}
+
+function statusLabelAutomacao(st) {
+  if (st === 'concluido') return '✅ Concluída';
+  if (st === 'enviado') return '📤 Enviada';
+  return '⏳ Pendente';
+}
+
+function tipoLabelAutomacao(tp) {
+  var map = {
+    instrucoes_checkin: '🔑 Instruções de check-in',
+    instrucoes_checkout: '🧳 Instruções de check-out',
+    pesquisa_satisfacao: '📬 Pesquisa pós-checkout',
+    incentivo_avaliacao: '⭐ Incentivo à avaliação em portais'
+  };
+  return map[tp] || tp;
+}
+
+function diffDias(dataA, dataB) {
+  // Retorna null quando a data é inválida para impedir criação incorreta de automações.
+  if (!dataA || !dataB || !ISO_DATE_RE.test(dataA) || !ISO_DATE_RE.test(dataB)) {
+    return null;
+  }
+  var d1 = new Date(dataA + 'T00:00:00');
+  var d2 = new Date(dataB + 'T00:00:00');
+  return Math.round((d2 - d1) / 86400000);
+}
+
+function inserirAutomacaoSeNaoExiste(item) {
+  var exists = automacoes.some(function (x) { return x.chave === item.chave; });
+  if (!exists) automacoes.push(item);
+}
+
+function inserirManutencaoSeNaoExiste(item) {
+  var exists = manutencoes.some(function (x) { return x.chave === item.chave; });
+  if (!exists) manutencoes.push(item);
+}
+
+function isWithinSurveyWindow(diasAteCheckout) {
+  return diasAteCheckout !== null &&
+    diasAteCheckout <= AUTO_SURVEY_TRIGGER_WINDOW_START &&
+    diasAteCheckout >= -AUTO_SURVEY_TRIGGER_WINDOW_AFTER;
+}
+
+function sincronizarAutomacoes(silencioso) {
+  var hoje = new Date().toISOString().slice(0, 10);
+  var porResortMes = {};
+  reservas.forEach(function (r) {
+    if (!r || r.status === 'cancelado' || !r.entrada || !r.saida) return;
+    var diasAteCheckin = diffDias(hoje, r.entrada);
+    var diasAteCheckout = diffDias(hoje, r.saida);
+
+    if (diasAteCheckin !== null && diasAteCheckin >= 0 && diasAteCheckin <= AUTO_CHECKIN_WINDOW_DAYS) {
+      inserirAutomacaoSeNaoExiste({
+        id: gerarId(),
+        chave: 'checkin-' + r.id,
+        tipo: 'instrucoes_checkin',
+        reservaId: r.id,
+        cliente: r.cliente,
+        dataAgendada: r.entrada,
+        status: 'pendente',
+        mensagem: 'Olá ' + r.cliente + '! Seguem instruções automáticas de check-in para ' + r.resort + '.'
+      });
+    }
+
+    if (diasAteCheckout !== null && diasAteCheckout >= 0 && diasAteCheckout <= AUTO_CHECKOUT_WINDOW_DAYS) {
+      inserirAutomacaoSeNaoExiste({
+        id: gerarId(),
+        chave: 'checkout-' + r.id,
+        tipo: 'instrucoes_checkout',
+        reservaId: r.id,
+        cliente: r.cliente,
+        dataAgendada: r.saida,
+        status: 'pendente',
+        mensagem: 'Olá ' + r.cliente + '! Seguem instruções automáticas de check-out para ' + r.resort + '.'
+      });
+    }
+
+    if (isWithinSurveyWindow(diasAteCheckout)) {
+      inserirAutomacaoSeNaoExiste({
+        id: gerarId(),
+        chave: 'pesquisa-' + r.id,
+        tipo: 'pesquisa_satisfacao',
+        reservaId: r.id,
+        cliente: r.cliente,
+        dataAgendada: r.saida,
+        status: 'pendente',
+        mensagem: 'Olá ' + r.cliente + '! Obrigado por escolher a HOSPEDAH. Avalie sua experiência (0 a 5).'
+      });
+
+      inserirAutomacaoSeNaoExiste({
+        id: gerarId(),
+        chave: 'avaliacao-' + r.id,
+        tipo: 'incentivo_avaliacao',
+        reservaId: r.id,
+        cliente: r.cliente,
+        dataAgendada: r.saida,
+        status: 'pendente',
+        mensagem: 'Olá ' + r.cliente + '! Pode nos avaliar nos portais? Airbnb/Booking/Google: sua opinião é muito importante.'
+      });
+
+      inserirManutencaoSeNaoExiste({
+        id: gerarId(),
+        chave: 'pos-estada-' + r.id,
+        tipo: 'pos_estada',
+        tarefa: 'Limpeza e revisão pós-estada',
+        resort: r.resort,
+        data: r.saida,
+        status: 'pendente'
+      });
+    }
+
+    var mesRef = hoje.slice(0, 7);
+    var kRes = (r.resort || 'Outro') + '-' + mesRef;
+    if (!porResortMes[kRes]) {
+      porResortMes[kRes] = true;
+      inserirManutencaoSeNaoExiste({
+        id: gerarId(),
+        chave: 'preventiva-' + kRes,
+        tipo: 'preventiva',
+        tarefa: 'Manutenção preventiva mensal',
+        resort: r.resort || 'Outro',
+        data: hoje,
+        status: 'pendente'
+      });
+    }
+  });
+
+  salvarListaStorage(AUTO_KEY, automacoes);
+  salvarListaStorage(MAINT_KEY, manutencoes);
+  atualizarDashAutomacoes();
+  renderTabelaAutomacoes();
+  renderTabelaManutencao();
+  if (!silencioso) {
+    registrarAuditoria('Sincronização de automações', 'Processadas ' + reservas.length + ' reserva(s).');
+    mostrarToast('🤖 Automações sincronizadas com sucesso!', 'success');
+  }
+}
+
+function enviarAutomacao(id) {
+  var item = automacoes.find(function (x) { return x.id === id; });
+  if (!item) return;
+  var base = CONFIG.whatsappNumero ? 'https://wa.me/' + CONFIG.whatsappNumero : 'https://api.whatsapp.com/send';
+  window.open(base + '?text=' + encodeURIComponent(item.mensagem), '_blank');
+  item.status = 'enviado';
+  item.enviadoEm = new Date().toISOString();
+  salvarListaStorage(AUTO_KEY, automacoes);
+  atualizarDashAutomacoes();
+  renderTabelaAutomacoes();
+  registrarAuditoria('Automação enviada', tipoLabelAutomacao(item.tipo) + ' para ' + (item.cliente || 'cliente'));
+}
+
+function concluirAutomacao(id) {
+  var item = automacoes.find(function (x) { return x.id === id; });
+  if (!item) return;
+  item.status = 'concluido';
+  item.concluidoEm = new Date().toISOString();
+  salvarListaStorage(AUTO_KEY, automacoes);
+  atualizarDashAutomacoes();
+  renderTabelaAutomacoes();
+  registrarAuditoria('Automação concluída', tipoLabelAutomacao(item.tipo));
+}
+
+function renderTabelaAutomacoes() {
+  var tbody = document.getElementById('automacoesBody');
+  if (!tbody) return;
+  if (!automacoes.length) {
+    tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state"><div class="empty-icon">🤖</div><div>Nenhuma automação gerada ainda.</div></div></td></tr>';
+    return;
+  }
+
+  var lista = automacoes.slice().sort(function (a, b) {
+    return (b.dataAgendada || '').localeCompare(a.dataAgendada || '');
+  });
+
+  tbody.innerHTML = lista.map(function (a, i) {
+    return '<tr>' +
+      '<td>' + (i + 1) + '</td>' +
+      '<td>' + tipoLabelAutomacao(a.tipo) + '</td>' +
+      '<td>' + (a.cliente || '—') + '</td>' +
+      '<td>' + formatarData(a.dataAgendada) + '</td>' +
+      '<td><span class="badge badge-pendente">' + statusLabelAutomacao(a.status) + '</span></td>' +
+      '<td class="actions">' +
+      (a.status !== 'concluido' ? '<button class="btn btn-secondary btn-sm" onclick="enviarAutomacao(\'' + a.id + '\')">📤 Enviar</button>' : '') +
+      (a.status !== 'concluido' ? '<button class="btn btn-success btn-sm" onclick="concluirAutomacao(\'' + a.id + '\')">✅ Concluir</button>' : '') +
+      '</td>' +
+      '</tr>';
+  }).join('');
+}
+
+function adicionarOnboarding() {
+  var nome = (document.getElementById('onb_nome').value || '').trim();
+  var propriedade = (document.getElementById('onb_propriedade').value || '').trim();
+  var status = document.getElementById('onb_status').value || 'documentos_pendentes';
+  if (!nome) { mostrarToast('⚠️ Informe o proprietário.', 'error'); return; }
+  if (!propriedade) { mostrarToast('⚠️ Informe a propriedade.', 'error'); return; }
+
+  onboardingFluxos.push({
+    id: gerarId(),
+    nome: nome,
+    propriedade: propriedade,
+    status: status,
+    atualizadoEm: new Date().toISOString()
+  });
+  salvarListaStorage(ONB_KEY, onboardingFluxos);
+  document.getElementById('onb_nome').value = '';
+  document.getElementById('onb_propriedade').value = '';
+  document.getElementById('onb_status').value = 'documentos_pendentes';
+  renderTabelaOnboarding();
+  atualizarDashAutomacoes();
+  registrarAuditoria('Onboarding criado', nome + ' • ' + propriedade);
+  mostrarToast('✅ Workflow de onboarding criado.', 'success');
+}
+
+function atualizarStatusOnboarding(id, status) {
+  var item = onboardingFluxos.find(function (x) { return x.id === id; });
+  if (!item) return;
+  item.status = status;
+  item.atualizadoEm = new Date().toISOString();
+  salvarListaStorage(ONB_KEY, onboardingFluxos);
+  renderTabelaOnboarding();
+  atualizarDashAutomacoes();
+  registrarAuditoria('Onboarding atualizado', item.nome + ' → ' + statusLabelOnboarding(status));
+}
+
+function renderTabelaOnboarding() {
+  var tbody = document.getElementById('onboardingBody');
+  if (!tbody) return;
+  if (!onboardingFluxos.length) {
+    tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state"><div class="empty-icon">🧾</div><div>Nenhum onboarding cadastrado.</div></div></td></tr>';
+    return;
+  }
+  tbody.innerHTML = onboardingFluxos.map(function (o, i) {
+    return '<tr>' +
+      '<td>' + (i + 1) + '</td>' +
+      '<td>' + o.nome + '</td>' +
+      '<td>' + o.propriedade + '</td>' +
+      '<td>' + statusLabelOnboarding(o.status) + '</td>' +
+      '<td>' + formatarData((o.atualizadoEm || '').slice(0, 10)) + '</td>' +
+      '<td class="actions">' +
+      '<button class="btn btn-secondary btn-sm" onclick="atualizarStatusOnboarding(\'' + o.id + '\',\'em_aprovacao\')">🕒</button>' +
+      '<button class="btn btn-success btn-sm" onclick="atualizarStatusOnboarding(\'' + o.id + '\',\'aprovado\')">✅</button>' +
+      '<button class="btn btn-danger btn-sm" onclick="atualizarStatusOnboarding(\'' + o.id + '\',\'rejeitado\')">❌</button>' +
+      '</td>' +
+      '</tr>';
+  }).join('');
+}
+
+function concluirManutencao(id) {
+  var item = manutencoes.find(function (x) { return x.id === id; });
+  if (!item) return;
+  item.status = 'concluida';
+  item.concluidaEm = new Date().toISOString();
+  salvarListaStorage(MAINT_KEY, manutencoes);
+  renderTabelaManutencao();
+  atualizarDashAutomacoes();
+  registrarAuditoria('Manutenção concluída', item.tarefa + ' • ' + item.resort);
+}
+
+function renderTabelaManutencao() {
+  var tbody = document.getElementById('manutencaoBody');
+  if (!tbody) return;
+  if (!manutencoes.length) {
+    tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state"><div class="empty-icon">🧰</div><div>Nenhuma tarefa de manutenção.</div></div></td></tr>';
+    return;
+  }
+  var lista = manutencoes.slice().sort(function (a, b) {
+    return (b.data || '').localeCompare(a.data || '');
+  });
+  tbody.innerHTML = lista.map(function (m, i) {
+    var st = m.status === 'concluida' ? '✅ Concluída' : '⏳ Pendente';
+    return '<tr>' +
+      '<td>' + (i + 1) + '</td>' +
+      '<td>' + m.tarefa + '</td>' +
+      '<td>' + (m.resort || '—') + '</td>' +
+      '<td>' + formatarData(m.data) + '</td>' +
+      '<td>' + st + '</td>' +
+      '<td class="actions">' +
+      (m.status !== 'concluida' ? '<button class="btn btn-success btn-sm" onclick="concluirManutencao(\'' + m.id + '\')">✅ Concluir</button>' : '') +
+      '</td>' +
+      '</tr>';
+  }).join('');
+}
+
+function adicionarFAQ() {
+  var pergunta = (document.getElementById('faq_pergunta').value || '').trim();
+  var resposta = (document.getElementById('faq_resposta').value || '').trim();
+  if (!pergunta) { mostrarToast('⚠️ Informe a pergunta-chave.', 'error'); return; }
+  if (!resposta) { mostrarToast('⚠️ Informe a resposta automática.', 'error'); return; }
+  faqRespostas.push({ id: gerarId(), pergunta: pergunta, resposta: resposta, criadoEm: new Date().toISOString() });
+  salvarListaStorage(FAQ_KEY, faqRespostas);
+  document.getElementById('faq_pergunta').value = '';
+  document.getElementById('faq_resposta').value = '';
+  renderTabelaFAQ();
+  registrarAuditoria('FAQ adicionado', pergunta);
+  mostrarToast('✅ Resposta automática cadastrada.', 'success');
+}
+
+function excluirFAQ(id) {
+  faqRespostas = faqRespostas.filter(function (x) { return x.id !== id; });
+  salvarListaStorage(FAQ_KEY, faqRespostas);
+  renderTabelaFAQ();
+  registrarAuditoria('FAQ removido', id);
+}
+
+function simularFAQ() {
+  var entrada = (document.getElementById('faq_simulacao').value || '').trim().toLowerCase();
+  var out = document.getElementById('faqResultado');
+  if (!entrada) {
+    out.textContent = '—';
+    return;
+  }
+  var match = faqRespostas.find(function (f) {
+    var perguntaLower = (f.pergunta || '').toLowerCase();
+    return entrada.indexOf(perguntaLower) !== -1 || perguntaLower.indexOf(entrada) !== -1;
+  });
+  if (match) {
+    out.textContent = '🤖 Resposta automática: ' + match.resposta;
+    registrarAuditoria('FAQ auto resposta', match.pergunta);
+  } else {
+    out.textContent = '🤖 Sem resposta cadastrada para esta pergunta.';
+  }
+}
+
+function renderTabelaFAQ() {
+  var tbody = document.getElementById('faqBody');
+  if (!tbody) return;
+  if (!faqRespostas.length) {
+    tbody.innerHTML = '<tr><td colspan="4"><div class="empty-state"><div class="empty-icon">💬</div><div>Nenhum FAQ cadastrado.</div></div></td></tr>';
+    return;
+  }
+  tbody.innerHTML = faqRespostas.map(function (f, i) {
+    return '<tr>' +
+      '<td>' + (i + 1) + '</td>' +
+      '<td>' + f.pergunta + '</td>' +
+      '<td>' + f.resposta + '</td>' +
+      '<td class="actions"><button class="btn btn-danger btn-sm" onclick="excluirFAQ(\'' + f.id + '\')">🗑️</button></td>' +
+      '</tr>';
+  }).join('');
+}
+
+function renderAuditoria() {
+  var tbody = document.getElementById('auditBody');
+  if (!tbody) return;
+  if (!auditLogs.length) {
+    tbody.innerHTML = '<tr><td colspan="4"><div class="empty-state"><div class="empty-icon">🔐</div><div>Nenhuma operação auditada ainda.</div></div></td></tr>';
+    return;
+  }
+  tbody.innerHTML = auditLogs.slice(0, MAX_DISPLAYED_AUDIT_LOGS).map(function (a, i) {
+    return '<tr>' +
+      '<td>' + (i + 1) + '</td>' +
+      '<td>' + formatarData((a.quando || '').slice(0, 10)) + ' ' + (a.quando || '').slice(11, 16) + '</td>' +
+      '<td>' + (a.acao || '—') + '</td>' +
+      '<td>' + (a.detalhes || '—') + '</td>' +
+      '</tr>';
+  }).join('');
+}
+
+function atualizarDashAutomacoes() {
+  function contarPend(lista, campoStatus, statusConcluido) {
+    return (lista || []).filter(function (x) { return (x[campoStatus] || 'pendente') !== statusConcluido; }).length;
+  }
+  var pendPosCheckout = automacoes.filter(function (a) {
+    return (a.tipo === 'pesquisa_satisfacao' || a.tipo === 'incentivo_avaliacao') && a.status !== 'concluido';
+  }).length;
+  var pendInstr = automacoes.filter(function (a) {
+    return (a.tipo === 'instrucoes_checkin' || a.tipo === 'instrucoes_checkout') && a.status !== 'concluido';
+  }).length;
+  var pendMan = contarPend(manutencoes, 'status', 'concluida');
+  var pendOnb = onboardingFluxos.filter(function (o) { return o.status !== 'aprovado'; }).length;
+
+  function _set(el, val) {
+    var e = document.getElementById(el);
+    if (e) e.textContent = val;
+  }
+  _set('autoDash-posCheckout', pendPosCheckout);
+  _set('autoDash-instrucoes', pendInstr);
+  _set('autoDash-manutencao', pendMan);
+  _set('autoDash-onboarding', pendOnb);
+}
 
 /* ==========================================
    UTILITÁRIOS
@@ -2177,6 +2760,8 @@ function adicionarReserva() {
   atualizarDashboard();
   atualizarMensal();
   renderRelatorioDesempenho();
+  sincronizarAutomacoes();
+  registrarAuditoria('Reserva criada', cliente + ' • ' + resort + ' • ' + formatarData(entrada));
   mostrarToast('✅ Reserva adicionada com sucesso!', 'success');
 
   // Rola para a tabela
@@ -2308,17 +2893,21 @@ function marcarPago(id) {
   atualizarDashboard();
   atualizarMensal();
   renderRelatorioDesempenho();
+  registrarAuditoria('Reserva marcada como paga', r.cliente + ' • ' + r.resort);
   mostrarToast('✅ Reserva marcada como paga!', 'success');
 }
 
 function excluirReserva(id) {
   if (!confirm('Tem certeza que deseja excluir esta reserva?')) return;
+  var alvo = reservas.find(function (x) { return x.id === id; });
   reservas = reservas.filter(function (x) { return x.id !== id; });
   salvarReservas(reservas);
   renderTabela();
   atualizarDashboard();
   atualizarMensal();
   renderRelatorioDesempenho();
+  sincronizarAutomacoes();
+  if (alvo) registrarAuditoria('Reserva excluída', alvo.cliente + ' • ' + alvo.resort);
   mostrarToast('🗑️ Reserva excluída.', '');
 }
 
@@ -2446,6 +3035,8 @@ function salvarEdicao() {
   atualizarDashboard();
   atualizarMensal();
   renderRelatorioDesempenho();
+  sincronizarAutomacoes();
+  registrarAuditoria('Reserva atualizada', cliente + ' • ' + resort);
   mostrarToast('✅ Reserva atualizada com sucesso!', 'success');
 }
 
@@ -2830,6 +3421,7 @@ function renderRelatorioDesempenho() {
   var totalCaptacao = 0;
   var lucroTotal    = 0;
   var reservasAtivas = 0;
+  var reservasComCaptacao = 0;
 
   reservas.forEach(function (r) {
     if (r.status === 'cancelado') return;
@@ -2847,9 +3439,12 @@ function renderRelatorioDesempenho() {
     totalVenda    += r.total || 0;
     totalCaptacao += r.valorCaptacao || 0;
     lucroTotal    += r.valorCaptacao > 0 ? (r.total - r.valorCaptacao) : 0;
+    if ((r.valorCaptacao || 0) > 0) reservasComCaptacao++;
   });
 
   var avalMedia = countAval > 0 ? (somaAval / countAval).toFixed(1) : null;
+  var ticketMedio = reservasAtivas > 0 ? (totalVenda / reservasAtivas) : 0;
+  var rentabilidadeCaptacao = totalCaptacao > 0 ? ((lucroTotal / totalCaptacao) * 100) : null;
 
   var canalKeys = Object.keys(canais).sort(function (a, b) { return canais[b].count - canais[a].count; });
 
@@ -2860,6 +3455,9 @@ function renderRelatorioDesempenho() {
     '<div class="relatorio-row"><span class="rel-label">Total de Captação</span><span class="rel-val">' + formatBRL(totalCaptacao) + '</span></div>' +
     '<div class="relatorio-row"><span class="rel-label">Lucro Consolidado</span><span class="rel-val ' + (lucroTotal >= 0 ? 'verde' : 'vermelho') + '">' + formatBRL(lucroTotal) + '</span></div>' +
     (totalVenda > 0 && totalCaptacao > 0 ? '<div class="relatorio-row"><span class="rel-label">Margem de Lucro</span><span class="rel-val ' + (lucroTotal >= 0 ? 'verde' : 'vermelho') + '">' + ((lucroTotal / totalVenda) * 100).toFixed(1) + '%</span></div>' : '') +
+    '<div class="relatorio-row"><span class="rel-label">Ticket Médio por Reserva</span><span class="rel-val">' + formatBRL(ticketMedio) + '</span></div>' +
+    '<div class="relatorio-row"><span class="rel-label">Reservas com Captação</span><span class="rel-val">' + reservasComCaptacao + '</span></div>' +
+    (rentabilidadeCaptacao !== null ? '<div class="relatorio-row"><span class="rel-label">Rentabilidade sobre Captação</span><span class="rel-val ' + (rentabilidadeCaptacao >= 0 ? 'verde' : 'vermelho') + '">' + rentabilidadeCaptacao.toFixed(1) + '%</span></div>' : '') +
     '<div class="relatorio-row"><span class="rel-label">Avaliação Média</span><span class="rel-val">' + (avalMedia ? avalMedia + ' ⭐ (' + countAval + ' avaliações)' : '—') + '</span></div>' +
     '</div>';
 
@@ -3018,6 +3616,7 @@ function salvarMeta() {
   var val = parseFloat(document.getElementById('inputMeta').value) || 0;
   localStorage.setItem('hospeda_meta', String(val));
   atualizarDashboard();
+  registrarAuditoria('Meta mensal atualizada', formatBRL(val));
   mostrarToast('🎯 Meta atualizada: ' + formatBRL(val), 'success');
 }
 
@@ -3026,10 +3625,15 @@ function salvarMeta() {
 ========================================== */
 function exportarBackup() {
   var dados = {
-    versao: '2.0',
+    versao: '3.0', // inclui novos módulos locais de automações/FAQ/onboarding/auditoria
     exportadoEm: new Date().toISOString(),
     reservas: reservas,
-    captacoes: captacoes
+    captacoes: captacoes,
+    automacoes: automacoes,
+    onboardingFluxos: onboardingFluxos,
+    manutencoes: manutencoes,
+    faqRespostas: faqRespostas,
+    auditLogs: auditLogs
   };
   var blob = new Blob([JSON.stringify(dados, null, 2)], { type: 'application/json' });
   var url  = URL.createObjectURL(blob);
@@ -3040,6 +3644,7 @@ function exportarBackup() {
   a.click();
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
+  registrarAuditoria('Backup exportado', 'Versão ' + dados.versao);
   mostrarToast('💾 Backup exportado com sucesso!', 'success');
 }
 
@@ -3068,11 +3673,39 @@ function importarBackup() {
           renderTabelaCaptacao();
           atualizarDashboardCaptacao();
         }
+        if (dados.automacoes && Array.isArray(dados.automacoes)) {
+          automacoes = dados.automacoes;
+          salvarListaStorage(AUTO_KEY, automacoes);
+        }
+        if (dados.onboardingFluxos && Array.isArray(dados.onboardingFluxos)) {
+          onboardingFluxos = dados.onboardingFluxos;
+          salvarListaStorage(ONB_KEY, onboardingFluxos);
+        }
+        if (dados.manutencoes && Array.isArray(dados.manutencoes)) {
+          manutencoes = dados.manutencoes;
+          salvarListaStorage(MAINT_KEY, manutencoes);
+        }
+        if (dados.faqRespostas && Array.isArray(dados.faqRespostas)) {
+          faqRespostas = dados.faqRespostas;
+          salvarListaStorage(FAQ_KEY, faqRespostas);
+        }
+        if (dados.auditLogs && Array.isArray(dados.auditLogs)) {
+          auditLogs = dados.auditLogs;
+          salvarListaStorage(AUDIT_KEY, auditLogs);
+        }
         renderTabela();
         atualizarDashboard();
         atualizarMensal();
         renderGraficos();
         renderRelatorioDesempenho();
+        renderTabelaAutomacoes();
+        renderTabelaOnboarding();
+        renderTabelaManutencao();
+        renderTabelaFAQ();
+        renderAuditoria();
+        atualizarDashAutomacoes();
+        sincronizarAutomacoes();
+        registrarAuditoria('Backup importado', String(lista.length) + ' reserva(s) restauradas');
         mostrarToast('✅ Backup importado! ' + lista.length + ' reserva(s).', 'success');
       } catch (err) {
         mostrarToast('❌ Erro ao importar: arquivo inválido.', 'error');
@@ -3191,6 +3824,7 @@ function adicionarCaptacao() {
   limparFormCaptacao();
   renderTabelaCaptacao();
   atualizarDashboardCaptacao();
+  registrarAuditoria('Captação criada', proprietario + ' • ' + nome);
   mostrarToast('✅ Captação adicionada com sucesso!', 'success');
   document.getElementById('captacoes').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
@@ -3420,15 +4054,18 @@ function salvarEdicaoCaptacao() {
   fecharModalCaptacao();
   renderTabelaCaptacao();
   atualizarDashboardCaptacao();
+  registrarAuditoria('Captação atualizada', proprietario + ' • ' + nome);
   mostrarToast('✅ Captação atualizada!', 'success');
 }
 
 function excluirCaptacao(id) {
   if (!confirm('Excluir esta captação? Esta ação não pode ser desfeita.')) return;
+  var alvo = captacoes.find(function (x) { return x.id === id; });
   captacoes = captacoes.filter(function (x) { return x.id !== id; });
   salvarCaptacoes(captacoes);
   renderTabelaCaptacao();
   atualizarDashboardCaptacao();
+  if (alvo) registrarAuditoria('Captação excluída', alvo.proprietario + ' • ' + alvo.nome);
   mostrarToast('🗑️ Captação excluída.', 'success');
 }
 
@@ -3546,6 +4183,11 @@ function inicializarSistema() {
   if (_sistemaInicializado) return;
   _sistemaInicializado = true;
   captacoes = carregarCaptacoes();
+  automacoes = carregarListaStorage(AUTO_KEY);
+  onboardingFluxos = carregarListaStorage(ONB_KEY);
+  manutencoes = carregarListaStorage(MAINT_KEY);
+  faqRespostas = carregarListaStorage(FAQ_KEY);
+  auditLogs = carregarListaStorage(AUDIT_KEY);
   renderTabela();
   atualizarDashboard();
   atualizarMensal();
@@ -3553,8 +4195,15 @@ function inicializarSistema() {
   renderRelatorioDesempenho();
   renderTabelaCaptacao();
   atualizarDashboardCaptacao();
+  renderTabelaAutomacoes();
+  renderTabelaOnboarding();
+  renderTabelaManutencao();
+  renderTabelaFAQ();
+  renderAuditoria();
+  atualizarDashAutomacoes();
   var metaSalva = parseFloat(localStorage.getItem('hospeda_meta')) || CONFIG.metaPadrao;
   document.getElementById('inputMeta').value = metaSalva;
+  sincronizarAutomacoes(true);
 }
 
 /* A verificação de acesso é gerenciada exclusivamente pelo evento INITIAL_SESSION
