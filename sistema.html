@@ -1831,11 +1831,12 @@ function mostrarViewNovaSenha() {
   _focarElemento('lockNovaSenha');
 }
 
-/* Proteção contra força bruta: bloqueia após MAX_LOGIN_ATTEMPTS erros consecutivos */
-var _loginAttempts = 0;
-var _loginBlockedUntil = 0;
+/* Proteção contra força bruta: bloqueia após MAX_LOGIN_ATTEMPTS erros consecutivos.
+   Os contadores são persistidos em sessionStorage para resistir a recarregamentos de página. */
 var MAX_LOGIN_ATTEMPTS = 5;
 var LOGIN_BLOCK_MS = 60000; // 60 segundos
+var _loginAttempts = parseInt(sessionStorage.getItem('_loginAttempts') || '0', 10);
+var _loginBlockedUntil = parseInt(sessionStorage.getItem('_loginBlockedUntil') || '0', 10);
 
 function tentarLogin() {
   var now  = Date.now();
@@ -1862,9 +1863,12 @@ function tentarLogin() {
     .then(function(result) {
       if (result.error) {
         _loginAttempts++;
+        sessionStorage.setItem('_loginAttempts', _loginAttempts);
         if (_loginAttempts >= MAX_LOGIN_ATTEMPTS) {
           _loginBlockedUntil = Date.now() + LOGIN_BLOCK_MS;
           _loginAttempts = 0;
+          sessionStorage.setItem('_loginBlockedUntil', _loginBlockedUntil);
+          sessionStorage.setItem('_loginAttempts', '0');
           err.textContent = '🔒 Conta bloqueada por 60 segundos após ' + MAX_LOGIN_ATTEMPTS + ' tentativas incorretas.';
           err.style.display = 'block';
           document.getElementById('lockInput').value = '';
@@ -1885,6 +1889,8 @@ function tentarLogin() {
         setTimeout(function() { err.style.display = 'none'; }, 8000);
       } else {
         _loginAttempts = 0;
+        sessionStorage.removeItem('_loginAttempts');
+        sessionStorage.removeItem('_loginBlockedUntil');
         document.getElementById('lockOverlay').classList.remove('show');
         inicializarSistema();
       }
@@ -1952,7 +1958,6 @@ function definirNovaSenha() {
   err.style.display = 'none';
 
   if (!nova || nova.length < 8 || nova !== confirma) {
-    err.textContent = '❌ As senhas não coincidem ou são muito curtas (mínimo 8 caracteres).';
     err.style.display = 'block';
     return;
   }
