@@ -2181,7 +2181,7 @@ function salvarReservas(lista) {
 var reservas = carregarReservas();
 var AUTO_KEY = 'hospeda_automacoes';
 var ONB_KEY  = 'hospeda_onboarding';
-var MAIN_KEY = 'hospeda_manutencoes';
+var MAINT_KEY = 'hospeda_manutencoes';
 var FAQ_KEY  = 'hospeda_faq';
 var AUDIT_KEY = 'hospeda_auditoria';
 var automacoes = [];
@@ -2189,6 +2189,13 @@ var onboardingFluxos = [];
 var manutencoes = [];
 var faqRespostas = [];
 var auditLogs = [];
+var MAX_AUDIT_LOGS = 500;
+var MAX_DISPLAYED_AUDIT_LOGS = 150;
+var AUTO_CHECKIN_WINDOW_DAYS = 2;
+var AUTO_CHECKOUT_WINDOW_DAYS = 1;
+var AUTO_SURVEY_TRIGGER_WINDOW_START = 2;
+var AUTO_SURVEY_TRIGGER_WINDOW_AFTER = 2;
+var ISO_DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 
 function carregarListaStorage(chave) {
   try {
@@ -2213,7 +2220,7 @@ function registrarAuditoria(acao, detalhes) {
     acao: acao,
     detalhes: detalhes || ''
   });
-  if (auditLogs.length > 500) auditLogs = auditLogs.slice(0, 500);
+  if (auditLogs.length > MAX_AUDIT_LOGS) auditLogs = auditLogs.slice(0, MAX_AUDIT_LOGS);
   salvarListaStorage(AUDIT_KEY, auditLogs);
   renderAuditoria();
 }
@@ -2242,6 +2249,10 @@ function tipoLabelAutomacao(tp) {
 }
 
 function diffDias(dataA, dataB) {
+  // Retorna null quando a data é inválida para impedir criação incorreta de automações.
+  if (!dataA || !dataB || !ISO_DATE_RE.test(dataA) || !ISO_DATE_RE.test(dataB)) {
+    return null;
+  }
   var d1 = new Date(dataA + 'T00:00:00');
   var d2 = new Date(dataB + 'T00:00:00');
   return Math.round((d2 - d1) / 86400000);
@@ -2257,6 +2268,12 @@ function inserirManutencaoSeNaoExiste(item) {
   if (!exists) manutencoes.push(item);
 }
 
+function isWithinSurveyWindow(diasAteCheckout) {
+  return diasAteCheckout !== null &&
+    diasAteCheckout <= AUTO_SURVEY_TRIGGER_WINDOW_START &&
+    diasAteCheckout >= -AUTO_SURVEY_TRIGGER_WINDOW_AFTER;
+}
+
 function sincronizarAutomacoes(silencioso) {
   var hoje = new Date().toISOString().slice(0, 10);
   var porResortMes = {};
@@ -2265,7 +2282,7 @@ function sincronizarAutomacoes(silencioso) {
     var diasAteCheckin = diffDias(hoje, r.entrada);
     var diasAteCheckout = diffDias(hoje, r.saida);
 
-    if (diasAteCheckin >= 0 && diasAteCheckin <= 2) {
+    if (diasAteCheckin !== null && diasAteCheckin >= 0 && diasAteCheckin <= AUTO_CHECKIN_WINDOW_DAYS) {
       inserirAutomacaoSeNaoExiste({
         id: gerarId(),
         chave: 'checkin-' + r.id,
@@ -2278,7 +2295,7 @@ function sincronizarAutomacoes(silencioso) {
       });
     }
 
-    if (diasAteCheckout >= 0 && diasAteCheckout <= 1) {
+    if (diasAteCheckout !== null && diasAteCheckout >= 0 && diasAteCheckout <= AUTO_CHECKOUT_WINDOW_DAYS) {
       inserirAutomacaoSeNaoExiste({
         id: gerarId(),
         chave: 'checkout-' + r.id,
@@ -2291,7 +2308,7 @@ function sincronizarAutomacoes(silencioso) {
       });
     }
 
-    if (diasAteCheckout <= 2 && diasAteCheckout >= -2) {
+    if (isWithinSurveyWindow(diasAteCheckout)) {
       inserirAutomacaoSeNaoExiste({
         id: gerarId(),
         chave: 'pesquisa-' + r.id,
@@ -2342,7 +2359,7 @@ function sincronizarAutomacoes(silencioso) {
   });
 
   salvarListaStorage(AUTO_KEY, automacoes);
-  salvarListaStorage(MAIN_KEY, manutencoes);
+  salvarListaStorage(MAINT_KEY, manutencoes);
   atualizarDashAutomacoes();
   renderTabelaAutomacoes();
   renderTabelaManutencao();
@@ -2466,7 +2483,7 @@ function concluirManutencao(id) {
   if (!item) return;
   item.status = 'concluida';
   item.concluidaEm = new Date().toISOString();
-  salvarListaStorage(MAIN_KEY, manutencoes);
+  salvarListaStorage(MAINT_KEY, manutencoes);
   renderTabelaManutencao();
   atualizarDashAutomacoes();
   registrarAuditoria('Manutenção concluída', item.tarefa + ' • ' + item.resort);
@@ -2526,7 +2543,8 @@ function simularFAQ() {
     return;
   }
   var match = faqRespostas.find(function (f) {
-    return entrada.indexOf((f.pergunta || '').toLowerCase()) !== -1 || (f.pergunta || '').toLowerCase().indexOf(entrada) !== -1;
+    var perguntaLower = (f.pergunta || '').toLowerCase();
+    return entrada.indexOf(perguntaLower) !== -1 || perguntaLower.indexOf(entrada) !== -1;
   });
   if (match) {
     out.textContent = '🤖 Resposta automática: ' + match.resposta;
@@ -2560,7 +2578,7 @@ function renderAuditoria() {
     tbody.innerHTML = '<tr><td colspan="4"><div class="empty-state"><div class="empty-icon">🔐</div><div>Nenhuma operação auditada ainda.</div></div></td></tr>';
     return;
   }
-  tbody.innerHTML = auditLogs.slice(0, 150).map(function (a, i) {
+  tbody.innerHTML = auditLogs.slice(0, MAX_DISPLAYED_AUDIT_LOGS).map(function (a, i) {
     return '<tr>' +
       '<td>' + (i + 1) + '</td>' +
       '<td>' + formatarData((a.quando || '').slice(0, 10)) + ' ' + (a.quando || '').slice(11, 16) + '</td>' +
@@ -3607,7 +3625,7 @@ function salvarMeta() {
 ========================================== */
 function exportarBackup() {
   var dados = {
-    versao: '3.0',
+    versao: '3.0', // inclui novos módulos locais de automações/FAQ/onboarding/auditoria
     exportadoEm: new Date().toISOString(),
     reservas: reservas,
     captacoes: captacoes,
@@ -3665,7 +3683,7 @@ function importarBackup() {
         }
         if (dados.manutencoes && Array.isArray(dados.manutencoes)) {
           manutencoes = dados.manutencoes;
-          salvarListaStorage(MAIN_KEY, manutencoes);
+          salvarListaStorage(MAINT_KEY, manutencoes);
         }
         if (dados.faqRespostas && Array.isArray(dados.faqRespostas)) {
           faqRespostas = dados.faqRespostas;
@@ -4167,7 +4185,7 @@ function inicializarSistema() {
   captacoes = carregarCaptacoes();
   automacoes = carregarListaStorage(AUTO_KEY);
   onboardingFluxos = carregarListaStorage(ONB_KEY);
-  manutencoes = carregarListaStorage(MAIN_KEY);
+  manutencoes = carregarListaStorage(MAINT_KEY);
   faqRespostas = carregarListaStorage(FAQ_KEY);
   auditLogs = carregarListaStorage(AUDIT_KEY);
   renderTabela();
