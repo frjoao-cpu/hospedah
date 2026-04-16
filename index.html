@@ -1353,7 +1353,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <!-- CALCULADORA VIRTUAL FLUTUANTE -->
 <div class="calc-popup" id="calcPopup" role="dialog" aria-modal="true" aria-label="Calculadora de noites">
   <div class="calc-popup-header">
-    <span class="calc-popup-title">🌙 Calculadora de Noites<span class="drag-hint" aria-hidden="true">⠿ arraste</span></span>
+    <span class="calc-popup-title">🌙 Calculadora de Noites</span>
+    <span class="drag-hint" aria-hidden="true">⠿ arraste</span>
     <button class="calc-popup-close" id="calcClose" aria-label="Fechar calculadora">✕</button>
   </div>
   <label for="calc_entrada">Check-in</label>
@@ -2605,7 +2606,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function onDragStart(e) {
     if (e.target === close || close.contains(e.target)) return;
-    if (e.target.tagName === 'INPUT' || e.target.tagName === 'BUTTON') return;
+    if (e.target.tagName === 'INPUT') return;
     var r = getPopupRect();
     /* Normalise to left/top so we can freely reposition */
     popup.style.right = '';
