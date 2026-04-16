@@ -2371,6 +2371,7 @@ function carregarReservas() {
 function salvarReservas(lista) {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(lista));
+    salvarNoSupabase(STORAGE_KEY, lista);
   } catch (e) {
     mostrarToast('Erro ao salvar dados.', 'error');
   }
@@ -2407,7 +2408,40 @@ function carregarListaStorage(chave) {
 function salvarListaStorage(chave, lista) {
   try {
     localStorage.setItem(chave, JSON.stringify(lista));
+    salvarNoSupabase(chave, lista);
   } catch (e) {}
+}
+
+/* ==========================================
+   SYNC COM SUPABASE
+========================================== */
+function salvarNoSupabase(chave, valor) {
+  _supabase.auth.getUser().then(function(result) {
+    var uid = result.data && result.data.user && result.data.user.id;
+    if (!uid) return;
+    _supabase.from('hospeda_data')
+      .upsert(
+        { user_id: uid, chave: chave, valor: valor, atualizado_em: new Date().toISOString() },
+        { onConflict: 'user_id,chave' }
+      )
+      .catch(function(e) { console.warn('Erro ao sincronizar com servidor:', e); });
+  });
+}
+
+function sincronizarDoSupabase() {
+  return _supabase.auth.getUser().then(function(result) {
+    var uid = result.data && result.data.user && result.data.user.id;
+    if (!uid) return;
+    return _supabase.from('hospeda_data').select('chave,valor').eq('user_id', uid).then(function(res) {
+      if (res.error) { console.warn('Erro ao carregar dados do servidor:', res.error); return; }
+      if (!res.data) return;
+      res.data.forEach(function(row) {
+        try {
+          localStorage.setItem(row.chave, JSON.stringify(row.valor));
+        } catch(e) { console.warn('Erro ao aplicar dados do servidor:', e); }
+      });
+    });
+  });
 }
 
 function registrarAuditoria(acao, detalhes) {
@@ -3813,6 +3847,7 @@ function enviarWhatsApp(id) {
 function salvarMeta() {
   var val = parseFloat(document.getElementById('inputMeta').value) || 0;
   localStorage.setItem('hospeda_meta', String(val));
+  salvarNoSupabase('hospeda_meta', val);
   atualizarDashboard();
   registrarAuditoria('Meta mensal atualizada', formatBRL(val));
   mostrarToast('🎯 Meta atualizada: ' + formatBRL(val), 'success');
@@ -3930,6 +3965,7 @@ function carregarCaptacoes() {
 function salvarCaptacoes(lista) {
   try {
     localStorage.setItem(CAP_KEY, JSON.stringify(lista));
+    salvarNoSupabase(CAP_KEY, lista);
   } catch (e) {
     mostrarToast('Erro ao salvar captações.', 'error');
   }
@@ -4595,28 +4631,33 @@ function exportarCSVCaptacao() {
 function inicializarSistema() {
   if (_sistemaInicializado) return;
   _sistemaInicializado = true;
-  captacoes = carregarCaptacoes();
-  automacoes = carregarListaStorage(AUTO_KEY);
-  onboardingFluxos = carregarListaStorage(ONB_KEY);
-  manutencoes = carregarListaStorage(MAINT_KEY);
-  faqRespostas = carregarListaStorage(FAQ_KEY);
-  auditLogs = carregarListaStorage(AUDIT_KEY);
-  renderTabela();
-  atualizarDashboard();
-  atualizarMensal();
-  renderGraficos();
-  renderRelatorioDesempenho();
-  renderTabelaCaptacao();
-  atualizarDashboardCaptacao();
-  renderTabelaAutomacoes();
-  renderTabelaOnboarding();
-  renderTabelaManutencao();
-  renderTabelaFAQ();
-  renderAuditoria();
-  atualizarDashAutomacoes();
-  var metaSalva = parseFloat(localStorage.getItem('hospeda_meta')) || CONFIG.metaPadrao;
-  document.getElementById('inputMeta').value = metaSalva;
-  sincronizarAutomacoes(true);
+  sincronizarDoSupabase().catch(function(e) {
+    console.warn('Falha ao sincronizar dados do servidor, usando cache local:', e);
+  }).then(function() {
+    reservas = carregarReservas();
+    captacoes = carregarCaptacoes();
+    automacoes = carregarListaStorage(AUTO_KEY);
+    onboardingFluxos = carregarListaStorage(ONB_KEY);
+    manutencoes = carregarListaStorage(MAINT_KEY);
+    faqRespostas = carregarListaStorage(FAQ_KEY);
+    auditLogs = carregarListaStorage(AUDIT_KEY);
+    renderTabela();
+    atualizarDashboard();
+    atualizarMensal();
+    renderGraficos();
+    renderRelatorioDesempenho();
+    renderTabelaCaptacao();
+    atualizarDashboardCaptacao();
+    renderTabelaAutomacoes();
+    renderTabelaOnboarding();
+    renderTabelaManutencao();
+    renderTabelaFAQ();
+    renderAuditoria();
+    atualizarDashAutomacoes();
+    var metaSalva = parseFloat(localStorage.getItem('hospeda_meta')) || CONFIG.metaPadrao;
+    document.getElementById('inputMeta').value = metaSalva;
+    sincronizarAutomacoes(true);
+  });
 }
 
 /* A verificação de acesso é gerenciada exclusivamente pelo evento INITIAL_SESSION
