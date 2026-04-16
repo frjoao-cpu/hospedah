@@ -14,7 +14,9 @@ CREATE TABLE IF NOT EXISTS hospeda_data (
 -- Habilita Row Level Security para que cada usuário acesse apenas seus próprios dados
 ALTER TABLE hospeda_data ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY IF NOT EXISTS "acesso_proprio"
+DROP POLICY IF EXISTS "acesso_proprio" ON hospeda_data;
+
+CREATE POLICY "acesso_proprio"
   ON hospeda_data
   FOR ALL
   TO authenticated
