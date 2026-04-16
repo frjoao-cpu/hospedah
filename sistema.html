@@ -724,6 +724,98 @@ tbody td {
   grid-template-columns: 1fr 1fr;
   gap: 12px;
 }
+
+/* ==========================================
+   CALCULADORA SIMPLES
+========================================== */
+.calc-widget {
+  background: var(--bg2);
+  border: 1px solid var(--borda);
+  border-radius: var(--radius);
+  padding: 24px;
+  margin-bottom: 32px;
+  max-width: 360px;
+}
+
+.calc-display {
+  background: rgba(0,0,0,0.3);
+  border: 1px solid rgba(212,175,55,0.2);
+  border-radius: 10px;
+  padding: 14px 16px;
+  text-align: right;
+  margin-bottom: 16px;
+  min-height: 76px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+.calc-display .disp-expr {
+  font-size: 0.8em;
+  color: var(--cor-sub);
+  min-height: 18px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-bottom: 4px;
+}
+
+.calc-display .disp-value {
+  font-size: 2em;
+  font-weight: 700;
+  color: var(--dourado);
+  line-height: 1.1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.calc-keys {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+.calc-key {
+  padding: 14px 8px;
+  border-radius: 8px;
+  border: 1px solid var(--borda);
+  background: rgba(255,255,255,0.05);
+  color: var(--cor-texto);
+  font-family: inherit;
+  font-size: 1em;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s;
+  text-align: center;
+}
+
+.calc-key:hover  { background: rgba(255,255,255,0.1); }
+.calc-key:active { transform: scale(0.94); }
+
+.calc-key.op {
+  background: rgba(212,175,55,0.1);
+  color: var(--dourado);
+  border-color: rgba(212,175,55,0.3);
+}
+.calc-key.op:hover { background: rgba(212,175,55,0.2); }
+
+.calc-key.equal {
+  background: var(--dourado);
+  color: var(--azul);
+  border-color: var(--dourado);
+  grid-column: span 1;
+}
+.calc-key.equal:hover { background: var(--dourado-hover); }
+
+.calc-key.clear {
+  background: rgba(231,76,60,0.1);
+  color: var(--vermelho);
+  border-color: rgba(231,76,60,0.3);
+}
+.calc-key.clear:hover { background: rgba(231,76,60,0.2); }
+
+.calc-key.zero { grid-column: span 2; }
 </style>
 </head>
 
@@ -818,6 +910,7 @@ tbody td {
     <a href="#relatorio">🏆 Relatório</a>
     <a href="#automacoes">🤖 Automações</a>
     <a href="#captacao">🏡 Captação</a>
+    <a href="#calculadora">🧮 Calculadora</a>
     <a href="javascript:void(0)" onclick="exportarBackup()">💾 Backup</a>
     <a href="javascript:void(0)" onclick="importarBackup()">📂 Importar</a>
     <a href="index.html">🏠 Site</a>
@@ -1611,6 +1704,44 @@ tbody td {
         </tr>
       </tbody>
     </table>
+  </section>
+
+  <!-- ==========================================
+       CALCULADORA SIMPLES
+  =========================================== -->
+  <section id="calculadora">
+    <div class="section-title">🧮 Calculadora</div>
+    <div class="calc-widget">
+      <div class="calc-display">
+        <div class="disp-expr" id="calc-expr"></div>
+        <div class="disp-value" id="calc-value">0</div>
+      </div>
+      <div class="calc-keys">
+        <button class="calc-key clear" onclick="calcAction('C')">C</button>
+        <button class="calc-key op"    onclick="calcAction('±')">±</button>
+        <button class="calc-key op"    onclick="calcAction('%')">%</button>
+        <button class="calc-key op"    onclick="calcAction('/')">÷</button>
+
+        <button class="calc-key"       onclick="calcAction('7')">7</button>
+        <button class="calc-key"       onclick="calcAction('8')">8</button>
+        <button class="calc-key"       onclick="calcAction('9')">9</button>
+        <button class="calc-key op"    onclick="calcAction('*')">×</button>
+
+        <button class="calc-key"       onclick="calcAction('4')">4</button>
+        <button class="calc-key"       onclick="calcAction('5')">5</button>
+        <button class="calc-key"       onclick="calcAction('6')">6</button>
+        <button class="calc-key op"    onclick="calcAction('-')">−</button>
+
+        <button class="calc-key"       onclick="calcAction('1')">1</button>
+        <button class="calc-key"       onclick="calcAction('2')">2</button>
+        <button class="calc-key"       onclick="calcAction('3')">3</button>
+        <button class="calc-key op"    onclick="calcAction('+')">+</button>
+
+        <button class="calc-key zero"  onclick="calcAction('0')">0</button>
+        <button class="calc-key"       onclick="calcAction('.')">.</button>
+        <button class="calc-key equal" onclick="calcAction('=')">=</button>
+      </div>
+    </div>
   </section>
 
 </main>
@@ -4175,6 +4306,131 @@ function exportarCSVCaptacao() {
   URL.revokeObjectURL(url);
   mostrarToast('📥 CSV de captações exportado!', 'success');
 }
+
+/* ==========================================
+   CALCULADORA SIMPLES
+========================================== */
+(function () {
+  var _calcExpr    = '';   // expressão visível (ex: "12 + 3 =")
+  var _calcCurrent = '0';  // número atual em exibição
+  var _calcPrev    = null; // operando anterior
+  var _calcOp      = null; // operador pendente
+  var _calcDone    = false;// resultado foi exibido
+
+  function _updDisplay() {
+    var exprEl = document.getElementById('calc-expr');
+    var valEl  = document.getElementById('calc-value');
+    if (exprEl) exprEl.textContent = _calcExpr;
+    if (valEl)  valEl.textContent  = _calcCurrent.length > 12
+      ? parseFloat(_calcCurrent).toPrecision(10).replace(/\.?0+$/, '')
+      : _calcCurrent;
+  }
+
+  function _fmtNum(n) {
+    var s = String(parseFloat(n.toPrecision(12)));
+    return s;
+  }
+
+  window.calcAction = function (key) {
+    if (key === 'C') {
+      _calcExpr = ''; _calcCurrent = '0';
+      _calcPrev = null; _calcOp = null; _calcDone = false;
+      _updDisplay(); return;
+    }
+
+    if (key === '±') {
+      if (_calcCurrent === 'Erro') return;
+      _calcCurrent = _fmtNum(-parseFloat(_calcCurrent) || 0);
+      _calcDone = false;
+      _updDisplay(); return;
+    }
+
+    if (key === '%') {
+      if (_calcCurrent === 'Erro') return;
+      _calcCurrent = _fmtNum(parseFloat(_calcCurrent) / 100 || 0);
+      _calcDone = false;
+      _updDisplay(); return;
+    }
+
+    var isOp = (key === '+' || key === '-' || key === '*' || key === '/');
+
+    if (key === '=') {
+      if (_calcOp === null || _calcPrev === null) return;
+      var a = parseFloat(_calcPrev);
+      var b = parseFloat(_calcCurrent);
+      var result;
+      if (_calcOp === '+') result = a + b;
+      else if (_calcOp === '-') result = a - b;
+      else if (_calcOp === '*') result = a * b;
+      else if (_calcOp === '/') result = b === 0 ? NaN : a / b;
+      var opSym = _calcOp === '*' ? '×' : _calcOp === '/' ? '÷' : _calcOp;
+      _calcExpr    = _calcPrev + ' ' + opSym + ' ' + _calcCurrent + ' =';
+      _calcCurrent = isNaN(result) ? 'Erro' : _fmtNum(result);
+      _calcPrev = null; _calcOp = null; _calcDone = true;
+      _updDisplay(); return;
+    }
+
+    if (isOp) {
+      if (_calcCurrent === 'Erro') return;
+      if (_calcPrev !== null && _calcOp !== null && !_calcDone) {
+        var a2 = parseFloat(_calcPrev);
+        var b2 = parseFloat(_calcCurrent);
+        var r2;
+        if (_calcOp === '+') r2 = a2 + b2;
+        else if (_calcOp === '-') r2 = a2 - b2;
+        else if (_calcOp === '*') r2 = a2 * b2;
+        else if (_calcOp === '/') r2 = b2 === 0 ? NaN : a2 / b2;
+        _calcCurrent = isNaN(r2) ? 'Erro' : _fmtNum(r2);
+      }
+      _calcPrev = _calcCurrent;
+      _calcOp   = key;
+      var sym = key === '*' ? '×' : key === '/' ? '÷' : key;
+      _calcExpr = _calcPrev + ' ' + sym;
+      _calcDone = false;
+      _calcCurrent = '0';
+      _updDisplay(); return;
+    }
+
+    if (key === '.') {
+      if (_calcDone) { _calcCurrent = '0'; _calcDone = false; }
+      if (_calcCurrent.indexOf('.') === -1) {
+        _calcCurrent += '.';
+      }
+      _updDisplay(); return;
+    }
+
+    // digit
+    if (_calcDone) { _calcCurrent = key; _calcDone = false; }
+    else if (_calcCurrent === '0') { _calcCurrent = key; }
+    else if (_calcCurrent.replace(/-/g, '').replace(/\./g, '').length < 15) {
+      _calcCurrent += key;
+    }
+    _updDisplay();
+  };
+
+  // teclado físico
+  document.addEventListener('keydown', function (e) {
+    var sec = document.getElementById('calculadora');
+    // offsetParent === null means the element is hidden (display:none or ancestor is hidden)
+    if (!sec || sec.offsetParent === null) return;
+    var map = {
+      '0':'0','1':'1','2':'2','3':'3','4':'4',
+      '5':'5','6':'6','7':'7','8':'8','9':'9',
+      '.':'.','+'  :'+','-':'-','*':'*','/':'/',
+      'Enter':'=','='  :'=','Backspace':'back','Escape':'C','%':'%'
+    };
+    var k = map[e.key];
+    if (!k) return;
+    e.preventDefault();
+    if (k === 'back') {
+      if (_calcDone || _calcCurrent === '0') return;
+      _calcCurrent = _calcCurrent.length === 1 ? '0' : _calcCurrent.slice(0, -1);
+      _updDisplay();
+    } else {
+      calcAction(k);
+    }
+  });
+}());
 
 /* ==========================================
    INICIALIZAÇÃO
