@@ -726,34 +726,96 @@ tbody td {
 }
 
 /* ==========================================
-   CALCULADORA SIMPLES
+   CALCULADORA FLUTUANTE
 ========================================== */
-.calc-widget {
+.float-calc-fab {
+  position: fixed;
+  bottom: 28px;
+  right: 28px;
+  z-index: 9000;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--dourado);
+  color: var(--azul);
+  border: none;
+  font-size: 1.5em;
+  cursor: pointer;
+  box-shadow: 0 4px 18px rgba(0,0,0,0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, transform 0.15s;
+  user-select: none;
+}
+.float-calc-fab:hover { background: var(--dourado-hover); transform: scale(1.08); }
+
+.float-calc-panel {
+  position: fixed;
+  bottom: 90px;
+  right: 28px;
+  z-index: 9001;
+  width: 300px;
   background: var(--bg2);
   border: 1px solid var(--borda);
   border-radius: var(--radius);
-  padding: 24px;
-  margin-bottom: 32px;
-  max-width: 360px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+  display: none;
+  flex-direction: column;
+  overflow: hidden;
+  touch-action: none;
+}
+.float-calc-panel.open { display: flex; }
+
+.float-calc-header {
+  background: linear-gradient(135deg, var(--azul), var(--azul2));
+  border-bottom: 1px solid var(--borda);
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: grab;
+  user-select: none;
+}
+.float-calc-header:active { cursor: grabbing; }
+.float-calc-header span {
+  font-size: 0.9em;
+  font-weight: 600;
+  color: var(--dourado);
+}
+.float-calc-close {
+  background: none;
+  border: none;
+  color: var(--cor-sub);
+  font-size: 1.1em;
+  cursor: pointer;
+  line-height: 1;
+  padding: 0 2px;
+  transition: color 0.15s;
+}
+.float-calc-close:hover { color: var(--vermelho); }
+
+.float-calc-body {
+  padding: 16px;
 }
 
 .calc-display {
   background: rgba(0,0,0,0.3);
   border: 1px solid rgba(212,175,55,0.2);
   border-radius: 10px;
-  padding: 14px 16px;
+  padding: 12px 14px;
   text-align: right;
-  margin-bottom: 16px;
-  min-height: 76px;
+  margin-bottom: 14px;
+  min-height: 68px;
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
 }
 
 .calc-display .disp-expr {
-  font-size: 0.8em;
+  font-size: 0.78em;
   color: var(--cor-sub);
-  min-height: 18px;
+  min-height: 16px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -761,7 +823,7 @@ tbody td {
 }
 
 .calc-display .disp-value {
-  font-size: 2em;
+  font-size: 1.8em;
   font-weight: 700;
   color: var(--dourado);
   line-height: 1.1;
@@ -773,17 +835,17 @@ tbody td {
 .calc-keys {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 8px;
+  gap: 7px;
 }
 
 .calc-key {
-  padding: 14px 8px;
+  padding: 12px 6px;
   border-radius: 8px;
   border: 1px solid var(--borda);
   background: rgba(255,255,255,0.05);
   color: var(--cor-texto);
   font-family: inherit;
-  font-size: 1em;
+  font-size: 0.95em;
   font-weight: 600;
   cursor: pointer;
   transition: background 0.15s, transform 0.1s;
@@ -910,7 +972,7 @@ tbody td {
     <a href="#relatorio">🏆 Relatório</a>
     <a href="#automacoes">🤖 Automações</a>
     <a href="#captacao">🏡 Captação</a>
-    <a href="#calculadora">🧮 Calculadora</a>
+    <a href="javascript:void(0)" onclick="toggleFloatCalc()">🧮 Calculadora</a>
     <a href="javascript:void(0)" onclick="exportarBackup()">💾 Backup</a>
     <a href="javascript:void(0)" onclick="importarBackup()">📂 Importar</a>
     <a href="index.html">🏠 Site</a>
@@ -1707,11 +1769,18 @@ tbody td {
   </section>
 
   <!-- ==========================================
-       CALCULADORA SIMPLES
+       CALCULADORA FLUTUANTE (FAB)
   =========================================== -->
-  <section id="calculadora">
-    <div class="section-title">🧮 Calculadora</div>
-    <div class="calc-widget">
+  <!-- FAB toggle -->
+  <button class="float-calc-fab" id="floatCalcFab" onclick="toggleFloatCalc()" title="Calculadora" aria-label="Abrir calculadora">🧮</button>
+
+  <!-- Painel flutuante -->
+  <div class="float-calc-panel" id="floatCalcPanel">
+    <div class="float-calc-header" id="floatCalcHeader">
+      <span>🧮 Calculadora</span>
+      <button class="float-calc-close" onclick="toggleFloatCalc()" aria-label="Fechar calculadora">✕</button>
+    </div>
+    <div class="float-calc-body">
       <div class="calc-display">
         <div class="disp-expr" id="calc-expr"></div>
         <div class="disp-value" id="calc-value">0</div>
@@ -1742,9 +1811,7 @@ tbody td {
         <button class="calc-key equal" onclick="calcAction('=')">=</button>
       </div>
     </div>
-  </section>
-
-</main>
+  </div>
 
 <!-- ==========================================
      MODAL DE EDIÇÃO
@@ -4308,14 +4375,14 @@ function exportarCSVCaptacao() {
 }
 
 /* ==========================================
-   CALCULADORA SIMPLES
+   CALCULADORA FLUTUANTE
 ========================================== */
 (function () {
-  var _calcExpr    = '';   // expressão visível (ex: "12 + 3 =")
-  var _calcCurrent = '0';  // número atual em exibição
-  var _calcPrev    = null; // operando anterior
-  var _calcOp      = null; // operador pendente
-  var _calcDone    = false;// resultado foi exibido
+  var _calcExpr    = '';
+  var _calcCurrent = '0';
+  var _calcPrev    = null;
+  var _calcOp      = null;
+  var _calcDone    = false;
 
   function _updDisplay() {
     var exprEl = document.getElementById('calc-expr');
@@ -4408,11 +4475,10 @@ function exportarCSVCaptacao() {
     _updDisplay();
   };
 
-  // teclado físico
+  // teclado físico — só ativo quando o painel está aberto
   document.addEventListener('keydown', function (e) {
-    var sec = document.getElementById('calculadora');
-    // offsetParent === null means the element is hidden (display:none or ancestor is hidden)
-    if (!sec || sec.offsetParent === null) return;
+    var panel = document.getElementById('floatCalcPanel');
+    if (!panel || !panel.classList.contains('open')) return;
     var map = {
       '0':'0','1':'1','2':'2','3':'3','4':'4',
       '5':'5','6':'6','7':'7','8':'8','9':'9',
@@ -4430,6 +4496,97 @@ function exportarCSVCaptacao() {
       calcAction(k);
     }
   });
+
+  // Toggle flutuante
+  window.toggleFloatCalc = function () {
+    var panel = document.getElementById('floatCalcPanel');
+    if (!panel) return;
+    panel.classList.toggle('open');
+  };
+
+  // Drag (mouse + touch)
+  (function initDrag() {
+    var panel, header, dragging = false, startX, startY, origLeft, origBottom;
+
+    function onMouseDown(e) {
+      if (e.target.closest && e.target.closest('.float-calc-close')) return;
+      e.preventDefault();
+      panel  = document.getElementById('floatCalcPanel');
+      dragging = true;
+      startX = e.clientX;
+      startY = e.clientY;
+      var rect = panel.getBoundingClientRect();
+      origLeft   = rect.left;
+      origBottom = window.innerHeight - rect.bottom;
+      document.addEventListener('mousemove', onMouseMove);
+      document.addEventListener('mouseup', onMouseUp);
+    }
+
+    function onMouseMove(e) {
+      if (!dragging) return;
+      var dx = e.clientX - startX;
+      var dy = e.clientY - startY;
+      var newLeft   = origLeft + dx;
+      var newBottom = origBottom - dy;
+      // clamp to viewport
+      var pw = panel.offsetWidth;
+      var ph = panel.offsetHeight;
+      newLeft   = Math.max(0, Math.min(window.innerWidth  - pw, newLeft));
+      newBottom = Math.max(0, Math.min(window.innerHeight - ph, newBottom));
+      panel.style.left   = newLeft + 'px';
+      panel.style.right  = 'auto';
+      panel.style.bottom = newBottom + 'px';
+      panel.style.top    = 'auto';
+    }
+
+    function onMouseUp() {
+      dragging = false;
+      document.removeEventListener('mousemove', onMouseMove);
+      document.removeEventListener('mouseup', onMouseUp);
+    }
+
+    // Touch support
+    function onTouchStart(e) {
+      if (e.target.closest && e.target.closest('.float-calc-close')) return;
+      panel  = document.getElementById('floatCalcPanel');
+      var t  = e.touches[0];
+      dragging = true;
+      startX = t.clientX;
+      startY = t.clientY;
+      var rect = panel.getBoundingClientRect();
+      origLeft   = rect.left;
+      origBottom = window.innerHeight - rect.bottom;
+    }
+
+    function onTouchMove(e) {
+      if (!dragging) return;
+      e.preventDefault();
+      var t  = e.touches[0];
+      var dx = t.clientX - startX;
+      var dy = t.clientY - startY;
+      var newLeft   = origLeft + dx;
+      var newBottom = origBottom - dy;
+      var pw = panel.offsetWidth;
+      var ph = panel.offsetHeight;
+      newLeft   = Math.max(0, Math.min(window.innerWidth  - pw, newLeft));
+      newBottom = Math.max(0, Math.min(window.innerHeight - ph, newBottom));
+      panel.style.left   = newLeft + 'px';
+      panel.style.right  = 'auto';
+      panel.style.bottom = newBottom + 'px';
+      panel.style.top    = 'auto';
+    }
+
+    function onTouchEnd() { dragging = false; }
+
+    document.addEventListener('DOMContentLoaded', function () {
+      var h = document.getElementById('floatCalcHeader');
+      if (!h) return;
+      h.addEventListener('mousedown', onMouseDown);
+      h.addEventListener('touchstart', onTouchStart, { passive: false });
+      h.addEventListener('touchmove',  onTouchMove,  { passive: false });
+      h.addEventListener('touchend',   onTouchEnd);
+    });
+  }());
 }());
 
 /* ==========================================
