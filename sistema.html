@@ -4411,6 +4411,7 @@ function exportarCSVCaptacao() {
   // teclado físico
   document.addEventListener('keydown', function (e) {
     var sec = document.getElementById('calculadora');
+    // offsetParent === null means the element is hidden (display:none or ancestor is hidden)
     if (!sec || sec.offsetParent === null) return;
     var map = {
       '0':'0','1':'1','2':'2','3':'3','4':'4',
