@@ -839,7 +839,7 @@ async function carregarRegrasPreco(resortNome) {
 
     // Filtrar localmente: incluir regras sem dormitório (null/undefined) e as do dormitório selecionado
     if (dorm !== null) {
-      regrasPreco = todas.filter(r => r.num_dormitorios == null || Number(r.num_dormitorios) === dorm);
+      regrasPreco = todas.filter(r => r.num_dormitorios === null || r.num_dormitorios === undefined || Number(r.num_dormitorios) === dorm);
     } else {
       regrasPreco = todas;
     }
