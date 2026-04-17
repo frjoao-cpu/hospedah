@@ -194,7 +194,10 @@ CREATE TABLE IF NOT EXISTS precos_dinamicos (
 );
 
 -- Compatibilidade para bases já existentes
-ALTER TABLE precos_dinamicos ADD COLUMN IF NOT EXISTS tipo_regra text NOT NULL DEFAULT 'temporada_alta';
+ALTER TABLE precos_dinamicos ADD COLUMN IF NOT EXISTS tipo_regra text;
+UPDATE precos_dinamicos SET tipo_regra = 'temporada_alta' WHERE tipo_regra IS NULL;
+ALTER TABLE precos_dinamicos ALTER COLUMN tipo_regra SET DEFAULT 'temporada_alta';
+ALTER TABLE precos_dinamicos ALTER COLUMN tipo_regra SET NOT NULL;
 ALTER TABLE precos_dinamicos ADD COLUMN IF NOT EXISTS desconto_percentual numeric(5,2);
 
 ALTER TABLE precos_dinamicos ENABLE ROW LEVEL SECURITY;

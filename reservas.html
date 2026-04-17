@@ -719,6 +719,7 @@ let dataSaidaFP   = null;
 let datasIndisponiveis = [];
 let regrasPreco = [];
 let fpInstance    = null;
+const MS_PER_DAY = 86400000;
 
 // ============================================================
 // RENDERIZAR RESORTS
@@ -980,7 +981,7 @@ function toast(msg, tipo = 'info') {
 // ============================================================
 function calcularNoites(ini, fim) {
   if (!ini || !fim) return 0;
-  return Math.round((fim - ini) / 86400000);
+  return Math.round((fim - ini) / MS_PER_DAY);
 }
 
 function tipoRegra(rule) {
@@ -992,13 +993,6 @@ function tipoRegra(rule) {
   return 'temporada_alta';
 }
 
-function toISODate(d) {
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, '0');
-  const day = String(d.getDate()).padStart(2, '0');
-  return `${y}-${m}-${day}`;
-}
-
 function calcularDetalhamentoPreco(entrada, saida) {
   const baseNoite = resortAtual ? resortAtual.preco : 0;
   let total = 0;
@@ -1008,12 +1002,11 @@ function calcularDetalhamentoPreco(entrada, saida) {
   let ajusteDiario = 0;
   let descontoPromocional = 0;
 
-  const cur = new Date(entrada.getFullYear(), entrada.getMonth(), entrada.getDate());
-  const fim = new Date(saida.getFullYear(), saida.getMonth(), saida.getDate());
-
-  while (cur < fim) {
+  const inicioUTC = Date.UTC(entrada.getFullYear(), entrada.getMonth(), entrada.getDate());
+  const fimUTC = Date.UTC(saida.getFullYear(), saida.getMonth(), saida.getDate());
+  for (let ts = inicioUTC; ts < fimUTC; ts += MS_PER_DAY) {
     totalBase += baseNoite;
-    const dataISO = toISODate(cur);
+    const dataISO = new Date(ts).toISOString().slice(0, 10);
     const regrasDia = regrasPreco.filter(r => r.data_inicio <= dataISO && r.data_fim >= dataISO);
 
     let precoNoite = baseNoite;
@@ -1033,7 +1026,7 @@ function calcularDetalhamentoPreco(entrada, saida) {
     let descontoPct = 0;
     if (regraPromo) {
       descontoPct = Number(regraPromo.desconto_percentual || 0);
-      // Compatibilidade com registros antigos que só tinham multiplicador (< 1 = desconto)
+      // Compatibilidade: no formato legado, multiplicador 0.8 representava 20% de desconto
       if (!descontoPct && Number(regraPromo.multiplicador) > 0 && Number(regraPromo.multiplicador) < 1) {
         descontoPct = (1 - Number(regraPromo.multiplicador)) * 100;
       }
@@ -1045,7 +1038,6 @@ function calcularDetalhamentoPreco(entrada, saida) {
     }
 
     total += precoNoite;
-    cur.setDate(cur.getDate() + 1);
   }
 
   const linhas = [];

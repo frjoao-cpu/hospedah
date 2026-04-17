@@ -5254,9 +5254,7 @@ function calcMultiplicador() {
   if (tipo === 'promocao') {
     var desconto = parseFloat(document.getElementById('pd_desconto').value) || 0;
     if (base > 0 && desconto > 0) {
-      var precoPromo = base * (1 - (desconto / 100));
-      document.getElementById('pd_preco').value = precoPromo.toFixed(2);
-      document.getElementById('pd_multiplicador').value = (precoPromo / base).toFixed(2);
+      document.getElementById('pd_multiplicador').value = (1 - (desconto / 100)).toFixed(2);
     } else {
       document.getElementById('pd_multiplicador').value = '';
     }
@@ -5274,14 +5272,20 @@ async function adicionarPrecoDinamico() {
   var preco  = parseFloat(document.getElementById('pd_preco').value);
   var base   = parseFloat(document.getElementById('pd_preco_base').value) || 0;
   var desconto = parseFloat(document.getElementById('pd_desconto').value) || 0;
+
+  if (tipo === 'promocao' && (!preco || preco <= 0) && base > 0 && desconto > 0) {
+    preco = base * (1 - (desconto / 100));
+  }
   var mult   = base > 0 ? preco / base : 1.0;
 
   if (!resort) { toastSistema('Selecione o resort.', 'error'); return; }
   if (!tipo)   { toastSistema('Selecione o tipo de regra.', 'error'); return; }
   if (!nome)   { toastSistema('Informe o nome do período.', 'error'); return; }
   if (!ini || !fim) { toastSistema('Informe as datas.', 'error'); return; }
-  if (ini > fim) { toastSistema('Data inicial deve ser anterior à final.', 'error'); return; }
-  if (tipo === 'valor_dia' && new Date(ini + 'T00:00:00').getTime() !== new Date(fim + 'T00:00:00').getTime()) {
+  if (new Date(ini + 'T00:00:00') > new Date(fim + 'T00:00:00')) { toastSistema('Data inicial deve ser anterior à final.', 'error'); return; }
+  var iniTs = new Date(ini + 'T00:00:00').getTime();
+  var fimTs = new Date(fim + 'T00:00:00').getTime();
+  if (tipo === 'valor_dia' && iniTs !== fimTs) {
     toastSistema('Para valor por dia, use a mesma data no início e fim.', 'error');
     return;
   }
