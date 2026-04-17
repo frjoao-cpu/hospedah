@@ -183,13 +183,19 @@ CREATE TABLE IF NOT EXISTS precos_dinamicos (
   id              uuid          PRIMARY KEY DEFAULT gen_random_uuid(),
   acomodacao_id   uuid          REFERENCES acomodacoes(id) ON DELETE CASCADE,
   resort_nome     text,
+  tipo_regra      text          NOT NULL DEFAULT 'temporada_alta', -- temporada_alta, temporada_baixa, valor_dia, promocao
   nome_periodo    text          NOT NULL, -- ex: "Réveillon", "Julho", "Baixa temporada"
   data_inicio     date          NOT NULL,
   data_fim        date          NOT NULL,
   preco_noite     numeric(10,2) NOT NULL,
+  desconto_percentual numeric(5,2),
   multiplicador   numeric(4,2)  DEFAULT 1.0, -- fator sobre o preço base
   criado_em       timestamptz   DEFAULT now()
 );
+
+-- Compatibilidade para bases já existentes
+ALTER TABLE precos_dinamicos ADD COLUMN IF NOT EXISTS tipo_regra text NOT NULL DEFAULT 'temporada_alta';
+ALTER TABLE precos_dinamicos ADD COLUMN IF NOT EXISTS desconto_percentual numeric(5,2);
 
 ALTER TABLE precos_dinamicos ENABLE ROW LEVEL SECURITY;
 

@@ -213,6 +213,19 @@ body {
   cursor: not-allowed;
 }
 
+.btn-whatsapp {
+  background: var(--verde);
+  color: #fff;
+  margin-top: 10px;
+}
+
+.btn-whatsapp:hover { filter: brightness(1.06); }
+
+.btn-whatsapp:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 /* RESUMO LATERAL */
 .summary-card {
   background: var(--bg2);
@@ -271,6 +284,21 @@ body {
   font-size: 1.8em;
   font-weight: 700;
   color: var(--dourado);
+}
+
+.price-breakdown {
+  font-size: 0.78em;
+  color: var(--cor-sub);
+  margin-top: 8px;
+  line-height: 1.45;
+}
+
+.payment-box {
+  margin-top: 16px;
+  background: var(--bg2);
+  border: 1px solid var(--borda);
+  border-radius: var(--radius);
+  padding: 16px;
 }
 
 .availability-tag {
@@ -546,12 +574,25 @@ span.flatpickr-weekday {
       </div>
 
       <div class="field-group">
+        <label>Tipo de Acomodação *</label>
+        <select id="tipoAcomodacao">
+          <option value="resort" selected>Resort</option>
+          <option value="apartamento">Apartamento</option>
+          <option value="casa">Casa</option>
+          <option value="chale">Chalé</option>
+        </select>
+      </div>
+
+      <div class="field-group">
         <label>Mensagem / Pedido especial</label>
         <textarea id="mensagemHospede" rows="3" placeholder="Ex.: Aniversário, berço para bebê, horário preferencial de chegada..."></textarea>
       </div>
 
       <button class="btn btn-primary" id="btnReservar" onclick="enviarReserva()" disabled>
         📩 Enviar Solicitação de Reserva
+      </button>
+      <button class="btn btn-whatsapp" id="btnWhatsApp" onclick="abrirWhatsAppReserva()" disabled>
+        📱 Reservar via WhatsApp
       </button>
     </div>
   </div>
@@ -585,11 +626,20 @@ span.flatpickr-weekday {
         <span class="s-label">👥 Hóspedes</span>
         <span class="s-value" id="sumHospedes">—</span>
       </div>
+      <div class="summary-row">
+        <span class="s-label">🏷️ Tipo</span>
+        <span class="s-value" id="sumTipoAcomodacao">—</span>
+      </div>
+      <div class="summary-row">
+        <span class="s-label">📊 Diferença por período</span>
+        <span class="s-value" id="sumDiferencaPeriodo">—</span>
+      </div>
 
       <div class="summary-total">
         <div class="t-label">Valor Estimado</div>
         <div class="t-value" id="sumTotal">R$ —</div>
       </div>
+      <div class="price-breakdown" id="sumDetalhesPeriodo"></div>
 
       <div style="text-align:center; margin-top:10px;">
         <span id="availTag"></span>
@@ -610,6 +660,16 @@ span.flatpickr-weekday {
         💬 Chat Online
       </a>
     </div>
+
+    <div class="payment-box">
+      <div style="font-size:0.82em; color:var(--dourado); font-weight:600; margin-bottom:8px;">💳 Pagamento Online (em breve)</div>
+      <div style="font-size:0.78em; color:var(--cor-sub); line-height:1.5;">
+        Estrutura pronta para checkout online com gateway de pagamento. Por enquanto, a confirmação é realizada via WhatsApp.
+      </div>
+      <button class="btn" style="margin-top:10px; background:rgba(255,255,255,0.06); color:var(--cor-sub); border:1px solid var(--borda);" disabled>
+        🔒 Pagar online (em breve)
+      </button>
+    </div>
   </div>
 
 </div>
@@ -620,10 +680,9 @@ span.flatpickr-weekday {
     <div class="modal-icon">🎉</div>
     <h3>Solicitação Enviada!</h3>
     <p>Recebemos sua solicitação de reserva. Nossa equipe entrará em contato em até <strong>2 horas</strong> pelo WhatsApp ou e-mail informado para confirmar disponibilidade e valores.</p>
-    <a href="https://wa.me/5517982006382" target="_blank" rel="noopener noreferrer"
-       style="display:block; background:#25D366; color:#fff; padding:12px; border-radius:8px; text-decoration:none; font-weight:600; margin-bottom:10px;">
+    <button class="btn btn-whatsapp" onclick="abrirWhatsAppReserva()">
       📱 Confirmar pelo WhatsApp
-    </a>
+    </button>
     <button class="btn" style="background:rgba(255,255,255,0.07); color:var(--cor-sub); border:1px solid var(--borda);"
             onclick="document.getElementById('successModal').classList.remove('open'); window.location.reload()">
       Nova reserva
@@ -658,6 +717,7 @@ let resortAtual   = null;
 let dataEntradaFP = null;
 let dataSaidaFP   = null;
 let datasIndisponiveis = [];
+let regrasPreco = [];
 let fpInstance    = null;
 
 // ============================================================
@@ -693,11 +753,25 @@ async function selecionarResort(id) {
 
   // Buscar datas indisponíveis
   await carregarDisponibilidade(resortAtual.nome);
+  await carregarRegrasPreco(resortAtual.nome);
 
   // Reinicializar Flatpickr
   inicializarFlatpickr();
 
   atualizarBotao();
+}
+
+async function carregarRegrasPreco(resortNome) {
+  try {
+    const { data } = await sb
+      .from('precos_dinamicos')
+      .select('*')
+      .eq('resort_nome', resortNome);
+
+    regrasPreco = data || [];
+  } catch (e) {
+    regrasPreco = [];
+  }
 }
 
 // ============================================================
@@ -807,15 +881,22 @@ function atualizarResumo() {
   if (dataEntradaFP && dataSaidaFP && resortAtual) {
     const noites = calcularNoites(dataEntradaFP, dataSaidaFP);
     document.getElementById('sumNoites').textContent  = `${noites} noite${noites !== 1 ? 's' : ''}`;
-    const total = noites * resortAtual.preco;
-    document.getElementById('sumTotal').textContent   = `R$ ${total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
+    const det = calcularDetalhamentoPreco(dataEntradaFP, dataSaidaFP);
+    document.getElementById('sumTotal').textContent = `R$ ${det.total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
+    const sinal = det.diferenca >= 0 ? '+' : '-';
+    document.getElementById('sumDiferencaPeriodo').textContent = `${sinal} R$ ${Math.abs(det.diferenca).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
+    document.getElementById('sumDetalhesPeriodo').innerHTML = det.linhas.map(l => `• ${l}`).join('<br>');
   } else {
     document.getElementById('sumNoites').textContent = '—';
     document.getElementById('sumTotal').textContent  = 'R$ —';
+    document.getElementById('sumDiferencaPeriodo').textContent = '—';
+    document.getElementById('sumDetalhesPeriodo').textContent = '';
   }
 
   const numHosp = document.getElementById('numHospedes').value;
   document.getElementById('sumHospedes').textContent = `${numHosp} pessoa${numHosp > 1 ? 's' : ''}`;
+  const tipo = document.getElementById('tipoAcomodacao').value;
+  document.getElementById('sumTipoAcomodacao').textContent = tipo ? tipo.charAt(0).toUpperCase() + tipo.slice(1) : '—';
 }
 
 // ============================================================
@@ -823,7 +904,9 @@ function atualizarResumo() {
 // ============================================================
 function atualizarBotao() {
   const btn = document.getElementById('btnReservar');
-  btn.disabled = !(resortAtual && dataEntradaFP && dataSaidaFP);
+  const habilitar = !!(resortAtual && dataEntradaFP && dataSaidaFP);
+  btn.disabled = !habilitar;
+  document.getElementById('btnWhatsApp').disabled = !habilitar;
 }
 
 // ============================================================
@@ -844,7 +927,8 @@ async function enviarReserva() {
   }
 
   const noites     = calcularNoites(dataEntradaFP, dataSaidaFP);
-  const valorTotal = noites * resortAtual.preco;
+  const detPreco   = calcularDetalhamentoPreco(dataEntradaFP, dataSaidaFP);
+  const valorTotal = detPreco.total;
 
   const btn = document.getElementById('btnReservar');
   btn.disabled = true;
@@ -860,7 +944,7 @@ async function enviarReserva() {
       data_saida:    dataSaidaFP.toISOString().slice(0, 10),
       num_hospedes:  numHosp,
       valor_total:   valorTotal,
-      mensagem:      msg || null,
+      mensagem:      montarMensagemInterna(msg),
       status:        'pendente',
     };
 
@@ -871,19 +955,8 @@ async function enviarReserva() {
     document.getElementById('successModal').classList.add('open');
   } catch (e) {
     // Fallback: abrir WhatsApp com os dados preenchidos
-    const txt = encodeURIComponent(
-      `Olá! Gostaria de reservar:\n` +
-      `🏨 ${resortAtual.nome}\n` +
-      `📅 Check-in: ${dataEntradaFP.toLocaleDateString('pt-BR')}\n` +
-      `📅 Check-out: ${dataSaidaFP.toLocaleDateString('pt-BR')}\n` +
-      `🌙 ${noites} noite(s)\n` +
-      `👥 ${numHosp} hóspede(s)\n` +
-      `👤 ${nome}\n` +
-      `📧 ${email}\n` +
-      (msg ? `💬 ${msg}` : '')
-    );
-    window.open(`https://wa.me/5517982006382?text=${txt}`, '_blank');
-    toast('Redirecionando para WhatsApp...', 'success');
+    abrirWhatsAppReserva();
+    toast('Redirecionando para WhatsApp com resumo da reserva...', 'success');
   } finally {
     btn.disabled = false;
     btn.innerHTML = '📩 Enviar Solicitação de Reserva';
@@ -910,7 +983,129 @@ function calcularNoites(ini, fim) {
   return Math.round((fim - ini) / 86400000);
 }
 
+function tipoRegra(rule) {
+  if (rule && rule.tipo_regra) return rule.tipo_regra;
+  const nome = (rule && rule.nome_periodo ? String(rule.nome_periodo) : '').toLowerCase();
+  if (nome.includes('promo') || nome.includes('desconto')) return 'promocao';
+  if (nome.includes('alta')) return 'temporada_alta';
+  if (nome.includes('baixa')) return 'temporada_baixa';
+  return 'temporada_alta';
+}
+
+function toISODate(d) {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+
+function calcularDetalhamentoPreco(entrada, saida) {
+  const baseNoite = resortAtual ? resortAtual.preco : 0;
+  let total = 0;
+  let totalBase = 0;
+  let ajusteAlta = 0;
+  let ajusteBaixa = 0;
+  let ajusteDiario = 0;
+  let descontoPromocional = 0;
+
+  const cur = new Date(entrada.getFullYear(), entrada.getMonth(), entrada.getDate());
+  const fim = new Date(saida.getFullYear(), saida.getMonth(), saida.getDate());
+
+  while (cur < fim) {
+    totalBase += baseNoite;
+    const dataISO = toISODate(cur);
+    const regrasDia = regrasPreco.filter(r => r.data_inicio <= dataISO && r.data_fim >= dataISO);
+
+    let precoNoite = baseNoite;
+    const regraDia = regrasDia.find(r => tipoRegra(r) === 'valor_dia');
+    const regraTemporada = regrasDia.find(r => ['temporada_alta', 'temporada_baixa'].includes(tipoRegra(r)));
+    const regraPromo = regrasDia.find(r => tipoRegra(r) === 'promocao');
+
+    if (regraDia && regraDia.preco_noite) {
+      precoNoite = Number(regraDia.preco_noite);
+      ajusteDiario += (precoNoite - baseNoite);
+    } else if (regraTemporada && regraTemporada.preco_noite) {
+      precoNoite = Number(regraTemporada.preco_noite);
+      if (tipoRegra(regraTemporada) === 'temporada_alta') ajusteAlta += (precoNoite - baseNoite);
+      if (tipoRegra(regraTemporada) === 'temporada_baixa') ajusteBaixa += (precoNoite - baseNoite);
+    }
+
+    let descontoPct = 0;
+    if (regraPromo) {
+      descontoPct = Number(regraPromo.desconto_percentual || 0);
+      if (!descontoPct && Number(regraPromo.multiplicador) > 0 && Number(regraPromo.multiplicador) < 1) {
+        descontoPct = (1 - Number(regraPromo.multiplicador)) * 100;
+      }
+    }
+    if (descontoPct > 0) {
+      const descontoDia = precoNoite * (descontoPct / 100);
+      descontoPromocional += descontoDia;
+      precoNoite -= descontoDia;
+    }
+
+    total += precoNoite;
+    cur.setDate(cur.getDate() + 1);
+  }
+
+  const linhas = [];
+  if (ajusteAlta !== 0) linhas.push(`Alta temporada: ${ajusteAlta >= 0 ? '+' : '-'}R$ ${Math.abs(ajusteAlta).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`);
+  if (ajusteBaixa !== 0) linhas.push(`Baixa temporada: ${ajusteBaixa >= 0 ? '+' : '-'}R$ ${Math.abs(ajusteBaixa).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`);
+  if (ajusteDiario !== 0) linhas.push(`Valores por dia: ${ajusteDiario >= 0 ? '+' : '-'}R$ ${Math.abs(ajusteDiario).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`);
+  if (descontoPromocional > 0) linhas.push(`Promoções/descontos: -R$ ${descontoPromocional.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`);
+  if (!linhas.length) linhas.push('Sem variação de período no intervalo selecionado.');
+
+  return {
+    total,
+    totalBase,
+    diferenca: total - totalBase,
+    linhas,
+  };
+}
+
+function montarResumoReserva() {
+  const nome = document.getElementById('nomeHospede').value.trim();
+  const email = document.getElementById('emailHospede').value.trim();
+  const numHosp = parseInt(document.getElementById('numHospedes').value, 10);
+  const tipo = document.getElementById('tipoAcomodacao').value;
+  const msg = document.getElementById('mensagemHospede').value.trim();
+  const noites = calcularNoites(dataEntradaFP, dataSaidaFP);
+  const det = calcularDetalhamentoPreco(dataEntradaFP, dataSaidaFP);
+
+  return (
+    `Olá! Gostaria de reservar:\n` +
+    `🏨 ${resortAtual.nome}\n` +
+    `🏷️ Tipo: ${tipo}\n` +
+    `📅 Check-in: ${dataEntradaFP.toLocaleDateString('pt-BR')}\n` +
+    `📅 Check-out: ${dataSaidaFP.toLocaleDateString('pt-BR')}\n` +
+    `🌙 ${noites} noite(s)\n` +
+    `👥 ${numHosp} hóspede(s)\n` +
+    `💰 Valor estimado: R$ ${det.total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}\n` +
+    `📊 Diferença por período: ${det.diferenca >= 0 ? '+' : '-'}R$ ${Math.abs(det.diferenca).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}\n` +
+    `📌 ${det.linhas.join(' | ')}\n` +
+    (nome ? `👤 ${nome}\n` : '') +
+    (email ? `📧 ${email}\n` : '') +
+    (msg ? `💬 ${msg}` : '')
+  );
+}
+
+function montarMensagemInterna(msgOriginal) {
+  const tipo = document.getElementById('tipoAcomodacao').value;
+  const det = (dataEntradaFP && dataSaidaFP && resortAtual) ? calcularDetalhamentoPreco(dataEntradaFP, dataSaidaFP) : null;
+  const complemento = det ? `\n\n[Resumo automático]\nTipo de acomodação: ${tipo}\nDiferença por período: ${(det.diferenca >= 0 ? '+' : '-') + det.diferenca.toFixed(2)}` : '';
+  return (msgOriginal || '') + complemento;
+}
+
+function abrirWhatsAppReserva() {
+  if (!resortAtual || !dataEntradaFP || !dataSaidaFP) {
+    toast('Selecione resort e datas para gerar o resumo.', 'error');
+    return;
+  }
+  const txt = encodeURIComponent(montarResumoReserva());
+  window.open(`https://wa.me/5517982006382?text=${txt}`, '_blank');
+}
+
 document.getElementById('numHospedes').addEventListener('change', atualizarResumo);
+document.getElementById('tipoAcomodacao').addEventListener('change', atualizarResumo);
 
 renderResorts();
 inicializarFlatpickr();
