@@ -5003,7 +5003,9 @@ async function carregarReservasHospede() {
     body.innerHTML = lista.map(function(r, i) {
       var noites = 0;
       if (r.data_entrada && r.data_saida) {
-        noites = Math.round((new Date(r.data_saida) - new Date(r.data_entrada)) / 86400000);
+        noites = Math.round(
+          (new Date(r.data_saida + 'T00:00:00Z') - new Date(r.data_entrada + 'T00:00:00Z')) / 86400000
+        );
       }
       var statusBadge = r.status === 'pendente'   ? '<span class="badge badge-pendente">⏳ Pendente</span>'
                        : r.status === 'confirmada' ? '<span class="badge badge-pago">✅ Confirmada</span>'
@@ -5151,9 +5153,13 @@ async function bloquearDatas() {
   }
 
   try {
-    var { error } = await _supabase.from('disponibilidade').upsert(datas, { onConflict: 'resort_nome,data_bloqueada', ignoreDuplicates: true });
-    if (error) throw error;
-    toastSistema(datas.length + ' datas bloqueadas com sucesso!', 'success');
+    // Insert one by one to silently skip duplicates (no unique constraint needed)
+    var erros = 0;
+    await Promise.all(datas.map(async function(d) {
+      var { error } = await _supabase.from('disponibilidade').insert([d]);
+      if (error && !error.message.includes('duplicate')) erros++;
+    }));
+    toastSistema((datas.length - erros) + ' datas bloqueadas com sucesso!', 'success');
     carregarDisponibilidadeMgmt();
   } catch(e) {
     toastSistema('Erro ao bloquear datas: ' + (e.message || ''), 'error');
@@ -5359,7 +5365,8 @@ function esc(s) {
 
 function fmtDate(d) {
   if (!d) return '—';
-  var dt = new Date(d + (d.length === 10 ? 'T12:00:00' : ''));
+  // Treat date-only strings as UTC noon to avoid DST shifting the displayed date
+  var dt = new Date(d.length === 10 ? d + 'T12:00:00Z' : d);
   return dt.toLocaleDateString('pt-BR');
 }
 

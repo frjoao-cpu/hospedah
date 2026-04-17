@@ -781,7 +781,7 @@ function verificarPeriodoDisponivel() {
     return;
   }
 
-  const noites = Math.round((dataSaidaFP - dataEntradaFP) / 86400000);
+  const noites = calcularNoites(dataEntradaFP, dataSaidaFP);
   statusEl.innerHTML = `<span class="availability-tag tag-disponivel">✅ Disponível — ${noites} noite${noites !== 1 ? 's' : ''} selecionada${noites !== 1 ? 's' : ''}</span>`;
   document.getElementById('availTag').innerHTML = '<span class="availability-tag tag-disponivel">✅ Disponível</span>';
 
@@ -805,7 +805,7 @@ function atualizarResumo() {
   document.getElementById('sumSaida').textContent   = fmtData(dataSaidaFP);
 
   if (dataEntradaFP && dataSaidaFP && resortAtual) {
-    const noites = Math.round((dataSaidaFP - dataEntradaFP) / 86400000);
+    const noites = calcularNoites(dataEntradaFP, dataSaidaFP);
     document.getElementById('sumNoites').textContent  = `${noites} noite${noites !== 1 ? 's' : ''}`;
     const total = noites * resortAtual.preco;
     document.getElementById('sumTotal').textContent   = `R$ ${total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
@@ -843,7 +843,7 @@ async function enviarReserva() {
     return;
   }
 
-  const noites     = Math.round((dataSaidaFP - dataEntradaFP) / 86400000);
+  const noites     = calcularNoites(dataEntradaFP, dataSaidaFP);
   const valorTotal = noites * resortAtual.preco;
 
   const btn = document.getElementById('btnReservar');
@@ -903,9 +903,12 @@ function toast(msg, tipo = 'info') {
 }
 
 // ============================================================
-// INIT
+// HELPER
 // ============================================================
-document.getElementById('numHospedes').addEventListener('change', () => {
+function calcularNoites(ini, fim) {
+  if (!ini || !fim) return 0;
+  return Math.round((fim - ini) / 86400000);
+}
   atualizarResumo();
 });
 

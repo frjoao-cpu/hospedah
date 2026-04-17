@@ -733,7 +733,7 @@ function renderMarkers(lista) {
 function highlightCard(id) {
   document.querySelectorAll('.resort-card').forEach(c => c.classList.remove('highlight'));
   if (id) {
-    const c = document.getElementById('card_' + id);
+    const c = document.getElementById('card_' + encodeURIComponent(id));
     if (c) { c.classList.add('highlight'); c.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }
   }
 }
@@ -757,11 +757,11 @@ function renderCards(lista) {
     return;
   }
 
-  el.innerHTML = lista.map(r => `
-    <div class="resort-card" id="card_${r.id}"
-         onclick="abrirNoMapa('${r.id}')"
-         onmouseenter="pulseMarker('${r.id}')"
-         onmouseleave="pulseMarker(null)">
+  el.innerHTML = lista.map(r => {
+    // Safely encode the resort id as a data attribute to avoid XSS in inline handlers
+    const safeId = encodeURIComponent(r.id);
+    return `
+    <div class="resort-card" id="card_${safeId}" data-resort-id="${safeId}">
       <div class="resort-card-img">
         <img src="${r.img}" alt="${r.nome}" loading="lazy" width="90" height="72"
              style="width:90px;height:72px;border-radius:8px;object-fit:cover;"
@@ -780,13 +780,25 @@ function renderCards(lista) {
             <div class="resort-card-price">R$ ${r.preco.toLocaleString('pt-BR', {minimumFractionDigits: 2})} <small>/noite</small></div>
             <div>${renderStars(r.nota)}</div>
           </div>
-          <a href="reservas.html" onclick="event.stopPropagation()">
+          <a href="reservas.html" class="reservar-link">
             <button class="btn-reservar-sm">📅 Reservar</button>
           </a>
         </div>
       </div>
     </div>
-  `).join('');
+  `;
+  }).join('');
+
+  // Attach event listeners via delegation (avoids XSS from inline onclick with IDs)
+  el.querySelectorAll('.resort-card').forEach(card => {
+    const id = decodeURIComponent(card.dataset.resortId || '');
+    card.addEventListener('click', e => {
+      if (e.target.closest('.reservar-link')) return; // let link bubble
+      abrirNoMapa(id);
+    });
+    card.addEventListener('mouseenter', () => pulseMarker(id));
+    card.addEventListener('mouseleave', () => pulseMarker(null));
+  });
 }
 
 function abrirNoMapa(id) {

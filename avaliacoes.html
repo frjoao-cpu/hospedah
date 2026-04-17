@@ -696,7 +696,7 @@ function renderStarsDisplay(nota) {
 
 function formatarData(d) {
   if (!d) return '';
-  return new Date(d + (d.length === 10 ? 'T12:00:00' : '')).toLocaleDateString('pt-BR', { year:'numeric', month:'short', day:'numeric' });
+  return new Date(d.length === 10 ? d + 'T12:00:00Z' : d).toLocaleDateString('pt-BR', { year:'numeric', month:'short', day:'numeric' });
 }
 
 function escHtml(s) {

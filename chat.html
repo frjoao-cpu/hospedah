@@ -671,7 +671,11 @@ function iniciarChat() {
 
   nomeHospede = nome;
   assunto = document.getElementById('ob_assunto').value;
-  conversaId = `chat_${nome.toLowerCase().replace(/\s+/g, '_')}_${Date.now()}`;
+  // Use crypto.randomUUID when available for collision-free IDs; fallback to high-entropy random string
+  const uid = typeof crypto !== 'undefined' && crypto.randomUUID
+    ? crypto.randomUUID()
+    : Date.now().toString(36) + Math.random().toString(36).slice(2, 10);
+  conversaId = `chat_${uid}`;
 
   // Exibir chat
   document.getElementById('onboarding').style.display = 'none';
