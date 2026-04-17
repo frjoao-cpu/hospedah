@@ -811,6 +811,14 @@ async function selecionarResort(id) {
   await carregarDisponibilidade(resortAtual.nome);
   await carregarRegrasPreco(resortAtual.nome);
 
+  // Atualizar preço mínimo dinâmico no card do resort selecionado
+  const precoMinCard = calcularPrecoMinimo();
+  const cardEl = document.getElementById('ro_' + id);
+  if (cardEl) {
+    const precoEl = cardEl.querySelector('.resort-price');
+    if (precoEl) precoEl.textContent = `A partir de R$ ${Math.round(precoMinCard).toLocaleString('pt-BR')}/noite`;
+  }
+
   // Reinicializar Flatpickr (restaura datas e recalcula preço dinâmico internamente)
   inicializarFlatpickr();
 
@@ -998,9 +1006,9 @@ function atualizarResumo() {
     document.getElementById('sumTotal').textContent  = 'R$ —';
     document.getElementById('sumDiferencaPeriodo').textContent = '—';
     document.getElementById('sumDetalhesPeriodo').textContent = '';
-    // Restaurar preço base quando nenhuma data está selecionada
+    // Restaurar preço mínimo dinâmico quando nenhuma data está selecionada
     if (resortAtual) {
-      document.getElementById('sumPrecoNoite').textContent = `R$ ${resortAtual.preco.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
+      document.getElementById('sumPrecoNoite').textContent = `R$ ${calcularPrecoMinimo().toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
     }
   }
 
@@ -1106,6 +1114,88 @@ function tipoRegra(rule) {
   if (nome.includes('alta')) return 'temporada_alta';
   if (nome.includes('baixa')) return 'temporada_baixa';
   return 'temporada_alta';
+}
+
+// Calcula o preço mínimo por noite a partir das regras dinâmicas carregadas para o resort atual.
+// Retorna o preço base do resort caso não existam regras cadastradas.
+function calcularPrecoMinimo() {
+  const base = resortAtual ? resortAtual.preco : 0;
+  if (!regrasPreco || !regrasPreco.length) return base;
+
+  const precos = regrasPreco
+    .filter(r => tipoRegra(r) !== 'promocao')
+    .map(r => {
+      const pn   = Number(r.preco_noite);
+      const mult = Number(r.multiplicador);
+      if (tipoRegra(r) === 'valor_periodo') {
+        const noites = Math.round(
+          (new Date(r.data_fim).getTime() - new Date(r.data_inicio).getTime()) / MS_PER_DAY
+        );
+        if (noites > 0) {
+          if (pn   > 0) return pn   / noites;
+          if (mult > 0) return (mult * base) / noites;
+        }
+        return base;
+      }
+      if (pn   > 0) return pn;
+      if (mult > 0) return mult * base;
+      return base;
+    });
+
+  return precos.length ? Math.min(base, ...precos) : base;
+}
+
+// Carrega preços mínimos dinâmicos para todos os resorts e atualiza os cards na grade.
+async function carregarPrecosMinimosGlobal() {
+  try {
+    const { data, error } = await sb.from('precos_dinamicos').select('*');
+    if (error || !data || !data.length) return;
+
+    // Agrupa regras por resort_nome
+    const porResort = {};
+    data.forEach(r => {
+      if (!porResort[r.resort_nome]) porResort[r.resort_nome] = [];
+      porResort[r.resort_nome].push({
+        ...r,
+        data_inicio: r.data_inicio ? String(r.data_inicio).slice(0, 10) : '',
+        data_fim:    r.data_fim    ? String(r.data_fim).slice(0, 10)    : '',
+      });
+    });
+
+    RESORTS.forEach(resort => {
+      const regras = (porResort[resort.nome] || []).filter(r => tipoRegra(r) !== 'promocao');
+      const base   = resort.preco;
+
+      const precos = regras.map(r => {
+        const pn   = Number(r.preco_noite);
+        const mult = Number(r.multiplicador);
+        if (tipoRegra(r) === 'valor_periodo') {
+          const noites = Math.round(
+            (new Date(r.data_fim).getTime() - new Date(r.data_inicio).getTime()) / MS_PER_DAY
+          );
+          if (noites > 0) {
+            if (pn   > 0) return pn   / noites;
+            if (mult > 0) return (mult * base) / noites;
+          }
+          return base;
+        }
+        if (pn   > 0) return pn;
+        if (mult > 0) return mult * base;
+        return base;
+      });
+
+      const precoMin = precos.length ? Math.min(base, ...precos) : base;
+      const card = document.getElementById('ro_' + resort.id);
+      if (card) {
+        const precoEl = card.querySelector('.resort-price');
+        if (precoEl) {
+          precoEl.textContent = `A partir de R$ ${Math.round(precoMin).toLocaleString('pt-BR')}/noite`;
+        }
+      }
+    });
+  } catch (e) {
+    console.error('Erro ao carregar preços mínimos globais:', e);
+  }
 }
 
 function calcularDetalhamentoPreco(entrada, saida) {
@@ -1242,6 +1332,7 @@ document.getElementById('numHospedes').addEventListener('change', atualizarResum
 document.getElementById('tipoAcomodacao').addEventListener('change', atualizarResumo);
 
 renderResorts();
+carregarPrecosMinimosGlobal();
 inicializarFlatpickr();
 
 // Pré-selecionar resort e datas a partir de parâmetros de URL (ex: vindo de busca.html)
