@@ -674,12 +674,21 @@ const MS_PER_DAY = 86400000;
 // ============================================================
 // PREÇOS DINÂMICOS — carregar do Supabase e aplicar por datas
 // ============================================================
+let regrasPrecoByResort = {};   // rules grouped by resort nome for fast lookup
+
 async function carregarPrecosDinamicos() {
   try {
     const { data } = await _sb.from('precos_dinamicos').select('*');
     todasRegrasPreco = data || [];
+    // Pre-group by resort_nome for O(1) lookup in calcularPrecoParaPeriodo
+    regrasPrecoByResort = {};
+    todasRegrasPreco.forEach(r => {
+      if (!regrasPrecoByResort[r.resort_nome]) regrasPrecoByResort[r.resort_nome] = [];
+      regrasPrecoByResort[r.resort_nome].push(r);
+    });
   } catch (e) {
     todasRegrasPreco = [];
+    regrasPrecoByResort = {};
   }
 }
 
@@ -690,7 +699,7 @@ async function carregarPrecosDinamicos() {
 function calcularPrecoParaPeriodo(resort, entrada, saida) {
   if (!entrada || !saida || entrada >= saida) return resort.preco;
 
-  const regras = todasRegrasPreco.filter(r => r.resort_nome === resort.nome);
+  const regras = regrasPrecoByResort[resort.nome] || [];
   if (regras.length === 0) return resort.preco;
 
   const baseNoite = resort.preco;
