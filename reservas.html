@@ -871,6 +871,8 @@ function inicializarFlatpickr() {
   // Destruir instância anterior
   if (fpInstance) fpInstance.destroy();
 
+  const saidaInput = document.getElementById('dataSaida');
+
   const opcoes = {
     mode: 'range',
     minDate: 'today',
@@ -880,7 +882,7 @@ function inicializarFlatpickr() {
     inline: false,
     allowInput: false,
     disableMobile: false,
-    onChange(selectedDates) {
+    onChange(selectedDates, dateStr, instance) {
       if (selectedDates.length === 2) {
         dataEntradaFP = selectedDates[0];
         dataSaidaFP   = selectedDates[1];
@@ -888,18 +890,36 @@ function inicializarFlatpickr() {
       } else if (selectedDates.length === 1) {
         dataEntradaFP = selectedDates[0];
         dataSaidaFP   = null;
+        if (saidaInput) saidaInput.value = '';
         resetarStatus();
       } else {
         dataEntradaFP = null;
         dataSaidaFP   = null;
+        if (saidaInput) saidaInput.value = '';
         resetarStatus();
+      }
+    },
+    onValueUpdate(selectedDates, dateStr, instance) {
+      // Exibir apenas o check-in no primeiro campo e o check-out no segundo
+      if (selectedDates.length >= 1) {
+        instance.input.value = instance.formatDate(selectedDates[0], instance.config.dateFormat);
+      }
+      if (selectedDates.length === 2) {
+        if (saidaInput) saidaInput.value = instance.formatDate(selectedDates[1], instance.config.dateFormat);
+      } else {
+        if (saidaInput) saidaInput.value = '';
       }
     },
   };
 
   fpInstance = flatpickr('#dataEntrada', opcoes);
-  // Sincronizar segundo campo visualmente (apenas exibição)
-  flatpickr('#dataSaida', { ...opcoes, linkedTo: fpInstance });
+
+  // Abrir o mesmo calendário ao clicar no campo de check-out
+  if (saidaInput) {
+    saidaInput.removeEventListener('click', saidaInput._fpClickHandler || null);
+    saidaInput._fpClickHandler = () => { if (fpInstance) fpInstance.open(); };
+    saidaInput.addEventListener('click', saidaInput._fpClickHandler);
+  }
 }
 
 // ============================================================
