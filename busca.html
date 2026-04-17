@@ -794,13 +794,19 @@ function renderMarkers(lista) {
   Object.values(markers).forEach(m => m.remove());
   markers = {};
 
+  const { entrada, saida } = getDatasFiltro();
+  const temDatas = !!(entrada && saida);
+
   lista.forEach(r => {
+    const precoLabel = temDatas
+      ? `💲 R$ ${r.preco.toFixed(2).replace('.', ',')}/noite`
+      : `A partir de R$ ${r.preco.toFixed(2).replace('.', ',')}/noite`;
     const m = L.marker([r.lat, r.lng], { icon: createIcon(r.icon) })
       .addTo(map)
       .bindPopup(`
         <div class="popup-nome">${r.icon} ${r.nome}</div>
         <div class="popup-cidade">📍 ${r.cidade}</div>
-        <div class="popup-preco">A partir de R$ ${r.preco.toFixed(2).replace('.', ',')}/noite</div>
+        <div class="popup-preco">${precoLabel}</div>
         <div style="margin-bottom:8px;">${renderStars(r.nota)}</div>
         <a href="${r.link}" class="popup-btn">Ver detalhes →</a>
         <a href="reservas.html" class="popup-btn" style="margin-top:6px; background:rgba(37,211,102,0.2); color:#25D366; border:1px solid rgba(37,211,102,0.3);">📅 Reservar</a>

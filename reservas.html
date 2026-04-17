@@ -811,8 +811,11 @@ async function selecionarResort(id) {
   await carregarDisponibilidade(resortAtual.nome);
   await carregarRegrasPreco(resortAtual.nome);
 
-  // Reinicializar Flatpickr
+  // Reinicializar Flatpickr (restaura datas e recalcula preço dinâmico internamente)
   inicializarFlatpickr();
+
+  // Se não houver datas selecionadas, atualizar resumo com preço base
+  if (!dataEntradaFP || !dataSaidaFP) atualizarResumo();
 
   atualizarBotao();
 }
@@ -869,7 +872,10 @@ function inicializarFlatpickr() {
   const hoje = new Date();
   hoje.setHours(0, 0, 0, 0);
 
-  // Destruir instância anterior
+  // Preservar datas já selecionadas antes de destruir a instância anterior
+  const savedEntrada = dataEntradaFP;
+  const savedSaida   = dataSaidaFP;
+
   if (fpInstance) fpInstance.destroy();
 
   const saidaInput = document.getElementById('dataSaida');
@@ -882,7 +888,7 @@ function inicializarFlatpickr() {
     disable: datasIndisponiveis,
     inline: false,
     allowInput: false,
-    disableMobile: false,
+    disableMobile: true,
     onChange(selectedDates, dateStr, instance) {
       if (selectedDates.length === 2) {
         dataEntradaFP = selectedDates[0];
@@ -915,11 +921,17 @@ function inicializarFlatpickr() {
 
   fpInstance = flatpickr('#dataEntrada', opcoes);
 
+  // Restaurar datas preservadas (dispara onChange → recalcula preço dinâmico com as regras do novo resort)
+  if (savedEntrada && savedSaida) {
+    fpInstance.setDate([savedEntrada, savedSaida], true);
+  }
+
   // Abrir o mesmo calendário ao clicar no campo de check-out
   if (saidaInput) {
     if (fpSaidaClickHandler) saidaInput.removeEventListener('click', fpSaidaClickHandler);
-    fpSaidaClickHandler = () => { if (fpInstance) fpInstance.open(); };
+    fpSaidaClickHandler = (e) => { e.preventDefault(); if (fpInstance) fpInstance.open(); };
     saidaInput.addEventListener('click', fpSaidaClickHandler);
+    saidaInput.addEventListener('focus', fpSaidaClickHandler);
   }
 }
 
