@@ -1069,6 +1069,7 @@ function tipoRegra(rule) {
   if (rule && rule.tipo_regra) return rule.tipo_regra;
   const nome = (rule && rule.nome_periodo ? String(rule.nome_periodo) : '').toLowerCase();
   if (nome.includes('promo') || nome.includes('desconto')) return 'promocao';
+  if (nome.includes('periodo') || nome.includes('período')) return 'valor_periodo';
   if (nome.includes('alta')) return 'temporada_alta';
   if (nome.includes('baixa')) return 'temporada_baixa';
   return 'temporada_alta';
@@ -1081,6 +1082,7 @@ function calcularDetalhamentoPreco(entrada, saida) {
   let ajusteAlta = 0;
   let ajusteBaixa = 0;
   let ajusteDiario = 0;
+  let ajustePeriodo = 0;
   let descontoPromocional = 0;
 
   const inicioUTC = Date.UTC(entrada.getFullYear(), entrada.getMonth(), entrada.getDate());
@@ -1091,11 +1093,23 @@ function calcularDetalhamentoPreco(entrada, saida) {
     const regrasDia = regrasPreco.filter(r => r.data_inicio <= dataISO && r.data_fim >= dataISO);
 
     let precoNoite = baseNoite;
+    const regraValorPeriodo = regrasDia.find(r => tipoRegra(r) === 'valor_periodo');
     const regraDia = regrasDia.find(r => tipoRegra(r) === 'valor_dia');
     const regraTemporada = regrasDia.find(r => ['temporada_alta', 'temporada_baixa'].includes(tipoRegra(r)));
     const regraPromo = regrasDia.find(r => tipoRegra(r) === 'promocao');
 
-    if (regraDia && regraDia.preco_noite) {
+    if (regraValorPeriodo && regraValorPeriodo.preco_noite) {
+      // preco_noite stores the TOTAL price for the full period; distribute evenly per night
+      const [py, pm, pd] = regraValorPeriodo.data_inicio.split('-').map(Number);
+      const [ey, em, ed] = regraValorPeriodo.data_fim.split('-').map(Number);
+      const periodoIni = Date.UTC(py, pm - 1, pd);
+      const periodoFim = Date.UTC(ey, em - 1, ed);
+      const noitesPeriodo = Math.round((periodoFim - periodoIni) / MS_PER_DAY);
+      if (noitesPeriodo > 0) {
+        precoNoite = Number(regraValorPeriodo.preco_noite) / noitesPeriodo;
+        ajustePeriodo += (precoNoite - baseNoite);
+      }
+    } else if (regraDia && regraDia.preco_noite) {
       precoNoite = Number(regraDia.preco_noite);
       ajusteDiario += (precoNoite - baseNoite);
     } else if (regraTemporada && regraTemporada.preco_noite) {
@@ -1122,6 +1136,7 @@ function calcularDetalhamentoPreco(entrada, saida) {
   }
 
   const linhas = [];
+  if (ajustePeriodo !== 0) linhas.push(`Valor por período: ${ajustePeriodo >= 0 ? '+' : '-'}R$ ${Math.abs(ajustePeriodo).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`);
   if (ajusteAlta !== 0) linhas.push(`Alta temporada: ${ajusteAlta >= 0 ? '+' : '-'}R$ ${Math.abs(ajusteAlta).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`);
   if (ajusteBaixa !== 0) linhas.push(`Baixa temporada: ${ajusteBaixa >= 0 ? '+' : '-'}R$ ${Math.abs(ajusteBaixa).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`);
   if (ajusteDiario !== 0) linhas.push(`Valores por dia: ${ajusteDiario >= 0 ? '+' : '-'}R$ ${Math.abs(ajusteDiario).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`);

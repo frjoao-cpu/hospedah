@@ -1991,6 +1991,7 @@ tbody td {
           <option value="temporada_baixa">❄️ Temporada baixa</option>
           <option value="valor_dia">📆 Valor por dia específico</option>
           <option value="promocao">🏷️ Promoção / desconto</option>
+          <option value="valor_periodo">📅 Valor por período (total)</option>
         </select>
       </div>
       <div class="field-group">
@@ -2006,7 +2007,7 @@ tbody td {
         <input type="date" id="pd_data_fim">
       </div>
       <div class="field-group">
-        <label>Preço/Noite (R$) *</label>
+        <label id="pd_preco_label">Preço/Noite (R$) *</label>
         <input type="number" id="pd_preco" min="0" step="0.01" placeholder="Ex.: 650,00" oninput="calcMultiplicador()">
       </div>
       <div class="field-group">
@@ -5269,6 +5270,16 @@ function calcMultiplicador() {
   var tipo  = document.getElementById('pd_tipo_regra').value;
   var preco = parseFloat(document.getElementById('pd_preco').value) || 0;
   var base  = parseFloat(document.getElementById('pd_preco_base').value) || 0;
+
+  var precoLabel = document.getElementById('pd_preco_label');
+  if (precoLabel) {
+    precoLabel.textContent = tipo === 'valor_periodo' ? 'Preço Total do Período (R$) *' : 'Preço/Noite (R$) *';
+  }
+
+  if (tipo === 'valor_periodo') {
+    document.getElementById('pd_multiplicador').value = '';
+    return;
+  }
   if (tipo === 'promocao') {
     var desconto = parseFloat(document.getElementById('pd_desconto').value) || 0;
     if (base > 0 && desconto > 0) {
@@ -5367,6 +5378,7 @@ async function carregarTabelaPrecosDinamicos() {
           var tipoLabel = tipo === 'valor_dia' ? '📆 Valor por dia'
             : tipo === 'promocao' ? '🏷️ Promoção'
             : tipo === 'temporada_baixa' ? '❄️ Baixa'
+            : tipo === 'valor_periodo' ? '📅 Valor período'
             : '🔥 Alta';
           var dormLabel = r.num_dormitorios ? r.num_dormitorios + ' dorm.' : '—';
           return '<tr><td>' + (i+1) + '</td><td>' + esc(r.resort_nome) + '</td><td>' + dormLabel + '</td><td>' + tipoLabel + '</td>'
