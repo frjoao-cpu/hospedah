@@ -5549,6 +5549,12 @@ async function deletarDisp(id) {
 var PD_RESORTS_COM_DORMITORIOS = ['Hot Beach Suites', 'Olimpia Park Resort', 'Solar das Águas'];
 
 // Calendar state
+function pdTodayStr() {
+  var t = new Date();
+  t.setHours(0, 0, 0, 0);
+  return t.toISOString().slice(0, 10);
+}
+
 var pdCal = {
   resort: '',
   year: 0,
@@ -5595,7 +5601,7 @@ async function pdLoadAndRender() {
   if (!pdCal.resort) return;
   pdCal.loading = true;
 
-  // Compute date window: 3 months back to 12 months forward
+  // Compute date window: 1 month back to 14 months forward
   var today = new Date();
   var rangeFrom = new Date(today.getFullYear(), today.getMonth() - 1, 1).toISOString().slice(0, 10);
   var rangeTo   = new Date(today.getFullYear() + 1, today.getMonth() + 2, 0).toISOString().slice(0, 10);
@@ -5683,9 +5689,7 @@ function pdRenderCalendar() {
 }
 
 function pdBuildMonthHtml(yr, mo, moName) {
-  var today = new Date();
-  today.setHours(0,0,0,0);
-  var todayStr = today.toISOString().slice(0,10);
+  var todayStr = pdTodayStr();
 
   var firstDay = new Date(yr, mo, 1).getDay(); // 0=Sun
   var daysInMonth = new Date(yr, mo + 1, 0).getDate();
@@ -5757,8 +5761,8 @@ function pdUpdateRangeHighlight() {
     el.classList.remove('range-start','range-end','in-range');
 
     if (!rs) return;
-    var lo = (re && rs <= re) ? rs : (re ? re : rs);
-    var hi = (re && rs <= re) ? re : (re ? rs : rs);
+    var lo = re ? (rs <= re ? rs : re) : rs;
+    var hi = re ? (rs <= re ? re : rs) : rs;
 
     if (ds === lo && ds === hi) {
       el.classList.add('range-start','range-end');
@@ -5773,9 +5777,7 @@ function pdUpdateRangeHighlight() {
 }
 
 function pdCalClickDay(ds) {
-  var today = new Date();
-  today.setHours(0,0,0,0);
-  var todayStr = today.toISOString().slice(0,10);
+  var todayStr = pdTodayStr();
   if (ds < todayStr) return; // ignore past dates in all modes
 
   if (pdCal.mode === 'block') {
@@ -5863,8 +5865,9 @@ function pdSetMode(mode) {
   document.getElementById('pd_data_ini').value = '';
   document.getElementById('pd_data_fim').value = '';
 
-  ['price','block','unblock'].forEach(function(m) {
-    var btn = document.getElementById('pdMode' + m.charAt(0).toUpperCase() + m.slice(1));
+  var modeBtnIds = { price: 'pdModePrice', block: 'pdModeBlock', unblock: 'pdModeUnblock' };
+  Object.keys(modeBtnIds).forEach(function(m) {
+    var btn = document.getElementById(modeBtnIds[m]);
     if (btn) btn.classList.toggle('active', m === mode);
   });
   pdUpdateRangeHighlight();
@@ -5879,7 +5882,7 @@ async function pdToggleBlockDate(ds, block) {
         data_bloqueada: ds,
         motivo:         'bloqueio',
       }]);
-      if (error && !error.message.toLowerCase().includes('duplicate') && !error.message.toLowerCase().includes('unique')) throw error;
+      if (error && error.code !== '23505') throw error;
       pdCal.blockedSet.add(ds);
       toastSistema('Data ' + fmtDate(ds) + ' bloqueada.', 'success');
     } else {
