@@ -16,6 +16,8 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/pt.js"></script>
+<!-- Supabase -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root {
   --dourado: #D4AF37;
@@ -559,6 +561,13 @@ details.adv-filters[open] > summary { color: var(--dourado); border-color: var(-
 
 <script>
 // ============================================================
+// SUPABASE — preços dinâmicos
+// ============================================================
+const SUPABASE_URL = 'https://ydrmjoppjxtmnwtvtinb.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlkcm1qb3Bwanh0bW53dHZ0aW5iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ0MTg3OTEsImV4cCI6MjA1OTk5NDc5MX0.JK8TPBxgp7Y8sn-NmFsQDtFJ6EH_rQLjVWZBkFg5N28';
+const _sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// ============================================================
 // DADOS DOS RESORTS (fallback estático enquanto Supabase carrega)
 // ============================================================
 const RESORTS = [
@@ -659,6 +668,86 @@ const AMENITIES_LIST = ['Piscina', 'Wi-Fi', 'SPA', 'Parque aquático', 'Restaura
 let map, markers = {}, resultados = RESORTS;
 let amenitiesSel = new Set();
 let currentView = 'list';
+let todasRegrasPreco = [];   // todas as regras carregadas do Supabase
+const MS_PER_DAY = 86400000;
+
+// ============================================================
+// PREÇOS DINÂMICOS — carregar do Supabase e aplicar por datas
+// ============================================================
+let regrasPrecoByResort = {};   // rules grouped by resort nome for fast lookup
+
+async function carregarPrecosDinamicos() {
+  try {
+    const { data } = await _sb.from('precos_dinamicos').select('*');
+    todasRegrasPreco = data || [];
+    // Pre-group by resort_nome for O(1) lookup in calcularPrecoParaPeriodo
+    regrasPrecoByResort = {};
+    todasRegrasPreco.forEach(r => {
+      if (!regrasPrecoByResort[r.resort_nome]) regrasPrecoByResort[r.resort_nome] = [];
+      regrasPrecoByResort[r.resort_nome].push(r);
+    });
+  } catch (e) {
+    todasRegrasPreco = [];
+    regrasPrecoByResort = {};
+  }
+}
+
+/**
+ * Calcula o preço médio por noite para um resort no período informado.
+ * Se não houver datas, retorna o preço base do resort.
+ */
+function calcularPrecoParaPeriodo(resort, entrada, saida) {
+  if (!entrada || !saida || entrada >= saida) return resort.preco;
+
+  const regras = regrasPrecoByResort[resort.nome] || [];
+  if (regras.length === 0) return resort.preco;
+
+  const baseNoite = resort.preco;
+  let total = 0;
+  let dias = 0;
+
+  const inicioUTC = Date.UTC(entrada.getFullYear(), entrada.getMonth(), entrada.getDate());
+  const fimUTC    = Date.UTC(saida.getFullYear(),   saida.getMonth(),   saida.getDate());
+
+  for (let ts = inicioUTC; ts < fimUTC; ts += MS_PER_DAY) {
+    const dataISO   = new Date(ts).toISOString().slice(0, 10);
+    const regrasDia = regras.filter(r => r.data_inicio <= dataISO && r.data_fim >= dataISO);
+
+    let precoNoite = baseNoite;
+    const regraDia      = regrasDia.find(r => (r.tipo_regra || '') === 'valor_dia');
+    const regraTemp     = regrasDia.find(r => ['temporada_alta', 'temporada_baixa'].includes(r.tipo_regra || ''));
+    const regraPromo    = regrasDia.find(r => (r.tipo_regra || '') === 'promocao');
+
+    if (regraDia && regraDia.preco_noite) {
+      precoNoite = Number(regraDia.preco_noite);
+    } else if (regraTemp && regraTemp.preco_noite) {
+      precoNoite = Number(regraTemp.preco_noite);
+    }
+
+    if (regraPromo) {
+      let descontoPct = Number(regraPromo.desconto_percentual || 0);
+      if (!descontoPct && Number(regraPromo.multiplicador) > 0 && Number(regraPromo.multiplicador) < 1) {
+        descontoPct = (1 - Number(regraPromo.multiplicador)) * 100;
+      }
+      if (descontoPct > 0) precoNoite -= precoNoite * (descontoPct / 100);
+    }
+
+    total += precoNoite;
+    dias++;
+  }
+
+  return dias > 0 ? total / dias : baseNoite;
+}
+
+/**
+ * Retorna cópia do array RESORTS com preços ajustados para o período.
+ */
+function resortsComPrecoDinamico(entrada, saida) {
+  return RESORTS.map(r => ({
+    ...r,
+    preco: calcularPrecoParaPeriodo(r, entrada, saida),
+  }));
+}
 
 // ============================================================
 // INIT MAPA
@@ -760,6 +849,17 @@ function renderCards(lista) {
   el.innerHTML = lista.map(r => {
     // Safely encode the resort id as a data attribute to avoid XSS in inline handlers
     const safeId = encodeURIComponent(r.id);
+    const { entrada, saida } = getDatasFiltro();
+    const temDatas = !!(entrada && saida);
+    const precoLabel = temDatas
+      ? `<div class="resort-card-price">R$ ${r.preco.toLocaleString('pt-BR', {minimumFractionDigits: 2})} <small>/noite (média)</small></div>`
+      : `<div class="resort-card-price">R$ ${r.preco.toLocaleString('pt-BR', {minimumFractionDigits: 2})} <small>/noite</small></div>`;
+    // Build reservas.html URL passing current date params
+    let reservasUrl = 'reservas.html';
+    if (entrada && saida) {
+      const fmt = d => d.toISOString().slice(0, 10);
+      reservasUrl += `?entrada=${fmt(entrada)}&saida=${fmt(saida)}&resort=${encodeURIComponent(r.id)}`;
+    }
     return `
     <div class="resort-card" id="card_${safeId}" data-resort-id="${safeId}">
       <div class="resort-card-img">
@@ -777,10 +877,10 @@ function renderCards(lista) {
         </div>
         <div class="resort-card-footer">
           <div>
-            <div class="resort-card-price">R$ ${r.preco.toLocaleString('pt-BR', {minimumFractionDigits: 2})} <small>/noite</small></div>
+            ${precoLabel}
             <div>${renderStars(r.nota)}</div>
           </div>
-          <a href="reservas.html" class="reservar-link">
+          <a href="${reservasUrl}" class="reservar-link">
             <button class="btn-reservar-sm">📅 Reservar</button>
           </a>
         </div>
@@ -818,6 +918,13 @@ function pulseMarker(id) {
 // ============================================================
 // FILTROS
 // ============================================================
+function getDatasFiltro() {
+  let entrada = null, saida = null;
+  if (window.fpEntrada && window.fpEntrada.selectedDates[0]) entrada = window.fpEntrada.selectedDates[0];
+  if (window.fpSaida   && window.fpSaida.selectedDates[0])   saida   = window.fpSaida.selectedDates[0];
+  return { entrada, saida };
+}
+
 function filtrar() {
   const destino   = document.getElementById('f_destino').value.toLowerCase();
   const hospedes  = parseInt(document.getElementById('f_hospedes').value, 10) || 0;
@@ -826,7 +933,10 @@ function filtrar() {
   const tipo      = document.getElementById('f_tipo').value;
   const notaMin   = parseFloat(document.getElementById('f_nota').value) || 0;
 
-  resultados = RESORTS.filter(r => {
+  const { entrada, saida } = getDatasFiltro();
+  const listaBase = resortsComPrecoDinamico(entrada, saida);
+
+  resultados = listaBase.filter(r => {
     if (destino && !r.nome.toLowerCase().includes(destino) && !r.cidade.toLowerCase().includes(destino)) return false;
     if (hospedes && r.capacidade < hospedes) return false;
     if (r.preco < precoMin || r.preco > precoMax) return false;
@@ -904,22 +1014,26 @@ renderAmenitiesChips();
 renderCards(RESORTS);
 initMap();
 
-// Lê parâmetros da URL (vindo do heroSearch do index.html)
-(function applyUrlParams() {
-  var params = new URLSearchParams(window.location.search);
-  var destino  = params.get('destino')  || '';
-  var hospedes = params.get('hospedes') || '';
-  var entrada  = params.get('entrada')  || '';
-  var saida    = params.get('saida')    || '';
+// Carregar preços dinâmicos do Supabase, depois aplicar params da URL e filtrar
+carregarPrecosDinamicos().then(() => {
+  // Lê parâmetros da URL (vindo do heroSearch do index.html)
+  (function applyUrlParams() {
+    var params = new URLSearchParams(window.location.search);
+    var destino  = params.get('destino')  || '';
+    var hospedes = params.get('hospedes') || '';
+    var entrada  = params.get('entrada')  || '';
+    var saida    = params.get('saida')    || '';
 
-  if (destino)  document.getElementById('f_destino').value   = destino;
-  if (hospedes) document.getElementById('f_hospedes').value  = hospedes;
+    if (destino)  document.getElementById('f_destino').value   = destino;
+    if (hospedes) document.getElementById('f_hospedes').value  = hospedes;
 
-  if (entrada && window.fpEntrada) window.fpEntrada.setDate(entrada);
-  if (saida   && window.fpSaida)   window.fpSaida.setDate(saida);
+    if (entrada && window.fpEntrada) window.fpEntrada.setDate(entrada, false);
+    if (saida   && window.fpSaida)   window.fpSaida.setDate(saida,   false);
 
-  if (destino || hospedes) filtrar();
-})();
+    // Sempre filtrar após aplicar params URL (preços dinâmicos já carregados)
+    filtrar();
+  })();
+});
 
 // Responsivo: esconder mapa em mobile por padrão
 if (window.innerWidth <= 900) {

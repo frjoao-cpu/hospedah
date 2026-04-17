@@ -199,6 +199,7 @@ UPDATE precos_dinamicos SET tipo_regra = 'temporada_alta' WHERE tipo_regra IS NU
 ALTER TABLE precos_dinamicos ALTER COLUMN tipo_regra SET DEFAULT 'temporada_alta';
 ALTER TABLE precos_dinamicos ALTER COLUMN tipo_regra SET NOT NULL;
 ALTER TABLE precos_dinamicos ADD COLUMN IF NOT EXISTS desconto_percentual numeric(5,2);
+ALTER TABLE precos_dinamicos ADD COLUMN IF NOT EXISTS num_dormitorios int DEFAULT NULL; -- NULL = aplica a todos, 1 = 1 dormitório, 2 = 2 dormitórios
 
 ALTER TABLE precos_dinamicos ENABLE ROW LEVEL SECURITY;
 
