@@ -1194,7 +1194,6 @@ tbody td {
     <a href="#captacao">🏡 Captação</a>
     <a href="#reservas-hospede">🛎️ Solicitações</a>
     <a href="#moderacao-avaliacoes">⭐ Avaliações</a>
-    <a href="#disponibilidade-mgmt">🗓️ Disponibilidade</a>
     <a href="#precos-dinamicos">💲 Preços Dinâmicos</a>
     <a href="#mensagens-hospede">💬 Mensagens</a>
     <a href="javascript:void(0)" onclick="toggleFloatCalc()">🧮 Calculadora</a>
@@ -2112,50 +2111,6 @@ tbody td {
   <!-- ==========================================
        GESTÃO DE DISPONIBILIDADE
   =========================================== -->
-  <section id="disponibilidade-mgmt" class="calc-section">
-    <div class="section-title">🗓️ Gestão de Disponibilidade — Bloquear / Liberar Datas</div>
-
-    <div class="calc-grid">
-      <div class="field-group">
-        <label>Resort *</label>
-        <select id="disp_resort">
-          <option value="">Selecione o resort</option>
-          <option>Hot Beach Suites</option>
-          <option>São Pedro Thermas</option>
-          <option>Olimpia Park Resort</option>
-          <option>Solar das Águas</option>
-          <option>Wyndham Royal Resort</option>
-          <option>Praia de Juquehy</option>
-        </select>
-      </div>
-      <div class="field-group">
-        <label>Data Inicial *</label>
-        <input type="date" id="disp_data_ini">
-      </div>
-      <div class="field-group">
-        <label>Data Final *</label>
-        <input type="date" id="disp_data_fim">
-      </div>
-      <div class="field-group">
-        <label>Motivo</label>
-        <select id="disp_motivo">
-          <option value="reservado">📋 Reservado</option>
-          <option value="manutencao">🔧 Manutenção</option>
-          <option value="bloqueio">🚫 Bloqueio administrativo</option>
-          <option value="uso_proprio">🏠 Uso do proprietário</option>
-        </select>
-      </div>
-    </div>
-
-    <div class="btn-row">
-      <button class="btn btn-danger" onclick="bloquearDatas()">🚫 Bloquear período</button>
-      <button class="btn btn-success" onclick="liberarDatas()">✅ Liberar período</button>
-      <button class="btn btn-secondary" onclick="carregarDisponibilidadeMgmt()">🔄 Ver datas bloqueadas</button>
-    </div>
-
-    <div id="dispMgmtTable" style="margin-top:20px;"></div>
-  </section>
-
   <!-- ==========================================
        PREÇOS DINÂMICOS
   =========================================== -->
@@ -5441,108 +5396,6 @@ async function excluirAvaliacao(id) {
 // ──────────────────────────────────────────────────────────
 // GESTÃO DE DISPONIBILIDADE
 // ──────────────────────────────────────────────────────────
-async function bloquearDatas() {
-  var resort = document.getElementById('disp_resort').value;
-  var ini    = document.getElementById('disp_data_ini').value;
-  var fim    = document.getElementById('disp_data_fim').value;
-  var motivo = document.getElementById('disp_motivo').value;
-
-  if (!resort) { toastSistema('Selecione o resort.', 'error'); return; }
-  if (!ini || !fim) { toastSistema('Informe as datas.', 'error'); return; }
-  if (new Date(ini + 'T00:00:00') > new Date(fim + 'T00:00:00')) { toastSistema('Data inicial deve ser anterior à final.', 'error'); return; }
-
-  // Gerar array de datas
-  var datas = [];
-  var cur = new Date(ini + 'T00:00:00');
-  var end = new Date(fim + 'T00:00:00');
-  while (cur <= end) {
-    datas.push({
-      resort_nome:    resort,
-      data_bloqueada: cur.toISOString().slice(0, 10),
-      motivo:         motivo,
-    });
-    cur.setDate(cur.getDate() + 1);
-  }
-
-  try {
-    // Insert one by one to silently skip duplicates (no unique constraint needed)
-    var erros = 0;
-    await Promise.all(datas.map(async function(d) {
-      var { error } = await _supabase.from('disponibilidade').insert([d]);
-      if (error && !error.message.includes('duplicate')) erros++;
-    }));
-    toastSistema((datas.length - erros) + ' datas bloqueadas com sucesso!', 'success');
-    carregarDisponibilidadeMgmt();
-  } catch(e) {
-    toastSistema('Erro ao bloquear datas: ' + (e.message || ''), 'error');
-  }
-}
-
-async function liberarDatas() {
-  var resort = document.getElementById('disp_resort').value;
-  var ini    = document.getElementById('disp_data_ini').value;
-  var fim    = document.getElementById('disp_data_fim').value;
-
-  if (!resort) { toastSistema('Selecione o resort.', 'error'); return; }
-  if (!ini || !fim) { toastSistema('Informe as datas.', 'error'); return; }
-
-  try {
-    var { error } = await _supabase
-      .from('disponibilidade')
-      .delete()
-      .eq('resort_nome', resort)
-      .gte('data_bloqueada', ini)
-      .lte('data_bloqueada', fim);
-    if (error) throw error;
-    toastSistema('Datas liberadas com sucesso!', 'success');
-    carregarDisponibilidadeMgmt();
-  } catch(e) {
-    toastSistema('Erro ao liberar datas.', 'error');
-  }
-}
-
-async function carregarDisponibilidadeMgmt() {
-  var resort = document.getElementById('disp_resort').value;
-  var wrap   = document.getElementById('dispMgmtTable');
-
-  if (!resort) { wrap.innerHTML = ''; return; }
-
-  try {
-    var { data, error } = await _supabase
-      .from('disponibilidade')
-      .select('*')
-      .eq('resort_nome', resort)
-      .gte('data_bloqueada', new Date().toISOString().slice(0, 10))
-      .order('data_bloqueada');
-    if (error) throw error;
-
-    var lista = data || [];
-    if (lista.length === 0) {
-      wrap.innerHTML = '<p style="color:var(--cor-sub); font-size:0.85em; margin-top:8px;">✅ Nenhuma data bloqueada para ' + resort + ' a partir de hoje.</p>';
-      return;
-    }
-
-    wrap.innerHTML = '<table style="margin-top:8px;"><thead><tr><th>#</th><th>Data</th><th>Motivo</th><th>Ações</th></tr></thead><tbody>'
-      + lista.map(function(r, i) {
-          return '<tr><td>' + (i+1) + '</td><td>' + fmtDate(r.data_bloqueada) + '</td><td>' + esc(r.motivo) + '</td>'
-            + '<td><button class="btn btn-danger btn-sm" onclick="deletarDisp(\'' + r.id + '\')">🗑️ Remover</button></td></tr>';
-        }).join('')
-      + '</tbody></table>';
-  } catch(e) {
-    toastSistema('Erro ao carregar disponibilidade.', 'error');
-  }
-}
-
-async function deletarDisp(id) {
-  try {
-    var { error } = await _supabase.from('disponibilidade').delete().eq('id', id);
-    if (error) throw error;
-    carregarDisponibilidadeMgmt();
-  } catch(e) {
-    toastSistema('Erro ao remover data.', 'error');
-  }
-}
-
 // ──────────────────────────────────────────────────────────
 // PREÇOS DINÂMICOS — CALENDÁRIO AIRBNB
 // ──────────────────────────────────────────────────────────
