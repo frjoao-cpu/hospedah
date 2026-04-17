@@ -5150,7 +5150,7 @@ async function bloquearDatas() {
 
   if (!resort) { toastSistema('Selecione o resort.', 'error'); return; }
   if (!ini || !fim) { toastSistema('Informe as datas.', 'error'); return; }
-  if (ini > fim) { toastSistema('Data inicial deve ser anterior à final.', 'error'); return; }
+  if (new Date(ini + 'T00:00:00') > new Date(fim + 'T00:00:00')) { toastSistema('Data inicial deve ser anterior à final.', 'error'); return; }
 
   // Gerar array de datas
   var datas = [];
@@ -5281,7 +5281,10 @@ async function adicionarPrecoDinamico() {
   if (!nome)   { toastSistema('Informe o nome do período.', 'error'); return; }
   if (!ini || !fim) { toastSistema('Informe as datas.', 'error'); return; }
   if (ini > fim) { toastSistema('Data inicial deve ser anterior à final.', 'error'); return; }
-  if (tipo === 'valor_dia' && ini !== fim) { toastSistema('Para valor por dia, use a mesma data no início e fim.', 'error'); return; }
+  if (tipo === 'valor_dia' && new Date(ini + 'T00:00:00').getTime() !== new Date(fim + 'T00:00:00').getTime()) {
+    toastSistema('Para valor por dia, use a mesma data no início e fim.', 'error');
+    return;
+  }
   if (tipo === 'promocao' && (desconto <= 0 || desconto >= 100)) {
     toastSistema('Informe desconto válido (maior que 0 e menor que 100).', 'error');
     return;

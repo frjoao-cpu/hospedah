@@ -1033,6 +1033,7 @@ function calcularDetalhamentoPreco(entrada, saida) {
     let descontoPct = 0;
     if (regraPromo) {
       descontoPct = Number(regraPromo.desconto_percentual || 0);
+      // Compatibilidade com registros antigos que só tinham multiplicador (< 1 = desconto)
       if (!descontoPct && Number(regraPromo.multiplicador) > 0 && Number(regraPromo.multiplicador) < 1) {
         descontoPct = (1 - Number(regraPromo.multiplicador)) * 100;
       }
@@ -1091,7 +1092,7 @@ function montarResumoReserva() {
 function montarMensagemInterna(msgOriginal) {
   const tipo = document.getElementById('tipoAcomodacao').value;
   const det = (dataEntradaFP && dataSaidaFP && resortAtual) ? calcularDetalhamentoPreco(dataEntradaFP, dataSaidaFP) : null;
-  const complemento = det ? `\n\n[Resumo automático]\nTipo de acomodação: ${tipo}\nDiferença por período: ${(det.diferenca >= 0 ? '+' : '-') + det.diferenca.toFixed(2)}` : '';
+  const complemento = det ? `\n\n[Resumo automático]\nTipo de acomodação: ${tipo}\nDiferença por período: ${(det.diferenca >= 0 ? '+' : '-') + Math.abs(det.diferenca).toFixed(2)}` : '';
   return (msgOriginal || '') + complemento;
 }
 
