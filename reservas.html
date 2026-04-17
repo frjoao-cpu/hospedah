@@ -837,9 +837,9 @@ async function carregarRegrasPreco(resortNome) {
       data_fim:    r.data_fim    ? String(r.data_fim).slice(0, 10)    : '',
     }));
 
-    // Filtrar localmente: incluir regras sem dormitório (null) e as do dormitório selecionado
+    // Filtrar localmente: incluir regras sem dormitório (null/undefined) e as do dormitório selecionado
     if (dorm !== null) {
-      regrasPreco = todas.filter(r => r.num_dormitorios === null || r.num_dormitorios === dorm);
+      regrasPreco = todas.filter(r => r.num_dormitorios == null || Number(r.num_dormitorios) === dorm);
     } else {
       regrasPreco = todas;
     }
@@ -1118,6 +1118,15 @@ function calcularDetalhamentoPreco(entrada, saida) {
   let ajustePeriodo = 0;
   let descontoPromocional = 0;
 
+  // Helper: resolve effective price from a rule (preco_noite preferred, multiplicador as fallback)
+  function resolvePreco(regra) {
+    const pn = Number(regra.preco_noite);
+    if (pn > 0) return pn;
+    const mult = Number(regra.multiplicador);
+    if (mult > 0) return mult * baseNoite;
+    return baseNoite;
+  }
+
   const inicioUTC = Date.UTC(entrada.getFullYear(), entrada.getMonth(), entrada.getDate());
   const fimUTC = Date.UTC(saida.getFullYear(), saida.getMonth(), saida.getDate());
   for (let ts = inicioUTC; ts < fimUTC; ts += MS_PER_DAY) {
@@ -1131,7 +1140,7 @@ function calcularDetalhamentoPreco(entrada, saida) {
     const regraTemporada = regrasDia.find(r => ['temporada_alta', 'temporada_baixa'].includes(tipoRegra(r)));
     const regraPromo = regrasDia.find(r => tipoRegra(r) === 'promocao');
 
-    if (regraValorPeriodo && regraValorPeriodo.preco_noite) {
+    if (regraValorPeriodo) {
       // preco_noite stores the TOTAL price for the full period; distribute evenly per night
       const [py, pm, pd] = regraValorPeriodo.data_inicio.split('-').map(Number);
       const [ey, em, ed] = regraValorPeriodo.data_fim.split('-').map(Number);
@@ -1139,14 +1148,14 @@ function calcularDetalhamentoPreco(entrada, saida) {
       const periodoFim = Date.UTC(ey, em - 1, ed);
       const noitesPeriodo = Math.round((periodoFim - periodoIni) / MS_PER_DAY);
       if (noitesPeriodo > 0) {
-        precoNoite = Number(regraValorPeriodo.preco_noite) / noitesPeriodo;
+        precoNoite = resolvePreco(regraValorPeriodo) / noitesPeriodo;
         ajustePeriodo += (precoNoite - baseNoite);
       }
-    } else if (regraDia && regraDia.preco_noite) {
-      precoNoite = Number(regraDia.preco_noite);
+    } else if (regraDia) {
+      precoNoite = resolvePreco(regraDia);
       ajusteDiario += (precoNoite - baseNoite);
-    } else if (regraTemporada && regraTemporada.preco_noite) {
-      precoNoite = Number(regraTemporada.preco_noite);
+    } else if (regraTemporada) {
+      precoNoite = resolvePreco(regraTemporada);
       if (tipoRegra(regraTemporada) === 'temporada_alta') ajusteAlta += (precoNoite - baseNoite);
       if (tipoRegra(regraTemporada) === 'temporada_baixa') ajusteBaixa += (precoNoite - baseNoite);
     }
