@@ -737,6 +737,7 @@ let dataSaidaFP   = null;
 let datasIndisponiveis = [];
 let regrasPreco = [];
 let fpInstance    = null;
+let fpSaidaClickHandler = null;
 const MS_PER_DAY = 86400000;
 
 // ============================================================
@@ -916,9 +917,9 @@ function inicializarFlatpickr() {
 
   // Abrir o mesmo calendário ao clicar no campo de check-out
   if (saidaInput) {
-    saidaInput.removeEventListener('click', saidaInput._fpClickHandler || null);
-    saidaInput._fpClickHandler = () => { if (fpInstance) fpInstance.open(); };
-    saidaInput.addEventListener('click', saidaInput._fpClickHandler);
+    if (fpSaidaClickHandler) saidaInput.removeEventListener('click', fpSaidaClickHandler);
+    fpSaidaClickHandler = () => { if (fpInstance) fpInstance.open(); };
+    saidaInput.addEventListener('click', fpSaidaClickHandler);
   }
 }
 
