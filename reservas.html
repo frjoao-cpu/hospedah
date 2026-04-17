@@ -819,21 +819,28 @@ async function selecionarResort(id) {
 async function carregarRegrasPreco(resortNome) {
   try {
     const dorm = getDormitoriosSelecionados();
-    let query = sb
+    const { data, error } = await sb
       .from('precos_dinamicos')
       .select('*')
       .eq('resort_nome', resortNome);
 
-    const { data } = await query;
+    if (error) throw error;
+
+    // Normalizar datas para YYYY-MM-DD (Supabase pode retornar com info de timezone)
+    const todas = (data || []).map(r => ({
+      ...r,
+      data_inicio: r.data_inicio ? String(r.data_inicio).slice(0, 10) : '',
+      data_fim:    r.data_fim    ? String(r.data_fim).slice(0, 10)    : '',
+    }));
 
     // Filtrar localmente: incluir regras sem dormitório (null) e as do dormitório selecionado
-    const todas = data || [];
     if (dorm !== null) {
       regrasPreco = todas.filter(r => r.num_dormitorios === null || r.num_dormitorios === dorm);
     } else {
       regrasPreco = todas;
     }
   } catch (e) {
+    console.error('Erro ao carregar regras de preço:', e);
     regrasPreco = [];
   }
 }
@@ -947,6 +954,9 @@ function atualizarResumo() {
     document.getElementById('sumNoites').textContent  = `${noites} noite${noites !== 1 ? 's' : ''}`;
     const det = calcularDetalhamentoPreco(dataEntradaFP, dataSaidaFP);
     document.getElementById('sumTotal').textContent = `R$ ${det.total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
+    // Atualizar preço/noite com a média efetiva do período (reflete precificação dinâmica)
+    const precoEfetivo = noites > 0 ? det.total / noites : resortAtual.preco;
+    document.getElementById('sumPrecoNoite').textContent = `R$ ${precoEfetivo.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
     const sinal = det.diferenca >= 0 ? '+' : '-';
     document.getElementById('sumDiferencaPeriodo').textContent = `${sinal} R$ ${Math.abs(det.diferenca).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
     document.getElementById('sumDetalhesPeriodo').innerHTML = det.linhas.map(l => `• ${l}`).join('<br>');
@@ -955,6 +965,10 @@ function atualizarResumo() {
     document.getElementById('sumTotal').textContent  = 'R$ —';
     document.getElementById('sumDiferencaPeriodo').textContent = '—';
     document.getElementById('sumDetalhesPeriodo').textContent = '';
+    // Restaurar preço base quando nenhuma data está selecionada
+    if (resortAtual) {
+      document.getElementById('sumPrecoNoite').textContent = `R$ ${resortAtual.preco.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
+    }
   }
 
   const numHosp = document.getElementById('numHospedes').value;
