@@ -108,6 +108,28 @@ body {
   border-color: var(--dourado);
 }
 
+#syncStatus {
+  font-size: 0.85em;
+  cursor: default;
+  white-space: nowrap;
+  opacity: 0.85;
+  padding: 4px 8px;
+  border-radius: 20px;
+  border: 1px solid var(--borda);
+  background: rgba(255,255,255,0.04);
+  transition: all 0.3s;
+}
+
+#syncWarning {
+  display: none;
+  background: rgba(231,76,60,0.12);
+  border-bottom: 1px solid rgba(231,76,60,0.35);
+  color: #f1948a;
+  font-size: 0.82em;
+  padding: 8px 20px;
+  text-align: center;
+}
+
 /* ==========================================
    MAIN LAYOUT
 ========================================== */
@@ -977,8 +999,10 @@ tbody td {
     <a href="javascript:void(0)" onclick="importarBackup()">📂 Importar</a>
     <a href="index.html">🏠 Site</a>
     <a href="javascript:void(0)" onclick="fazerLogout()">🚪 Sair</a>
+    <span id="syncStatus" title="Aguardando sincronização...">☁️</span>
   </nav>
 </header>
+<div id="syncWarning">⚠️ Dados salvos apenas localmente — sem sincronização com o servidor. Verifique se a tabela <strong>hospeda_data</strong> foi criada no Supabase e se você está logado com o mesmo e-mail em todos os dispositivos.</div>
 
 <!-- MAIN -->
 <main class="sys-main">
@@ -2415,6 +2439,25 @@ function salvarListaStorage(chave, lista) {
 /* ==========================================
    SYNC COM SUPABASE
 ========================================== */
+var _syncErrorShown = false;
+
+function _setSyncStatus(ok, erroMsg) {
+  var el = document.getElementById('syncStatus');
+  var banner = document.getElementById('syncWarning');
+  if (ok) {
+    if (el) { el.textContent = '☁️✅'; el.title = 'Sincronizado com o servidor'; }
+    if (banner) banner.style.display = 'none';
+    _syncErrorShown = false;
+  } else {
+    if (el) { el.textContent = '☁️❌'; el.title = 'Erro de sincronização: ' + (erroMsg || 'tabela não encontrada ou sem conexão'); }
+    if (banner) banner.style.display = 'block';
+    if (!_syncErrorShown) {
+      _syncErrorShown = true;
+      mostrarToast('☁️❌ Sem sincronização com o servidor. Dados salvos apenas neste dispositivo.', 'error');
+    }
+  }
+}
+
 function salvarNoSupabase(chave, valor) {
   _supabase.auth.getUser().then(function(result) {
     var uid = result.data && result.data.user && result.data.user.id;
@@ -2424,7 +2467,18 @@ function salvarNoSupabase(chave, valor) {
         { user_id: uid, chave: chave, valor: valor, atualizado_em: new Date().toISOString() },
         { onConflict: 'user_id,chave' }
       )
-      .catch(function(e) { console.warn('Erro ao sincronizar com servidor:', e); });
+      .then(function(res) {
+        if (res.error) {
+          console.warn('Erro ao sincronizar com servidor:', res.error);
+          _setSyncStatus(false, res.error.message);
+        } else {
+          _setSyncStatus(true);
+        }
+      })
+      .catch(function(e) {
+        console.warn('Erro ao sincronizar com servidor:', e);
+        _setSyncStatus(false, e && e.message ? e.message : String(e));
+      });
   });
 }
 
@@ -2433,13 +2487,18 @@ function sincronizarDoSupabase() {
     var uid = result.data && result.data.user && result.data.user.id;
     if (!uid) return;
     return _supabase.from('hospeda_data').select('chave,valor').eq('user_id', uid).then(function(res) {
-      if (res.error) { console.warn('Erro ao carregar dados do servidor:', res.error); return; }
+      if (res.error) {
+        console.warn('Erro ao carregar dados do servidor:', res.error);
+        _setSyncStatus(false, res.error.message);
+        return;
+      }
       if (!res.data) return;
       res.data.forEach(function(row) {
         try {
           localStorage.setItem(row.chave, JSON.stringify(row.valor));
         } catch(e) { console.warn('Erro ao aplicar dados do servidor:', e); }
       });
+      _setSyncStatus(true);
     });
   });
 }
