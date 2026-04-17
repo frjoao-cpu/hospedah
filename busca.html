@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Buscar Acomodações | HOSPEDAH</title>
+<meta name="description" content="Encontre resorts e acomodações premium em todo o Brasil. Filtre por destino, datas, preço e comodidades.">
+<link rel="canonical" href="https://hospedah.tur.br/busca.html">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#D4AF37">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+<!-- Leaflet.js -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<!-- Flatpickr -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/pt.js"></script>
+<style>
+:root {
+  --dourado: #D4AF37;
+  --dourado-hover: #f0c93a;
+  --azul: #0B1C3D;
+  --azul2: #142850;
+  --verde: #25D366;
+  --vermelho: #e74c3c;
+  --amarelo: #f39c12;
+  --bg: #0d1b2e;
+  --bg2: #10233c;
+  --cor-texto: #e8eaf0;
+  --cor-sub: #aab4c4;
+  --borda: rgba(212,175,55,0.15);
+  --radius: 12px;
+  --sombra: 0 4px 24px rgba(0,0,0,0.3);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Poppins', sans-serif;
+  background: var(--bg);
+  color: var(--cor-texto);
+  min-height: 100vh;
+}
+
+/* HEADER */
+.header {
+  background: linear-gradient(135deg, var(--azul), var(--azul2));
+  border-bottom: 2px solid var(--dourado);
+  padding: 16px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  box-shadow: var(--sombra);
+}
+
+.logo {
+  color: var(--dourado);
+  font-weight: 700;
+  font-size: 1.2em;
+  text-decoration: none;
+}
+
+.nav-links {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.nav-links a {
+  color: var(--cor-sub);
+  text-decoration: none;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 0.85em;
+  border: 1px solid var(--borda);
+  transition: all 0.2s;
+}
+
+.nav-links a:hover, .nav-links a.active {
+  background: var(--dourado);
+  color: var(--azul);
+  border-color: var(--dourado);
+}
+
+/* FILTROS BARRA */
+.filter-bar {
+  background: var(--azul2);
+  border-bottom: 1px solid var(--borda);
+  padding: 16px 24px;
+}
+
+.filter-grid {
+  max-width: 1300px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1.5fr 1fr 1fr 0.8fr auto;
+  gap: 10px;
+  align-items: flex-end;
+}
+
+@media (max-width: 900px) {
+  .filter-grid { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 500px) {
+  .filter-grid { grid-template-columns: 1fr; }
+}
+
+.field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.field-group label {
+  font-size: 0.72em;
+  color: var(--cor-sub);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  font-weight: 500;
+}
+
+.field-group input,
+.field-group select {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(212,175,55,0.2);
+  border-radius: 8px;
+  color: var(--cor-texto);
+  font-family: inherit;
+  font-size: 0.88em;
+  padding: 9px 12px;
+  transition: border-color 0.2s;
+}
+
+.field-group input:focus,
+.field-group select:focus {
+  outline: none;
+  border-color: var(--dourado);
+}
+
+.field-group select option { background: var(--azul2); }
+
+.btn-buscar {
+  background: var(--dourado);
+  color: var(--azul);
+  border: none;
+  border-radius: 8px;
+  padding: 10px 22px;
+  font-family: inherit;
+  font-size: 0.9em;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+  white-space: nowrap;
+}
+
+.btn-buscar:hover { background: var(--dourado-hover); }
+
+/* AVANÇADO */
+.filtros-avancados {
+  max-width: 1300px;
+  margin: 10px auto 0;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.filtros-avancados summary {
+  color: var(--cor-sub);
+  font-size: 0.82em;
+  cursor: pointer;
+  padding: 4px 10px;
+  border-radius: 20px;
+  border: 1px solid var(--borda);
+  list-style: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.filtros-avancados summary:hover { border-color: var(--dourado); color: var(--dourado); }
+
+details.adv-filters {
+  width: 100%;
+}
+
+details.adv-filters[open] > summary { color: var(--dourado); border-color: var(--dourado); }
+
+.adv-grid {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+
+/* TOGGLE VIEW */
+.view-toggle {
+  display: flex;
+  gap: 8px;
+  margin: 0 24px 0 auto;
+}
+
+.view-btn {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid var(--borda);
+  border-radius: 8px;
+  padding: 7px 14px;
+  color: var(--cor-sub);
+  font-family: inherit;
+  font-size: 0.82em;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.view-btn.active {
+  background: var(--dourado);
+  color: var(--azul);
+  border-color: var(--dourado);
+}
+
+/* LAYOUT PRINCIPAL */
+.main-layout {
+  max-width: 1300px;
+  margin: 0 auto;
+  padding: 20px 16px 60px;
+  display: grid;
+  grid-template-columns: 380px 1fr;
+  gap: 20px;
+}
+
+@media (max-width: 900px) {
+  .main-layout { grid-template-columns: 1fr; }
+}
+
+/* LISTA DE CARDS */
+.results-header {
+  font-size: 0.9em;
+  color: var(--cor-sub);
+  margin-bottom: 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.results-header strong { color: var(--dourado); }
+
+.cards-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  max-height: calc(100vh - 240px);
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.cards-list::-webkit-scrollbar { width: 4px; }
+.cards-list::-webkit-scrollbar-track { background: transparent; }
+.cards-list::-webkit-scrollbar-thumb { background: var(--borda); border-radius: 2px; }
+
+.resort-card {
+  background: var(--bg2);
+  border: 1px solid var(--borda);
+  border-radius: var(--radius);
+  padding: 16px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: grid;
+  grid-template-columns: 90px 1fr;
+  gap: 14px;
+}
+
+.resort-card:hover, .resort-card.highlight {
+  border-color: rgba(212,175,55,0.5);
+  background: rgba(212,175,55,0.04);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+}
+
+.resort-card-img {
+  width: 90px;
+  height: 72px;
+  border-radius: 8px;
+  object-fit: cover;
+  background: rgba(255,255,255,0.05);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2em;
+}
+
+.resort-card-body { overflow: hidden; }
+
+.resort-card-name {
+  font-size: 0.92em;
+  font-weight: 600;
+  color: var(--cor-texto);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 4px;
+}
+
+.resort-card-city {
+  font-size: 0.75em;
+  color: var(--cor-sub);
+  margin-bottom: 6px;
+}
+
+.resort-card-tags {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+
+.tag {
+  display: inline-block;
+  padding: 2px 7px;
+  border-radius: 10px;
+  font-size: 0.68em;
+  font-weight: 600;
+  background: rgba(212,175,55,0.1);
+  color: var(--dourado);
+  border: 1px solid rgba(212,175,55,0.2);
+}
+
+.resort-card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.resort-card-price {
+  font-size: 0.9em;
+  font-weight: 700;
+  color: var(--dourado);
+}
+
+.resort-card-price small {
+  font-size: 0.7em;
+  font-weight: 400;
+  color: var(--cor-sub);
+}
+
+.stars {
+  color: var(--dourado);
+  font-size: 0.82em;
+  letter-spacing: 1px;
+}
+
+.btn-reservar-sm {
+  background: var(--dourado);
+  color: var(--azul);
+  border: none;
+  border-radius: 6px;
+  padding: 5px 12px;
+  font-family: inherit;
+  font-size: 0.75em;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-reservar-sm:hover { background: var(--dourado-hover); }
+
+/* MAPA */
+.map-container {
+  position: sticky;
+  top: 80px;
+  height: calc(100vh - 100px);
+  border-radius: var(--radius);
+  overflow: hidden;
+  border: 1px solid var(--borda);
+}
+
+#map {
+  width: 100%;
+  height: 100%;
+  background: var(--azul2);
+}
+
+/* Customizar popup do Leaflet */
+.leaflet-popup-content-wrapper {
+  background: var(--azul2) !important;
+  border: 1px solid var(--borda) !important;
+  border-radius: var(--radius) !important;
+  box-shadow: var(--sombra) !important;
+  color: var(--cor-texto) !important;
+  font-family: 'Poppins', sans-serif !important;
+}
+
+.leaflet-popup-tip-container .leaflet-popup-tip {
+  background: var(--azul2) !important;
+}
+
+.popup-nome { font-weight: 600; font-size: 0.92em; color: var(--dourado); margin-bottom: 4px; }
+.popup-cidade { font-size: 0.78em; color: var(--cor-sub); margin-bottom: 6px; }
+.popup-preco { font-size: 0.85em; font-weight: 700; color: var(--dourado); margin-bottom: 8px; }
+.popup-btn {
+  display: block;
+  background: var(--dourado);
+  color: var(--azul);
+  padding: 6px 12px;
+  border-radius: 6px;
+  text-decoration: none;
+  font-size: 0.78em;
+  font-weight: 600;
+  text-align: center;
+}
+
+/* CHECKBOX comodidades */
+.amenity-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 10px;
+  border: 1px solid var(--borda);
+  border-radius: 20px;
+  font-size: 0.78em;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: rgba(255,255,255,0.03);
+  color: var(--cor-sub);
+  user-select: none;
+}
+
+.amenity-chip.on {
+  background: rgba(212,175,55,0.1);
+  border-color: var(--dourado);
+  color: var(--dourado);
+}
+
+/* EMPTY STATE */
+.empty-state {
+  text-align: center;
+  padding: 48px 20px;
+  color: var(--cor-sub);
+}
+
+.empty-state .empty-icon { font-size: 2.5em; margin-bottom: 10px; }
+</style>
+</head>
+<body>
+
+<header class="header">
+  <a href="index.html" class="logo">🏨 HOSPEDAH</a>
+  <nav class="nav-links">
+    <a href="index.html">🏠 Início</a>
+    <a href="busca.html" class="active">🔍 Buscar</a>
+    <a href="reservas.html">📅 Reservar</a>
+    <a href="avaliacoes.html">⭐ Avaliações</a>
+    <a href="chat.html">💬 Chat</a>
+    <a href="cadastro.html">🏡 Cadastrar Imóvel</a>
+  </nav>
+</header>
+
+<!-- FILTROS -->
+<div class="filter-bar">
+  <div class="filter-grid">
+    <div class="field-group">
+      <label>🔍 Destino / Cidade</label>
+      <input type="text" id="f_destino" placeholder="Ex.: Olímpia, Juquehy..." oninput="filtrar()">
+    </div>
+    <div class="field-group">
+      <label>📅 Check-in</label>
+      <input type="text" id="f_entrada" placeholder="DD/MM/AAAA" readonly>
+    </div>
+    <div class="field-group">
+      <label>📅 Check-out</label>
+      <input type="text" id="f_saida" placeholder="DD/MM/AAAA" readonly>
+    </div>
+    <div class="field-group">
+      <label>👥 Hóspedes</label>
+      <select id="f_hospedes" onchange="filtrar()">
+        <option value="">Qualquer</option>
+        <option value="1">1 pessoa</option>
+        <option value="2">2 pessoas</option>
+        <option value="3">3 pessoas</option>
+        <option value="4">4 pessoas</option>
+        <option value="5">5 pessoas</option>
+        <option value="6">6+ pessoas</option>
+      </select>
+    </div>
+    <button class="btn-buscar" onclick="filtrar()">🔍 Buscar</button>
+  </div>
+
+  <!-- FILTROS AVANÇADOS -->
+  <div class="filtros-avancados">
+    <details class="adv-filters">
+      <summary>⚙️ Filtros avançados</summary>
+      <div class="adv-grid">
+        <div class="field-group" style="min-width:160px;">
+          <label>💲 Preço máx/noite</label>
+          <input type="number" id="f_preco_max" placeholder="R$ máximo" min="0" step="50" oninput="filtrar()">
+        </div>
+        <div class="field-group" style="min-width:160px;">
+          <label>💲 Preço mín/noite</label>
+          <input type="number" id="f_preco_min" placeholder="R$ mínimo" min="0" step="50" oninput="filtrar()">
+        </div>
+        <div class="field-group" style="min-width:140px;">
+          <label>🏠 Tipo</label>
+          <select id="f_tipo" onchange="filtrar()">
+            <option value="">Todos</option>
+            <option value="resort">Resort</option>
+            <option value="praia">Praia</option>
+            <option value="termas">Termas/SPA</option>
+          </select>
+        </div>
+        <div class="field-group" style="min-width:140px;">
+          <label>⭐ Avaliação mín.</label>
+          <select id="f_nota" onchange="filtrar()">
+            <option value="">Qualquer</option>
+            <option value="4.5">4.5+</option>
+            <option value="4">4+</option>
+            <option value="3">3+</option>
+          </select>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:4px; min-width:300px;">
+          <label style="font-size:0.72em; color:var(--cor-sub); text-transform:uppercase; letter-spacing:0.4px;">🛎️ Comodidades</label>
+          <div id="amenitiesChips" style="display:flex; gap:6px; flex-wrap:wrap;"></div>
+        </div>
+      </div>
+    </details>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main-layout">
+
+  <!-- LISTA -->
+  <div>
+    <div class="results-header">
+      <span id="resultsCount">Carregando...</span>
+      <div class="view-toggle">
+        <button class="view-btn active" id="btnListView" onclick="setView('list')">☰ Lista</button>
+        <button class="view-btn" id="btnMapView" onclick="setView('map')">🗺️ Mapa</button>
+      </div>
+    </div>
+
+    <div class="cards-list" id="cardsList">
+      <div class="empty-state">
+        <div class="empty-icon">🔍</div>
+        <div>Carregando acomodações...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAPA -->
+  <div class="map-container" id="mapContainer">
+    <div id="map"></div>
+  </div>
+
+</div>
+
+<script>
+// ============================================================
+// DADOS DOS RESORTS (fallback estático enquanto Supabase carrega)
+// ============================================================
+const RESORTS = [
+  {
+    id: 'hotbeach',
+    nome: 'Hot Beach Suites',
+    cidade: 'Olímpia-SP',
+    tipo: 'termas',
+    preco: 480,
+    nota: 4.8,
+    capacidade: 4,
+    comodidades: ['Parque aquático', 'SPA', 'Restaurante', 'Wi-Fi', 'Estacionamento'],
+    icon: '🌊',
+    lat: -20.7279,
+    lng: -48.9125,
+    link: 'resorts/hotbeach.html',
+    img: 'https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?auto=format&fit=crop&w=200&q=60',
+  },
+  {
+    id: 'saopedro',
+    nome: 'São Pedro Thermas',
+    cidade: 'São Pedro-SP',
+    tipo: 'termas',
+    preco: 320,
+    nota: 4.6,
+    capacidade: 4,
+    comodidades: ['Termas', 'SPA', 'Café da manhã', 'Wi-Fi', 'Piscina'],
+    icon: '♨️',
+    lat: -22.5523,
+    lng: -47.9135,
+    link: 'resorts/saopedro.html',
+    img: 'https://images.unsplash.com/photo-1571896349842-33c89424de2d?auto=format&fit=crop&w=200&q=60',
+  },
+  {
+    id: 'olimpia',
+    nome: 'Olimpia Park Resort',
+    cidade: 'Olímpia-SP',
+    tipo: 'resort',
+    preco: 390,
+    nota: 4.7,
+    capacidade: 6,
+    comodidades: ['Parque aquático', 'Restaurante', 'Wi-Fi', 'Piscina', 'Bar'],
+    icon: '🎢',
+    lat: -20.7296,
+    lng: -48.9156,
+    link: 'resorts/olimpia.html',
+    img: 'https://images.unsplash.com/photo-1562790351-d273a961e0e9?auto=format&fit=crop&w=200&q=60',
+  },
+  {
+    id: 'solar',
+    nome: 'Solar das Águas',
+    cidade: 'Olímpia-SP',
+    tipo: 'resort',
+    preco: 350,
+    nota: 4.5,
+    capacidade: 4,
+    comodidades: ['Piscina', 'Wi-Fi', 'Café da manhã', 'Churrasqueira'],
+    icon: '☀️',
+    lat: -20.7240,
+    lng: -48.9200,
+    link: 'resorts/solar.html',
+    img: 'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&w=200&q=60',
+  },
+  {
+    id: 'wyndham',
+    nome: 'Wyndham Royal Resort',
+    cidade: 'Olímpia-SP',
+    tipo: 'resort',
+    preco: 550,
+    nota: 4.9,
+    capacidade: 6,
+    comodidades: ['SPA', 'Restaurante 5★', 'Wi-Fi', 'Academia', 'Concierge'],
+    icon: '👑',
+    lat: -20.7310,
+    lng: -48.9100,
+    link: 'resorts/wyndham.html',
+    img: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=200&q=60',
+  },
+  {
+    id: 'juquehy',
+    nome: 'Praia de Juquehy',
+    cidade: 'São Sebastião-SP',
+    tipo: 'praia',
+    preco: 420,
+    nota: 4.7,
+    capacidade: 6,
+    comodidades: ['Praia privativa', 'Piscina', 'Wi-Fi', 'Restaurante', 'Esportes aquáticos'],
+    icon: '🏖️',
+    lat: -23.7832,
+    lng: -45.4059,
+    link: 'resorts/juquehy.html',
+    img: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=200&q=60',
+  },
+];
+
+const AMENITIES_LIST = ['Piscina', 'Wi-Fi', 'SPA', 'Parque aquático', 'Restaurante', 'Café da manhã', 'Academia', 'Estacionamento', 'Praia privativa', 'Churrasqueira'];
+
+let map, markers = {}, resultados = RESORTS;
+let amenitiesSel = new Set();
+let currentView = 'list';
+
+// ============================================================
+// INIT MAPA
+// ============================================================
+function initMap() {
+  map = L.map('map', { zoomControl: true }).setView([-21.5, -47.5], 7);
+
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+    attribution: '&copy; <a href="https://carto.com/">CARTO</a>',
+    maxZoom: 19,
+  }).addTo(map);
+
+  renderMarkers(RESORTS);
+}
+
+// ============================================================
+// ÍCONE CUSTOMIZADO
+// ============================================================
+function createIcon(icon, highlight = false) {
+  return L.divIcon({
+    html: `<div style="
+      background:${highlight ? '#f0c93a' : '#D4AF37'};
+      color:#0B1C3D;
+      border-radius:50%;
+      width:36px; height:36px;
+      display:flex; align-items:center; justify-content:center;
+      font-size:16px;
+      box-shadow:0 2px 8px rgba(0,0,0,0.5);
+      border: 2px solid ${highlight ? '#fff' : 'rgba(255,255,255,0.4)'};
+      transition: all 0.2s;
+    ">${icon}</div>`,
+    className: '',
+    iconSize: [36, 36],
+    iconAnchor: [18, 18],
+    popupAnchor: [0, -20],
+  });
+}
+
+// ============================================================
+// RENDERIZAR MARCADORES
+// ============================================================
+function renderMarkers(lista) {
+  // Remover marcadores antigos
+  Object.values(markers).forEach(m => m.remove());
+  markers = {};
+
+  lista.forEach(r => {
+    const m = L.marker([r.lat, r.lng], { icon: createIcon(r.icon) })
+      .addTo(map)
+      .bindPopup(`
+        <div class="popup-nome">${r.icon} ${r.nome}</div>
+        <div class="popup-cidade">📍 ${r.cidade}</div>
+        <div class="popup-preco">A partir de R$ ${r.preco.toFixed(2).replace('.', ',')}/noite</div>
+        <div style="margin-bottom:8px;">${renderStars(r.nota)}</div>
+        <a href="${r.link}" class="popup-btn">Ver detalhes →</a>
+        <a href="reservas.html" class="popup-btn" style="margin-top:6px; background:rgba(37,211,102,0.2); color:#25D366; border:1px solid rgba(37,211,102,0.3);">📅 Reservar</a>
+      `);
+
+    m.on('mouseover', () => highlightCard(r.id));
+    m.on('mouseout',  () => highlightCard(null));
+
+    markers[r.id] = m;
+  });
+
+  // Ajustar bounds se houver resultados
+  if (lista.length > 0) {
+    const group = L.featureGroup(Object.values(markers));
+    map.fitBounds(group.getBounds().pad(0.2));
+  }
+}
+
+function highlightCard(id) {
+  document.querySelectorAll('.resort-card').forEach(c => c.classList.remove('highlight'));
+  if (id) {
+    const c = document.getElementById('card_' + id);
+    if (c) { c.classList.add('highlight'); c.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }
+  }
+}
+
+function renderStars(nota) {
+  const full  = Math.floor(nota);
+  const half  = (nota % 1) >= 0.5 ? 1 : 0;
+  const empty = 5 - full - half;
+  return `<span class="stars">${'★'.repeat(full)}${'½'.repeat(half)}${'☆'.repeat(empty)}</span> <small style="color:var(--cor-sub)">(${nota})</small>`;
+}
+
+// ============================================================
+// RENDERIZAR CARDS
+// ============================================================
+function renderCards(lista) {
+  const el = document.getElementById('cardsList');
+  document.getElementById('resultsCount').innerHTML = `<strong>${lista.length}</strong> acomodação${lista.length !== 1 ? 'ões' : ''} encontrada${lista.length !== 1 ? 's' : ''}`;
+
+  if (lista.length === 0) {
+    el.innerHTML = `<div class="empty-state"><div class="empty-icon">🔍</div><div>Nenhuma acomodação encontrada com esses filtros.</div><div style="font-size:0.82em; margin-top:6px;">Tente remover alguns filtros.</div></div>`;
+    return;
+  }
+
+  el.innerHTML = lista.map(r => `
+    <div class="resort-card" id="card_${r.id}"
+         onclick="abrirNoMapa('${r.id}')"
+         onmouseenter="pulseMarker('${r.id}')"
+         onmouseleave="pulseMarker(null)">
+      <div class="resort-card-img">
+        <img src="${r.img}" alt="${r.nome}" loading="lazy" width="90" height="72"
+             style="width:90px;height:72px;border-radius:8px;object-fit:cover;"
+             onerror="this.style.display='none'; this.nextSibling.style.display='flex'">
+        <div style="display:none; align-items:center; justify-content:center; font-size:2em; width:90px; height:72px;">${r.icon}</div>
+      </div>
+      <div class="resort-card-body">
+        <div class="resort-card-name">${r.nome}</div>
+        <div class="resort-card-city">📍 ${r.cidade}</div>
+        <div class="resort-card-tags">
+          ${r.comodidades.slice(0, 3).map(t => `<span class="tag">${t}</span>`).join('')}
+          ${r.comodidades.length > 3 ? `<span class="tag">+${r.comodidades.length - 3}</span>` : ''}
+        </div>
+        <div class="resort-card-footer">
+          <div>
+            <div class="resort-card-price">R$ ${r.preco.toLocaleString('pt-BR', {minimumFractionDigits: 2})} <small>/noite</small></div>
+            <div>${renderStars(r.nota)}</div>
+          </div>
+          <a href="reservas.html" onclick="event.stopPropagation()">
+            <button class="btn-reservar-sm">📅 Reservar</button>
+          </a>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function abrirNoMapa(id) {
+  const m = markers[id];
+  if (m) {
+    map.setView(m.getLatLng(), 14, { animate: true });
+    m.openPopup();
+  }
+}
+
+function pulseMarker(id) {
+  Object.entries(markers).forEach(([k, m]) => {
+    m.setIcon(createIcon(RESORTS.find(r => r.id === k)?.icon || '📍', k === id));
+  });
+}
+
+// ============================================================
+// FILTROS
+// ============================================================
+function filtrar() {
+  const destino   = document.getElementById('f_destino').value.toLowerCase();
+  const hospedes  = parseInt(document.getElementById('f_hospedes').value, 10) || 0;
+  const precoMin  = parseFloat(document.getElementById('f_preco_min').value) || 0;
+  const precoMax  = parseFloat(document.getElementById('f_preco_max').value) || Infinity;
+  const tipo      = document.getElementById('f_tipo').value;
+  const notaMin   = parseFloat(document.getElementById('f_nota').value) || 0;
+
+  resultados = RESORTS.filter(r => {
+    if (destino && !r.nome.toLowerCase().includes(destino) && !r.cidade.toLowerCase().includes(destino)) return false;
+    if (hospedes && r.capacidade < hospedes) return false;
+    if (r.preco < precoMin || r.preco > precoMax) return false;
+    if (tipo && r.tipo !== tipo) return false;
+    if (r.nota < notaMin) return false;
+    if (amenitiesSel.size > 0) {
+      const temTodos = [...amenitiesSel].every(a => r.comodidades.includes(a));
+      if (!temTodos) return false;
+    }
+    return true;
+  });
+
+  renderCards(resultados);
+  renderMarkers(resultados);
+}
+
+// ============================================================
+// CHIPS DE COMODIDADES
+// ============================================================
+function renderAmenitiesChips() {
+  const c = document.getElementById('amenitiesChips');
+  c.innerHTML = AMENITIES_LIST.map(a => `
+    <span class="amenity-chip ${amenitiesSel.has(a) ? 'on' : ''}" onclick="toggleAmenity('${a}')">${a}</span>
+  `).join('');
+}
+
+function toggleAmenity(a) {
+  amenitiesSel.has(a) ? amenitiesSel.delete(a) : amenitiesSel.add(a);
+  renderAmenitiesChips();
+  filtrar();
+}
+
+// ============================================================
+// TOGGLE VISTA LISTA/MAPA (mobile)
+// ============================================================
+function setView(v) {
+  currentView = v;
+  document.getElementById('btnListView').classList.toggle('active', v === 'list');
+  document.getElementById('btnMapView').classList.toggle('active', v === 'map');
+
+  const lista = document.querySelector('.cards-list').parentElement;
+  const mapaC = document.getElementById('mapContainer');
+
+  if (window.innerWidth <= 900) {
+    lista.style.display  = v === 'list' ? 'block' : 'none';
+    mapaC.style.display  = v === 'map'  ? 'block' : 'none';
+  }
+
+  if (v === 'map') {
+    setTimeout(() => map.invalidateSize(), 200);
+  }
+}
+
+// ============================================================
+// INIT FLATPICKR filtro datas
+// ============================================================
+window.fpEntrada = flatpickr('#f_entrada', {
+  locale: 'pt',
+  minDate: 'today',
+  dateFormat: 'd/m/Y',
+  onChange(d) { if (d[0]) filtrar(); }
+});
+
+window.fpSaida = flatpickr('#f_saida', {
+  locale: 'pt',
+  minDate: 'today',
+  dateFormat: 'd/m/Y',
+  onChange(d) { if (d[0]) filtrar(); }
+});
+
+// ============================================================
+// INIT
+// ============================================================
+renderAmenitiesChips();
+renderCards(RESORTS);
+initMap();
+
+// Lê parâmetros da URL (vindo do heroSearch do index.html)
+(function applyUrlParams() {
+  var params = new URLSearchParams(window.location.search);
+  var destino  = params.get('destino')  || '';
+  var hospedes = params.get('hospedes') || '';
+  var entrada  = params.get('entrada')  || '';
+  var saida    = params.get('saida')    || '';
+
+  if (destino)  document.getElementById('f_destino').value   = destino;
+  if (hospedes) document.getElementById('f_hospedes').value  = hospedes;
+
+  if (entrada && window.fpEntrada) window.fpEntrada.setDate(entrada);
+  if (saida   && window.fpSaida)   window.fpSaida.setDate(saida);
+
+  if (destino || hospedes) filtrar();
+})();
+
+// Responsivo: esconder mapa em mobile por padrão
+if (window.innerWidth <= 900) {
+  setView('list');
+}
+</script>
+
+<script>if ('serviceWorker' in navigator) { navigator.serviceWorker.register('/sw.js').catch(function(){}); }</script>
+</body>
+</html>

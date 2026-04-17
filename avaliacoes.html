@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Avaliações dos Hóspedes | HOSPEDAH</title>
+<meta name="description" content="Veja as avaliações dos hóspedes HOSPEDAH e deixe sua opinião sobre sua estadia.">
+<link rel="canonical" href="https://hospedah.tur.br/avaliacoes.html">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#D4AF37">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+<!-- Supabase -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root {
+  --dourado: #D4AF37;
+  --dourado-hover: #f0c93a;
+  --azul: #0B1C3D;
+  --azul2: #142850;
+  --verde: #25D366;
+  --vermelho: #e74c3c;
+  --bg: #0d1b2e;
+  --bg2: #10233c;
+  --cor-texto: #e8eaf0;
+  --cor-sub: #aab4c4;
+  --borda: rgba(212,175,55,0.15);
+  --radius: 12px;
+  --sombra: 0 4px 24px rgba(0,0,0,0.3);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Poppins', sans-serif;
+  background: var(--bg);
+  color: var(--cor-texto);
+  min-height: 100vh;
+}
+
+/* HEADER */
+.header {
+  background: linear-gradient(135deg, var(--azul), var(--azul2));
+  border-bottom: 2px solid var(--dourado);
+  padding: 16px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: var(--sombra);
+}
+
+.logo {
+  color: var(--dourado);
+  font-weight: 700;
+  font-size: 1.2em;
+  text-decoration: none;
+}
+
+.nav-links {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.nav-links a {
+  color: var(--cor-sub);
+  text-decoration: none;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 0.85em;
+  border: 1px solid var(--borda);
+  transition: all 0.2s;
+}
+
+.nav-links a:hover, .nav-links a.active {
+  background: var(--dourado);
+  color: var(--azul);
+  border-color: var(--dourado);
+}
+
+/* HERO */
+.hero {
+  text-align: center;
+  padding: 40px 20px 20px;
+}
+
+.hero h1 { font-size: 1.9em; color: var(--dourado); margin-bottom: 8px; }
+.hero p  { color: var(--cor-sub); max-width: 480px; margin: 0 auto; font-size: 0.92em; }
+
+/* MAIN */
+.main {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 24px 16px 60px;
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: 24px;
+}
+
+@media (max-width: 800px) {
+  .main { grid-template-columns: 1fr; }
+}
+
+/* CARDS RESORT */
+.resort-filter {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+.resort-pill {
+  padding: 6px 14px;
+  border-radius: 20px;
+  border: 1px solid var(--borda);
+  background: rgba(255,255,255,0.04);
+  color: var(--cor-sub);
+  font-size: 0.82em;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.resort-pill.active, .resort-pill:hover {
+  background: rgba(212,175,55,0.12);
+  border-color: var(--dourado);
+  color: var(--dourado);
+}
+
+/* REVIEW CARD */
+.review-card {
+  background: var(--bg2);
+  border: 1px solid var(--borda);
+  border-radius: var(--radius);
+  padding: 20px;
+  margin-bottom: 14px;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.review-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 10px;
+  gap: 10px;
+}
+
+.review-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--azul), var(--azul2));
+  border: 2px solid var(--dourado);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1em;
+  flex-shrink: 0;
+  color: var(--dourado);
+  font-weight: 700;
+}
+
+.review-meta { flex: 1; }
+
+.review-name {
+  font-size: 0.88em;
+  font-weight: 600;
+  color: var(--cor-texto);
+  margin-bottom: 2px;
+}
+
+.review-resort {
+  font-size: 0.75em;
+  color: var(--cor-sub);
+}
+
+.review-stars {
+  display: flex;
+  gap: 2px;
+  align-items: center;
+}
+
+.star {
+  font-size: 1em;
+  cursor: pointer;
+  color: rgba(212,175,55,0.25);
+  transition: color 0.15s;
+  line-height: 1;
+  user-select: none;
+}
+
+.star.on, .star:hover { color: var(--dourado); }
+.star.on ~ .star { color: rgba(212,175,55,0.25) !important; }
+
+.review-date {
+  font-size: 0.72em;
+  color: var(--cor-sub);
+  white-space: nowrap;
+}
+
+.review-text {
+  font-size: 0.87em;
+  line-height: 1.6;
+  color: var(--cor-sub);
+  margin-top: 6px;
+}
+
+/* RESUMO POR RESORT */
+.resort-summary-card {
+  background: var(--bg2);
+  border: 1px solid var(--borda);
+  border-radius: var(--radius);
+  padding: 18px;
+  margin-bottom: 12px;
+}
+
+.resort-summary-name {
+  font-size: 0.92em;
+  font-weight: 600;
+  color: var(--dourado);
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.avg-stars {
+  font-size: 2em;
+  font-weight: 700;
+  color: var(--dourado);
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.avg-bar-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+  font-size: 0.75em;
+}
+
+.avg-bar-row .label { color: var(--cor-sub); min-width: 14px; text-align: right; }
+
+.avg-bar-wrap {
+  flex: 1;
+  background: rgba(255,255,255,0.07);
+  border-radius: 3px;
+  height: 6px;
+  overflow: hidden;
+}
+
+.avg-bar {
+  height: 100%;
+  background: var(--dourado);
+  border-radius: 3px;
+  transition: width 0.6s ease;
+}
+
+.avg-total {
+  font-size: 0.72em;
+  color: var(--cor-sub);
+  margin-top: 6px;
+}
+
+/* FORMULÁRIO */
+.form-card {
+  background: var(--bg2);
+  border: 1px solid var(--borda);
+  border-radius: var(--radius);
+  padding: 24px;
+  position: sticky;
+  top: 88px;
+}
+
+.form-card h2 {
+  color: var(--dourado);
+  font-size: 1em;
+  margin-bottom: 18px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--borda);
+}
+
+.field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 14px;
+}
+
+.field-group label {
+  font-size: 0.75em;
+  color: var(--cor-sub);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.field-group input,
+.field-group select,
+.field-group textarea {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(212,175,55,0.2);
+  border-radius: 8px;
+  color: var(--cor-texto);
+  font-family: inherit;
+  font-size: 0.9em;
+  padding: 9px 12px;
+  transition: border-color 0.2s;
+  resize: vertical;
+}
+
+.field-group input:focus,
+.field-group select:focus,
+.field-group textarea:focus {
+  outline: none;
+  border-color: var(--dourado);
+}
+
+.field-group select option { background: var(--azul2); }
+
+/* STARS INPUT */
+.stars-input {
+  display: flex;
+  gap: 6px;
+  margin: 4px 0;
+}
+
+.stars-input .star-i {
+  font-size: 1.8em;
+  cursor: pointer;
+  color: rgba(212,175,55,0.2);
+  transition: color 0.15s, transform 0.1s;
+  line-height: 1;
+  user-select: none;
+}
+
+.stars-input .star-i:hover,
+.stars-input .star-i.on {
+  color: var(--dourado);
+  transform: scale(1.15);
+}
+
+.btn {
+  padding: 11px 20px;
+  border-radius: 8px;
+  border: none;
+  font-family: inherit;
+  font-size: 0.9em;
+  font-weight: 600;
+  cursor: pointer;
+  width: 100%;
+  transition: all 0.2s;
+}
+
+.btn-primary {
+  background: var(--dourado);
+  color: var(--azul);
+}
+
+.btn-primary:hover { background: var(--dourado-hover); }
+.btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* EMPTY */
+.empty-state {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--cor-sub);
+}
+
+.empty-state .empty-icon { font-size: 2.5em; margin-bottom: 10px; }
+
+/* TOAST */
+.toast-container {
+  position: fixed;
+  bottom: 24px;
+  right: 20px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.toast {
+  background: var(--azul2);
+  border: 1px solid var(--borda);
+  border-left: 3px solid var(--dourado);
+  border-radius: 8px;
+  padding: 12px 16px;
+  font-size: 0.85em;
+  max-width: 300px;
+  animation: slideIn 0.3s ease;
+  box-shadow: var(--sombra);
+}
+
+.toast.success { border-left-color: var(--verde); }
+.toast.error   { border-left-color: var(--vermelho); }
+
+@keyframes slideIn {
+  from { transform: translateX(100%); opacity: 0; }
+  to   { transform: translateX(0);   opacity: 1; }
+}
+
+.nota-display {
+  font-size: 0.82em;
+  color: var(--cor-sub);
+  margin-top: 4px;
+  min-height: 18px;
+}
+</style>
+</head>
+<body>
+
+<header class="header">
+  <a href="index.html" class="logo">🏨 HOSPEDAH</a>
+  <nav class="nav-links">
+    <a href="index.html">🏠 Início</a>
+    <a href="busca.html">🔍 Buscar</a>
+    <a href="reservas.html">📅 Reservar</a>
+    <a href="avaliacoes.html" class="active">⭐ Avaliações</a>
+    <a href="chat.html">💬 Chat</a>
+    <a href="cadastro.html">🏡 Cadastrar Imóvel</a>
+  </nav>
+</header>
+
+<div class="hero">
+  <h1>⭐ Avaliações dos Hóspedes</h1>
+  <p>Veja o que nossos hóspedes dizem e compartilhe sua experiência após a sua estadia.</p>
+</div>
+
+<div class="main">
+
+  <!-- COLUNA ESQUERDA: reviews -->
+  <div>
+    <!-- Filtro por resort -->
+    <div class="resort-filter" id="resortFilter">
+      <span class="resort-pill active" data-id="todos" onclick="filtrarPorResort('todos')">🏨 Todos</span>
+    </div>
+
+    <!-- Resumos de rating por resort -->
+    <div id="summaryGrid"></div>
+
+    <!-- Lista de reviews -->
+    <div id="reviewsList">
+      <div class="empty-state">
+        <div class="empty-icon">⏳</div>
+        <div>Carregando avaliações...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- COLUNA DIREITA: formulário -->
+  <div>
+    <div class="form-card">
+      <h2>✍️ Deixe sua Avaliação</h2>
+
+      <div class="field-group">
+        <label>Seu Nome *</label>
+        <input type="text" id="f_nome" placeholder="Como quer ser identificado?" autocomplete="name">
+      </div>
+
+      <div class="field-group">
+        <label>E-mail (não publicado)</label>
+        <input type="email" id="f_email" placeholder="seu@email.com" autocomplete="email">
+      </div>
+
+      <div class="field-group">
+        <label>Resort *</label>
+        <select id="f_resort">
+          <option value="">Selecione o resort...</option>
+          <option>Hot Beach Suites</option>
+          <option>São Pedro Thermas</option>
+          <option>Olimpia Park Resort</option>
+          <option>Solar das Águas</option>
+          <option>Wyndham Royal Resort</option>
+          <option>Praia de Juquehy</option>
+        </select>
+      </div>
+
+      <div class="field-group">
+        <label>Sua Nota *</label>
+        <div class="stars-input" id="starsInput">
+          <span class="star-i" data-v="1" onclick="setNota(1)">★</span>
+          <span class="star-i" data-v="2" onclick="setNota(2)">★</span>
+          <span class="star-i" data-v="3" onclick="setNota(3)">★</span>
+          <span class="star-i" data-v="4" onclick="setNota(4)">★</span>
+          <span class="star-i" data-v="5" onclick="setNota(5)">★</span>
+        </div>
+        <div class="nota-display" id="notaDisplay">Clique nas estrelas para avaliar</div>
+      </div>
+
+      <div class="field-group">
+        <label>Comentário *</label>
+        <textarea id="f_comentario" rows="4" placeholder="Descreva sua experiência: atendimento, limpeza, conforto, lazer..."></textarea>
+      </div>
+
+      <button class="btn btn-primary" id="btnEnviar" onclick="enviarAvaliacao()">
+        ⭐ Enviar Avaliação
+      </button>
+
+      <p style="font-size:0.72em; color:var(--cor-sub); margin-top:10px; text-align:center; line-height:1.5;">
+        * Avaliações são moderadas antes da publicação. Enviamos confirmação por e-mail.
+      </p>
+    </div>
+  </div>
+
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- Schema.org Review markup (para SEO) -->
+<script type="application/ld+json" id="schemaReviews">
+{"@context":"https://schema.org","@type":"LodgingBusiness","name":"HOSPEDAH","url":"https://hospedah.tur.br"}
+</script>
+
+<script>
+// ============================================================
+// SUPABASE
+// ============================================================
+const SUPABASE_URL = 'https://ydrmjoppjxtmnwtvtinb.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlkcm1qb3Bwanh0bW53dHZ0aW5iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ0MTg3OTEsImV4cCI6MjA1OTk5NDc5MX0.JK8TPBxgp7Y8sn-NmFsQDtFJ6EH_rQLjVWZBkFg5N28';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// ============================================================
+// ESTADO
+// ============================================================
+const RESORTS = [
+  'Hot Beach Suites',
+  'São Pedro Thermas',
+  'Olimpia Park Resort',
+  'Solar das Águas',
+  'Wyndham Royal Resort',
+  'Praia de Juquehy',
+];
+
+const RESORT_ICONS = {
+  'Hot Beach Suites': '🌊',
+  'São Pedro Thermas': '♨️',
+  'Olimpia Park Resort': '🎢',
+  'Solar das Águas': '☀️',
+  'Wyndham Royal Resort': '👑',
+  'Praia de Juquehy': '🏖️',
+};
+
+let notaSelecionada = 0;
+let allReviews      = [];
+let resortFiltro    = 'todos';
+
+// AVALIAÇÕES DE AMOSTRA (exibidas enquanto o Supabase não retorna dados)
+const SAMPLE_REVIEWS = [
+  { id: 's1', nome_hospede: 'Fernanda A.', resort_nome: 'Hot Beach Suites',     nota: 5, comentario: 'Experiência incrível! As piscinas são espetaculares e o atendimento foi impecável. Voltarei com certeza!',  criado_em: '2025-03-15' },
+  { id: 's2', nome_hospede: 'Carlos M.',   resort_nome: 'Olimpia Park Resort',  nota: 4, comentario: 'Muito bom, parque aquático sensacional. Quarto confortável e limpo. Café da manhã poderia ter mais opções.', criado_em: '2025-02-28' },
+  { id: 's3', nome_hospede: 'Ana P.',      resort_nome: 'Praia de Juquehy',     nota: 5, comentario: 'A praia é linda e o resort é tranquilo. Perfeito para família! Recomendo demais.',                           criado_em: '2025-01-20' },
+  { id: 's4', nome_hospede: 'Roberto S.',  resort_nome: 'Wyndham Royal Resort', nota: 5, comentario: 'Estrutura de primeiro mundo. O SPA é relaxante e a equipe é muito atenciosa.',                               criado_em: '2025-03-01' },
+  { id: 's5', nome_hospede: 'Juliana T.',  resort_nome: 'São Pedro Thermas',    nota: 4, comentario: 'Ótima estadia! As termas são maravilhosas. Boa relação custo-benefício.',                                     criado_em: '2025-02-10' },
+  { id: 's6', nome_hospede: 'Marcos F.',   resort_nome: 'Solar das Águas',      nota: 4, comentario: 'Tranquilo e acolhedor. Piscina boa, quartos bem cuidados. Ótimo para casais.',                                criado_em: '2025-01-08' },
+];
+
+// ============================================================
+// CARREGAR REVIEWS DO SUPABASE
+// ============================================================
+async function carregarReviews() {
+  try {
+    const { data } = await sb
+      .from('avaliacoes')
+      .select('*')
+      .eq('aprovada', true)
+      .order('criado_em', { ascending: false });
+
+    allReviews = (data && data.length > 0) ? data : SAMPLE_REVIEWS;
+  } catch (e) {
+    allReviews = SAMPLE_REVIEWS;
+  }
+
+  renderFilterPills();
+  renderSummary();
+  renderReviews();
+  updateSchemaMarkup();
+}
+
+// ============================================================
+// RENDERIZAR PILLS DE FILTRO
+// ============================================================
+function renderFilterPills() {
+  const container = document.getElementById('resortFilter');
+  const existentes = new Set(allReviews.map(r => r.resort_nome));
+
+  container.innerHTML = `<span class="resort-pill ${resortFiltro === 'todos' ? 'active' : ''}" onclick="filtrarPorResort('todos')">🏨 Todos (${allReviews.length})</span>`;
+
+  RESORTS.forEach(nome => {
+    if (!existentes.has(nome)) return;
+    const qtd = allReviews.filter(r => r.resort_nome === nome).length;
+    const icon = RESORT_ICONS[nome] || '🏨';
+    container.innerHTML += `<span class="resort-pill ${resortFiltro === nome ? 'active' : ''}" onclick="filtrarPorResort('${nome}')">${icon} ${nome} (${qtd})</span>`;
+  });
+}
+
+// ============================================================
+// FILTRAR
+// ============================================================
+function filtrarPorResort(nome) {
+  resortFiltro = nome;
+  document.querySelectorAll('.resort-pill').forEach(p => {
+    p.classList.toggle('active', p.dataset.id === nome || p.textContent.includes(nome === 'todos' ? 'Todos' : nome));
+  });
+  renderSummary();
+  renderReviews();
+}
+
+// ============================================================
+// RENDERIZAR SUMÁRIO
+// ============================================================
+function renderSummary() {
+  const el = document.getElementById('summaryGrid');
+  const lista = resortFiltro === 'todos' ? RESORTS : [resortFiltro];
+
+  el.innerHTML = lista.map(nome => {
+    const revs = allReviews.filter(r => r.resort_nome === nome);
+    if (revs.length === 0) return '';
+
+    const total = revs.length;
+    const media = revs.reduce((s, r) => s + r.nota, 0) / total;
+    const dist  = [5,4,3,2,1].map(n => ({ n, c: revs.filter(r => Math.round(r.nota) === n).length }));
+    const icon  = RESORT_ICONS[nome] || '🏨';
+
+    return `
+      <div class="resort-summary-card">
+        <div class="resort-summary-name">${icon} ${nome}</div>
+        <div style="display:flex; gap:16px; align-items:flex-start;">
+          <div>
+            <div class="avg-stars">${media.toFixed(1)}</div>
+            <div>${renderStarsDisplay(media)}</div>
+            <div class="avg-total">${total} avaliação${total !== 1 ? 'ões' : ''}</div>
+          </div>
+          <div style="flex:1;">
+            ${dist.map(d => `
+              <div class="avg-bar-row">
+                <span class="label">${d.n}★</span>
+                <div class="avg-bar-wrap">
+                  <div class="avg-bar" style="width:${total > 0 ? (d.c/total*100).toFixed(0) : 0}%"></div>
+                </div>
+                <span style="color:var(--cor-sub); min-width:20px;">${d.c}</span>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+// ============================================================
+// RENDERIZAR REVIEWS
+// ============================================================
+function renderReviews() {
+  const el = document.getElementById('reviewsList');
+  const lista = resortFiltro === 'todos' ? allReviews : allReviews.filter(r => r.resort_nome === resortFiltro);
+
+  if (lista.length === 0) {
+    el.innerHTML = `<div class="empty-state"><div class="empty-icon">📭</div><div>Nenhuma avaliação encontrada.</div></div>`;
+    return;
+  }
+
+  el.innerHTML = lista.map(r => `
+    <div class="review-card">
+      <div class="review-header">
+        <div class="review-avatar">${r.nome_hospede.charAt(0).toUpperCase()}</div>
+        <div class="review-meta">
+          <div class="review-name">${escHtml(r.nome_hospede)}</div>
+          <div class="review-resort">${RESORT_ICONS[r.resort_nome] || '🏨'} ${r.resort_nome}</div>
+        </div>
+        <div style="text-align:right;">
+          <div class="review-stars">${renderStarsDisplay(r.nota)}</div>
+          <div class="review-date">${formatarData(r.criado_em)}</div>
+        </div>
+      </div>
+      <div class="review-text">"${escHtml(r.comentario || '')}"</div>
+    </div>
+  `).join('');
+}
+
+function renderStarsDisplay(nota) {
+  const full  = Math.floor(nota);
+  const half  = (nota % 1) >= 0.5;
+  const empty = 5 - full - (half ? 1 : 0);
+  return `<span style="color:var(--dourado); font-size:0.9em; letter-spacing:1px;">${'★'.repeat(full)}${half ? '½' : ''}${'☆'.repeat(empty)}</span>`;
+}
+
+function formatarData(d) {
+  if (!d) return '';
+  return new Date(d + (d.length === 10 ? 'T12:00:00' : '')).toLocaleDateString('pt-BR', { year:'numeric', month:'short', day:'numeric' });
+}
+
+function escHtml(s) {
+  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+// ============================================================
+// SELEÇÃO DE ESTRELAS
+// ============================================================
+function setNota(v) {
+  notaSelecionada = v;
+  const labels = ['Péssimo 😞', 'Ruim 😕', 'Regular 😐', 'Bom 😊', 'Excelente 🤩'];
+  document.querySelectorAll('.star-i').forEach(s => {
+    s.classList.toggle('on', parseInt(s.dataset.v, 10) <= v);
+  });
+  document.getElementById('notaDisplay').textContent = labels[v - 1] || '';
+}
+
+// Hover nas estrelas
+document.querySelectorAll('.star-i').forEach(s => {
+  s.addEventListener('mouseover', () => {
+    const v = parseInt(s.dataset.v, 10);
+    document.querySelectorAll('.star-i').forEach(si => {
+      si.style.color = parseInt(si.dataset.v, 10) <= v ? 'var(--dourado)' : 'rgba(212,175,55,0.2)';
+    });
+  });
+  s.addEventListener('mouseout', () => {
+    document.querySelectorAll('.star-i').forEach(si => {
+      si.style.color = parseInt(si.dataset.v, 10) <= notaSelecionada ? 'var(--dourado)' : 'rgba(212,175,55,0.2)';
+    });
+  });
+});
+
+// ============================================================
+// ENVIAR AVALIAÇÃO
+// ============================================================
+async function enviarAvaliacao() {
+  const nome    = document.getElementById('f_nome').value.trim();
+  const email   = document.getElementById('f_email').value.trim();
+  const resort  = document.getElementById('f_resort').value;
+  const coment  = document.getElementById('f_comentario').value.trim();
+
+  if (!nome)   { toast('Informe seu nome.', 'error');      return; }
+  if (!resort) { toast('Selecione o resort.', 'error');    return; }
+  if (!notaSelecionada) { toast('Clique nas estrelas para dar sua nota.', 'error'); return; }
+  if (!coment) { toast('Escreva seu comentário.', 'error'); return; }
+
+  const btn = document.getElementById('btnEnviar');
+  btn.disabled = true;
+  btn.textContent = '⏳ Enviando...';
+
+  try {
+    const { error } = await sb.from('avaliacoes').insert([{
+      nome_hospede:  nome,
+      email_hospede: email || null,
+      resort_nome:   resort,
+      nota:          notaSelecionada,
+      comentario:    coment,
+      aprovada:      false, // aguarda moderação
+    }]);
+
+    if (error) throw error;
+
+    toast('✅ Avaliação enviada! Será publicada após moderação.', 'success');
+    limparFormulario();
+  } catch (e) {
+    toast('Erro ao enviar. Tente novamente.', 'error');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '⭐ Enviar Avaliação';
+  }
+}
+
+function limparFormulario() {
+  document.getElementById('f_nome').value = '';
+  document.getElementById('f_email').value = '';
+  document.getElementById('f_resort').value = '';
+  document.getElementById('f_comentario').value = '';
+  notaSelecionada = 0;
+  document.querySelectorAll('.star-i').forEach(s => {
+    s.classList.remove('on');
+    s.style.color = '';
+  });
+  document.getElementById('notaDisplay').textContent = 'Clique nas estrelas para avaliar';
+}
+
+// ============================================================
+// SCHEMA.ORG MARKUP DINÂMICO
+// ============================================================
+function updateSchemaMarkup() {
+  const reviews = allReviews.slice(0, 10).map(r => ({
+    '@type': 'Review',
+    'author': { '@type': 'Person', 'name': r.nome_hospede },
+    'datePublished': r.criado_em ? r.criado_em.slice(0, 10) : '',
+    'reviewBody': r.comentario,
+    'reviewRating': { '@type': 'Rating', 'ratingValue': r.nota, 'bestRating': 5 },
+  }));
+
+  const avgTotal = allReviews.length;
+  const avgNota  = avgTotal > 0 ? (allReviews.reduce((s, r) => s + r.nota, 0) / avgTotal).toFixed(1) : 0;
+
+  const schema = {
+    '@context': 'https://schema.org',
+    '@type': 'LodgingBusiness',
+    'name': 'HOSPEDAH',
+    'url': 'https://hospedah.tur.br',
+    'aggregateRating': {
+      '@type': 'AggregateRating',
+      'ratingValue': avgNota,
+      'reviewCount': avgTotal,
+      'bestRating': 5,
+    },
+    'review': reviews,
+  };
+
+  document.getElementById('schemaReviews').textContent = JSON.stringify(schema);
+}
+
+// ============================================================
+// TOAST
+// ============================================================
+function toast(msg, tipo = 'info') {
+  const c = document.getElementById('toastContainer');
+  const t = document.createElement('div');
+  t.className = `toast ${tipo}`;
+  t.textContent = msg;
+  c.appendChild(t);
+  setTimeout(() => t.remove(), 4500);
+}
+
+// ============================================================
+// INIT
+// ============================================================
+carregarReviews();
+</script>
+
+<script>if ('serviceWorker' in navigator) { navigator.serviceWorker.register('/sw.js').catch(function(){}); }</script>
+</body>
+</html>

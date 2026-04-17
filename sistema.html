@@ -994,6 +994,11 @@ tbody td {
     <a href="#relatorio">🏆 Relatório</a>
     <a href="#automacoes">🤖 Automações</a>
     <a href="#captacao">🏡 Captação</a>
+    <a href="#reservas-hospede">🛎️ Solicitações</a>
+    <a href="#moderacao-avaliacoes">⭐ Avaliações</a>
+    <a href="#disponibilidade-mgmt">🗓️ Disponibilidade</a>
+    <a href="#precos-dinamicos">💲 Preços Dinâmicos</a>
+    <a href="#mensagens-hospede">💬 Mensagens</a>
     <a href="javascript:void(0)" onclick="toggleFloatCalc()">🧮 Calculadora</a>
     <a href="javascript:void(0)" onclick="exportarBackup()">💾 Backup</a>
     <a href="javascript:void(0)" onclick="importarBackup()">📂 Importar</a>
@@ -1788,6 +1793,248 @@ tbody td {
             </div>
           </td>
         </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ==========================================
+       SOLICITAÇÕES DE RESERVA (Hóspedes)
+  =========================================== -->
+  <section id="reservas-hospede" class="table-wrap">
+    <div class="section-title">
+      🛎️ Solicitações de Reserva (Hóspedes)
+      <span style="margin-left:auto; display:flex; gap:8px;">
+        <button class="btn btn-secondary btn-sm" onclick="carregarReservasHospede()">🔄 Atualizar</button>
+        <a href="reservas.html" target="_blank"><button class="btn btn-secondary btn-sm">🔗 Página pública</button></a>
+      </span>
+    </div>
+
+    <div class="dashboard-grid" style="margin-bottom:16px;">
+      <div class="dash-card">
+        <div class="dash-icon">📥</div>
+        <div class="dash-label">Pendentes</div>
+        <div class="dash-value" id="rh-pendentes">0</div>
+      </div>
+      <div class="dash-card verde">
+        <div class="dash-icon">✅</div>
+        <div class="dash-label">Confirmadas</div>
+        <div class="dash-value" id="rh-confirmadas">0</div>
+      </div>
+      <div class="dash-card vermelho">
+        <div class="dash-icon">❌</div>
+        <div class="dash-label">Canceladas</div>
+        <div class="dash-value" id="rh-canceladas">0</div>
+      </div>
+      <div class="dash-card">
+        <div class="dash-icon">✔️</div>
+        <div class="dash-label">Concluídas</div>
+        <div class="dash-value" id="rh-concluidas">0</div>
+      </div>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Hóspede</th>
+          <th>E-mail</th>
+          <th>WhatsApp</th>
+          <th>Resort</th>
+          <th>Check-in</th>
+          <th>Check-out</th>
+          <th>Noites</th>
+          <th>Hóspedes</th>
+          <th>Valor Est.</th>
+          <th>Status</th>
+          <th>Solicitado em</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody id="rhBody">
+        <tr><td colspan="13"><div class="empty-state"><div class="empty-icon">🛎️</div><div>Nenhuma solicitação de reserva ainda.</div><div style="font-size:0.85em; margin-top:6px; color:var(--cinza)">Solicitações feitas em <a href="reservas.html" target="_blank" style="color:var(--dourado)">reservas.html</a> aparecerão aqui.</div></div></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ==========================================
+       MODERAÇÃO DE AVALIAÇÕES
+  =========================================== -->
+  <section id="moderacao-avaliacoes" class="table-wrap">
+    <div class="section-title">
+      ⭐ Moderação de Avaliações
+      <span style="margin-left:auto; display:flex; gap:8px;">
+        <button class="btn btn-secondary btn-sm" onclick="carregarAvaliacoesMod()">🔄 Atualizar</button>
+        <a href="avaliacoes.html" target="_blank"><button class="btn btn-secondary btn-sm">🔗 Página pública</button></a>
+      </span>
+    </div>
+
+    <div class="filter-bar">
+      <div class="field-group">
+        <label>Filtrar por</label>
+        <select id="avMod_filtro" onchange="carregarAvaliacoesMod()">
+          <option value="pendente">⏳ Aguardando aprovação</option>
+          <option value="aprovada">✅ Aprovadas</option>
+          <option value="todas">📋 Todas</option>
+        </select>
+      </div>
+      <div class="field-group">
+        <label>Resort</label>
+        <select id="avMod_resort" onchange="carregarAvaliacoesMod()">
+          <option value="">Todos</option>
+          <option>Hot Beach Suites</option>
+          <option>São Pedro Thermas</option>
+          <option>Olimpia Park Resort</option>
+          <option>Solar das Águas</option>
+          <option>Wyndham Royal Resort</option>
+          <option>Praia de Juquehy</option>
+        </select>
+      </div>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Hóspede</th>
+          <th>Resort</th>
+          <th>Nota</th>
+          <th>Comentário</th>
+          <th>Data</th>
+          <th>Status</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody id="avModBody">
+        <tr><td colspan="8"><div class="empty-state"><div class="empty-icon">⭐</div><div>Nenhuma avaliação pendente.</div></div></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ==========================================
+       GESTÃO DE DISPONIBILIDADE
+  =========================================== -->
+  <section id="disponibilidade-mgmt" class="calc-section">
+    <div class="section-title">🗓️ Gestão de Disponibilidade — Bloquear / Liberar Datas</div>
+
+    <div class="calc-grid">
+      <div class="field-group">
+        <label>Resort *</label>
+        <select id="disp_resort">
+          <option value="">Selecione o resort</option>
+          <option>Hot Beach Suites</option>
+          <option>São Pedro Thermas</option>
+          <option>Olimpia Park Resort</option>
+          <option>Solar das Águas</option>
+          <option>Wyndham Royal Resort</option>
+          <option>Praia de Juquehy</option>
+        </select>
+      </div>
+      <div class="field-group">
+        <label>Data Inicial *</label>
+        <input type="date" id="disp_data_ini">
+      </div>
+      <div class="field-group">
+        <label>Data Final *</label>
+        <input type="date" id="disp_data_fim">
+      </div>
+      <div class="field-group">
+        <label>Motivo</label>
+        <select id="disp_motivo">
+          <option value="reservado">📋 Reservado</option>
+          <option value="manutencao">🔧 Manutenção</option>
+          <option value="bloqueio">🚫 Bloqueio administrativo</option>
+          <option value="uso_proprio">🏠 Uso do proprietário</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-danger" onclick="bloquearDatas()">🚫 Bloquear período</button>
+      <button class="btn btn-success" onclick="liberarDatas()">✅ Liberar período</button>
+      <button class="btn btn-secondary" onclick="carregarDisponibilidadeMgmt()">🔄 Ver datas bloqueadas</button>
+    </div>
+
+    <div id="dispMgmtTable" style="margin-top:20px;"></div>
+  </section>
+
+  <!-- ==========================================
+       PREÇOS DINÂMICOS
+  =========================================== -->
+  <section id="precos-dinamicos" class="calc-section">
+    <div class="section-title">💲 Precificação Dinâmica — Por Período/Temporada</div>
+
+    <div class="calc-grid">
+      <div class="field-group">
+        <label>Resort *</label>
+        <select id="pd_resort">
+          <option value="">Selecione o resort</option>
+          <option>Hot Beach Suites</option>
+          <option>São Pedro Thermas</option>
+          <option>Olimpia Park Resort</option>
+          <option>Solar das Águas</option>
+          <option>Wyndham Royal Resort</option>
+          <option>Praia de Juquehy</option>
+        </select>
+      </div>
+      <div class="field-group">
+        <label>Nome do Período *</label>
+        <input type="text" id="pd_nome" placeholder="Ex.: Réveillon, Julho, Alta temporada">
+      </div>
+      <div class="field-group">
+        <label>Data Inicial *</label>
+        <input type="date" id="pd_data_ini">
+      </div>
+      <div class="field-group">
+        <label>Data Final *</label>
+        <input type="date" id="pd_data_fim">
+      </div>
+      <div class="field-group">
+        <label>Preço/Noite (R$) *</label>
+        <input type="number" id="pd_preco" min="0" step="0.01" placeholder="Ex.: 650,00" oninput="calcMultiplicador()">
+      </div>
+      <div class="field-group">
+        <label>Preço Base (R$)</label>
+        <input type="number" id="pd_preco_base" min="0" step="0.01" placeholder="Ex.: 390,00 (referência)" oninput="calcMultiplicador()">
+      </div>
+      <div class="field-group">
+        <label>Multiplicador (automático)</label>
+        <input type="number" id="pd_multiplicador" min="0" step="0.01" placeholder="Calculado automaticamente" readonly>
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="adicionarPrecoDinamico()">💲 Adicionar período de preço</button>
+      <button class="btn btn-secondary" onclick="limparFormPrecoDinamico()">🗑️ Limpar</button>
+    </div>
+
+    <div id="pdTable" style="margin-top:20px;"></div>
+  </section>
+
+  <!-- ==========================================
+       MENSAGENS / CHAT DOS HÓSPEDES
+  =========================================== -->
+  <section id="mensagens-hospede" class="table-wrap">
+    <div class="section-title">
+      💬 Mensagens Recebidas (Chat)
+      <span style="margin-left:auto; display:flex; gap:8px;">
+        <button class="btn btn-secondary btn-sm" onclick="carregarMensagens()">🔄 Atualizar</button>
+        <a href="chat.html" target="_blank"><button class="btn btn-secondary btn-sm">🔗 Abrir Chat</button></a>
+      </span>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Conversa</th>
+          <th>Remetente</th>
+          <th>Mensagem</th>
+          <th>Data/Hora</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody id="msgBody">
+        <tr><td colspan="6"><div class="empty-state"><div class="empty-icon">💬</div><div>Nenhuma mensagem ainda.</div><div style="font-size:0.85em; margin-top:6px; color:var(--cinza)">Mensagens do <a href="chat.html" target="_blank" style="color:var(--dourado)">chat</a> aparecerão aqui.</div></div></td></tr>
       </tbody>
     </table>
   </section>
@@ -4723,6 +4970,452 @@ function inicializarSistema() {
    do onAuthStateChange (adicionado para compatibilidade com Supabase v2).
    O overlay já inicia visível via HTML (class="lock-overlay show") como barreira
    de segurança antes do JS executar. */
+
+/* ==========================================================
+   NOVAS FUNCIONALIDADES — PLATAFORMA TIPO AIRBNB
+   ========================================================== */
+
+// ──────────────────────────────────────────────────────────
+// SOLICITAÇÕES DE RESERVA (HÓSPEDES)
+// ──────────────────────────────────────────────────────────
+async function carregarReservasHospede() {
+  try {
+    var { data, error } = await _supabase
+      .from('reservas_hospede')
+      .select('*')
+      .order('criado_em', { ascending: false });
+
+    if (error) throw error;
+
+    var lista = data || [];
+
+    document.getElementById('rh-pendentes').textContent  = lista.filter(function(r){ return r.status === 'pendente'; }).length;
+    document.getElementById('rh-confirmadas').textContent = lista.filter(function(r){ return r.status === 'confirmada'; }).length;
+    document.getElementById('rh-canceladas').textContent  = lista.filter(function(r){ return r.status === 'cancelada'; }).length;
+    document.getElementById('rh-concluidas').textContent  = lista.filter(function(r){ return r.status === 'concluida'; }).length;
+
+    var body = document.getElementById('rhBody');
+    if (lista.length === 0) {
+      body.innerHTML = '<tr><td colspan="13"><div class="empty-state"><div class="empty-icon">🛎️</div><div>Nenhuma solicitação de reserva encontrada.</div></div></td></tr>';
+      return;
+    }
+
+    body.innerHTML = lista.map(function(r, i) {
+      var noites = 0;
+      if (r.data_entrada && r.data_saida) {
+        noites = Math.round((new Date(r.data_saida) - new Date(r.data_entrada)) / 86400000);
+      }
+      var statusBadge = r.status === 'pendente'   ? '<span class="badge badge-pendente">⏳ Pendente</span>'
+                       : r.status === 'confirmada' ? '<span class="badge badge-pago">✅ Confirmada</span>'
+                       : r.status === 'cancelada'  ? '<span class="badge badge-cancelado">❌ Cancelada</span>'
+                       :                             '<span class="badge">✔️ Concluída</span>';
+      var dtCriado = r.criado_em ? new Date(r.criado_em).toLocaleDateString('pt-BR') : '—';
+      var fmtVal   = r.valor_total ? 'R$ ' + parseFloat(r.valor_total).toLocaleString('pt-BR', { minimumFractionDigits: 2 }) : '—';
+
+      return '<tr>'
+        + '<td>' + (i + 1) + '</td>'
+        + '<td><strong>' + esc(r.nome_hospede) + '</strong></td>'
+        + '<td>' + esc(r.email_hospede || '—') + '</td>'
+        + '<td>' + (r.telefone ? '<a href="https://wa.me/55' + r.telefone.replace(/\D/g,'') + '" target="_blank" style="color:var(--verde)">' + esc(r.telefone) + '</a>' : '—') + '</td>'
+        + '<td>' + esc(r.resort_nome || '—') + '</td>'
+        + '<td>' + fmtDate(r.data_entrada) + '</td>'
+        + '<td>' + fmtDate(r.data_saida) + '</td>'
+        + '<td>' + noites + '</td>'
+        + '<td>' + (r.num_hospedes || 1) + '</td>'
+        + '<td>' + fmtVal + '</td>'
+        + '<td>' + statusBadge + '</td>'
+        + '<td>' + dtCriado + '</td>'
+        + '<td><div class="actions">'
+        + (r.status === 'pendente' ? '<button class="btn btn-success btn-sm" onclick="atualizarStatusRH(\'' + r.id + '\',\'confirmada\')">✅ Confirmar</button>' : '')
+        + (r.status !== 'cancelada' && r.status !== 'concluida' ? '<button class="btn btn-danger btn-sm" onclick="atualizarStatusRH(\'' + r.id + '\',\'cancelada\')">❌</button>' : '')
+        + (r.telefone ? '<a href="https://wa.me/55' + r.telefone.replace(/\D/g,'') + '?text=' + encodeURIComponent('Olá ' + r.nome_hospede + '! Sobre sua reserva no ' + (r.resort_nome||'') + '...') + '" target="_blank"><button class="btn btn-secondary btn-sm">💬 WA</button></a>' : '')
+        + '</div></td>'
+        + '</tr>';
+    }).join('');
+  } catch(e) {
+    toastSistema('Erro ao carregar solicitações: tabela reservas_hospede não encontrada. Execute a migração SQL.', 'error');
+  }
+}
+
+async function atualizarStatusRH(id, novoStatus) {
+  try {
+    var { error } = await _supabase
+      .from('reservas_hospede')
+      .update({ status: novoStatus, atualizado_em: new Date().toISOString() })
+      .eq('id', id);
+    if (error) throw error;
+    toastSistema('Status atualizado para: ' + novoStatus, 'success');
+    carregarReservasHospede();
+  } catch(e) {
+    toastSistema('Erro ao atualizar status.', 'error');
+  }
+}
+
+// ──────────────────────────────────────────────────────────
+// MODERAÇÃO DE AVALIAÇÕES
+// ──────────────────────────────────────────────────────────
+async function carregarAvaliacoesMod() {
+  var filtro = document.getElementById('avMod_filtro').value;
+  var resort = document.getElementById('avMod_resort').value;
+
+  try {
+    var query = _supabase.from('avaliacoes').select('*').order('criado_em', { ascending: false });
+
+    if (filtro === 'pendente')  query = query.eq('aprovada', false);
+    if (filtro === 'aprovada')  query = query.eq('aprovada', true);
+    if (resort)                 query = query.eq('resort_nome', resort);
+
+    var { data, error } = await query;
+    if (error) throw error;
+
+    var lista = data || [];
+    var body  = document.getElementById('avModBody');
+
+    if (lista.length === 0) {
+      body.innerHTML = '<tr><td colspan="8"><div class="empty-state"><div class="empty-icon">⭐</div><div>Nenhuma avaliação encontrada.</div></div></td></tr>';
+      return;
+    }
+
+    body.innerHTML = lista.map(function(r, i) {
+      var stars = '★'.repeat(Math.floor(r.nota)) + (r.nota % 1 >= 0.5 ? '½' : '');
+      var statusBadge = r.aprovada
+        ? '<span class="badge badge-pago">✅ Aprovada</span>'
+        : '<span class="badge badge-pendente">⏳ Pendente</span>';
+
+      return '<tr>'
+        + '<td>' + (i+1) + '</td>'
+        + '<td>' + esc(r.nome_hospede) + '</td>'
+        + '<td>' + esc(r.resort_nome || '—') + '</td>'
+        + '<td style="color:var(--dourado)">' + stars + ' <small style="color:var(--cor-sub)">(' + r.nota + ')</small></td>'
+        + '<td style="max-width:220px; white-space:normal; font-size:0.82em;">' + esc(r.comentario || '—') + '</td>'
+        + '<td>' + (r.criado_em ? new Date(r.criado_em).toLocaleDateString('pt-BR') : '—') + '</td>'
+        + '<td>' + statusBadge + '</td>'
+        + '<td><div class="actions">'
+        + (!r.aprovada ? '<button class="btn btn-success btn-sm" onclick="aprovarAvaliacao(\'' + r.id + '\')">✅ Aprovar</button>' : '')
+        + '<button class="btn btn-danger btn-sm" onclick="excluirAvaliacao(\'' + r.id + '\')">🗑️</button>'
+        + '</div></td>'
+        + '</tr>';
+    }).join('');
+  } catch(e) {
+    toastSistema('Erro ao carregar avaliações: tabela avaliacoes não encontrada. Execute a migração SQL.', 'error');
+  }
+}
+
+async function aprovarAvaliacao(id) {
+  try {
+    var { error } = await _supabase.from('avaliacoes').update({ aprovada: true }).eq('id', id);
+    if (error) throw error;
+    toastSistema('Avaliação aprovada e publicada.', 'success');
+    carregarAvaliacoesMod();
+  } catch(e) {
+    toastSistema('Erro ao aprovar avaliação.', 'error');
+  }
+}
+
+async function excluirAvaliacao(id) {
+  if (!confirm('Excluir esta avaliação permanentemente?')) return;
+  try {
+    var { error } = await _supabase.from('avaliacoes').delete().eq('id', id);
+    if (error) throw error;
+    toastSistema('Avaliação excluída.', 'success');
+    carregarAvaliacoesMod();
+  } catch(e) {
+    toastSistema('Erro ao excluir avaliação.', 'error');
+  }
+}
+
+// ──────────────────────────────────────────────────────────
+// GESTÃO DE DISPONIBILIDADE
+// ──────────────────────────────────────────────────────────
+async function bloquearDatas() {
+  var resort = document.getElementById('disp_resort').value;
+  var ini    = document.getElementById('disp_data_ini').value;
+  var fim    = document.getElementById('disp_data_fim').value;
+  var motivo = document.getElementById('disp_motivo').value;
+
+  if (!resort) { toastSistema('Selecione o resort.', 'error'); return; }
+  if (!ini || !fim) { toastSistema('Informe as datas.', 'error'); return; }
+  if (ini > fim) { toastSistema('Data inicial deve ser anterior à final.', 'error'); return; }
+
+  // Gerar array de datas
+  var datas = [];
+  var cur = new Date(ini + 'T00:00:00');
+  var end = new Date(fim + 'T00:00:00');
+  while (cur <= end) {
+    datas.push({
+      resort_nome:    resort,
+      data_bloqueada: cur.toISOString().slice(0, 10),
+      motivo:         motivo,
+    });
+    cur.setDate(cur.getDate() + 1);
+  }
+
+  try {
+    var { error } = await _supabase.from('disponibilidade').upsert(datas, { onConflict: 'resort_nome,data_bloqueada', ignoreDuplicates: true });
+    if (error) throw error;
+    toastSistema(datas.length + ' datas bloqueadas com sucesso!', 'success');
+    carregarDisponibilidadeMgmt();
+  } catch(e) {
+    toastSistema('Erro ao bloquear datas: ' + (e.message || ''), 'error');
+  }
+}
+
+async function liberarDatas() {
+  var resort = document.getElementById('disp_resort').value;
+  var ini    = document.getElementById('disp_data_ini').value;
+  var fim    = document.getElementById('disp_data_fim').value;
+
+  if (!resort) { toastSistema('Selecione o resort.', 'error'); return; }
+  if (!ini || !fim) { toastSistema('Informe as datas.', 'error'); return; }
+
+  try {
+    var { error } = await _supabase
+      .from('disponibilidade')
+      .delete()
+      .eq('resort_nome', resort)
+      .gte('data_bloqueada', ini)
+      .lte('data_bloqueada', fim);
+    if (error) throw error;
+    toastSistema('Datas liberadas com sucesso!', 'success');
+    carregarDisponibilidadeMgmt();
+  } catch(e) {
+    toastSistema('Erro ao liberar datas.', 'error');
+  }
+}
+
+async function carregarDisponibilidadeMgmt() {
+  var resort = document.getElementById('disp_resort').value;
+  var wrap   = document.getElementById('dispMgmtTable');
+
+  if (!resort) { wrap.innerHTML = ''; return; }
+
+  try {
+    var { data, error } = await _supabase
+      .from('disponibilidade')
+      .select('*')
+      .eq('resort_nome', resort)
+      .gte('data_bloqueada', new Date().toISOString().slice(0, 10))
+      .order('data_bloqueada');
+    if (error) throw error;
+
+    var lista = data || [];
+    if (lista.length === 0) {
+      wrap.innerHTML = '<p style="color:var(--cor-sub); font-size:0.85em; margin-top:8px;">✅ Nenhuma data bloqueada para ' + resort + ' a partir de hoje.</p>';
+      return;
+    }
+
+    wrap.innerHTML = '<table style="margin-top:8px;"><thead><tr><th>#</th><th>Data</th><th>Motivo</th><th>Ações</th></tr></thead><tbody>'
+      + lista.map(function(r, i) {
+          return '<tr><td>' + (i+1) + '</td><td>' + fmtDate(r.data_bloqueada) + '</td><td>' + esc(r.motivo) + '</td>'
+            + '<td><button class="btn btn-danger btn-sm" onclick="deletarDisp(\'' + r.id + '\')">🗑️ Remover</button></td></tr>';
+        }).join('')
+      + '</tbody></table>';
+  } catch(e) {
+    toastSistema('Erro ao carregar disponibilidade.', 'error');
+  }
+}
+
+async function deletarDisp(id) {
+  try {
+    var { error } = await _supabase.from('disponibilidade').delete().eq('id', id);
+    if (error) throw error;
+    carregarDisponibilidadeMgmt();
+  } catch(e) {
+    toastSistema('Erro ao remover data.', 'error');
+  }
+}
+
+// ──────────────────────────────────────────────────────────
+// PREÇOS DINÂMICOS
+// ──────────────────────────────────────────────────────────
+function calcMultiplicador() {
+  var preco = parseFloat(document.getElementById('pd_preco').value) || 0;
+  var base  = parseFloat(document.getElementById('pd_preco_base').value) || 0;
+  document.getElementById('pd_multiplicador').value = (base > 0 && preco > 0) ? (preco / base).toFixed(2) : '';
+}
+
+async function adicionarPrecoDinamico() {
+  var resort = document.getElementById('pd_resort').value;
+  var nome   = document.getElementById('pd_nome').value.trim();
+  var ini    = document.getElementById('pd_data_ini').value;
+  var fim    = document.getElementById('pd_data_fim').value;
+  var preco  = parseFloat(document.getElementById('pd_preco').value);
+  var base   = parseFloat(document.getElementById('pd_preco_base').value) || 0;
+  var mult   = base > 0 ? preco / base : 1.0;
+
+  if (!resort) { toastSistema('Selecione o resort.', 'error'); return; }
+  if (!nome)   { toastSistema('Informe o nome do período.', 'error'); return; }
+  if (!ini || !fim) { toastSistema('Informe as datas.', 'error'); return; }
+  if (!preco || preco <= 0) { toastSistema('Informe o preço por noite.', 'error'); return; }
+
+  try {
+    var { error } = await _supabase.from('precos_dinamicos').insert([{
+      resort_nome:  resort,
+      nome_periodo: nome,
+      data_inicio:  ini,
+      data_fim:     fim,
+      preco_noite:  preco,
+      multiplicador: parseFloat(mult.toFixed(2)),
+    }]);
+    if (error) throw error;
+    toastSistema('Período de preço adicionado!', 'success');
+    limparFormPrecoDinamico();
+    carregarTabelaPrecosDinamicos();
+  } catch(e) {
+    toastSistema('Erro ao salvar preço: ' + (e.message || ''), 'error');
+  }
+}
+
+function limparFormPrecoDinamico() {
+  ['pd_resort','pd_nome','pd_data_ini','pd_data_fim','pd_preco','pd_preco_base','pd_multiplicador'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+}
+
+async function carregarTabelaPrecosDinamicos() {
+  var wrap = document.getElementById('pdTable');
+  try {
+    var { data, error } = await _supabase
+      .from('precos_dinamicos')
+      .select('*')
+      .order('data_inicio');
+    if (error) throw error;
+
+    var lista = data || [];
+    if (lista.length === 0) {
+      wrap.innerHTML = '<p style="color:var(--cor-sub); font-size:0.85em;">Nenhum período de preço cadastrado ainda.</p>';
+      return;
+    }
+
+    wrap.innerHTML = '<table><thead><tr><th>#</th><th>Resort</th><th>Período</th><th>De</th><th>Até</th><th>Preço/noite</th><th>Multiplicador</th><th>Ações</th></tr></thead><tbody>'
+      + lista.map(function(r, i) {
+          return '<tr><td>' + (i+1) + '</td><td>' + esc(r.resort_nome) + '</td><td>' + esc(r.nome_periodo) + '</td>'
+            + '<td>' + fmtDate(r.data_inicio) + '</td><td>' + fmtDate(r.data_fim) + '</td>'
+            + '<td style="color:var(--dourado); font-weight:600;">R$ ' + parseFloat(r.preco_noite).toLocaleString('pt-BR', {minimumFractionDigits:2}) + '</td>'
+            + '<td>' + (r.multiplicador ? r.multiplicador + 'x' : '—') + '</td>'
+            + '<td><button class="btn btn-danger btn-sm" onclick="deletarPrecoDinamico(\'' + r.id + '\')">🗑️</button></td></tr>';
+        }).join('')
+      + '</tbody></table>';
+  } catch(e) {
+    wrap.innerHTML = '<p style="color:var(--vermelho); font-size:0.85em;">Execute a migração SQL para ativar esta funcionalidade.</p>';
+  }
+}
+
+async function deletarPrecoDinamico(id) {
+  try {
+    var { error } = await _supabase.from('precos_dinamicos').delete().eq('id', id);
+    if (error) throw error;
+    carregarTabelaPrecosDinamicos();
+  } catch(e) {
+    toastSistema('Erro ao excluir período.', 'error');
+  }
+}
+
+// ──────────────────────────────────────────────────────────
+// MENSAGENS DO CHAT
+// ──────────────────────────────────────────────────────────
+async function carregarMensagens() {
+  try {
+    var { data, error } = await _supabase
+      .from('mensagens')
+      .select('*')
+      .eq('remetente', 'hospede')
+      .order('criado_em', { ascending: false })
+      .limit(50);
+    if (error) throw error;
+
+    var lista = data || [];
+    var body  = document.getElementById('msgBody');
+
+    if (lista.length === 0) {
+      body.innerHTML = '<tr><td colspan="6"><div class="empty-state"><div class="empty-icon">💬</div><div>Nenhuma mensagem ainda.</div></div></td></tr>';
+      return;
+    }
+
+    body.innerHTML = lista.map(function(r, i) {
+      var dtHr = r.criado_em ? new Date(r.criado_em).toLocaleString('pt-BR') : '—';
+      return '<tr>'
+        + '<td>' + (i+1) + '</td>'
+        + '<td style="font-size:0.78em; color:var(--cor-sub);">' + esc(r.conversa_id) + '</td>'
+        + '<td>' + esc(r.nome_remetente) + '</td>'
+        + '<td style="max-width:280px; white-space:normal; font-size:0.85em;">' + esc(r.conteudo) + '</td>'
+        + '<td>' + dtHr + '</td>'
+        + '<td><a href="chat.html" target="_blank"><button class="btn btn-secondary btn-sm">💬 Responder</button></a></td>'
+        + '</tr>';
+    }).join('');
+  } catch(e) {
+    toastSistema('Execute a migração SQL para ativar esta funcionalidade.', 'error');
+  }
+}
+
+// ──────────────────────────────────────────────────────────
+// HELPERS
+// ──────────────────────────────────────────────────────────
+function esc(s) {
+  if (!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function fmtDate(d) {
+  if (!d) return '—';
+  var dt = new Date(d + (d.length === 10 ? 'T12:00:00' : ''));
+  return dt.toLocaleDateString('pt-BR');
+}
+
+function toastSistema(msg, tipo) {
+  var c = document.getElementById('toastContainer');
+  if (!c) return;
+  var t = document.createElement('div');
+  t.className = 'toast' + (tipo ? ' ' + tipo : '');
+  t.textContent = msg;
+  c.appendChild(t);
+  setTimeout(function(){ t.remove(); }, 5000);
+}
+
+// ──────────────────────────────────────────────────────────
+// CARREGAR TUDO AO INICIALIZAR
+// ──────────────────────────────────────────────────────────
+var _plataformaCarregada = false;
+function carregarFuncoesPlataforma() {
+  if (_plataformaCarregada) return;
+  _plataformaCarregada = true;
+  // Carregar dados das novas seções (silenciosamente — sem bloquear)
+  setTimeout(function() {
+    carregarReservasHospede();
+    carregarAvaliacoesMod();
+    carregarTabelaPrecosDinamicos();
+    carregarMensagens();
+  }, 2000);
+}
+
+// Integrar com a inicialização existente
+document.addEventListener('DOMContentLoaded', function() {
+  // Observer para detectar quando o sistema é inicializado (login concluído)
+  var observer = new MutationObserver(function(mutations) {
+    mutations.forEach(function(m) {
+      m.removedNodes.forEach(function(node) {
+        if (node.id === 'lockOverlay' || (node.classList && node.classList.contains('lock-overlay'))) {
+          carregarFuncoesPlataforma();
+        }
+      });
+    });
+  });
+  var lockEl = document.getElementById('lockOverlay');
+  if (lockEl && lockEl.parentNode) {
+    observer.observe(lockEl.parentNode, { childList: true });
+  }
+
+  // Também carregar se o overlay for ocultado via classe
+  var classObserver = new MutationObserver(function() {
+    var lo = document.getElementById('lockOverlay');
+    if (lo && !lo.classList.contains('show')) {
+      carregarFuncoesPlataforma();
+    }
+  });
+  var lo2 = document.getElementById('lockOverlay');
+  if (lo2) classObserver.observe(lo2, { attributes: true, attributeFilter: ['class'] });
+});
 </script>
 
 <!-- PWA -->

@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chat com a Equipe | HOSPEDAH</title>
+<meta name="description" content="Fale em tempo real com nossa equipe de especialistas HOSPEDAH. Tire dúvidas sobre reservas, disponibilidade e pacotes.">
+<link rel="canonical" href="https://hospedah.tur.br/chat.html">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#D4AF37">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+<!-- Supabase -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root {
+  --dourado: #D4AF37;
+  --dourado-hover: #f0c93a;
+  --azul: #0B1C3D;
+  --azul2: #142850;
+  --verde: #25D366;
+  --vermelho: #e74c3c;
+  --bg: #0d1b2e;
+  --bg2: #10233c;
+  --cor-texto: #e8eaf0;
+  --cor-sub: #aab4c4;
+  --borda: rgba(212,175,55,0.15);
+  --radius: 12px;
+  --sombra: 0 4px 24px rgba(0,0,0,0.3);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Poppins', sans-serif;
+  background: var(--bg);
+  color: var(--cor-texto);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* HEADER */
+.header {
+  background: linear-gradient(135deg, var(--azul), var(--azul2));
+  border-bottom: 2px solid var(--dourado);
+  padding: 16px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: var(--sombra);
+  flex-shrink: 0;
+}
+
+.logo {
+  color: var(--dourado);
+  font-weight: 700;
+  font-size: 1.2em;
+  text-decoration: none;
+}
+
+.nav-links {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.nav-links a {
+  color: var(--cor-sub);
+  text-decoration: none;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 0.85em;
+  border: 1px solid var(--borda);
+  transition: all 0.2s;
+}
+
+.nav-links a:hover, .nav-links a.active {
+  background: var(--dourado);
+  color: var(--azul);
+  border-color: var(--dourado);
+}
+
+/* ONBOARDING */
+.onboarding {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.onboarding-box {
+  background: var(--bg2);
+  border: 1px solid var(--borda);
+  border-radius: var(--radius);
+  padding: 36px 28px;
+  width: 100%;
+  max-width: 420px;
+  text-align: center;
+}
+
+.onboarding-box .ob-icon { font-size: 3em; margin-bottom: 12px; }
+.onboarding-box h2 { color: var(--dourado); font-size: 1.2em; margin-bottom: 8px; }
+.onboarding-box p  { color: var(--cor-sub); font-size: 0.88em; margin-bottom: 20px; line-height: 1.5; }
+
+.field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 14px;
+  text-align: left;
+}
+
+.field-group label {
+  font-size: 0.75em;
+  color: var(--cor-sub);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.field-group input,
+.field-group select {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(212,175,55,0.2);
+  border-radius: 8px;
+  color: var(--cor-texto);
+  font-family: inherit;
+  font-size: 0.9em;
+  padding: 10px 12px;
+  transition: border-color 0.2s;
+}
+
+.field-group input:focus,
+.field-group select:focus {
+  outline: none;
+  border-color: var(--dourado);
+}
+
+.field-group select option { background: var(--azul2); }
+
+.btn {
+  padding: 12px 20px;
+  border-radius: 8px;
+  border: none;
+  font-family: inherit;
+  font-size: 0.92em;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.btn-primary {
+  background: var(--dourado);
+  color: var(--azul);
+}
+
+.btn-primary:hover { background: var(--dourado-hover); }
+
+.btn-whatsapp {
+  background: var(--verde);
+  color: #fff;
+  margin-top: 10px;
+}
+
+.btn-whatsapp:hover { background: #20b857; }
+
+/* CHAT LAYOUT */
+.chat-layout {
+  flex: 1;
+  display: none;
+  max-width: 900px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 20px 16px 24px;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* CHAT BOX */
+.chat-box {
+  background: var(--bg2);
+  border: 1px solid var(--borda);
+  border-radius: var(--radius);
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.chat-header {
+  background: linear-gradient(135deg, var(--azul), var(--azul2));
+  border-bottom: 1px solid var(--borda);
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.chat-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--dourado);
+  color: var(--azul);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2em;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.chat-agent-info h3 {
+  font-size: 0.92em;
+  color: var(--cor-texto);
+}
+
+.chat-agent-info small {
+  font-size: 0.72em;
+  color: var(--verde);
+}
+
+.online-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--verde);
+  display: inline-block;
+  margin-right: 4px;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.4; }
+}
+
+.chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 400px;
+}
+
+.chat-messages::-webkit-scrollbar { width: 4px; }
+.chat-messages::-webkit-scrollbar-track { background: transparent; }
+.chat-messages::-webkit-scrollbar-thumb { background: var(--borda); border-radius: 2px; }
+
+/* MENSAGENS */
+.msg {
+  display: flex;
+  flex-direction: column;
+  max-width: 75%;
+  animation: msgIn 0.25s ease;
+}
+
+@keyframes msgIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.msg.sent  { align-self: flex-end; align-items: flex-end; }
+.msg.recv  { align-self: flex-start; align-items: flex-start; }
+
+.msg-bubble {
+  padding: 10px 14px;
+  border-radius: 14px;
+  font-size: 0.88em;
+  line-height: 1.5;
+  word-break: break-word;
+}
+
+.msg.sent .msg-bubble {
+  background: var(--dourado);
+  color: var(--azul);
+  border-bottom-right-radius: 4px;
+}
+
+.msg.recv .msg-bubble {
+  background: rgba(255,255,255,0.07);
+  color: var(--cor-texto);
+  border-bottom-left-radius: 4px;
+  border: 1px solid var(--borda);
+}
+
+.msg-meta {
+  font-size: 0.68em;
+  color: var(--cor-sub);
+  margin-top: 3px;
+}
+
+/* TYPING */
+.typing-indicator {
+  display: none;
+  align-self: flex-start;
+}
+
+.typing-indicator .msg-bubble {
+  background: rgba(255,255,255,0.07);
+  border: 1px solid var(--borda);
+  padding: 12px 16px;
+}
+
+.typing-dots {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.typing-dots span {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--cor-sub);
+  animation: bounce 1.2s infinite ease-in-out;
+}
+
+.typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+.typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes bounce {
+  0%, 80%, 100% { transform: translateY(0); }
+  40%            { transform: translateY(-6px); }
+}
+
+/* INPUT */
+.chat-input-area {
+  border-top: 1px solid var(--borda);
+  padding: 12px 14px;
+  display: flex;
+  gap: 10px;
+  align-items: flex-end;
+  flex-shrink: 0;
+}
+
+.chat-input {
+  flex: 1;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(212,175,55,0.2);
+  border-radius: 20px;
+  color: var(--cor-texto);
+  font-family: inherit;
+  font-size: 0.9em;
+  padding: 10px 16px;
+  resize: none;
+  max-height: 120px;
+  transition: border-color 0.2s;
+  line-height: 1.4;
+}
+
+.chat-input:focus {
+  outline: none;
+  border-color: var(--dourado);
+}
+
+.send-btn {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: var(--dourado);
+  color: var(--azul);
+  border: none;
+  font-size: 1.1em;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.send-btn:hover { background: var(--dourado-hover); transform: scale(1.05); }
+.send-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+/* FAQ CHIPS */
+.faq-bar {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding: 10px 14px;
+  border-top: 1px solid var(--borda);
+  background: rgba(255,255,255,0.02);
+}
+
+.faq-chip {
+  padding: 5px 12px;
+  border-radius: 16px;
+  border: 1px solid var(--borda);
+  background: rgba(255,255,255,0.04);
+  color: var(--cor-sub);
+  font-size: 0.75em;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.faq-chip:hover {
+  border-color: var(--dourado);
+  color: var(--dourado);
+  background: rgba(212,175,55,0.07);
+}
+
+/* INFO LATERAL */
+.chat-info {
+  background: var(--bg2);
+  border: 1px solid var(--borda);
+  border-radius: var(--radius);
+  padding: 20px;
+}
+
+.chat-info h3 {
+  color: var(--dourado);
+  font-size: 0.92em;
+  margin-bottom: 14px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--borda);
+}
+
+.info-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  font-size: 0.85em;
+}
+
+.info-row:last-child { border-bottom: none; }
+.info-row .ir-icon { font-size: 1.2em; flex-shrink: 0; }
+.info-row .ir-label { color: var(--cor-sub); font-size: 0.78em; display: block; }
+.info-row .ir-val   { color: var(--cor-texto); font-weight: 600; }
+
+/* GRID CHAT */
+.chat-grid {
+  display: grid;
+  grid-template-columns: 1fr 280px;
+  gap: 16px;
+  flex: 1;
+}
+
+@media (max-width: 700px) {
+  .chat-grid { grid-template-columns: 1fr; }
+  .chat-info  { display: none; }
+}
+</style>
+</head>
+<body>
+
+<header class="header">
+  <a href="index.html" class="logo">🏨 HOSPEDAH</a>
+  <nav class="nav-links">
+    <a href="index.html">🏠 Início</a>
+    <a href="busca.html">🔍 Buscar</a>
+    <a href="reservas.html">📅 Reservar</a>
+    <a href="avaliacoes.html">⭐ Avaliações</a>
+    <a href="chat.html" class="active">💬 Chat</a>
+    <a href="cadastro.html">🏡 Cadastrar Imóvel</a>
+  </nav>
+</header>
+
+<!-- ONBOARDING -->
+<div class="onboarding" id="onboarding">
+  <div class="onboarding-box">
+    <div class="ob-icon">💬</div>
+    <h2>Chat com a Equipe HOSPEDAH</h2>
+    <p>Tire dúvidas sobre reservas, disponibilidade e pacotes em tempo real. Nossa equipe responde em minutos.</p>
+
+    <div class="field-group">
+      <label>Seu Nome *</label>
+      <input type="text" id="ob_nome" placeholder="Como quer ser chamado?" autocomplete="name"
+             onkeydown="if(event.key==='Enter') iniciarChat()">
+    </div>
+
+    <div class="field-group">
+      <label>Assunto</label>
+      <select id="ob_assunto">
+        <option value="Reservas">📅 Dúvidas sobre reservas</option>
+        <option value="Disponibilidade">🗓️ Verificar disponibilidade</option>
+        <option value="Preços">💲 Preços e pacotes</option>
+        <option value="Pagamento">💳 Formas de pagamento</option>
+        <option value="Geral">💬 Assunto geral</option>
+      </select>
+    </div>
+
+    <button class="btn btn-primary" onclick="iniciarChat()">
+      💬 Iniciar conversa
+    </button>
+
+    <a href="https://wa.me/5517982006382" target="_blank" rel="noopener noreferrer" style="text-decoration:none;">
+      <button class="btn btn-whatsapp">
+        📱 Preferir WhatsApp
+      </button>
+    </a>
+  </div>
+</div>
+
+<!-- CHAT -->
+<div class="chat-layout" id="chatLayout">
+  <div class="chat-grid">
+
+    <!-- CAIXA DE CHAT -->
+    <div class="chat-box" style="display:flex; flex-direction:column;">
+      <div class="chat-header">
+        <div class="chat-avatar">H</div>
+        <div class="chat-agent-info">
+          <h3>Equipe HOSPEDAH</h3>
+          <small><span class="online-dot"></span>Online agora</small>
+        </div>
+        <a href="https://wa.me/5517982006382" target="_blank" rel="noopener noreferrer"
+           style="margin-left:auto; background:var(--verde); color:#fff; padding:6px 14px; border-radius:20px; text-decoration:none; font-size:0.78em; font-weight:600;">
+          📱 WhatsApp
+        </a>
+      </div>
+
+      <div class="chat-messages" id="chatMessages">
+        <!-- preenchido via JS -->
+      </div>
+
+      <!-- Indicador de digitação -->
+      <div class="typing-indicator" id="typingIndicator">
+        <div class="msg-bubble">
+          <div class="typing-dots">
+            <span></span><span></span><span></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sugestões de perguntas rápidas -->
+      <div class="faq-bar" id="faqBar">
+        <span class="faq-chip" onclick="sendFAQ('Como faço para reservar?')">Como reservar?</span>
+        <span class="faq-chip" onclick="sendFAQ('Quais são as formas de pagamento?')">Formas de pagamento</span>
+        <span class="faq-chip" onclick="sendFAQ('Qual o horário de check-in?')">Horário check-in</span>
+        <span class="faq-chip" onclick="sendFAQ('Têm opções para criança?')">Para crianças</span>
+        <span class="faq-chip" onclick="sendFAQ('Como cancelar uma reserva?')">Cancelamento</span>
+      </div>
+
+      <!-- ÁREA DE DIGITAÇÃO -->
+      <div class="chat-input-area">
+        <textarea class="chat-input" id="chatInput"
+                  placeholder="Digite sua mensagem..."
+                  rows="1"
+                  onkeydown="handleEnter(event)"
+                  oninput="autoResize(this)"></textarea>
+        <button class="send-btn" id="sendBtn" onclick="enviarMensagem()">➤</button>
+      </div>
+    </div>
+
+    <!-- INFORMAÇÕES LATERAIS -->
+    <div class="chat-info">
+      <h3>ℹ️ Informações Úteis</h3>
+
+      <div class="info-row">
+        <span class="ir-icon">⏰</span>
+        <div>
+          <span class="ir-label">Horário de atendimento</span>
+          <span class="ir-val">Seg–Sáb, 8h–20h</span>
+        </div>
+      </div>
+
+      <div class="info-row">
+        <span class="ir-icon">⚡</span>
+        <div>
+          <span class="ir-label">Tempo de resposta</span>
+          <span class="ir-val">Até 30 minutos</span>
+        </div>
+      </div>
+
+      <div class="info-row">
+        <span class="ir-icon">📱</span>
+        <div>
+          <span class="ir-label">WhatsApp direto</span>
+          <span class="ir-val">(17) 98200-6382</span>
+        </div>
+      </div>
+
+      <div class="info-row">
+        <span class="ir-icon">📅</span>
+        <div>
+          <span class="ir-label">Check-in padrão</span>
+          <span class="ir-val">A partir das 14h</span>
+        </div>
+      </div>
+
+      <div class="info-row">
+        <span class="ir-icon">🔑</span>
+        <div>
+          <span class="ir-label">Check-out padrão</span>
+          <span class="ir-val">Até as 12h</span>
+        </div>
+      </div>
+
+      <div class="info-row">
+        <span class="ir-icon">💳</span>
+        <div>
+          <span class="ir-label">Formas de pagamento</span>
+          <span class="ir-val">PIX, Cartão, Boleto</span>
+        </div>
+      </div>
+
+      <div style="margin-top:16px;">
+        <a href="reservas.html" style="display:block; background:var(--dourado); color:var(--azul); padding:10px 14px; border-radius:8px; text-decoration:none; text-align:center; font-size:0.82em; font-weight:600; margin-bottom:8px;">
+          📅 Fazer Reserva
+        </a>
+        <a href="busca.html" style="display:block; background:rgba(255,255,255,0.05); color:var(--cor-sub); padding:10px 14px; border-radius:8px; text-decoration:none; text-align:center; font-size:0.82em; border:1px solid var(--borda);">
+          🔍 Buscar Acomodações
+        </a>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ============================================================
+// SUPABASE
+// ============================================================
+const SUPABASE_URL = 'https://ydrmjoppjxtmnwtvtinb.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlkcm1qb3Bwanh0bW53dHZ0aW5iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ0MTg3OTEsImV4cCI6MjA1OTk5NDc5MX0.JK8TPBxgp7Y8sn-NmFsQDtFJ6EH_rQLjVWZBkFg5N28';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// ============================================================
+// RESPOSTAS AUTOMÁTICAS DO FAQ
+// ============================================================
+const FAQ_RESPOSTAS = {
+  'como faço para reservar':    'Para reservar, acesse nossa página de <a href="reservas.html" style="color:var(--dourado)">reservas</a>, escolha o resort, selecione as datas disponíveis e preencha seus dados. Nossa equipe confirma em até 2 horas! 📅',
+  'como reservar':               'Para reservar, acesse nossa página de <a href="reservas.html" style="color:var(--dourado)">reservas</a>, escolha o resort, selecione as datas disponíveis e preencha seus dados. Nossa equipe confirma em até 2 horas! 📅',
+  'formas de pagamento':         'Aceitamos: ⚡ PIX (5% de desconto), 💳 Cartão de crédito (até 12x), 📄 Boleto bancário e 🏦 Transferência. Qual você prefere?',
+  'quais são as formas de pagamento': 'Aceitamos: ⚡ PIX (5% de desconto), 💳 Cartão de crédito (até 12x), 📄 Boleto bancário e 🏦 Transferência. Qual você prefere?',
+  'horário de check-in':         '🔑 Check-in a partir das **14h** e Check-out até as **12h**. Para horários especiais, entre em contato com antecedência que fazemos o possível para acomodar seu pedido!',
+  'qual o horário de check-in':  '🔑 Check-in a partir das **14h** e Check-out até as **12h**. Para horários especiais, entre em contato com antecedência que fazemos o possível para acomodar seu pedido!',
+  'para criança':                '👶 Sim! Temos opções com atividades para crianças, berços disponíveis sob solicitação e parques aquáticos perfeitos para toda a família. Qual resort te interessa?',
+  'têm opções para criança':     '👶 Sim! Temos opções com atividades para crianças, berços disponíveis sob solicitação e parques aquáticos perfeitos para toda a família. Qual resort te interessa?',
+  'cancelamento':                '📋 Nossa política de cancelamento: cancelamentos com mais de 7 dias de antecedência recebem reembolso integral. Entre 3-7 dias, 50% de reembolso. Menos de 3 dias, sem reembolso. Tem alguma reserva específica?',
+  'como cancelar uma reserva':   '📋 Nossa política de cancelamento: cancelamentos com mais de 7 dias de antecedência recebem reembolso integral. Entre 3-7 dias, 50% de reembolso. Menos de 3 dias, sem reembolso. Tem alguma reserva específica?',
+  'wifi':                        '📶 Sim! Todos os resorts dispõem de Wi-Fi gratuito em quartos e áreas comuns.',
+  'preço':                       '💲 Os preços variam por resort e período. Confira nossa página de <a href="busca.html" style="color:var(--dourado)">busca</a> para ver disponibilidade e valores atualizados!',
+  'disponibilidade':             '🗓️ Para verificar disponibilidade, acesse <a href="reservas.html" style="color:var(--dourado)">reservas</a> e selecione as datas desejadas — o calendário mostrará as datas disponíveis em tempo real.',
+};
+
+let nomeHospede  = '';
+let assunto      = '';
+let conversaId   = '';
+let subscription = null;
+let mensagensRendered = new Set();
+
+// ============================================================
+// INICIAR CHAT
+// ============================================================
+function iniciarChat() {
+  const nome = document.getElementById('ob_nome').value.trim();
+  if (!nome) {
+    document.getElementById('ob_nome').focus();
+    document.getElementById('ob_nome').style.borderColor = 'var(--vermelho)';
+    return;
+  }
+
+  nomeHospede = nome;
+  assunto = document.getElementById('ob_assunto').value;
+  conversaId = `chat_${nome.toLowerCase().replace(/\s+/g, '_')}_${Date.now()}`;
+
+  // Exibir chat
+  document.getElementById('onboarding').style.display = 'none';
+  const layout = document.getElementById('chatLayout');
+  layout.style.display = 'flex';
+
+  // Mensagem de boas-vindas
+  const boasVindas = `Olá, **${nomeHospede}**! 👋 Sou da equipe HOSPEDAH. Vi que você quer falar sobre **${assunto}**. Como posso te ajudar hoje?`;
+  addMessage('recv', 'HOSPEDAH', boasVindas);
+
+  // Iniciar Realtime
+  iniciarRealtime();
+
+  // Scroll para o bottom
+  scrollToBottom();
+}
+
+// ============================================================
+// SUPABASE REALTIME
+// ============================================================
+function iniciarRealtime() {
+  subscription = sb
+    .channel(`chat_${conversaId}`)
+    .on('postgres_changes', {
+      event: 'INSERT',
+      schema: 'public',
+      table: 'mensagens',
+      filter: `conversa_id=eq.${conversaId}`,
+    }, payload => {
+      const msg = payload.new;
+      if (msg.remetente === 'anfitriao' && !mensagensRendered.has(msg.id)) {
+        mensagensRendered.add(msg.id);
+        addMessage('recv', msg.nome_remetente, msg.conteudo);
+      }
+    })
+    .subscribe();
+}
+
+// ============================================================
+// ENVIAR MENSAGEM
+// ============================================================
+async function enviarMensagem() {
+  const input = document.getElementById('chatInput');
+  const texto = input.value.trim();
+  if (!texto) return;
+
+  input.value = '';
+  input.style.height = 'auto';
+
+  // Exibir imediatamente na UI
+  addMessage('sent', nomeHospede, texto);
+  scrollToBottom();
+  document.getElementById('faqBar').style.display = 'none';
+
+  // Salvar no Supabase
+  try {
+    await sb.from('mensagens').insert([{
+      conversa_id:    conversaId,
+      remetente:      'hospede',
+      nome_remetente: nomeHospede,
+      conteudo:       texto,
+    }]);
+  } catch (e) {
+    // fallback silencioso — UI já mostra
+  }
+
+  // Verificar FAQ automático
+  const respAuto = getBotResponse(texto);
+  if (respAuto) {
+    mostrarDigitando();
+    setTimeout(() => {
+      ocultarDigitando();
+      addMessage('recv', 'HOSPEDAH', respAuto);
+      scrollToBottom();
+    }, 1200 + Math.random() * 800);
+  } else {
+    // Confirmação genérica
+    mostrarDigitando();
+    setTimeout(() => {
+      ocultarDigitando();
+      addMessage('recv', 'HOSPEDAH', '✅ Mensagem recebida! Um especialista responderá em breve. Se preferir, pode também nos contatar pelo <a href="https://wa.me/5517982006382" target="_blank" style="color:var(--dourado)">WhatsApp</a>.');
+      scrollToBottom();
+    }, 1500);
+  }
+}
+
+// ============================================================
+// RESPOSTA AUTOMÁTICA DO FAQ
+// ============================================================
+function getBotResponse(texto) {
+  const lower = texto.toLowerCase();
+  for (const [chave, resp] of Object.entries(FAQ_RESPOSTAS)) {
+    if (lower.includes(chave)) return resp;
+  }
+  return null;
+}
+
+// ============================================================
+// FAQ CHIP
+// ============================================================
+function sendFAQ(pergunta) {
+  document.getElementById('chatInput').value = pergunta;
+  enviarMensagem();
+}
+
+// ============================================================
+// ADD MENSAGEM NA UI
+// ============================================================
+function addMessage(tipo, nome, texto) {
+  const el = document.getElementById('chatMessages');
+  const div = document.createElement('div');
+  div.className = `msg ${tipo}`;
+
+  const hora = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+  // Substituir **bold** por <strong>
+  const textoFmt = texto.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+
+  div.innerHTML = `
+    <div class="msg-bubble">${textoFmt}</div>
+    <div class="msg-meta">${tipo === 'recv' ? nome + ' · ' : ''}${hora}</div>
+  `;
+
+  el.appendChild(div);
+  scrollToBottom();
+}
+
+// ============================================================
+// TYPING INDICATOR
+// ============================================================
+function mostrarDigitando() {
+  const ind = document.getElementById('typingIndicator');
+  ind.style.display = 'flex';
+  scrollToBottom();
+}
+
+function ocultarDigitando() {
+  document.getElementById('typingIndicator').style.display = 'none';
+}
+
+// ============================================================
+// UTILS
+// ============================================================
+function scrollToBottom() {
+  const el = document.getElementById('chatMessages');
+  el.scrollTop = el.scrollHeight;
+}
+
+function handleEnter(e) {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    enviarMensagem();
+  }
+}
+
+function autoResize(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+}
+
+// Cleanup ao sair da página
+window.addEventListener('beforeunload', () => {
+  if (subscription) subscription.unsubscribe();
+});
+</script>
+
+<script>if ('serviceWorker' in navigator) { navigator.serviceWorker.register('/sw.js').catch(function(){}); }</script>
+</body>
+</html>
