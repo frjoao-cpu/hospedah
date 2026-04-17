@@ -1966,7 +1966,7 @@ tbody td {
     <div class="calc-grid">
       <div class="field-group">
         <label>Resort *</label>
-        <select id="pd_resort">
+        <select id="pd_resort" onchange="togglePdDormitorios()">
           <option value="">Selecione o resort</option>
           <option>Hot Beach Suites</option>
           <option>São Pedro Thermas</option>
@@ -1974,6 +1974,14 @@ tbody td {
           <option>Solar das Águas</option>
           <option>Wyndham Royal Resort</option>
           <option>Praia de Juquehy</option>
+        </select>
+      </div>
+      <div class="field-group" id="pd_dormitorios_group" style="display:none;">
+        <label>Dormitórios</label>
+        <select id="pd_dormitorios">
+          <option value="">Todos (sem filtro)</option>
+          <option value="1">01 Dormitório</option>
+          <option value="2">02 Dormitórios</option>
         </select>
       </div>
       <div class="field-group">
@@ -5247,6 +5255,16 @@ async function deletarDisp(id) {
 // ──────────────────────────────────────────────────────────
 // PREÇOS DINÂMICOS
 // ──────────────────────────────────────────────────────────
+var PD_RESORTS_COM_DORMITORIOS = ['Hot Beach Suites', 'Olimpia Park Resort', 'Solar das Águas'];
+
+function togglePdDormitorios() {
+  var resort = document.getElementById('pd_resort').value;
+  var group  = document.getElementById('pd_dormitorios_group');
+  if (group) {
+    group.style.display = PD_RESORTS_COM_DORMITORIOS.includes(resort) ? '' : 'none';
+  }
+}
+
 function calcMultiplicador() {
   var tipo  = document.getElementById('pd_tipo_regra').value;
   var preco = parseFloat(document.getElementById('pd_preco').value) || 0;
@@ -5272,6 +5290,9 @@ async function adicionarPrecoDinamico() {
   var preco  = parseFloat(document.getElementById('pd_preco').value);
   var base   = parseFloat(document.getElementById('pd_preco_base').value) || 0;
   var desconto = parseFloat(document.getElementById('pd_desconto').value) || 0;
+  var dormitoriosEl = document.getElementById('pd_dormitorios');
+  var dormitorios = (dormitoriosEl && dormitoriosEl.closest('#pd_dormitorios_group').style.display !== 'none' && dormitoriosEl.value)
+    ? parseInt(dormitoriosEl.value, 10) : null;
 
   if (tipo === 'promocao' && (!preco || preco <= 0) && base > 0 && desconto > 0) {
     preco = base * (1 - (desconto / 100));
@@ -5305,6 +5326,7 @@ async function adicionarPrecoDinamico() {
       preco_noite:  preco,
       desconto_percentual: desconto > 0 ? desconto : null,
       multiplicador: parseFloat(mult.toFixed(2)),
+      num_dormitorios: dormitorios,
     }]);
     if (error) throw error;
     toastSistema('Período de preço adicionado!', 'success');
@@ -5316,11 +5338,12 @@ async function adicionarPrecoDinamico() {
 }
 
 function limparFormPrecoDinamico() {
-  ['pd_resort','pd_tipo_regra','pd_nome','pd_data_ini','pd_data_fim','pd_preco','pd_preco_base','pd_multiplicador','pd_desconto'].forEach(function(id) {
+  ['pd_resort','pd_tipo_regra','pd_nome','pd_data_ini','pd_data_fim','pd_preco','pd_preco_base','pd_multiplicador','pd_desconto','pd_dormitorios'].forEach(function(id) {
     var el = document.getElementById(id);
     if (el) el.value = '';
   });
   document.getElementById('pd_tipo_regra').value = 'temporada_alta';
+  togglePdDormitorios();
 }
 
 async function carregarTabelaPrecosDinamicos() {
@@ -5338,14 +5361,15 @@ async function carregarTabelaPrecosDinamicos() {
       return;
     }
 
-    wrap.innerHTML = '<table><thead><tr><th>#</th><th>Resort</th><th>Tipo</th><th>Período</th><th>De</th><th>Até</th><th>Preço/noite</th><th>Desconto</th><th>Multiplicador</th><th>Ações</th></tr></thead><tbody>'
+    wrap.innerHTML = '<table><thead><tr><th>#</th><th>Resort</th><th>Dormitórios</th><th>Tipo</th><th>Período</th><th>De</th><th>Até</th><th>Preço/noite</th><th>Desconto</th><th>Multiplicador</th><th>Ações</th></tr></thead><tbody>'
       + lista.map(function(r, i) {
           var tipo = r.tipo_regra || 'temporada_alta';
           var tipoLabel = tipo === 'valor_dia' ? '📆 Valor por dia'
             : tipo === 'promocao' ? '🏷️ Promoção'
             : tipo === 'temporada_baixa' ? '❄️ Baixa'
             : '🔥 Alta';
-          return '<tr><td>' + (i+1) + '</td><td>' + esc(r.resort_nome) + '</td><td>' + tipoLabel + '</td>'
+          var dormLabel = r.num_dormitorios ? r.num_dormitorios + ' dorm.' : '—';
+          return '<tr><td>' + (i+1) + '</td><td>' + esc(r.resort_nome) + '</td><td>' + dormLabel + '</td><td>' + tipoLabel + '</td>'
             + '<td>' + esc(r.nome_periodo) + '</td>'
             + '<td>' + fmtDate(r.data_inicio) + '</td><td>' + fmtDate(r.data_fim) + '</td>'
             + '<td style="color:var(--dourado); font-weight:600;">R$ ' + parseFloat(r.preco_noite).toLocaleString('pt-BR', {minimumFractionDigits:2}) + '</td>'
