@@ -900,6 +900,204 @@ tbody td {
 .calc-key.clear:hover { background: rgba(231,76,60,0.2); }
 
 .calc-key.zero { grid-column: span 2; }
+
+/* ==========================================
+   PREÇOS DINÂMICOS — CALENDÁRIO AIRBNB
+========================================== */
+.pd-cal-wrap {
+  margin-top: 16px;
+  display: none;
+}
+.pd-cal-wrap.active { display: block; }
+
+.pd-cal-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.pd-cal-month-nav {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-weight: 600;
+  font-size: 1em;
+  color: var(--dourado);
+}
+.pd-cal-month-nav button {
+  background: rgba(212,175,55,0.12);
+  border: 1px solid rgba(212,175,55,0.3);
+  color: var(--dourado);
+  border-radius: 6px;
+  width: 32px;
+  height: 32px;
+  cursor: pointer;
+  font-size: 1em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s;
+}
+.pd-cal-month-nav button:hover { background: rgba(212,175,55,0.25); }
+
+.pd-cal-mode-btns {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.pd-cal-mode-btns button {
+  padding: 6px 14px;
+  border-radius: 6px;
+  border: 1px solid rgba(212,175,55,0.3);
+  background: rgba(255,255,255,0.04);
+  color: var(--cor-sub);
+  font-size: 0.82em;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: inherit;
+}
+.pd-cal-mode-btns button.active {
+  background: rgba(212,175,55,0.18);
+  border-color: var(--dourado);
+  color: var(--dourado);
+}
+
+.pd-cal-months {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+.pd-cal-month {
+  flex: 1;
+  min-width: 240px;
+}
+.pd-cal-month-header {
+  text-align: center;
+  font-size: 0.88em;
+  font-weight: 600;
+  color: var(--cor-texto);
+  margin-bottom: 8px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--borda);
+}
+.pd-cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 3px;
+}
+.pd-cal-dow {
+  text-align: center;
+  font-size: 0.72em;
+  color: var(--cor-sub);
+  font-weight: 600;
+  padding: 4px 0;
+  text-transform: uppercase;
+}
+.pd-cal-day {
+  position: relative;
+  text-align: center;
+  border-radius: 6px;
+  padding: 6px 2px 4px;
+  cursor: pointer;
+  font-size: 0.82em;
+  min-height: 44px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  transition: background 0.12s, color 0.12s;
+  user-select: none;
+  border: 1px solid transparent;
+}
+.pd-cal-day:hover:not(.empty):not(.past) {
+  background: rgba(212,175,55,0.12);
+  border-color: rgba(212,175,55,0.3);
+}
+.pd-cal-day.empty { cursor: default; }
+.pd-cal-day.past {
+  opacity: 0.35;
+  cursor: default;
+}
+.pd-cal-day .d-num {
+  font-weight: 600;
+  line-height: 1;
+  margin-bottom: 2px;
+}
+.pd-cal-day .d-price {
+  font-size: 0.68em;
+  color: var(--dourado);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+.pd-cal-day.blocked {
+  background: rgba(231,76,60,0.12);
+  border-color: rgba(231,76,60,0.25);
+}
+.pd-cal-day.blocked .d-num { color: var(--vermelho); }
+.pd-cal-day.blocked .d-price { color: rgba(231,76,60,0.7); }
+.pd-cal-day.range-start,
+.pd-cal-day.range-end {
+  background: var(--dourado);
+  border-color: var(--dourado);
+}
+.pd-cal-day.range-start .d-num,
+.pd-cal-day.range-end .d-num,
+.pd-cal-day.range-start .d-price,
+.pd-cal-day.range-end .d-price { color: #0d1b2e !important; }
+.pd-cal-day.in-range {
+  background: rgba(212,175,55,0.15);
+  border-color: rgba(212,175,55,0.2);
+  border-radius: 0;
+}
+.pd-cal-day.range-start { border-radius: 6px 0 0 6px; }
+.pd-cal-day.range-end   { border-radius: 0 6px 6px 0; }
+.pd-cal-day.range-start.range-end { border-radius: 6px; }
+
+.pd-legend {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+  font-size: 0.78em;
+  color: var(--cor-sub);
+}
+.pd-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.pd-legend-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+.pd-entry-panel {
+  margin-top: 16px;
+  padding: 16px;
+  background: rgba(212,175,55,0.05);
+  border: 1px solid rgba(212,175,55,0.2);
+  border-radius: 10px;
+  display: none;
+}
+.pd-entry-panel.active { display: block; }
+.pd-entry-title {
+  font-size: 0.92em;
+  font-weight: 600;
+  color: var(--dourado);
+  margin-bottom: 12px;
+}
+.pd-entry-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 10px;
+  margin-bottom: 12px;
+}
 </style>
 </head>
 
@@ -1161,7 +1359,8 @@ tbody td {
 
       <div class="field-group">
         <label>Valor por Noite (R$) *</label>
-        <input type="number" id="c_valor_noite" min="0" step="0.01" placeholder="Ex.: 450,00">
+        <input type="number" id="c_valor_noite" min="0" step="0.01" placeholder="Ex.: 450,00" oninput="this.dataset.autofilled='0'; document.getElementById('c_preco_hint').style.display='none';">
+        <span id="c_preco_hint" style="display:none; font-size:0.75em; color:var(--dourado); margin-top:3px;"></span>
       </div>
 
       <div class="field-group">
@@ -1961,12 +2160,13 @@ tbody td {
        PREÇOS DINÂMICOS
   =========================================== -->
   <section id="precos-dinamicos" class="calc-section">
-    <div class="section-title">💲 Precificação Dinâmica — Por Período/Temporada</div>
+    <div class="section-title">💲 Preços Dinâmicos — Calendário por Resort</div>
 
-    <div class="calc-grid">
-      <div class="field-group">
-        <label>Resort *</label>
-        <select id="pd_resort" onchange="togglePdDormitorios()">
+    <!-- Step 1: Select resort -->
+    <div style="display:flex; gap:12px; flex-wrap:wrap; align-items:flex-end; margin-bottom:16px;">
+      <div class="field-group" style="flex:1; min-width:200px; max-width:320px;">
+        <label>1° Selecione o resort *</label>
+        <select id="pd_resort" onchange="pdOnResortChange()">
           <option value="">Selecione o resort</option>
           <option>Hot Beach Suites</option>
           <option>São Pedro Thermas</option>
@@ -1976,7 +2176,7 @@ tbody td {
           <option>Praia de Juquehy</option>
         </select>
       </div>
-      <div class="field-group" id="pd_dormitorios_group" style="display:none;">
+      <div class="field-group" id="pd_dormitorios_group" style="display:none; flex:1; min-width:160px; max-width:200px;">
         <label>Dormitórios</label>
         <select id="pd_dormitorios">
           <option value="">Todos (sem filtro)</option>
@@ -1984,50 +2184,89 @@ tbody td {
           <option value="2">02 Dormitórios</option>
         </select>
       </div>
-      <div class="field-group">
-        <label>Tipo de Regra *</label>
-        <select id="pd_tipo_regra" onchange="calcMultiplicador()">
-          <option value="temporada_alta">🔥 Temporada alta</option>
-          <option value="temporada_baixa">❄️ Temporada baixa</option>
-          <option value="valor_dia">📆 Valor por dia específico</option>
-          <option value="promocao">🏷️ Promoção / desconto</option>
-          <option value="valor_periodo">📅 Valor por período (total)</option>
-        </select>
-      </div>
-      <div class="field-group">
-        <label>Nome do Período *</label>
-        <input type="text" id="pd_nome" placeholder="Ex.: Réveillon, Julho, Alta temporada">
-      </div>
-      <div class="field-group">
-        <label>Data Inicial *</label>
-        <input type="date" id="pd_data_ini">
-      </div>
-      <div class="field-group">
-        <label>Data Final *</label>
-        <input type="date" id="pd_data_fim">
-      </div>
-      <div class="field-group">
-        <label id="pd_preco_label">Preço/Noite (R$) *</label>
-        <input type="number" id="pd_preco" min="0" step="0.01" placeholder="Ex.: 650,00" oninput="calcMultiplicador()">
-      </div>
-      <div class="field-group">
-        <label>Preço Base (R$)</label>
-        <input type="number" id="pd_preco_base" min="0" step="0.01" placeholder="Ex.: 390,00 (referência)" oninput="calcMultiplicador()">
-      </div>
-      <div class="field-group">
-        <label>Multiplicador (automático)</label>
-        <input type="number" id="pd_multiplicador" min="0" step="0.01" placeholder="Calculado automaticamente" readonly>
-      </div>
-      <div class="field-group">
-        <label>Desconto (%)</label>
-        <input type="number" id="pd_desconto" min="0" max="100" step="0.01" placeholder="Opcional para promoções" oninput="calcMultiplicador()">
-      </div>
     </div>
 
-    <div class="btn-row">
-      <button class="btn btn-primary" onclick="adicionarPrecoDinamico()">💲 Adicionar período de preço</button>
-      <button class="btn btn-secondary" onclick="limparFormPrecoDinamico()">🗑️ Limpar</button>
-    </div>
+    <!-- Step 2: Calendar (shown after resort selected) -->
+    <div class="pd-cal-wrap" id="pdCalWrap">
+
+      <!-- Mode toggle + month navigation -->
+      <div class="pd-cal-controls">
+        <div class="pd-cal-month-nav">
+          <button onclick="pdCalNavigate(-1)" title="Mês anterior">&#8249;</button>
+          <span id="pdCalMonthLabel"></span>
+          <button onclick="pdCalNavigate(1)" title="Próximo mês">&#8250;</button>
+        </div>
+        <div class="pd-cal-mode-btns">
+          <button id="pdModePrice"  class="active" onclick="pdSetMode('price')">💲 Definir preço</button>
+          <button id="pdModeBlock"  onclick="pdSetMode('block')">🚫 Bloquear</button>
+          <button id="pdModeUnblock" onclick="pdSetMode('unblock')">✅ Liberar</button>
+        </div>
+      </div>
+
+      <!-- Calendar months grid -->
+      <div class="pd-cal-months" id="pdCalMonths"></div>
+
+      <!-- Legend -->
+      <div class="pd-legend">
+        <div class="pd-legend-item">
+          <div class="pd-legend-dot" style="background:rgba(212,175,55,0.6);"></div> Com preço
+        </div>
+        <div class="pd-legend-item">
+          <div class="pd-legend-dot" style="background:rgba(231,76,60,0.4);"></div> Bloqueado
+        </div>
+        <div class="pd-legend-item">
+          <div class="pd-legend-dot" style="background:var(--dourado);"></div> Selecionado
+        </div>
+        <div class="pd-legend-item">
+          <div class="pd-legend-dot" style="background:rgba(212,175,55,0.15);"></div> No período
+        </div>
+      </div>
+
+      <!-- Price entry panel (shown when range selected in price mode) -->
+      <div class="pd-entry-panel" id="pdEntryPanel">
+        <div class="pd-entry-title" id="pdEntryTitle">📅 Período selecionado</div>
+        <!-- Hidden date fields for compatibility -->
+        <input type="hidden" id="pd_data_ini">
+        <input type="hidden" id="pd_data_fim">
+        <div class="pd-entry-grid">
+          <div class="field-group">
+            <label>Nome do Período *</label>
+            <input type="text" id="pd_nome" placeholder="Ex.: Réveillon, Julho, Alta temporada">
+          </div>
+          <div class="field-group">
+            <label>Tipo de Regra *</label>
+            <select id="pd_tipo_regra" onchange="calcMultiplicador()">
+              <option value="temporada_alta">🔥 Temporada alta</option>
+              <option value="temporada_baixa">❄️ Temporada baixa</option>
+              <option value="valor_dia">📆 Valor por dia específico</option>
+              <option value="promocao">🏷️ Promoção / desconto</option>
+              <option value="valor_periodo">📅 Valor por período (total)</option>
+            </select>
+          </div>
+          <div class="field-group">
+            <label id="pd_preco_label">Preço/Noite (R$) *</label>
+            <input type="number" id="pd_preco" min="0" step="0.01" placeholder="Ex.: 650,00" oninput="calcMultiplicador()">
+          </div>
+          <div class="field-group">
+            <label>Preço Base (R$)</label>
+            <input type="number" id="pd_preco_base" min="0" step="0.01" placeholder="Ex.: 390,00 (referência)" oninput="calcMultiplicador()">
+          </div>
+          <div class="field-group">
+            <label>Multiplicador (automático)</label>
+            <input type="number" id="pd_multiplicador" min="0" step="0.01" placeholder="Calculado automaticamente" readonly>
+          </div>
+          <div class="field-group">
+            <label>Desconto (%)</label>
+            <input type="number" id="pd_desconto" min="0" max="100" step="0.01" placeholder="Opcional para promoções" oninput="calcMultiplicador()">
+          </div>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-primary" onclick="adicionarPrecoDinamico()">💲 Salvar período de preço</button>
+          <button class="btn btn-secondary" onclick="pdClearSelection()">✕ Cancelar seleção</button>
+        </div>
+      </div>
+
+    </div><!-- end pd-cal-wrap -->
 
     <div id="pdTable" style="margin-top:20px;"></div>
   </section>
@@ -3255,9 +3494,56 @@ function calcularFormulario() {
   }
 });
 
-/* ==========================================
-   ADICIONAR RESERVA
-========================================== */
+// Auto-preenche valor/noite com preço dinâmico ao escolher resort + datas
+(function() {
+  function triggerPrecoDinamico() {
+    var resort  = document.getElementById('c_resort').value;
+    var entrada = document.getElementById('c_entrada').value;
+    var saida   = document.getElementById('c_saida').value;
+    if (resort && entrada && saida) {
+      preencherPrecoDinamicoNoFormulario(resort, entrada, saida);
+    }
+  }
+  ['c_resort','c_entrada','c_saida'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) {
+      el.addEventListener('change', triggerPrecoDinamico);
+      el.addEventListener('input',  triggerPrecoDinamico);
+    }
+  });
+})();
+
+async function preencherPrecoDinamicoNoFormulario(resort, entrada, saida) {
+  try {
+    var { data } = await _supabase
+      .from('precos_dinamicos')
+      .select('*')
+      .eq('resort_nome', resort)
+      .lte('data_inicio', entrada)
+      .gte('data_fim', entrada)
+      .order('data_inicio')
+      .limit(1);
+
+    var hint = document.getElementById('c_preco_hint');
+    if (data && data.length > 0) {
+      var p = data[0];
+      var noiteEl = document.getElementById('c_valor_noite');
+      if (noiteEl && (!noiteEl.value || noiteEl.dataset.autofilled === '1')) {
+        noiteEl.value = parseFloat(p.preco_noite).toFixed(2);
+        noiteEl.dataset.autofilled = '1';
+        if (hint) {
+          hint.textContent = '💲 Preço dinâmico: ' + p.nome_periodo + ' (R$ ' + parseFloat(p.preco_noite).toLocaleString('pt-BR', {minimumFractionDigits:2}) + '/noite)';
+          hint.style.display = '';
+        }
+        calcularFormulario();
+      }
+    } else {
+      if (hint) hint.style.display = 'none';
+    }
+  } catch(e) { /* supabase indisponível */ }
+}
+
+
 function adicionarReserva() {
   var cliente    = document.getElementById('c_cliente').value.trim();
   var resort     = document.getElementById('c_resort').value;
@@ -3339,6 +3625,10 @@ function limparFormulario() {
     if (el.tagName === 'SELECT') el.selectedIndex = 0;
     else el.value = '';
   });
+  var noiteEl = document.getElementById('c_valor_noite');
+  if (noiteEl) noiteEl.dataset.autofilled = '0';
+  var hint = document.getElementById('c_preco_hint');
+  if (hint) hint.style.display = 'none';
   document.getElementById('c_canal').selectedIndex = 0;
   document.getElementById('c_avaliacao').value = '';
   document.getElementById('c_comissao_pct').value = '15';
@@ -5254,20 +5544,366 @@ async function deletarDisp(id) {
 }
 
 // ──────────────────────────────────────────────────────────
-// PREÇOS DINÂMICOS
+// PREÇOS DINÂMICOS — CALENDÁRIO AIRBNB
 // ──────────────────────────────────────────────────────────
 var PD_RESORTS_COM_DORMITORIOS = ['Hot Beach Suites', 'Olimpia Park Resort', 'Solar das Águas'];
 
-function togglePdDormitorios() {
+// Calendar state
+function pdTodayStr() {
+  var t = new Date();
+  t.setHours(0, 0, 0, 0);
+  return t.toISOString().slice(0, 10);
+}
+
+var pdCal = {
+  resort: '',
+  year: 0,
+  month: 0,        // 0-based
+  mode: 'price',   // 'price' | 'block' | 'unblock'
+  rangeStart: null, // 'YYYY-MM-DD'
+  rangeEnd: null,
+  hoverDate: null,
+  pricesMap: {},    // { 'YYYY-MM-DD': [{...}, ...] }  aggregated by day
+  blockedSet: new Set(), // Set<'YYYY-MM-DD'>
+  loading: false,
+};
+
+function pdOnResortChange() {
   var resort = document.getElementById('pd_resort').value;
   var group  = document.getElementById('pd_dormitorios_group');
   if (group) {
     group.style.display = PD_RESORTS_COM_DORMITORIOS.includes(resort) ? '' : 'none';
   }
+  pdCal.resort = resort;
+  pdCal.rangeStart = null;
+  pdCal.rangeEnd   = null;
+  pdCal.hoverDate  = null;
+
+  var wrap = document.getElementById('pdCalWrap');
+  var entryPanel = document.getElementById('pdEntryPanel');
+  if (entryPanel) entryPanel.classList.remove('active');
+
+  if (!resort) {
+    if (wrap) wrap.classList.remove('active');
+    return;
+  }
+
+  // Initialize to current month
+  var now = new Date();
+  pdCal.year  = now.getFullYear();
+  pdCal.month = now.getMonth();
+
+  if (wrap) wrap.classList.add('active');
+  pdLoadAndRender();
+}
+
+async function pdLoadAndRender() {
+  if (!pdCal.resort) return;
+  pdCal.loading = true;
+
+  // Compute date window: 1 month back to 14 months forward
+  var today = new Date();
+  var rangeFrom = new Date(today.getFullYear(), today.getMonth() - 1, 1).toISOString().slice(0, 10);
+  var rangeTo   = new Date(today.getFullYear() + 1, today.getMonth() + 2, 0).toISOString().slice(0, 10);
+
+  try {
+    // Load prices
+    var { data: pdData } = await _supabase
+      .from('precos_dinamicos')
+      .select('*')
+      .eq('resort_nome', pdCal.resort)
+      .gte('data_fim', rangeFrom)
+      .lte('data_inicio', rangeTo);
+
+    // Load blocked dates
+    var { data: dispData } = await _supabase
+      .from('disponibilidade')
+      .select('data_bloqueada')
+      .eq('resort_nome', pdCal.resort)
+      .gte('data_bloqueada', rangeFrom)
+      .lte('data_bloqueada', rangeTo);
+
+    // Build pricesMap: for each date in each period, store the price
+    pdCal.pricesMap = {};
+    (pdData || []).forEach(function(p) {
+      var cur = new Date(p.data_inicio + 'T00:00:00');
+      var end = new Date(p.data_fim + 'T00:00:00');
+      while (cur <= end) {
+        var ds = cur.toISOString().slice(0, 10);
+        if (!pdCal.pricesMap[ds]) pdCal.pricesMap[ds] = [];
+        pdCal.pricesMap[ds].push(p);
+        cur.setDate(cur.getDate() + 1);
+      }
+    });
+
+    // Build blockedSet
+    pdCal.blockedSet = new Set();
+    (dispData || []).forEach(function(d) {
+      pdCal.blockedSet.add(d.data_bloqueada);
+    });
+
+  } catch(e) {
+    // Supabase not configured or table missing — proceed with empty data
+    pdCal.pricesMap = {};
+    pdCal.blockedSet = new Set();
+  }
+
+  pdCal.loading = false;
+  pdRenderCalendar();
+  carregarTabelaPrecosDinamicos();
+}
+
+function pdRenderCalendar() {
+  var wrap = document.getElementById('pdCalMonths');
+  if (!wrap) return;
+
+  var monthLabel = document.getElementById('pdCalMonthLabel');
+  var months = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho',
+                'Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+  if (monthLabel) {
+    monthLabel.textContent = months[pdCal.month] + ' / ' + pdCal.year;
+  }
+
+  // Render current month + next month
+  var html = '';
+  for (var mi = 0; mi < 2; mi++) {
+    var yr  = pdCal.year;
+    var mo  = pdCal.month + mi;
+    if (mo > 11) { mo -= 12; yr += 1; }
+    html += pdBuildMonthHtml(yr, mo, months[mo]);
+  }
+  wrap.innerHTML = html;
+
+  // Attach hover listeners
+  var days = wrap.querySelectorAll('.pd-cal-day:not(.empty):not(.past)');
+  days.forEach(function(el) {
+    el.addEventListener('mouseenter', function() {
+      pdCal.hoverDate = el.dataset.date;
+      pdUpdateRangeHighlight();
+    });
+    el.addEventListener('mouseleave', function() {
+      pdCal.hoverDate = null;
+      pdUpdateRangeHighlight();
+    });
+  });
+}
+
+function pdBuildMonthHtml(yr, mo, moName) {
+  var todayStr = pdTodayStr();
+
+  var firstDay = new Date(yr, mo, 1).getDay(); // 0=Sun
+  var daysInMonth = new Date(yr, mo + 1, 0).getDate();
+  var dows = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+
+  var html = '<div class="pd-cal-month">';
+  html += '<div class="pd-cal-month-header">' + moName + ' ' + yr + '</div>';
+  html += '<div class="pd-cal-grid">';
+  // Day-of-week headers
+  dows.forEach(function(d) { html += '<div class="pd-cal-dow">' + d + '</div>'; });
+  // Empty cells before first day
+  for (var e = 0; e < firstDay; e++) {
+    html += '<div class="pd-cal-day empty"></div>';
+  }
+  // Day cells
+  for (var day = 1; day <= daysInMonth; day++) {
+    var pad = (mo + 1 < 10 ? '0' : '') + (mo + 1);
+    var dpad = (day < 10 ? '0' : '') + day;
+    var ds = yr + '-' + pad + '-' + dpad;
+    var isPast = ds < todayStr;
+    var isBlocked = pdCal.blockedSet.has(ds);
+    var priceArr = pdCal.pricesMap[ds];
+
+    var classes = 'pd-cal-day';
+    if (isPast)    classes += ' past';
+    if (isBlocked) classes += ' blocked';
+
+    // Range highlight
+    var inRange = false, isStart = false, isEnd = false;
+    var rs = pdCal.rangeStart;
+    var re = pdCal.rangeEnd || (pdCal.rangeStart ? pdCal.hoverDate : null);
+    if (rs && re) {
+      var lo = rs <= re ? rs : re;
+      var hi = rs <= re ? re : rs;
+      if (ds === lo) { isStart = true; classes += ' range-start'; }
+      if (ds === hi) { isEnd   = true; classes += ' range-end'; }
+      if (ds > lo && ds < hi) { inRange = true; classes += ' in-range'; }
+    } else if (rs && ds === rs) {
+      classes += ' range-start range-end';
+      isStart = true;
+    }
+
+    var priceHtml = '';
+    if (priceArr && priceArr.length > 0) {
+      var p = priceArr[0].preco_noite;
+      priceHtml = '<div class="d-price">R$' + parseFloat(p).toLocaleString('pt-BR', {minimumFractionDigits:0}) + '</div>';
+    } else if (isBlocked) {
+      priceHtml = '<div class="d-price" style="color:var(--vermelho); font-size:0.65em;">bloq.</div>';
+    }
+
+    html += '<div class="' + classes + '" data-date="' + ds + '" onclick="pdCalClickDay(\'' + ds + '\')">'
+          + '<div class="d-num">' + day + '</div>'
+          + priceHtml
+          + '</div>';
+  }
+  html += '</div></div>'; // close grid + month
+  return html;
+}
+
+function pdUpdateRangeHighlight() {
+  var wrap = document.getElementById('pdCalMonths');
+  if (!wrap) return;
+  var days = wrap.querySelectorAll('.pd-cal-day[data-date]');
+  var rs = pdCal.rangeStart;
+  var re = pdCal.rangeEnd || (pdCal.rangeStart ? pdCal.hoverDate : null);
+
+  days.forEach(function(el) {
+    var ds = el.dataset.date;
+    el.classList.remove('range-start','range-end','in-range');
+
+    if (!rs) return;
+    var lo = re ? (rs <= re ? rs : re) : rs;
+    var hi = re ? (rs <= re ? re : rs) : rs;
+
+    if (ds === lo && ds === hi) {
+      el.classList.add('range-start','range-end');
+    } else if (ds === lo) {
+      el.classList.add('range-start');
+    } else if (ds === hi) {
+      el.classList.add('range-end');
+    } else if (ds > lo && ds < hi) {
+      el.classList.add('in-range');
+    }
+  });
+}
+
+function pdCalClickDay(ds) {
+  var todayStr = pdTodayStr();
+  if (ds < todayStr) return; // ignore past dates in all modes
+
+  if (pdCal.mode === 'block') {
+    pdToggleBlockDate(ds, true);
+    return;
+  }
+  if (pdCal.mode === 'unblock') {
+    pdToggleBlockDate(ds, false);
+    return;
+  }
+
+  // Price mode: range selection
+  if (!pdCal.rangeStart || pdCal.rangeEnd) {
+    // Start new selection
+    pdCal.rangeStart = ds;
+    pdCal.rangeEnd   = null;
+    pdCal.hoverDate  = null;
+    document.getElementById('pdEntryPanel').classList.remove('active');
+    document.getElementById('pd_data_ini').value = '';
+    document.getElementById('pd_data_fim').value = '';
+  } else {
+    // Set end
+    if (ds < pdCal.rangeStart) {
+      pdCal.rangeEnd   = pdCal.rangeStart;
+      pdCal.rangeStart = ds;
+    } else {
+      pdCal.rangeEnd = ds;
+    }
+    // Populate hidden inputs
+    document.getElementById('pd_data_ini').value = pdCal.rangeStart;
+    document.getElementById('pd_data_fim').value = pdCal.rangeEnd;
+    // Show entry panel
+    pdShowEntryPanel();
+  }
+  pdUpdateRangeHighlight();
+}
+
+function pdShowEntryPanel() {
+  var ini = pdCal.rangeStart;
+  var fim = pdCal.rangeEnd;
+  if (!ini || !fim) return;
+  var d1 = new Date(ini + 'T00:00:00');
+  var d2 = new Date(fim + 'T00:00:00');
+  var noites = Math.round((d2 - d1) / 86400000);
+  var fmtOpts = { day:'2-digit', month:'2-digit' };
+  var panel = document.getElementById('pdEntryPanel');
+  var title = document.getElementById('pdEntryTitle');
+  if (title) {
+    title.textContent = '📅 Período: ' + d1.toLocaleDateString('pt-BR', fmtOpts) + ' → ' + d2.toLocaleDateString('pt-BR', fmtOpts)
+      + (noites > 0 ? ' (' + noites + ' noite' + (noites > 1 ? 's' : '') + ')' : '');
+  }
+  if (panel) panel.classList.add('active');
+
+  // Handle single-day tipo_regra restriction
+  var tipo = document.getElementById('pd_tipo_regra').value;
+  if (noites === 0 && tipo !== 'valor_dia') {
+    document.getElementById('pd_tipo_regra').value = 'valor_dia';
+    calcMultiplicador();
+  }
+}
+
+function pdClearSelection() {
+  pdCal.rangeStart = null;
+  pdCal.rangeEnd   = null;
+  pdCal.hoverDate  = null;
+  document.getElementById('pdEntryPanel').classList.remove('active');
+  document.getElementById('pd_data_ini').value = '';
+  document.getElementById('pd_data_fim').value = '';
+  pdUpdateRangeHighlight();
+}
+
+function pdCalNavigate(delta) {
+  pdCal.month += delta;
+  if (pdCal.month < 0)  { pdCal.month = 11; pdCal.year -= 1; }
+  if (pdCal.month > 11) { pdCal.month = 0;  pdCal.year += 1; }
+  pdRenderCalendar();
+}
+
+function pdSetMode(mode) {
+  pdCal.mode = mode;
+  pdCal.rangeStart = null;
+  pdCal.rangeEnd   = null;
+  pdCal.hoverDate  = null;
+  document.getElementById('pdEntryPanel').classList.remove('active');
+  document.getElementById('pd_data_ini').value = '';
+  document.getElementById('pd_data_fim').value = '';
+
+  var modeBtnIds = { price: 'pdModePrice', block: 'pdModeBlock', unblock: 'pdModeUnblock' };
+  Object.keys(modeBtnIds).forEach(function(m) {
+    var btn = document.getElementById(modeBtnIds[m]);
+    if (btn) btn.classList.toggle('active', m === mode);
+  });
+  pdUpdateRangeHighlight();
+}
+
+async function pdToggleBlockDate(ds, block) {
+  if (!pdCal.resort) { toastSistema('Selecione o resort.', 'error'); return; }
+  try {
+    if (block) {
+      var { error } = await _supabase.from('disponibilidade').insert([{
+        resort_nome:    pdCal.resort,
+        data_bloqueada: ds,
+        motivo:         'bloqueio',
+      }]);
+      if (error && error.code !== '23505') throw error;
+      pdCal.blockedSet.add(ds);
+      toastSistema('Data ' + fmtDate(ds) + ' bloqueada.', 'success');
+    } else {
+      var { error: err2 } = await _supabase.from('disponibilidade')
+        .delete()
+        .eq('resort_nome', pdCal.resort)
+        .eq('data_bloqueada', ds);
+      if (err2) throw err2;
+      pdCal.blockedSet.delete(ds);
+      toastSistema('Data ' + fmtDate(ds) + ' liberada.', 'success');
+    }
+    pdRenderCalendar();
+  } catch(e) {
+    toastSistema('Erro ao ' + (block ? 'bloquear' : 'liberar') + ' data: ' + (e.message || ''), 'error');
+  }
 }
 
 function calcMultiplicador() {
-  var tipo  = document.getElementById('pd_tipo_regra').value;
+  var tipoEl = document.getElementById('pd_tipo_regra');
+  if (!tipoEl) return;
+  var tipo  = tipoEl.value;
   var preco = parseFloat(document.getElementById('pd_preco').value) || 0;
   var base  = parseFloat(document.getElementById('pd_preco_base').value) || 0;
 
@@ -5276,20 +5912,19 @@ function calcMultiplicador() {
     precoLabel.textContent = tipo === 'valor_periodo' ? 'Preço Total do Período (R$) *' : 'Preço/Noite (R$) *';
   }
 
+  var multEl = document.getElementById('pd_multiplicador');
+  if (!multEl) return;
+
   if (tipo === 'valor_periodo') {
-    document.getElementById('pd_multiplicador').value = '';
+    multEl.value = '';
     return;
   }
   if (tipo === 'promocao') {
     var desconto = parseFloat(document.getElementById('pd_desconto').value) || 0;
-    if (base > 0 && desconto > 0) {
-      document.getElementById('pd_multiplicador').value = (1 - (desconto / 100)).toFixed(2);
-    } else {
-      document.getElementById('pd_multiplicador').value = '';
-    }
+    multEl.value = (base > 0 && desconto > 0) ? (1 - (desconto / 100)).toFixed(2) : '';
     return;
   }
-  document.getElementById('pd_multiplicador').value = (base > 0 && preco > 0) ? (preco / base).toFixed(2) : '';
+  multEl.value = (base > 0 && preco > 0) ? (preco / base).toFixed(2) : '';
 }
 
 async function adicionarPrecoDinamico() {
@@ -5302,68 +5937,69 @@ async function adicionarPrecoDinamico() {
   var base   = parseFloat(document.getElementById('pd_preco_base').value) || 0;
   var desconto = parseFloat(document.getElementById('pd_desconto').value) || 0;
   var dormitoriosEl = document.getElementById('pd_dormitorios');
-  var dormitorios = (dormitoriosEl && dormitoriosEl.closest('#pd_dormitorios_group').style.display !== 'none' && dormitoriosEl.value)
+  var dormitoriosGrp = document.getElementById('pd_dormitorios_group');
+  var dormitorios = (dormitoriosEl && dormitoriosGrp && dormitoriosGrp.style.display !== 'none' && dormitoriosEl.value)
     ? parseInt(dormitoriosEl.value, 10) : null;
 
   if (tipo === 'promocao' && (!preco || preco <= 0) && base > 0 && desconto > 0) {
     preco = base * (1 - (desconto / 100));
   }
-  var mult   = base > 0 ? preco / base : 1.0;
+  var mult = base > 0 ? preco / base : 1.0;
 
-  if (!resort) { toastSistema('Selecione o resort.', 'error'); return; }
-  if (!tipo)   { toastSistema('Selecione o tipo de regra.', 'error'); return; }
-  if (!nome)   { toastSistema('Informe o nome do período.', 'error'); return; }
-  if (!ini || !fim) { toastSistema('Informe as datas.', 'error'); return; }
-  if (new Date(ini + 'T00:00:00') > new Date(fim + 'T00:00:00')) { toastSistema('Data inicial deve ser anterior à final.', 'error'); return; }
-  var iniTs = new Date(ini + 'T00:00:00').getTime();
-  var fimTs = new Date(fim + 'T00:00:00').getTime();
-  if (tipo === 'valor_dia' && iniTs !== fimTs) {
-    toastSistema('Para valor por dia, use a mesma data no início e fim.', 'error');
-    return;
+  if (!resort)      { toastSistema('Selecione o resort.', 'error'); return; }
+  if (!tipo)        { toastSistema('Selecione o tipo de regra.', 'error'); return; }
+  if (!nome)        { toastSistema('Informe o nome do período.', 'error'); return; }
+  if (!ini || !fim) { toastSistema('Selecione o período no calendário.', 'error'); return; }
+  if (new Date(ini + 'T00:00:00') > new Date(fim + 'T00:00:00')) {
+    toastSistema('Data inicial deve ser anterior à final.', 'error'); return;
+  }
+  if (tipo === 'valor_dia' && ini !== fim) {
+    toastSistema('Para valor por dia, selecione apenas uma data no calendário.', 'error'); return;
   }
   if (tipo === 'promocao' && (desconto <= 0 || desconto >= 100)) {
-    toastSistema('Informe desconto válido (maior que 0 e menor que 100).', 'error');
-    return;
+    toastSistema('Informe desconto válido (maior que 0 e menor que 100).', 'error'); return;
   }
   if (!preco || preco <= 0) { toastSistema('Informe o preço por noite.', 'error'); return; }
 
   try {
     var { error } = await _supabase.from('precos_dinamicos').insert([{
-      resort_nome:  resort,
-      tipo_regra:   tipo,
-      nome_periodo: nome,
-      data_inicio:  ini,
-      data_fim:     fim,
-      preco_noite:  preco,
+      resort_nome:         resort,
+      tipo_regra:          tipo,
+      nome_periodo:        nome,
+      data_inicio:         ini,
+      data_fim:            fim,
+      preco_noite:         preco,
       desconto_percentual: desconto > 0 ? desconto : null,
-      multiplicador: parseFloat(mult.toFixed(2)),
-      num_dormitorios: dormitorios,
+      multiplicador:       parseFloat(mult.toFixed(2)),
+      num_dormitorios:     dormitorios,
     }]);
     if (error) throw error;
     toastSistema('Período de preço adicionado!', 'success');
     limparFormPrecoDinamico();
-    carregarTabelaPrecosDinamicos();
+    pdLoadAndRender();
   } catch(e) {
     toastSistema('Erro ao salvar preço: ' + (e.message || ''), 'error');
   }
 }
 
 function limparFormPrecoDinamico() {
-  ['pd_resort','pd_tipo_regra','pd_nome','pd_data_ini','pd_data_fim','pd_preco','pd_preco_base','pd_multiplicador','pd_desconto','pd_dormitorios'].forEach(function(id) {
+  ['pd_tipo_regra','pd_nome','pd_data_ini','pd_data_fim','pd_preco','pd_preco_base','pd_multiplicador','pd_desconto'].forEach(function(id) {
     var el = document.getElementById(id);
     if (el) el.value = '';
   });
-  document.getElementById('pd_tipo_regra').value = 'temporada_alta';
-  togglePdDormitorios();
+  var tipoEl = document.getElementById('pd_tipo_regra');
+  if (tipoEl) tipoEl.value = 'temporada_alta';
+  pdClearSelection();
 }
 
 async function carregarTabelaPrecosDinamicos() {
   var wrap = document.getElementById('pdTable');
+  if (!wrap) return;
+  var resort = document.getElementById('pd_resort').value;
   try {
-    var { data, error } = await _supabase
-      .from('precos_dinamicos')
-      .select('*')
-      .order('data_inicio');
+    var q = _supabase.from('precos_dinamicos').select('*').order('data_inicio');
+    if (resort) q = q.eq('resort_nome', resort);
+    var { data, error } = await q;
     if (error) throw error;
 
     var lista = data || [];
@@ -5399,7 +6035,7 @@ async function deletarPrecoDinamico(id) {
   try {
     var { error } = await _supabase.from('precos_dinamicos').delete().eq('id', id);
     if (error) throw error;
-    carregarTabelaPrecosDinamicos();
+    pdLoadAndRender();
   } catch(e) {
     toastSistema('Erro ao excluir período.', 'error');
   }
