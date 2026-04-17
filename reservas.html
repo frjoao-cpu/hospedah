@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reservar Acomodação | HOSPEDAH</title>
+<meta name="description" content="Reserve sua estadia em resorts e acomodações premium com a HOSPEDAH. Verifique disponibilidade e faça sua solicitação online.">
+<link rel="canonical" href="https://hospedah.tur.br/reservas.html">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#D4AF37">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+<!-- Flatpickr -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/pt.js"></script>
+<!-- Supabase -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root {
+  --dourado: #D4AF37;
+  --dourado-hover: #f0c93a;
+  --azul: #0B1C3D;
+  --azul2: #142850;
+  --verde: #25D366;
+  --vermelho: #e74c3c;
+  --amarelo: #f39c12;
+  --bg: #0d1b2e;
+  --bg2: #10233c;
+  --cor-texto: #e8eaf0;
+  --cor-sub: #aab4c4;
+  --borda: rgba(212,175,55,0.15);
+  --radius: 12px;
+  --sombra: 0 4px 24px rgba(0,0,0,0.3);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Poppins', sans-serif;
+  background: var(--bg);
+  color: var(--cor-texto);
+  min-height: 100vh;
+}
+
+/* HEADER */
+.header {
+  background: linear-gradient(135deg, var(--azul), var(--azul2));
+  border-bottom: 2px solid var(--dourado);
+  padding: 16px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: var(--sombra);
+}
+
+.logo {
+  color: var(--dourado);
+  font-weight: 700;
+  font-size: 1.2em;
+  text-decoration: none;
+  letter-spacing: 1px;
+}
+
+.nav-links {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.nav-links a {
+  color: var(--cor-sub);
+  text-decoration: none;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 0.85em;
+  border: 1px solid var(--borda);
+  transition: all 0.2s;
+}
+
+.nav-links a:hover, .nav-links a.active {
+  background: var(--dourado);
+  color: var(--azul);
+  border-color: var(--dourado);
+}
+
+/* HERO */
+.hero {
+  text-align: center;
+  padding: 48px 20px 24px;
+  background: linear-gradient(180deg, rgba(11,28,61,0.7) 0%, transparent 100%);
+}
+
+.hero h1 {
+  font-size: 2em;
+  color: var(--dourado);
+  margin-bottom: 8px;
+}
+
+.hero p {
+  color: var(--cor-sub);
+  max-width: 520px;
+  margin: 0 auto;
+  font-size: 0.95em;
+}
+
+/* LAYOUT PRINCIPAL */
+.main {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 24px 16px 60px;
+  display: grid;
+  grid-template-columns: 1fr 360px;
+  gap: 24px;
+}
+
+@media (max-width: 800px) {
+  .main { grid-template-columns: 1fr; }
+}
+
+/* FORMULÁRIO */
+.form-card {
+  background: var(--bg2);
+  border: 1px solid var(--borda);
+  border-radius: var(--radius);
+  padding: 28px;
+}
+
+.form-card h2 {
+  color: var(--dourado);
+  font-size: 1.05em;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--borda);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-bottom: 16px;
+}
+
+.field-group label {
+  font-size: 0.78em;
+  color: var(--cor-sub);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.field-group input,
+.field-group select,
+.field-group textarea {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(212,175,55,0.2);
+  border-radius: 8px;
+  color: var(--cor-texto);
+  font-family: inherit;
+  font-size: 0.92em;
+  padding: 10px 12px;
+  width: 100%;
+  transition: border-color 0.2s;
+}
+
+.field-group input:focus,
+.field-group select:focus,
+.field-group textarea:focus {
+  outline: none;
+  border-color: var(--dourado);
+}
+
+.field-group select option { background: var(--azul2); }
+
+.date-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.btn {
+  padding: 12px 24px;
+  border-radius: 8px;
+  border: none;
+  font-family: inherit;
+  font-size: 0.95em;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  justify-content: center;
+  width: 100%;
+}
+
+.btn-primary {
+  background: var(--dourado);
+  color: var(--azul);
+}
+
+.btn-primary:hover { background: var(--dourado-hover); }
+
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* RESUMO LATERAL */
+.summary-card {
+  background: var(--bg2);
+  border: 1px solid var(--borda);
+  border-radius: var(--radius);
+  padding: 24px;
+  height: fit-content;
+  position: sticky;
+  top: 88px;
+}
+
+.summary-card h2 {
+  color: var(--dourado);
+  font-size: 1em;
+  margin-bottom: 16px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--borda);
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  font-size: 0.88em;
+}
+
+.summary-row:last-child { border-bottom: none; }
+
+.summary-row .s-label { color: var(--cor-sub); }
+
+.summary-row .s-value {
+  font-weight: 600;
+  color: var(--cor-texto);
+}
+
+.summary-total {
+  background: rgba(212,175,55,0.07);
+  border: 1px solid rgba(212,175,55,0.25);
+  border-radius: 8px;
+  padding: 14px;
+  margin-top: 14px;
+  text-align: center;
+}
+
+.summary-total .t-label {
+  font-size: 0.75em;
+  color: var(--cor-sub);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+
+.summary-total .t-value {
+  font-size: 1.8em;
+  font-weight: 700;
+  color: var(--dourado);
+}
+
+.availability-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 0.78em;
+  font-weight: 600;
+  margin-top: 10px;
+}
+
+.tag-disponivel {
+  background: rgba(37,211,102,0.15);
+  color: var(--verde);
+  border: 1px solid rgba(37,211,102,0.3);
+}
+
+.tag-indisponivel {
+  background: rgba(231,76,60,0.15);
+  color: var(--vermelho);
+  border: 1px solid rgba(231,76,60,0.3);
+}
+
+.tag-verificando {
+  background: rgba(243,156,18,0.15);
+  color: var(--amarelo);
+  border: 1px solid rgba(243,156,18,0.3);
+}
+
+/* MODAL DE SUCESSO */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.75);
+  z-index: 999;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.modal-overlay.open { display: flex; }
+
+.modal-box {
+  background: var(--azul2);
+  border: 1px solid var(--borda);
+  border-radius: var(--radius);
+  padding: 36px 28px;
+  width: 100%;
+  max-width: 440px;
+  text-align: center;
+}
+
+.modal-box .modal-icon { font-size: 3em; margin-bottom: 12px; }
+.modal-box h3 { color: var(--dourado); font-size: 1.2em; margin-bottom: 8px; }
+.modal-box p { color: var(--cor-sub); font-size: 0.9em; margin-bottom: 20px; line-height: 1.6; }
+
+/* CALENDÁRIO — Flatpickr override */
+.flatpickr-calendar {
+  background: var(--azul2) !important;
+  border: 1px solid var(--borda) !important;
+  border-radius: var(--radius) !important;
+  box-shadow: var(--sombra) !important;
+  font-family: 'Poppins', sans-serif !important;
+}
+
+.flatpickr-day {
+  color: var(--cor-texto) !important;
+  border-radius: 6px !important;
+}
+
+.flatpickr-day.selected,
+.flatpickr-day.startRange,
+.flatpickr-day.endRange {
+  background: var(--dourado) !important;
+  border-color: var(--dourado) !important;
+  color: var(--azul) !important;
+}
+
+.flatpickr-day.inRange {
+  background: rgba(212,175,55,0.15) !important;
+  border-color: transparent !important;
+  color: var(--cor-texto) !important;
+}
+
+.flatpickr-day.disabled,
+.flatpickr-day.flatpickr-disabled {
+  background: rgba(231,76,60,0.1) !important;
+  color: rgba(231,76,60,0.5) !important;
+  text-decoration: line-through !important;
+}
+
+.flatpickr-months .flatpickr-month,
+.flatpickr-weekdays,
+span.flatpickr-weekday {
+  background: var(--azul) !important;
+  color: var(--dourado) !important;
+  fill: var(--dourado) !important;
+}
+
+.flatpickr-current-month .flatpickr-monthDropdown-months,
+.flatpickr-current-month .numInputWrapper span {
+  color: var(--dourado) !important;
+}
+
+.flatpickr-day.today { border-color: var(--dourado) !important; }
+.flatpickr-day:hover { background: rgba(212,175,55,0.1) !important; }
+
+.flatpickr-prev-month svg,
+.flatpickr-next-month svg { fill: var(--dourado) !important; }
+
+/* TOAST */
+.toast-container {
+  position: fixed;
+  bottom: 24px;
+  right: 20px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.toast {
+  background: var(--azul2);
+  border: 1px solid var(--borda);
+  border-left: 3px solid var(--dourado);
+  border-radius: 8px;
+  padding: 12px 16px;
+  font-size: 0.85em;
+  max-width: 300px;
+  animation: slideIn 0.3s ease;
+  box-shadow: var(--sombra);
+}
+
+.toast.success { border-left-color: var(--verde); }
+.toast.error   { border-left-color: var(--vermelho); }
+
+@keyframes slideIn {
+  from { transform: translateX(100%); opacity: 0; }
+  to   { transform: translateX(0);   opacity: 1; }
+}
+
+/* RESORTS GRID */
+.resorts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.resort-option {
+  background: rgba(255,255,255,0.04);
+  border: 2px solid rgba(212,175,55,0.15);
+  border-radius: 10px;
+  padding: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
+}
+
+.resort-option:hover {
+  border-color: rgba(212,175,55,0.4);
+  background: rgba(212,175,55,0.05);
+}
+
+.resort-option.selected {
+  border-color: var(--dourado);
+  background: rgba(212,175,55,0.1);
+}
+
+.resort-option .resort-icon { font-size: 1.8em; margin-bottom: 6px; }
+.resort-option .resort-name { font-size: 0.82em; font-weight: 600; color: var(--cor-texto); }
+.resort-option .resort-city { font-size: 0.72em; color: var(--cor-sub); margin-top: 2px; }
+.resort-option .resort-price { font-size: 0.78em; color: var(--dourado); margin-top: 4px; font-weight: 600; }
+
+/* AVISO */
+.info-box {
+  background: rgba(77,166,255,0.08);
+  border: 1px solid rgba(77,166,255,0.2);
+  border-radius: 8px;
+  padding: 12px 14px;
+  font-size: 0.82em;
+  color: #7ac5ff;
+  margin-bottom: 16px;
+  line-height: 1.5;
+}
+</style>
+</head>
+<body>
+
+<header class="header">
+  <a href="index.html" class="logo">🏨 HOSPEDAH</a>
+  <nav class="nav-links">
+    <a href="index.html">🏠 Início</a>
+    <a href="busca.html">🔍 Buscar</a>
+    <a href="reservas.html" class="active">📅 Reservar</a>
+    <a href="avaliacoes.html">⭐ Avaliações</a>
+    <a href="chat.html">💬 Chat</a>
+    <a href="cadastro.html">🏡 Cadastrar Imóvel</a>
+  </nav>
+</header>
+
+<div class="hero">
+  <h1>📅 Solicitar Reserva</h1>
+  <p>Escolha seu resort, selecione as datas disponíveis e envie sua solicitação. Nossa equipe confirma em até 2h.</p>
+</div>
+
+<div class="main">
+
+  <!-- FORMULÁRIO -->
+  <div>
+    <div class="form-card">
+      <h2>🏨 1. Escolha o Resort</h2>
+
+      <div id="resortsGrid" class="resorts-grid">
+        <!-- preenchido via JS -->
+      </div>
+      <input type="hidden" id="resortSelecionado">
+    </div>
+
+    <div class="form-card" style="margin-top:20px;">
+      <h2>📅 2. Escolha as Datas</h2>
+
+      <div class="info-box">
+        📌 Datas em <span style="color:#e74c3c; font-weight:600;">vermelho</span> já estão reservadas e não podem ser selecionadas. Selecione <strong>check-in</strong> e <strong>check-out</strong> no calendário abaixo.
+      </div>
+
+      <div class="date-row">
+        <div class="field-group">
+          <label>Check-in</label>
+          <input type="text" id="dataEntrada" placeholder="DD/MM/AAAA" readonly>
+        </div>
+        <div class="field-group">
+          <label>Check-out</label>
+          <input type="text" id="dataSaida" placeholder="DD/MM/AAAA" readonly>
+        </div>
+      </div>
+
+      <div id="statusDisponibilidade"></div>
+    </div>
+
+    <div class="form-card" style="margin-top:20px;">
+      <h2>👤 3. Seus Dados</h2>
+
+      <div class="field-group">
+        <label>Nome Completo *</label>
+        <input type="text" id="nomeHospede" placeholder="Seu nome completo" autocomplete="name">
+      </div>
+
+      <div class="date-row">
+        <div class="field-group">
+          <label>E-mail *</label>
+          <input type="email" id="emailHospede" placeholder="seu@email.com" autocomplete="email">
+        </div>
+        <div class="field-group">
+          <label>WhatsApp</label>
+          <input type="tel" id="telefoneHospede" placeholder="(17) 99999-9999" autocomplete="tel">
+        </div>
+      </div>
+
+      <div class="field-group">
+        <label>Número de Hóspedes *</label>
+        <select id="numHospedes">
+          <option value="1">1 pessoa</option>
+          <option value="2" selected>2 pessoas</option>
+          <option value="3">3 pessoas</option>
+          <option value="4">4 pessoas</option>
+          <option value="5">5 pessoas</option>
+          <option value="6">6 ou mais pessoas</option>
+        </select>
+      </div>
+
+      <div class="field-group">
+        <label>Mensagem / Pedido especial</label>
+        <textarea id="mensagemHospede" rows="3" placeholder="Ex.: Aniversário, berço para bebê, horário preferencial de chegada..."></textarea>
+      </div>
+
+      <button class="btn btn-primary" id="btnReservar" onclick="enviarReserva()" disabled>
+        📩 Enviar Solicitação de Reserva
+      </button>
+    </div>
+  </div>
+
+  <!-- RESUMO LATERAL -->
+  <div>
+    <div class="summary-card">
+      <h2>📋 Resumo da Reserva</h2>
+
+      <div class="summary-row">
+        <span class="s-label">🏨 Resort</span>
+        <span class="s-value" id="sumResort">—</span>
+      </div>
+      <div class="summary-row">
+        <span class="s-label">📅 Check-in</span>
+        <span class="s-value" id="sumEntrada">—</span>
+      </div>
+      <div class="summary-row">
+        <span class="s-label">📅 Check-out</span>
+        <span class="s-value" id="sumSaida">—</span>
+      </div>
+      <div class="summary-row">
+        <span class="s-label">🌙 Noites</span>
+        <span class="s-value" id="sumNoites">—</span>
+      </div>
+      <div class="summary-row">
+        <span class="s-label">💲 Preço/noite</span>
+        <span class="s-value" id="sumPrecoNoite">—</span>
+      </div>
+      <div class="summary-row">
+        <span class="s-label">👥 Hóspedes</span>
+        <span class="s-value" id="sumHospedes">—</span>
+      </div>
+
+      <div class="summary-total">
+        <div class="t-label">Valor Estimado</div>
+        <div class="t-value" id="sumTotal">R$ —</div>
+      </div>
+
+      <div style="text-align:center; margin-top:10px;">
+        <span id="availTag"></span>
+      </div>
+
+      <p style="font-size:0.73em; color:var(--cor-sub); margin-top:14px; text-align:center; line-height:1.5;">
+        * Valor estimado com base no preço base. O valor final será confirmado pela nossa equipe via WhatsApp/e-mail.
+      </p>
+    </div>
+
+    <div style="margin-top:16px; background:var(--bg2); border:1px solid var(--borda); border-radius:var(--radius); padding:18px;">
+      <div style="font-size:0.82em; color:var(--dourado); font-weight:600; margin-bottom:10px;">💬 Precisa de ajuda?</div>
+      <a href="https://wa.me/5517982006382" target="_blank" rel="noopener noreferrer"
+         style="display:block; background:#25D366; color:#fff; padding:10px 16px; border-radius:8px; text-decoration:none; text-align:center; font-size:0.88em; font-weight:600;">
+        📱 Falar no WhatsApp
+      </a>
+      <a href="chat.html" style="display:block; background:rgba(255,255,255,0.05); color:var(--cor-sub); padding:10px 16px; border-radius:8px; text-decoration:none; text-align:center; font-size:0.88em; margin-top:8px; border:1px solid var(--borda);">
+        💬 Chat Online
+      </a>
+    </div>
+  </div>
+
+</div>
+
+<!-- MODAL SUCESSO -->
+<div class="modal-overlay" id="successModal">
+  <div class="modal-box">
+    <div class="modal-icon">🎉</div>
+    <h3>Solicitação Enviada!</h3>
+    <p>Recebemos sua solicitação de reserva. Nossa equipe entrará em contato em até <strong>2 horas</strong> pelo WhatsApp ou e-mail informado para confirmar disponibilidade e valores.</p>
+    <a href="https://wa.me/5517982006382" target="_blank" rel="noopener noreferrer"
+       style="display:block; background:#25D366; color:#fff; padding:12px; border-radius:8px; text-decoration:none; font-weight:600; margin-bottom:10px;">
+      📱 Confirmar pelo WhatsApp
+    </a>
+    <button class="btn" style="background:rgba(255,255,255,0.07); color:var(--cor-sub); border:1px solid var(--borda);"
+            onclick="document.getElementById('successModal').classList.remove('open'); window.location.reload()">
+      Nova reserva
+    </button>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+// ============================================================
+// SUPABASE
+// ============================================================
+const SUPABASE_URL = 'https://ydrmjoppjxtmnwtvtinb.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlkcm1qb3Bwanh0bW53dHZ0aW5iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ0MTg3OTEsImV4cCI6MjA1OTk5NDc5MX0.JK8TPBxgp7Y8sn-NmFsQDtFJ6EH_rQLjVWZBkFg5N28';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// ============================================================
+// DADOS DOS RESORTS
+// ============================================================
+const RESORTS = [
+  { id: 'hotbeach',   nome: 'Hot Beach Suites',       cidade: 'Olímpia-SP',     preco: 480, icon: '🌊', slug: 'hotbeach' },
+  { id: 'saopedro',   nome: 'São Pedro Thermas',       cidade: 'São Pedro-SP',   preco: 320, icon: '♨️', slug: 'saopedro' },
+  { id: 'olimpia',    nome: 'Olimpia Park Resort',     cidade: 'Olímpia-SP',     preco: 390, icon: '🎢', slug: 'olimpia' },
+  { id: 'solar',      nome: 'Solar das Águas',         cidade: 'Olímpia-SP',     preco: 350, icon: '☀️', slug: 'solar' },
+  { id: 'wyndham',    nome: 'Wyndham Royal Resort',    cidade: 'Olímpia-SP',     preco: 550, icon: '👑', slug: 'wyndham' },
+  { id: 'juquehy',    nome: 'Praia de Juquehy',        cidade: 'São Sebastião-SP',preco: 420, icon: '🏖️', slug: 'juquehy' },
+];
+
+let resortAtual   = null;
+let dataEntradaFP = null;
+let dataSaidaFP   = null;
+let datasIndisponiveis = [];
+let fpInstance    = null;
+
+// ============================================================
+// RENDERIZAR RESORTS
+// ============================================================
+function renderResorts() {
+  const grid = document.getElementById('resortsGrid');
+  grid.innerHTML = RESORTS.map(r => `
+    <div class="resort-option" id="ro_${r.id}" onclick="selecionarResort('${r.id}')">
+      <div class="resort-icon">${r.icon}</div>
+      <div class="resort-name">${r.nome}</div>
+      <div class="resort-city">📍 ${r.cidade}</div>
+      <div class="resort-price">A partir de R$ ${r.preco}/noite</div>
+    </div>
+  `).join('');
+}
+
+// ============================================================
+// SELECIONAR RESORT
+// ============================================================
+async function selecionarResort(id) {
+  resortAtual = RESORTS.find(r => r.id === id);
+  if (!resortAtual) return;
+
+  // Marcar visualmente
+  document.querySelectorAll('.resort-option').forEach(el => el.classList.remove('selected'));
+  document.getElementById('ro_' + id).classList.add('selected');
+  document.getElementById('resortSelecionado').value = id;
+
+  // Atualizar resumo
+  document.getElementById('sumResort').textContent = resortAtual.nome;
+  document.getElementById('sumPrecoNoite').textContent = `R$ ${resortAtual.preco.toFixed(2).replace('.', ',')}`;
+
+  // Buscar datas indisponíveis
+  await carregarDisponibilidade(resortAtual.nome);
+
+  // Reinicializar Flatpickr
+  inicializarFlatpickr();
+
+  atualizarBotao();
+}
+
+// ============================================================
+// CARREGAR DISPONIBILIDADE DO SUPABASE
+// ============================================================
+async function carregarDisponibilidade(resortNome) {
+  try {
+    const { data } = await sb
+      .from('disponibilidade')
+      .select('data_bloqueada')
+      .eq('resort_nome', resortNome);
+
+    datasIndisponiveis = (data || []).map(r => r.data_bloqueada);
+  } catch (e) {
+    datasIndisponiveis = [];
+  }
+}
+
+// ============================================================
+// INICIALIZAR FLATPICKR
+// ============================================================
+function inicializarFlatpickr() {
+  const hoje = new Date();
+  hoje.setHours(0, 0, 0, 0);
+
+  // Destruir instância anterior
+  if (fpInstance) fpInstance.destroy();
+
+  const opcoes = {
+    mode: 'range',
+    minDate: 'today',
+    dateFormat: 'd/m/Y',
+    locale: 'pt',
+    disable: datasIndisponiveis,
+    inline: false,
+    allowInput: false,
+    disableMobile: false,
+    onChange(selectedDates) {
+      if (selectedDates.length === 2) {
+        dataEntradaFP = selectedDates[0];
+        dataSaidaFP   = selectedDates[1];
+        verificarPeriodoDisponivel();
+      } else if (selectedDates.length === 1) {
+        dataEntradaFP = selectedDates[0];
+        dataSaidaFP   = null;
+        resetarStatus();
+      } else {
+        dataEntradaFP = null;
+        dataSaidaFP   = null;
+        resetarStatus();
+      }
+    },
+  };
+
+  fpInstance = flatpickr('#dataEntrada', opcoes);
+  // Sincronizar segundo campo visualmente (apenas exibição)
+  flatpickr('#dataSaida', { ...opcoes, linkedTo: fpInstance });
+}
+
+// ============================================================
+// VERIFICAR CONFLITO DE DATAS
+// ============================================================
+function verificarPeriodoDisponivel() {
+  if (!dataEntradaFP || !dataSaidaFP) return;
+
+  const statusEl = document.getElementById('statusDisponibilidade');
+  statusEl.innerHTML = '<span class="availability-tag tag-verificando">⏳ Verificando disponibilidade...</span>';
+
+  // Checar se alguma data bloqueada está dentro do período
+  const conflito = datasIndisponiveis.some(d => {
+    const dt = new Date(d + 'T00:00:00');
+    return dt >= dataEntradaFP && dt < dataSaidaFP;
+  });
+
+  if (conflito) {
+    statusEl.innerHTML = '<span class="availability-tag tag-indisponivel">❌ Há datas bloqueadas neste período. Por favor, escolha outras datas.</span>';
+    document.getElementById('availTag').innerHTML = '<span class="availability-tag tag-indisponivel">❌ Indisponível</span>';
+    dataSaidaFP = null;
+    atualizarResumo();
+    atualizarBotao();
+    return;
+  }
+
+  const noites = calcularNoites(dataEntradaFP, dataSaidaFP);
+  statusEl.innerHTML = `<span class="availability-tag tag-disponivel">✅ Disponível — ${noites} noite${noites !== 1 ? 's' : ''} selecionada${noites !== 1 ? 's' : ''}</span>`;
+  document.getElementById('availTag').innerHTML = '<span class="availability-tag tag-disponivel">✅ Disponível</span>';
+
+  atualizarResumo();
+  atualizarBotao();
+}
+
+function resetarStatus() {
+  document.getElementById('statusDisponibilidade').innerHTML = '';
+  document.getElementById('availTag').innerHTML = '';
+  atualizarResumo();
+  atualizarBotao();
+}
+
+// ============================================================
+// ATUALIZAR RESUMO LATERAL
+// ============================================================
+function atualizarResumo() {
+  const fmtData = d => d ? d.toLocaleDateString('pt-BR') : '—';
+  document.getElementById('sumEntrada').textContent = fmtData(dataEntradaFP);
+  document.getElementById('sumSaida').textContent   = fmtData(dataSaidaFP);
+
+  if (dataEntradaFP && dataSaidaFP && resortAtual) {
+    const noites = calcularNoites(dataEntradaFP, dataSaidaFP);
+    document.getElementById('sumNoites').textContent  = `${noites} noite${noites !== 1 ? 's' : ''}`;
+    const total = noites * resortAtual.preco;
+    document.getElementById('sumTotal').textContent   = `R$ ${total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
+  } else {
+    document.getElementById('sumNoites').textContent = '—';
+    document.getElementById('sumTotal').textContent  = 'R$ —';
+  }
+
+  const numHosp = document.getElementById('numHospedes').value;
+  document.getElementById('sumHospedes').textContent = `${numHosp} pessoa${numHosp > 1 ? 's' : ''}`;
+}
+
+// ============================================================
+// HABILITAR BOTÃO
+// ============================================================
+function atualizarBotao() {
+  const btn = document.getElementById('btnReservar');
+  btn.disabled = !(resortAtual && dataEntradaFP && dataSaidaFP);
+}
+
+// ============================================================
+// ENVIAR RESERVA PARA SUPABASE
+// ============================================================
+async function enviarReserva() {
+  const nome     = document.getElementById('nomeHospede').value.trim();
+  const email    = document.getElementById('emailHospede').value.trim();
+  const telefone = document.getElementById('telefoneHospede').value.trim();
+  const numHosp  = parseInt(document.getElementById('numHospedes').value, 10);
+  const msg      = document.getElementById('mensagemHospede').value.trim();
+
+  if (!nome)  { toast('Informe seu nome completo.', 'error');  return; }
+  if (!email) { toast('Informe seu e-mail.', 'error');         return; }
+  if (!resortAtual || !dataEntradaFP || !dataSaidaFP) {
+    toast('Selecione o resort e as datas.', 'error');
+    return;
+  }
+
+  const noites     = calcularNoites(dataEntradaFP, dataSaidaFP);
+  const valorTotal = noites * resortAtual.preco;
+
+  const btn = document.getElementById('btnReservar');
+  btn.disabled = true;
+  btn.textContent = '⏳ Enviando...';
+
+  try {
+    const payload = {
+      resort_nome:   resortAtual.nome,
+      nome_hospede:  nome,
+      email_hospede: email,
+      telefone:      telefone || null,
+      data_entrada:  dataEntradaFP.toISOString().slice(0, 10),
+      data_saida:    dataSaidaFP.toISOString().slice(0, 10),
+      num_hospedes:  numHosp,
+      valor_total:   valorTotal,
+      mensagem:      msg || null,
+      status:        'pendente',
+    };
+
+    const { error } = await sb.from('reservas_hospede').insert([payload]);
+
+    if (error) throw error;
+
+    document.getElementById('successModal').classList.add('open');
+  } catch (e) {
+    // Fallback: abrir WhatsApp com os dados preenchidos
+    const txt = encodeURIComponent(
+      `Olá! Gostaria de reservar:\n` +
+      `🏨 ${resortAtual.nome}\n` +
+      `📅 Check-in: ${dataEntradaFP.toLocaleDateString('pt-BR')}\n` +
+      `📅 Check-out: ${dataSaidaFP.toLocaleDateString('pt-BR')}\n` +
+      `🌙 ${noites} noite(s)\n` +
+      `👥 ${numHosp} hóspede(s)\n` +
+      `👤 ${nome}\n` +
+      `📧 ${email}\n` +
+      (msg ? `💬 ${msg}` : '')
+    );
+    window.open(`https://wa.me/5517982006382?text=${txt}`, '_blank');
+    toast('Redirecionando para WhatsApp...', 'success');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '📩 Enviar Solicitação de Reserva';
+  }
+}
+
+// ============================================================
+// TOAST
+// ============================================================
+function toast(msg, tipo = 'info') {
+  const c = document.getElementById('toastContainer');
+  const t = document.createElement('div');
+  t.className = `toast ${tipo}`;
+  t.textContent = msg;
+  c.appendChild(t);
+  setTimeout(() => t.remove(), 4000);
+}
+
+// ============================================================
+// HELPER
+// ============================================================
+function calcularNoites(ini, fim) {
+  if (!ini || !fim) return 0;
+  return Math.round((fim - ini) / 86400000);
+}
+  atualizarResumo();
+});
+
+renderResorts();
+inicializarFlatpickr();
+</script>
+
+<script>if ('serviceWorker' in navigator) { navigator.serviceWorker.register('/sw.js').catch(function(){}); }</script>
+</body>
+</html>

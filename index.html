@@ -1242,13 +1242,15 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
   <ul class="nav-links" role="list">
     <li><a href="#topo">Início</a></li>
-    <li><a href="#pre-reserva">Pré-Reserva</a></li>
+    <li><a href="busca.html">🔍 Buscar</a></li>
+    <li><a href="reservas.html">📅 Reservar</a></li>
     <li><a href="#galeria">Galeria</a></li>
-    <li><a href="#depoimentos">Avaliações</a></li>
+    <li><a href="avaliacoes.html">⭐ Avaliações</a></li>
     <li><a href="#orcamento">Orçamento</a></li>
     <li><a href="#faq">FAQ</a></li>
     <li><a href="#multi">Anuncie</a></li>
     <li><a href="#contato">Contato</a></li>
+    <li><a href="chat.html">💬 Chat</a></li>
 
   </ul>
 
@@ -1264,9 +1266,12 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <div class="nav-overlay" id="navOverlay"></div>
 <nav class="nav-drawer" id="navDrawer" aria-label="Menu mobile">
   <a href="#topo"        onclick="closeDrawer()">🏠 Início</a>
+  <a href="busca.html"   onclick="closeDrawer()">🔍 Buscar Acomodações</a>
+  <a href="reservas.html" onclick="closeDrawer()">📅 Fazer Reserva</a>
   <a href="#pre-reserva" onclick="closeDrawer()">🔎 Pré-Reserva</a>
   <a href="#galeria"     onclick="closeDrawer()">🖼️ Galeria</a>
-  <a href="#depoimentos" onclick="closeDrawer()">⭐ Avaliações</a>
+  <a href="avaliacoes.html" onclick="closeDrawer()">⭐ Avaliações</a>
+  <a href="chat.html"    onclick="closeDrawer()">💬 Chat Online</a>
   <a href="#orcamento"   onclick="closeDrawer()">💰 Orçamento</a>
   <a href="#faq"        onclick="closeDrawer()">❓ FAQ</a>
   <a href="#multi"       onclick="closeDrawer()">🏨 Anuncie</a>
@@ -1973,25 +1978,24 @@ document.addEventListener('keydown', function (e) {
    ✅ BUSCA DO HERO → WhatsApp
 ===================== */
 function heroSearch() {
-  var resort  = document.getElementById('hs_resort').value  || 'Qualquer resort';
-  var entrada = document.getElementById('hs_entrada').value || 'A definir';
-  var saida   = document.getElementById('hs_saida').value   || 'A definir';
-  var pessoas = document.getElementById('hs_pessoas').value || 'A definir';
+  var resort  = document.getElementById('hs_resort').value  || '';
+  var entrada = document.getElementById('hs_entrada').value || '';
+  var saida   = document.getElementById('hs_saida').value   || '';
+  var pessoas = document.getElementById('hs_pessoas').value || '';
 
   // ✅ Dispara evento de conversão Meta Pixel
   if (typeof fbq === 'function') fbq('track', 'Search', { search_string: resort });
   // ✅ Dispara evento GTM
   if (window.dataLayer) dataLayer.push({ event: 'hero_search', resort: resort });
 
-  var msg = encodeURIComponent(
-    '🔍 Busca no site HOSPEDAH\n\n' +
-    '🏖️ Resort: '    + resort  + '\n' +
-    '📅 Check-in: '  + entrada + '\n' +
-    '📅 Check-out: ' + saida   + '\n' +
-    '👥 Pessoas: '   + pessoas + '\n' +
-    getUtmSuffix()
-  );
-  window.open('https://wa.me/5517982006382?text=' + msg, '_blank');
+  // Redirecionar para página de busca com parâmetros
+  var params = new URLSearchParams();
+  if (resort)  params.set('destino', resort);
+  if (entrada) params.set('entrada', entrada);
+  if (saida)   params.set('saida', saida);
+  if (pessoas) params.set('hospedes', pessoas);
+
+  window.location.href = 'busca.html' + (params.toString() ? '?' + params.toString() : '');
 }
 
 /* =====================
