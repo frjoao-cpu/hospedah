@@ -909,8 +909,8 @@ function calcularNoites(ini, fim) {
   if (!ini || !fim) return 0;
   return Math.round((fim - ini) / 86400000);
 }
-  atualizarResumo();
-});
+
+document.getElementById('numHospedes').addEventListener('change', atualizarResumo);
 
 renderResorts();
 inicializarFlatpickr();
