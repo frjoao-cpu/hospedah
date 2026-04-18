@@ -445,6 +445,136 @@ details.adv-filters[open] > summary { color: var(--dourado); border-color: var(-
 }
 
 .empty-state .empty-icon { font-size: 2.5em; margin-bottom: 10px; }
+
+.empty-state .active-filters-hint {
+  margin-top: 12px;
+  font-size: 0.8em;
+  color: var(--cor-sub);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: center;
+}
+
+.empty-state .active-filters-hint .hint-chip {
+  background: rgba(212,175,55,0.1);
+  border: 1px solid rgba(212,175,55,0.25);
+  border-radius: 12px;
+  padding: 3px 9px;
+  color: var(--dourado);
+  font-size: 0.9em;
+}
+
+/* AUTOCOMPLETE */
+.autocomplete-wrapper { position: relative; }
+
+.autocomplete-list {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  background: var(--azul2);
+  border: 1px solid rgba(212,175,55,0.3);
+  border-radius: 8px;
+  z-index: 2000;
+  max-height: 200px;
+  overflow-y: auto;
+  box-shadow: var(--sombra);
+}
+
+.autocomplete-list li {
+  list-style: none;
+  padding: 8px 12px;
+  cursor: pointer;
+  font-size: 0.85em;
+  color: var(--cor-texto);
+  border-bottom: 1px solid var(--borda);
+  transition: background 0.15s;
+}
+
+.autocomplete-list li:last-child { border-bottom: none; }
+.autocomplete-list li:hover, .autocomplete-list li[aria-selected="true"] {
+  background: rgba(212,175,55,0.12);
+  color: var(--dourado);
+}
+
+/* SKELETON LOADING */
+@keyframes shimmer {
+  0%   { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+
+.skeleton-card {
+  background: var(--bg2);
+  border: 1px solid var(--borda);
+  border-radius: var(--radius);
+  padding: 16px;
+  display: grid;
+  grid-template-columns: 90px 1fr;
+  gap: 14px;
+}
+
+.skeleton-block {
+  border-radius: 6px;
+  background: linear-gradient(90deg, rgba(255,255,255,0.04) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.04) 75%);
+  background-size: 400px 100%;
+  animation: shimmer 1.4s infinite linear;
+}
+
+/* SORT + CLEAR BAR */
+.results-header .header-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sort-select {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(212,175,55,0.2);
+  border-radius: 8px;
+  color: var(--cor-texto);
+  font-family: inherit;
+  font-size: 0.8em;
+  padding: 5px 10px;
+  cursor: pointer;
+}
+
+.sort-select:focus { outline: none; border-color: var(--dourado); }
+.sort-select option { background: var(--azul2); }
+
+.btn-limpar {
+  background: transparent;
+  border: 1px solid rgba(212,175,55,0.25);
+  border-radius: 8px;
+  color: var(--cor-sub);
+  font-family: inherit;
+  font-size: 0.78em;
+  padding: 5px 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.btn-limpar:hover {
+  border-color: var(--dourado);
+  color: var(--dourado);
+}
+
+/* ADV FILTER BADGE */
+.adv-badge {
+  display: inline-block;
+  background: var(--dourado);
+  color: var(--azul);
+  border-radius: 10px;
+  font-size: 0.75em;
+  font-weight: 700;
+  padding: 0 6px;
+  margin-left: 4px;
+  min-width: 18px;
+  text-align: center;
+  line-height: 18px;
+  vertical-align: middle;
+}
 </style>
 </head>
 <body>
@@ -466,7 +596,10 @@ details.adv-filters[open] > summary { color: var(--dourado); border-color: var(-
   <div class="filter-grid">
     <div class="field-group">
       <label>🔍 Destino / Cidade</label>
-      <input type="text" id="f_destino" placeholder="Ex.: Olímpia, Juquehy..." oninput="filtrar()">
+      <div class="autocomplete-wrapper">
+        <input type="text" id="f_destino" placeholder="Ex.: Olímpia, Juquehy..." autocomplete="off" oninput="onDestinoInput()">
+        <ul class="autocomplete-list" id="autocompleteList" role="listbox" aria-label="Sugestões de destino" style="display:none;"></ul>
+      </div>
     </div>
     <div class="field-group">
       <label>📅 Check-in</label>
@@ -494,7 +627,7 @@ details.adv-filters[open] > summary { color: var(--dourado); border-color: var(-
   <!-- FILTROS AVANÇADOS -->
   <div class="filtros-avancados">
     <details class="adv-filters">
-      <summary>⚙️ Filtros avançados</summary>
+      <summary>⚙️ Filtros avançados<span id="advBadge" class="adv-badge" style="display:none;"></span></summary>
       <div class="adv-grid">
         <div class="field-group" style="min-width:160px;">
           <label>💲 Preço máx/noite</label>
@@ -538,16 +671,47 @@ details.adv-filters[open] > summary { color: var(--dourado); border-color: var(-
   <div>
     <div class="results-header">
       <span id="resultsCount">Carregando...</span>
-      <div class="view-toggle">
-        <button class="view-btn active" id="btnListView" onclick="setView('list')">☰ Lista</button>
-        <button class="view-btn" id="btnMapView" onclick="setView('map')">🗺️ Mapa</button>
+      <div class="header-right">
+        <select id="sortSelect" class="sort-select" onchange="filtrar()" aria-label="Ordenar resultados">
+          <option value="default">Ordenar por...</option>
+          <option value="preco_asc">Preço ↑</option>
+          <option value="preco_desc">Preço ↓</option>
+          <option value="nota_desc">Avaliação</option>
+          <option value="nome_asc">Nome A-Z</option>
+        </select>
+        <button class="btn-limpar" id="btnLimpar" onclick="limparFiltros()" style="display:none;" aria-label="Limpar todos os filtros">✕ Limpar</button>
+        <div class="view-toggle">
+          <button class="view-btn active" id="btnListView" onclick="setView('list')">☰ Lista</button>
+          <button class="view-btn" id="btnMapView" onclick="setView('map')">🗺️ Mapa</button>
+        </div>
       </div>
     </div>
 
     <div class="cards-list" id="cardsList">
-      <div class="empty-state">
-        <div class="empty-icon">🔍</div>
-        <div>Carregando acomodações...</div>
+      <!-- skeleton cards shown while Supabase prices load -->
+      <div class="skeleton-card">
+        <div class="skeleton-block" style="width:90px;height:72px;border-radius:8px;"></div>
+        <div style="display:flex;flex-direction:column;gap:8px;justify-content:center;">
+          <div class="skeleton-block" style="height:14px;width:70%;"></div>
+          <div class="skeleton-block" style="height:11px;width:45%;"></div>
+          <div class="skeleton-block" style="height:10px;width:55%;"></div>
+        </div>
+      </div>
+      <div class="skeleton-card">
+        <div class="skeleton-block" style="width:90px;height:72px;border-radius:8px;"></div>
+        <div style="display:flex;flex-direction:column;gap:8px;justify-content:center;">
+          <div class="skeleton-block" style="height:14px;width:60%;"></div>
+          <div class="skeleton-block" style="height:11px;width:40%;"></div>
+          <div class="skeleton-block" style="height:10px;width:50%;"></div>
+        </div>
+      </div>
+      <div class="skeleton-card">
+        <div class="skeleton-block" style="width:90px;height:72px;border-radius:8px;"></div>
+        <div style="display:flex;flex-direction:column;gap:8px;justify-content:center;">
+          <div class="skeleton-block" style="height:14px;width:75%;"></div>
+          <div class="skeleton-block" style="height:11px;width:50%;"></div>
+          <div class="skeleton-block" style="height:10px;width:60%;"></div>
+        </div>
       </div>
     </div>
   </div>
@@ -912,7 +1076,11 @@ function renderCards(lista) {
   document.getElementById('resultsCount').innerHTML = `<strong>${lista.length}</strong> acomodação${lista.length !== 1 ? 'ões' : ''} encontrada${lista.length !== 1 ? 's' : ''}`;
 
   if (lista.length === 0) {
-    el.innerHTML = `<div class="empty-state"><div class="empty-icon">🔍</div><div>Nenhuma acomodação encontrada com esses filtros.</div><div style="font-size:0.82em; margin-top:6px;">Tente remover alguns filtros.</div></div>`;
+    const hints = getActiveFilterHints();
+    const hintsHtml = hints.length > 0
+      ? `<div class="active-filters-hint">Filtros ativos: ${hints.map(h => `<span class="hint-chip">${h}</span>`).join('')}</div>`
+      : '';
+    el.innerHTML = `<div class="empty-state"><div class="empty-icon">🔍</div><div>Nenhuma acomodação encontrada com esses filtros.</div><div style="font-size:0.82em; margin-top:6px;">Tente remover alguns filtros.</div>${hintsHtml}</div>`;
     return;
   }
 
@@ -1001,6 +1169,90 @@ function getDatasFiltro() {
   return { entrada, saida };
 }
 
+/**
+ * Returns a list of human-readable labels for all currently active filters.
+ * Used in the empty-state hint and to show/hide the "Limpar" button.
+ */
+function getActiveFilterHints() {
+  const hints = [];
+  const destino  = document.getElementById('f_destino').value.trim();
+  const hospedes = document.getElementById('f_hospedes').value;
+  const precoMin = document.getElementById('f_preco_min').value;
+  const precoMax = document.getElementById('f_preco_max').value;
+  const tipo     = document.getElementById('f_tipo').value;
+  const notaMin  = document.getElementById('f_nota').value;
+  const { entrada, saida } = getDatasFiltro();
+
+  if (destino)  hints.push(`Destino: "${destino}"`);
+  if (hospedes) hints.push(`Hóspedes: ${hospedes}+`);
+  if (entrada)  hints.push(`Check-in: ${window.fpEntrada.formatDate(entrada, 'd/m/Y')}`);
+  if (saida)    hints.push(`Check-out: ${window.fpSaida.formatDate(saida, 'd/m/Y')}`);
+  if (precoMin) hints.push(`Preço mín: R$${precoMin}`);
+  if (precoMax) hints.push(`Preço máx: R$${precoMax}`);
+  if (tipo)     hints.push(`Tipo: ${tipo}`);
+  if (notaMin)  hints.push(`Avaliação: ${notaMin}+`);
+  amenitiesSel.forEach(a => hints.push(a));
+  return hints;
+}
+
+/** Count only the *advanced* filter fields (for the badge). */
+function countActiveAdvancedFilters() {
+  let count = 0;
+  if (document.getElementById('f_preco_min').value) count++;
+  if (document.getElementById('f_preco_max').value) count++;
+  if (document.getElementById('f_tipo').value)      count++;
+  if (document.getElementById('f_nota').value)      count++;
+  count += amenitiesSel.size;
+  return count;
+}
+
+function updateAdvBadge() {
+  const n    = countActiveAdvancedFilters();
+  const badge = document.getElementById('advBadge');
+  badge.textContent = n;
+  badge.style.display = n > 0 ? 'inline-block' : 'none';
+}
+
+function updateLimparBtn() {
+  const hasFilters = getActiveFilterHints().length > 0;
+  document.getElementById('btnLimpar').style.display = hasFilters ? 'inline-block' : 'none';
+}
+
+function syncUrl() {
+  const params = new URLSearchParams();
+  const destino  = document.getElementById('f_destino').value.trim();
+  const hospedes = document.getElementById('f_hospedes').value;
+  const { entrada, saida } = getDatasFiltro();
+
+  if (destino)  params.set('destino',  destino);
+  if (hospedes) params.set('hospedes', hospedes);
+  if (entrada)  params.set('entrada',  entrada.toISOString().slice(0, 10));
+  if (saida)    params.set('saida',    saida.toISOString().slice(0, 10));
+
+  const precoMin = document.getElementById('f_preco_min').value;
+  const precoMax = document.getElementById('f_preco_max').value;
+  const tipo     = document.getElementById('f_tipo').value;
+  const notaMin  = document.getElementById('f_nota').value;
+  if (precoMin) params.set('preco_min', precoMin);
+  if (precoMax) params.set('preco_max', precoMax);
+  if (tipo)     params.set('tipo',      tipo);
+  if (notaMin)  params.set('nota_min',  notaMin);
+  if (amenitiesSel.size > 0) params.set('comodidades', [...amenitiesSel].join(','));
+
+  const newUrl = params.toString() ? `${location.pathname}?${params}` : location.pathname;
+  history.replaceState(null, '', newUrl);
+}
+
+function ordenar(lista) {
+  const order = document.getElementById('sortSelect').value;
+  const copia = [...lista];
+  if (order === 'preco_asc')  copia.sort((a, b) => a.preco - b.preco);
+  if (order === 'preco_desc') copia.sort((a, b) => b.preco - a.preco);
+  if (order === 'nota_desc')  copia.sort((a, b) => b.nota  - a.nota);
+  if (order === 'nome_asc')   copia.sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR'));
+  return copia;
+}
+
 function filtrar() {
   const destino   = document.getElementById('f_destino').value.toLowerCase();
   const hospedes  = parseInt(document.getElementById('f_hospedes').value, 10) || 0;
@@ -1025,8 +1277,28 @@ function filtrar() {
     return true;
   });
 
-  renderCards(resultados);
-  renderMarkers(resultados);
+  const listaSorted = ordenar(resultados);
+  renderCards(listaSorted);
+  renderMarkers(listaSorted);
+  updateAdvBadge();
+  updateLimparBtn();
+  syncUrl();
+}
+
+function limparFiltros() {
+  document.getElementById('f_destino').value  = '';
+  document.getElementById('f_hospedes').value = '';
+  document.getElementById('f_preco_min').value = '';
+  document.getElementById('f_preco_max').value = '';
+  document.getElementById('f_tipo').value     = '';
+  document.getElementById('f_nota').value     = '';
+  if (window.fpEntrada) window.fpEntrada.clear();
+  if (window.fpSaida)   window.fpSaida.clear();
+  amenitiesSel.clear();
+  document.getElementById('sortSelect').value = 'default';
+  renderAmenitiesChips();
+  filtrar();
+  fecharAutocomplete();
 }
 
 // ============================================================
@@ -1034,9 +1306,20 @@ function filtrar() {
 // ============================================================
 function renderAmenitiesChips() {
   const c = document.getElementById('amenitiesChips');
-  c.innerHTML = AMENITIES_LIST.map(a => `
-    <span class="amenity-chip ${amenitiesSel.has(a) ? 'on' : ''}" onclick="toggleAmenity('${a}')">${a}</span>
-  `).join('');
+  c.innerHTML = AMENITIES_LIST.map(a => {
+    const on = amenitiesSel.has(a);
+    return `<span class="amenity-chip ${on ? 'on' : ''}" role="checkbox" aria-checked="${on}" tabindex="0" data-amenity="${a}">${a}</span>`;
+  }).join('');
+
+  c.querySelectorAll('.amenity-chip').forEach(chip => {
+    chip.addEventListener('click', () => toggleAmenity(chip.dataset.amenity));
+    chip.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        toggleAmenity(chip.dataset.amenity);
+      }
+    });
+  });
 }
 
 function toggleAmenity(a) {
@@ -1044,6 +1327,104 @@ function toggleAmenity(a) {
   renderAmenitiesChips();
   filtrar();
 }
+
+// ============================================================
+// AUTOCOMPLETE DESTINO
+// ============================================================
+let _debounceTimer = null;
+
+function onDestinoInput() {
+  clearTimeout(_debounceTimer);
+  _debounceTimer = setTimeout(() => {
+    mostrarAutocomplete();
+    filtrar();
+  }, 300);
+}
+
+function getSugestoes(term) {
+  if (!term) return [];
+  const t = term.toLowerCase();
+  const seen = new Set();
+  const sugestoes = [];
+  RESORTS.forEach(r => {
+    // Add cidade suggestion
+    if (r.cidade.toLowerCase().includes(t) && !seen.has(r.cidade)) {
+      seen.add(r.cidade);
+      sugestoes.push({ label: `📍 ${r.cidade}`, value: r.cidade.split('-')[0].trim() });
+    }
+    // Add resort name suggestion
+    if (r.nome.toLowerCase().includes(t) && !seen.has(r.nome)) {
+      seen.add(r.nome);
+      sugestoes.push({ label: `🏨 ${r.nome}`, value: r.nome });
+    }
+  });
+  return sugestoes.slice(0, 6);
+}
+
+function mostrarAutocomplete() {
+  const input = document.getElementById('f_destino');
+  const list  = document.getElementById('autocompleteList');
+  const term  = input.value.trim();
+
+  if (!term) { fecharAutocomplete(); return; }
+
+  const sugestoes = getSugestoes(term);
+  if (sugestoes.length === 0) { fecharAutocomplete(); return; }
+
+  list.innerHTML = sugestoes.map((s, i) =>
+    `<li role="option" aria-selected="false" data-value="${s.value}" data-index="${i}">${s.label}</li>`
+  ).join('');
+
+  list.querySelectorAll('li').forEach(li => {
+    li.addEventListener('mousedown', e => {
+      e.preventDefault(); // prevent blur before click
+      document.getElementById('f_destino').value = li.dataset.value;
+      fecharAutocomplete();
+      filtrar();
+    });
+  });
+
+  list.style.display = 'block';
+}
+
+function fecharAutocomplete() {
+  document.getElementById('autocompleteList').style.display = 'none';
+}
+
+// Keyboard navigation for autocomplete
+document.getElementById('f_destino').addEventListener('keydown', function(e) {
+  const list  = document.getElementById('autocompleteList');
+  if (list.style.display === 'none') return;
+  const items = list.querySelectorAll('li');
+  const cur   = list.querySelector('[aria-selected="true"]');
+
+  if (e.key === 'ArrowDown') {
+    e.preventDefault();
+    const next = cur ? cur.nextElementSibling : items[0];
+    if (cur) cur.setAttribute('aria-selected', 'false');
+    if (next) { next.setAttribute('aria-selected', 'true'); next.scrollIntoView({ block: 'nearest' }); }
+  } else if (e.key === 'ArrowUp') {
+    e.preventDefault();
+    const prev = cur ? cur.previousElementSibling : items[items.length - 1];
+    if (cur) cur.setAttribute('aria-selected', 'false');
+    if (prev) { prev.setAttribute('aria-selected', 'true'); prev.scrollIntoView({ block: 'nearest' }); }
+  } else if (e.key === 'Enter') {
+    const sel = list.querySelector('[aria-selected="true"]');
+    if (sel) {
+      e.preventDefault();
+      this.value = sel.dataset.value;
+      fecharAutocomplete();
+      filtrar();
+    }
+  } else if (e.key === 'Escape') {
+    fecharAutocomplete();
+  }
+});
+
+document.getElementById('f_destino').addEventListener('blur', () => {
+  // Delay so mousedown on list item fires first
+  setTimeout(fecharAutocomplete, 150);
+});
 
 // ============================================================
 // TOGGLE VISTA LISTA/MAPA (mobile)
@@ -1073,7 +1454,20 @@ window.fpEntrada = flatpickr('#f_entrada', {
   locale: 'pt',
   minDate: 'today',
   dateFormat: 'd/m/Y',
-  onChange(d) { if (d[0]) filtrar(); }
+  onChange(d) {
+    if (d[0]) {
+      // Auto-advance: open saída picker with minDate = next day
+      const nextDay = new Date(d[0]);
+      nextDay.setDate(nextDay.getDate() + 1);
+      window.fpSaida.set('minDate', nextDay);
+      // If current saída is before the new minDate, clear it
+      if (window.fpSaida.selectedDates[0] && window.fpSaida.selectedDates[0] <= d[0]) {
+        window.fpSaida.clear();
+      }
+      window.fpSaida.open();
+    }
+    filtrar();
+  }
 });
 
 window.fpSaida = flatpickr('#f_saida', {
@@ -1087,21 +1481,33 @@ window.fpSaida = flatpickr('#f_saida', {
 // INIT
 // ============================================================
 renderAmenitiesChips();
-renderCards(RESORTS);
 initMap();
 
 // Carregar preços dinâmicos do Supabase, depois aplicar params da URL e filtrar
 carregarPrecosDinamicos().then(() => {
-  // Lê parâmetros da URL (vindo do heroSearch do index.html)
+  // Lê parâmetros da URL (vindo do heroSearch do index.html ou de URL compartilhada)
   (function applyUrlParams() {
     var params = new URLSearchParams(window.location.search);
-    var destino  = params.get('destino')  || '';
-    var hospedes = params.get('hospedes') || '';
-    var entrada  = params.get('entrada')  || '';
-    var saida    = params.get('saida')    || '';
+    var destino    = params.get('destino')     || '';
+    var hospedes   = params.get('hospedes')    || '';
+    var entrada    = params.get('entrada')     || '';
+    var saida      = params.get('saida')       || '';
+    var precoMin   = params.get('preco_min')   || '';
+    var precoMax   = params.get('preco_max')   || '';
+    var tipo       = params.get('tipo')        || '';
+    var notaMin    = params.get('nota_min')    || '';
+    var comodidades = params.get('comodidades') || '';
 
     if (destino)  document.getElementById('f_destino').value   = destino;
     if (hospedes) document.getElementById('f_hospedes').value  = hospedes;
+    if (precoMin) document.getElementById('f_preco_min').value = precoMin;
+    if (precoMax) document.getElementById('f_preco_max').value = precoMax;
+    if (tipo)     document.getElementById('f_tipo').value      = tipo;
+    if (notaMin)  document.getElementById('f_nota').value      = notaMin;
+    if (comodidades) {
+      comodidades.split(',').forEach(a => { if (a) amenitiesSel.add(a); });
+      renderAmenitiesChips();
+    }
 
     if (entrada && window.fpEntrada) window.fpEntrada.setDate(entrada, false);
     if (saida   && window.fpSaida)   window.fpSaida.setDate(saida,   false);
