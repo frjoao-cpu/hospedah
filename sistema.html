@@ -2185,34 +2185,20 @@ tbody td {
         <input type="hidden" id="pd_data_fim">
         <div class="pd-entry-grid">
           <div class="field-group">
-            <label>Nome do Período *</label>
-            <input type="text" id="pd_nome" placeholder="Ex.: Réveillon, Julho, Alta temporada">
+            <label>Quantidade de noites</label>
+            <input type="text" id="pd_noites_disp" placeholder="Calculado automaticamente" readonly>
           </div>
           <div class="field-group">
-            <label>Tipo de Regra *</label>
-            <select id="pd_tipo_regra" onchange="calcMultiplicador()">
-              <option value="temporada_alta">🔥 Temporada alta</option>
-              <option value="temporada_baixa">❄️ Temporada baixa</option>
-              <option value="valor_dia">📆 Valor por dia específico</option>
-              <option value="promocao">🏷️ Promoção / desconto</option>
-              <option value="valor_periodo">📅 Valor por período (total)</option>
-            </select>
-          </div>
-          <div class="field-group">
-            <label id="pd_preco_label">Preço/Noite (R$) *</label>
+            <label>Preço/Noite (R$) *</label>
             <input type="number" id="pd_preco" min="0" step="0.01" placeholder="Ex.: 650,00" oninput="calcMultiplicador()">
-          </div>
-          <div class="field-group">
-            <label>Preço Base (R$)</label>
-            <input type="number" id="pd_preco_base" min="0" step="0.01" placeholder="Ex.: 390,00 (referência)" oninput="calcMultiplicador()">
           </div>
           <div class="field-group">
             <label>Multiplicador (automático)</label>
             <input type="number" id="pd_multiplicador" min="0" step="0.01" placeholder="Calculado automaticamente" readonly>
           </div>
           <div class="field-group">
-            <label>Desconto (%)</label>
-            <input type="number" id="pd_desconto" min="0" max="100" step="0.01" placeholder="Opcional para promoções" oninput="calcMultiplicador()">
+            <label>Total do período (R$)</label>
+            <input type="number" id="pd_total_periodo" min="0" step="0.01" placeholder="Calculado automaticamente" readonly>
           </div>
         </div>
         <div class="btn-row">
@@ -5679,17 +5665,14 @@ function pdShowEntryPanel() {
   var panel = document.getElementById('pdEntryPanel');
   var title = document.getElementById('pdEntryTitle');
   if (title) {
-    title.textContent = '📅 Período: ' + d1.toLocaleDateString('pt-BR', fmtOpts) + ' → ' + d2.toLocaleDateString('pt-BR', fmtOpts)
-      + (noites > 0 ? ' (' + noites + ' noite' + (noites > 1 ? 's' : '') + ')' : '');
+    title.textContent = '📅 Período: ' + d1.toLocaleDateString('pt-BR', fmtOpts) + ' → ' + d2.toLocaleDateString('pt-BR', fmtOpts);
+  }
+  var noitesDisp = document.getElementById('pd_noites_disp');
+  if (noitesDisp) {
+    noitesDisp.value = noites > 0 ? noites + (noites === 1 ? ' noite' : ' noites') : '1 noite';
   }
   if (panel) panel.classList.add('active');
-
-  // Handle single-day tipo_regra restriction
-  var tipo = document.getElementById('pd_tipo_regra').value;
-  if (noites === 0 && tipo !== 'valor_dia') {
-    document.getElementById('pd_tipo_regra').value = 'valor_dia';
-    calcMultiplicador();
-  }
+  calcMultiplicador();
 }
 
 function pdClearSelection() {
@@ -5754,63 +5737,57 @@ async function pdToggleBlockDate(ds, block) {
 }
 
 function calcMultiplicador() {
-  var tipoEl = document.getElementById('pd_tipo_regra');
-  if (!tipoEl) return;
-  var tipo  = tipoEl.value;
   var preco = parseFloat(document.getElementById('pd_preco').value) || 0;
-  var base  = parseFloat(document.getElementById('pd_preco_base').value) || 0;
 
-  var precoLabel = document.getElementById('pd_preco_label');
-  if (precoLabel) {
-    precoLabel.textContent = tipo === 'valor_periodo' ? 'Preço Total do Período (R$) *' : 'Preço/Noite (R$) *';
+  var multEl  = document.getElementById('pd_multiplicador');
+  var totalEl = document.getElementById('pd_total_periodo');
+
+  // Calculate nights from selected range
+  var ini = document.getElementById('pd_data_ini').value;
+  var fim = document.getElementById('pd_data_fim').value;
+  var noites = 0;
+  if (ini && fim) {
+    var d1 = new Date(ini + 'T00:00:00');
+    var d2 = new Date(fim + 'T00:00:00');
+    noites = Math.max(1, Math.round((d2 - d1) / 86400000));
   }
 
-  var multEl = document.getElementById('pd_multiplicador');
-  if (!multEl) return;
-
-  if (tipo === 'valor_periodo') {
-    multEl.value = '';
-    return;
+  if (multEl) {
+    multEl.value = preco > 0 ? (1).toFixed(2) : '';
   }
-  if (tipo === 'promocao') {
-    var desconto = parseFloat(document.getElementById('pd_desconto').value) || 0;
-    multEl.value = (base > 0 && desconto > 0) ? (1 - (desconto / 100)).toFixed(2) : '';
-    return;
+  if (totalEl) {
+    totalEl.value = (preco > 0 && noites > 0) ? (preco * noites).toFixed(2) : '';
   }
-  multEl.value = (base > 0 && preco > 0) ? (preco / base).toFixed(2) : '';
 }
 
 async function adicionarPrecoDinamico() {
   var resort = document.getElementById('pd_resort').value;
-  var tipo   = document.getElementById('pd_tipo_regra').value;
-  var nome   = document.getElementById('pd_nome').value.trim();
   var ini    = document.getElementById('pd_data_ini').value;
   var fim    = document.getElementById('pd_data_fim').value;
   var preco  = parseFloat(document.getElementById('pd_preco').value);
-  var base   = parseFloat(document.getElementById('pd_preco_base').value) || 0;
-  var desconto = parseFloat(document.getElementById('pd_desconto').value) || 0;
-  var dormitoriosEl = document.getElementById('pd_dormitorios');
+
+  // Auto-generate nome from period dates
+  var nome = ini && fim ? (fmtDate(ini) + ' a ' + fmtDate(fim)) : '';
+  var tipo = 'temporada_alta';
+
+  // Calculate nights and multiplier
+  var noites = 0;
+  if (ini && fim) {
+    var d1 = new Date(ini + 'T00:00:00');
+    var d2 = new Date(fim + 'T00:00:00');
+    noites = Math.max(1, Math.round((d2 - d1) / 86400000));
+  }
+  var mult = 1.0;
+
+  var dormitoriosEl  = document.getElementById('pd_dormitorios');
   var dormitoriosGrp = document.getElementById('pd_dormitorios_group');
   var dormitorios = (dormitoriosEl && dormitoriosGrp && dormitoriosGrp.style.display !== 'none' && dormitoriosEl.value)
     ? parseInt(dormitoriosEl.value, 10) : null;
 
-  if (tipo === 'promocao' && (!preco || preco <= 0) && base > 0 && desconto > 0) {
-    preco = base * (1 - (desconto / 100));
-  }
-  var mult = base > 0 ? preco / base : 1.0;
-
   if (!resort)      { toastSistema('Selecione o resort.', 'error'); return; }
-  if (!tipo)        { toastSistema('Selecione o tipo de regra.', 'error'); return; }
-  if (!nome)        { toastSistema('Informe o nome do período.', 'error'); return; }
   if (!ini || !fim) { toastSistema('Selecione o período no calendário.', 'error'); return; }
   if (new Date(ini + 'T00:00:00') > new Date(fim + 'T00:00:00')) {
     toastSistema('Data inicial deve ser anterior à final.', 'error'); return;
-  }
-  if (tipo === 'valor_dia' && ini !== fim) {
-    toastSistema('Para valor por dia, selecione apenas uma data no calendário.', 'error'); return;
-  }
-  if (tipo === 'promocao' && (desconto <= 0 || desconto >= 100)) {
-    toastSistema('Informe desconto válido (maior que 0 e menor que 100).', 'error'); return;
   }
   if (!preco || preco <= 0) { toastSistema('Informe o preço por noite.', 'error'); return; }
 
@@ -5822,7 +5799,7 @@ async function adicionarPrecoDinamico() {
       data_inicio:         ini,
       data_fim:            fim,
       preco_noite:         preco,
-      desconto_percentual: desconto > 0 ? desconto : null,
+      desconto_percentual: null,
       multiplicador:       parseFloat(mult.toFixed(2)),
       num_dormitorios:     dormitorios,
     }]);
@@ -5836,12 +5813,10 @@ async function adicionarPrecoDinamico() {
 }
 
 function limparFormPrecoDinamico() {
-  ['pd_tipo_regra','pd_nome','pd_data_ini','pd_data_fim','pd_preco','pd_preco_base','pd_multiplicador','pd_desconto'].forEach(function(id) {
+  ['pd_data_ini','pd_data_fim','pd_preco','pd_multiplicador','pd_total_periodo','pd_noites_disp'].forEach(function(id) {
     var el = document.getElementById(id);
     if (el) el.value = '';
   });
-  var tipoEl = document.getElementById('pd_tipo_regra');
-  if (tipoEl) tipoEl.value = 'temporada_alta';
   pdClearSelection();
 }
 
