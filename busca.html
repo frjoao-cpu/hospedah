@@ -858,8 +858,8 @@ function renderCards(lista) {
     const { entrada, saida } = getDatasFiltro();
     const temDatas = !!(entrada && saida);
     const precoLabel = temDatas
-      ? `<div class="resort-card-price">R$ ${r.preco.toLocaleString('pt-BR', {minimumFractionDigits: 2})} <small>/noite (média)</small></div>`
-      : `<div class="resort-card-price">R$ ${r.preco.toLocaleString('pt-BR', {minimumFractionDigits: 2})} <small>/noite</small></div>`;
+      ? `<div class="resort-card-price">R$ ${r.preco.toLocaleString('pt-BR', {minimumFractionDigits: 2})} <small>/noite (média calculada)</small></div>`
+      : `<div class="resort-card-price"><small>A partir de</small> R$ ${r.preco.toLocaleString('pt-BR', {minimumFractionDigits: 2})} <small>/noite</small></div>`;
     // Build reservas.html URL passing current date params
     let reservasUrl = 'reservas.html';
     if (entrada && saida) {
