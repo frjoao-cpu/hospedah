@@ -851,8 +851,14 @@ async function carregarRegrasPreco(resortNome) {
     } else {
       regrasPreco = todas;
     }
+
+    if (!regrasPreco.length) {
+      console.warn('[hospedah] Nenhuma regra de preço dinâmico encontrada para:', resortNome, '| dormitórios:', dorm, '| total de registros retornados:', todas.length);
+    } else {
+      console.info('[hospedah] Regras de preço dinâmico carregadas para', resortNome + ':', regrasPreco.length, 'regra(s)');
+    }
   } catch (e) {
-    console.error('Erro ao carregar regras de preço:', e);
+    console.error('[hospedah] Erro ao carregar regras de preço dinâmico:', e);
     regrasPreco = [];
   }
 }
@@ -1253,7 +1259,13 @@ function calcularDetalhamentoPreco(entrada, saida) {
   if (ajusteBaixa !== 0) linhas.push(`Baixa temporada: ${ajusteBaixa >= 0 ? '+' : '-'}R$ ${Math.abs(ajusteBaixa).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`);
   if (ajusteDiario !== 0) linhas.push(`Valores por dia: ${ajusteDiario >= 0 ? '+' : '-'}R$ ${Math.abs(ajusteDiario).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`);
   if (descontoPromocional > 0) linhas.push(`Promoções/descontos: -R$ ${descontoPromocional.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`);
-  if (!linhas.length) linhas.push('Sem variação de período no intervalo selecionado.');
+  if (!linhas.length) {
+    if (!regrasPreco.length) {
+      linhas.push('Usando preço base (sem regras de preço dinâmico cadastradas para este período).');
+    } else {
+      linhas.push('Sem variação de período no intervalo selecionado.');
+    }
+  }
 
   return {
     total,
@@ -1327,8 +1339,8 @@ inicializarFlatpickr();
   }
 
   if (entrada && saida && fpInstance) {
-    // Converter YYYY-MM-DD para Date e passar ao flatpickr
-    fpInstance.setDate([entrada, saida]);
+    // Converter YYYY-MM-DD e disparar onChange para registrar datas e calcular preço dinâmico
+    fpInstance.setDate([entrada, saida], true, 'Y-m-d');
   }
 })();
 </script>
