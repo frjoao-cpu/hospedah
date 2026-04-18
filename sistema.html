@@ -3435,14 +3435,54 @@ function calcularFormulario() {
   }
 });
 
+// Cache de regras de preço dinâmico para o resort selecionado no formulário de nova reserva
+var _precosFormCache = { resort: '', regras: [], promise: null };
+
+async function _carregarPrecosFormCache(resort) {
+  if (_precosFormCache.resort === resort && _precosFormCache.promise === null) return; // já carregado
+  if (_precosFormCache.resort === resort && _precosFormCache.promise !== null) {
+    return _precosFormCache.promise; // carregamento em andamento para o mesmo resort
+  }
+  _precosFormCache = { resort: resort, regras: [], promise: null };
+  _precosFormCache.promise = _supabase
+    .from('precos_dinamicos')
+    .select('*')
+    .eq('resort_nome', resort)
+    .then(function(result) {
+      if (_precosFormCache.resort !== resort) return; // resort mudou enquanto carregava
+      if (result.error) throw result.error;
+      // Normalizar datas para YYYY-MM-DD (Supabase pode retornar com info de timezone)
+      _precosFormCache.regras = (result.data || []).map(function(r) {
+        return Object.assign({}, r, {
+          data_inicio: r.data_inicio ? String(r.data_inicio).slice(0, 10) : '',
+          data_fim:    r.data_fim    ? String(r.data_fim).slice(0, 10)    : '',
+        });
+      });
+      _precosFormCache.promise = null;
+    })
+    .catch(function(e) {
+      if (_precosFormCache.resort === resort) {
+        console.warn('[hospedah] Falha ao carregar preços dinâmicos:', e);
+        _precosFormCache.regras = [];
+        _precosFormCache.promise = null;
+      }
+    });
+  return _precosFormCache.promise;
+}
+
 // Auto-preenche valor/noite com preço dinâmico ao escolher resort + datas
 (function() {
   function triggerPrecoDinamico() {
     var resort  = document.getElementById('c_resort').value;
     var entrada = document.getElementById('c_entrada').value;
     var saida   = document.getElementById('c_saida').value;
-    if (resort && entrada && saida) {
-      preencherPrecoDinamicoNoFormulario(resort, entrada, saida);
+    if (resort) {
+      _carregarPrecosFormCache(resort).then(function() {
+        preencherPrecoDinamicoNoFormulario(resort, entrada, saida);
+      });
+    } else {
+      var hint = document.getElementById('c_preco_hint');
+      if (hint) hint.style.display = 'none';
     }
   }
   ['c_resort','c_entrada','c_saida'].forEach(function(id) {
@@ -3454,34 +3494,41 @@ function calcularFormulario() {
   });
 })();
 
-async function preencherPrecoDinamicoNoFormulario(resort, entrada, saida) {
-  try {
-    var { data } = await _supabase
-      .from('precos_dinamicos')
-      .select('*')
-      .eq('resort_nome', resort)
-      .lte('data_inicio', entrada)
-      .gte('data_fim', entrada)
-      .order('data_inicio')
-      .limit(1);
+function preencherPrecoDinamicoNoFormulario(resort, entrada, saida) {
+  var hint   = document.getElementById('c_preco_hint');
+  var noiteEl = document.getElementById('c_valor_noite');
 
-    var hint = document.getElementById('c_preco_hint');
-    if (data && data.length > 0) {
-      var p = data[0];
-      var noiteEl = document.getElementById('c_valor_noite');
-      if (noiteEl && (!noiteEl.value || noiteEl.dataset.autofilled === '1')) {
-        noiteEl.value = parseFloat(p.preco_noite).toFixed(2);
-        noiteEl.dataset.autofilled = '1';
-        if (hint) {
-          hint.textContent = '💲 Preço dinâmico: ' + p.nome_periodo + ' (R$ ' + parseFloat(p.preco_noite).toLocaleString('pt-BR', {minimumFractionDigits:2}) + '/noite)';
-          hint.style.display = '';
-        }
-        calcularFormulario();
-      }
-    } else {
-      if (hint) hint.style.display = 'none';
+  if (!entrada) {
+    if (hint) hint.style.display = 'none';
+    return;
+  }
+
+  // Busca localmente a primeira regra cujo período cobre a data de check-in
+  var regras = (_precosFormCache.resort === resort) ? _precosFormCache.regras : [];
+  var p = null;
+  for (var i = 0; i < regras.length; i++) {
+    var r = regras[i];
+    if (r.data_inicio <= entrada && r.data_fim >= entrada) {
+      p = r;
+      break;
     }
-  } catch(e) { /* supabase indisponível */ }
+  }
+
+  if (p) {
+    // Sempre exibe o hint com o preço dinâmico disponível
+    if (hint) {
+      hint.textContent = '💲 Preço dinâmico: ' + (p.nome_periodo || '') + ' (R$ ' + parseFloat(p.preco_noite).toLocaleString('pt-BR', {minimumFractionDigits:2}) + '/noite)';
+      hint.style.display = '';
+    }
+    // Preenche o campo somente se estiver vazio ou foi auto-preenchido anteriormente
+    if (noiteEl && (!noiteEl.value || noiteEl.dataset.autofilled === '1')) {
+      noiteEl.value = parseFloat(p.preco_noite).toFixed(2);
+      noiteEl.dataset.autofilled = '1';
+      calcularFormulario();
+    }
+  } else {
+    if (hint) hint.style.display = 'none';
+  }
 }
 
 
@@ -5805,6 +5852,8 @@ async function adicionarPrecoDinamico() {
     }]);
     if (error) throw error;
     toastSistema('Período de preço adicionado!', 'success');
+    // Invalida o cache para que o formulário de reserva busque os preços atualizados
+    _precosFormCache = { resort: '', regras: [], promise: null };
     limparFormPrecoDinamico();
     pdLoadAndRender();
   } catch(e) {
@@ -5863,6 +5912,8 @@ async function deletarPrecoDinamico(id) {
   try {
     var { error } = await _supabase.from('precos_dinamicos').delete().eq('id', id);
     if (error) throw error;
+    // Invalida o cache para que o formulário de reserva busque os preços atualizados
+    _precosFormCache = { resort: '', regras: [], promise: null };
     pdLoadAndRender();
   } catch(e) {
     toastSistema('Erro ao excluir período.', 'error');
