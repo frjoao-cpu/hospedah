@@ -597,7 +597,9 @@ details.adv-filters[open] > summary { color: var(--dourado); border-color: var(-
     <div class="field-group">
       <label>🔍 Destino / Cidade</label>
       <div class="autocomplete-wrapper">
-        <input type="text" id="f_destino" placeholder="Ex.: Olímpia, Juquehy..." autocomplete="off" oninput="onDestinoInput()">
+        <input type="text" id="f_destino" placeholder="Ex.: Olímpia, Juquehy..." autocomplete="off"
+               role="combobox" aria-autocomplete="list" aria-controls="autocompleteList" aria-expanded="false"
+               oninput="onDestinoInput()">
         <ul class="autocomplete-list" id="autocompleteList" role="listbox" aria-label="Sugestões de destino" style="display:none;"></ul>
       </div>
     </div>
@@ -627,7 +629,7 @@ details.adv-filters[open] > summary { color: var(--dourado); border-color: var(-
   <!-- FILTROS AVANÇADOS -->
   <div class="filtros-avancados">
     <details class="adv-filters">
-      <summary>⚙️ Filtros avançados<span id="advBadge" class="adv-badge" style="display:none;"></span></summary>
+      <summary>⚙️ Filtros avançados<span id="advBadge" class="adv-badge" aria-live="polite" aria-atomic="true" style="display:none;"></span></summary>
       <div class="adv-grid">
         <div class="field-group" style="min-width:160px;">
           <label>💲 Preço máx/noite</label>
@@ -1331,6 +1333,8 @@ function toggleAmenity(a) {
 // ============================================================
 // AUTOCOMPLETE DESTINO
 // ============================================================
+const DEBOUNCE_DELAY_MS       = 300;
+const AUTOCOMPLETE_BLUR_DELAY = 150;
 let _debounceTimer = null;
 
 function onDestinoInput() {
@@ -1338,7 +1342,7 @@ function onDestinoInput() {
   _debounceTimer = setTimeout(() => {
     mostrarAutocomplete();
     filtrar();
-  }, 300);
+  }, DEBOUNCE_DELAY_MS);
 }
 
 function getSugestoes(term) {
@@ -1347,15 +1351,16 @@ function getSugestoes(term) {
   const seen = new Set();
   const sugestoes = [];
   RESORTS.forEach(r => {
-    // Add cidade suggestion
+    // Add cidade suggestion (use the part before the first hyphen as the search value, or full name if no hyphen)
     if (r.cidade.toLowerCase().includes(t) && !seen.has(r.cidade)) {
       seen.add(r.cidade);
-      sugestoes.push({ label: `📍 ${r.cidade}`, value: r.cidade.split('-')[0].trim() });
+      const cidadeBase = r.cidade.includes('-') ? r.cidade.split('-')[0].trim() : r.cidade;
+      sugestoes.push({ label: `📍 ${r.cidade}`, value: cidadeBase, id: `ac-cidade-${seen.size}` });
     }
     // Add resort name suggestion
     if (r.nome.toLowerCase().includes(t) && !seen.has(r.nome)) {
       seen.add(r.nome);
-      sugestoes.push({ label: `🏨 ${r.nome}`, value: r.nome });
+      sugestoes.push({ label: `🏨 ${r.nome}`, value: r.nome, id: `ac-resort-${seen.size}` });
     }
   });
   return sugestoes.slice(0, 6);
@@ -1371,8 +1376,8 @@ function mostrarAutocomplete() {
   const sugestoes = getSugestoes(term);
   if (sugestoes.length === 0) { fecharAutocomplete(); return; }
 
-  list.innerHTML = sugestoes.map((s, i) =>
-    `<li role="option" aria-selected="false" data-value="${s.value}" data-index="${i}">${s.label}</li>`
+  list.innerHTML = sugestoes.map(s =>
+    `<li id="${s.id}" role="option" aria-selected="false" data-value="${s.value}">${s.label}</li>`
   ).join('');
 
   list.querySelectorAll('li').forEach(li => {
@@ -1385,10 +1390,15 @@ function mostrarAutocomplete() {
   });
 
   list.style.display = 'block';
+  input.setAttribute('aria-expanded', 'true');
 }
 
 function fecharAutocomplete() {
-  document.getElementById('autocompleteList').style.display = 'none';
+  const list  = document.getElementById('autocompleteList');
+  const input = document.getElementById('f_destino');
+  list.style.display = 'none';
+  input.setAttribute('aria-expanded', 'false');
+  input.removeAttribute('aria-activedescendant');
 }
 
 // Keyboard navigation for autocomplete
@@ -1402,12 +1412,20 @@ document.getElementById('f_destino').addEventListener('keydown', function(e) {
     e.preventDefault();
     const next = cur ? cur.nextElementSibling : items[0];
     if (cur) cur.setAttribute('aria-selected', 'false');
-    if (next) { next.setAttribute('aria-selected', 'true'); next.scrollIntoView({ block: 'nearest' }); }
+    if (next) {
+      next.setAttribute('aria-selected', 'true');
+      next.scrollIntoView({ block: 'nearest' });
+      this.setAttribute('aria-activedescendant', next.id);
+    }
   } else if (e.key === 'ArrowUp') {
     e.preventDefault();
     const prev = cur ? cur.previousElementSibling : items[items.length - 1];
     if (cur) cur.setAttribute('aria-selected', 'false');
-    if (prev) { prev.setAttribute('aria-selected', 'true'); prev.scrollIntoView({ block: 'nearest' }); }
+    if (prev) {
+      prev.setAttribute('aria-selected', 'true');
+      prev.scrollIntoView({ block: 'nearest' });
+      this.setAttribute('aria-activedescendant', prev.id);
+    }
   } else if (e.key === 'Enter') {
     const sel = list.querySelector('[aria-selected="true"]');
     if (sel) {
@@ -1423,7 +1441,7 @@ document.getElementById('f_destino').addEventListener('keydown', function(e) {
 
 document.getElementById('f_destino').addEventListener('blur', () => {
   // Delay so mousedown on list item fires first
-  setTimeout(fecharAutocomplete, 150);
+  setTimeout(fecharAutocomplete, AUTOCOMPLETE_BLUR_DELAY);
 });
 
 // ============================================================
