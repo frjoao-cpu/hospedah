@@ -863,7 +863,7 @@ function renderMarkers(lista) {
       const total  = r.preco * noites;
       precoLabel = `💲 R$ ${r.preco.toLocaleString('pt-BR', {minimumFractionDigits: 2})}/noite · Total: R$ ${total.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
     } else {
-      precoLabel = `A partir de R$ ${r.preco.toLocaleString('pt-BR', {minimumFractionDigits: 2})}/noite`;
+      precoLabel = `Selecione o período para ver o preço`;
     }
     const m = L.marker([r.lat, r.lng], { icon: createIcon(r.icon) })
       .addTo(map)
@@ -928,7 +928,7 @@ function renderCards(lista) {
       precoLabel = `<div class="resort-card-price">R$ ${r.preco.toLocaleString('pt-BR', {minimumFractionDigits: 2})} <small>/noite (média)</small></div>` +
                    `<div style="font-size:0.78em;color:var(--cor-sub);margin-top:2px;">Total ${noites} noite${noites !== 1 ? 's' : ''}: <strong style="color:var(--dourado)">R$ ${total.toLocaleString('pt-BR', {minimumFractionDigits: 2})}</strong></div>`;
     } else {
-      precoLabel = `<div class="resort-card-price"><small>A partir de</small> R$ ${r.preco.toLocaleString('pt-BR', {minimumFractionDigits: 2})} <small>/noite</small></div>`;
+      precoLabel = `<div class="resort-card-price"><small>Selecione o período para ver o preço</small></div>`;
     }
     // Build reservas.html URL passing current date params
     let reservasUrl = 'reservas.html';
