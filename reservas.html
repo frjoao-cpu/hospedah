@@ -750,7 +750,7 @@ function renderResorts() {
       <div class="resort-icon">${r.icon}</div>
       <div class="resort-name">${r.nome}</div>
       <div class="resort-city">📍 ${r.cidade}</div>
-      <div class="resort-price">A partir de R$ ${r.preco}/noite</div>
+      <div class="resort-price">A partir de R$ ${r.preco.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}/noite</div>
     </div>
   `).join('');
 }
@@ -1123,20 +1123,10 @@ function calcularPrecoMinimo() {
   if (!regrasPreco || !regrasPreco.length) return base;
 
   const precos = regrasPreco
-    .filter(r => tipoRegra(r) !== 'promocao')
+    .filter(r => tipoRegra(r) !== 'promocao' && tipoRegra(r) !== 'valor_periodo')
     .map(r => {
       const pn   = Number(r.preco_noite);
       const mult = Number(r.multiplicador);
-      if (tipoRegra(r) === 'valor_periodo') {
-        const noites = Math.round(
-          (new Date(r.data_fim).getTime() - new Date(r.data_inicio).getTime()) / MS_PER_DAY
-        );
-        if (noites > 0) {
-          if (pn   > 0) return pn   / noites;
-          if (mult > 0) return (mult * base) / noites;
-        }
-        return base;
-      }
       if (pn   > 0) return pn;
       if (mult > 0) return mult * base;
       return base;
@@ -1163,22 +1153,12 @@ async function carregarPrecosMinimosGlobal() {
     });
 
     RESORTS.forEach(resort => {
-      const regras = (porResort[resort.nome] || []).filter(r => tipoRegra(r) !== 'promocao');
+      const regras = (porResort[resort.nome] || []).filter(r => tipoRegra(r) !== 'promocao' && tipoRegra(r) !== 'valor_periodo');
       const base   = resort.preco;
 
       const precos = regras.map(r => {
         const pn   = Number(r.preco_noite);
         const mult = Number(r.multiplicador);
-        if (tipoRegra(r) === 'valor_periodo') {
-          const noites = Math.round(
-            (new Date(r.data_fim).getTime() - new Date(r.data_inicio).getTime()) / MS_PER_DAY
-          );
-          if (noites > 0) {
-            if (pn   > 0) return pn   / noites;
-            if (mult > 0) return (mult * base) / noites;
-          }
-          return base;
-        }
         if (pn   > 0) return pn;
         if (mult > 0) return mult * base;
         return base;
