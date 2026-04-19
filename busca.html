@@ -8,7 +8,11 @@
 <link rel="canonical" href="https://hospedah.tur.br/busca.html">
 <link rel="manifest" href="/manifest.json">
 <meta name="theme-color" content="#D4AF37">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+<!-- Mobile-first CSS -->
+<link rel="stylesheet" href="/assets/mobile-first.css">
 <!-- Leaflet.js -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -575,6 +579,14 @@ details.adv-filters[open] > summary { color: var(--dourado); border-color: var(-
   line-height: 18px;
   vertical-align: middle;
 }
+
+/* SOCIAL PROOF TOASTS (busca) */
+#sp-container-busca {
+  position: fixed; bottom: 70px; left: 12px; z-index: 9000;
+  display: flex; flex-direction: column; gap: 10px; pointer-events: none;
+}
+@keyframes spSlideIn { from { transform: translateX(-110%); opacity:0; } to { transform: translateX(0); opacity:1; } }
+@keyframes spFadeOut { from { opacity:1; } to { opacity:0; transform: translateX(-110%); } }
 </style>
 </head>
 <body>
@@ -1535,6 +1547,77 @@ carregarPrecosDinamicos().then(() => {
   })();
 });
 
+// ============================================================
+// DEMAND BADGES — Badges de Alta Demanda (busca.html)
+// ============================================================
+let _demandasBusca = {};
+
+(async function carregarDemandasBusca() {
+  try {
+    const { data } = await _sb.rpc('get_demanda_resort');
+    if (data) data.forEach(r => { _demandasBusca[r.resort_nome] = parseInt(r.total_reservas, 10); });
+    // Aplicar badges após cards renderizados
+    setTimeout(aplicarDemandaBadges, 1200);
+  } catch (_) {}
+})();
+
+function aplicarDemandaBadges() {
+  document.querySelectorAll('.resort-card').forEach(card => {
+    const id = decodeURIComponent(card.dataset.resortId || '');
+    const resort = RESORTS.find(r => r.id === id);
+    if (!resort) return;
+    const count = _demandasBusca[resort.nome] || 0;
+    const existing = card.querySelector('.demand-badge-busca');
+    if (existing) existing.remove();
+    if (count >= 3) {
+      const b = document.createElement('span');
+      b.className = 'demand-badge-busca';
+      b.style.cssText = 'display:inline-block;font-size:0.65em;font-weight:700;padding:2px 7px;border-radius:8px;margin-left:6px;background:rgba(239,68,68,0.15);color:#f87171;border:1px solid rgba(239,68,68,0.3);';
+      b.textContent = '🔥 Alta demanda';
+      const name = card.querySelector('.resort-card-name');
+      if (name) name.appendChild(b);
+    } else if (count >= 1) {
+      const b = document.createElement('span');
+      b.className = 'demand-badge-busca';
+      b.style.cssText = 'display:inline-block;font-size:0.65em;font-weight:700;padding:2px 7px;border-radius:8px;margin-left:6px;background:rgba(251,191,36,0.12);color:#fbbf24;border:1px solid rgba(251,191,36,0.25);';
+      b.textContent = '⚡ Procurado';
+      const name = card.querySelector('.resort-card-name');
+      if (name) name.appendChild(b);
+    }
+  });
+}
+
+// Re-aplicar badges após cada filtro
+const _filtrarOrig = filtrar;
+filtrar = function() { _filtrarOrig.apply(this, arguments); setTimeout(aplicarDemandaBadges, 200); };
+
+// ============================================================
+// SOCIAL PROOF — Prova Social (busca.html)
+// ============================================================
+(function spBusca() {
+  const container = document.getElementById('sp-container-busca');
+  if (!container) return;
+
+  const fallback = [
+    { nome: 'Fernanda S.', cidade: 'São Paulo',     resort: 'Hot Beach Suites',     min: 4  },
+    { nome: 'Ricardo M.',  cidade: 'Campinas',       resort: 'Olímpia Park Resort',  min: 7  },
+    { nome: 'Carlos A.',   cidade: 'Santos',         resort: 'Solar das Águas',      min: 3  },
+    { nome: 'Beatriz L.',  cidade: 'Sorocaba',       resort: 'Praia de Juquehy',     min: 9  },
+  ];
+  let idx = 0;
+
+  function showToast() {
+    const ev = fallback[idx % fallback.length]; idx++;
+    const t = document.createElement('div');
+    t.style.cssText = 'background:rgba(11,28,61,.96);color:#fff;border:1px solid rgba(212,175,55,.35);border-radius:14px;padding:12px 16px;font-size:.82em;line-height:1.4;display:flex;align-items:center;gap:12px;box-shadow:0 4px 20px rgba(0,0,0,.4);min-width:240px;max-width:310px;animation:spSlideIn .4s cubic-bezier(.22,1.2,.46,1) both,spFadeOut .4s ease 5.6s both;';
+    t.innerHTML = `<div style="width:38px;height:38px;border-radius:50%;background:#D4AF37;color:#0B1C3D;font-weight:700;font-size:1.1em;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${ev.nome.charAt(0)}</div><div><strong style="display:block;">${ev.nome} — ${ev.cidade}</strong>Reservou <em>${ev.resort}</em><div style="font-size:.74em;opacity:.55;margin-top:2px;">há ${ev.min} min ✅</div></div>`;
+    container.appendChild(t);
+    setTimeout(() => { if (t.parentNode) t.parentNode.removeChild(t); }, 6200);
+  }
+
+  setTimeout(function f() { showToast(); setTimeout(function l() { showToast(); setTimeout(l, 20000 + Math.random() * 10000); }, 20000); }, 15000);
+})();
+
 // Responsivo: esconder mapa em mobile por padrão
 if (window.innerWidth <= 900) {
   setView('list');
@@ -1542,5 +1625,19 @@ if (window.innerWidth <= 900) {
 </script>
 
 <script>if ('serviceWorker' in navigator) { navigator.serviceWorker.register('/sw.js').catch(function(){}); }</script>
+
+<!-- SOCIAL PROOF CONTAINER -->
+<div id="sp-container-busca" aria-live="polite" aria-atomic="false"></div>
+
+<!-- BOTTOM NAV (mobile) -->
+<nav class="bottom-nav" aria-label="Navegação principal">
+  <ul>
+    <li><a href="index.html"><span class="bn-icon">🏠</span>Início</a></li>
+    <li><a href="busca.html" class="active"><span class="bn-icon">🔍</span>Busca</a></li>
+    <li><a href="reservas.html"><span class="bn-icon">📅</span>Reservas</a></li>
+    <li><a href="chat.html"><span class="bn-icon">💬</span>Chat</a></li>
+    <li><a href="painel.html"><span class="bn-icon">👤</span>Perfil</a></li>
+  </ul>
+</nav>
 </body>
 </html>

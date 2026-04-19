@@ -220,3 +220,237 @@ CREATE INDEX IF NOT EXISTS idx_reservas_hospede_resort  ON reservas_hospede(reso
 CREATE INDEX IF NOT EXISTS idx_avaliacoes_resort        ON avaliacoes(resort_nome, aprovada);
 CREATE INDEX IF NOT EXISTS idx_mensagens_conversa       ON mensagens(conversa_id, criado_em);
 CREATE INDEX IF NOT EXISTS idx_precos_periodo           ON precos_dinamicos(resort_nome, data_inicio, data_fim);
+
+-- ============================================================
+-- 9. PERFIS DE USUÁRIO — roles e dados extras (vinculados ao Supabase Auth)
+-- ============================================================
+CREATE TABLE IF NOT EXISTS profiles (
+  id              uuid          PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+  role            text          NOT NULL DEFAULT 'hospede' CHECK (role IN ('admin', 'proprietario', 'hospede')),
+  nome_completo   text,
+  telefone        text,
+  cidade          text,
+  avatar_url      text,
+  criado_em       timestamptz   DEFAULT now(),
+  atualizado_em   timestamptz   DEFAULT now()
+);
+
+ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "profiles_leitura_proprio" ON profiles;
+DROP POLICY IF EXISTS "profiles_atualizacao_proprio" ON profiles;
+DROP POLICY IF EXISTS "profiles_leitura_admin" ON profiles;
+
+-- Cada usuário lê/atualiza apenas seu próprio perfil
+CREATE POLICY "profiles_leitura_proprio"
+  ON profiles FOR SELECT TO authenticated
+  USING (auth.uid() = id);
+
+CREATE POLICY "profiles_atualizacao_proprio"
+  ON profiles FOR UPDATE TO authenticated
+  USING (auth.uid() = id) WITH CHECK (auth.uid() = id);
+
+-- Admin pode ler todos os perfis
+CREATE POLICY "profiles_leitura_admin"
+  ON profiles FOR SELECT TO authenticated
+  USING (EXISTS (SELECT 1 FROM profiles p WHERE p.id = auth.uid() AND p.role = 'admin'));
+
+-- Trigger: criar perfil automaticamente ao criar usuário
+CREATE OR REPLACE FUNCTION handle_new_user()
+RETURNS trigger LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
+BEGIN
+  INSERT INTO public.profiles (id, role, nome_completo)
+  VALUES (new.id, 'hospede', new.raw_user_meta_data->>'full_name')
+  ON CONFLICT (id) DO NOTHING;
+  RETURN new;
+END;
+$$;
+
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
+CREATE TRIGGER on_auth_user_created
+  AFTER INSERT ON auth.users
+  FOR EACH ROW EXECUTE PROCEDURE handle_new_user();
+
+-- ============================================================
+-- 10. ABANDONO DE RESERVA — rastreio de sessões incompletas
+-- ============================================================
+CREATE TABLE IF NOT EXISTS abandono_reserva (
+  id              uuid          PRIMARY KEY DEFAULT gen_random_uuid(),
+  session_id      text          NOT NULL UNIQUE,
+  resort_nome     text,
+  email_hospede   text,
+  telefone        text,
+  data_entrada    date,
+  data_saida      date,
+  valor_estimado  numeric(10,2),
+  ref_code        text,
+  criado_em       timestamptz   DEFAULT now(),
+  atualizado_em   timestamptz   DEFAULT now()
+);
+
+ALTER TABLE abandono_reserva ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "abandono_insercao_publica"   ON abandono_reserva;
+DROP POLICY IF EXISTS "abandono_upsert_publica"     ON abandono_reserva;
+
+CREATE POLICY "abandono_insercao_publica"
+  ON abandono_reserva FOR INSERT WITH CHECK (true);
+
+CREATE POLICY "abandono_upsert_publica"
+  ON abandono_reserva FOR UPDATE WITH CHECK (true);
+
+-- ============================================================
+-- 11. ATIVIDADE PÚBLICA — prova social anonimizada
+-- ============================================================
+CREATE TABLE IF NOT EXISTS atividade_publica (
+  id              uuid          PRIMARY KEY DEFAULT gen_random_uuid(),
+  resort_nome     text          NOT NULL,
+  cidade_hospede  text,
+  mes_reserva     text,
+  criado_em       timestamptz   DEFAULT now()
+);
+
+ALTER TABLE atividade_publica ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "atividade_leitura_publica"  ON atividade_publica;
+DROP POLICY IF EXISTS "atividade_insercao_publica" ON atividade_publica;
+
+CREATE POLICY "atividade_leitura_publica"
+  ON atividade_publica FOR SELECT USING (true);
+
+CREATE POLICY "atividade_insercao_publica"
+  ON atividade_publica FOR INSERT WITH CHECK (true);
+
+-- ============================================================
+-- 12. FIDELIDADE — pontos de lealdade por hóspede
+-- ============================================================
+CREATE TABLE IF NOT EXISTS fidelidade (
+  id              uuid          PRIMARY KEY DEFAULT gen_random_uuid(),
+  email_hospede   text          NOT NULL UNIQUE,
+  pontos          int           NOT NULL DEFAULT 0,
+  nivel           text          NOT NULL DEFAULT 'bronze' CHECK (nivel IN ('bronze', 'prata', 'ouro')),
+  total_estadias  int           NOT NULL DEFAULT 0,
+  atualizado_em   timestamptz   DEFAULT now()
+);
+
+ALTER TABLE fidelidade ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "fidelidade_leitura_publica"      ON fidelidade;
+DROP POLICY IF EXISTS "fidelidade_insercao_publica"     ON fidelidade;
+DROP POLICY IF EXISTS "fidelidade_atualizacao_publica"  ON fidelidade;
+
+CREATE POLICY "fidelidade_leitura_publica"
+  ON fidelidade FOR SELECT USING (true);
+
+CREATE POLICY "fidelidade_insercao_publica"
+  ON fidelidade FOR INSERT WITH CHECK (true);
+
+CREATE POLICY "fidelidade_atualizacao_publica"
+  ON fidelidade FOR UPDATE WITH CHECK (true);
+
+-- ============================================================
+-- 13. TICKETS DE PÓS-VENDA — ocorrências e chamados
+-- ============================================================
+CREATE TABLE IF NOT EXISTS tickets (
+  id              uuid          PRIMARY KEY DEFAULT gen_random_uuid(),
+  reserva_id      uuid          REFERENCES reservas_hospede(id) ON DELETE SET NULL,
+  nome_hospede    text          NOT NULL,
+  email_hospede   text          NOT NULL,
+  resort_nome     text,
+  assunto         text          NOT NULL,
+  descricao       text,
+  status          text          NOT NULL DEFAULT 'aberto' CHECK (status IN ('aberto', 'em_andamento', 'resolvido', 'fechado')),
+  prioridade      text          NOT NULL DEFAULT 'media' CHECK (prioridade IN ('baixa', 'media', 'alta', 'urgente')),
+  resposta_admin  text,
+  criado_em       timestamptz   DEFAULT now(),
+  atualizado_em   timestamptz   DEFAULT now()
+);
+
+ALTER TABLE tickets ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "tickets_insercao_publica"    ON tickets;
+DROP POLICY IF EXISTS "tickets_leitura_proprio"     ON tickets;
+DROP POLICY IF EXISTS "tickets_admin_total"         ON tickets;
+
+CREATE POLICY "tickets_insercao_publica"
+  ON tickets FOR INSERT WITH CHECK (true);
+
+-- Hóspede vê os seus tickets (por e-mail)
+CREATE POLICY "tickets_leitura_proprio"
+  ON tickets FOR SELECT USING (true);
+
+-- Admin gerencia tudo
+CREATE POLICY "tickets_admin_total"
+  ON tickets FOR ALL TO authenticated
+  USING (EXISTS (SELECT 1 FROM profiles p WHERE p.id = auth.uid() AND p.role = 'admin'))
+  WITH CHECK (EXISTS (SELECT 1 FROM profiles p WHERE p.id = auth.uid() AND p.role = 'admin'));
+
+-- ============================================================
+-- 14. NPS PÓS-ESTADIA — avaliação numérica do hóspede
+-- ============================================================
+CREATE TABLE IF NOT EXISTS nps_respostas (
+  id              uuid          PRIMARY KEY DEFAULT gen_random_uuid(),
+  reserva_id      uuid          REFERENCES reservas_hospede(id) ON DELETE SET NULL,
+  email_hospede   text          NOT NULL,
+  resort_nome     text,
+  nota            int           NOT NULL CHECK (nota >= 0 AND nota <= 10),
+  comentario      text,
+  criado_em       timestamptz   DEFAULT now()
+);
+
+ALTER TABLE nps_respostas ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "nps_insercao_publica"    ON nps_respostas;
+DROP POLICY IF EXISTS "nps_leitura_admin"       ON nps_respostas;
+
+CREATE POLICY "nps_insercao_publica"
+  ON nps_respostas FOR INSERT WITH CHECK (true);
+
+CREATE POLICY "nps_leitura_admin"
+  ON nps_respostas FOR SELECT TO authenticated
+  USING (EXISTS (SELECT 1 FROM profiles p WHERE p.id = auth.uid() AND p.role IN ('admin', 'proprietario')));
+
+-- ============================================================
+-- 15. COLUNA ref_code em reservas_hospede (indicação viral)
+-- ============================================================
+ALTER TABLE reservas_hospede ADD COLUMN IF NOT EXISTS ref_code text;
+
+-- ============================================================
+-- 16. VIEW DE DEMANDA POR RESORT
+-- ============================================================
+CREATE OR REPLACE VIEW vw_demanda_resort AS
+SELECT
+  resort_nome,
+  COUNT(*) AS total_reservas
+FROM reservas_hospede
+WHERE status IN ('pendente', 'confirmada')
+  AND criado_em > NOW() - INTERVAL '30 days'
+  AND resort_nome IS NOT NULL
+GROUP BY resort_nome;
+
+-- ============================================================
+-- 17. FUNÇÃO RPC — demanda pública (SECURITY DEFINER para contornar RLS)
+-- ============================================================
+CREATE OR REPLACE FUNCTION get_demanda_resort()
+RETURNS TABLE(resort_nome text, total_reservas bigint)
+LANGUAGE sql SECURITY DEFINER SET search_path = public AS $$
+  SELECT
+    resort_nome,
+    COUNT(*)::bigint AS total_reservas
+  FROM reservas_hospede
+  WHERE status IN ('pendente', 'confirmada')
+    AND criado_em > NOW() - INTERVAL '30 days'
+    AND resort_nome IS NOT NULL
+  GROUP BY resort_nome;
+$$;
+
+GRANT EXECUTE ON FUNCTION get_demanda_resort() TO anon, authenticated;
+
+-- ============================================================
+-- 18. ÍNDICES ADICIONAIS
+-- ============================================================
+CREATE INDEX IF NOT EXISTS idx_abandono_session    ON abandono_reserva(session_id);
+CREATE INDEX IF NOT EXISTS idx_fidelidade_email    ON fidelidade(email_hospede);
+CREATE INDEX IF NOT EXISTS idx_tickets_email       ON tickets(email_hospede, status);
+CREATE INDEX IF NOT EXISTS idx_nps_email           ON nps_respostas(email_hospede);
+CREATE INDEX IF NOT EXISTS idx_atividade_criado    ON atividade_publica(criado_em DESC);

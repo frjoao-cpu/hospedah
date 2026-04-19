@@ -15,8 +15,14 @@ var ASSETS_CACHE = 'hospedah-assets-v1';
 var PRECACHE_URLS = [
   '/',
   '/index.html',
-  '/sistema.html',
+  '/busca.html',
+  '/reservas.html',
+  '/chat.html',
+  '/avaliacoes.html',
   '/cadastro.html',
+  '/painel.html',
+  '/sistema.html',
+  '/assets/mobile-first.css',
   '/manifest.json',
   'https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap'
 ];
