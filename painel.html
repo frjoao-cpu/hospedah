@@ -1,0 +1,1246 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Painel HOSPEDAH</title>
+<meta name="robots" content="noindex, nofollow">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://ydrmjoppjxtmnwtvtinb.supabase.co; img-src 'self' data: https://i.imgur.com; object-src 'none'; base-uri 'self';">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#D4AF37">
+<!-- Poppins — preload para performance -->
+<link rel="preload" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap"></noscript>
+<!-- jsPDF para vouchers -->
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js" defer></script>
+<!-- Supabase -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<!-- Mobile-first CSS -->
+<link rel="stylesheet" href="/assets/mobile-first.css">
+<style>
+:root {
+  --dourado: #D4AF37;
+  --dourado-hover: #f0c93a;
+  --azul: #0B1C3D;
+  --azul2: #142850;
+  --verde: #25D366;
+  --vermelho: #e74c3c;
+  --bg: #0d1b2e;
+  --bg2: #10233c;
+  --cor-texto: #e8eaf0;
+  --cor-sub: #aab4c4;
+  --borda: rgba(212,175,55,0.15);
+  --radius: 12px;
+  --sombra: 0 4px 24px rgba(0,0,0,0.3);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body { font-family: 'Poppins', sans-serif; background: var(--bg); color: var(--cor-texto); min-height: 100vh; }
+
+/* ── LOGIN OVERLAY ── */
+.lock-overlay {
+  display: none;
+  position: fixed; inset: 0; z-index: 9999;
+  background: linear-gradient(135deg, #060e1e, #0b1c3d);
+  align-items: center; justify-content: center;
+}
+.lock-overlay.show { display: flex; }
+.lock-box {
+  background: rgba(20,40,80,0.96);
+  border: 1px solid var(--borda);
+  border-radius: 18px;
+  padding: 36px 28px;
+  max-width: 380px; width: 92%;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.6);
+  text-align: center;
+}
+.lock-box h2 { color: var(--dourado); margin-bottom: 4px; font-size: 1.3em; }
+.lock-sub { font-size: 0.84em; color: var(--cor-sub); margin-bottom: 18px; }
+.lock-view { display: none; }
+.lock-view.ativo { display: block; }
+.field-group { margin-bottom: 12px; text-align: left; }
+.field-group label { font-size: 0.78em; color: var(--cor-sub); display: block; margin-bottom: 4px; }
+.field-group input {
+  width: 100%; padding: 11px 14px; border-radius: 10px;
+  border: 1.5px solid rgba(212,175,55,0.25);
+  background: rgba(255,255,255,0.06); color: var(--cor-texto);
+  font-family: 'Poppins', sans-serif; font-size: 0.9em;
+  transition: border-color 0.15s;
+}
+.field-group input:focus { outline: none; border-color: var(--dourado); }
+.lock-error   { display: none; color: var(--vermelho); font-size: 0.8em; margin-top: 6px; }
+.lock-success { display: none; color: var(--verde); font-size: 0.8em; margin-top: 6px; }
+.lock-link {
+  background: none; border: none; color: var(--cor-sub);
+  font-size: 0.82em; cursor: pointer; text-decoration: underline;
+  margin-top: 12px; display: block; width: 100%; text-align: center;
+}
+.lock-link:hover { color: var(--dourado); }
+.lock-links-row {
+  display: flex; justify-content: center; gap: 16px;
+  margin-top: 14px; flex-wrap: wrap;
+}
+
+/* ── BOTÕES ── */
+.btn {
+  padding: 11px 20px; border-radius: 10px; border: none;
+  font-family: 'Poppins', sans-serif; font-weight: 600;
+  font-size: 0.9em; cursor: pointer; transition: all 0.15s;
+  display: inline-flex; align-items: center; gap: 6px;
+  min-height: 44px;
+}
+.btn-primary { background: var(--dourado); color: var(--azul); }
+.btn-primary:hover { background: var(--dourado-hover); }
+.btn-danger  { background: rgba(231,76,60,0.15); color: var(--vermelho); border: 1px solid rgba(231,76,60,0.3); }
+.btn-ghost   { background: rgba(255,255,255,0.06); color: var(--cor-sub); border: 1px solid var(--borda); }
+.btn-success { background: rgba(37,211,102,0.15); color: var(--verde); border: 1px solid rgba(37,211,102,0.3); }
+.btn-sm { padding: 6px 12px; font-size: 0.78em; min-height: 36px; }
+
+/* ── HEADER ── */
+.painel-header {
+  background: linear-gradient(135deg, var(--azul), var(--azul2));
+  border-bottom: 2px solid var(--dourado);
+  padding: 14px 20px;
+  display: flex; align-items: center; gap: 12px;
+  position: sticky; top: 0; z-index: 100;
+  box-shadow: var(--sombra);
+}
+.painel-logo { color: var(--dourado); font-weight: 700; font-size: 1.05em; text-decoration: none; }
+.painel-role-badge {
+  margin-left: auto; font-size: 0.72em; font-weight: 700;
+  padding: 3px 10px; border-radius: 14px; letter-spacing: 0.5px;
+}
+.role-admin       { background: rgba(231,76,60,0.2);  color: #f87171; }
+.role-proprietario { background: rgba(212,175,55,0.2); color: var(--dourado); }
+.role-hospede     { background: rgba(37,211,102,0.15); color: var(--verde); }
+
+.painel-user-btn {
+  background: rgba(255,255,255,0.08); border: 1px solid var(--borda);
+  border-radius: 8px; padding: 6px 12px; color: var(--cor-sub);
+  font-size: 0.78em; cursor: pointer; font-family: 'Poppins', sans-serif;
+  min-height: 36px;
+}
+.painel-user-btn:hover { color: var(--dourado); border-color: var(--dourado); }
+
+/* ── SIDEBAR ── */
+.painel-sidebar {
+  background: rgba(11,28,61,0.97);
+  border-right: 1px solid var(--borda);
+  width: 220px; flex-shrink: 0;
+  padding: 20px 10px;
+  position: sticky; top: 57px;
+  height: calc(100vh - 57px);
+  overflow-y: auto;
+}
+.sidebar-section-label {
+  font-size: 0.65em; text-transform: uppercase; letter-spacing: 0.8px;
+  color: var(--cor-sub); opacity: 0.6; padding: 8px 10px 4px;
+}
+.sidebar-nav a {
+  display: flex; align-items: center; gap: 9px;
+  padding: 9px 12px; border-radius: 8px;
+  text-decoration: none; font-size: 0.84em; color: var(--cor-sub);
+  transition: all 0.15s; margin-bottom: 2px;
+}
+.sidebar-nav a:hover, .sidebar-nav a.active {
+  background: rgba(212,175,55,0.1); color: var(--dourado);
+}
+
+/* ── CONTEÚDO ── */
+.painel-content { flex: 1; padding: 24px; min-width: 0; }
+
+/* ── SEÇÕES ── */
+.painel-section { display: none; }
+.painel-section.active { display: block; }
+
+/* ── CARDS ── */
+.card {
+  background: var(--bg2); border: 1px solid var(--borda);
+  border-radius: var(--radius); padding: 20px;
+  margin-bottom: 16px;
+}
+.card-title {
+  color: var(--dourado); font-size: 0.98em; font-weight: 700;
+  margin-bottom: 14px; padding-bottom: 10px;
+  border-bottom: 1px solid var(--borda);
+  display: flex; align-items: center; gap: 8px;
+}
+
+/* ── STATS GRID ── */
+.stats-grid {
+  display: grid; gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+}
+.stat-card {
+  background: rgba(212,175,55,0.06);
+  border: 1px solid var(--borda); border-radius: 10px;
+  padding: 16px; text-align: center;
+}
+.stat-val  { font-size: 1.6em; font-weight: 700; color: var(--dourado); }
+.stat-lbl  { font-size: 0.72em; color: var(--cor-sub); margin-top: 4px; }
+
+/* ── TABELA ── */
+.data-table { width: 100%; border-collapse: collapse; font-size: 0.82em; }
+.data-table th {
+  text-align: left; padding: 10px 12px;
+  border-bottom: 1px solid var(--borda);
+  color: var(--cor-sub); font-weight: 600; font-size: 0.78em;
+  text-transform: uppercase; letter-spacing: 0.4px;
+  white-space: nowrap;
+}
+.data-table td {
+  padding: 10px 12px; border-bottom: 1px solid rgba(255,255,255,0.04);
+  vertical-align: middle;
+}
+.data-table tr:hover td { background: rgba(255,255,255,0.02); }
+.status-badge {
+  padding: 2px 8px; border-radius: 10px; font-size: 0.75em; font-weight: 600;
+}
+.s-pendente   { background: rgba(251,191,36,0.15); color: #fbbf24; }
+.s-confirmada { background: rgba(37,211,102,0.15); color: var(--verde); }
+.s-cancelada  { background: rgba(231,76,60,0.15);  color: var(--vermelho); }
+.s-concluida  { background: rgba(99,102,241,0.15); color: #818cf8; }
+
+/* ── NPS ── */
+.nps-grid {
+  display: flex; gap: 6px; flex-wrap: wrap; justify-content: center;
+  margin: 12px 0;
+}
+.nps-btn {
+  width: 44px; height: 44px; border-radius: 50%;
+  border: 2px solid var(--borda);
+  background: rgba(255,255,255,0.05); color: var(--cor-sub);
+  font-weight: 700; cursor: pointer; font-family: 'Poppins', sans-serif;
+  font-size: 0.88em; transition: all 0.15s;
+}
+.nps-btn:hover { border-color: var(--dourado); color: var(--dourado); }
+.nps-btn.selected { background: var(--dourado); color: var(--azul); border-color: var(--dourado); }
+
+/* ── TOAST ── */
+#toastPainel {
+  position: fixed; bottom: 80px; right: 16px; z-index: 9000;
+  background: var(--bg2); border: 1px solid var(--borda);
+  border-radius: 10px; padding: 12px 16px; font-size: 0.85em;
+  box-shadow: var(--sombra); display: none; max-width: 280px;
+}
+#toastPainel.show { display: block; animation: toastIn 0.3s ease; }
+@keyframes toastIn {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── LEVEL BADGE FIDELIDADE ── */
+.fid-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 4px 14px; border-radius: 20px; font-size: 0.82em; font-weight: 700;
+}
+.fid-bronze { background: rgba(180,120,60,0.2);  color: #cd7f32; border: 1px solid rgba(205,127,50,0.3); }
+.fid-prata  { background: rgba(160,160,170,0.2); color: #c0c0c0; border: 1px solid rgba(192,192,192,0.3); }
+.fid-ouro   { background: rgba(212,175,55,0.2);  color: var(--dourado); border: 1px solid var(--borda); }
+
+/* ── FORMULÁRIO TICKET ── */
+.form-ticket input,
+.form-ticket select,
+.form-ticket textarea {
+  width: 100%; padding: 10px 13px; border-radius: 9px;
+  border: 1.5px solid rgba(212,175,55,0.2);
+  background: rgba(255,255,255,0.05); color: var(--cor-texto);
+  font-family: 'Poppins', sans-serif; font-size: 0.88em;
+  margin-bottom: 10px; transition: border-color 0.15s;
+}
+.form-ticket input:focus,
+.form-ticket select:focus,
+.form-ticket textarea:focus { outline: none; border-color: var(--dourado); }
+.form-ticket textarea { min-height: 88px; resize: vertical; }
+.form-ticket select option { background: var(--bg2); }
+
+/* ── LINK INDICAÇÃO ── */
+.referral-link-box {
+  background: rgba(37,211,102,0.07);
+  border: 1px dashed rgba(37,211,102,0.3);
+  border-radius: 10px; padding: 14px 16px;
+  font-size: 0.85em;
+}
+.referral-link-box code {
+  display: block; background: rgba(0,0,0,0.3); color: var(--verde);
+  border-radius: 6px; padding: 6px 10px; margin: 8px 0;
+  word-break: break-all; font-size: 0.85em;
+}
+
+/* ── LOADING ── */
+.loading-spinner {
+  display: flex; align-items: center; justify-content: center;
+  padding: 40px; color: var(--cor-sub); font-size: 0.85em; gap: 10px;
+}
+.spinner {
+  width: 20px; height: 20px; border-radius: 50%;
+  border: 2px solid rgba(212,175,55,0.2);
+  border-top-color: var(--dourado);
+  animation: spin 0.7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── RESPONSIVO ── */
+@media (max-width: 767px) {
+  .painel-sidebar { display: none; }
+  .painel-content { padding: 14px; }
+  .painel-header { padding: 12px 14px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     LOGIN OVERLAY
+============================================================ -->
+<div class="lock-overlay show" id="lockOverlay" role="dialog" aria-modal="true" aria-label="Login">
+  <div class="lock-box">
+    <div style="font-size:2.4em; margin-bottom:10px;">🔐</div>
+    <h2>Painel HOSPEDAH</h2>
+
+    <!-- VIEW 1: Login -->
+    <div class="lock-view ativo" id="lv-login">
+      <p class="lock-sub">Acesso exclusivo. Faça login para continuar.</p>
+      <div class="field-group">
+        <label>E-mail</label>
+        <input type="email" id="lk-email" placeholder="seu@email.com"
+               autocomplete="email" onkeydown="if(event.key==='Enter')loginSenha()">
+      </div>
+      <div class="field-group">
+        <label>Senha</label>
+        <input type="password" id="lk-senha" placeholder="••••••••"
+               autocomplete="current-password" onkeydown="if(event.key==='Enter')loginSenha()">
+      </div>
+      <div class="lock-error" id="lk-erro">❌ Credenciais inválidas. Tente novamente.</div>
+      <button class="btn btn-primary" style="width:100%;margin-top:14px;" onclick="loginSenha()">
+        🔓 Entrar
+      </button>
+      <div class="lock-links-row">
+        <button class="lock-link" onclick="mostrarView('lv-magic')">✉️ Acesso por link</button>
+        <button class="lock-link" onclick="mostrarView('lv-reset')">🔑 Esqueci a senha</button>
+      </div>
+    </div>
+
+    <!-- VIEW 2: Magic link -->
+    <div class="lock-view" id="lv-magic">
+      <p class="lock-sub">Receba um link de acesso no seu e-mail — sem senha necessária.</p>
+      <div class="field-group">
+        <label>E-mail</label>
+        <input type="email" id="lk-magic-email" placeholder="seu@email.com"
+               autocomplete="email" onkeydown="if(event.key==='Enter')enviarMagicLink()">
+      </div>
+      <div class="lock-error"   id="lk-magic-erro">❌ Informe um e-mail válido.</div>
+      <div class="lock-success" id="lk-magic-ok">✅ Link enviado! Verifique seu e-mail.</div>
+      <button class="btn btn-primary" style="width:100%;margin-top:14px;" onclick="enviarMagicLink()">
+        ✉️ Enviar link de acesso
+      </button>
+      <button class="lock-link" onclick="mostrarView('lv-login')">← Voltar ao login</button>
+    </div>
+
+    <!-- VIEW 3: Reset senha -->
+    <div class="lock-view" id="lv-reset">
+      <p class="lock-sub">Informe seu e-mail para receber o link de redefinição de senha.</p>
+      <div class="field-group">
+        <label>E-mail</label>
+        <input type="email" id="lk-reset-email" placeholder="seu@email.com"
+               autocomplete="email" onkeydown="if(event.key==='Enter')enviarResetSenha()">
+      </div>
+      <div class="lock-error"   id="lk-reset-erro">❌ Informe um e-mail válido.</div>
+      <div class="lock-success" id="lk-reset-ok">✅ Link enviado! Verifique seu e-mail.</div>
+      <button class="btn btn-primary" style="width:100%;margin-top:14px;" onclick="enviarResetSenha()">
+        📧 Enviar link
+      </button>
+      <button class="lock-link" onclick="mostrarView('lv-login')">← Voltar ao login</button>
+    </div>
+
+    <!-- VIEW 4: Nova senha (pós reset link) -->
+    <div class="lock-view" id="lv-nova-senha">
+      <p class="lock-sub">Crie sua nova senha de acesso.</p>
+      <div class="field-group">
+        <label>Nova senha</label>
+        <input type="password" id="lk-nova-senha" placeholder="Mínimo 12 caracteres"
+               autocomplete="new-password">
+      </div>
+      <div class="field-group">
+        <label>Confirmar senha</label>
+        <input type="password" id="lk-confirma-senha" placeholder="Repita a senha"
+               autocomplete="new-password">
+      </div>
+      <div class="lock-error" id="lk-nova-erro">
+        ❌ A senha deve ter no mínimo 12 caracteres com maiúscula, minúscula, número e símbolo.
+      </div>
+      <button class="btn btn-primary" style="width:100%;margin-top:14px;" onclick="salvarNovaSenha()">
+        ✅ Salvar nova senha
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     HEADER
+============================================================ -->
+<header class="painel-header" id="painelHeader" style="display:none;">
+  <a href="index.html" class="painel-logo">🏨 HOSPEDAH</a>
+  <span id="painelRoleBadge" class="painel-role-badge"></span>
+  <span id="painelUserName" style="font-size:0.8em;color:var(--cor-sub);margin-left:8px;"></span>
+  <button class="painel-user-btn" onclick="logout()" style="margin-left:auto;">
+    🚪 Sair
+  </button>
+</header>
+
+<!-- ============================================================
+     LAYOUT: SIDEBAR + CONTEÚDO
+============================================================ -->
+<div class="painel-layout" id="painelLayout" style="display:none;">
+
+  <!-- SIDEBAR (desktop) -->
+  <aside class="painel-sidebar">
+    <div class="sidebar-nav" id="sidebarNav">
+      <!-- preenchido via JS conforme role -->
+    </div>
+  </aside>
+
+  <!-- CONTEÚDO PRINCIPAL -->
+  <main class="painel-content" id="painelContent">
+
+    <!-- ── SEÇÃO: DASHBOARD (admin + proprietario) ── -->
+    <section class="painel-section" id="sec-dashboard" data-roles="admin,proprietario">
+      <h2 style="color:var(--dourado);margin-bottom:20px;">📊 Dashboard</h2>
+      <div class="stats-grid" id="dashStats">
+        <div class="loading-spinner"><div class="spinner"></div> Carregando...</div>
+      </div>
+      <div class="card" style="margin-top:20px;">
+        <div class="card-title">🛎️ Últimas Solicitações de Reserva</div>
+        <div class="table-wrap">
+          <table class="data-table" id="dashRecentTable">
+            <thead><tr>
+              <th>Hóspede</th><th>Resort</th><th>Datas</th>
+              <th>Valor</th><th>Status</th><th>Ações</th>
+            </tr></thead>
+            <tbody id="dashRecentBody">
+              <tr><td colspan="6" class="loading-spinner">
+                <div class="spinner"></div> Carregando...
+              </td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div style="margin-top:12px;">
+          <a href="sistema.html" class="btn btn-ghost btn-sm">
+            ⚙️ Abrir painel completo (sistema.html)
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── SEÇÃO: MINHAS RESERVAS (hospede) ── -->
+    <section class="painel-section" id="sec-minhas-reservas" data-roles="hospede,admin,proprietario">
+      <h2 style="color:var(--dourado);margin-bottom:20px;">📋 Minhas Reservas</h2>
+      <div id="minhasReservasContent">
+        <div class="loading-spinner"><div class="spinner"></div> Carregando...</div>
+      </div>
+    </section>
+
+    <!-- ── SEÇÃO: PÓS-VENDA (hospede) ── -->
+    <section class="painel-section" id="sec-pos-venda" data-roles="hospede">
+      <h2 style="color:var(--dourado);margin-bottom:20px;">🌟 Pós-Venda & Suporte</h2>
+
+      <!-- NPS -->
+      <div class="card">
+        <div class="card-title">📊 Avalie sua Estadia (NPS)</div>
+        <p style="font-size:0.85em;color:var(--cor-sub);margin-bottom:12px;">
+          De 0 a 10, qual a probabilidade de você indicar a HOSPEDAH para um amigo?
+        </p>
+        <div class="nps-grid" id="npsGrid">
+          <!-- preenchido via JS -->
+        </div>
+        <div id="npsLabels" style="display:flex;justify-content:space-between;font-size:0.72em;color:var(--cor-sub);margin-top:4px;">
+          <span>😞 Nada provável</span><span>😁 Totalmente provável</span>
+        </div>
+        <textarea id="npsComentario" placeholder="Comentário opcional sobre sua estadia..."
+          style="width:100%;margin-top:14px;padding:10px;border-radius:8px;border:1.5px solid var(--borda);background:rgba(255,255,255,0.05);color:var(--cor-texto);font-family:inherit;font-size:0.85em;min-height:80px;resize:vertical;"></textarea>
+        <button class="btn btn-primary" style="margin-top:10px;" onclick="enviarNPS()">
+          📤 Enviar Avaliação
+        </button>
+        <div id="npsFeedback" style="display:none;color:var(--verde);font-size:0.85em;margin-top:8px;">
+          ✅ Avaliação enviada! Obrigado pelo feedback.
+        </div>
+      </div>
+
+      <!-- VOUCHER PDF -->
+      <div class="card">
+        <div class="card-title">🎫 Voucher da Estadia</div>
+        <p style="font-size:0.85em;color:var(--cor-sub);margin-bottom:14px;">
+          Gere um PDF com os detalhes da sua reserva para apresentar na entrada do resort.
+        </p>
+        <div id="voucherResSelect">
+          <div class="loading-spinner"><div class="spinner"></div> Carregando reservas...</div>
+        </div>
+        <button class="btn btn-primary" style="margin-top:12px;" id="btnGerarVoucher" onclick="gerarVoucherPDF()">
+          📄 Gerar Voucher PDF
+        </button>
+      </div>
+
+      <!-- CHAMADOS / TICKETS -->
+      <div class="card">
+        <div class="card-title">🎫 Chamados & Ocorrências</div>
+        <form class="form-ticket" id="formTicket" onsubmit="abrirTicket(event)">
+          <input type="text" id="tk-assunto" placeholder="Assunto do chamado *" required>
+          <select id="tk-prioridade">
+            <option value="baixa">Prioridade Baixa</option>
+            <option value="media" selected>Prioridade Média</option>
+            <option value="alta">Prioridade Alta</option>
+            <option value="urgente">🚨 Urgente</option>
+          </select>
+          <textarea id="tk-descricao" placeholder="Descreva o problema ou solicitação em detalhes..."></textarea>
+          <button type="submit" class="btn btn-primary">📨 Abrir Chamado</button>
+        </form>
+        <div style="margin-top:16px;" id="ticketsListHospede">
+          <!-- tickets do hóspede carregados via JS -->
+        </div>
+      </div>
+    </section>
+
+    <!-- ── SEÇÃO: FIDELIDADE ── -->
+    <section class="painel-section" id="sec-fidelidade" data-roles="hospede">
+      <h2 style="color:var(--dourado);margin-bottom:20px;">🏆 Programa de Fidelidade</h2>
+      <div class="card">
+        <div id="fidContent">
+          <div class="loading-spinner"><div class="spinner"></div> Carregando...</div>
+        </div>
+      </div>
+
+      <!-- Link de indicação viral -->
+      <div class="card">
+        <div class="card-title">🎁 Indicação Viral — Ganhe R$ 30 de Desconto</div>
+        <p style="font-size:0.85em;color:var(--cor-sub);margin-bottom:12px;">
+          Compartilhe seu link exclusivo. Quando um amigo reservar usando seu código, ambos ganham R$ 30 de desconto na próxima estadia.
+        </p>
+        <div class="referral-link-box">
+          <strong>🔗 Seu link exclusivo:</strong>
+          <code id="referralLink">Carregando...</code>
+          <button class="btn btn-success btn-sm" onclick="copiarLink()">📋 Copiar link</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── SEÇÃO: CHAT / MENSAGENS ── -->
+    <section class="painel-section" id="sec-chat" data-roles="hospede,admin,proprietario">
+      <h2 style="color:var(--dourado);margin-bottom:20px;">💬 Chat & Mensagens</h2>
+      <div class="card">
+        <p style="font-size:0.9em;color:var(--cor-sub);margin-bottom:16px;">
+          Acesse o chat em tempo real com a equipe HOSPEDAH.
+        </p>
+        <a href="chat.html" class="btn btn-primary">💬 Abrir Chat Online</a>
+        <a href="https://wa.me/5517982006382" target="_blank" rel="noopener" class="btn btn-success" style="margin-left:8px;">
+          📱 WhatsApp Direto
+        </a>
+      </div>
+    </section>
+
+    <!-- ── SEÇÃO: GESTÃO DE USUÁRIOS (admin) ── -->
+    <section class="painel-section" id="sec-usuarios" data-roles="admin">
+      <h2 style="color:var(--dourado);margin-bottom:20px;">👥 Gestão de Usuários</h2>
+      <div class="card">
+        <div class="card-title">Usuários Cadastrados</div>
+        <div class="table-wrap">
+          <table class="data-table" id="usersTable">
+            <thead><tr>
+              <th>E-mail</th><th>Nome</th><th>Role</th><th>Criado em</th><th>Ações</th>
+            </tr></thead>
+            <tbody id="usersBody">
+              <tr><td colspan="5" class="loading-spinner"><div class="spinner"></div> Carregando...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- BOTTOM NAV (mobile) -->
+<nav class="bottom-nav" id="bottomNav" style="display:none;" aria-label="Navegação principal">
+  <ul id="bottomNavList">
+    <!-- preenchido via JS conforme role -->
+  </ul>
+</nav>
+
+<!-- TOAST -->
+<div id="toastPainel" role="alert" aria-live="polite"></div>
+
+<!-- ============================================================
+     SCRIPTS
+============================================================ -->
+<script>
+'use strict';
+
+// ── SUPABASE ──
+const SUPABASE_URL = 'https://ydrmjoppjxtmnwtvtinb.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlkcm1qb3Bwanh0bW53dHZ0aW5iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYyNzA3MzksImV4cCI6MjA5MTg0NjczOX0.Gp4ed332v62sC5e5GXXbPqOIBNpS4EzMCFawnBJE_Cw';
+const _sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// ── ESTADO ──
+let _session   = null;
+let _profile   = null;
+let _currentSection = '';
+let _npsSelected    = null;
+let _minhasReservas = [];
+
+// ── HELPERS ──
+function esc(s) {
+  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function fmtDate(d) {
+  if (!d) return '—';
+  return new Date(d + 'T00:00:00').toLocaleDateString('pt-BR');
+}
+function fmtMoney(v) {
+  return 'R$ ' + Number(v || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+}
+function mostrarToast(msg, tipo) {
+  const el = document.getElementById('toastPainel');
+  el.textContent = msg;
+  el.style.borderColor = tipo === 'success' ? '#25D366' : tipo === 'error' ? '#e74c3c' : 'var(--borda)';
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 3500);
+}
+
+// ── LOGIN VIEWS ──
+function mostrarView(id) {
+  document.querySelectorAll('.lock-view').forEach(v => v.classList.remove('ativo'));
+  document.getElementById(id).classList.add('ativo');
+}
+
+// ── AUTH: senha ──
+async function loginSenha() {
+  const email = document.getElementById('lk-email').value.trim();
+  const senha = document.getElementById('lk-senha').value;
+  const errEl = document.getElementById('lk-erro');
+  errEl.style.display = 'none';
+
+  if (!email || !senha) { errEl.style.display = 'block'; return; }
+
+  const { data, error } = await _sb.auth.signInWithPassword({ email, password: senha });
+  if (error) {
+    errEl.style.display = 'block'; return;
+  }
+  _session = data.session;
+  await carregarPerfil();
+}
+
+// ── AUTH: magic link ──
+async function enviarMagicLink() {
+  const email = document.getElementById('lk-magic-email').value.trim();
+  const errEl = document.getElementById('lk-magic-erro');
+  const okEl  = document.getElementById('lk-magic-ok');
+  errEl.style.display = 'none'; okEl.style.display = 'none';
+
+  if (!email || !email.includes('@')) { errEl.style.display = 'block'; return; }
+
+  const { error } = await _sb.auth.signInWithOtp({ email, options: { emailRedirectTo: window.location.href } });
+  if (error) { errEl.style.display = 'block'; return; }
+  okEl.style.display = 'block';
+}
+
+// ── AUTH: reset senha ──
+async function enviarResetSenha() {
+  const email = document.getElementById('lk-reset-email').value.trim();
+  const errEl = document.getElementById('lk-reset-erro');
+  const okEl  = document.getElementById('lk-reset-ok');
+  errEl.style.display = 'none'; okEl.style.display = 'none';
+
+  if (!email || !email.includes('@')) { errEl.style.display = 'block'; return; }
+
+  const { error } = await _sb.auth.resetPasswordForEmail(email, { redirectTo: window.location.href });
+  if (error) { errEl.style.display = 'block'; return; }
+  okEl.style.display = 'block';
+}
+
+// ── AUTH: salvar nova senha ──
+async function salvarNovaSenha() {
+  const nova    = document.getElementById('lk-nova-senha').value;
+  const confirma = document.getElementById('lk-confirma-senha').value;
+  const errEl   = document.getElementById('lk-nova-erro');
+  errEl.style.display = 'none';
+
+  // Validação: mínimo 12 chars, maiúscula, minúscula, número, símbolo
+  const valid = nova.length >= 12
+    && /[A-Z]/.test(nova)
+    && /[a-z]/.test(nova)
+    && /[0-9]/.test(nova)
+    && /[^A-Za-z0-9]/.test(nova);
+
+  if (!valid || nova !== confirma) { errEl.style.display = 'block'; return; }
+
+  const { error } = await _sb.auth.updateUser({ password: nova });
+  if (error) { errEl.textContent = '❌ Erro ao salvar: ' + error.message; errEl.style.display = 'block'; return; }
+
+  mostrarToast('✅ Senha definida com sucesso! Redirecionando...', 'success');
+  setTimeout(() => location.reload(), 2000);
+}
+
+// ── AUTH: logout ──
+async function logout() {
+  await _sb.auth.signOut();
+  location.reload();
+}
+
+// ── ESCUTA MUDANÇAS DE AUTH ──
+_sb.auth.onAuthStateChange(async (event, session) => {
+  if (event === 'PASSWORD_RECOVERY') {
+    document.querySelectorAll('.lock-view').forEach(v => v.classList.remove('ativo'));
+    document.getElementById('lv-nova-senha').classList.add('ativo');
+    document.getElementById('lockOverlay').classList.add('show');
+    return;
+  }
+
+  if (session) {
+    // Limpa parâmetros de auth da URL (magic link / recovery)
+    const cleanUrl = location.origin + location.pathname + (location.hash.startsWith('#access_token') ? '' : location.hash);
+    history.replaceState(null, '', cleanUrl);
+
+    _session = session;
+    await carregarPerfil();
+  } else {
+    document.getElementById('lockOverlay').classList.add('show');
+    document.getElementById('painelHeader').style.display = 'none';
+    document.getElementById('painelLayout').style.display = 'none';
+    document.getElementById('bottomNav').style.display    = 'none';
+  }
+});
+
+// ── CARREGAR PERFIL E INICIAR PAINEL ──
+async function carregarPerfil() {
+  const userId = _session.user.id;
+
+  // Buscar profile
+  const { data: profile } = await _sb
+    .from('profiles')
+    .select('*')
+    .eq('id', userId)
+    .maybeSingle();
+
+  if (!profile) {
+    // Criar profile padrão se não existir
+    await _sb.from('profiles').insert([{
+      id: userId,
+      role: 'hospede',
+      nome_completo: _session.user.user_metadata?.full_name || _session.user.email.split('@')[0],
+    }]);
+    _profile = { id: userId, role: 'hospede', nome_completo: _session.user.email.split('@')[0] };
+  } else {
+    _profile = profile;
+  }
+
+  iniciarPainel();
+}
+
+// ── INICIAR PAINEL ──
+function iniciarPainel() {
+  const role = _profile.role;
+  const nome = _profile.nome_completo || _session.user.email;
+  const email = _session.user.email;
+
+  // Ocultar login
+  document.getElementById('lockOverlay').classList.remove('show');
+  document.getElementById('painelHeader').style.display = '';
+  document.getElementById('painelLayout').style.display = 'flex';
+
+  // Role badge
+  const badge = document.getElementById('painelRoleBadge');
+  const roleLabels = { admin: '🛡️ Admin', proprietario: '🏠 Proprietário', hospede: '🏖️ Hóspede' };
+  const roleClasses = { admin: 'role-admin', proprietario: 'role-proprietario', hospede: 'role-hospede' };
+  badge.textContent = roleLabels[role] || role;
+  badge.className   = 'painel-role-badge ' + (roleClasses[role] || '');
+  document.getElementById('painelUserName').textContent = nome;
+
+  // Construir navegação conforme role
+  construirNav(role);
+
+  // Navegar para seção inicial
+  const hash = location.hash.replace('#', '') || getDefaultSection(role);
+  navegarPara(hash);
+
+  // Carregar dados background
+  if (role === 'hospede' || role === 'admin' || role === 'proprietario') {
+    carregarMinhasReservas(email, role);
+    carregarFidelidade(email);
+    gerarLinkIndicacao(email); // async, non-blocking
+    renderizarNPS();
+    carregarTicketsHospede(email);
+    carregarVoucherSelect();
+  }
+  if (role === 'admin' || role === 'proprietario') {
+    carregarDashboard(email, role);
+  }
+  if (role === 'admin') {
+    carregarUsuarios();
+  }
+
+  // Bottom nav (mobile)
+  construirBottomNav(role);
+  document.getElementById('bottomNav').style.display = '';
+}
+
+// ── SEÇÃO PADRÃO POR ROLE ──
+function getDefaultSection(role) {
+  if (role === 'admin' || role === 'proprietario') return 'dashboard';
+  return 'minhas-reservas';
+}
+
+// ── CONSTRUIR SIDEBAR NAV ──
+function construirNav(role) {
+  const allLinks = [
+    { id: 'dashboard',      icon: '📊', label: 'Dashboard',        roles: ['admin','proprietario'] },
+    { id: 'minhas-reservas',icon: '📋', label: 'Minhas Reservas',  roles: ['hospede','admin','proprietario'] },
+    { id: 'pos-venda',      icon: '🌟', label: 'Pós-venda',        roles: ['hospede'] },
+    { id: 'fidelidade',     icon: '🏆', label: 'Fidelidade',       roles: ['hospede'] },
+    { id: 'chat',           icon: '💬', label: 'Chat & Suporte',   roles: ['hospede','admin','proprietario'] },
+    { id: 'usuarios',       icon: '👥', label: 'Usuários',         roles: ['admin'] },
+  ];
+
+  const links = allLinks.filter(l => l.roles.includes(role));
+  const nav   = document.getElementById('sidebarNav');
+
+  nav.innerHTML = links.map(l => `
+    <a href="#${l.id}" id="nav-${l.id}" onclick="navegarPara('${l.id}'); return false;">
+      <span>${l.icon}</span> ${l.label}
+    </a>
+  `).join('');
+}
+
+// ── CONSTRUIR BOTTOM NAV ──
+function construirBottomNav(role) {
+  const items = [
+    { id: 'minhas-reservas', icon: '📋', label: 'Reservas',  roles: ['hospede','admin','proprietario'], href: null },
+    { id: 'dashboard',       icon: '📊', label: 'Dashboard', roles: ['admin','proprietario'], href: null },
+    { id: 'pos-venda',       icon: '🌟', label: 'Pós-venda', roles: ['hospede'], href: null },
+    { id: 'fidelidade',      icon: '🏆', label: 'Pontos',    roles: ['hospede'], href: null },
+    { icon: '🏠', label: 'Início', roles: ['hospede','admin','proprietario'], href: 'index.html' },
+    { id: 'chat',            icon: '💬', label: 'Chat',      roles: ['hospede','admin','proprietario'], href: null },
+  ].filter(i => i.roles.includes(role)).slice(0, 5);
+
+  document.getElementById('bottomNavList').innerHTML = items.map(i => {
+    const click = i.href ? '' : `onclick="navegarPara('${i.id}'); return false;"`;
+    const href  = i.href || ('#' + i.id);
+    return `<li><a href="${href}" ${click} id="bn-${i.id || 'home'}">
+      <span class="bn-icon">${i.icon}</span>${i.label}
+    </a></li>`;
+  }).join('');
+}
+
+// ── NAVEGAÇÃO ──
+function navegarPara(id) {
+  _currentSection = id;
+  history.pushState(null, '', '#' + id);
+
+  document.querySelectorAll('.painel-section').forEach(s => s.classList.remove('active'));
+  const sec = document.getElementById('sec-' + id);
+  if (sec) sec.classList.add('active');
+
+  // Marcar nav ativo
+  document.querySelectorAll('.sidebar-nav a, .bottom-nav a').forEach(a => a.classList.remove('active'));
+  const active = document.querySelectorAll('#nav-' + id + ', #bn-' + id);
+  active.forEach(a => a.classList.add('active'));
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+window.addEventListener('popstate', () => {
+  const hash = location.hash.replace('#', '');
+  if (hash) navegarPara(hash);
+});
+
+// ── DASHBOARD (admin / proprietario) ──
+async function carregarDashboard(email, role) {
+  try {
+    let query = _sb.from('reservas_hospede').select('*').order('criado_em', { ascending: false }).limit(10);
+    const { data: reservas } = await query;
+
+    const todas  = reservas || [];
+    const pend   = todas.filter(r => r.status === 'pendente').length;
+    const conf   = todas.filter(r => r.status === 'confirmada').length;
+    const total  = todas.reduce((sum, r) => sum + Number(r.valor_total || 0), 0);
+
+    document.getElementById('dashStats').innerHTML = `
+      <div class="stat-card"><div class="stat-val">${todas.length}</div><div class="stat-lbl">Reservas (últimas)</div></div>
+      <div class="stat-card"><div class="stat-val">${pend}</div><div class="stat-lbl">Pendentes</div></div>
+      <div class="stat-card"><div class="stat-val">${conf}</div><div class="stat-lbl">Confirmadas</div></div>
+      <div class="stat-card"><div class="stat-val">${fmtMoney(total)}</div><div class="stat-lbl">Volume estimado</div></div>
+    `;
+
+    document.getElementById('dashRecentBody').innerHTML = todas.slice(0, 5).map(r => `
+      <tr>
+        <td data-label="Hóspede">${esc(r.nome_hospede)}</td>
+        <td data-label="Resort">${esc(r.resort_nome || '—')}</td>
+        <td data-label="Datas">${fmtDate(r.data_entrada)} → ${fmtDate(r.data_saida)}</td>
+        <td data-label="Valor">${fmtMoney(r.valor_total)}</td>
+        <td data-label="Status"><span class="status-badge s-${r.status}">${r.status}</span></td>
+        <td data-label="Ações">
+          ${r.email_hospede ? `<a href="https://wa.me/55${(r.telefone||'').replace(/\D/g,'')}" target="_blank" class="btn btn-success btn-sm">📱</a>` : ''}
+        </td>
+      </tr>
+    `).join('') || '<tr><td colspan="6" style="text-align:center;color:var(--cor-sub);padding:20px;">Nenhuma reserva encontrada.</td></tr>';
+  } catch (e) {
+    document.getElementById('dashStats').innerHTML = '<p style="color:var(--cor-sub);">Erro ao carregar dados.</p>';
+  }
+}
+
+// ── MINHAS RESERVAS ──
+async function carregarMinhasReservas(email, role) {
+  try {
+    let query = _sb.from('reservas_hospede').select('*').order('data_entrada', { ascending: false });
+    if (role === 'hospede') query = query.eq('email_hospede', email);
+
+    const { data } = await query.limit(20);
+    _minhasReservas = data || [];
+
+    if (!_minhasReservas.length) {
+      document.getElementById('minhasReservasContent').innerHTML = `
+        <div class="card" style="text-align:center;padding:32px;">
+          <div style="font-size:2.5em;margin-bottom:12px;">📋</div>
+          <p style="color:var(--cor-sub);">Nenhuma reserva encontrada.</p>
+          <a href="reservas.html" class="btn btn-primary" style="margin-top:14px;">📅 Fazer Reserva</a>
+        </div>
+      `;
+      return;
+    }
+
+    document.getElementById('minhasReservasContent').innerHTML = `
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead><tr>
+            <th>Resort</th><th>Check-in</th><th>Check-out</th>
+            <th>Hóspedes</th><th>Valor</th><th>Status</th>
+          </tr></thead>
+          <tbody>
+            ${_minhasReservas.map(r => `
+              <tr>
+                <td data-label="Resort"><strong>${esc(r.resort_nome || '—')}</strong></td>
+                <td data-label="Check-in">${fmtDate(r.data_entrada)}</td>
+                <td data-label="Check-out">${fmtDate(r.data_saida)}</td>
+                <td data-label="Hóspedes">${r.num_hospedes || 1}</td>
+                <td data-label="Valor">${fmtMoney(r.valor_total)}</td>
+                <td data-label="Status"><span class="status-badge s-${r.status}">${r.status}</span></td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+    `;
+  } catch (e) {
+    document.getElementById('minhasReservasContent').innerHTML = '<p style="color:var(--cor-sub);">Erro ao carregar reservas.</p>';
+  }
+}
+
+// ── NPS ──
+function renderizarNPS() {
+  const grid = document.getElementById('npsGrid');
+  if (!grid) return;
+  grid.innerHTML = Array.from({ length: 11 }, (_, i) => `
+    <button class="nps-btn" onclick="selecionarNPS(${i})" id="nps-${i}">${i}</button>
+  `).join('');
+}
+
+function selecionarNPS(nota) {
+  _npsSelected = nota;
+  document.querySelectorAll('.nps-btn').forEach(b => b.classList.remove('selected'));
+  const btn = document.getElementById('nps-' + nota);
+  if (btn) btn.classList.add('selected');
+}
+
+async function enviarNPS() {
+  if (_npsSelected === null) { mostrarToast('⚠️ Selecione uma nota de 0 a 10.', 'error'); return; }
+  const email     = _session.user.email;
+  const comentario = document.getElementById('npsComentario').value.trim();
+  const reserva   = _minhasReservas[0] || null;
+
+  try {
+    await _sb.from('nps_respostas').insert([{
+      email_hospede: email,
+      nota:         _npsSelected,
+      comentario:   comentario || null,
+      resort_nome:  reserva?.resort_nome || null,
+      reserva_id:   reserva?.id || null,
+    }]);
+    document.getElementById('npsFeedback').style.display = 'block';
+    mostrarToast('✅ Avaliação enviada!', 'success');
+  } catch (e) {
+    mostrarToast('❌ Erro ao enviar avaliação.', 'error');
+  }
+}
+
+// ── VOUCHER PDF ──
+function carregarVoucherSelect() {
+  const el = document.getElementById('voucherResSelect');
+  if (!el) return;
+  if (!_minhasReservas.length) {
+    el.innerHTML = '<p style="color:var(--cor-sub);font-size:0.85em;">Nenhuma reserva disponível para gerar voucher.</p>';
+    document.getElementById('btnGerarVoucher').style.display = 'none';
+    return;
+  }
+  el.innerHTML = `
+    <label style="font-size:0.82em;color:var(--cor-sub);">Selecione a reserva:</label>
+    <select id="voucherReservaSelect" style="width:100%;padding:10px;border-radius:8px;border:1.5px solid var(--borda);background:rgba(255,255,255,0.05);color:var(--cor-texto);font-family:inherit;font-size:0.85em;margin-top:6px;">
+      ${_minhasReservas.map(r => `<option value="${r.id}">${esc(r.resort_nome || '—')} | ${fmtDate(r.data_entrada)} → ${fmtDate(r.data_saida)}</option>`).join('')}
+    </select>
+  `;
+}
+
+function gerarVoucherPDF() {
+  const sel = document.getElementById('voucherReservaSelect');
+  const rid = sel ? sel.value : (_minhasReservas[0]?.id || null);
+  const reserva = _minhasReservas.find(r => r.id === rid) || _minhasReservas[0];
+  if (!reserva) { mostrarToast('⚠️ Nenhuma reserva selecionada.', 'error'); return; }
+
+  if (typeof jspdf === 'undefined' && typeof window.jspdf === 'undefined') {
+    mostrarToast('⚠️ jsPDF ainda carregando. Tente novamente em 1 segundo.', 'error');
+    return;
+  }
+
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+
+  // Cabeçalho
+  doc.setFillColor(11, 28, 61);
+  doc.rect(0, 0, 210, 40, 'F');
+  doc.setTextColor(212, 175, 55);
+  doc.setFontSize(22);
+  doc.setFont('helvetica', 'bold');
+  doc.text('HOSPEDAH', 20, 22);
+  doc.setFontSize(10);
+  doc.setFont('helvetica', 'normal');
+  doc.text('Voucher de Reserva Confirmada', 20, 32);
+
+  // Corpo
+  doc.setTextColor(30, 30, 30);
+  doc.setFontSize(14);
+  doc.setFont('helvetica', 'bold');
+  doc.text('Detalhes da Reserva', 20, 56);
+
+  doc.setFontSize(11);
+  doc.setFont('helvetica', 'normal');
+  const lines = [
+    ['Hóspede',   reserva.nome_hospede || _profile.nome_completo || _session.user.email],
+    ['E-mail',    reserva.email_hospede || _session.user.email],
+    ['Resort',    reserva.resort_nome || '—'],
+    ['Check-in',  fmtDate(reserva.data_entrada)],
+    ['Check-out', fmtDate(reserva.data_saida)],
+    ['Hóspedes',  String(reserva.num_hospedes || 1)],
+    ['Valor Est.',fmtMoney(reserva.valor_total)],
+    ['Status',    reserva.status || 'pendente'],
+    ['Código',    reserva.id.slice(0, 8).toUpperCase()],
+  ];
+
+  lines.forEach(([k, v], i) => {
+    const y = 68 + i * 10;
+    doc.setFont('helvetica', 'bold');
+    doc.text(k + ':', 20, y);
+    doc.setFont('helvetica', 'normal');
+    doc.text(String(v), 70, y);
+  });
+
+  // Rodapé
+  doc.setFillColor(11, 28, 61);
+  doc.rect(0, 265, 210, 32, 'F');
+  doc.setTextColor(212, 175, 55);
+  doc.setFontSize(9);
+  doc.text('HOSPEDAH — hospedah.tur.br | WhatsApp: (17) 98200-6382', 20, 278);
+  doc.setTextColor(180, 180, 180);
+  doc.text('Apresente este voucher na recepção do resort. Sujeito a confirmação.', 20, 286);
+
+  doc.save('voucher-hospedah-' + (reserva.id.slice(0, 8)) + '.pdf');
+  mostrarToast('✅ Voucher PDF gerado!', 'success');
+}
+
+// ── TICKETS ──
+async function abrirTicket(e) {
+  e.preventDefault();
+  const assunto    = document.getElementById('tk-assunto').value.trim();
+  const prioridade = document.getElementById('tk-prioridade').value;
+  const descricao  = document.getElementById('tk-descricao').value.trim();
+  const email      = _session.user.email;
+  const nome       = _profile.nome_completo || email;
+
+  if (!assunto) { mostrarToast('⚠️ Informe o assunto do chamado.', 'error'); return; }
+
+  try {
+    await _sb.from('tickets').insert([{
+      nome_hospede:  nome,
+      email_hospede: email,
+      resort_nome:   _minhasReservas[0]?.resort_nome || null,
+      reserva_id:    _minhasReservas[0]?.id || null,
+      assunto,
+      descricao,
+      prioridade,
+    }]);
+    mostrarToast('✅ Chamado aberto com sucesso!', 'success');
+    document.getElementById('formTicket').reset();
+    carregarTicketsHospede(email);
+  } catch (err) {
+    mostrarToast('❌ Erro ao abrir chamado.', 'error');
+  }
+}
+
+async function carregarTicketsHospede(email) {
+  const el = document.getElementById('ticketsListHospede');
+  if (!el) return;
+  try {
+    const { data } = await _sb.from('tickets')
+      .select('*').eq('email_hospede', email)
+      .order('criado_em', { ascending: false }).limit(10);
+
+    if (!data || !data.length) {
+      el.innerHTML = '<p style="font-size:0.82em;color:var(--cor-sub);">Nenhum chamado aberto ainda.</p>';
+      return;
+    }
+    el.innerHTML = `
+      <div style="margin-top:16px;">
+        <div style="font-size:0.82em;font-weight:700;color:var(--dourado);margin-bottom:8px;">Seus Chamados</div>
+        ${data.map(t => `
+          <div style="background:rgba(255,255,255,0.03);border:1px solid var(--borda);border-radius:8px;padding:12px;margin-bottom:8px;">
+            <div style="font-size:0.85em;font-weight:600;">${esc(t.assunto)}</div>
+            <div style="font-size:0.75em;color:var(--cor-sub);margin-top:4px;">${t.criado_em ? new Date(t.criado_em).toLocaleDateString('pt-BR') : '—'}</div>
+            <span class="status-badge s-${t.status}" style="font-size:0.7em;margin-top:4px;">${t.status}</span>
+            ${t.resposta_admin ? `<div style="font-size:0.82em;color:var(--verde);margin-top:6px;"><strong>Resposta:</strong> ${esc(t.resposta_admin)}</div>` : ''}
+          </div>
+        `).join('')}
+      </div>
+    `;
+  } catch (e) {
+    el.innerHTML = '<p style="color:var(--cor-sub);font-size:0.82em;">Erro ao carregar chamados.</p>';
+  }
+}
+
+// ── FIDELIDADE ──
+async function carregarFidelidade(email) {
+  try {
+    const { data } = await _sb.from('fidelidade')
+      .select('*').eq('email_hospede', email).maybeSingle();
+
+    const fidEl = document.getElementById('fidContent');
+    if (!fidEl) return;
+
+    if (!data) {
+      fidEl.innerHTML = `
+        <p style="font-size:0.88em;color:var(--cor-sub);margin-bottom:14px;">
+          Você ainda não tem pontos de fidelidade. Faça sua primeira reserva e comece a acumular!
+        </p>
+        <div style="text-align:center;padding:16px;">
+          <div class="fid-badge fid-bronze">🥉 Bronze — 0 pts</div>
+          <div style="font-size:0.78em;color:var(--cor-sub);margin-top:10px;">Cada diária = 10 pontos</div>
+        </div>
+      `;
+      return;
+    }
+
+    const nivel  = data.nivel || 'bronze';
+    const pontos = data.pontos || 0;
+    const estadias = data.total_estadias || 0;
+    const proxNivel = nivel === 'bronze' ? 'Prata (2 estadias)' : nivel === 'prata' ? 'Ouro (3 estadias)' : '⭐ Nível máximo!';
+    const nivelClass = { bronze: 'fid-bronze', prata: 'fid-prata', ouro: 'fid-ouro' }[nivel];
+    const nivelEmoji = { bronze: '🥉', prata: '🥈', ouro: '🥇' }[nivel];
+
+    fidEl.innerHTML = `
+      <div style="text-align:center;padding:16px 0;">
+        <div class="fid-badge ${nivelClass}" style="font-size:1.1em;padding:8px 20px;">
+          ${nivelEmoji} ${nivel.charAt(0).toUpperCase() + nivel.slice(1)} — ${pontos} pontos
+        </div>
+        <div style="margin-top:14px;font-size:0.85em;color:var(--cor-sub);">
+          ${estadias} estadia${estadias !== 1 ? 's' : ''} · Próximo nível: ${proxNivel}
+        </div>
+        ${nivel === 'ouro' ? '<div style="font-size:0.82em;color:var(--dourado);margin-top:8px;">🎉 Você é cliente Ouro! Benefício: preços com redutores especiais aplicados automaticamente.</div>' : ''}
+      </div>
+    `;
+  } catch (e) {
+    const fidEl = document.getElementById('fidContent');
+    if (fidEl) fidEl.innerHTML = '<p style="color:var(--cor-sub);">Erro ao carregar pontos.</p>';
+  }
+}
+
+// ── LINK DE INDICAÇÃO ──
+async function gerarLinkIndicacao(email) {
+  const el = document.getElementById('referralLink');
+  if (!el) return;
+  // Generate a code using SHA-256 of the email (non-reversible)
+  let code = localStorage.getItem('hospedah_my_ref_code');
+  if (!code) {
+    try {
+      const enc  = new TextEncoder();
+      const data = enc.encode(email + '_hospedah');
+      const buf  = await crypto.subtle.digest('SHA-256', data);
+      code = Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('').slice(0, 12).toUpperCase();
+    } catch (_) {
+      // Fallback: use random bytes
+      const arr = new Uint8Array(6);
+      crypto.getRandomValues(arr);
+      code = Array.from(arr).map(b => b.toString(16).padStart(2, '0')).join('').toUpperCase();
+    }
+    localStorage.setItem('hospedah_my_ref_code', code);
+  }
+  el.textContent = window.location.origin + '/reservas.html?ref=' + code;
+}
+
+function copiarLink() {
+  const code = localStorage.getItem('hospedah_my_ref_code') || '';
+  const link = window.location.origin + '/reservas.html?ref=' + code;
+  navigator.clipboard.writeText(link).then(() => {
+    mostrarToast('✅ Link copiado!', 'success');
+  }).catch(() => {
+    mostrarToast('Link: ' + link, 'info');
+  });
+}
+
+// ── USUÁRIOS (admin) ──
+async function carregarUsuarios() {
+  try {
+    const { data } = await _sb.from('profiles').select('*').order('criado_em', { ascending: false }).limit(50);
+    const body = document.getElementById('usersBody');
+    if (!data || !data.length) {
+      body.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--cor-sub);padding:20px;">Nenhum usuário encontrado.</td></tr>';
+      return;
+    }
+    body.innerHTML = data.map(u => `
+      <tr>
+        <td data-label="E-mail"><small style="color:var(--cor-sub);">${esc(u.id.slice(0, 8))}…</small></td>
+        <td data-label="Nome">${esc(u.nome_completo || '—')}</td>
+        <td data-label="Role">
+          <select onchange="mudarRole('${u.id}', this.value)" style="background:var(--bg2);color:var(--cor-texto);border:1px solid var(--borda);border-radius:6px;padding:3px 6px;font-size:0.78em;">
+            <option value="hospede"      ${u.role==='hospede'?'selected':''}>Hóspede</option>
+            <option value="proprietario" ${u.role==='proprietario'?'selected':''}>Proprietário</option>
+            <option value="admin"        ${u.role==='admin'?'selected':''}>Admin</option>
+          </select>
+        </td>
+        <td data-label="Criado em">${u.criado_em ? new Date(u.criado_em).toLocaleDateString('pt-BR') : '—'}</td>
+        <td data-label="Ações">—</td>
+      </tr>
+    `).join('');
+  } catch (e) {
+    document.getElementById('usersBody').innerHTML = '<tr><td colspan="5" style="color:var(--cor-sub);">Erro ao carregar usuários. Verifique a política RLS.</td></tr>';
+  }
+}
+
+async function mudarRole(userId, novoRole) {
+  if (!['admin','proprietario','hospede'].includes(novoRole)) return;
+  try {
+    await _sb.from('profiles').update({ role: novoRole, atualizado_em: new Date().toISOString() }).eq('id', userId);
+    mostrarToast('✅ Role atualizado!', 'success');
+  } catch (e) {
+    mostrarToast('❌ Erro ao atualizar role.', 'error');
+  }
+}
+
+// ── VERIFICAR SESSÃO INICIAL ──
+(async () => {
+  const { data: { session } } = await _sb.auth.getSession();
+  if (session) {
+    _session = session;
+    await carregarPerfil();
+  }
+  // Se não houver sessão, o lockOverlay já está visível por padrão
+})();
+</script>
+
+<script>if ('serviceWorker' in navigator) { navigator.serviceWorker.register('/sw.js').catch(function(){}); }</script>
+</body>
+</html>

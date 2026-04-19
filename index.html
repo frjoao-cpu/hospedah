@@ -74,6 +74,8 @@ if (localStorage.getItem('hospedah_consent') === 'accepted') { initTracking(); }
 </script>
 
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+<!-- Mobile-first CSS -->
+<link rel="stylesheet" href="/assets/mobile-first.css">
 
 <!-- Schema.org — Rich Snippets para Google -->
 <script type="application/ld+json">
@@ -1339,7 +1341,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           <label for="hs_pessoas">Pessoas</label>
           <input type="number" id="hs_pessoas" min="1" max="20" placeholder="2">
         </div>
-        <button class="hs-btn" onclick="heroSearch()" type="button">
+        <button class="hs-btn" id="heroCTA" onclick="heroCTAClick()" type="button">
           🔍 Buscar
         </button>
       </div>
@@ -1996,6 +1998,29 @@ function heroSearch() {
   if (pessoas) params.set('hospedes', pessoas);
 
   window.location.href = 'busca.html' + (params.toString() ? '?' + params.toString() : '');
+}
+
+// ============================================================
+// A/B TEST — Hero CTA (pure JS, no frameworks)
+// ============================================================
+(function abTest() {
+  var AB_KEY = 'hospedah_ab_hero';
+  var variant = localStorage.getItem(AB_KEY);
+  if (!variant) {
+    variant = Math.random() < 0.5 ? 'A' : 'B';
+    localStorage.setItem(AB_KEY, variant);
+  }
+  var cta = document.getElementById('heroCTA');
+  if (cta && variant === 'B') {
+    cta.innerHTML = '📅 Ver disponibilidade';
+  }
+  if (window.dataLayer) dataLayer.push({ event: 'ab_test_view', variant: variant, test: 'hero_cta' });
+})();
+
+function heroCTAClick() {
+  var variant = localStorage.getItem('hospedah_ab_hero') || 'A';
+  if (window.dataLayer) dataLayer.push({ event: 'ab_test_convert', variant: variant, test: 'hero_cta' });
+  heroSearch();
 }
 
 /* =====================
@@ -2691,5 +2716,16 @@ if ('serviceWorker' in navigator) {
   });
 }
 </script>
+
+<!-- BOTTOM NAV (mobile) -->
+<nav class="bottom-nav" aria-label="Navegação principal">
+  <ul>
+    <li><a href="index.html" class="active"><span class="bn-icon">🏠</span>Início</a></li>
+    <li><a href="busca.html"><span class="bn-icon">🔍</span>Busca</a></li>
+    <li><a href="reservas.html"><span class="bn-icon">📅</span>Reservas</a></li>
+    <li><a href="chat.html"><span class="bn-icon">💬</span>Chat</a></li>
+    <li><a href="painel.html"><span class="bn-icon">👤</span>Perfil</a></li>
+  </ul>
+</nav>
 </body>
 </html>

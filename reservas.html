@@ -8,7 +8,11 @@
 <link rel="canonical" href="https://hospedah.tur.br/reservas.html">
 <link rel="manifest" href="/manifest.json">
 <meta name="theme-color" content="#D4AF37">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+<!-- Mobile-first CSS -->
+<link rel="stylesheet" href="/assets/mobile-first.css">
 <!-- Flatpickr -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
@@ -476,6 +480,14 @@ span.flatpickr-weekday {
 .resort-option .resort-city { font-size: 0.72em; color: var(--cor-sub); margin-top: 2px; }
 .resort-option .resort-price { font-size: 0.78em; color: var(--dourado); margin-top: 4px; font-weight: 600; }
 
+/* DEMAND BADGE */
+.resort-demand-badge {
+  display: inline-block; font-size: 0.65em; font-weight: 700;
+  padding: 2px 7px; border-radius: 8px; margin-top: 4px;
+}
+.resort-demand-badge.alta  { background: rgba(239,68,68,0.15);  color: #f87171; border: 1px solid rgba(239,68,68,0.3); }
+.resort-demand-badge.media { background: rgba(251,191,36,0.12); color: #fbbf24; border: 1px solid rgba(251,191,36,0.25); }
+
 /* AVISO */
 .info-box {
   background: rgba(77,166,255,0.08);
@@ -487,6 +499,70 @@ span.flatpickr-weekday {
   margin-bottom: 16px;
   line-height: 1.5;
 }
+
+/* SMART DATES HINT */
+.smart-dates-hint {
+  display: none; background: rgba(212,175,55,0.07);
+  border: 1px solid rgba(212,175,55,0.2); border-radius: 8px;
+  padding: 10px 14px; font-size: 0.8em; color: var(--dourado);
+  margin-bottom: 14px; line-height: 1.6;
+}
+.smart-dates-hint strong { color: var(--cor-texto); }
+
+/* URGENCY COUNTDOWN */
+.urgency-countdown {
+  display: none; background: rgba(248,113,113,0.08);
+  border: 1px solid rgba(248,113,113,0.25); border-radius: 8px;
+  padding: 10px 14px; font-size: 0.82em; color: #f87171;
+  margin-top: 12px; text-align: center;
+}
+.urgency-countdown strong { color: #f87171; font-variant-numeric: tabular-nums; }
+
+/* REFERRAL DISCOUNT ROW */
+.referral-row {
+  display: none; background: rgba(37,211,102,0.07);
+  border: 1px solid rgba(37,211,102,0.2); border-radius: 8px;
+  padding: 8px 12px; margin-top: 8px; font-size: 0.82em; color: #25D366;
+}
+
+/* SOCIAL PROOF TOASTS */
+#sp-container-res {
+  position: fixed; bottom: 70px; left: 12px; z-index: 9000;
+  display: flex; flex-direction: column; gap: 10px; pointer-events: none;
+}
+.sp-toast-r {
+  background: rgba(11,28,61,.96); color: #fff;
+  border: 1px solid rgba(212,175,55,.35); border-radius: 14px;
+  padding: 12px 16px; font-size: .82em; line-height: 1.4;
+  display: flex; align-items: center; gap: 12px;
+  box-shadow: 0 4px 20px rgba(0,0,0,.4); min-width: 240px; max-width: 310px;
+  pointer-events: auto;
+  animation: spSlideIn .4s cubic-bezier(.22,1.2,.46,1) both, spFadeOut .4s ease 5.6s both;
+}
+@keyframes spSlideIn { from { transform: translateX(-110%); opacity:0; } to { transform: translateX(0); opacity:1; } }
+@keyframes spFadeOut { from { opacity:1; } to { opacity:0; transform: translateX(-110%); } }
+.sp-letter-r {
+  width:38px; height:38px; border-radius:50%;
+  background:var(--dourado); color:#0B1C3D;
+  font-weight:700; font-size:1.1em;
+  display:flex; align-items:center; justify-content:center; flex-shrink:0;
+}
+.sp-time-r { font-size:.74em; opacity:.55; margin-top:2px; }
+
+/* URGENCY EXPIRED MODAL */
+.urgency-modal-overlay {
+  display: none; position: fixed; inset: 0; z-index: 9998;
+  background: rgba(0,0,0,.65); backdrop-filter: blur(3px);
+  align-items: center; justify-content: center;
+}
+.urgency-modal-overlay.open { display: flex; }
+.urgency-modal-box {
+  background: linear-gradient(135deg,#0B1C3D,#142850);
+  border: 1px solid rgba(212,175,55,.3); border-radius: 16px;
+  padding: 32px 24px; max-width: 380px; width: 92%; text-align: center; color: #fff;
+}
+.urgency-modal-box h3 { color: var(--dourado); font-size: 1.2em; margin-bottom: 10px; }
+.urgency-modal-box p  { font-size: .9em; opacity: .85; margin-bottom: 18px; }
 </style>
 </head>
 <body>
@@ -539,6 +615,9 @@ span.flatpickr-weekday {
         📌 Datas em <span style="color:#e74c3c; font-weight:600;">vermelho</span> já estão reservadas e não podem ser selecionadas. Selecione <strong>check-in</strong> e <strong>check-out</strong> no calendário abaixo.
       </div>
 
+      <!-- SMART DATES HINT -->
+      <div class="smart-dates-hint" id="smartDatesHint" aria-live="polite"></div>
+
       <div class="date-row">
         <div class="field-group">
           <label>Check-in</label>
@@ -551,6 +630,11 @@ span.flatpickr-weekday {
       </div>
 
       <div id="statusDisponibilidade"></div>
+
+      <!-- URGENCY COUNTDOWN -->
+      <div class="urgency-countdown" id="urgencyCountdown" aria-live="polite">
+        ⏰ Preço garantido por <strong id="urgencyTimer">15:00</strong> — confirme agora!
+      </div>
     </div>
 
     <div class="form-card" style="margin-top:20px;">
@@ -650,6 +734,11 @@ span.flatpickr-weekday {
         <span class="s-value" id="sumDiferencaPeriodo">—</span>
       </div>
 
+      <!-- REFERRAL DISCOUNT ROW -->
+      <div class="referral-row" id="referralRow">
+        🎁 Desconto de indicação: <strong>-R$ 30,00</strong>
+      </div>
+
       <div class="summary-total">
         <div class="t-label">Valor Estimado</div>
         <div class="t-value" id="sumTotal">R$ —</div>
@@ -695,6 +784,7 @@ span.flatpickr-weekday {
     <div class="modal-icon">🎉</div>
     <h3>Solicitação Enviada!</h3>
     <p>Recebemos sua solicitação de reserva. Nossa equipe entrará em contato em até <strong>2 horas</strong> pelo WhatsApp ou e-mail informado para confirmar disponibilidade e valores.</p>
+    <p id="loyaltyEarned" style="font-size:0.82em;color:var(--dourado);margin-top:6px;"></p>
     <button class="btn btn-whatsapp" onclick="abrirWhatsAppReserva()">
       📱 Confirmar pelo WhatsApp
     </button>
@@ -707,6 +797,25 @@ span.flatpickr-weekday {
 
 <!-- TOAST -->
 <div class="toast-container" id="toastContainer"></div>
+
+<!-- SOCIAL PROOF CONTAINER -->
+<div id="sp-container-res" aria-live="polite" aria-atomic="false"></div>
+
+<!-- URGENCY EXPIRED MODAL -->
+<div class="urgency-modal-overlay" id="urgencyModal" role="dialog" aria-modal="true">
+  <div class="urgency-modal-box">
+    <h3>⏰ Seu preço ainda está disponível!</h3>
+    <p>As datas que você selecionou ainda estão disponíveis. Confirme agora para garantir!</p>
+    <button class="btn btn-primary" style="width:100%;margin-bottom:8px;"
+            onclick="document.getElementById('urgencyModal').classList.remove('open');document.getElementById('btnReservar').focus();">
+      ✅ Confirmar Reserva
+    </button>
+    <button class="btn" style="width:100%;background:rgba(255,255,255,0.06);color:var(--cor-sub);border:1px solid var(--borda);"
+            onclick="document.getElementById('urgencyModal').classList.remove('open')">
+      Fechar
+    </button>
+  </div>
+</div>
 
 <script>
 // ============================================================
@@ -791,6 +900,10 @@ async function selecionarResort(id) {
   resortAtual = RESORTS.find(r => r.id === id);
   if (!resortAtual) return;
 
+  // Pixel: ViewContent
+  trackPixel('ViewContent', { content_name: resortAtual.nome, content_type: 'resort', value: resortAtual.preco, currency: 'BRL' });
+  tagOneSignal('interesse_' + resortAtual.id);
+
   // Marcar visualmente
   document.querySelectorAll('.resort-option').forEach(el => el.classList.remove('selected'));
   document.getElementById('ro_' + id).classList.add('selected');
@@ -821,6 +934,7 @@ async function selecionarResort(id) {
 
   // Reinicializar Flatpickr (restaura datas e recalcula preço dinâmico internamente)
   inicializarFlatpickr();
+  mostrarSugestoesDatas();
 
   // Se não houver datas selecionadas, atualizar resumo com preço base
   if (!dataEntradaFP || !dataSaidaFP) atualizarResumo();
@@ -968,6 +1082,7 @@ function verificarPeriodoDisponivel() {
     statusEl.innerHTML = '<span class="availability-tag tag-indisponivel">❌ Há datas bloqueadas neste período. Por favor, escolha outras datas.</span>';
     document.getElementById('availTag').innerHTML = '<span class="availability-tag tag-indisponivel">❌ Indisponível</span>';
     dataSaidaFP = null;
+    pararContadorUrgencia();
     atualizarResumo();
     atualizarBotao();
     return;
@@ -976,6 +1091,12 @@ function verificarPeriodoDisponivel() {
   const noites = calcularNoites(dataEntradaFP, dataSaidaFP);
   statusEl.innerHTML = `<span class="availability-tag tag-disponivel">✅ Disponível — ${noites} noite${noites !== 1 ? 's' : ''} selecionada${noites !== 1 ? 's' : ''}</span>`;
   document.getElementById('availTag').innerHTML = '<span class="availability-tag tag-disponivel">✅ Disponível</span>';
+
+  // Urgency countdown + Pixel InitiateCheckout
+  iniciarContadorUrgencia();
+  const _det2 = calcularDetalhamentoPreco(dataEntradaFP, dataSaidaFP);
+  trackPixel('InitiateCheckout', { content_name: resortAtual ? resortAtual.nome : '', value: _det2.total, currency: 'BRL' });
+  tagOneSignal('iniciou_reserva');
 
   atualizarResumo();
   atualizarBotao();
@@ -1026,6 +1147,8 @@ function atualizarResumo() {
   const dorm = getDormitoriosSelecionados();
   const dormEl = document.getElementById('sumDormitorios');
   if (dormEl && dorm) dormEl.textContent = dorm === 2 ? '02 Dormitórios' : '01 Dormitório';
+  // Mostrar desconto de indicação se houver ref code
+  atualizarReferralRow();
 }
 
 // ============================================================
@@ -1075,6 +1198,7 @@ async function enviarReserva() {
       valor_total:   valorTotal,
       mensagem:      montarMensagemInterna(msg),
       status:        'pendente',
+      ref_code:      getRefCode() || null,
     };
 
     const { error } = await sb.from('reservas_hospede').insert([payload]);
@@ -1082,6 +1206,29 @@ async function enviarReserva() {
     if (error) throw error;
 
     document.getElementById('successModal').classList.add('open');
+
+    // Pixel: Lead
+    trackPixel('Lead', { content_name: resortAtual.nome, value: valorTotal, currency: 'BRL' });
+    tagOneSignal('converteu');
+
+    // Loyalty points
+    const loyaltyResult = await registrarPontosLoyalty(email, noites);
+    if (loyaltyResult) {
+      const lvEl = document.getElementById('loyaltyEarned');
+      if (lvEl) lvEl.textContent = `🏆 +${loyaltyResult.pontosGanhos} pontos de fidelidade ganhos! Total: ${loyaltyResult.pontos} pts (${loyaltyResult.nivel})`;
+    }
+
+    // Atividade pública anonimizada (prova social)
+    const meses = ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+    sb.from('atividade_publica').insert([{
+      resort_nome:  resortAtual.nome,
+      mes_reserva:  meses[dataEntradaFP.getMonth()],
+    }]).catch(() => {});
+
+    // Parar countdown + limpar abandono
+    pararContadorUrgencia();
+    sessionStorage.removeItem('hospedah_abandon_sid');
+    _abandonSid = null;
   } catch (e) {
     // Fallback: abrir WhatsApp com os dados preenchidos
     abrirWhatsAppReserva();
@@ -1326,6 +1473,7 @@ document.getElementById('tipoAcomodacao').addEventListener('change', atualizarRe
 renderResorts();
 carregarPrecosMinimosGlobal();
 inicializarFlatpickr();
+carregarDemandasResorts();
 
 // Pré-selecionar resort e datas a partir de parâmetros de URL (ex: vindo de busca.html)
 (async function applyUrlParams() {
@@ -1343,8 +1491,262 @@ inicializarFlatpickr();
     fpInstance.setDate([entrada, saida], true, 'Y-m-d');
   }
 })();
+
+// ============================================================
+// REFERRAL — Programa de Indicação Viral
+// ============================================================
+const REFERRAL_DISCOUNT = 30;
+
+(function detectRefCode() {
+  const p = new URLSearchParams(window.location.search);
+  const ref = p.get('ref');
+  if (ref) {
+    localStorage.setItem('hospedah_ref', ref);
+    setTimeout(() => toast('🎁 Desconto de indicação aplicado! -R$ ' + REFERRAL_DISCOUNT + ',00', 'success'), 500);
+  }
+})();
+
+function getRefCode() { return localStorage.getItem('hospedah_ref') || null; }
+
+function atualizarReferralRow() {
+  const row = document.getElementById('referralRow');
+  if (row) row.style.display = getRefCode() ? 'block' : 'none';
+}
+
+// ============================================================
+// ABANDONMENT TRACKING — Rastreio de Abandono
+// ============================================================
+// Use crypto.getRandomValues for a cryptographically sound session ID
+let _abandonSid = sessionStorage.getItem('hospedah_abandon_sid') || null;
+function getAbandonSid() {
+  if (!_abandonSid) {
+    const arr = new Uint8Array(16);
+    crypto.getRandomValues(arr);
+    _abandonSid = Array.from(arr).map(b => b.toString(16).padStart(2, '0')).join('');
+    sessionStorage.setItem('hospedah_abandon_sid', _abandonSid);
+  }
+  return _abandonSid;
+}
+
+async function registrarAbandonoParcial() {
+  if (!resortAtual || !dataEntradaFP || !dataSaidaFP) return;
+  const email = document.getElementById('emailHospede').value.trim();
+  const tel   = document.getElementById('telefoneHospede').value.trim();
+  if (!email && !tel) return;
+  const det = calcularDetalhamentoPreco(dataEntradaFP, dataSaidaFP);
+  try {
+    await sb.from('abandono_reserva').upsert([{
+      session_id:     getAbandonSid(),
+      resort_nome:    resortAtual.nome,
+      email_hospede:  email || null,
+      telefone:       tel || null,
+      data_entrada:   dataEntradaFP.toISOString().slice(0, 10),
+      data_saida:     dataSaidaFP.toISOString().slice(0, 10),
+      valor_estimado: det.total,
+      ref_code:       getRefCode(),
+      atualizado_em:  new Date().toISOString(),
+    }], { onConflict: 'session_id' });
+  } catch (_) {}
+}
+
+document.getElementById('emailHospede').addEventListener('blur', registrarAbandonoParcial);
+document.getElementById('telefoneHospede').addEventListener('blur', registrarAbandonoParcial);
+
+// ============================================================
+// SMART DATES — Sugestão de Datas Inteligente
+// ============================================================
+function mostrarSugestoesDatas() {
+  const el = document.getElementById('smartDatesHint');
+  if (!el || !resortAtual) { if (el) el.style.display = 'none'; return; }
+
+  const hoje = new Date(); hoje.setHours(0, 0, 0, 0);
+  const candidatos = [];
+
+  for (let i = 0; i < 56; i++) {
+    const d = new Date(hoje.getTime() + i * MS_PER_DAY);
+    if (d.getDay() !== 5) continue; // só sextas
+    const saida = new Date(d.getTime() + 2 * MS_PER_DAY);
+    const entISO = d.toISOString().slice(0, 10);
+    const saiISO = saida.toISOString().slice(0, 10);
+    const bloqueado = datasIndisponiveis.some(dt => dt >= entISO && dt < saiISO);
+    if (!bloqueado) {
+      const det = calcularDetalhamentoPreco(d, saida);
+      candidatos.push({ entrada: d, saida, precoMedio: det.total / 2 });
+    }
+  }
+
+  if (!candidatos.length) { el.style.display = 'none'; return; }
+  candidatos.sort((a, b) => a.precoMedio - b.precoMedio);
+  const top3 = candidatos.slice(0, 3);
+  const fmt = d => d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+  const dicas = top3.map((c, i) =>
+    `<strong>${fmt(c.entrada)}–${fmt(c.saida)}</strong> (R$ ${Math.round(c.precoMedio).toLocaleString('pt-BR')}/noite${i === 0 ? ' ⭐' : ''})`
+  );
+  el.innerHTML = `💡 <strong>Melhor custo-benefício:</strong> ${dicas.join(' · ')}`;
+  el.style.display = 'block';
+}
+
+// ============================================================
+// DEMAND BADGES — Badges de Alta Demanda
+// ============================================================
+async function carregarDemandasResorts() {
+  try {
+    const { data } = await sb.rpc('get_demanda_resort');
+    if (!data) return;
+    const demandas = {};
+    data.forEach(r => { demandas[r.resort_nome] = parseInt(r.total_reservas, 10); });
+    RESORTS.forEach(r => {
+      const count = demandas[r.nome] || 0;
+      const card = document.getElementById('ro_' + r.id);
+      if (!card) return;
+      const existing = card.querySelector('.resort-demand-badge');
+      if (existing) existing.remove();
+      if (count >= 3) {
+        const b = document.createElement('div'); b.className = 'resort-demand-badge alta'; b.textContent = '🔥 Alta demanda'; card.appendChild(b);
+      } else if (count >= 1) {
+        const b = document.createElement('div'); b.className = 'resort-demand-badge media'; b.textContent = '⚡ Procurado'; card.appendChild(b);
+      }
+    });
+  } catch (_) {}
+}
+
+// ============================================================
+// SOCIAL PROOF — Prova Social em Tempo Real
+// ============================================================
+(function iniciarProvasSocial() {
+  const container = document.getElementById('sp-container-res');
+  if (!container) return;
+
+  const fallback = [
+    { nome: 'Fernanda S.', cidade: 'São Paulo',      resort: 'Hot Beach Suites',     min: 3  },
+    { nome: 'Ricardo M.',  cidade: 'Campinas',        resort: 'Olímpia Park Resort',  min: 5  },
+    { nome: 'Juliana C.',  cidade: 'Ribeirão Preto',  resort: 'Wyndham Royal Resort', min: 8  },
+    { nome: 'Carlos A.',   cidade: 'Santos',          resort: 'Solar das Águas',      min: 2  },
+    { nome: 'Beatriz L.',  cidade: 'Sorocaba',        resort: 'Praia de Juquehy',     min: 11 },
+    { nome: 'Marcos T.',   cidade: 'Bauru',           resort: 'São Pedro Thermas',    min: 6  },
+  ];
+
+  let eventos = fallback;
+  let idx = 0;
+
+  // Tentar carregar dados reais
+  sb.from('atividade_publica').select('resort_nome,cidade_hospede,criado_em').order('criado_em', { ascending: false }).limit(10).then(({ data }) => {
+    if (data && data.length) {
+      const real = data.map(r => ({
+        nome:   (r.cidade_hospede || 'Cliente').slice(0, 1) + '. (cliente)',
+        cidade: r.cidade_hospede || 'Brasil',
+        resort: r.resort_nome,
+        min:    Math.max(1, Math.floor((Date.now() - new Date(r.criado_em).getTime()) / 60000)),
+      })).filter(e => e.min < 1440);
+      if (real.length) eventos = real;
+    }
+  }).catch(() => {});
+
+  function showToast() {
+    const ev = eventos[idx % eventos.length]; idx = (idx + 1) % eventos.length;
+    const t = document.createElement('div'); t.className = 'sp-toast-r';
+    t.innerHTML = `<div class="sp-letter-r">${ev.nome.charAt(0)}</div><div><strong style="display:block;">${ev.nome} — ${ev.cidade}</strong>Reservou <em>${ev.resort}</em><div class="sp-time-r">há ${ev.min} min ✅</div></div>`;
+    container.appendChild(t);
+    setTimeout(() => { if (t.parentNode) t.parentNode.removeChild(t); }, 6200);
+  }
+
+  setTimeout(function first() {
+    showToast();
+    setTimeout(function loop() { showToast(); setTimeout(loop, 18000 + Math.random() * 12000); }, 22000);
+  }, 10000);})();
+
+// ============================================================
+// URGENCY COUNTDOWN — Contador de Urgência 15 min
+// ============================================================
+const URGENCY_KEY = 'hospedah_urgency_end';
+let _urgencyInterval = null;
+
+function iniciarContadorUrgencia() {
+  const el = document.getElementById('urgencyCountdown');
+  if (!el) return;
+  let endTime = parseInt(sessionStorage.getItem(URGENCY_KEY), 10);
+  if (!endTime || endTime <= Date.now()) {
+    endTime = Date.now() + 15 * 60 * 1000;
+    sessionStorage.setItem(URGENCY_KEY, endTime);
+  }
+  el.style.display = 'block';
+  if (_urgencyInterval) clearInterval(_urgencyInterval);
+  _urgencyInterval = setInterval(() => {
+    const diff = Math.max(0, Math.floor((endTime - Date.now()) / 1000));
+    const timerEl = document.getElementById('urgencyTimer');
+    if (timerEl) timerEl.textContent = String(Math.floor(diff / 60)).padStart(2, '0') + ':' + String(diff % 60).padStart(2, '0');
+    if (diff === 0) {
+      clearInterval(_urgencyInterval);
+      el.style.display = 'none';
+      const modal = document.getElementById('urgencyModal');
+      if (modal) modal.classList.add('open');
+    }
+  }, 1000);
+}
+
+function pararContadorUrgencia() {
+  if (_urgencyInterval) { clearInterval(_urgencyInterval); _urgencyInterval = null; }
+  const el = document.getElementById('urgencyCountdown');
+  if (el) el.style.display = 'none';
+}
+
+// ============================================================
+// PIXEL EVENTS — Retargeting Otimizado
+// ============================================================
+function trackPixel(evento, params) {
+  if (typeof fbq === 'function') fbq('track', evento, params || {});
+  if (window.dataLayer) window.dataLayer.push(Object.assign({ event: 'hospedah_' + evento.toLowerCase() }, params || {}));
+  // Google Ads conversion on form submit
+  if (evento === 'Lead' && typeof gtag === 'function') {
+    gtag('event', 'conversion', { value: (params && params.value) || 0, currency: 'BRL' });
+  }
+}
+
+// ============================================================
+// ONESIGNAL SEGMENTS
+// ============================================================
+function tagOneSignal(tag) {
+  try {
+    if (window.OneSignalDeferred) {
+      window.OneSignalDeferred.push(os => { os.User.addTag(tag, '1'); });
+    }
+  } catch (_) {}
+}
+tagOneSignal('visitou_reserva');
+
+// ============================================================
+// LOYALTY POINTS — Gamificação de Fidelidade
+// ============================================================
+async function registrarPontosLoyalty(email, noites) {
+  if (!email || noites <= 0) return null;
+  const pontosGanhos = noites * 10;
+  try {
+    const { data: existing } = await sb.from('fidelidade').select('*').eq('email_hospede', email).maybeSingle();
+    if (existing) {
+      const novosPontos  = (existing.pontos || 0) + pontosGanhos;
+      const novasEstadias = (existing.total_estadias || 0) + 1;
+      const nivel = novasEstadias >= 3 ? 'ouro' : novasEstadias >= 2 ? 'prata' : 'bronze';
+      await sb.from('fidelidade').update({ pontos: novosPontos, total_estadias: novasEstadias, nivel, atualizado_em: new Date().toISOString() }).eq('email_hospede', email);
+      return { pontos: novosPontos, pontosGanhos, nivel };
+    }
+    await sb.from('fidelidade').insert([{ email_hospede: email, pontos: pontosGanhos, total_estadias: 1, nivel: 'bronze' }]);
+    return { pontos: pontosGanhos, pontosGanhos, nivel: 'bronze' };
+  } catch (_) { return null; }
+}
+
 </script>
 
 <script>if ('serviceWorker' in navigator) { navigator.serviceWorker.register('/sw.js').catch(function(){}); }</script>
+
+<!-- BOTTOM NAV (mobile) -->
+<nav class="bottom-nav" aria-label="Navegação principal">
+  <ul>
+    <li><a href="index.html"><span class="bn-icon">🏠</span>Início</a></li>
+    <li><a href="busca.html"><span class="bn-icon">🔍</span>Busca</a></li>
+    <li><a href="reservas.html" class="active"><span class="bn-icon">📅</span>Reservas</a></li>
+    <li><a href="chat.html"><span class="bn-icon">💬</span>Chat</a></li>
+    <li><a href="painel.html"><span class="bn-icon">👤</span>Perfil</a></li>
+  </ul>
+</nav>
 </body>
 </html>
