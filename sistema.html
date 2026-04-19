@@ -5239,10 +5239,6 @@ function inicializarSistema() {
   _sistemaInicializado = true;
 
   /* Verificar role: redirecionar hóspedes e proprietários para painel.html */
-  _supabase.from('profiles').select('role').eq('id', _supabase.auth.getUser ? '' : '')
-    .then(function() {})
-    .catch(function() {});
-
   _supabase.auth.getUser().then(function(result) {
     var uid = result && result.data && result.data.user && result.data.user.id;
     if (!uid) return;

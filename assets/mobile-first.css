@@ -90,7 +90,6 @@ img {
   -webkit-backdrop-filter: blur(12px);
   border-top: 1px solid rgba(212,175,55,0.2);
   padding: 0;
-  safe-area-inset-bottom: env(safe-area-inset-bottom);
 }
 
 .bottom-nav ul {

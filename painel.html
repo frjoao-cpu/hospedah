@@ -765,7 +765,7 @@ function iniciarPainel() {
   if (role === 'hospede' || role === 'admin' || role === 'proprietario') {
     carregarMinhasReservas(email, role);
     carregarFidelidade(email);
-    gerarLinkIndicacao(email);
+    gerarLinkIndicacao(email); // async, non-blocking
     renderizarNPS();
     carregarTicketsHospede(email);
     carregarVoucherSelect();
@@ -1159,12 +1159,25 @@ async function carregarFidelidade(email) {
 }
 
 // ── LINK DE INDICAÇÃO ──
-function gerarLinkIndicacao(email) {
+async function gerarLinkIndicacao(email) {
   const el = document.getElementById('referralLink');
   if (!el) return;
-  // Código baseado em hash do e-mail (sem expor o e-mail na URL)
-  const code = btoa(email).replace(/[+=\/]/g, '').slice(0, 10).toUpperCase();
-  localStorage.setItem('hospedah_my_ref_code', code);
+  // Generate a code using SHA-256 of the email (non-reversible)
+  let code = localStorage.getItem('hospedah_my_ref_code');
+  if (!code) {
+    try {
+      const enc  = new TextEncoder();
+      const data = enc.encode(email + '_hospedah');
+      const buf  = await crypto.subtle.digest('SHA-256', data);
+      code = Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('').slice(0, 12).toUpperCase();
+    } catch (_) {
+      // Fallback: use random bytes
+      const arr = new Uint8Array(6);
+      crypto.getRandomValues(arr);
+      code = Array.from(arr).map(b => b.toString(16).padStart(2, '0')).join('').toUpperCase();
+    }
+    localStorage.setItem('hospedah_my_ref_code', code);
+  }
   el.textContent = window.location.origin + '/reservas.html?ref=' + code;
 }
 

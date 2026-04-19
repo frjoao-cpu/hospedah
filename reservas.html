@@ -1516,10 +1516,13 @@ function atualizarReferralRow() {
 // ============================================================
 // ABANDONMENT TRACKING — Rastreio de Abandono
 // ============================================================
+// Use crypto.getRandomValues for a cryptographically sound session ID
 let _abandonSid = sessionStorage.getItem('hospedah_abandon_sid') || null;
 function getAbandonSid() {
   if (!_abandonSid) {
-    _abandonSid = (crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).slice(2));
+    const arr = new Uint8Array(16);
+    crypto.getRandomValues(arr);
+    _abandonSid = Array.from(arr).map(b => b.toString(16).padStart(2, '0')).join('');
     sessionStorage.setItem('hospedah_abandon_sid', _abandonSid);
   }
   return _abandonSid;
@@ -1640,7 +1643,7 @@ async function carregarDemandasResorts() {
   }).catch(() => {});
 
   function showToast() {
-    const ev = eventos[idx % eventos.length]; idx++;
+    const ev = eventos[idx % eventos.length]; idx = (idx + 1) % eventos.length;
     const t = document.createElement('div'); t.className = 'sp-toast-r';
     t.innerHTML = `<div class="sp-letter-r">${ev.nome.charAt(0)}</div><div><strong style="display:block;">${ev.nome} — ${ev.cidade}</strong>Reservou <em>${ev.resort}</em><div class="sp-time-r">há ${ev.min} min ✅</div></div>`;
     container.appendChild(t);
@@ -1650,8 +1653,7 @@ async function carregarDemandasResorts() {
   setTimeout(function first() {
     showToast();
     setTimeout(function loop() { showToast(); setTimeout(loop, 18000 + Math.random() * 12000); }, 22000);
-  }, 10000);
-})();
+  }, 10000);})();
 
 // ============================================================
 // URGENCY COUNTDOWN — Contador de Urgência 15 min
