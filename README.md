@@ -173,7 +173,9 @@ function gerar() {
 
 ### Stack/frameworks/bibliotecas recomendados
 - **Frontend**: Next.js + TypeScript + Tailwind CSS + shadcn/ui (consistência e velocidade de evolução).
-- **Animações**: Framer Motion (mais recursos e ergonomia em apps React, com custo típico extra de bundle) ou Web Animations API/CSS transitions (zero dependências e menor impacto de performance para site estático).
+- **Animações**:
+  - Framer Motion: mais recursos e ergonomia em apps React, com custo típico extra de bundle.
+  - Web Animations API/CSS transitions: zero dependências e menor impacto de performance para site estático.
 - **Formulários**: React Hook Form + Zod (validação sólida).
 - **Dados/estado**: React Query + Zustand.
 - **Backend/BFF**: consolidar o uso de Supabase (já presente em páginas de painel/chat) com Edge Functions para lógica sensível.
@@ -191,6 +193,7 @@ function gerar() {
 
 ### Roadmap prático (incremental)
 - **Fase 1 (rápida)**: padronizar tokens visuais, reduzir CSS inline no `index.html`, melhorar hierarchy de CTA e cards.
-- **Fase 2**: unificar jornada em plataforma única (admin/proprietário/hóspede) com RBAC (Role-Based Access Control), regras ABAC para cenários finos (ex.: proprietário só edita tarifas de unidades do próprio empreendimento em período permitido) e isolamento multi-tenant entre proprietários.
+- **Fase 2**: unificar jornada em plataforma única (admin/proprietário/hóspede) com RBAC (Role-Based Access Control), regras ABAC para cenários finos e isolamento multi-tenant entre proprietários.
+  - Exemplo ABAC: proprietário só edita tarifas de unidades do próprio empreendimento em período permitido.
 - **Fase 3**: automações de CRM/funil + concierge AI + recomendações inteligentes.
 - **Fase 4**: otimização contínua com A/B test, métricas de conversão e retenção.
