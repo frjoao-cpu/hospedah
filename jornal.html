@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HOSPEDAH INFORMA — Jornal de Viagens Premium</title>
+<meta name="description" content="Jornal informativo HOSPEDAH com dicas de viagem para Juquey, Hot Beach Suites, São Pedro Thermas, Solar das Águas e Olímpia Park Resort.">
+<link rel="canonical" href="https://hospedah.tur.br/jornal.html">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#D4AF37">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Lora:ital,wght@0,400;0,600;1,400&family=Source+Sans+3:wght@300;400;600&display=swap" rel="stylesheet">
+
+<style>
+  /* ======= RESET & BASE ======= */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --gold:    #D4AF37;
+    --gold2:   #F0CC55;
+    --dark:    #0D0D0D;
+    --dark2:   #1A1A1A;
+    --ink:     #111111;
+    --muted:   #555555;
+    --border:  #D4AF37;
+    --cream:   #FFF8E7;
+    --red:     #C0392B;
+  }
+
+  html { font-size: 16px; }
+
+  body {
+    background: #e8e0d0;
+    font-family: 'Source Sans 3', sans-serif;
+    color: var(--ink);
+    min-height: 100vh;
+    padding: 20px 10px 40px;
+  }
+
+  /* ======= NEWSPAPER WRAPPER ======= */
+  .newspaper {
+    max-width: 1080px;
+    margin: 0 auto;
+    background: var(--cream);
+    border: 3px solid var(--border);
+    box-shadow: 0 8px 40px rgba(0,0,0,0.45);
+  }
+
+  /* ======= TOP BAR ======= */
+  .top-bar {
+    background: var(--dark);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 24px;
+    border-bottom: 2px solid var(--gold);
+  }
+  .top-bar span {
+    color: var(--gold);
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  /* ======= MASTHEAD ======= */
+  .masthead {
+    background: var(--dark);
+    text-align: center;
+    padding: 28px 24px 18px;
+    border-bottom: 4px solid var(--gold);
+    position: relative;
+  }
+  .masthead-pre {
+    color: var(--gold);
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 0.68rem;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+    opacity: 0.85;
+  }
+  .masthead h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.8rem, 7vw, 5rem);
+    font-weight: 900;
+    color: var(--gold);
+    letter-spacing: 0.06em;
+    line-height: 1;
+    text-shadow: 0 2px 12px rgba(212,175,55,0.35);
+  }
+  .masthead-sub {
+    color: #c8b97a;
+    font-family: 'Lora', serif;
+    font-style: italic;
+    font-size: clamp(0.78rem, 1.8vw, 1rem);
+    margin-top: 6px;
+    letter-spacing: 0.08em;
+  }
+  .masthead-rule {
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    margin: 14px auto 0;
+    width: 80%;
+  }
+
+  /* ======= EDITION BAR ======= */
+  .edition-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 7px 24px;
+    background: var(--gold);
+  }
+  .edition-bar span {
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--dark);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  /* ======= HEADLINE BANNER ======= */
+  .headline-banner {
+    background: var(--dark2);
+    border-bottom: 3px double var(--gold);
+    padding: 22px 28px 18px;
+    text-align: center;
+  }
+  .headline-label {
+    display: inline-block;
+    background: var(--red);
+    color: #fff;
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    padding: 3px 12px;
+    margin-bottom: 10px;
+  }
+  .headline-banner h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.5rem, 4.5vw, 2.4rem);
+    font-weight: 900;
+    color: var(--cream);
+    line-height: 1.15;
+    margin-bottom: 8px;
+  }
+  .headline-banner p {
+    font-family: 'Lora', serif;
+    font-style: italic;
+    color: #c8b97a;
+    font-size: clamp(0.82rem, 1.8vw, 0.97rem);
+    max-width: 680px;
+    margin: 0 auto;
+    line-height: 1.6;
+  }
+
+  /* ======= SECTION DIVIDERS ======= */
+  .section-rule {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 24px;
+    background: var(--dark);
+  }
+  .section-rule::before,
+  .section-rule::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--gold);
+    opacity: 0.5;
+  }
+  .section-rule span {
+    font-family: 'Playfair Display', serif;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--gold);
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  /* ======= COLUMNS GRID ======= */
+  .columns {
+    display: grid;
+    padding: 0;
+  }
+  .col-3 { grid-template-columns: repeat(3, 1fr); }
+  .col-2 { grid-template-columns: repeat(2, 1fr); }
+  .col-2-1 { grid-template-columns: 2fr 1fr; }
+
+  /* ======= RESORT CARD ======= */
+  .resort-card {
+    border-right: 1px solid rgba(212,175,55,0.3);
+    padding: 20px 22px;
+    background: var(--cream);
+  }
+  .resort-card:last-child { border-right: none; }
+
+  .resort-card img {
+    width: 100%;
+    height: 175px;
+    object-fit: cover;
+    display: block;
+    border: 2px solid rgba(212,175,55,0.4);
+    margin-bottom: 12px;
+    filter: saturate(1.08) contrast(1.04);
+  }
+
+  .resort-tag {
+    display: inline-block;
+    background: var(--gold);
+    color: var(--dark);
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 0.6rem;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    padding: 2px 9px;
+    margin-bottom: 7px;
+  }
+
+  .resort-card h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1rem, 2.2vw, 1.22rem);
+    font-weight: 700;
+    color: var(--dark);
+    line-height: 1.25;
+    margin-bottom: 8px;
+    border-bottom: 1px solid rgba(212,175,55,0.5);
+    padding-bottom: 8px;
+  }
+
+  .resort-card p {
+    font-family: 'Lora', serif;
+    font-size: 0.85rem;
+    color: #333;
+    line-height: 1.65;
+    margin-bottom: 8px;
+  }
+
+  .resort-tips {
+    margin-top: 10px;
+    border-top: 1px dashed rgba(212,175,55,0.5);
+    padding-top: 10px;
+  }
+  .resort-tips-title {
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: var(--gold);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .resort-tips ul {
+    list-style: none;
+    padding: 0;
+  }
+  .resort-tips ul li {
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 0.8rem;
+    color: #444;
+    padding: 3px 0 3px 14px;
+    position: relative;
+    line-height: 1.4;
+  }
+  .resort-tips ul li::before {
+    content: '✦';
+    position: absolute;
+    left: 0;
+    color: var(--gold);
+    font-size: 0.55rem;
+    top: 5px;
+  }
+
+  .resort-cta {
+    display: inline-block;
+    margin-top: 12px;
+    background: var(--dark);
+    color: var(--gold);
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-decoration: none;
+    padding: 6px 14px;
+    border: 1px solid var(--gold);
+    transition: background 0.2s, color 0.2s;
+  }
+  .resort-cta:hover { background: var(--gold); color: var(--dark); }
+
+  /* ======= JUQUEY FULL-WIDTH ======= */
+  .juquey-banner {
+    position: relative;
+    overflow: hidden;
+    height: 280px;
+    border-top: 3px double var(--gold);
+    border-bottom: 3px double var(--gold);
+  }
+  .juquey-banner img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: brightness(0.55) saturate(1.2);
+  }
+  .juquey-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 20px;
+  }
+  .juquey-overlay .eyebrow {
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 8px;
+  }
+  .juquey-overlay h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.8rem, 5vw, 3rem);
+    font-weight: 900;
+    color: #fff;
+    line-height: 1.1;
+    text-shadow: 0 3px 15px rgba(0,0,0,0.6);
+    margin-bottom: 10px;
+  }
+  .juquey-overlay p {
+    font-family: 'Lora', serif;
+    font-style: italic;
+    color: #f0dfa0;
+    font-size: clamp(0.82rem, 1.8vw, 1rem);
+    max-width: 560px;
+    line-height: 1.55;
+    margin-bottom: 14px;
+  }
+  .juquey-pills {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .pill {
+    background: var(--gold);
+    color: var(--dark);
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 4px 12px;
+  }
+
+  /* ======= EXPERTS SECTION ======= */
+  .experts-section {
+    background: var(--dark2);
+    padding: 24px 28px;
+    border-top: 4px solid var(--gold);
+    border-bottom: 4px solid var(--gold);
+  }
+  .experts-section h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.1rem, 3vw, 1.6rem);
+    font-weight: 700;
+    color: var(--gold);
+    text-align: center;
+    margin-bottom: 6px;
+  }
+  .experts-section .sub {
+    font-family: 'Lora', serif;
+    font-style: italic;
+    color: #c8b97a;
+    font-size: 0.88rem;
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  .experts-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    max-width: 680px;
+    margin: 0 auto;
+  }
+  .expert-card {
+    background: var(--dark);
+    border: 1px solid rgba(212,175,55,0.4);
+    padding: 18px 20px;
+    text-align: center;
+  }
+  .expert-avatar {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    border: 2px solid var(--gold);
+    object-fit: cover;
+    margin: 0 auto 10px;
+    display: block;
+    background: #2a2a2a;
+    overflow: hidden;
+  }
+  .expert-avatar svg {
+    width: 100%;
+    height: 100%;
+  }
+  .expert-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 1rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 3px;
+  }
+  .expert-role {
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 0.68rem;
+    font-weight: 600;
+    color: var(--gold);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  .expert-phone {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: #e0e0e0;
+    margin-bottom: 4px;
+  }
+  .expert-phone .icon { color: #25D366; font-size: 1rem; }
+  .expert-card a {
+    display: inline-block;
+    margin-top: 10px;
+    background: #25D366;
+    color: #fff;
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    text-decoration: none;
+    padding: 7px 18px;
+  }
+
+  /* ======= SITE PROMO STRIP ======= */
+  .promo-strip {
+    background: var(--gold);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 12px 24px;
+    flex-wrap: wrap;
+    text-align: center;
+  }
+  .promo-strip span {
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--dark);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+  .promo-strip a {
+    font-family: 'Playfair Display', serif;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--dark);
+    text-decoration: none;
+    border-bottom: 2px solid var(--dark);
+  }
+  .promo-strip .dot { color: var(--dark); opacity: 0.5; }
+
+  /* ======= TIPS ROW ======= */
+  .tips-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    border-top: 1px solid rgba(212,175,55,0.4);
+    background: var(--cream);
+  }
+  .tip-item {
+    padding: 16px 16px;
+    border-right: 1px solid rgba(212,175,55,0.3);
+    text-align: center;
+  }
+  .tip-item:last-child { border-right: none; }
+  .tip-icon {
+    font-size: 1.6rem;
+    display: block;
+    margin-bottom: 7px;
+  }
+  .tip-item h4 {
+    font-family: 'Playfair Display', serif;
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--dark);
+    margin-bottom: 5px;
+  }
+  .tip-item p {
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 0.73rem;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
+  /* ======= FOOTER ======= */
+  .footer {
+    background: var(--dark);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 24px;
+    flex-wrap: wrap;
+    gap: 6px;
+    border-top: 3px solid var(--gold);
+  }
+  .footer span {
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 0.68rem;
+    color: #888;
+    letter-spacing: 0.05em;
+  }
+  .footer a {
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 0.68rem;
+    color: var(--gold);
+    text-decoration: none;
+    letter-spacing: 0.05em;
+  }
+
+  /* ======= PRINT / SCREENSHOT ======= */
+  @media print {
+    body { background: white; padding: 0; }
+    .newspaper { box-shadow: none; border-color: #000; max-width: 100%; }
+  }
+
+  /* ======= RESPONSIVE ======= */
+  @media (max-width: 760px) {
+    .col-3 { grid-template-columns: 1fr; }
+    .col-2 { grid-template-columns: 1fr; }
+    .col-2-1 { grid-template-columns: 1fr; }
+    .tips-row { grid-template-columns: repeat(2, 1fr); }
+    .experts-grid { grid-template-columns: 1fr; }
+    .resort-card { border-right: none; border-bottom: 1px solid rgba(212,175,55,0.3); }
+    .resort-card:last-child { border-bottom: none; }
+    .tip-item:nth-child(2) { border-right: none; }
+    .tip-item { border-bottom: 1px solid rgba(212,175,55,0.3); }
+    .top-bar { flex-direction: column; gap: 3px; text-align: center; }
+    .footer { justify-content: center; text-align: center; }
+    .edition-bar { flex-direction: column; gap: 3px; text-align: center; }
+    .promo-strip { flex-direction: column; }
+    .juquey-banner { height: 220px; }
+  }
+</style>
+</head>
+<body>
+
+<article class="newspaper" itemscope itemtype="https://schema.org/NewsArticle">
+
+  <!-- TOP BAR -->
+  <div class="top-bar">
+    <span>🌴 Edição Especial — Turismo &amp; Lazer</span>
+    <span>Abril / 2025 · hospedah.tur.br</span>
+    <span>Tiragem Nacional · Brasil</span>
+  </div>
+
+  <!-- MASTHEAD -->
+  <header class="masthead">
+    <p class="masthead-pre">⭐ Especialistas em Hospedagens Premium ⭐</p>
+    <h1 itemprop="publisher">HOSPEDAH INFORMA</h1>
+    <p class="masthead-sub">O Jornal Oficial das Melhores Experiências de Viagem do Brasil</p>
+    <div class="masthead-rule"></div>
+  </header>
+
+  <!-- EDITION BAR -->
+  <div class="edition-bar">
+    <span>Edição Nº 01 · Resorts &amp; Destinos</span>
+    <span>⭐⭐⭐⭐⭐ Qualidade Premium</span>
+    <span>Atendimento Personalizado 24h</span>
+  </div>
+
+  <!-- HEADLINE BANNER -->
+  <section class="headline-banner">
+    <span class="headline-label">✈ Destaque da Edição</span>
+    <h2 itemprop="headline">5 Destinos Premium Que Vão<br>Transformar a Sua Próxima Viagem</h2>
+    <p itemprop="description">De praias paradisíacas a parques termais — descubra hospedagens de alto padrão com atendimento exclusivo, escolhidas pelos maiores especialistas em turismo de lazer do Brasil.</p>
+  </section>
+
+  <!-- GENERAL TIPS ROW -->
+  <div class="tips-row">
+    <div class="tip-item">
+      <span class="tip-icon">📅</span>
+      <h4>Reserve com Antecedência</h4>
+      <p>Garanta os melhores preços reservando com 30–60 dias de antecedência, especialmente em feriados.</p>
+    </div>
+    <div class="tip-item">
+      <span class="tip-icon">👨‍👩‍👧‍👦</span>
+      <h4>Ideal para Famílias</h4>
+      <p>Nossos resorts oferecem atividades para todas as idades, com estrutura completa de lazer e segurança.</p>
+    </div>
+    <div class="tip-item">
+      <span class="tip-icon">💰</span>
+      <h4>Custo-Benefício</h4>
+      <p>All-inclusive ou meia-pensão — nossos consultores encontram a melhor combinação para o seu orçamento.</p>
+    </div>
+    <div class="tip-item">
+      <span class="tip-icon">📱</span>
+      <h4>Atendimento Digital</h4>
+      <p>Solicite orçamento via WhatsApp e receba proposta personalizada em menos de 24 horas.</p>
+    </div>
+  </div>
+
+  <!-- SECTION RULE: JUQUEY -->
+  <div class="section-rule"><span>🌊 Praia de Juquey</span></div>
+
+  <!-- JUQUEY BANNER -->
+  <section class="juquey-banner">
+    <img src="https://i.imgur.com/SxlktwS.jpeg" alt="Praia de Juquehy — mar cristalino e natureza exuberante" loading="lazy" width="1080" height="280">
+    <div class="juquey-overlay">
+      <p class="eyebrow">✦ Litoral Norte de São Paulo ✦</p>
+      <h2>Praia de Juquey</h2>
+      <p>Mar cristalino, areia branca e natureza preservada. O refúgio perfeito para quem busca descanso com conforto premium longe da agitação das grandes cidades.</p>
+      <div class="juquey-pills">
+        <span class="pill">🐚 Mar Calmo</span>
+        <span class="pill">🌿 Natureza Exuberante</span>
+        <span class="pill">🍹 Gastronomia Local</span>
+        <span class="pill">🏄 Esportes Aquáticos</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION RULE: RESORTS DE OLÍMPIA -->
+  <div class="section-rule"><span>♨️ Resorts Termais de Olímpia</span></div>
+
+  <!-- 3 RESORTS ROW -->
+  <div class="columns col-3">
+
+    <!-- HOT BEACH SUITES -->
+    <article class="resort-card" itemscope itemtype="https://schema.org/Resort">
+      <img src="https://i.imgur.com/AmFSwwd.jpeg" alt="Hot Beach Suites — piscinas termais em Olímpia-SP" loading="lazy" width="800" height="600" itemprop="image">
+      <span class="resort-tag">🔥 Hot Beach Suites</span>
+      <h3 itemprop="name">Hot Beach Suites — Olímpia-SP</h3>
+      <p itemprop="description">O resort termal mais completo de Olímpia, com piscinas aquecidas, tobogãs radicais e suítes luxuosas para toda a família. Uma experiência inesquecível.</p>
+      <div class="resort-tips">
+        <p class="resort-tips-title">✦ Dicas de Viagem</p>
+        <ul>
+          <li>Aproveite o parque aquático logo pela manhã para menos filas</li>
+          <li>As piscinas termais são ideais à noite com temperatura agradável</li>
+          <li>Pacotes com café da manhã incluído têm melhor custo-benefício</li>
+          <li>Ideal para crianças de todas as idades</li>
+        </ul>
+      </div>
+      <a href="https://wa.me/5517982006382?text=Ol%C3%A1%21+Tenho+interesse+no+Hot+Beach+Suites." class="resort-cta" target="_blank" rel="noopener noreferrer">💬 Solicitar Orçamento</a>
+    </article>
+
+    <!-- SÃO PEDRO THERMAS -->
+    <article class="resort-card" itemscope itemtype="https://schema.org/Resort">
+      <img src="https://i.imgur.com/pyEKOtQ.jpeg" alt="São Pedro Thermas — águas termais naturais" loading="lazy" width="800" height="600" itemprop="image">
+      <span class="resort-tag">♨️ São Pedro</span>
+      <h3 itemprop="name">São Pedro Thermas Resort</h3>
+      <p itemprop="description">Águas termais naturais com propriedades terapêuticas, piscinas aquecidas e área de lazer em meio à natureza. O destino perfeito para relaxar e rejuvenescer.</p>
+      <div class="resort-tips">
+        <p class="resort-tips-title">✦ Dicas de Viagem</p>
+        <ul>
+          <li>As águas termais têm temperaturas variadas — explore todas</li>
+          <li>Leve roupão e chinelo para maior conforto</li>
+          <li>Fins de semana têm animação ao vivo e shows</li>
+          <li>Ótimo para casais e lua-de-mel</li>
+        </ul>
+      </div>
+      <a href="https://wa.me/5517982006382?text=Ol%C3%A1%21+Tenho+interesse+no+S%C3%A3o+Pedro+Thermas." class="resort-cta" target="_blank" rel="noopener noreferrer">💬 Solicitar Orçamento</a>
+    </article>
+
+    <!-- OLÍMPIA PARK RESORT -->
+    <article class="resort-card" itemscope itemtype="https://schema.org/Resort">
+      <img src="https://i.imgur.com/AseZPzL.jpeg" alt="Olímpia Park Resort — parque aquático e diversão" loading="lazy" width="800" height="600" itemprop="image">
+      <span class="resort-tag">🎢 Olímpia Park</span>
+      <h3 itemprop="name">Olímpia Park Resort</h3>
+      <p itemprop="description">Parque aquático com tobogãs, piscinas de ondas e área kids. Uma experiência completa de diversão e entretenimento que agrada a toda a família.</p>
+      <div class="resort-tips">
+        <p class="resort-tips-title">✦ Dicas de Viagem</p>
+        <ul>
+          <li>Reserve com antecedência para acomodações de frente para o parque</li>
+          <li>Check-in antecipado disponível mediante solicitação</li>
+          <li>Explore o parque cedo — atrações menos movimentadas</li>
+          <li>Perfeito para grupos e aniversários</li>
+        </ul>
+      </div>
+      <a href="https://wa.me/5517982006382?text=Ol%C3%A1%21+Tenho+interesse+no+Olimpia+Park+Resort." class="resort-cta" target="_blank" rel="noopener noreferrer">💬 Solicitar Orçamento</a>
+    </article>
+
+  </div>
+
+  <!-- SECTION RULE: SOLAR DAS ÁGUAS -->
+  <div class="section-rule"><span>☀️ Solar das Águas</span></div>
+
+  <!-- SOLAR DAS ÁGUAS — WIDE CARD -->
+  <div class="columns col-2" style="border-top: 1px solid rgba(212,175,55,0.3);">
+
+    <article class="resort-card" itemscope itemtype="https://schema.org/Resort" style="display:flex; flex-direction:column;">
+      <img src="https://i.imgur.com/S4tSUzG.jpeg" alt="Solar das Águas — resort exclusivo" loading="lazy" width="800" height="600" itemprop="image" style="height:220px;">
+      <span class="resort-tag">☀️ Solar das Águas</span>
+      <h3 itemprop="name">Solar das Águas Resort</h3>
+      <p itemprop="description">Elegância e sofisticação em um ambiente paradisíaco. O Solar das Águas oferece acomodações exclusivas, gastronomia requintada e área de lazer completa para momentos verdadeiramente inesquecíveis.</p>
+      <div class="resort-tips">
+        <p class="resort-tips-title">✦ Dicas de Viagem</p>
+        <ul>
+          <li>Solicite quartos com vista para as piscinas ao reservar</li>
+          <li>Confira os pacotes de fim de semana com jantar incluso</li>
+          <li>Área de spa e relaxamento disponível para hóspedes</li>
+          <li>Ótima opção para eventos e comemorações especiais</li>
+          <li>Estrutura completa para crianças e adultos</li>
+        </ul>
+      </div>
+      <a href="https://wa.me/5517982006382?text=Ol%C3%A1%21+Tenho+interesse+no+Solar+das+%C3%81guas." class="resort-cta" target="_blank" rel="noopener noreferrer">💬 Solicitar Orçamento</a>
+    </article>
+
+    <div style="padding:20px 22px; background:var(--cream); display:flex; flex-direction:column; gap:14px;">
+      <img src="https://i.imgur.com/uiZei1A.jpeg" alt="Solar das Águas — piscina" loading="lazy" width="800" height="600" style="width:100%; height:130px; object-fit:cover; border:2px solid rgba(212,175,55,0.4); filter:saturate(1.08);">
+      <img src="https://i.imgur.com/FGmyUSZ.jpeg" alt="Solar das Águas — área de lazer" loading="lazy" width="800" height="600" style="width:100%; height:130px; object-fit:cover; border:2px solid rgba(212,175,55,0.4); filter:saturate(1.08);">
+
+      <div style="background:var(--dark); padding:16px; border:1px solid rgba(212,175,55,0.4);">
+        <p style="font-family:'Source Sans 3',sans-serif; font-size:0.68rem; font-weight:700; color:var(--gold); letter-spacing:0.18em; text-transform:uppercase; margin-bottom:8px;">✦ Por que escolher a HOSPEDAH?</p>
+        <ul style="list-style:none; padding:0;">
+          <li style="font-family:'Lora',serif; font-size:0.82rem; color:#ddd; padding:4px 0 4px 14px; position:relative; line-height:1.45;">
+            <span style="position:absolute;left:0;color:var(--gold);">✓</span>
+            Atendimento exclusivo e personalizado
+          </li>
+          <li style="font-family:'Lora',serif; font-size:0.82rem; color:#ddd; padding:4px 0 4px 14px; position:relative; line-height:1.45;">
+            <span style="position:absolute;left:0;color:var(--gold);">✓</span>
+            Melhores preços e condições de pagamento
+          </li>
+          <li style="font-family:'Lora',serif; font-size:0.82rem; color:#ddd; padding:4px 0 4px 14px; position:relative; line-height:1.45;">
+            <span style="position:absolute;left:0;color:var(--gold);">✓</span>
+            Consultores especializados em lazer &amp; turismo
+          </li>
+          <li style="font-family:'Lora',serif; font-size:0.82rem; color:#ddd; padding:4px 0 4px 14px; position:relative; line-height:1.45;">
+            <span style="position:absolute;left:0;color:var(--gold);">✓</span>
+            Suporte antes, durante e após a viagem
+          </li>
+          <li style="font-family:'Lora',serif; font-size:0.82rem; color:#ddd; padding:4px 0 4px 14px; position:relative; line-height:1.45;">
+            <span style="position:absolute;left:0;color:var(--gold);">✓</span>
+            Avaliações 5 estrelas de clientes satisfeitos
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- EXPERTS SECTION -->
+  <section class="experts-section">
+    <h2>👑 Nossos Especialistas</h2>
+    <p class="sub">Consultores premium prontos para encontrar a hospedagem ideal para você e sua família</p>
+
+    <div class="experts-grid">
+
+      <!-- FLÁVIO JOÃO -->
+      <div class="expert-card">
+        <div class="expert-avatar">
+          <!-- Placeholder avatar with initials -->
+          <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+            <rect width="64" height="64" fill="#2a2a2a"/>
+            <circle cx="32" cy="24" r="12" fill="#D4AF37" opacity="0.9"/>
+            <ellipse cx="32" cy="52" rx="18" ry="12" fill="#D4AF37" opacity="0.7"/>
+            <text x="32" y="28" text-anchor="middle" font-size="13" font-weight="bold" fill="#0D0D0D" font-family="serif">FJ</text>
+          </svg>
+        </div>
+        <p class="expert-name">Flávio João</p>
+        <p class="expert-role">💼 Especialista em Hospedagens Premium</p>
+        <div class="expert-phone">
+          <span class="icon">📱</span>
+          <span>(17) 98200-6382</span>
+        </div>
+        <div class="expert-phone">
+          <span class="icon">📸</span>
+          <a href="https://www.instagram.com/julianasilvaoliveira.joao" target="_blank" rel="noopener noreferrer" style="color:#c8b97a; font-size:0.78rem; text-decoration:none;">@hospedah.tur</a>
+        </div>
+        <a href="https://wa.me/5517982006382?text=Ol%C3%A1%2C+Fl%C3%A1vio%21+Gostaria+de+saber+mais+sobre+as+hospedagens+premium+da+HOSPEDAH." target="_blank" rel="noopener noreferrer">💬 Falar com Flávio</a>
+      </div>
+
+      <!-- JULIANA JOÃO -->
+      <div class="expert-card">
+        <div class="expert-avatar">
+          <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+            <rect width="64" height="64" fill="#2a2a2a"/>
+            <circle cx="32" cy="24" r="12" fill="#D4AF37" opacity="0.9"/>
+            <ellipse cx="32" cy="52" rx="18" ry="12" fill="#D4AF37" opacity="0.7"/>
+            <text x="32" y="28" text-anchor="middle" font-size="13" font-weight="bold" fill="#0D0D0D" font-family="serif">JJ</text>
+          </svg>
+        </div>
+        <p class="expert-name">Juliana João</p>
+        <p class="expert-role">💼 Especialista em Hospedagens Premium</p>
+        <div class="expert-phone">
+          <span class="icon">📱</span>
+          <span>(17) 99920-6829</span>
+        </div>
+        <div class="expert-phone">
+          <span class="icon">📸</span>
+          <a href="https://www.instagram.com/julianasilvaoliveira.joao" target="_blank" rel="noopener noreferrer" style="color:#c8b97a; font-size:0.78rem; text-decoration:none;">@julianasilvaoliveira.joao</a>
+        </div>
+        <a href="https://wa.me/55179992068296?text=Ol%C3%A1%2C+Juliana%21+Gostaria+de+saber+mais+sobre+as+hospedagens+premium+da+HOSPEDAH." target="_blank" rel="noopener noreferrer">💬 Falar com Juliana</a>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- SITE PROMO STRIP -->
+  <div class="promo-strip">
+    <span>🌴 Já conhece nosso site?</span>
+    <span class="dot">|</span>
+    <span>Confira as melhores opções de resorts em</span>
+    <a href="https://hospedah.tur.br" target="_blank" rel="noopener noreferrer">🔗 hospedah.tur.br</a>
+    <span class="dot">|</span>
+    <span>Se quiser ajuda, <strong>me chama agora 😊</strong></span>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <span>© 2025 HOSPEDAH — Todos os direitos reservados.</span>
+    <a href="https://hospedah.tur.br" target="_blank" rel="noopener noreferrer">hospedah.tur.br</a>
+    <a href="https://www.instagram.com/julianasilvaoliveira.joao" target="_blank" rel="noopener noreferrer">📸 Instagram</a>
+    <a href="https://wa.me/5517982006382" target="_blank" rel="noopener noreferrer">💬 WhatsApp</a>
+  </footer>
+
+</article>
+
+<script>if ('serviceWorker' in navigator) { navigator.serviceWorker.register('/sw.js').catch(function(){}); }</script>
+
+</body>
+</html>
