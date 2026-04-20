@@ -135,7 +135,7 @@ function gerar() {
 - **Base mobile-first já existe** em `assets/mobile-first.css`, mas parte importante do visual continua acoplada ao `index.html`, criando duplicidade de regras e manutenção mais lenta.
 - **Branding já tem direção premium** (paleta azul+dourado, hero com carrossel, glassmorphism leve), mas ainda falta um **design system formal** (tokens, escala tipográfica, espaçamentos, estados).
 - **Automação/marketing parcialmente implantados** (LGPD, tracking condicional, WhatsApp, PWA), com oportunidades de elevar maturidade em CRM, funil e personalização.
-- **Ponto técnico relevante**: `script.js` expõe `API_KEY` no front-end; para operação premium/confiável, ideal mover integrações sensíveis para backend/serverless.
+- **Ponto técnico crítico**: `script.js` expõe `API_KEY` no front-end; isso pode gerar uso indevido, consumo de cota por terceiros e indisponibilidade. Priorizar migração de integrações sensíveis para backend/serverless.
 
 ### Melhorias de interface para padrão profissional e sofisticado
 1. **Design System unificado**
@@ -173,7 +173,7 @@ function gerar() {
 
 ### Stack/frameworks/bibliotecas recomendados
 - **Frontend**: Next.js + TypeScript + Tailwind CSS + shadcn/ui (consistência e velocidade de evolução).
-- **Animações**: Framer Motion (ou Web Animations API/CSS transitions padronizadas, conforme stack final).
+- **Animações**: Framer Motion (mais recursos e ergonomia em apps React) ou Web Animations API/CSS transitions (menor bundle e dependências).
 - **Formulários**: React Hook Form + Zod (validação sólida).
 - **Dados/estado**: React Query + Zustand.
 - **Backend/BFF**: consolidar o uso de Supabase (já presente em páginas de painel/chat) com Edge Functions para lógica sensível.
@@ -191,6 +191,6 @@ function gerar() {
 
 ### Roadmap prático (incremental)
 - **Fase 1 (rápida)**: padronizar tokens visuais, reduzir CSS inline no `index.html`, melhorar hierarchy de CTA e cards.
-- **Fase 2**: unificar jornada em plataforma única (admin/proprietário/hóspede) com RBAC (Role-Based Access Control) e painel modular.
+- **Fase 2**: unificar jornada em plataforma única (admin/proprietário/hóspede) com RBAC (Role-Based Access Control), regras ABAC para cenários finos e isolamento multi-tenant entre proprietários.
 - **Fase 3**: automações de CRM/funil + concierge AI + recomendações inteligentes.
 - **Fase 4**: otimização contínua com A/B test, métricas de conversão e retenção.
