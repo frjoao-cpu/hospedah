@@ -173,10 +173,10 @@ function gerar() {
 
 ### Stack/frameworks/bibliotecas recomendados
 - **Frontend**: Next.js + TypeScript + Tailwind CSS + shadcn/ui (consistência e velocidade de evolução).
-- **Animações**: Framer Motion.
+- **Animações**: Framer Motion (ou Web Animations API/CSS transitions padronizadas, conforme stack final).
 - **Formulários**: React Hook Form + Zod (validação sólida).
 - **Dados/estado**: React Query + Zustand.
-- **Backend/BFF**: Supabase (já usado) + Edge Functions para lógica sensível.
+- **Backend/BFF**: consolidar o uso de Supabase (já presente em páginas de painel/chat) com Edge Functions para lógica sensível.
 - **Observabilidade**: Sentry + PostHog/GA4 + Microsoft Clarity.
 - **Qualidade visual**: Storybook para catálogo de componentes premium.
 
@@ -191,6 +191,6 @@ function gerar() {
 
 ### Roadmap prático (incremental)
 - **Fase 1 (rápida)**: padronizar tokens visuais, reduzir CSS inline no `index.html`, melhorar hierarchy de CTA e cards.
-- **Fase 2**: unificar jornada em plataforma única (admin/proprietário/hóspede) com RBAC e painel modular.
+- **Fase 2**: unificar jornada em plataforma única (admin/proprietário/hóspede) com RBAC (Role-Based Access Control) e painel modular.
 - **Fase 3**: automações de CRM/funil + concierge AI + recomendações inteligentes.
 - **Fase 4**: otimização contínua com A/B test, métricas de conversão e retenção.
