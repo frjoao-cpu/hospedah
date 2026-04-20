@@ -193,7 +193,8 @@ function gerar() {
 
 ### Roadmap prático (incremental)
 - **Fase 1 (rápida)**: padronizar tokens visuais, reduzir CSS inline no `index.html`, melhorar hierarchy de CTA e cards.
-- **Fase 2**: unificar jornada em plataforma única (admin/proprietário/hóspede) com RBAC (Role-Based Access Control), regras ABAC (Attribute-Based Access Control) para cenários finos e isolamento multi-tenant entre proprietários.
+- **Fase 2**: unificar jornada em plataforma única (admin/proprietário/hóspede) com RBAC (Role-Based Access Control).
+  - Aplicar ABAC (Attribute-Based Access Control) em cenários finos e manter isolamento multi-tenant entre proprietários.
   - Exemplo ABAC: proprietário só edita tarifas de unidades do próprio empreendimento em período permitido.
 - **Fase 3**: automações de CRM/funil + concierge AI + recomendações inteligentes.
 - **Fase 4**: otimização contínua com A/B test, métricas de conversão e retenção.
