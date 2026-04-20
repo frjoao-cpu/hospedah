@@ -135,7 +135,7 @@ function gerar() {
 - **Base mobile-first já existe** em `assets/mobile-first.css`, mas parte importante do visual continua acoplada ao `index.html`, criando duplicidade de regras e manutenção mais lenta.
 - **Branding já tem direção premium** (paleta azul+dourado, hero com carrossel, glassmorphism leve), mas ainda falta um **design system formal** (tokens, escala tipográfica, espaçamentos, estados).
 - **Automação/marketing parcialmente implantados** (LGPD, tracking condicional, WhatsApp, PWA), com oportunidades de elevar maturidade em CRM, funil e personalização.
-- **Ponto técnico crítico**: `script.js` expõe `API_KEY` no front-end; isso pode gerar uso indevido, consumo de cota por terceiros e indisponibilidade. Priorizar migração de integrações sensíveis para backend/serverless.
+- **Ponto técnico crítico**: `script.js` expõe `API_KEY` no front-end; isso pode gerar uso indevido, consumo de cota por terceiros e indisponibilidade. Priorizar rotação imediata da chave e migração de integrações sensíveis para backend/serverless.
 
 ### Melhorias de interface para padrão profissional e sofisticado
 1. **Design System unificado**
@@ -174,12 +174,12 @@ function gerar() {
 ### Stack/frameworks/bibliotecas recomendados
 - **Frontend**: Next.js + TypeScript + Tailwind CSS + shadcn/ui (consistência e velocidade de evolução).
 - **Animações**:
-  - Framer Motion: mais recursos e ergonomia em apps React, com custo típico extra de bundle.
+  - Framer Motion: mais recursos e ergonomia em aplicações React, com custo típico extra de bundle.
   - Web Animations API/CSS transitions: zero dependências e menor impacto de performance para site estático.
-- **Formulários**: React Hook Form + Zod (validação sólida).
+- **Formulários**: React Hook Form + Zod (boa performance em formulários grandes, validação tipada e melhor DX).
 - **Dados/estado**: React Query + Zustand.
 - **Backend/BFF**: consolidar o uso de Supabase (já presente em páginas de painel/chat) com Edge Functions para lógica sensível.
-- **Observabilidade**: Sentry + PostHog/GA4 + Microsoft Clarity.
+- **Observabilidade**: Sentry (erros), PostHog/GA4 (produto e conversão) e Microsoft Clarity (comportamento visual em sessão).
 - **Qualidade visual**: Storybook para catálogo de componentes premium.
 
 ### AI e integrações inteligentes
