@@ -38,6 +38,11 @@
 <link rel="preconnect" href="https://i.imgur.com">
 <link rel="preconnect" href="https://www.googletagmanager.com">
 
+<!-- Supabase (social proof real, AggregateRating, lead tracking) -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<!-- jsPDF (geração de proposta em PDF) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
 <!-- Google Tag Manager & Microsoft Clarity — carregados somente após consentimento LGPD -->
 <script>
 function initTracking() {
@@ -183,6 +188,10 @@ if (localStorage.getItem('hospedah_consent') === 'accepted') { initTracking(); }
   ]
 }
 </script>
+<!-- AggregateRating — atualizado dinamicamente via Supabase (ver script no rodapé) -->
+<script type="application/ld+json" id="schema-aggregate">
+{"@context":"https://schema.org","@type":"TravelAgency","name":"HOSPEDAH","url":"https://hospedah.tur.br"}
+</script>
 <link rel="stylesheet" href="/assets/index.css">
 </head>
 <body>
@@ -261,6 +270,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <li><a href="#multi">Anuncie</a></li>
     <li><a href="#contato">Contato</a></li>
     <li><a href="chat.html">💬 Chat</a></li>
+    <li><a href="referral.html">🎁 Indicar</a></li>
 
   </ul>
 
@@ -286,6 +296,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   <a href="#faq"        onclick="closeDrawer()">❓ FAQ</a>
   <a href="#multi"       onclick="closeDrawer()">🏨 Anuncie</a>
   <a href="#contato"     onclick="closeDrawer()">📬 Contato</a>
+  <a href="referral.html" onclick="closeDrawer()">🎁 Indicar &amp; Ganhar</a>
 
   <hr style="border-color:rgba(255,255,255,0.1);margin:8px 0;">
   <a href="https://wa.me/5517982006382" target="_blank" rel="noopener"
@@ -728,6 +739,15 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       <textarea id="orc_obs" placeholder="Observações ou dúvidas (opcional)"></textarea>
       <button type="submit">📩 Enviar orçamento via WhatsApp</button>
     </form>
+
+    <!-- Painel de sucesso pós-orçamento -->
+    <div id="orc_success" style="display:none;margin-top:24px;padding:24px;background:rgba(37,211,102,0.07);border:1px solid rgba(37,211,102,0.25);border-radius:14px;text-align:center;">
+      <div style="font-size:2em;margin-bottom:8px;">✅</div>
+      <h3 style="color:#25D366;margin-bottom:8px;">Orçamento enviado com sucesso!</h3>
+      <p style="color:var(--cor-sub,#aab4c4);font-size:.9em;margin-bottom:16px;">Nossa equipe responderá via WhatsApp em breve. Salve a proposta para consultar offline:</p>
+      <button onclick="gerarPropostaPDF()" style="padding:10px 22px;background:var(--dourado,#D4AF37);color:#0B1C3D;border:none;border-radius:8px;font-weight:700;cursor:pointer;font-size:.92em;margin-bottom:16px;">📄 Baixar Proposta em PDF</button>
+      <div id="orc_referral" style="margin-top:8px;padding:12px;background:rgba(212,175,55,0.08);border:1px solid rgba(212,175,55,0.2);border-radius:10px;font-size:.83em;color:var(--cor-sub,#aab4c4);"></div>
+    </div>
   </div>
 </section>
 
@@ -1319,6 +1339,10 @@ function enviarOrcamento(e) {
     }).catch(function() {});
   }
 
+  /* Salvar lead no Supabase para CRM e retargeting */
+  salvarLeadSupabase({ nome: nome, wpp: wpp, email: email, resort: resort,
+    pessoas: pessoas, entrada: entrada, saida: saida, obs: obs });
+
   var msg = encodeURIComponent(
     '🏨 *Solicitação de Orçamento — HOSPEDAH*\n\n' +
     '👤 Nome: '     + nome    + '\n' +
@@ -1332,7 +1356,59 @@ function enviarOrcamento(e) {
     getUtmSuffix()
   );
   window.open('https://wa.me/5517982006382?text=' + msg, '_blank');
+
+  /* Guardar dados para PDF e referral antes de resetar o form */
+  window._orcDados = { nome: nome, wpp: wpp, email: email, resort: resort,
+    pessoas: pessoas, entrada: entrada, saida: saida, obs: obs };
   e.target.reset();
+
+  /* Mostrar painel de sucesso com PDF e link de indicação */
+  mostrarPainelSucesso();
+}
+
+function mostrarPainelSucesso() {
+  var painel = document.getElementById('orc_success');
+  if (!painel) return;
+  painel.style.display = 'block';
+  painel.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+  /* Gerar link de indicação único baseado no WhatsApp */
+  var dados = window._orcDados || {};
+  if (dados.wpp) {
+    var refSlug = btoa(dados.wpp.replace(/\D/g, '').slice(-8)).replace(/[^a-zA-Z0-9]/g, '').slice(0, 10);
+    var refUrl  = 'https://hospedah.tur.br/reservas.html?ref=' + refSlug;
+    var refEl   = document.getElementById('orc_referral');
+    if (refEl) {
+      refEl.innerHTML = '';
+
+      var title = document.createElement('strong');
+      title.style.color = 'var(--dourado,#D4AF37)';
+      title.textContent = '🎁 Seu link de indicação:';
+      refEl.appendChild(title);
+      refEl.appendChild(document.createElement('br'));
+
+      var urlSpan = document.createElement('span');
+      urlSpan.style.cssText = 'font-family:monospace;background:rgba(0,0,0,.3);padding:3px 8px;border-radius:5px;color:#fff;';
+      urlSpan.textContent = refUrl;
+      refEl.appendChild(urlSpan);
+      refEl.appendChild(document.createElement('br'));
+
+      var hint = document.createElement('small');
+      hint.style.cssText = 'margin-top:6px;display:block;';
+      hint.textContent = 'Compartilhe com amigos e família — quem reservar via seu link ganha R$30 de desconto e você acumula pontos de fidelidade!';
+      refEl.appendChild(hint);
+
+      var copyBtn = document.createElement('button');
+      copyBtn.style.cssText = 'margin-top:8px;padding:6px 16px;background:var(--dourado,#D4AF37);color:#0B1C3D;border:none;border-radius:6px;font-weight:700;cursor:pointer;font-size:.82em;';
+      copyBtn.textContent = '📋 Copiar link';
+      copyBtn.addEventListener('click', function () {
+        navigator.clipboard.writeText(refUrl)
+          .then(function () { copyBtn.textContent = '✅ Copiado!'; })
+          .catch(function () {});
+      });
+      refEl.appendChild(copyBtn);
+    }
+  }
 }
 
 /* =====================
@@ -1727,6 +1803,233 @@ if ('serviceWorker' in navigator) {
   window.addEventListener('load', function () {
     navigator.serviceWorker.register('/sw.js').catch(function () {});
   });
+}
+</script>
+
+<!-- ============================================================
+     SUPABASE: AggregateRating + Social Proof Real + Lead Tracking
+     + jsPDF Proposal + Referral code
+============================================================ -->
+<script>
+(function () {
+  'use strict';
+
+  var SUPABASE_URL = 'https://ydrmjoppjxtmnwtvtinb.supabase.co';
+  var SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlkcm1qb3Bwanh0bW53dHZ0aW5iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYyNzA3MzksImV4cCI6MjA5MTg0NjczOX0.Gp4ed332v62sC5e5GXXbPqOIBNpS4EzMCFawnBJE_Cw';
+  var sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  /* ── 1. AggregateRating dinâmico no Schema.org ── */
+  function atualizarAggregateRating() {
+    sb.from('avaliacoes')
+      .select('nota')
+      .eq('aprovada', true)
+      .then(function (res) {
+        var data = res.data;
+        if (!data || !data.length) return;
+        var total  = data.length;
+        var media  = (data.reduce(function (s, r) { return s + Number(r.nota); }, 0) / total).toFixed(1);
+        var el     = document.getElementById('schema-aggregate');
+        if (!el) return;
+        el.textContent = JSON.stringify({
+          '@context': 'https://schema.org',
+          '@type': 'TravelAgency',
+          'name': 'HOSPEDAH',
+          'url': 'https://hospedah.tur.br',
+          'aggregateRating': {
+            '@type': 'AggregateRating',
+            'ratingValue': media,
+            'reviewCount': total,
+            'bestRating': 5,
+            'worstRating': 1
+          }
+        });
+      })
+      .catch(function () {});
+  }
+
+  /* ── 2. Social proof com dados reais da atividade_publica ── */
+  function injetarSocialProofReal() {
+    sb.from('atividade_publica')
+      .select('resort_nome, cidade_hospede, criado_em')
+      .order('criado_em', { ascending: false })
+      .limit(20)
+      .then(function (res) {
+        var data = res.data;
+        if (!data || !data.length) return;
+        var container = document.getElementById('social-proof-container');
+        if (!container) return;
+
+        var idx   = 0;
+        var total = data.length;
+
+        function showRealToast() {
+          var item   = data[idx % total];
+          idx++;
+          var now    = new Date();
+          var criado = new Date(item.criado_em);
+          var diffMin = Math.round((now - criado) / 60000);
+          var label  = diffMin < 60
+            ? 'há ' + diffMin + ' min'
+            : diffMin < 1440
+              ? 'há ' + Math.round(diffMin / 60) + 'h'
+              : 'há ' + Math.round(diffMin / 1440) + ' dia(s)';
+
+          var toast  = document.createElement('div');
+          toast.className = 'sp-toast';
+          var letra  = '★';
+          toast.innerHTML =
+            '<div class="sp-avatar-letter">' + letra + '</div>' +
+            '<div class="sp-text">' +
+              '<strong>' + escHtmlSP(item.resort_nome) + '</strong>' +
+              'Nova reserva confirmada! ✅' +
+              '<div class="sp-time">' + label + '</div>' +
+            '</div>';
+          container.appendChild(toast);
+          setTimeout(function () {
+            if (toast.parentNode) toast.parentNode.removeChild(toast);
+          }, 6200);
+        }
+
+        /* Intercala provas sociais reais com intervalo de 25–40 s */
+        setTimeout(function realLoop() {
+          showRealToast();
+          setTimeout(realLoop, 25000 + Math.floor(Math.random() * 15000));
+        }, 35000); /* começa após as estáticas dos primeiros 30 s */
+      })
+      .catch(function () {});
+  }
+
+  function escHtmlSP(s) {
+    return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  /* ── 3. Salvar lead no Supabase para CRM e retargeting ── */
+  window.salvarLeadSupabase = function (dados) {
+    try {
+      var sid = sessionStorage.getItem('hospedah_abandon_sid_idx');
+      if (!sid) {
+        var arr = new Uint8Array(12);
+        crypto.getRandomValues(arr);
+        sid = Array.from(arr).map(function (b) { return b.toString(16).padStart(2, '0'); }).join('');
+        sessionStorage.setItem('hospedah_abandon_sid_idx', sid);
+      }
+      sb.from('abandono_reserva').upsert([{
+        session_id:     sid,
+        resort_nome:    dados.resort || null,
+        email_hospede:  dados.email  || null,
+        telefone:       dados.wpp    || null,
+        data_entrada:   dados.entrada || null,
+        data_saida:     dados.saida   || null,
+        atualizado_em:  new Date().toISOString()
+      }], { onConflict: 'session_id' }).catch(function () {});
+    } catch (_) {}
+  };
+
+  /* Também salva no blur do campo e-mail do orçamento */
+  document.addEventListener('DOMContentLoaded', function () {
+    var orcEmail = document.getElementById('orc_email');
+    var orcWpp   = document.getElementById('orc_wpp');
+    function salvarParcial() {
+      var email   = orcEmail ? orcEmail.value.trim() : '';
+      var wpp     = orcWpp   ? orcWpp.value.trim()   : '';
+      var resort  = (document.getElementById('orc_resort')  || {}).value || '';
+      var entrada = (document.getElementById('orc_entrada') || {}).value || '';
+      var saida   = (document.getElementById('orc_saida')   || {}).value || '';
+      if (email || wpp) {
+        window.salvarLeadSupabase({ email: email, wpp: wpp, resort: resort, entrada: entrada, saida: saida });
+      }
+    }
+    if (orcEmail) orcEmail.addEventListener('blur', salvarParcial);
+    if (orcWpp)   orcWpp.addEventListener('blur', salvarParcial);
+  });
+
+  /* ── Inicializar ── */
+  atualizarAggregateRating();
+  injetarSocialProofReal();
+})();
+
+/* ── 4. Geração de Proposta em PDF com jsPDF ── */
+function gerarPropostaPDF() {
+  if (typeof window.jspdf === 'undefined') {
+    alert('Carregando biblioteca PDF, tente novamente em 2 segundos.');
+    return;
+  }
+  var dados = window._orcDados || {};
+  var doc = new window.jspdf.jsPDF({ unit: 'mm', format: 'a4' });
+
+  /* Fundo escuro premium */
+  doc.setFillColor(11, 28, 61);
+  doc.rect(0, 0, 210, 297, 'F');
+
+  /* Faixa dourada no topo */
+  doc.setFillColor(212, 175, 55);
+  doc.rect(0, 0, 210, 2, 'F');
+
+  /* Título */
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(22);
+  doc.setTextColor(212, 175, 55);
+  doc.text('HOSPEDAH', 105, 22, { align: 'center' });
+
+  doc.setFontSize(11);
+  doc.setTextColor(200, 210, 230);
+  doc.text('Resorts & Experiências Exclusivas', 105, 30, { align: 'center' });
+
+  /* Linha dourada separadora */
+  doc.setDrawColor(212, 175, 55);
+  doc.setLineWidth(0.4);
+  doc.line(20, 35, 190, 35);
+
+  /* Título da proposta */
+  doc.setFontSize(15);
+  doc.setTextColor(255, 255, 255);
+  doc.setFont('helvetica', 'bold');
+  doc.text('PROPOSTA DE ORÇAMENTO', 105, 47, { align: 'center' });
+
+  /* Data */
+  doc.setFontSize(9);
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(180, 190, 210);
+  doc.text('Gerado em ' + new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' }), 105, 54, { align: 'center' });
+
+  /* Dados */
+  var campos = [
+    ['👤 Nome', dados.nome],
+    ['📞 WhatsApp', dados.wpp],
+    ['📧 E-mail', dados.email],
+    ['🏖️ Resort', dados.resort],
+    ['👥 Pessoas', dados.pessoas],
+    ['📅 Check-in', dados.entrada],
+    ['📅 Check-out', dados.saida],
+    ['📝 Observações', dados.obs]
+  ];
+
+  doc.setFillColor(20, 40, 80);
+  doc.roundedRect(18, 62, 174, 120, 4, 4, 'F');
+
+  var y = 74;
+  campos.forEach(function (c) {
+    if (!c[1]) return;
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(212, 175, 55);
+    doc.text(c[0] + ':', 26, y);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(220, 230, 245);
+    var lines = doc.splitTextToSize(String(c[1]), 120);
+    doc.text(lines, 80, y);
+    y += 10 + (lines.length - 1) * 5;
+  });
+
+  /* Rodapé */
+  doc.setFillColor(212, 175, 55);
+  doc.rect(0, 295, 210, 2, 'F');
+
+  doc.setFontSize(8);
+  doc.setTextColor(180, 190, 210);
+  doc.text('hospedah.tur.br  |  WhatsApp: (17) 98200-6382  |  HOSPEDAH — Todos os direitos reservados', 105, 291, { align: 'center' });
+
+  doc.save('Proposta_HOSPEDAH_' + (dados.nome || 'cliente').replace(/\s+/g, '_') + '.pdf');
 }
 </script>
 

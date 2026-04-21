@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Indique e Ganhe | HOSPEDAH</title>
+<meta name="description" content="Indique amigos para a HOSPEDAH e ganhe pontos de fidelidade. Cada indicação que reservar vale pontos e descontos para você!">
+<link rel="canonical" href="https://hospedah.tur.br/referral.html">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#D4AF37">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/mobile-first.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root {
+  --dourado: #D4AF37;
+  --dourado-hover: #f0c93a;
+  --azul: #0B1C3D;
+  --azul2: #142850;
+  --verde: #25D366;
+  --bg: #0d1b2e;
+  --bg2: #10233c;
+  --cor-texto: #e8eaf0;
+  --cor-sub: #aab4c4;
+  --borda: rgba(212,175,55,0.15);
+  --radius: 12px;
+  --sombra: 0 4px 24px rgba(0,0,0,0.3);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Poppins', sans-serif; background: var(--bg); color: var(--cor-texto); min-height: 100vh; }
+
+.header {
+  background: linear-gradient(135deg, var(--azul), var(--azul2));
+  border-bottom: 2px solid var(--dourado);
+  padding: 16px 24px;
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 12px; flex-wrap: wrap; position: sticky; top: 0; z-index: 100;
+  box-shadow: var(--sombra);
+}
+.logo { color: var(--dourado); font-weight: 700; font-size: 1.2em; text-decoration: none; }
+.nav-links { display: flex; gap: 10px; flex-wrap: wrap; }
+.nav-links a {
+  color: var(--cor-sub); text-decoration: none; padding: 6px 14px;
+  border-radius: 20px; font-size: 0.85em; border: 1px solid var(--borda); transition: all 0.2s;
+}
+.nav-links a:hover, .nav-links a.active { background: var(--dourado); color: var(--azul); border-color: var(--dourado); }
+
+.hero {
+  background: linear-gradient(135deg, var(--azul), var(--azul2));
+  padding: 48px 24px 40px;
+  text-align: center;
+  border-bottom: 1px solid var(--borda);
+}
+.hero h1 { font-size: 1.8em; color: var(--dourado); margin-bottom: 10px; }
+.hero p { color: var(--cor-sub); font-size: .95em; max-width: 520px; margin: 0 auto; line-height: 1.6; }
+
+.main {
+  max-width: 860px; margin: 0 auto;
+  padding: 28px 16px 80px;
+  display: grid; grid-template-columns: 1fr 1fr; gap: 20px;
+}
+@media (max-width: 640px) { .main { grid-template-columns: 1fr; } }
+
+.card {
+  background: var(--bg2); border: 1px solid var(--borda);
+  border-radius: var(--radius); padding: 24px; box-shadow: var(--sombra);
+}
+.card h2 { color: var(--dourado); font-size: 1em; margin-bottom: 16px;
+  padding-bottom: 10px; border-bottom: 1px solid var(--borda); }
+
+.step-list { list-style: none; }
+.step-list li {
+  display: flex; align-items: flex-start; gap: 14px;
+  padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,.04);
+  font-size: .88em; color: var(--cor-sub); line-height: 1.5;
+}
+.step-list li:last-child { border-bottom: none; }
+.step-num {
+  width: 30px; height: 30px; border-radius: 50%;
+  background: var(--dourado); color: var(--azul);
+  font-weight: 700; font-size: .85em;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.step-text strong { color: var(--cor-texto); display: block; margin-bottom: 2px; }
+
+.field-group { display: flex; flex-direction: column; gap: 4px; margin-bottom: 14px; }
+.field-group label { font-size: .75em; color: var(--cor-sub); font-weight: 500; text-transform: uppercase; letter-spacing: .4px; }
+.field-group input {
+  background: rgba(255,255,255,.05); border: 1px solid rgba(212,175,55,.2);
+  border-radius: 8px; color: var(--cor-texto); font-family: inherit; font-size: .9em;
+  padding: 10px 12px; transition: border-color .2s;
+}
+.field-group input:focus { outline: none; border-color: var(--dourado); }
+
+.btn {
+  padding: 11px 20px; border-radius: 8px; border: none;
+  font-family: inherit; font-size: .9em; font-weight: 600;
+  cursor: pointer; width: 100%; transition: all .2s;
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+}
+.btn-primary { background: var(--dourado); color: var(--azul); }
+.btn-primary:hover { background: var(--dourado-hover); }
+
+.link-box {
+  display: none; margin-top: 16px;
+  background: rgba(212,175,55,.07); border: 1px solid rgba(212,175,55,.25);
+  border-radius: 10px; padding: 16px;
+}
+.link-box .ref-url {
+  font-family: monospace; font-size: .82em;
+  background: rgba(0,0,0,.3); padding: 8px 10px;
+  border-radius: 6px; color: var(--dourado); word-break: break-all;
+  display: block; margin-bottom: 10px;
+}
+.btn-copy {
+  padding: 8px 18px; background: var(--dourado); color: var(--azul);
+  border: none; border-radius: 6px; font-weight: 700; cursor: pointer;
+  font-size: .82em; transition: background .2s;
+}
+.btn-copy:hover { background: var(--dourado-hover); }
+.btn-share {
+  padding: 8px 18px; background: var(--verde); color: #fff;
+  border: none; border-radius: 6px; font-weight: 700; cursor: pointer;
+  font-size: .82em; margin-left: 6px; transition: background .2s;
+}
+.btn-share:hover { background: #20b857; }
+
+.stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px; }
+.stat-card {
+  background: rgba(255,255,255,.04); border: 1px solid var(--borda);
+  border-radius: 10px; padding: 14px; text-align: center;
+}
+.stat-card .stat-val { font-size: 1.6em; font-weight: 700; color: var(--dourado); line-height: 1; }
+.stat-card .stat-lbl { font-size: .72em; color: var(--cor-sub); margin-top: 4px; }
+
+.nivel-badge {
+  display: inline-block; padding: 3px 10px; border-radius: 20px;
+  font-size: .72em; font-weight: 700; margin-top: 8px;
+}
+.nivel-bronze { background: rgba(180,90,0,.2); color: #cd7f32; border: 1px solid rgba(180,90,0,.3); }
+.nivel-prata  { background: rgba(180,180,180,.15); color: #c0c0c0; border: 1px solid rgba(180,180,180,.3); }
+.nivel-ouro   { background: rgba(212,175,55,.15); color: var(--dourado); border: 1px solid rgba(212,175,55,.3); }
+
+.toast-container {
+  position: fixed; bottom: 24px; right: 20px; z-index: 9999;
+  display: flex; flex-direction: column; gap: 8px;
+}
+.toast {
+  background: var(--azul2); border: 1px solid var(--borda);
+  border-left: 3px solid var(--dourado); border-radius: 8px;
+  padding: 12px 16px; font-size: .85em; max-width: 300px;
+  animation: slideIn .3s ease; box-shadow: var(--sombra);
+}
+.toast.success { border-left-color: var(--verde); }
+.toast.error   { border-left-color: #e74c3c; }
+@keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+</style>
+</head>
+<body>
+
+<header class="header">
+  <a href="index.html" class="logo">🏨 HOSPEDAH</a>
+  <nav class="nav-links">
+    <a href="index.html">🏠 Início</a>
+    <a href="busca.html">🔍 Buscar</a>
+    <a href="reservas.html">📅 Reservar</a>
+    <a href="avaliacoes.html">⭐ Avaliações</a>
+    <a href="chat.html">💬 Chat</a>
+    <a href="referral.html" class="active">🎁 Indicar</a>
+  </nav>
+</header>
+
+<div class="hero">
+  <h1>🎁 Indique e Ganhe</h1>
+  <p>Compartilhe seu link exclusivo. Cada amigo que reservar via seu link ganha <strong>R$30 de desconto</strong> — e você acumula pontos de fidelidade!</p>
+</div>
+
+<div class="main">
+
+  <!-- Como funciona -->
+  <div class="card">
+    <h2>📋 Como funciona</h2>
+    <ul class="step-list">
+      <li>
+        <div class="step-num">1</div>
+        <div class="step-text"><strong>Gere seu link</strong> Informe seu WhatsApp e receba um link exclusivo de indicação.</div>
+      </li>
+      <li>
+        <div class="step-num">2</div>
+        <div class="step-text"><strong>Compartilhe</strong> Envie para amigos e família via WhatsApp, Instagram ou onde quiser.</div>
+      </li>
+      <li>
+        <div class="step-num">3</div>
+        <div class="step-text"><strong>Amigo reserva com desconto</strong> Quem usar seu link ganha <strong>R$30 de desconto</strong> automático na reserva.</div>
+      </li>
+      <li>
+        <div class="step-num">4</div>
+        <div class="step-text"><strong>Você ganha pontos</strong> A cada reserva confirmada via seu link, você acumula <strong>50 pontos</strong> de fidelidade — trocáveis por descontos e benefícios.</div>
+      </li>
+    </ul>
+  </div>
+
+  <!-- Gerar link -->
+  <div class="card">
+    <h2>🔗 Gere seu link exclusivo</h2>
+    <div class="field-group">
+      <label>Seu WhatsApp (com DDD) *</label>
+      <input type="tel" id="ref_wpp" placeholder="(17) 99999-9999" autocomplete="tel">
+    </div>
+    <div class="field-group">
+      <label>Seu nome (para identificação)</label>
+      <input type="text" id="ref_nome" placeholder="Seu nome" autocomplete="name">
+    </div>
+    <button class="btn btn-primary" onclick="gerarLink()">✨ Gerar meu link de indicação</button>
+
+    <!-- Link gerado -->
+    <div class="link-box" id="linkBox">
+      <p style="color:var(--dourado);font-weight:600;margin-bottom:10px;">🎉 Seu link exclusivo:</p>
+      <span class="ref-url" id="refUrlDisplay"></span>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;">
+        <button class="btn-copy" id="btnCopy" onclick="copiarLink()">📋 Copiar</button>
+        <button class="btn-share" onclick="compartilharWhatsApp()">💬 Enviar via WhatsApp</button>
+      </div>
+      <p style="font-size:.75em;color:var(--cor-sub);margin-top:10px;line-height:1.5;">
+        Válido por 12 meses. Desconto de R$30 aplicado automaticamente na reserva do seu amigo.
+      </p>
+    </div>
+
+    <!-- Estatísticas da indicação -->
+    <div id="statsBox" style="display:none;margin-top:20px;">
+      <h2 style="color:var(--dourado);font-size:1em;margin-bottom:12px;padding-top:12px;border-top:1px solid var(--borda);">📊 Seus resultados</h2>
+      <div class="stat-grid">
+        <div class="stat-card">
+          <div class="stat-val" id="statIndicacoes">0</div>
+          <div class="stat-lbl">Indicações feitas</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-val" id="statPontos">0</div>
+          <div class="stat-lbl">Pontos acumulados</div>
+        </div>
+      </div>
+      <div style="text-align:center;margin-top:10px;">
+        <span class="nivel-badge nivel-bronze" id="nivelBadge">🥉 Bronze</span>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+var SUPABASE_URL = 'https://ydrmjoppjxtmnwtvtinb.supabase.co';
+var SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlkcm1qb3Bwanh0bW53dHZ0aW5iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYyNzA3MzksImV4cCI6MjA5MTg0NjczOX0.Gp4ed332v62sC5e5GXXbPqOIBNpS4EzMCFawnBJE_Cw';
+var sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+var _refCode = null;
+var _refUrl  = null;
+
+function gerarRefCode(wpp) {
+  /* Deriva um código curto a partir do número de WhatsApp */
+  var digits = wpp.replace(/\D/g, '').slice(-9);
+  return btoa(digits).replace(/[^a-zA-Z0-9]/g, '').slice(0, 10);
+}
+
+function gerarLink() {
+  var wpp  = (document.getElementById('ref_wpp').value  || '').trim();
+  var nome = (document.getElementById('ref_nome').value || '').trim();
+  if (!wpp) { toast('Informe seu WhatsApp para gerar o link.', 'error'); return; }
+
+  _refCode = gerarRefCode(wpp);
+  _refUrl  = 'https://hospedah.tur.br/reservas.html?ref=' + _refCode;
+
+  document.getElementById('refUrlDisplay').textContent = _refUrl;
+  document.getElementById('linkBox').style.display = 'block';
+
+  /* Buscar estatísticas de fidelidade */
+  carregarEstatisticas(wpp);
+
+  /* Salvar/atualizar fidelidade no Supabase */
+  sb.from('fidelidade')
+    .select('pontos, nivel, total_estadias')
+    .eq('email_hospede', wpp)
+    .maybeSingle()
+    .then(function (res) {
+      if (!res.data) {
+        /* Registrar novo indicador */
+        sb.from('fidelidade').insert([{
+          email_hospede: wpp,
+          pontos: 0,
+          nivel: 'bronze',
+          total_estadias: 0
+        }]).catch(function () {});
+      }
+    })
+    .catch(function () {});
+}
+
+function carregarEstatisticas(wpp) {
+  sb.from('reservas_hospede')
+    .select('id')
+    .eq('ref_code', gerarRefCode(wpp))
+    .then(function (res) {
+      var total = (res.data || []).length;
+      document.getElementById('statIndicacoes').textContent = total;
+      document.getElementById('statPontos').textContent = total * 50;
+      document.getElementById('statsBox').style.display = 'block';
+    })
+    .catch(function () {
+      document.getElementById('statsBox').style.display = 'block';
+    });
+
+  /* Nível de fidelidade */
+  sb.from('fidelidade')
+    .select('nivel, pontos')
+    .eq('email_hospede', wpp)
+    .maybeSingle()
+    .then(function (res) {
+      if (!res.data) return;
+      var nivel = res.data.nivel || 'bronze';
+      var badge = document.getElementById('nivelBadge');
+      if (nivel === 'ouro')   { badge.textContent = '🥇 Ouro';   badge.className = 'nivel-badge nivel-ouro'; }
+      else if (nivel === 'prata') { badge.textContent = '🥈 Prata'; badge.className = 'nivel-badge nivel-prata'; }
+      else                    { badge.textContent = '🥉 Bronze'; badge.className = 'nivel-badge nivel-bronze'; }
+      document.getElementById('statPontos').textContent = res.data.pontos || 0;
+    })
+    .catch(function () {});
+}
+
+function copiarLink() {
+  if (!_refUrl) return;
+  navigator.clipboard.writeText(_refUrl)
+    .then(function () {
+      var btn = document.getElementById('btnCopy');
+      btn.textContent = '✅ Copiado!';
+      setTimeout(function () { btn.textContent = '📋 Copiar'; }, 2500);
+    })
+    .catch(function () { toast('Copie manualmente: ' + _refUrl, 'info'); });
+}
+
+function compartilharWhatsApp() {
+  if (!_refUrl) return;
+  var nome = (document.getElementById('ref_nome').value || '').trim() || 'Amigo';
+  var msg  = encodeURIComponent(
+    'Olá! Reservei resorts incríveis pela HOSPEDAH e quero te indicar! 🏖️\n' +
+    'Usa meu link e ganha R$30 de desconto na sua reserva:\n' +
+    _refUrl + '\n\n' +
+    'São mais de 8 resorts exclusivos com atendimento VIP! 🏨'
+  );
+  window.open('https://wa.me/?text=' + msg, '_blank');
+}
+
+function toast(msg, tipo) {
+  tipo = tipo || 'info';
+  var c = document.getElementById('toastContainer');
+  var t = document.createElement('div');
+  t.className = 'toast ' + tipo;
+  t.textContent = msg;
+  c.appendChild(t);
+  setTimeout(function () { t.remove(); }, 4000);
+}
+
+/* Auto-detectar ref code da URL para mostrar ao indicado que ganhou desconto */
+(function () {
+  var p   = new URLSearchParams(window.location.search);
+  var ref = p.get('ref');
+  if (ref) {
+    localStorage.setItem('hospedah_ref', ref);
+    toast('🎁 Você recebeu um link de indicação! Reservando agora, ganhe R$30 de desconto.', 'success');
+    setTimeout(function () { window.location.href = 'reservas.html?ref=' + ref; }, 3000);
+  }
+})();
+</script>
+
+<script>if ('serviceWorker' in navigator) { navigator.serviceWorker.register('/sw.js').catch(function(){}); }</script>
+
+<!-- BOTTOM NAV (mobile) -->
+<nav class="bottom-nav" aria-label="Navegação principal">
+  <ul>
+    <li><a href="index.html"><span class="bn-icon">🏠</span>Início</a></li>
+    <li><a href="busca.html"><span class="bn-icon">🔍</span>Busca</a></li>
+    <li><a href="reservas.html"><span class="bn-icon">📅</span>Reservas</a></li>
+    <li><a href="chat.html"><span class="bn-icon">💬</span>Chat</a></li>
+    <li><a href="referral.html" class="active"><span class="bn-icon">🎁</span>Indicar</a></li>
+  </ul>
+</nav>
+</body>
+</html>

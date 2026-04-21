@@ -454,3 +454,92 @@ CREATE INDEX IF NOT EXISTS idx_fidelidade_email    ON fidelidade(email_hospede);
 CREATE INDEX IF NOT EXISTS idx_tickets_email       ON tickets(email_hospede, status);
 CREATE INDEX IF NOT EXISTS idx_nps_email           ON nps_respostas(email_hospede);
 CREATE INDEX IF NOT EXISTS idx_atividade_criado    ON atividade_publica(criado_em DESC);
+
+-- ============================================================
+-- 19. LEADS — pipeline de CRM (captados pelo formulário de orçamento e exit-intent)
+-- ============================================================
+CREATE TABLE IF NOT EXISTS leads (
+  id              uuid          PRIMARY KEY DEFAULT gen_random_uuid(),
+  nome            text,
+  whatsapp        text,
+  email           text,
+  resort_nome     text,
+  num_pessoas     int,
+  data_entrada    date,
+  data_saida      date,
+  observacoes     text,
+  origem          text          NOT NULL DEFAULT 'orcamento', -- orcamento, exit_intent, busca, chat
+  utm_source      text,
+  utm_medium      text,
+  utm_campaign    text,
+  score           int           NOT NULL DEFAULT 0,  -- lead scoring: 0–100
+  status_pipeline text          NOT NULL DEFAULT 'novo'
+                                CHECK (status_pipeline IN ('novo','contatado','proposta_enviada','negociacao','fechado','perdido')),
+  ref_code        text,
+  criado_em       timestamptz   DEFAULT now(),
+  atualizado_em   timestamptz   DEFAULT now()
+);
+
+ALTER TABLE leads ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "leads_insercao_publica"  ON leads;
+DROP POLICY IF EXISTS "leads_leitura_admin"     ON leads;
+
+-- Qualquer visitante pode criar um lead (captura de orçamento/exit-intent)
+CREATE POLICY "leads_insercao_publica"
+  ON leads FOR INSERT WITH CHECK (true);
+
+-- Apenas administradores lêem e gerenciam leads
+CREATE POLICY "leads_leitura_admin"
+  ON leads FOR ALL TO authenticated
+  USING (EXISTS (SELECT 1 FROM profiles p WHERE p.id = auth.uid() AND p.role IN ('admin', 'proprietario')))
+  WITH CHECK (EXISTS (SELECT 1 FROM profiles p WHERE p.id = auth.uid() AND p.role IN ('admin', 'proprietario')));
+
+CREATE INDEX IF NOT EXISTS idx_leads_status   ON leads(status_pipeline, criado_em DESC);
+CREATE INDEX IF NOT EXISTS idx_leads_resort   ON leads(resort_nome);
+CREATE INDEX IF NOT EXISTS idx_leads_email    ON leads(email);
+CREATE INDEX IF NOT EXISTS idx_leads_whatsapp ON leads(whatsapp);
+
+-- ============================================================
+-- 20. FUNÇÃO RPC — lead scoring automático
+--     Calcula score baseado em: UTM origin, resort escolhido,
+--     número de pessoas e proximidade das datas.
+-- ============================================================
+CREATE OR REPLACE FUNCTION calcular_score_lead(
+  p_utm_source   text,
+  p_resort_nome  text,
+  p_num_pessoas  int,
+  p_data_entrada date
+) RETURNS int LANGUAGE plpgsql AS $$
+DECLARE
+  v_score int := 0;
+BEGIN
+  -- Origem (canal)
+  v_score := v_score + CASE
+    WHEN lower(p_utm_source) IN ('instagram','facebook','meta') THEN 25
+    WHEN lower(p_utm_source) IN ('google','cpc','ads')          THEN 20
+    WHEN lower(p_utm_source) IN ('whatsapp','direct')           THEN 15
+    ELSE 10
+  END;
+
+  -- Resort premium
+  v_score := v_score + CASE
+    WHEN p_resort_nome ILIKE '%wyndham%' OR p_resort_nome ILIKE '%hot beach%' THEN 20
+    WHEN p_resort_nome ILIKE '%juquehy%' OR p_resort_nome ILIKE '%ipioca%'    THEN 18
+    ELSE 12
+  END;
+
+  -- Grupo (mais pessoas = maior receita potencial)
+  v_score := v_score + LEAST(COALESCE(p_num_pessoas, 2) * 3, 20);
+
+  -- Urgência (data próxima = mais urgente)
+  v_score := v_score + CASE
+    WHEN p_data_entrada IS NOT NULL AND p_data_entrada <= CURRENT_DATE + 14 THEN 20
+    WHEN p_data_entrada IS NOT NULL AND p_data_entrada <= CURRENT_DATE + 30 THEN 12
+    ELSE 5
+  END;
+
+  RETURN LEAST(v_score, 100);
+END;
+$$;
+
