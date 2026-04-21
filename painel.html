@@ -791,6 +791,9 @@ function iniciarPainel() {
   document.getElementById('painelHeader').style.display = '';
   document.getElementById('painelLayout').style.display = 'flex';
 
+  // Título da página conforme role
+  document.title = (role === 'hospede') ? 'Meu Perfil | HOSPEDAH' : 'Painel HOSPEDAH';
+
   // Role badge
   const badge = document.getElementById('painelRoleBadge');
   const roleLabels = { admin: '🛡️ Admin', proprietario: '🏠 Proprietário', hospede: '🏖️ Hóspede' };
