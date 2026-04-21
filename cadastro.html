@@ -11,6 +11,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/assets/mobile-first.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <!-- Google Tag Manager, Clarity, Meta Pixel, OneSignal — carregados somente após consentimento LGPD -->
 <script>
@@ -566,20 +567,103 @@ function enviarCadastro(e) {
     <li><a href="#" id="bn-perfil"><span class="bn-icon">👤</span>Perfil</a></li>
   </ul>
 </nav>
+
+<!-- GAVETA PERFIL (mobile) -->
+<div class="perfil-overlay" id="perfilOverlay"></div>
+<aside class="perfil-drawer" id="perfilDrawer" role="dialog" aria-modal="true" aria-label="Meu Perfil">
+  <button class="perfil-close" id="perfilClose" aria-label="Fechar">✕</button>
+  <div class="perfil-header">
+    <div class="perfil-avatar" id="perfilAvatarImg">👤</div>
+    <div class="perfil-info">
+      <strong id="perfilNome">Visitante</strong>
+      <span id="perfilEmail">Faça login para continuar</span>
+    </div>
+  </div>
+  <nav class="perfil-menu">
+    <a href="reservas.html" class="perfil-item">📅 Minhas Reservas</a>
+    <a href="#" class="perfil-item perfil-em-breve">❤️ Favoritos</a>
+    <a href="#" class="perfil-item perfil-em-breve">🔔 Notificações</a>
+    <a href="#" class="perfil-item perfil-em-breve">📄 Meus Documentos</a>
+    <a href="referral.html" class="perfil-item">🔗 Meu Link de Indicação</a>
+    <a href="avaliacoes.html" class="perfil-item">⭐ Minhas Avaliações</a>
+  </nav>
+  <div class="perfil-footer" id="perfilFooter"></div>
+</aside>
 <script>
-/* 🔒 ACESSO SEGURO: 7 toques no ícone Perfil */
+/* ── GAVETA PERFIL ── */
 (function () {
-  var perfilEl = document.getElementById('bn-perfil');
-  if (!perfilEl) return;
-  var count = 0, timer = null;
-  function reset() { count = 0; }
-  perfilEl.addEventListener('click', function (e) {
-    e.preventDefault();
-    count++;
-    clearTimeout(timer);
-    timer = setTimeout(reset, 3000);
-    if (count >= 7) { reset(); clearTimeout(timer); window.location.href = 'painel.html'; }
+  var overlay   = document.getElementById('perfilOverlay');
+  var drawer    = document.getElementById('perfilDrawer');
+  var btnClose  = document.getElementById('perfilClose');
+  var btnPerfil = document.getElementById('bn-perfil');
+  var loaded    = false;
+
+  function openPerfil() {
+    drawer.classList.add('open');
+    overlay.classList.add('open');
+    document.body.style.overflow = 'hidden';
+    if (!loaded) { loaded = true; carregarPerfil(); }
+  }
+  function closePerfil() {
+    drawer.classList.remove('open');
+    overlay.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  if (btnPerfil) btnPerfil.addEventListener('click', function (e) { e.preventDefault(); openPerfil(); });
+  if (btnClose)  btnClose.addEventListener('click', closePerfil);
+  if (overlay)   overlay.addEventListener('click', closePerfil);
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closePerfil(); });
+
+  document.querySelectorAll('.perfil-em-breve').forEach(function (el) {
+    el.addEventListener('click', function (e) { e.preventDefault(); alert('Em breve! 🚀'); });
   });
+
+  function getSbClient() {
+    var SB_URL = 'https://ydrmjoppjxtmnwtvtinb.supabase.co';
+    var SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlkcm1qb3Bwanh0bW53dHZ0aW5iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYyNzA3MzksImV4cCI6MjA5MTg0NjczOX0.Gp4ed332v62sC5e5GXXbPqOIBNpS4EzMCFawnBJE_Cw';
+    return supabase.createClient(SB_URL, SB_KEY);
+  }
+
+  function mostrarBtnLogin(footer) {
+    var link = document.createElement('a');
+    link.href = 'cadastro.html';
+    link.className = 'perfil-btn perfil-btn-login';
+    link.textContent = '👤 Entrar / Criar conta';
+    footer.appendChild(link);
+  }
+
+  function carregarPerfil() {
+    var footer = document.getElementById('perfilFooter');
+    var client;
+    try { client = getSbClient(); } catch (e) { mostrarBtnLogin(footer); return; }
+    client.auth.getSession().then(function (res) {
+      var user = res.data && res.data.session && res.data.session.user;
+      if (user) {
+        var meta = user.user_metadata || {};
+        document.getElementById('perfilNome').textContent  = meta.full_name || meta.name || user.email.split('@')[0];
+        document.getElementById('perfilEmail').textContent = user.email;
+        if (meta.avatar_url) {
+          var img = document.createElement('img');
+          img.src = meta.avatar_url;
+          img.alt = 'Avatar';
+          img.style.cssText = 'width:56px;height:56px;border-radius:50%;object-fit:cover;';
+          var av = document.getElementById('perfilAvatarImg');
+          av.innerHTML = '';
+          av.appendChild(img);
+        }
+        var btnSair = document.createElement('button');
+        btnSair.className = 'perfil-btn perfil-btn-logout';
+        btnSair.textContent = '🚪 Sair';
+        btnSair.addEventListener('click', function () {
+          client.auth.signOut().then(function () { window.location.reload(); });
+        });
+        footer.appendChild(btnSair);
+      } else {
+        mostrarBtnLogin(footer);
+      }
+    }).catch(function () { mostrarBtnLogin(footer); });
+  }
 })();
 </script>
 
