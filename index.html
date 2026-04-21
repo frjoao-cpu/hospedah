@@ -2167,11 +2167,11 @@ function gerarPropostaPDF() {
   if (overlay)   overlay.addEventListener('click', closePerfil);
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closePerfil(); });
 
-  /* Suporte a swipe-down para fechar */
+  /* Suporte a swipe-down para fechar (somente quando o drawer está no topo) */
   var touchStartY = 0;
   drawer.addEventListener('touchstart', function (e) { touchStartY = e.touches[0].clientY; }, { passive: true });
   drawer.addEventListener('touchend', function (e) {
-    if (e.changedTouches[0].clientY - touchStartY > 80) closePerfil();
+    if (drawer.scrollTop === 0 && e.changedTouches[0].clientY - touchStartY > 80) closePerfil();
   }, { passive: true });
 
   function getSbClient() {
@@ -2231,7 +2231,12 @@ function gerarPropostaPDF() {
         btnSair.addEventListener('click', function () {
           btnSair.textContent = 'Saindo…';
           btnSair.disabled = true;
-          client.auth.signOut().then(function () { window.location.reload(); });
+          client.auth.signOut().then(function () {
+            window.location.reload();
+          }).catch(function () {
+            btnSair.textContent = '🚪 Sair da conta';
+            btnSair.disabled = false;
+          });
         });
         footer.appendChild(btnSair);
       } else {
