@@ -1964,8 +1964,25 @@ function _checkDatesForWizard() {
     <li><a href="busca.html"><span class="bn-icon">🔍</span>Busca</a></li>
     <li><a href="reservas.html" class="active"><span class="bn-icon">📅</span>Reservas</a></li>
     <li><a href="chat.html"><span class="bn-icon">💬</span>Chat</a></li>
-    <li><a href="painel.html#minhas-reservas"><span class="bn-icon">👤</span>Perfil</a></li>
+    <li><a href="#" id="bn-perfil"><span class="bn-icon">👤</span>Perfil</a></li>
   </ul>
 </nav>
+<script>
+/* 🔒 ACESSO SEGURO: 7 toques no ícone Perfil */
+(function () {
+  var perfilEl = document.getElementById('bn-perfil');
+  if (!perfilEl) return;
+  var count = 0, timer = null;
+  function reset() { count = 0; }
+  perfilEl.addEventListener('click', function (e) {
+    e.preventDefault();
+    count++;
+    clearTimeout(timer);
+    timer = setTimeout(reset, 3000);
+    if (count >= 7) { reset(); clearTimeout(timer); window.location.href = 'painel.html'; }
+  });
+})();
+</script>
+
 </body>
 </html>
