@@ -173,8 +173,16 @@ CREATE POLICY "mensagens_insercao_publica"
 CREATE POLICY "mensagens_leitura_conversa"
   ON mensagens FOR SELECT USING (true);
 
--- Habilitar Realtime para a tabela mensagens
-ALTER PUBLICATION supabase_realtime ADD TABLE mensagens;
+-- Habilitar Realtime para a tabela mensagens (idempotente)
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_publication_tables
+    WHERE pubname = 'supabase_realtime' AND tablename = 'mensagens'
+  ) THEN
+    ALTER PUBLICATION supabase_realtime ADD TABLE mensagens;
+  END IF;
+END $$;
 
 -- ============================================================
 -- 7. PREÇOS DINÂMICOS — por período/temporada
