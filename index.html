@@ -965,8 +965,7 @@ document.addEventListener('keydown', function (e) {
 (function () {
   var perfilEl = document.getElementById('bn-perfil');
   if (!perfilEl) return;
-  var count = 0;
-  var timer = null;
+  var count = 0, timer = null;
   function reset() { count = 0; }
   perfilEl.addEventListener('click', function (e) {
     e.preventDefault();
