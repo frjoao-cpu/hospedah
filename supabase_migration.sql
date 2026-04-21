@@ -258,10 +258,20 @@ CREATE POLICY "profiles_atualizacao_proprio"
   ON profiles FOR UPDATE TO authenticated
   USING (auth.uid() = id) WITH CHECK (auth.uid() = id);
 
--- Admin pode ler todos os perfis
+-- Função auxiliar SECURITY DEFINER para verificar se o usuário atual é admin.
+-- Necessário para evitar recursão infinita ao referenciar profiles dentro de
+-- uma policy de profiles (PostgreSQL detecta a recursão e gera erro).
+-- Segurança: a função só retorna true/false sem expor dados, e SET search_path = public
+-- impede ataques de sequestro de search_path. O owner da função deve ser o dono do schema.
+CREATE OR REPLACE FUNCTION is_admin_user()
+RETURNS boolean LANGUAGE sql STABLE SECURITY DEFINER SET search_path = public AS $$
+  SELECT EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin');
+$$;
+
+-- Admin pode ler todos os perfis (usa função SECURITY DEFINER para evitar recursão)
 CREATE POLICY "profiles_leitura_admin"
   ON profiles FOR SELECT TO authenticated
-  USING (EXISTS (SELECT 1 FROM profiles p WHERE p.id = auth.uid() AND p.role = 'admin'));
+  USING (is_admin_user());
 
 -- Trigger: criar perfil automaticamente ao criar usuário
 CREATE OR REPLACE FUNCTION handle_new_user()
@@ -551,3 +561,20 @@ BEGIN
 END;
 $$;
 
+-- ============================================================
+-- 21. DEFINIR PAPEL DO ADMINISTRADOR
+-- ============================================================
+-- Execute o comando abaixo substituindo o e-mail pelo e-mail do
+-- usuário administrador cadastrado no Supabase Auth.
+-- Sem isso, o login no Sistema Hospeda será bloqueado porque o
+-- perfil de todo novo usuário começa com role = 'hospede'.
+--
+--   UPDATE profiles
+--   SET role = 'admin'
+--   WHERE id = (SELECT id FROM auth.users WHERE email = 'admin@exemplo.com.br');
+--
+-- Para tornar um usuário proprietário em vez de admin:
+--
+--   UPDATE profiles
+--   SET role = 'proprietario'
+--   WHERE id = (SELECT id FROM auth.users WHERE email = 'proprietario@exemplo.com.br');
