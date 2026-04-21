@@ -1,9 +1,122 @@
 /* ============================================================
    HOSPEDAH — Mobile-First Base Stylesheet
+   ─────────────────────────────────────────────────────────────
+   ORDEM DE IMPORTAÇÃO RECOMENDADA (em todas as páginas):
+     1. /assets/mobile-first.css  ← este arquivo (tokens + base)
+     2. /assets/style.css         ← componentes compartilhados
+     3. CSS específico da página  ← <style> inline ou arquivo próprio
+
    Regras base para mobile (<768 px), expandidas com
    @media (min-width: 768px) para tablet e desktop.
-   Importar em todas as páginas internas logo após reset/vars.
    ============================================================ */
+
+/* ── DESIGN TOKENS — fonte única de verdade para toda a UI ── */
+:root {
+  /* Cores */
+  --dourado:          #D4AF37;
+  --dourado-hover:    #f0c93a;
+  --dourado-dim:      rgba(212,175,55,0.15);
+  --azul:             #0B1C3D;
+  --azul2:            #142850;
+  --azul3:            #182242;
+  --verde-wpp:        #25D366;
+  --vermelho:         #e74c3c;
+  --amarelo:          #f39c12;
+
+  /* Backgrounds */
+  --bg:               #0d1b2e;
+  --bg2:              #10233c;
+  --bg-dark:          linear-gradient(135deg, #0B1C3D, #142850);
+  --bg-light:         #f4f4ef;
+
+  /* Texto */
+  --cor-texto:        #e8eaf0;
+  --cor-sub:          #aab4c4;
+  --cor-foco:         #e7c343;
+
+  /* Bordas */
+  --borda:            rgba(212,175,55,0.15);
+
+  /* Forma */
+  --radius-sm:        8px;
+  --radius:           12px;
+  --radius-lg:        18px;
+  --radius-pill:      999px;
+
+  /* Sombras */
+  --sombra-sm:        0 2px 8px rgba(0,0,0,0.18);
+  --sombra:           0 4px 24px rgba(0,0,0,0.3);
+  --sombra-lg:        0 8px 48px rgba(0,0,0,0.45);
+
+  /* Espaçamentos (escala 4px) */
+  --sp-1:  4px;
+  --sp-2:  8px;
+  --sp-3:  12px;
+  --sp-4:  16px;
+  --sp-5:  20px;
+  --sp-6:  24px;
+  --sp-8:  32px;
+  --sp-10: 40px;
+  --sp-12: 48px;
+
+  /* Motion */
+  --motion-fast:   120ms ease;
+  --motion-base:   200ms ease;
+  --motion-slow:   350ms ease;
+  --motion-spring: 400ms cubic-bezier(0.22, 1.2, 0.46, 1);
+}
+
+/* ── SKELETON LOADING ── */
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    rgba(255,255,255,0.06) 25%,
+    rgba(255,255,255,0.12) 50%,
+    rgba(255,255,255,0.06) 75%
+  );
+  background-size: 200% 100%;
+  animation: skeletonShimmer 1.6s infinite;
+  border-radius: var(--radius);
+}
+@keyframes skeletonShimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* Versão para tema claro */
+html[data-theme="light"] .skeleton {
+  background: linear-gradient(
+    90deg,
+    rgba(0,0,0,0.04) 25%,
+    rgba(0,0,0,0.10) 50%,
+    rgba(0,0,0,0.04) 75%
+  );
+  background-size: 200% 100%;
+  animation: skeletonShimmer 1.6s infinite;
+}
+
+/* ── IMAGENS COM LAZY-LOAD ── */
+.lazy-img {
+  opacity: 0;
+  transition: opacity var(--motion-base);
+}
+.lazy-img.loaded {
+  opacity: 1;
+}
+
+/* ── SR-ONLY (alias de .visually-hidden para conformidade ARIA) ── */
+.sr-only,
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0,0,0,0);
+  white-space: nowrap;
+  border: 0;
+}
 
 /* ── Tipografia responsiva com clamp() ── */
 body {
@@ -232,22 +345,35 @@ img {
 }
 
 /* ── UTILITÁRIOS ── */
-.visually-hidden {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0,0,0,0);
-  white-space: nowrap;
-  border: 0;
+.text-center  { text-align: center; }
+.text-dourado { color: var(--dourado, #D4AF37); }
+.mt-8   { margin-top: var(--sp-2,  8px); }
+.mt-16  { margin-top: var(--sp-4,  16px); }
+.mt-24  { margin-top: var(--sp-6,  24px); }
+.gap-8  { gap: var(--sp-2, 8px); }
+.gap-16 { gap: var(--sp-4, 16px); }
+
+/* ── TABLET (768–1024px) ── */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .responsive-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .painel-sidebar {
+    width: 200px;
+    padding: 16px 10px;
+  }
+
+  .hero-search-grid {
+    grid-template-columns: 1fr 1fr;
+  }
 }
 
-.text-center { text-align: center; }
-.text-dourado { color: var(--dourado, #D4AF37); }
-.mt-8  { margin-top: 8px; }
-.mt-16 { margin-top: 16px; }
-.mt-24 { margin-top: 24px; }
-.gap-8  { gap: 8px; }
-.gap-16 { gap: 16px; }
+/* ── SAFE AREA (notch / Dynamic Island) ── */
+.bottom-nav ul {
+  padding-bottom: max(env(safe-area-inset-bottom, 0px), 4px);
+}
+
+body.has-bottom-nav {
+  padding-bottom: calc(56px + max(env(safe-area-inset-bottom, 0px), 4px));
+}

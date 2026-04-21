@@ -549,8 +549,86 @@ span.flatpickr-weekday {
 }
 .sp-time-r { font-size:.74em; opacity:.55; margin-top:2px; }
 
-/* URGENCY EXPIRED MODAL */
-.urgency-modal-overlay {
+/* WIZARD: BARRA DE PROGRESSO */
+.wizard-progress {
+  display: flex; align-items: center; justify-content: center;
+  gap: 0; margin-bottom: 24px; padding: 0 8px; overflow: hidden;
+}
+.wp-step {
+  display: flex; flex-direction: column; align-items: center;
+  flex: 1; position: relative;
+}
+.wp-step:not(:last-child)::after {
+  content: ''; position: absolute; top: 15px; left: calc(50% + 14px);
+  width: calc(100% - 28px); height: 2px;
+  background: rgba(255,255,255,0.1); z-index: 0;
+  transition: background .3s;
+}
+.wp-step.done:not(:last-child)::after { background: var(--dourado); }
+.wp-circle {
+  width: 30px; height: 30px; border-radius: 50%;
+  border: 2px solid rgba(255,255,255,0.15);
+  background: rgba(255,255,255,0.05);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.7em; font-weight: 700; color: var(--cor-sub);
+  position: relative; z-index: 1;
+  transition: all .3s;
+}
+.wp-step.active .wp-circle {
+  background: var(--dourado); color: var(--azul);
+  border-color: var(--dourado); box-shadow: 0 0 0 4px rgba(212,175,55,0.2);
+}
+.wp-step.done .wp-circle {
+  background: rgba(37,211,102,0.2); color: #25D366;
+  border-color: rgba(37,211,102,0.5);
+}
+.wp-label {
+  font-size: 0.65em; color: var(--cor-sub);
+  margin-top: 4px; text-align: center; white-space: nowrap;
+}
+.wp-step.active .wp-label { color: var(--dourado); font-weight: 600; }
+
+/* Ocultar steps não-ativos */
+.wizard-step { display: none; }
+.wizard-step.active { display: block; animation: fadeSlide .25s ease; }
+@keyframes fadeSlide {
+  from { opacity: 0; transform: translateX(16px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+/* NAV BOTÕES DO WIZARD */
+.wizard-nav {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-top: 18px; gap: 10px;
+}
+.wizard-nav .btn-prev {
+  background: rgba(255,255,255,0.06); border: 1px solid var(--borda);
+  color: var(--cor-sub); border-radius: 10px; padding: 10px 20px;
+  font-family: 'Poppins', sans-serif; font-size: 0.85em; font-weight: 600;
+  cursor: pointer; transition: all .15s;
+}
+.wizard-nav .btn-prev:hover { color: var(--dourado); border-color: var(--dourado); }
+.wizard-nav .btn-next {
+  background: var(--dourado); color: var(--azul);
+  border: none; border-radius: 10px; padding: 10px 24px;
+  font-family: 'Poppins', sans-serif; font-size: 0.9em; font-weight: 700;
+  cursor: pointer; transition: all .15s;
+}
+.wizard-nav .btn-next:hover { background: var(--dourado-hover); }
+.wizard-nav .btn-next:disabled { opacity: .5; cursor: not-allowed; }
+
+/* SKELETON no resumo */
+.skeleton-line {
+  height: 14px; border-radius: 6px; margin: 8px 0;
+  background: linear-gradient(90deg,rgba(255,255,255,.06) 25%,rgba(255,255,255,.12) 50%,rgba(255,255,255,.06) 75%);
+  background-size: 200% 100%;
+  animation: skeletonShimmer 1.6s infinite;
+}
+@keyframes skeletonShimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
   display: none; position: fixed; inset: 0; z-index: 9998;
   background: rgba(0,0,0,.65); backdrop-filter: blur(3px);
   align-items: center; justify-content: center;
@@ -588,6 +666,29 @@ span.flatpickr-weekday {
 
   <!-- FORMULÁRIO -->
   <div>
+
+    <!-- BARRA DE PROGRESSO -->
+    <div class="wizard-progress" id="wizardProgress" role="progressbar" aria-label="Etapas da reserva">
+      <div class="wp-step active" id="wp-1">
+        <div class="wp-circle">1</div>
+        <div class="wp-label">Resort</div>
+      </div>
+      <div class="wp-step" id="wp-2">
+        <div class="wp-circle">2</div>
+        <div class="wp-label">Datas</div>
+      </div>
+      <div class="wp-step" id="wp-3">
+        <div class="wp-circle">3</div>
+        <div class="wp-label">Dados</div>
+      </div>
+      <div class="wp-step" id="wp-4">
+        <div class="wp-circle">✓</div>
+        <div class="wp-label">Confirmação</div>
+      </div>
+    </div>
+
+    <!-- STEP 1: RESORT -->
+    <div class="wizard-step active" id="wstep-1">
     <div class="form-card">
       <h2>🏨 1. Escolha o Resort</h2>
 
@@ -606,9 +707,16 @@ span.flatpickr-weekday {
           </select>
         </div>
       </div>
+      <div class="wizard-nav">
+        <span></span>
+        <button class="btn-next" onclick="irParaStep(2)" id="btnNext1" disabled>Próximo: Datas →</button>
+      </div>
     </div>
+    </div><!-- /wstep-1 -->
 
-    <div class="form-card" style="margin-top:20px;">
+    <!-- STEP 2: DATAS -->
+    <div class="wizard-step" id="wstep-2">
+    <div class="form-card">
       <h2>📅 2. Escolha as Datas</h2>
 
       <div class="info-box">
@@ -635,9 +743,16 @@ span.flatpickr-weekday {
       <div class="urgency-countdown" id="urgencyCountdown" aria-live="polite">
         ⏰ Preço garantido por <strong id="urgencyTimer">15:00</strong> — confirme agora!
       </div>
+      <div class="wizard-nav">
+        <button class="btn-prev" onclick="irParaStep(1)">← Voltar</button>
+        <button class="btn-next" onclick="irParaStep(3)" id="btnNext2" disabled>Próximo: Dados →</button>
+      </div>
     </div>
+    </div><!-- /wstep-2 -->
 
-    <div class="form-card" style="margin-top:20px;">
+    <!-- STEP 3: DADOS DO HÓSPEDE -->
+    <div class="wizard-step" id="wstep-3">
+    <div class="form-card">
       <h2>👤 3. Seus Dados</h2>
 
       <div class="field-group">
@@ -689,7 +804,11 @@ span.flatpickr-weekday {
       <button class="btn btn-whatsapp" id="btnWhatsApp" onclick="abrirWhatsAppReserva()" disabled>
         📱 Reservar via WhatsApp
       </button>
+      <div class="wizard-nav" style="margin-top:10px;">
+        <button class="btn-prev" onclick="irParaStep(2)">← Voltar às Datas</button>
+      </div>
     </div>
+    </div><!-- /wstep-3 -->
   </div>
 
   <!-- RESUMO LATERAL -->
@@ -908,6 +1027,10 @@ async function selecionarResort(id) {
   document.querySelectorAll('.resort-option').forEach(el => el.classList.remove('selected'));
   document.getElementById('ro_' + id).classList.add('selected');
   document.getElementById('resortSelecionado').value = id;
+
+  // Habilitar botão "Próximo" do step 1 do wizard
+  var btnNext1 = document.getElementById('btnNext1');
+  if (btnNext1) btnNext1.disabled = false;
 
   // Mostrar/ocultar seleção de dormitórios
   toggleDormitoriosGroup(resortAtual.nome);
@@ -1734,7 +1857,103 @@ async function registrarPontosLoyalty(email, noites) {
   } catch (_) { return null; }
 }
 
-</script>
+// ============================================================
+// WIZARD: NAVEGAÇÃO POR ETAPAS
+// ============================================================
+var _wizardStep = 1;
+
+function irParaStep(step) {
+  /* Validação de avanço */
+  if (step === 2 && !document.getElementById('resortSelecionado').value) {
+    /* Destaque nos cards para selecionar */
+    document.getElementById('resortsGrid').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return;
+  }
+  if (step === 3) {
+    var entrada = document.getElementById('dataEntrada').value;
+    var saida   = document.getElementById('dataSaida').value;
+    if (!entrada || !saida) {
+      document.getElementById('dataEntrada').focus();
+      return;
+    }
+  }
+
+  /* Ocultar step atual */
+  var current = document.getElementById('wstep-' + _wizardStep);
+  if (current) current.classList.remove('active');
+
+  /* Atualizar step destino */
+  _wizardStep = step;
+  var next = document.getElementById('wstep-' + _wizardStep);
+  if (next) next.classList.add('active');
+
+  /* Atualizar bolhas de progresso */
+  for (var i = 1; i <= 4; i++) {
+    var dot = document.getElementById('wp-' + i);
+    if (!dot) continue;
+    dot.classList.remove('active', 'done');
+    if (i < step) dot.classList.add('done');
+    else if (i === step) dot.classList.add('active');
+  }
+
+  /* Atualizar ícone de check nas etapas concluídas */
+  document.querySelectorAll('.wp-step.done .wp-circle').forEach(function(c) {
+    if (!c.dataset.orig) c.dataset.orig = c.textContent;
+    c.textContent = '✓';
+  });
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+/* Habilitar botão "Próximo" do step 1 quando resort é selecionado */
+var _origOnResortSelect = typeof onResortSelect === 'function' ? onResortSelect : null;
+function onResortSelect(resortId) {
+  if (_origOnResortSelect) _origOnResortSelect(resortId);
+  var btn = document.getElementById('btnNext1');
+  if (btn) btn.disabled = false;
+}
+
+/* Habilitar botão "Próximo" do step 2 quando datas são selecionadas */
+function _checkDatesForWizard() {
+  var btn = document.getElementById('btnNext2');
+  if (!btn) return;
+  var entrada = document.getElementById('dataEntrada').value;
+  var saida   = document.getElementById('dataSaida').value;
+  btn.disabled = !(entrada && saida);
+}
+
+/* Observa mudanças nos inputs de data */
+['dataEntrada', 'dataSaida'].forEach(function(id) {
+  var el = document.getElementById(id);
+  if (el) {
+    var obs = new MutationObserver(_checkDatesForWizard);
+    obs.observe(el, { attributes: true, attributeFilter: ['value'] });
+    el.addEventListener('change', _checkDatesForWizard);
+  }
+});
+
+/* Skeleton no resumo enquanto carregam os preços dinâmicos */
+(function injectSkeletonResume() {
+  var el = document.getElementById('sumResort');
+  if (el && el.textContent === '—') {
+    var skEl = document.createElement('div');
+    skEl.className = 'skeleton-line';
+    skEl.style.width = '60%';
+    skEl.style.display = 'inline-block';
+    el.innerHTML = '';
+    el.appendChild(skEl);
+    /* Remove skeleton quando resort for selecionado (conteúdo texto inserido) */
+    var ob = new MutationObserver(function() {
+      if (!el.querySelector('.skeleton-line')) { ob.disconnect(); }
+      else if (el.childNodes.length && el.textContent.trim()) {
+        var sk = el.querySelector('.skeleton-line');
+        if (sk) sk.remove();
+        ob.disconnect();
+      }
+    });
+    ob.observe(el, { childList: true, subtree: true, characterData: true });
+  }
+})();</script>
 
 <script>if ('serviceWorker' in navigator) { navigator.serviceWorker.register('/sw.js').catch(function(){}); }</script>
 

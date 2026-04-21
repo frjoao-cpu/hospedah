@@ -212,7 +212,7 @@ opacity:.6;
 margin-top:14px;
 }
 
-/* SUCESSO */
+/* SUCESSO — animação aprimorada */
 .mensagem-ok{
 display:none;
 background:rgba(37,211,102,0.1);
@@ -223,7 +223,43 @@ text-align:center;
 margin-top:20px;
 color:#25D366;
 font-weight:600;
+animation:successPop .45s cubic-bezier(.22,1.2,.46,1) both;
 }
+@keyframes successPop{
+  from{opacity:0;transform:scale(.88) translateY(12px);}
+  to  {opacity:1;transform:scale(1)   translateY(0);}
+}
+
+/* VALIDAÇÃO PROGRESSIVA */
+.form-group .field-error{
+display:none;
+color:#f87171;
+font-size:12px;
+margin-top:4px;
+animation:fadeIn .2s ease;
+}
+@keyframes fadeIn{from{opacity:0;transform:translateY(-4px);}to{opacity:1;transform:none;}}
+.form-group input.invalid,
+.form-group select.invalid,
+.form-group textarea.invalid{
+border-color:#f87171 !important;
+}
+.form-group input.valid,
+.form-group select.valid,
+.form-group textarea.valid{
+border-color:#25D366 !important;
+}
+
+/* BOTÃO COM LOADING */
+.btn-enviar:disabled{
+opacity:.7;cursor:not-allowed;transform:none !important;
+}
+.btn-spinner{
+display:inline-block;width:14px;height:14px;border:2px solid var(--azul);
+border-top-color:transparent;border-radius:50%;
+animation:spin .7s linear infinite;vertical-align:middle;margin-right:6px;
+}
+@keyframes spin{to{transform:rotate(360deg);}}
 
 /* LGPD Banner */
 #cookie-banner-cad{
@@ -275,13 +311,14 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
   <div class="form-group">
     <label>Nome do empreendimento *</label>
-    <input type="text" id="nomeEmp" placeholder="Ex.: Residencial Paraíso" required autocomplete="organization">
+    <input type="text" id="nomeEmp" placeholder="Ex.: Residencial Paraíso" required autocomplete="organization" aria-describedby="err-nomeEmp">
+    <span class="field-error" id="err-nomeEmp">Por favor, informe o nome do empreendimento.</span>
   </div>
 
   <div class="form-row">
     <div class="form-group">
       <label>Tipo de imóvel *</label>
-      <select id="tipoImovel" required>
+      <select id="tipoImovel" required aria-describedby="err-tipoImovel">
         <option value="">Selecione...</option>
         <option value="resort">Resort</option>
         <option value="hotel">Hotel</option>
@@ -291,33 +328,38 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <option value="casa">Casa de temporada</option>
         <option value="outro">Outro</option>
       </select>
+      <span class="field-error" id="err-tipoImovel">Selecione o tipo de imóvel.</span>
     </div>
     <div class="form-group">
       <label>Nº de dormitórios *</label>
-      <select id="dormitorios" required>
+      <select id="dormitorios" required aria-describedby="err-dormitorios">
         <option value="">Selecione...</option>
         <option value="1">1 dormitório</option>
         <option value="2">2 dormitórios</option>
         <option value="3">3 dormitórios</option>
         <option value="4">4+ dormitórios</option>
       </select>
+      <span class="field-error" id="err-dormitorios">Selecione o número de dormitórios.</span>
     </div>
   </div>
 
   <div class="form-row">
     <div class="form-group">
       <label>Capacidade (pessoas) *</label>
-      <input type="number" id="capacidade" placeholder="Ex.: 8" min="1" required>
+      <input type="number" id="capacidade" placeholder="Ex.: 8" min="1" required aria-describedby="err-capacidade">
+      <span class="field-error" id="err-capacidade">Informe a capacidade (mín. 1 pessoa).</span>
     </div>
     <div class="form-group">
       <label>Preço referencial (R$/noite) *</label>
-      <input type="number" id="preco" placeholder="Ex.: 350" min="1" required>
+      <input type="number" id="preco" placeholder="Ex.: 350" min="1" required aria-describedby="err-preco">
+      <span class="field-error" id="err-preco">Informe o preço referencial.</span>
     </div>
   </div>
 
   <div class="form-group">
     <label>Cidade / Localização *</label>
-    <input type="text" id="cidade" placeholder="Ex.: Olímpia - SP" required>
+    <input type="text" id="cidade" placeholder="Ex.: Olímpia - SP" required aria-describedby="err-cidade">
+    <span class="field-error" id="err-cidade">Informe a cidade/localização.</span>
   </div>
 
   <div class="form-group">
@@ -327,21 +369,24 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
   <div class="form-group">
     <label>Seu nome (responsável) *</label>
-    <input type="text" id="nomeContato" placeholder="Nome completo" required autocomplete="name">
+    <input type="text" id="nomeContato" placeholder="Nome completo" required autocomplete="name" aria-describedby="err-nomeContato">
+    <span class="field-error" id="err-nomeContato">Informe o nome do responsável.</span>
   </div>
 
   <div class="form-row">
     <div class="form-group">
       <label>WhatsApp (com DDD) *</label>
-      <input type="tel" id="whatsapp" placeholder="Ex.: 17982006382" required autocomplete="tel">
+      <input type="tel" id="whatsapp" placeholder="Ex.: 17982006382" required autocomplete="tel" aria-describedby="err-whatsapp">
+      <span class="field-error" id="err-whatsapp">Informe um WhatsApp válido (mín. 10 dígitos).</span>
     </div>
     <div class="form-group">
       <label>E-mail</label>
-      <input type="email" id="email" placeholder="seu@email.com" autocomplete="email">
+      <input type="email" id="email" placeholder="seu@email.com" autocomplete="email" aria-describedby="err-email">
+      <span class="field-error" id="err-email">Informe um e-mail válido.</span>
     </div>
   </div>
 
-  <button type="submit" class="btn-enviar">📲 Enviar Cadastro via WhatsApp</button>
+  <button type="submit" class="btn-enviar" id="btnEnviar">📲 Enviar Cadastro via WhatsApp</button>
   <p class="aviso">Ao enviar, você será redirecionado ao WhatsApp para confirmar o cadastro com nossa equipe.</p>
 
 </form>
@@ -388,8 +433,71 @@ function getUtmSuffix() {
   });
 })();
 
+/* ── VALIDAÇÃO PROGRESSIVA ── */
+var VALIDATORS = {
+  nomeEmp:    function (v) { return v.trim().length >= 3; },
+  tipoImovel: function (v) { return v !== ''; },
+  dormitorios:function (v) { return v !== ''; },
+  capacidade: function (v) { return Number(v) >= 1; },
+  preco:      function (v) { return Number(v) >= 1; },
+  cidade:     function (v) { return v.trim().length >= 3; },
+  nomeContato:function (v) { return v.trim().length >= 3; },
+  whatsapp:   function (v) { return /^\d{10,15}$/.test(v.replace(/\D/g,'')); },
+  email:      function (v) { return v === '' || /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v); }
+};
+
+function validateField(id) {
+  var el  = document.getElementById(id);
+  var errEl = document.getElementById('err-' + id);
+  if (!el || !VALIDATORS[id]) return true;
+  var ok = VALIDATORS[id](el.value);
+  el.classList.toggle('valid',   ok);
+  el.classList.toggle('invalid', !ok);
+  if (errEl) errEl.style.display = ok ? 'none' : 'block';
+  return ok;
+}
+
+/* Attach blur/change listeners */
+document.addEventListener('DOMContentLoaded', function () {
+  Object.keys(VALIDATORS).forEach(function (id) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    var evt = (el.tagName === 'SELECT') ? 'change' : 'blur';
+    el.addEventListener(evt, function () { validateField(id); });
+    /* Also validate on input for text fields after first blur */
+    if (el.tagName !== 'SELECT') {
+      el.addEventListener('input', function () {
+        if (el.classList.contains('invalid') || el.classList.contains('valid')) {
+          validateField(id);
+        }
+      });
+    }
+  });
+});
+
+/* ── ENVIO COM LOADING STATE ── */
+function setBtnLoading(loading) {
+  var btn = document.getElementById('btnEnviar');
+  if (!btn) return;
+  btn.disabled = loading;
+  btn.innerHTML = loading
+    ? '<span class="btn-spinner"></span> Abrindo WhatsApp…'
+    : '📲 Enviar Cadastro via WhatsApp';
+}
+
 function enviarCadastro(e) {
   e.preventDefault();
+
+  /* Valida todos os campos */
+  var allOk = Object.keys(VALIDATORS).reduce(function (acc, id) {
+    return validateField(id) && acc;
+  }, true);
+
+  if (!allOk) {
+    var firstInvalid = document.querySelector('.invalid');
+    if (firstInvalid) firstInvalid.focus();
+    return;
+  }
 
   var nome       = document.getElementById('nomeEmp').value.trim();
   var tipo       = document.getElementById('tipoImovel').value;
@@ -401,6 +509,9 @@ function enviarCadastro(e) {
   var contato    = document.getElementById('nomeContato').value.trim();
   var whatsapp   = document.getElementById('whatsapp').value.trim();
   var email      = document.getElementById('email').value.trim();
+
+  /* Loading state */
+  setBtnLoading(true);
 
   /* Meta Pixel — evento de conversão */
   if (typeof fbq === 'function') fbq('track', 'Lead', { content_name: tipo });
@@ -420,7 +531,8 @@ function enviarCadastro(e) {
     (email ? '✉️ *E-mail:* ' + email + '\n' : '') +
     getUtmSuffix();
 
-  document.getElementById('msgOk').style.display = 'block';
+  var msgOk = document.getElementById('msgOk');
+  msgOk.style.display = 'block';
 
   /* Envio paralelo via Formspree */
   fetch('https://formspree.io/f/xeepnbkk', {
@@ -435,6 +547,7 @@ function enviarCadastro(e) {
   }).catch(function() { /* falha silenciosa — WhatsApp ainda envia */ });
 
   setTimeout(function () {
+    setBtnLoading(false);
     window.open(
       'https://wa.me/5517982006382?text=' + encodeURIComponent(msg),
       '_blank'

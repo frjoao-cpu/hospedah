@@ -183,999 +183,7 @@ if (localStorage.getItem('hospedah_consent') === 'accepted') { initTracking(); }
   ]
 }
 </script>
-<style>
-/* ==========================================
-   VARIÁVEIS GLOBAIS
-========================================== */
-:root {
-  --dourado: #D4AF37;
-  --dourado-hover: #f0c93a;
-  --azul: #0B1C3D;
-  --azul2: #142850;
-  --azul3: #182242;
-  --bg-dark: linear-gradient(135deg,#0B1C3D,#142850);
-  --bg-light: #f4f4ef;
-  --cor-foco: #e7c343;
-  --wpp: #25D366;
-  --radius: 14px;
-  --sombra: 0 4px 24px rgba(0,0,0,0.18);
-}
-
-/* ==========================================
-   RESET
-========================================== */
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { scroll-behavior: smooth; }
-body {
-  font-family: 'Poppins', sans-serif;
-  background: var(--bg-dark);
-  color: #fff;
-  transition: background 0.3s, color 0.3s;
-  overflow-x: hidden;
-}
-
-/* ==========================================
-   TEMAS
-========================================== */
-/* — ESCURO — */
-html[data-theme="dark"] body                    { background: var(--bg-dark); color: #fff; }
-html[data-theme="dark"] .navbar                 { background: rgba(11,28,61,0.97); }
-html[data-theme="dark"] .nav-links a            { color: #fff; }
-html[data-theme="dark"] .panel-box              { background: var(--azul3); }
-html[data-theme="dark"] .panel-box input,
-html[data-theme="dark"] .panel-box select       { background: #f8f7f3; color: #222; border-color: #274678; }
-html[data-theme="dark"] .card-imovel            { background: #24315b; color: #fff; }
-html[data-theme="dark"] .depoimentos-section    { background: rgba(255,255,255,0.03); }
-html[data-theme="dark"] .depo-card              { background: linear-gradient(115deg,#1a2a4a,#142035); color: #fff; }
-html[data-theme="dark"] .depo-cidade            { color: #b9cce8; }
-html[data-theme="dark"] .section-form           { background: rgba(255,255,255,0.03); }
-html[data-theme="dark"] .section-form h2        { color: var(--dourado); }
-html[data-theme="dark"] .form-std input,
-html[data-theme="dark"] .form-std select,
-html[data-theme="dark"] .form-std textarea      { background: #f8f7f3; color: #222; border-color: #274678; }
-html[data-theme="dark"] .tab                    { background: rgba(255,255,255,0.07); }
-html[data-theme="dark"] .hero-search            { background: rgba(11,28,61,0.82); }
-html[data-theme="dark"] .hero-search input,
-html[data-theme="dark"] .hero-search select     { background: #fff; color: #222; }
-
-/* — CLARO — */
-html[data-theme="light"] body                   { background: var(--bg-light); color: #191919; }
-html[data-theme="light"] .navbar                { background: rgba(255,255,255,0.97); box-shadow: 0 2px 12px #0001; }
-html[data-theme="light"] .navbar .logo-txt      { color: var(--azul); }
-html[data-theme="light"] .nav-links a           { color: var(--azul); }
-html[data-theme="light"] .hamburger span        { background: var(--azul); }
-html[data-theme="light"] .panel-box             { background: #fff; border: 1px solid #ddd; }
-html[data-theme="light"] .panel-box h2          { color: var(--dourado); }
-html[data-theme="light"] .panel-box input,
-html[data-theme="light"] .panel-box select      { background: #fafaf6; color: #222; border-color: #ccc; }
-html[data-theme="light"] .card-imovel           { background: #f0ede3; color: #191919; }
-html[data-theme="light"] .card-imovel b,
-html[data-theme="light"] .card-imovel h3,
-html[data-theme="light"] .card-imovel p         { color: #191919; }
-html[data-theme="light"] .depoimentos-section   { background: #fff; }
-html[data-theme="light"] .depo-title            { color: #8B6914; }
-html[data-theme="light"] .depo-card             { background: linear-gradient(115deg,#fffbe7,#fbecd1); color: #191919; }
-html[data-theme="light"] .depo-cidade           { color: #b9aa92; }
-html[data-theme="light"] .section-form          { background: #fff; }
-html[data-theme="light"] .section-form h2       { color: #8B6914; }
-html[data-theme="light"] .form-std input,
-html[data-theme="light"] .form-std select,
-html[data-theme="light"] .form-std textarea     { background: #fafaf6; color: #222; border-color: #ccc; }
-html[data-theme="light"] .tab                   { background: rgba(11,28,61,0.08); color: var(--azul); }
-html[data-theme="light"] .tab.active            { background: var(--dourado); color: var(--azul); }
-html[data-theme="light"] .resort-title          { color: #8B6914; }
-html[data-theme="light"] .resort-link           { color: var(--azul); }
-html[data-theme="light"] .hero-search           { background: rgba(255,255,255,0.92); }
-html[data-theme="light"] .hero-search input,
-html[data-theme="light"] .hero-search select    { background: #fafaf6; color: #222; }
-html[data-theme="light"] .hero-search label     { color: var(--azul); }
-html[data-theme="light"] #pre-reserva           { background: rgba(11,28,61,0.05); }
-html[data-theme="light"] footer                 { background: #e8e4d8; color: #444; }
-
-/* ==========================================
-   ✅ NAVBAR COM MENU SANDUÍCHE
-========================================== */
-.navbar {
-  position: fixed; top: 0; left: 0; width: 100%; z-index: 1000;
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 0 24px; height: 64px;
-  background: rgba(11,28,61,0.97);
-  backdrop-filter: blur(10px);
-  box-shadow: 0 2px 16px rgba(0,0,0,0.25);
-  transition: background 0.3s;
-}
-.navbar .logo-txt {
-  font-size: 1.5rem; font-weight: 700;
-  color: var(--dourado); letter-spacing: 2px;
-  text-decoration: none; white-space: nowrap;
-}
-.navbar .logo-txt span { color: #fff; }
-.nav-links {
-  display: flex; align-items: center; gap: 6px;
-  list-style: none;
-}
-.nav-links a {
-  color: #fff; text-decoration: none;
-  font-size: 13.5px; font-weight: 600;
-  padding: 7px 13px; border-radius: 22px;
-  transition: background .16s, color .16s;
-  white-space: nowrap;
-}
-.nav-links a:hover, .nav-links a:focus {
-  background: var(--dourado); color: var(--azul);
-}
-.nav-right {
-  display: flex; align-items: center; gap: 10px;
-}
-.btn-tema {
-  background: var(--azul2); color: var(--dourado);
-  border: none; border-radius: 22px;
-  padding: 7px 14px; font-size: 14px; font-weight: 600;
-  cursor: pointer; transition: background .15s, color .15s;
-  white-space: nowrap;
-}
-.btn-tema:hover { background: var(--dourado); color: var(--azul); }
-
-/* Hamburguer */
-.hamburger {
-  display: none; flex-direction: column;
-  justify-content: center; gap: 5px;
-  background: none; border: none;
-  cursor: pointer; padding: 6px; z-index: 1100;
-}
-.hamburger span {
-  display: block; width: 25px; height: 2.5px;
-  background: var(--dourado); border-radius: 2px;
-  transition: transform .3s, opacity .3s;
-}
-.hamburger.open span:nth-child(1) { transform: translateY(7.5px) rotate(45deg); }
-.hamburger.open span:nth-child(2) { opacity: 0; }
-.hamburger.open span:nth-child(3) { transform: translateY(-7.5px) rotate(-45deg); }
-
-/* Gaveta lateral mobile */
-.nav-drawer {
-  display: none; position: fixed;
-  top: 64px; right: 0; bottom: 0; width: 260px;
-  background: var(--azul); z-index: 999;
-  flex-direction: column; padding: 24px 18px;
-  gap: 6px; box-shadow: -4px 0 24px rgba(0,0,0,0.35);
-  transform: translateX(110%);
-  transition: transform .32s cubic-bezier(.4,0,.2,1);
-}
-.nav-drawer.open { transform: translateX(0); }
-.nav-drawer a {
-  color: #fff; text-decoration: none;
-  font-size: 15px; font-weight: 600;
-  padding: 12px 16px; border-radius: 10px;
-  transition: background .15s, color .15s;
-}
-.nav-drawer a:hover { background: var(--dourado); color: var(--azul); }
-.nav-overlay {
-  display: none; position: fixed;
-  inset: 0; background: rgba(0,0,0,0.5);
-  z-index: 998;
-}
-.nav-overlay.open { display: block; }
-
-@media (max-width: 900px) {
-  .nav-links         { display: none; }
-  .hamburger         { display: flex; }
-  .nav-drawer        { display: flex; }
-}
-@media (max-width: 480px) {
-  .navbar { padding: 0 14px; }
-  .navbar .logo-txt  { font-size: 1.2rem; }
-}
-
-/* ==========================================
-   ✅ HERO COM CARROSSEL
-========================================== */
-.hero {
-  position: relative; width: 100%;
-  height: 100vh; min-height: 540px;
-  overflow: hidden; display: flex;
-  align-items: center; justify-content: center;
-}
-.hero-slides {
-  position: absolute; inset: 0;
-}
-.hero-slide {
-  position: absolute; inset: 0;
-  background-size: cover;
-  background-position: center;
-  opacity: 0;
-  transition: opacity 1.2s ease;
-}
-.hero-slide.active { opacity: 1; }
-.hero-slide:nth-child(1)  { background-image: url('https://i.imgur.com/AmFSwwd.jpeg'); }
-.hero-slide:nth-child(2)  { background-image: url('https://i.imgur.com/iDMQ2XA.jpeg'); }
-.hero-slide:nth-child(3)  { background-image: url('https://i.imgur.com/S4tSUzG.jpeg'); }
-.hero-slide:nth-child(4)  { background-image: url('https://i.imgur.com/AseZPzL.jpeg'); }
-.hero-slide:nth-child(5)  { background-image: url('https://i.imgur.com/pyEKOtQ.jpeg'); }
-.hero-slide:nth-child(6)  { background-image: url('https://i.imgur.com/SxlktwS.jpeg'); }
-
-/* ✅ Overlay premium */
-.hero-overlay {
-  position: absolute; inset: 0;
-  background: linear-gradient(
-    to bottom,
-    rgba(11,28,61,0.45) 0%,
-    rgba(11,28,61,0.62) 40%,
-    rgba(11,28,61,0.85) 100%
-  );
-  z-index: 1;
-}
-
-.hero-content {
-  position: relative; z-index: 2;
-  display: flex; flex-direction: column;
-  align-items: center; text-align: center;
-  padding: 0 16px; width: 100%; max-width: 900px;
-}
-
-/* ✅ Logo central com overlay premium */
-.hero-logo {
-  max-width: 320px; width: 80vw;
-  margin-bottom: 10px;
-  filter: drop-shadow(0 4px 18px rgba(0,0,0,0.5));
-  animation: logoPop .9s cubic-bezier(.4,0,.2,1) both;
-}
-@keyframes logoPop {
-  from { opacity: 0; transform: scale(.88) translateY(-12px); }
-  to   { opacity: 1; transform: scale(1) translateY(0); }
-}
-.hero-tagline {
-  font-size: 1.15rem; font-weight: 300;
-  color: rgba(255,255,255,0.88);
-  letter-spacing: 3px; text-transform: uppercase;
-  margin-bottom: 6px;
-  animation: fadeUp .9s .2s both;
-}
-.hero-badge {
-  display: inline-block;
-  background: var(--dourado);
-  color: var(--azul); font-weight: 700;
-  font-size: .85rem; letter-spacing: 1px;
-  padding: 4px 18px; border-radius: 20px;
-  margin-bottom: 28px;
-  animation: fadeUp .9s .35s both;
-}
-@keyframes fadeUp {
-  from { opacity: 0; transform: translateY(16px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
-/* ✅ Busca estilo Booking dentro do banner */
-.hero-search {
-  width: 100%; max-width: 820px;
-  background: rgba(11,28,61,0.82);
-  backdrop-filter: blur(14px);
-  border-radius: 20px;
-  padding: 22px 24px 18px 24px;
-  box-shadow: 0 8px 40px rgba(0,0,0,0.35);
-  animation: fadeUp .9s .5s both;
-}
-.hero-search-title {
-  font-size: 1rem; font-weight: 600;
-  color: var(--dourado); margin-bottom: 14px;
-  text-align: left; letter-spacing: .5px;
-}
-.hero-search-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr auto;
-  gap: 10px; align-items: end;
-}
-.hs-field { display: flex; flex-direction: column; gap: 4px; }
-.hs-field label {
-  font-size: 11px; font-weight: 600;
-  color: rgba(255,255,255,0.7);
-  text-transform: uppercase; letter-spacing: .8px;
-}
-.hs-field input,
-.hs-field select {
-  font-family: 'Poppins', sans-serif;
-  padding: 11px 13px; border-radius: 10px;
-  border: 1.5px solid rgba(255,255,255,0.15);
-  font-size: 14px; font-weight: 500;
-  background: rgba(255,255,255,0.95);
-  color: #222;
-  transition: border .15s;
-  width: 100%;
-}
-.hs-field input:focus,
-.hs-field select:focus {
-  outline: none; border-color: var(--dourado);
-}
-.hs-btn {
-  padding: 11px 22px; border: none;
-  border-radius: 10px;
-  background: var(--dourado); color: var(--azul);
-  font-family: 'Poppins', sans-serif;
-  font-weight: 700; font-size: 15px;
-  cursor: pointer; white-space: nowrap;
-  transition: background .15s, transform .1s;
-  box-shadow: 0 3px 12px rgba(212,175,55,0.35);
-}
-.hs-btn:hover   { background: var(--dourado-hover); transform: translateY(-1px); }
-.hs-btn:active  { transform: translateY(0); }
-
-@media (max-width: 768px) {
-  .hero-search-grid {
-    grid-template-columns: 1fr 1fr;
-  }
-  .hs-btn { grid-column: span 2; }
-}
-@media (max-width: 480px) {
-  .hero-search-grid {
-    grid-template-columns: 1fr;
-  }
-  .hs-btn { grid-column: span 1; }
-  .hero-search { padding: 16px 14px; }
-}
-
-/* Indicadores hero */
-.hero-dots {
-  position: absolute; bottom: 22px; left: 50%;
-  transform: translateX(-50%);
-  display: flex; gap: 8px; z-index: 3;
-}
-.hero-dot {
-  width: 9px; height: 9px; border-radius: 50%;
-  background: rgba(255,255,255,0.4);
-  cursor: pointer; border: none;
-  transition: background .2s, transform .2s;
-}
-.hero-dot.active {
-  background: var(--dourado);
-  transform: scale(1.35);
-}
-
-/* Setas hero */
-.hero-arrow {
-  position: absolute; top: 50%; z-index: 3;
-  transform: translateY(-50%);
-  background: rgba(0,0,0,0.32); color: #fff;
-  border: none; border-radius: 50%;
-  width: 44px; height: 44px; font-size: 1.4rem;
-  cursor: pointer; display: flex;
-  align-items: center; justify-content: center;
-  transition: background .15s;
-}
-.hero-arrow:hover { background: var(--dourado); color: var(--azul); }
-.hero-arrow.prev  { left: 16px; }
-.hero-arrow.next  { right: 16px; }
-@media (max-width: 480px) {
-  .hero-arrow { display: none; }
-}
-
-/* ==========================================
-   CONTEÚDO GERAL
-========================================== */
-.page-body { padding-top: 64px; } /* compensa navbar fixed */
-
-.topo-infos {
-  display: flex; flex-direction: column;
-  align-items: center; gap: 10px;
-  padding: 36px 16px 28px 16px; text-align: center;
-}
-.topo-infos h2 {
-  color: var(--dourado); font-size: 1.3rem;
-  font-weight: 600; letter-spacing: .4px;
-}
-.insta-top {
-  display: inline-block; padding: 11px 28px;
-  border-radius: 30px;
-  background: linear-gradient(45deg,#833AB4,#E1306C,#FCAF45);
-  text-decoration: none; color: #fff;
-  font-size: 16px; font-weight: 500;
-  transition: opacity .15s;
-}
-.insta-top:hover { opacity: .85; }
-.contatos-topo {
-  display: flex; gap: 18px;
-  justify-content: center; flex-wrap: wrap;
-  margin-top: 10px;
-}
-.contato-b {
-  background: rgba(255,255,255,0.06);
-  border-radius: 12px; padding: 14px 20px 12px;
-  min-width: 140px; display: flex;
-  flex-direction: column; align-items: center; gap: 4px;
-}
-html[data-theme="light"] .contato-b { background: rgba(11,28,61,0.07); }
-.contato-b h3 { color: var(--dourado); font-size: 1.05rem; }
-html[data-theme="light"] .contato-b h3 { color: var(--azul); }
-.contato-b p {
-  font-size: 12px; color: var(--dourado); font-weight: 600;
-}
-html[data-theme="light"] .contato-b p { color: #555; }
-.contato-b a.btn {
-  margin-top: 4px; padding: 8px 18px;
-  background: var(--wpp); border-radius: 16px;
-  color: #fff; text-decoration: none;
-  font-size: 14px; font-weight: 600;
-  transition: background .15s;
-}
-.contato-b a.btn:hover { background: #1ebe58; }
-
-/* ==========================================
-   SEÇÕES GERAIS
-========================================== */
-.section-wrap {
-  max-width: 1180px; margin: 0 auto;
-  padding: 48px 16px 32px;
-}
-.section-title {
-  text-align: center; font-size: 1.4rem;
-  font-weight: 700; color: var(--dourado);
-  margin-bottom: 32px; letter-spacing: .04em;
-}
-html[data-theme="light"] .section-title { color: #8B6914; }
-
-/* ==========================================
-   ✅ GALERIA / TABS
-========================================== */
-.tabs {
-  display: flex; justify-content: center;
-  gap: 7px; margin-bottom: 22px; flex-wrap: wrap;
-}
-.tab {
-  padding: 9px 20px;
-  background: rgba(255,255,255,0.08);
-  border-radius: 22px 22px 0 0;
-  font-size: 14px; color: var(--dourado);
-  border: none; cursor: pointer; outline: none;
-  font-weight: 600; transition: .14s;
-}
-.tab.active, .tab:focus { background: var(--dourado); color: var(--azul); }
-.tab:hover { background: rgba(212,175,55,0.75); color: #fff; }
-.gallery-block { display: none; }
-.gallery-block.active { display: block; }
-.resort-title {
-  font-size: 1.25rem; font-weight: 700;
-  color: var(--dourado); letter-spacing: .06em;
-  margin-bottom: 8px;
-}
-.resort-link {
-  color: var(--dourado); font-size: .95rem;
-  text-decoration: none; font-weight: 500;
-  margin-bottom: 18px; display: inline-block;
-}
-html[data-theme="light"] .resort-link { color: var(--azul); }
-.resort-wpp-btn {
-  display: inline-flex; align-items: center; gap: 6px;
-  background: #25D366; color: #fff; font-size: .88rem; font-weight: 600;
-  padding: 7px 16px; border-radius: 20px; text-decoration: none;
-  margin-bottom: 18px; transition: background .2s;
-}
-.resort-wpp-btn:hover { background: #1ebe5a; }
-.gallery {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px,1fr));
-  gap: 14px; justify-items: center;
-}
-.gallery img {
-  width: 100%; max-width: 420px; height: 240px;
-  object-fit: cover; border-radius: 12px;
-  box-shadow: var(--sombra);
-  cursor: pointer;
-  transition: transform .2s, box-shadow .2s;
-}
-.gallery img:hover {
-  transform: scale(1.04);
-  box-shadow: 0 8px 32px rgba(0,0,0,0.3);
-}
-.gallery img:focus-visible { outline: 3px solid var(--cor-foco); }
-@media (max-width: 500px) { .gallery img { height: 130px; } }
-
-/* ==========================================
-   LIGHTBOX
-========================================== */
-#lightbox {
-  display: none; position: fixed; z-index: 9999;
-  inset: 0; background: rgba(0,0,0,0.9);
-  justify-content: center; align-items: center;
-}
-#lightbox.open { display: flex; }
-#lightbox img {
-  max-width: 92vw; max-height: 88vh;
-  border-radius: 10px;
-  box-shadow: 0 8px 50px rgba(0,0,0,0.6);
-}
-#lb-close {
-  position: absolute; top: 16px; right: 22px;
-  background: none; border: none; color: #fff;
-  font-size: 2.4rem; cursor: pointer; line-height: 1;
-}
-#lb-close:hover { color: var(--dourado); }
-#lb-prev, #lb-next {
-  position: absolute; top: 50%; transform: translateY(-50%);
-  background: rgba(0,0,0,0.4); border: none; color: #fff;
-  font-size: 2rem; cursor: pointer; border-radius: 50%;
-  width: 50px; height: 50px;
-  display: flex; align-items: center; justify-content: center;
-  transition: background .15s;
-}
-#lb-prev:hover, #lb-next:hover { background: var(--dourado); color: var(--azul); }
-#lb-prev { left: 12px; }
-#lb-next { right: 12px; }
-
-/* ==========================================
-   DEPOIMENTOS
-========================================== */
-.depoimentos-section {
-  padding: 48px 4vw 64px;
-  transition: background .3s;
-}
-.depo-title {
-  text-align: center; font-size: 1.34em;
-  color: var(--dourado); margin-bottom: 32px;
-}
-.depo-carousel-wrap {
-  max-width: 380px; margin: 0 auto;
-  position: relative;
-}
-.depo-carousel-inner {
-  position: relative; min-height: 370px;
-  overflow: hidden;
-}
-.depo-card {
-  border-radius: 16px;
-  box-shadow: 0 2px 18px rgba(212,175,55,0.1);
-  max-width: 380px; min-height: 360px;
-  padding: 34px 26px 28px;
-  text-align: center;
-  display: flex; flex-direction: column;
-  align-items: center; justify-content: center;
-  position: absolute; width: 100%; left: 0; top: 0;
-  opacity: 0; transition: opacity .44s ease;
-  pointer-events: none;
-}
-.depo-card.active { opacity: 1; position: relative; pointer-events: auto; }
-.depo-card img {
-  width: 58px; height: 58px; border-radius: 50%;
-  margin-bottom: 14px; object-fit: cover;
-  box-shadow: 0 1px 8px rgba(0,0,0,0.12);
-}
-.depo-stars { color: gold; font-size: 1.2em; margin-bottom: 10px; letter-spacing: 2px; }
-.depo-card p { font-size: 1.03em; margin: 0 0 12px; font-style: italic; }
-.depo-nome { font-weight: 700; font-size: 1.05em; }
-.depo-cidade { font-size: .95em; margin-top: 2px; }
-.depo-carousel-arrows { text-align: center; margin-top: 18px; }
-.depo-btn {
-  background: var(--dourado); color: #fff;
-  border: none; border-radius: 50%;
-  width: 40px; height: 40px; cursor: pointer;
-  font-size: 1.4em; margin: 0 12px;
-  display: inline-flex; align-items: center; justify-content: center;
-  transition: background .15s; box-shadow: 0 2px 6px rgba(0,0,0,0.12);
-}
-.depo-btn:hover { background: goldenrod; }
-.depo-dots { text-align: center; margin-top: 16px; }
-.depo-dot {
-  display: inline-block; width: 12px; height: 12px;
-  background: #ecd498; border-radius: 50%;
-  margin: 0 5px; cursor: pointer;
-  border: 2px solid #fff; vertical-align: middle;
-  transition: .15s; box-shadow: 0 2px 6px rgba(212,175,55,0.3);
-}
-.depo-dot.active { background: var(--dourado); border-color: var(--dourado); }
-@media (max-width: 480px) {
-  .depo-carousel-wrap, .depo-card { max-width: 96vw; }
-}
-
-/* ==========================================
-   PRÉ-RESERVA
-========================================== */
-#pre-reserva {
-  padding: 44px 4vw 54px;
-  border-radius: 18px;
-  max-width: 1100px; margin: 36px auto;
-  transition: background .3s;
-}
-.panel-duo {
-  display: grid; grid-template-columns: 1fr 1fr; gap: 28px;
-}
-@media (max-width: 900px) { .panel-duo { grid-template-columns: 1fr; } }
-.panel-box {
-  padding: 26px; border-radius: 16px;
-  box-shadow: 0 2px 20px rgba(11,28,61,0.12);
-  transition: background .3s;
-}
-.panel-box h2 { color: var(--dourado); margin-bottom: 16px; font-size: 1.15em; }
-.panel-box input,
-.panel-box select {
-  font-family: 'Poppins', sans-serif;
-  width: 100%; padding: 11px 13px;
-  margin: 4px 0 12px; border-radius: 10px;
-  border: 1.5px solid #274678;
-  font-size: 14px; transition: border .15s;
-}
-.panel-box input:focus,
-.panel-box select:focus { outline: none; border-color: var(--dourado); }
-.panel-box label {
-  font-size: 12px; opacity: .7; display: block; margin-bottom: 2px;
-}
-.btn-painel {
-  margin-top: 6px; padding: 12px; width: 100%;
-  border: none; border-radius: 10px;
-  background: var(--azul); color: var(--dourado);
-  font-family: 'Poppins', sans-serif;
-  font-weight: 700; font-size: 15px;
-  cursor: pointer;
-  transition: background .12s, color .12s;
-  box-shadow: 0 2px 8px rgba(11,28,61,0.2);
-}
-.btn-painel:hover { background: var(--dourado); color: var(--azul); }
-.card-imovel {
-  padding: 13px 15px; border-radius: 12px;
-  margin-top: 10px; transition: background .3s;
-}
-.card-imovel h3 { margin: 0 0 5px; font-size: 1em; }
-.card-imovel p  { margin: 2px 0; font-size: .9em; }
-.card-imovel .btn-painel {
-  background: var(--dourado); color: var(--azul);
-  margin-top: 8px; font-size: .9em;
-}
-.card-imovel .btn-painel:hover { background: goldenrod; color: #fff; }
-.small { font-size: 12px; opacity: .7; }
-
-/* Períodos disponíveis */
-.btn-toggle-periodos {
-  width: 100%; padding: 10px; margin: 4px 0 10px;
-  border: 1.5px dashed var(--dourado); border-radius: 10px;
-  background: transparent; color: var(--dourado);
-  font-family: 'Poppins', sans-serif; font-size: 13px;
-  font-weight: 600; cursor: pointer; text-align: left;
-  transition: background .15s, color .15s;
-}
-.btn-toggle-periodos:hover { background: rgba(212,175,55,0.12); }
-.periodos-container { display: none; }
-.periodos-container.aberto { display: block; }
-.periodo-row {
-  display: grid; grid-template-columns: 1fr 1fr auto;
-  gap: 8px; align-items: center; margin-bottom: 8px;
-}
-.periodo-row input { margin: 0 !important; }
-.btn-add-periodo, .btn-rem-periodo {
-  padding: 8px 10px; border: none; border-radius: 8px;
-  font-size: 16px; cursor: pointer; line-height: 1;
-  font-family: 'Poppins', sans-serif;
-}
-.btn-add-periodo { background: rgba(212,175,55,0.2); color: var(--dourado); }
-.btn-add-periodo:hover { background: rgba(212,175,55,0.4); }
-.btn-rem-periodo { background: rgba(248,113,113,0.15); color: #f87171; }
-.btn-rem-periodo:hover { background: rgba(248,113,113,0.3); }
-.panel-box textarea {
-  font-family: 'Poppins', sans-serif;
-  width: 100%; padding: 11px 13px;
-  margin: 4px 0 12px; border-radius: 10px;
-  border: 1.5px solid #274678;
-  font-size: 14px; transition: border .15s;
-  resize: vertical; min-height: 80px;
-}
-.panel-box textarea:focus { outline: none; border-color: var(--dourado); }
-html[data-theme="dark"] .panel-box textarea { background: #f8f7f3; color: #222; border-color: #274678; }
-html[data-theme="light"] .panel-box textarea { background: #fafaf6; color: #222; border-color: #ccc; }
-
-/* ==========================================
-   FORMULÁRIOS PADRÃO (orçamento, multi, contato)
-========================================== */
-.section-form {
-  padding: 52px 4vw;
-  text-align: center;
-  transition: background .3s, color .3s;
-}
-.form-std {
-  max-width: 580px; margin: 0 auto;
-  display: flex; flex-direction: column; gap: 11px;
-}
-.form-std label {
-  font-size: 12px; opacity: .7;
-  text-align: left; display: block; margin-bottom: 2px;
-}
-.form-std input,
-.form-std select,
-.form-std textarea {
-  font-family: 'Poppins', sans-serif;
-  width: 100%; padding: 12px 14px;
-  border-radius: 11px; border: 1.5px solid #274678;
-  font-size: 14px; transition: border .15s;
-}
-.form-std input:focus,
-.form-std select:focus,
-.form-std textarea:focus { outline: none; border-color: var(--dourado); }
-.form-std textarea { min-height: 88px; resize: vertical; }
-.form-std button {
-  padding: 13px; border: none; border-radius: 10px;
-  background: var(--azul); color: var(--dourado);
-  font-family: 'Poppins', sans-serif;
-  font-weight: 700; font-size: 15px;
-  cursor: pointer;
-  transition: background .12s, color .12s;
-  box-shadow: 0 2px 8px rgba(11,28,61,0.2);
-}
-.form-std button:hover { background: var(--dourado); color: var(--azul); }
-.contato-redes {
-  margin-top: 26px;
-  display: flex; justify-content: center;
-  gap: 14px; flex-wrap: wrap;
-}
-.contato-redes a {
-  display: inline-block; padding: 11px 22px;
-  border-radius: 26px; font-weight: 600;
-  font-size: 14px; text-decoration: none;
-  transition: opacity .15s;
-}
-.contato-redes a:hover { opacity: .82; }
-.btn-insta  { background: linear-gradient(45deg,#833AB4,#E1306C,#FCAF45); color: #fff; }
-.btn-wpp    { background: var(--wpp); color: #fff; }
-
-/* ==========================================
-   ✅ BOTÃO WHATSAPP FLUTUANTE INTELIGENTE
-========================================== */
-.wpp-float {
-  position: fixed; bottom: 28px; right: 24px;
-  z-index: 9990; display: flex; flex-direction: column;
-  align-items: flex-end; gap: 10px;
-}
-.wpp-float-btn {
-  width: 58px; height: 58px; border-radius: 50%;
-  background: var(--wpp); color: #fff;
-  border: none; cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 1.8rem;
-  box-shadow: 0 4px 18px rgba(37,211,102,0.5);
-  animation: wppPulse 2.2s infinite;
-  transition: background .15s, transform .15s;
-}
-.wpp-float-btn:hover { background: #1ebe58; transform: scale(1.1); }
-@keyframes wppPulse {
-  0%, 100% { box-shadow: 0 4px 18px rgba(37,211,102,0.5); }
-  50%       { box-shadow: 0 4px 32px rgba(37,211,102,0.85); }
-}
-.wpp-bubble {
-  background: #fff; color: #222;
-  border-radius: 14px 14px 4px 14px;
-  padding: 12px 16px; font-size: 13px;
-  font-weight: 500; max-width: 220px;
-  box-shadow: 0 4px 18px rgba(0,0,0,0.2);
-  display: none; text-align: left;
-  line-height: 1.45;
-}
-.wpp-bubble.show { display: block; animation: bubblePop .35s ease both; }
-@keyframes bubblePop {
-  from { opacity: 0; transform: scale(.88) translateY(10px); }
-  to   { opacity: 1; transform: scale(1) translateY(0); }
-}
-.wpp-bubble strong { color: var(--wpp); }
-.wpp-bubble a {
-  display: block; margin-top: 8px;
-  background: var(--wpp); color: #fff;
-  text-align: center; padding: 8px 12px;
-  border-radius: 8px; font-weight: 700;
-  text-decoration: none; font-size: 13px;
-  transition: background .15s;
-}
-.wpp-bubble a:hover { background: #1ebe58; }
-@media (max-width: 480px) {
-  .wpp-float { bottom: 16px; right: 14px; }
-}
-
-/* ==========================================
-   FOOTER
-========================================== */
-footer {
-  background: rgba(0,0,0,0.35);
-  text-align: center; padding: 28px 16px;
-  font-size: .88em; opacity: .75;
-  transition: background .3s;
-}
-footer a { color: var(--dourado); text-decoration: none; }
-
-/* ==========================================
-   BANNER LGPD
-========================================== */
-#cookie-banner {
-  position: fixed; bottom: 0; left: 0; right: 0; z-index: 99999;
-  background: rgba(11,28,61,0.97); backdrop-filter: blur(10px);
-  color: #fff; padding: 18px 24px;
-  display: none; align-items: center; justify-content: space-between;
-  gap: 16px; flex-wrap: wrap;
-  box-shadow: 0 -4px 24px rgba(0,0,0,0.4);
-  border-top: 2px solid var(--dourado);
-  transition: transform .35s ease;
-}
-#cookie-banner.visible { display: flex; }
-#cookie-banner p { margin: 0; font-size: 13px; line-height: 1.55; max-width: 680px; }
-#cookie-banner p a { color: var(--dourado); text-decoration: underline; }
-.cookie-btns { display: flex; gap: 10px; flex-shrink: 0; }
-.btn-cookie-accept {
-  background: var(--dourado); color: var(--azul);
-  border: none; border-radius: 22px;
-  padding: 9px 22px; font-family: 'Poppins', sans-serif;
-  font-weight: 700; font-size: 13px; cursor: pointer;
-  transition: background .15s;
-}
-.btn-cookie-accept:hover { background: var(--dourado-hover); }
-.btn-cookie-decline {
-  background: transparent; color: rgba(255,255,255,0.65);
-  border: 1px solid rgba(255,255,255,0.3); border-radius: 22px;
-  padding: 9px 18px; font-family: 'Poppins', sans-serif;
-  font-size: 13px; cursor: pointer;
-  transition: border-color .15s, color .15s;
-}
-.btn-cookie-decline:hover { border-color: #fff; color: #fff; }
-
-/* ==========================================
-   CALCULADORA DE NOITES
-========================================== */
-.nights-badge {
-  display: inline-block; background: var(--dourado);
-  color: var(--azul); font-weight: 700; font-size: 12px;
-  border-radius: 14px; padding: 3px 12px; margin-top: 6px;
-}
-
-/* ==========================================
-   FAQ ACCORDION
-========================================== */
-.faq-section {
-  padding: 52px 4vw 60px;
-  transition: background .3s;
-}
-html[data-theme="light"] .faq-section { background: #f4f4ef; }
-.faq-wrap { max-width: 760px; margin: 0 auto; }
-.faq-item {
-  border-bottom: 1px solid rgba(255,255,255,0.1);
-  overflow: hidden;
-}
-html[data-theme="light"] .faq-item { border-bottom-color: rgba(11,28,61,0.12); }
-.faq-btn {
-  width: 100%; background: none; border: none;
-  text-align: left; padding: 18px 0;
-  display: flex; justify-content: space-between; align-items: center;
-  gap: 12px; cursor: pointer;
-  font-family: 'Poppins', sans-serif; font-size: 15px; font-weight: 600;
-  color: #fff; transition: color .15s;
-}
-html[data-theme="light"] .faq-btn { color: var(--azul); }
-.faq-btn:hover { color: var(--dourado); }
-.faq-icon {
-  flex-shrink: 0; width: 26px; height: 26px; border-radius: 50%;
-  background: rgba(212,175,55,0.15); color: var(--dourado);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 1.1rem; transition: transform .3s, background .15s;
-}
-.faq-btn[aria-expanded="true"] .faq-icon {
-  transform: rotate(45deg); background: var(--dourado); color: var(--azul);
-}
-.faq-body {
-  max-height: 0; overflow: hidden;
-  transition: max-height .38s cubic-bezier(.4,0,.2,1), padding .3s;
-  padding: 0;
-}
-.faq-body.open {
-  padding-bottom: 16px;
-}
-.faq-body p {
-  font-size: 14px; line-height: 1.65; opacity: .88;
-  margin: 0;
-}
-
-/* ==========================================
-   MARKETING AUTOMÁTICO — GRATUITO
-   Exit-Intent Popup | FOMO | Prova Social
-========================================== */
-
-/* --- EXIT-INTENT POPUP --- */
-#exit-overlay {
-  display:none; position:fixed; inset:0; z-index:9998;
-  background:rgba(0,0,0,.72); backdrop-filter:blur(3px);
-  align-items:center; justify-content:center;
-}
-#exit-overlay.visible { display:flex; }
-#exit-popup {
-  background:linear-gradient(135deg,#0B1C3D,#142850);
-  color:#fff; border-radius:20px; padding:40px 32px 32px;
-  max-width:420px; width:92%; text-align:center;
-  border:1px solid rgba(212,175,55,.35);
-  box-shadow:0 8px 48px rgba(0,0,0,.55);
-  position:relative; animation:popIn .35s cubic-bezier(.22,1.2,.46,1) both;
-}
-@keyframes popIn {
-  from { transform:scale(.82) translateY(24px); opacity:0; }
-  to   { transform:scale(1)   translateY(0);    opacity:1; }
-}
-#exit-popup .ep-badge {
-  display:inline-block; background:var(--dourado); color:#0B1C3D;
-  font-size:.72em; font-weight:700; letter-spacing:1px;
-  padding:3px 12px; border-radius:20px; margin-bottom:14px; text-transform:uppercase;
-}
-#exit-popup h2 { font-size:1.45em; margin-bottom:10px; line-height:1.25; }
-#exit-popup p  { font-size:.97em; opacity:.84; margin-bottom:22px; line-height:1.5; }
-#exit-popup .ep-btn {
-  display:block; width:100%; padding:14px;
-  background:var(--dourado); color:#0B1C3D; font-weight:700;
-  border:none; border-radius:12px; font-size:1.05em; cursor:pointer;
-  transition:background .18s; text-decoration:none;
-}
-#exit-popup .ep-btn:hover { background:var(--dourado-hover); }
-#exit-popup .ep-close {
-  position:absolute; top:12px; right:16px;
-  background:none; border:none; color:#fff; font-size:1.6em;
-  cursor:pointer; opacity:.55; line-height:1;
-}
-#exit-popup .ep-close:hover { opacity:1; }
-#exit-popup .ep-skip {
-  display:block; margin-top:14px; font-size:.82em;
-  color:rgba(255,255,255,.45); cursor:pointer; background:none; border:none;
-}
-#exit-popup .ep-skip:hover { color:rgba(255,255,255,.75); }
-
-/* --- FOMO WIDGET (visitantes ao vivo + timer) --- */
-#fomo-bar {
-  position:fixed; bottom:90px; left:50%; transform:translateX(-50%);
-  z-index:900; display:flex; gap:12px; flex-wrap:wrap; justify-content:center;
-  pointer-events:none;
-}
-.fomo-pill {
-  background:rgba(11,28,61,.92); color:#fff;
-  border:1px solid rgba(212,175,55,.4); border-radius:30px;
-  padding:7px 18px; font-size:.82em; font-weight:600;
-  display:flex; align-items:center; gap:8px;
-  box-shadow:0 2px 14px rgba(0,0,0,.35); white-space:nowrap;
-  pointer-events:auto;
-}
-.fomo-dot {
-  width:9px; height:9px; border-radius:50%; background:#25D366;
-  box-shadow:0 0 0 0 rgba(37,211,102,.6);
-  animation:pulse-dot 1.6s infinite;
-}
-@keyframes pulse-dot {
-  0%   { box-shadow:0 0 0 0   rgba(37,211,102,.6); }
-  70%  { box-shadow:0 0 0 9px rgba(37,211,102,0);  }
-  100% { box-shadow:0 0 0 0   rgba(37,211,102,0);  }
-}
-.fomo-fire { font-size:1.1em; }
-#fomo-timer-val { color:var(--dourado); font-variant-numeric:tabular-nums; }
-
-/* --- PROVA SOCIAL (toast de reservas) --- */
-#social-proof-container {
-  position:fixed; bottom:20px; left:20px; z-index:9000;
-  display:flex; flex-direction:column; gap:10px; pointer-events:none;
-}
-.sp-toast {
-  background:rgba(11,28,61,.96); color:#fff;
-  border:1px solid rgba(212,175,55,.35); border-radius:14px;
-  padding:12px 16px; font-size:.84em; line-height:1.4;
-  display:flex; align-items:center; gap:12px;
-  box-shadow:0 4px 20px rgba(0,0,0,.4); min-width:240px; max-width:310px;
-  pointer-events:auto;
-  animation:slideInLeft .4s cubic-bezier(.22,1.2,.46,1) both,
-            fadeOut .4s ease 5.6s both;
-}
-@keyframes slideInLeft {
-  from { transform:translateX(-110%); opacity:0; }
-  to   { transform:translateX(0);     opacity:1; }
-}
-@keyframes fadeOut {
-  from { opacity:1; transform:translateX(0); }
-  to   { opacity:0; transform:translateX(-110%); }
-}
-.sp-avatar {
-  width:38px; height:38px; border-radius:50%; object-fit:cover;
-  border:2px solid var(--dourado); flex-shrink:0;
-}
-.sp-avatar-letter {
-  width:38px; height:38px; border-radius:50%;
-  background:var(--dourado); color:#0B1C3D;
-  font-weight:700; font-size:1.15em;
-  display:flex; align-items:center; justify-content:center; flex-shrink:0;
-}
-.sp-text strong { display:block; font-size:.92em; }
-.sp-time  { font-size:.76em; opacity:.55; margin-top:2px; }
-.sp-emoji { font-size:1.3em; }
-</style>
+<link rel="stylesheet" href="/assets/index.css">
 </head>
 <body>
 
@@ -1309,6 +317,11 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       src="https://i.imgur.com/ITjjQaf.jpeg"
       alt="HOSPEDAH"
       class="hero-logo"
+      loading="eager"
+      fetchpriority="high"
+      decoding="auto"
+      width="320"
+      height="120"
     >
     <p class="hero-tagline">Resorts & Experiências Exclusivas</p>
     <span class="hero-badge">✦ Atendimento Premium ✦</span>
@@ -1487,16 +500,16 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <a href="resorts/hotbeach.html" class="resort-link" target="_blank" rel="noopener">Ver página exclusiva →</a>
     <a href="https://wa.me/5517982006382?text=Ol%C3%A1%21+Tenho+interesse+no+Hot+Beach+Suites.+Pode+me+enviar+mais+informa%C3%A7%C3%B5es%3F" class="resort-wpp-btn" target="_blank" rel="noopener">💬 Orçamento Hot Beach Suites</a>
     <div class="gallery">
-      <img src="https://i.imgur.com/AmFSwwd.jpeg" alt="Hot Beach 1" loading="lazy" width="800" height="600" tabindex="0">
-      <img src="https://i.imgur.com/PMok8fe.jpeg" alt="Hot Beach 2" loading="lazy" width="800" height="600" tabindex="0">
-      <img src="https://i.imgur.com/bOOUiLE.jpeg" alt="Hot Beach 3" loading="lazy" width="800" height="600" tabindex="0">
-      <img src="https://i.imgur.com/aKhDzXz.jpeg" alt="Hot Beach 4" loading="lazy" width="800" height="600" tabindex="0">
-      <img src="https://i.imgur.com/7lhbeim.jpeg" alt="Hot Beach 5" loading="lazy" width="800" height="600" tabindex="0">
-      <img src="https://i.imgur.com/nw9K59D.jpeg" alt="Hot Beach 6" loading="lazy" width="800" height="600" tabindex="0">
-      <img src="https://i.imgur.com/USBb1tj.jpeg" alt="Hot Beach 7" loading="lazy" width="800" height="600" tabindex="0">
-      <img src="https://i.imgur.com/8b52cpI.jpeg" alt="Hot Beach 8" loading="lazy" width="800" height="600" tabindex="0">
-      <img src="https://i.imgur.com/XFT7Fs2.jpeg" alt="Hot Beach 9" loading="lazy" width="800" height="600" tabindex="0">
-      <img src="https://i.imgur.com/eydR2bp.jpeg" alt="Hot Beach 10" loading="lazy" width="800" height="600" tabindex="0">
+      <img src="https://i.imgur.com/AmFSwwd.jpeg" alt="Hot Beach 1" loading="lazy" decoding="async" width="800" height="600" tabindex="0">
+      <img src="https://i.imgur.com/PMok8fe.jpeg" alt="Hot Beach 2" loading="lazy" decoding="async" width="800" height="600" tabindex="0">
+      <img src="https://i.imgur.com/bOOUiLE.jpeg" alt="Hot Beach 3" loading="lazy" decoding="async" width="800" height="600" tabindex="0">
+      <img src="https://i.imgur.com/aKhDzXz.jpeg" alt="Hot Beach 4" loading="lazy" decoding="async" width="800" height="600" tabindex="0">
+      <img src="https://i.imgur.com/7lhbeim.jpeg" alt="Hot Beach 5" loading="lazy" decoding="async" width="800" height="600" tabindex="0">
+      <img src="https://i.imgur.com/nw9K59D.jpeg" alt="Hot Beach 6" loading="lazy" decoding="async" width="800" height="600" tabindex="0">
+      <img src="https://i.imgur.com/USBb1tj.jpeg" alt="Hot Beach 7" loading="lazy" decoding="async" width="800" height="600" tabindex="0">
+      <img src="https://i.imgur.com/8b52cpI.jpeg" alt="Hot Beach 8" loading="lazy" decoding="async" width="800" height="600" tabindex="0">
+      <img src="https://i.imgur.com/XFT7Fs2.jpeg" alt="Hot Beach 9" loading="lazy" decoding="async" width="800" height="600" tabindex="0">
+      <img src="https://i.imgur.com/eydR2bp.jpeg" alt="Hot Beach 10" loading="lazy" decoding="async" width="800" height="600" tabindex="0">
     </div>
   </div>
 
@@ -1505,17 +518,17 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <a href="resorts/saopedro.html" class="resort-link" target="_blank" rel="noopener">Ver página exclusiva →</a>
     <a href="https://wa.me/5517982006382?text=Ol%C3%A1%21+Tenho+interesse+no+S%C3%A3o+Pedro+Thermas.+Pode+me+enviar+mais+informa%C3%A7%C3%B5es%3F" class="resort-wpp-btn" target="_blank" rel="noopener">💬 Orçamento São Pedro</a>
     <div class="gallery">
-      <img src="https://i.imgur.com/pyEKOtQ.jpeg" alt="São Pedro 1" loading="lazy" width="800" height="600" tabindex="0">
-      <img src="https://i.imgur.com/1HeNjKT.jpeg" alt="São Pedro 2" loading="lazy" width="800" height="600" tabindex="0">
-      <img src="https://i.imgur.com/9kgfR2y.jpeg" alt="São Pedro 3" loading="lazy" width="800" height="600" tabindex="0">
-      <img src="https://i.imgur.com/2MinAKg.jpeg" alt="São Pedro 4" loading="lazy" width="800" height="600" tabindex="0">
-      <img src="https://i.imgur.com/1eOkkpi.jpeg" alt="São Pedro 5" loading="lazy" width="800" height="600" tabindex="0">
-      <img src="https://i.imgur.com/VNUPsl2.jpeg" alt="São Pedro 6" loading="lazy" width="800" height="600" tabindex="0">
-      <img src="https://i.imgur.com/5pbb4ba.jpeg" alt="São Pedro 7" loading="lazy" width="800" height="600" tabindex="0">
-      <img src="https://i.imgur.com/uop7Fdo.jpeg" alt="São Pedro 8" loading="lazy" width="800" height="600" tabindex="0">
-      <img src="https://i.imgur.com/JAaWFiz.jpeg" alt="São Pedro 9" loading="lazy" width="800" height="600" tabindex="0">
-      <img src="https://i.imgur.com/61P9R4K.jpeg" alt="São Pedro 10" loading="lazy" width="800" height="600" tabindex="0">
-      <img src="https://i.imgur.com/VVc8UtU.jpeg" alt="São Pedro 11" loading="lazy" width="800" height="600" tabindex="0">
+      <img src="https://i.imgur.com/pyEKOtQ.jpeg" alt="São Pedro 1" loading="lazy" decoding="async" width="800" height="600" tabindex="0">
+      <img src="https://i.imgur.com/1HeNjKT.jpeg" alt="São Pedro 2" loading="lazy" decoding="async" width="800" height="600" tabindex="0">
+      <img src="https://i.imgur.com/9kgfR2y.jpeg" alt="São Pedro 3" loading="lazy" decoding="async" width="800" height="600" tabindex="0">
+      <img src="https://i.imgur.com/2MinAKg.jpeg" alt="São Pedro 4" loading="lazy" decoding="async" width="800" height="600" tabindex="0">
+      <img src="https://i.imgur.com/1eOkkpi.jpeg" alt="São Pedro 5" loading="lazy" decoding="async" width="800" height="600" tabindex="0">
+      <img src="https://i.imgur.com/VNUPsl2.jpeg" alt="São Pedro 6" loading="lazy" decoding="async" width="800" height="600" tabindex="0">
+      <img src="https://i.imgur.com/5pbb4ba.jpeg" alt="São Pedro 7" loading="lazy" decoding="async" width="800" height="600" tabindex="0">
+      <img src="https://i.imgur.com/uop7Fdo.jpeg" alt="São Pedro 8" loading="lazy" decoding="async" width="800" height="600" tabindex="0">
+      <img src="https://i.imgur.com/JAaWFiz.jpeg" alt="São Pedro 9" loading="lazy" decoding="async" width="800" height="600" tabindex="0">
+      <img src="https://i.imgur.com/61P9R4K.jpeg" alt="São Pedro 10" loading="lazy" decoding="async" width="800" height="600" tabindex="0">
+      <img src="https://i.imgur.com/VVc8UtU.jpeg" alt="São Pedro 11" loading="lazy" decoding="async" width="800" height="600" tabindex="0">
     </div>
   </div>
 
@@ -1524,15 +537,15 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <a href="resorts/olimpia.html" class="resort-link" target="_blank" rel="noopener">Ver página exclusiva →</a>
     <a href="https://wa.me/5517982006382?text=Ol%C3%A1%21+Tenho+interesse+no+Olimpia+Park+Resort.+Pode+me+enviar+mais+informa%C3%A7%C3%B5es%3F" class="resort-wpp-btn" target="_blank" rel="noopener">💬 Orçamento Olimpia Park</a>
     <div class="gallery">
-      <img src="https://i.imgur.com/AseZPzL.jpeg" alt="Olimpia Park 1" loading="lazy" width="800" height="600" tabindex="0">
-      <img src="https://i.imgur.com/uhGHhcA.jpeg" alt="Olimpia Park 2" loading="lazy" width="800" height="600" tabindex="0">
-      <img src="https://i.imgur.com/1xGGlIh.jpeg" alt="Olimpia Park 3" loading="lazy" width="800" height="600" tabindex="0">
-      <img src="https://i.imgur.com/04CvTwk.jpeg" alt="Olimpia Park 4" loading="lazy" width="800" height="600" tabindex="0">
-      <img src="https://i.imgur.com/pCZh2Pi.jpeg" alt="Olimpia Park 5" loading="lazy" width="800" height="600" tabindex="0">
-      <img src="https://i.imgur.com/BjgrodB.jpeg" alt="Olimpia Park 6" loading="lazy" width="800" height="600" tabindex="0">
-      <img src="https://i.imgur.com/90Fy5Hj.jpeg" alt="Olimpia Park 7" loading="lazy" width="800" height="600" tabindex="0">
-      <img src="https://i.imgur.com/wBiihZH.jpeg" alt="Olimpia Park 8" loading="lazy" width="800" height="600" tabindex="0">
-      <img src="https://i.imgur.com/1J6Tm4r.jpeg" alt="Olimpia Park 9" loading="lazy" width="800" height="600" tabindex="0">
+      <img src="https://i.imgur.com/AseZPzL.jpeg" alt="Olimpia Park 1" loading="lazy" decoding="async" width="800" height="600" tabindex="0">
+      <img src="https://i.imgur.com/uhGHhcA.jpeg" alt="Olimpia Park 2" loading="lazy" decoding="async" width="800" height="600" tabindex="0">
+      <img src="https://i.imgur.com/1xGGlIh.jpeg" alt="Olimpia Park 3" loading="lazy" decoding="async" width="800" height="600" tabindex="0">
+      <img src="https://i.imgur.com/04CvTwk.jpeg" alt="Olimpia Park 4" loading="lazy" decoding="async" width="800" height="600" tabindex="0">
+      <img src="https://i.imgur.com/pCZh2Pi.jpeg" alt="Olimpia Park 5" loading="lazy" decoding="async" width="800" height="600" tabindex="0">
+      <img src="https://i.imgur.com/BjgrodB.jpeg" alt="Olimpia Park 6" loading="lazy" decoding="async" width="800" height="600" tabindex="0">
+      <img src="https://i.imgur.com/90Fy5Hj.jpeg" alt="Olimpia Park 7" loading="lazy" decoding="async" width="800" height="600" tabindex="0">
+      <img src="https://i.imgur.com/wBiihZH.jpeg" alt="Olimpia Park 8" loading="lazy" decoding="async" width="800" height="600" tabindex="0">
+      <img src="https://i.imgur.com/1J6Tm4r.jpeg" alt="Olimpia Park 9" loading="lazy" decoding="async" width="800" height="600" tabindex="0">
     </div>
   </div>
 
@@ -1541,16 +554,16 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <a href="resorts/solar.html" class="resort-link" target="_blank" rel="noopener">Ver página exclusiva →</a>
     <a href="https://wa.me/5517982006382?text=Ol%C3%A1%21+Tenho+interesse+no+Solar+das+%C3%81guas.+Pode+me+enviar+mais+informa%C3%A7%C3%B5es%3F" class="resort-wpp-btn" target="_blank" rel="noopener">💬 Orçamento Solar das Águas</a>
     <div class="gallery">
-      <img src="https://i.imgur.com/S4tSUzG.jpeg" alt="Solar das Águas 1" loading="lazy" width="800" height="600" tabindex="0">
-      <img src="https://i.imgur.com/uiZei1A.jpeg" alt="Solar das Águas 2" loading="lazy" width="800" height="600" tabindex="0">
-      <img src="https://i.imgur.com/FGmyUSZ.jpeg" alt="Solar das Águas 3" loading="lazy" width="800" height="600" tabindex="0">
-      <img src="https://i.imgur.com/0Lv8TV6.jpeg" alt="Solar das Águas 4" loading="lazy" width="800" height="600" tabindex="0">
-      <img src="https://i.imgur.com/qkmupvj.jpeg" alt="Solar das Águas 5" loading="lazy" width="800" height="600" tabindex="0">
-      <img src="https://i.imgur.com/oFjs88I.jpeg" alt="Solar das Águas 6" loading="lazy" width="800" height="600" tabindex="0">
-      <img src="https://i.imgur.com/VgEN9lk.jpeg" alt="Solar das Águas 7" loading="lazy" width="800" height="600" tabindex="0">
-      <img src="https://i.imgur.com/vMOqQgq.jpeg" alt="Solar das Águas 8" loading="lazy" width="800" height="600" tabindex="0">
-      <img src="https://i.imgur.com/QpY0W4I.jpeg" alt="Solar das Águas 9" loading="lazy" width="800" height="600" tabindex="0">
-      <img src="https://i.imgur.com/x0fWdLu.jpeg" alt="Solar das Águas 10" loading="lazy" width="800" height="600" tabindex="0">
+      <img src="https://i.imgur.com/S4tSUzG.jpeg" alt="Solar das Águas 1" loading="lazy" decoding="async" width="800" height="600" tabindex="0">
+      <img src="https://i.imgur.com/uiZei1A.jpeg" alt="Solar das Águas 2" loading="lazy" decoding="async" width="800" height="600" tabindex="0">
+      <img src="https://i.imgur.com/FGmyUSZ.jpeg" alt="Solar das Águas 3" loading="lazy" decoding="async" width="800" height="600" tabindex="0">
+      <img src="https://i.imgur.com/0Lv8TV6.jpeg" alt="Solar das Águas 4" loading="lazy" decoding="async" width="800" height="600" tabindex="0">
+      <img src="https://i.imgur.com/qkmupvj.jpeg" alt="Solar das Águas 5" loading="lazy" decoding="async" width="800" height="600" tabindex="0">
+      <img src="https://i.imgur.com/oFjs88I.jpeg" alt="Solar das Águas 6" loading="lazy" decoding="async" width="800" height="600" tabindex="0">
+      <img src="https://i.imgur.com/VgEN9lk.jpeg" alt="Solar das Águas 7" loading="lazy" decoding="async" width="800" height="600" tabindex="0">
+      <img src="https://i.imgur.com/vMOqQgq.jpeg" alt="Solar das Águas 8" loading="lazy" decoding="async" width="800" height="600" tabindex="0">
+      <img src="https://i.imgur.com/QpY0W4I.jpeg" alt="Solar das Águas 9" loading="lazy" decoding="async" width="800" height="600" tabindex="0">
+      <img src="https://i.imgur.com/x0fWdLu.jpeg" alt="Solar das Águas 10" loading="lazy" decoding="async" width="800" height="600" tabindex="0">
     </div>
   </div>
 
@@ -1559,16 +572,16 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <a href="resorts/wyndham.html" class="resort-link" target="_blank" rel="noopener">Ver página exclusiva →</a>
     <a href="https://wa.me/5517982006382?text=Ol%C3%A1%21+Tenho+interesse+no+Wyndham+Royal+Resort.+Pode+me+enviar+mais+informa%C3%A7%C3%B5es%3F" class="resort-wpp-btn" target="_blank" rel="noopener">💬 Orçamento Wyndham Royal</a>
     <div class="gallery">
-      <img src="https://i.imgur.com/iDMQ2XA.jpeg" alt="Wyndham 1" loading="lazy" width="800" height="600" tabindex="0">
-      <img src="https://i.imgur.com/WOhzcpP.jpeg" alt="Wyndham 2" loading="lazy" width="800" height="600" tabindex="0">
-      <img src="https://i.imgur.com/UKiLRll.jpeg" alt="Wyndham 3" loading="lazy" width="800" height="600" tabindex="0">
-      <img src="https://i.imgur.com/cD4I3pX.jpeg" alt="Wyndham 4" loading="lazy" width="800" height="600" tabindex="0">
-      <img src="https://i.imgur.com/wAnVr9T.jpeg" alt="Wyndham 5" loading="lazy" width="800" height="600" tabindex="0">
-      <img src="https://i.imgur.com/7ExLNbI.jpeg" alt="Wyndham 6" loading="lazy" width="800" height="600" tabindex="0">
-      <img src="https://i.imgur.com/ptpX7Ti.jpeg" alt="Wyndham 7" loading="lazy" width="800" height="600" tabindex="0">
-      <img src="https://i.imgur.com/GHtjGQK.jpeg" alt="Wyndham 8" loading="lazy" width="800" height="600" tabindex="0">
-      <img src="https://i.imgur.com/tnuVQOh.jpeg" alt="Wyndham 9" loading="lazy" width="800" height="600" tabindex="0">
-      <img src="https://i.imgur.com/KxSsPe6.jpeg" alt="Wyndham 10" loading="lazy" width="800" height="600" tabindex="0">
+      <img src="https://i.imgur.com/iDMQ2XA.jpeg" alt="Wyndham 1" loading="lazy" decoding="async" width="800" height="600" tabindex="0">
+      <img src="https://i.imgur.com/WOhzcpP.jpeg" alt="Wyndham 2" loading="lazy" decoding="async" width="800" height="600" tabindex="0">
+      <img src="https://i.imgur.com/UKiLRll.jpeg" alt="Wyndham 3" loading="lazy" decoding="async" width="800" height="600" tabindex="0">
+      <img src="https://i.imgur.com/cD4I3pX.jpeg" alt="Wyndham 4" loading="lazy" decoding="async" width="800" height="600" tabindex="0">
+      <img src="https://i.imgur.com/wAnVr9T.jpeg" alt="Wyndham 5" loading="lazy" decoding="async" width="800" height="600" tabindex="0">
+      <img src="https://i.imgur.com/7ExLNbI.jpeg" alt="Wyndham 6" loading="lazy" decoding="async" width="800" height="600" tabindex="0">
+      <img src="https://i.imgur.com/ptpX7Ti.jpeg" alt="Wyndham 7" loading="lazy" decoding="async" width="800" height="600" tabindex="0">
+      <img src="https://i.imgur.com/GHtjGQK.jpeg" alt="Wyndham 8" loading="lazy" decoding="async" width="800" height="600" tabindex="0">
+      <img src="https://i.imgur.com/tnuVQOh.jpeg" alt="Wyndham 9" loading="lazy" decoding="async" width="800" height="600" tabindex="0">
+      <img src="https://i.imgur.com/KxSsPe6.jpeg" alt="Wyndham 10" loading="lazy" decoding="async" width="800" height="600" tabindex="0">
     </div>
   </div>
 
@@ -1577,10 +590,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <a href="resorts/juquehy.html" class="resort-link" target="_blank" rel="noopener">Ver página exclusiva →</a>
     <a href="https://wa.me/5517982006382?text=Ol%C3%A1%21+Tenho+interesse+na+Praia+de+Juquehy.+Pode+me+enviar+mais+informa%C3%A7%C3%B5es%3F" class="resort-wpp-btn" target="_blank" rel="noopener">💬 Orçamento Juquehy</a>
     <div class="gallery">
-      <img src="https://i.imgur.com/SxlktwS.jpeg" alt="Juquehy 1" loading="lazy" width="800" height="600" tabindex="0">
-      <img src="https://i.imgur.com/uORu8RN.jpeg" alt="Juquehy 2" loading="lazy" width="800" height="600" tabindex="0">
-      <img src="https://i.imgur.com/6W559IH.jpeg" alt="Juquehy 3" loading="lazy" width="800" height="600" tabindex="0">
-      <img src="https://i.imgur.com/OEzuUL0.jpeg" alt="Juquehy 4" loading="lazy" width="800" height="600" tabindex="0">
+      <img src="https://i.imgur.com/SxlktwS.jpeg" alt="Juquehy 1" loading="lazy" decoding="async" width="800" height="600" tabindex="0">
+      <img src="https://i.imgur.com/uORu8RN.jpeg" alt="Juquehy 2" loading="lazy" decoding="async" width="800" height="600" tabindex="0">
+      <img src="https://i.imgur.com/6W559IH.jpeg" alt="Juquehy 3" loading="lazy" decoding="async" width="800" height="600" tabindex="0">
+      <img src="https://i.imgur.com/OEzuUL0.jpeg" alt="Juquehy 4" loading="lazy" decoding="async" width="800" height="600" tabindex="0">
     </div>
   </div>
 
@@ -1588,17 +601,17 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <div class="resort-title">Ipioca Beach Resort</div>
     <a href="https://wa.me/5517982006382?text=Ol%C3%A1%21+Tenho+interesse+no+Ipioca+Beach+Resort.+Pode+me+enviar+mais+informa%C3%A7%C3%B5es%3F" class="resort-wpp-btn" target="_blank" rel="noopener">💬 Orçamento Ipioca Beach</a>
     <div class="gallery">
-      <img src="https://i.imgur.com/o4Esa54.jpg" alt="Ipioca Beach 1" loading="lazy" width="800" height="600" tabindex="0">
-      <img src="https://i.imgur.com/JkknBgp.jpg" alt="Ipioca Beach 2" loading="lazy" width="800" height="600" tabindex="0">
-      <img src="https://i.imgur.com/kJC14PL.jpg" alt="Ipioca Beach 3" loading="lazy" width="800" height="600" tabindex="0">
-      <img src="https://i.imgur.com/rQ0MSuI.jpg" alt="Ipioca Beach 4" loading="lazy" width="800" height="600" tabindex="0">
-      <img src="https://i.imgur.com/NPXe84S.jpg" alt="Ipioca Beach 5" loading="lazy" width="800" height="600" tabindex="0">
-      <img src="https://i.imgur.com/YQOtcCM.jpg" alt="Ipioca Beach 6" loading="lazy" width="800" height="600" tabindex="0">
-      <img src="https://i.imgur.com/iKt6IXJ.jpg" alt="Ipioca Beach 7" loading="lazy" width="800" height="600" tabindex="0">
-      <img src="https://i.imgur.com/zYs393D.jpg" alt="Ipioca Beach 8" loading="lazy" width="800" height="600" tabindex="0">
-      <img src="https://i.imgur.com/92w8hn5.jpg" alt="Ipioca Beach 9" loading="lazy" width="800" height="600" tabindex="0">
-      <img src="https://i.imgur.com/5aHRmTT.jpg" alt="Ipioca Beach 10" loading="lazy" width="800" height="600" tabindex="0">
-      <img src="https://i.imgur.com/abnbLUI.jpg" alt="Ipioca Beach 11" loading="lazy" width="800" height="600" tabindex="0">
+      <img src="https://i.imgur.com/o4Esa54.jpg" alt="Ipioca Beach 1" loading="lazy" decoding="async" width="800" height="600" tabindex="0">
+      <img src="https://i.imgur.com/JkknBgp.jpg" alt="Ipioca Beach 2" loading="lazy" decoding="async" width="800" height="600" tabindex="0">
+      <img src="https://i.imgur.com/kJC14PL.jpg" alt="Ipioca Beach 3" loading="lazy" decoding="async" width="800" height="600" tabindex="0">
+      <img src="https://i.imgur.com/rQ0MSuI.jpg" alt="Ipioca Beach 4" loading="lazy" decoding="async" width="800" height="600" tabindex="0">
+      <img src="https://i.imgur.com/NPXe84S.jpg" alt="Ipioca Beach 5" loading="lazy" decoding="async" width="800" height="600" tabindex="0">
+      <img src="https://i.imgur.com/YQOtcCM.jpg" alt="Ipioca Beach 6" loading="lazy" decoding="async" width="800" height="600" tabindex="0">
+      <img src="https://i.imgur.com/iKt6IXJ.jpg" alt="Ipioca Beach 7" loading="lazy" decoding="async" width="800" height="600" tabindex="0">
+      <img src="https://i.imgur.com/zYs393D.jpg" alt="Ipioca Beach 8" loading="lazy" decoding="async" width="800" height="600" tabindex="0">
+      <img src="https://i.imgur.com/92w8hn5.jpg" alt="Ipioca Beach 9" loading="lazy" decoding="async" width="800" height="600" tabindex="0">
+      <img src="https://i.imgur.com/5aHRmTT.jpg" alt="Ipioca Beach 10" loading="lazy" decoding="async" width="800" height="600" tabindex="0">
+      <img src="https://i.imgur.com/abnbLUI.jpg" alt="Ipioca Beach 11" loading="lazy" decoding="async" width="800" height="600" tabindex="0">
     </div>
   </div>
 
@@ -1606,18 +619,18 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <div class="resort-title">Porto 2 Life</div>
     <a href="https://wa.me/5517982006382?text=Ol%C3%A1%21+Tenho+interesse+no+Porto+2+Life.+Pode+me+enviar+mais+informa%C3%A7%C3%B5es%3F" class="resort-wpp-btn" target="_blank" rel="noopener">💬 Orçamento Porto 2 Life</a>
     <div class="gallery">
-      <img src="https://i.imgur.com/x23SHdy.jpeg" alt="Porto 2 Life 1" loading="lazy" width="800" height="600" tabindex="0">
-      <img src="https://i.imgur.com/0ebxdoj.jpeg" alt="Porto 2 Life 2" loading="lazy" width="800" height="600" tabindex="0">
-      <img src="https://i.imgur.com/SmteM76.jpeg" alt="Porto 2 Life 3" loading="lazy" width="800" height="600" tabindex="0">
-      <img src="https://i.imgur.com/UMwtzsO.jpeg" alt="Porto 2 Life 4" loading="lazy" width="800" height="600" tabindex="0">
-      <img src="https://i.imgur.com/ZqvoSAl.jpeg" alt="Porto 2 Life 5" loading="lazy" width="800" height="600" tabindex="0">
-      <img src="https://i.imgur.com/KX9s5Ut.jpeg" alt="Porto 2 Life 6" loading="lazy" width="800" height="600" tabindex="0">
-      <img src="https://i.imgur.com/uW49hhx.jpeg" alt="Porto 2 Life 7" loading="lazy" width="800" height="600" tabindex="0">
-      <img src="https://i.imgur.com/7AJ0XRm.jpeg" alt="Porto 2 Life 8" loading="lazy" width="800" height="600" tabindex="0">
-      <img src="https://i.imgur.com/5SM0sDI.jpeg" alt="Porto 2 Life 9" loading="lazy" width="800" height="600" tabindex="0">
-      <img src="https://i.imgur.com/y752mvd.jpeg" alt="Porto 2 Life 10" loading="lazy" width="800" height="600" tabindex="0">
-      <img src="https://i.imgur.com/qDYmnf4.jpeg" alt="Porto 2 Life 11" loading="lazy" width="800" height="600" tabindex="0">
-      <img src="https://i.imgur.com/YhiC5Cu.jpeg" alt="Porto 2 Life 12" loading="lazy" width="800" height="600" tabindex="0">
+      <img src="https://i.imgur.com/x23SHdy.jpeg" alt="Porto 2 Life 1" loading="lazy" decoding="async" width="800" height="600" tabindex="0">
+      <img src="https://i.imgur.com/0ebxdoj.jpeg" alt="Porto 2 Life 2" loading="lazy" decoding="async" width="800" height="600" tabindex="0">
+      <img src="https://i.imgur.com/SmteM76.jpeg" alt="Porto 2 Life 3" loading="lazy" decoding="async" width="800" height="600" tabindex="0">
+      <img src="https://i.imgur.com/UMwtzsO.jpeg" alt="Porto 2 Life 4" loading="lazy" decoding="async" width="800" height="600" tabindex="0">
+      <img src="https://i.imgur.com/ZqvoSAl.jpeg" alt="Porto 2 Life 5" loading="lazy" decoding="async" width="800" height="600" tabindex="0">
+      <img src="https://i.imgur.com/KX9s5Ut.jpeg" alt="Porto 2 Life 6" loading="lazy" decoding="async" width="800" height="600" tabindex="0">
+      <img src="https://i.imgur.com/uW49hhx.jpeg" alt="Porto 2 Life 7" loading="lazy" decoding="async" width="800" height="600" tabindex="0">
+      <img src="https://i.imgur.com/7AJ0XRm.jpeg" alt="Porto 2 Life 8" loading="lazy" decoding="async" width="800" height="600" tabindex="0">
+      <img src="https://i.imgur.com/5SM0sDI.jpeg" alt="Porto 2 Life 9" loading="lazy" decoding="async" width="800" height="600" tabindex="0">
+      <img src="https://i.imgur.com/y752mvd.jpeg" alt="Porto 2 Life 10" loading="lazy" decoding="async" width="800" height="600" tabindex="0">
+      <img src="https://i.imgur.com/qDYmnf4.jpeg" alt="Porto 2 Life 11" loading="lazy" decoding="async" width="800" height="600" tabindex="0">
+      <img src="https://i.imgur.com/YhiC5Cu.jpeg" alt="Porto 2 Life 12" loading="lazy" decoding="async" width="800" height="600" tabindex="0">
     </div>
   </div>
 </div>
@@ -1638,35 +651,35 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   <div class="depo-carousel-wrap" tabindex="0" role="region" aria-label="Carrossel de depoimentos">
     <div class="depo-carousel-inner">
       <div class="depo-card active">
-        <img src="https://i.imgur.com/ep4Ng4e.jpeg" alt="Foto Cordélia S." loading="lazy" width="80" height="80">
+        <img src="https://i.imgur.com/ep4Ng4e.jpeg" alt="Foto Cordélia S." loading="lazy" decoding="async" width="80" height="80">
         <div class="depo-stars">★★★★★</div>
         <p>"A melhor experiência de viagem que já tive. Atendimento super rápido e opções excelentes!"</p>
         <div class="depo-nome">Cordélia S.</div>
         <div class="depo-cidade">Rio Preto, SP</div>
       </div>
       <div class="depo-card">
-        <img src="https://i.imgur.com/dciabUo.jpeg" alt="Foto Ricardo A." loading="lazy" width="80" height="80">
+        <img src="https://i.imgur.com/dciabUo.jpeg" alt="Foto Ricardo A." loading="lazy" decoding="async" width="80" height="80">
         <div class="depo-stars">★★★★★</div>
         <p>"Fechei sem medo! Equipe muito confiável, recomendo para todos que buscam férias tranquilas."</p>
         <div class="depo-nome">Ricardo A.</div>
         <div class="depo-cidade">São Paulo, SP</div>
       </div>
       <div class="depo-card">
-        <img src="https://i.imgur.com/dciabUo.jpeg" alt="Foto Marina Lopes" loading="lazy" width="80" height="80">
+        <img src="https://i.imgur.com/dciabUo.jpeg" alt="Foto Marina Lopes" loading="lazy" decoding="async" width="80" height="80">
         <div class="depo-stars">★★★★★</div>
         <p>"Tudo perfeito: reserva, atendimento e o resort maravilhoso. Obrigada, HOSPEDAH!"</p>
         <div class="depo-nome">Marina Lopes</div>
         <div class="depo-cidade">Uberaba, MG</div>
       </div>
       <div class="depo-card">
-        <img src="https://i.imgur.com/j5izC2s.jpeg" alt="Foto Gabriel Pinheiro" loading="lazy" width="80" height="80">
+        <img src="https://i.imgur.com/j5izC2s.jpeg" alt="Foto Gabriel Pinheiro" loading="lazy" decoding="async" width="80" height="80">
         <div class="depo-stars">★★★★★</div>
         <p>"Superaram as minhas expectativas. Voltarei a reservar com eles, com certeza."</p>
         <div class="depo-nome">Gabriel Pinheiro</div>
         <div class="depo-cidade">Campinas, SP</div>
       </div>
       <div class="depo-card">
-        <img src="https://i.imgur.com/iVoMnep.jpeg" alt="Foto Paula Menezes" loading="lazy" width="80" height="80">
+        <img src="https://i.imgur.com/iVoMnep.jpeg" alt="Foto Paula Menezes" loading="lazy" decoding="async" width="80" height="80">
         <div class="depo-stars">★★★★★</div>
         <p>"Atendimento exclusivo, muita praticidade e resorts fantásticos. Indico de olhos fechados."</p>
         <div class="depo-nome">Paula Menezes</div>
