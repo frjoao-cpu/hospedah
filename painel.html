@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Minha Conta | HOSPEDAH</title>
+<title>Sistema Hospeda | HOSPEDAH</title>
 <meta name="robots" content="noindex, nofollow">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://ydrmjoppjxtmnwtvtinb.supabase.co; img-src 'self' data: https://i.imgur.com; object-src 'none'; base-uri 'self';">
 <link rel="manifest" href="/manifest.json">
@@ -293,10 +293,10 @@ body { font-family: 'Poppins', sans-serif; background: var(--bg); color: var(--c
 <!-- ============================================================
      LOGIN OVERLAY
 ============================================================ -->
-<div class="lock-overlay show" id="lockOverlay" role="dialog" aria-modal="true" aria-label="Minha Conta">
+<div class="lock-overlay show" id="lockOverlay" role="dialog" aria-modal="true" aria-label="Sistema Hospeda">
   <div class="lock-box">
     <div style="font-size:2.4em; margin-bottom:10px;">🔐</div>
-    <h2>Minha Conta</h2>
+    <h2>Sistema Hospeda</h2>
 
     <!-- VIEW 1: Login -->
     <div class="lock-view ativo" id="lv-login">
@@ -315,10 +315,6 @@ body { font-family: 'Poppins', sans-serif; background: var(--bg); color: var(--c
       <button class="btn btn-primary" style="width:100%;margin-top:14px;" onclick="loginSenha()">
         🔓 Entrar
       </button>
-      <div class="lock-links-row">
-        <button class="lock-link" onclick="mostrarView('lv-magic')">✉️ Acesso por link</button>
-        <button class="lock-link" onclick="mostrarView('lv-reset')">🔑 Esqueci a senha</button>
-      </div>
     </div>
 
     <!-- VIEW 2: Magic link -->
