@@ -802,9 +802,11 @@ function iniciarPainel() {
   // Construir navegação conforme role
   construirNav(role);
 
-  // Navegar para seção inicial
+  // Navegar para seção inicial (com guarda de permissão por seção/hash).
+  // Segurança: evita que um hóspede abra seções administrativas via URL (#dashboard/#usuarios).
   const hash = location.hash.replace('#', '') || getDefaultSection(role);
-  navegarPara(hash);
+  const secaoInicial = roleTemAcessoSecao(role, hash) ? hash : getDefaultSection(role);
+  navegarPara(secaoInicial, { replaceHistory: true });
 
   // Carregar dados background
   if (role === 'hospede' || role === 'admin' || role === 'proprietario') {
@@ -856,6 +858,8 @@ function construirNav(role) {
 
 // ── CONSTRUIR BOTTOM NAV ──
 function construirBottomNav(role) {
+  // Segurança mobile: o item administrativo ("Dashboard") só é renderizado
+  // para perfis com permissão explícita (admin/proprietario).
   const items = [
     { id: 'minhas-reservas', icon: '📋', label: 'Reservas',  roles: ['hospede','admin','proprietario'], href: null },
     { id: 'dashboard',       icon: '📊', label: 'Dashboard', roles: ['admin','proprietario'], href: null },
@@ -875,17 +879,40 @@ function construirBottomNav(role) {
 }
 
 // ── NAVEGAÇÃO ──
-function navegarPara(id) {
-  _currentSection = id;
-  history.pushState(null, '', '#' + id);
+function roleTemAcessoSecao(role, sectionId) {
+  const sec = document.getElementById('sec-' + sectionId);
+  if (!sec) return false;
+  const rolesPermitidas = String(sec.dataset.roles || '')
+    .split(',')
+    .map(r => r.trim())
+    .filter(Boolean);
+  return rolesPermitidas.length === 0 || rolesPermitidas.includes(role);
+}
+
+function navegarPara(id, options = {}) {
+  const role = (_profile && _profile.role) || 'hospede';
+  const destinoPermitido = roleTemAcessoSecao(role, id) ? id : getDefaultSection(role);
+
+  // Segurança client-side: bloqueia tentativa de acesso a seções sem permissão
+  // e força o usuário para a área compatível com seu perfil.
+  if (id !== destinoPermitido) {
+    mostrarToast('🔒 Acesso restrito ao seu perfil. Redirecionando para sua área.', 'info');
+  }
+
+  _currentSection = destinoPermitido;
+  if (options.replaceHistory) {
+    history.replaceState(null, '', '#' + destinoPermitido);
+  } else {
+    history.pushState(null, '', '#' + destinoPermitido);
+  }
 
   document.querySelectorAll('.painel-section').forEach(s => s.classList.remove('active'));
-  const sec = document.getElementById('sec-' + id);
+  const sec = document.getElementById('sec-' + destinoPermitido);
   if (sec) sec.classList.add('active');
 
   // Marcar nav ativo
   document.querySelectorAll('.sidebar-nav a, .bottom-nav a').forEach(a => a.classList.remove('active'));
-  const active = document.querySelectorAll('#nav-' + id + ', #bn-' + id);
+  const active = document.querySelectorAll('#nav-' + destinoPermitido + ', #bn-' + destinoPermitido);
   active.forEach(a => a.classList.add('active'));
 
   window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -893,7 +920,7 @@ function navegarPara(id) {
 
 window.addEventListener('popstate', () => {
   const hash = location.hash.replace('#', '');
-  if (hash) navegarPara(hash);
+  if (hash) navegarPara(hash, { replaceHistory: true });
 });
 
 // ── DASHBOARD (admin / proprietario) ──
