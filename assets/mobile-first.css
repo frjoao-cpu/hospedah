@@ -257,9 +257,10 @@ img {
 
 /* ── HEADER / NAV RESPONSIVOS ── */
 @media (max-width: 767px) {
-  /* Esconder nav desktop em mobile */
+  /* Esconder nav desktop em mobile (bottom-nav cobre a navegação) */
   .nav-links,
-  .sys-nav {
+  .sys-nav,
+  .hamburger {
     display: none !important;
   }
 
