@@ -2647,13 +2647,11 @@ _supabase.auth.onAuthStateChange(function(event, session) {
       }
       inicializarSistema();
     } else if (event === 'INITIAL_SESSION') {
-      /* Sessão em cache encontrada: exige novo login para segurança máxima */
-      var emailInput = document.getElementById('lockEmail');
-      if (emailInput && session.user && session.user.email && !emailInput.value) {
-        emailInput.value = session.user.email;
-      }
-      document.getElementById('lockOverlay').classList.add('show');
-      _focarElemento(emailInput && emailInput.value ? 'lockInput' : 'lockEmail');
+      /* Sessão válida encontrada: inicializar sistema sem exigir novo login.
+         A segurança é mantida por validarAcessoPainelHospedah(), que verifica
+         o token via getUser() no servidor e exige role admin/proprietario. */
+      document.getElementById('lockOverlay').classList.remove('show');
+      inicializarSistema();
     }
     /* SIGNED_IN sem _isAuthRedirect: login manual já tratado por tentarLogin() */
   } else if (event === 'INITIAL_SESSION' && !session) {
