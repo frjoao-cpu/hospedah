@@ -1685,7 +1685,11 @@ function toggleComparar(resortId) {
     _compSet.splice(idx, 1);
   } else {
     if (_compSet.length >= 3) {
-      alert('Selecione no máximo 3 resorts para comparar.');
+      if (typeof showToast === 'function') {
+        showToast('Selecione no máximo 3 resorts para comparar.', 'warning');
+      } else {
+        alert('Selecione no máximo 3 resorts para comparar.');
+      }
       return;
     }
     _compSet.push(resortId);
@@ -1710,7 +1714,14 @@ function atualizarCompBar() {
 }
 
 function abrirComparacao() {
-  if (_compSet.length < 2) { alert('Selecione pelo menos 2 resorts para comparar.'); return; }
+  if (_compSet.length < 2) {
+    if (typeof showToast === 'function') {
+      showToast('Selecione pelo menos 2 resorts para comparar.', 'info');
+    } else {
+      alert('Selecione pelo menos 2 resorts para comparar.');
+    }
+    return;
+  }
   var resorts = _compSet.map(function(id) {
     return RESORTS.find(function(r) { return r.id === id; });
   }).filter(Boolean);

@@ -443,7 +443,7 @@ var VALIDATORS = {
   cidade:     function (v) { return v.trim().length >= 3; },
   nomeContato:function (v) { return v.trim().length >= 3; },
   whatsapp:   function (v) { return /^\d{10,15}$/.test(v.replace(/\D/g,'')); },
-  email:      function (v) { return v === '' || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v); }
+  email:      function (v) { return v === '' || /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v); }
 };
 
 function validateField(id) {

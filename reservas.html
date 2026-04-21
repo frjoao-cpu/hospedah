@@ -1942,13 +1942,16 @@ function _checkDatesForWizard() {
     skEl.style.display = 'inline-block';
     el.innerHTML = '';
     el.appendChild(skEl);
-    /* Remove skeleton quando resort for selecionado */
+    /* Remove skeleton quando resort for selecionado (conteúdo texto inserido) */
     var ob = new MutationObserver(function() {
-      if (el.querySelector('.skeleton-line') && el.textContent.trim() !== '' && !el.querySelector('.skeleton-line')) {
+      if (!el.querySelector('.skeleton-line')) { ob.disconnect(); }
+      else if (el.childNodes.length && el.textContent.trim()) {
+        var sk = el.querySelector('.skeleton-line');
+        if (sk) sk.remove();
         ob.disconnect();
       }
     });
-    ob.observe(el, { childList: true });
+    ob.observe(el, { childList: true, subtree: true, characterData: true });
   }
 })();</script>
 

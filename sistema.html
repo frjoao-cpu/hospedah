@@ -6147,10 +6147,17 @@ function filtrarPeriodoDash(period) {
 
   /* Filtrar array global de reservas */
   var filtradas = (typeof reservas !== 'undefined' ? reservas : []).filter(function(r) {
-    var d = r.dataEntrada || r.data_entrada || r.criado_em;
-    if (!d) return period === 'all';
-    var ts = new Date(d.replace(/(\d{2})\/(\d{2})\/(\d{4})/, '$3-$2-$1'));
-    if (isNaN(ts)) return period === 'all';
+    var rawDate = r.dataEntrada || r.data_entrada || r.criado_em || '';
+    if (!rawDate) return period === 'all';
+    /* Suporta ISO (2025-04-21, 2025-04-21T...) e DD/MM/YYYY */
+    var ts;
+    if (/^\d{4}-\d{2}-\d{2}/.test(rawDate)) {
+      ts = new Date(rawDate);
+    } else {
+      var parts = rawDate.match(/^(\d{2})\/(\d{2})\/(\d{4})/);
+      ts = parts ? new Date(parts[3] + '-' + parts[2] + '-' + parts[1]) : null;
+    }
+    if (!ts || isNaN(ts.getTime())) return period === 'all';
     if (de  && ts < de)  return false;
     if (ate && ts > ate) return false;
     return true;

@@ -103,9 +103,10 @@ self.addEventListener('fetch', function (event) {
               cache.put(req, response.clone());
             }
             return response;
-          });
-          /* Retorna o cache imediatamente se disponível; caso contrário aguarda a rede */
-          return cached || fetchPromise;
+          }).catch(function () { return cached; });
+          /* Stale-While-Revalidate: serve do cache imediatamente E atualiza em background */
+          if (cached) { fetchPromise.catch(function () {}); return cached; }
+          return fetchPromise;
         });
       })
     );
@@ -123,8 +124,10 @@ self.addEventListener('fetch', function (event) {
               cache.put(req, response.clone());
             }
             return response;
-          });
-          return cached || fetchPromise;
+          }).catch(function () { return cached; });
+          /* Stale-While-Revalidate: serve do cache imediatamente E atualiza em background */
+          if (cached) { fetchPromise.catch(function () {}); return cached; }
+          return fetchPromise;
         });
       })
     );
