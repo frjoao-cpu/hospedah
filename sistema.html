@@ -2632,6 +2632,16 @@ var _isAuthRedirect = (function() {
          h.indexOf('type=recovery') !== -1;
 })();
 
+/* Detecta especificamente um link de recuperação de senha.
+   Nesses casos o evento PASSWORD_RECOVERY do Supabase gerencia o fluxo;
+   chamar inicializarSistema() via INITIAL_SESSION destruiria a sessão de
+   recuperação antes de o usuário definir a nova senha. */
+var _isPasswordRecoveryRedirect = (function() {
+  var s = window.location.search;
+  var h = window.location.hash;
+  return s.indexOf('type=recovery') !== -1 || h.indexOf('type=recovery') !== -1;
+})();
+
 /* Escuta eventos de autenticação — detecta retorno do link de recuperação de senha e magic link */
 _supabase.auth.onAuthStateChange(function(event, session) {
   if (event === 'PASSWORD_RECOVERY') {
@@ -2641,7 +2651,12 @@ _supabase.auth.onAuthStateChange(function(event, session) {
   } else if ((event === 'SIGNED_IN' || event === 'INITIAL_SESSION') && session) {
     if (_aguardandoNovaSenha) return; // aguarda o usuário definir a nova senha
     if (_isAuthRedirect) {
-      /* Chegou via link de e-mail: permite acesso direto.
+      /* Links de recuperação de senha são gerenciados exclusivamente pelo evento
+         PASSWORD_RECOVERY. Chamar inicializarSistema() aqui destruiria a sessão
+         de recuperação caso validarAcessoPainelHospedah() faça signOut() por falta
+         de role admin/proprietario, impedindo o usuário de definir a nova senha. */
+      if (_isPasswordRecoveryRedirect) return;
+      /* Chegou via magic link: permite acesso direto.
          O overlay será ocultado apenas após validarAcessoPainelHospedah() confirmar permissão. */
       /* Limpa os parâmetros de autenticação da URL para evitar bypass do login em visitas futuras */
       if (window.history && window.history.replaceState) {
@@ -2875,16 +2890,28 @@ function definirNovaSenha() {
     return;
   }
 
+  var btn = document.querySelector('#lockViewNovaSenha .btn-primary');
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ Salvando...'; }
+
   _supabase.auth.updateUser({ password: nova })
     .then(function(result) {
       if (result.error) {
+        if (btn) { btn.disabled = false; btn.textContent = '✅ Salvar nova senha'; }
         err.textContent = '❌ ' + result.error.message;
         err.style.display = 'block';
       } else {
+        /* Não ocultar o overlay aqui: inicializarSistema() o oculta após validar
+           o acesso via validarAcessoPainelHospedah(). Isso evita que a tela pisque
+           caso a validação falhe e o overlay precise ser exibido novamente. */
         _aguardandoNovaSenha = false;
-        document.getElementById('lockOverlay').classList.remove('show');
         inicializarSistema();
       }
+    })
+    .catch(function(e) {
+      console.warn('Erro ao definir nova senha:', e);
+      if (btn) { btn.disabled = false; btn.textContent = '✅ Salvar nova senha'; }
+      err.textContent = '❌ Erro de conexão. Verifique sua internet e tente novamente.';
+      err.style.display = 'block';
     });
 }
 
@@ -5378,7 +5405,7 @@ async function validarAcessoPainelHospedah() {
       await _supabase.auth.signOut();
       var err = document.getElementById('lockError');
       if (err) {
-        err.textContent = '❌ Erro ao verificar permissões de acesso. Tente novamente.';
+        err.textContent = '❌ Erro ao verificar permissões de acesso. Execute a migração SQL no Supabase e tente novamente.';
         err.style.display = 'block';
       }
       document.getElementById('lockOverlay').classList.add('show');
@@ -5393,7 +5420,10 @@ async function validarAcessoPainelHospedah() {
       await _supabase.auth.signOut();
       var err = document.getElementById('lockError');
       if (err) {
-        err.textContent = '❌ Esta conta não tem permissão de acesso ao Sistema Hospeda. Contate o administrador.';
+        var msg = role
+          ? '❌ Esta conta não tem permissão de acesso ao Sistema Hospeda (role: ' + role + '). Execute o UPDATE de role no Supabase.'
+          : '❌ Perfil não encontrado. Execute a migração SQL e o UPDATE de role no Supabase.';
+        err.textContent = msg;
         err.style.display = 'block';
       }
       document.getElementById('lockOverlay').classList.add('show');
