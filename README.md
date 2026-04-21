@@ -198,3 +198,10 @@ function gerar() {
   - Exemplo ABAC: proprietário só edita tarifas de unidades do próprio empreendimento em período permitido.
 - **Fase 3**: automações de CRM/funil + concierge AI + recomendações inteligentes.
 - **Fase 4**: otimização contínua com A/B test, métricas de conversão e retenção.
+
+### Checklist de execução prática (prioridade alta → baixa)
+- [ ] **Semana 1–2 (quick wins)**: limpar CSS inline crítico do `index.html`, destacar CTA principal no hero e implementar skeleton/lazy loading de imagens acima/abaixo da dobra.
+- [ ] **Semana 2–4 (conversão)**: lançar busca inteligente com filtros salvos, comparação de resorts e régua automática de recuperação de leads (WhatsApp/e-mail).
+- [ ] **Mês 2 (plataforma única)**: consolidar painel de **hóspede, proprietário e admin** com permissões por perfil, centro de notificações e histórico único de atendimento.
+- [ ] **Mês 3 (automação premium)**: integrar CRM + funil com lead scoring, alertas operacionais e concierge AI com handoff para humano.
+- [ ] **Contínuo (governança)**: acompanhar Lighthouse, tempo de resposta no atendimento, taxa de conversão por etapa e NPS pós-estadia.
