@@ -5303,22 +5303,19 @@ function exportarCSVCaptacao() {
 /* ==========================================
    INICIALIZAÇÃO
 ========================================== */
-function inicializarSistema() {
+async function inicializarSistema() {
   if (_sistemaInicializado) return;
   _sistemaInicializado = true;
 
-  /* Verificar role: redirecionar hóspedes e proprietários para painel.html */
-  _supabase.auth.getUser().then(function(result) {
-    var uid = result && result.data && result.data.user && result.data.user.id;
-    if (!uid) return;
-    _supabase.from('profiles').select('role').eq('id', uid).maybeSingle()
-      .then(function(res) {
-        var role = res && res.data && res.data.role;
-        if (role === 'hospede' || role === 'proprietario') {
-          window.location.href = 'painel.html';
-        }
-      });
-  });
+  /* Segurança de rota (client-side):
+     - "sistema.html" só pode ser aberto por admin/proprietario autenticado.
+     - sem sessão ou sem permissão: redireciona para painel.html (login/dashboard).
+     - bloqueia a inicialização completa antes de carregar dados sensíveis. */
+  var acessoLiberado = await validarAcessoPainelHospedah();
+  if (!acessoLiberado) {
+    _sistemaInicializado = false;
+    return;
+  }
 
   sincronizarDoSupabase().catch(function(e) {
     console.warn('Falha ao sincronizar dados do servidor, usando cache local:', e);
@@ -5347,6 +5344,32 @@ function inicializarSistema() {
     document.getElementById('inputMeta').value = metaSalva;
     sincronizarAutomacoes(true);
   });
+}
+
+async function validarAcessoPainelHospedah() {
+  try {
+    var userRes = await _supabase.auth.getUser();
+    var uid = userRes && userRes.data && userRes.data.user && userRes.data.user.id;
+    if (!uid) {
+      window.location.href = 'painel.html';
+      return false;
+    }
+
+    var roleRes = await _supabase.from('profiles').select('role').eq('id', uid).maybeSingle();
+    var role = roleRes && roleRes.data && roleRes.data.role;
+    var podeAcessar = role === 'admin' || role === 'proprietario';
+
+    if (!podeAcessar) {
+      window.location.href = 'painel.html';
+      return false;
+    }
+
+    return true;
+  } catch (e) {
+    console.warn('Falha ao validar acesso do painel administrativo:', e);
+    window.location.href = 'painel.html';
+    return false;
+  }
 }
 
 /* A verificação de acesso é gerenciada exclusivamente pelo evento INITIAL_SESSION
@@ -6234,8 +6257,9 @@ function exportarDashboard() {
 // VIEWS POR ROLE — Proprietário vê disponibilidade + alertas
 // ============================================================
 var _origInicializarSistema = inicializarSistema;
-inicializarSistema = function() {
-  _origInicializarSistema.apply(this, arguments);
+inicializarSistema = async function() {
+  await _origInicializarSistema.apply(this, arguments);
+  if (!_sistemaInicializado) return;
   /* Aguardar inicialização e detectar role */
   _supabase.auth.getUser().then(function(result) {
     var uid = result && result.data && result.data.user && result.data.user.id;
