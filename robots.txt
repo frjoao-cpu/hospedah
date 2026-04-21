@@ -1,4 +1,8 @@
 User-agent: *
 Allow: /
 
+# Páginas administrativas — não indexar
+Disallow: /painel.html
+Disallow: /sistema.html
+
 Sitemap: https://hospedah.tur.br/sitemap.xml
