@@ -937,6 +937,28 @@ document.addEventListener('keydown', function (e) {
   if (e.key === 'Escape') closeDrawer();
 });
 
+/* =====================
+   🔒 ACESSO SECRETO: 7 cliques/toques no logo HOSPEDAH → sistema.html
+===================== */
+(function () {
+  var logoEl = document.querySelector('.logo-txt');
+  if (!logoEl) return;
+  var count = 0;
+  var timer = null;
+  function reset() { count = 0; }
+  logoEl.addEventListener('click', function (e) {
+    e.preventDefault();
+    count++;
+    clearTimeout(timer);
+    timer = setTimeout(reset, 3000);
+    if (count >= 7) {
+      reset();
+      clearTimeout(timer);
+      window.location.href = 'sistema.html';
+    }
+  });
+})();
+
 
 
 /* =====================
@@ -2024,29 +2046,103 @@ function gerarPropostaPDF() {
   </ul>
 </nav>
 
-<!-- GAVETA PERFIL (mobile) -->
+<!-- GAVETA PERFIL (mobile) — Premium -->
 <div class="perfil-overlay" id="perfilOverlay"></div>
 <aside class="perfil-drawer" id="perfilDrawer" role="dialog" aria-modal="true" aria-label="Meu Perfil">
+  <div class="perfil-drag-handle"></div>
   <button class="perfil-close" id="perfilClose" aria-label="Fechar">✕</button>
+
+  <!-- CABEÇALHO DO PERFIL -->
   <div class="perfil-header">
     <div class="perfil-avatar" id="perfilAvatarImg">👤</div>
     <div class="perfil-info">
       <strong id="perfilNome">Visitante</strong>
       <span id="perfilEmail">Faça login para continuar</span>
+      <span class="perfil-badge" id="perfilBadge" style="display:none;"></span>
     </div>
   </div>
+
+  <!-- AÇÕES RÁPIDAS -->
+  <div class="perfil-quick-actions" id="perfilQuickActions" style="display:none;">
+    <a href="reservas.html" class="perfil-qa-item">
+      <span class="perfil-qa-icon">📅</span>
+      <span>Reservas</span>
+    </a>
+    <a href="chat.html" class="perfil-qa-item">
+      <span class="perfil-qa-icon">💬</span>
+      <span>Chat</span>
+    </a>
+    <a href="referral.html" class="perfil-qa-item">
+      <span class="perfil-qa-icon">🎁</span>
+      <span>Indicar</span>
+    </a>
+    <a href="busca.html" class="perfil-qa-item">
+      <span class="perfil-qa-icon">🔍</span>
+      <span>Buscar</span>
+    </a>
+  </div>
+
+  <!-- MENU PRINCIPAL -->
+  <div class="perfil-section-label">Minha Conta</div>
   <nav class="perfil-menu">
-    <a href="reservas.html" class="perfil-item">📅 Minhas Reservas</a>
-    <a href="#" class="perfil-item perfil-em-breve">❤️ Favoritos</a>
-    <a href="#" class="perfil-item perfil-em-breve">🔔 Notificações</a>
-    <a href="#" class="perfil-item perfil-em-breve">📄 Meus Documentos</a>
-    <a href="referral.html" class="perfil-item">🔗 Meu Link de Indicação</a>
-    <a href="avaliacoes.html" class="perfil-item">⭐ Minhas Avaliações</a>
+    <a href="reservas.html" class="perfil-item">
+      <span class="perfil-item-icon">📅</span>
+      <span class="perfil-item-label">Minhas Reservas</span>
+      <span class="perfil-item-arrow">›</span>
+    </a>
+    <a href="referral.html" class="perfil-item">
+      <span class="perfil-item-icon">🔗</span>
+      <span class="perfil-item-label">Meu Link de Indicação</span>
+      <span class="perfil-item-arrow">›</span>
+    </a>
+    <a href="avaliacoes.html" class="perfil-item">
+      <span class="perfil-item-icon">⭐</span>
+      <span class="perfil-item-label">Minhas Avaliações</span>
+      <span class="perfil-item-arrow">›</span>
+    </a>
+    <a href="cadastro.html" class="perfil-item">
+      <span class="perfil-item-icon">⚙️</span>
+      <span class="perfil-item-label">Configurações da Conta</span>
+      <span class="perfil-item-arrow">›</span>
+    </a>
   </nav>
+
+  <!-- SERVIÇOS -->
+  <div class="perfil-section-label">Serviços</div>
+  <nav class="perfil-menu">
+    <a href="busca.html" class="perfil-item">
+      <span class="perfil-item-icon">🏨</span>
+      <span class="perfil-item-label">Buscar Acomodações</span>
+      <span class="perfil-item-arrow">›</span>
+    </a>
+    <a href="chat.html" class="perfil-item">
+      <span class="perfil-item-icon">💬</span>
+      <span class="perfil-item-label">Atendimento Online</span>
+      <span class="perfil-item-badge-new">LIVE</span>
+      <span class="perfil-item-arrow">›</span>
+    </a>
+    <a href="https://wa.me/5517982006382" target="_blank" rel="noopener" class="perfil-item">
+      <span class="perfil-item-icon">📲</span>
+      <span class="perfil-item-label">WhatsApp Flávio</span>
+      <span class="perfil-item-arrow">›</span>
+    </a>
+    <a href="https://wa.me/5517992068296" target="_blank" rel="noopener" class="perfil-item">
+      <span class="perfil-item-icon">📲</span>
+      <span class="perfil-item-label">WhatsApp Juliana</span>
+      <span class="perfil-item-arrow">›</span>
+    </a>
+    <a href="jornal.html" class="perfil-item">
+      <span class="perfil-item-icon">📰</span>
+      <span class="perfil-item-label">Jornal HOSPEDAH</span>
+      <span class="perfil-item-arrow">›</span>
+    </a>
+  </nav>
+
+  <!-- RODAPÉ COM LOGIN/LOGOUT -->
   <div class="perfil-footer" id="perfilFooter"></div>
 </aside>
 <script>
-/* ── GAVETA PERFIL ── */
+/* ── GAVETA PERFIL PREMIUM ── */
 (function () {
   var overlay   = document.getElementById('perfilOverlay');
   var drawer    = document.getElementById('perfilDrawer');
@@ -2071,9 +2167,12 @@ function gerarPropostaPDF() {
   if (overlay)   overlay.addEventListener('click', closePerfil);
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closePerfil(); });
 
-  document.querySelectorAll('.perfil-em-breve').forEach(function (el) {
-    el.addEventListener('click', function (e) { e.preventDefault(); alert('Em breve! 🚀'); });
-  });
+  /* Suporte a swipe-down para fechar (somente quando o drawer está no topo) */
+  var touchStartY = 0;
+  drawer.addEventListener('touchstart', function (e) { touchStartY = e.touches[0].clientY; }, { passive: true });
+  drawer.addEventListener('touchend', function (e) {
+    if (drawer.scrollTop === 0 && e.changedTouches[0].clientY - touchStartY > 80) closePerfil();
+  }, { passive: true });
 
   function getSbClient() {
     var SB_URL = 'https://ydrmjoppjxtmnwtvtinb.supabase.co';
@@ -2082,23 +2181,34 @@ function gerarPropostaPDF() {
   }
 
   function mostrarBtnLogin(footer) {
+    footer.innerHTML = '';
     var link = document.createElement('a');
     link.href = 'cadastro.html';
     link.className = 'perfil-btn perfil-btn-login';
     link.textContent = '👤 Entrar / Criar conta';
     footer.appendChild(link);
+    /* Esconde ações rápidas para visitantes */
+    var qa = document.getElementById('perfilQuickActions');
+    if (qa) qa.style.display = 'none';
   }
 
   function carregarPerfil() {
     var footer = document.getElementById('perfilFooter');
     var client;
-    try { client = getSbClient(); } catch (e) { mostrarBtnLogin(footer); return; }
+    try { client = getSbClient(); } catch (err) { mostrarBtnLogin(footer); return; }
     client.auth.getSession().then(function (res) {
       var user = res.data && res.data.session && res.data.session.user;
       if (user) {
         var meta = user.user_metadata || {};
-        document.getElementById('perfilNome').textContent  = meta.full_name || meta.name || user.email.split('@')[0];
+        var nome = meta.full_name || meta.name || user.email.split('@')[0];
+        document.getElementById('perfilNome').textContent  = nome;
         document.getElementById('perfilEmail').textContent = user.email;
+
+        /* Badge de plano */
+        var badge = document.getElementById('perfilBadge');
+        if (badge) { badge.textContent = '✦ Premium'; badge.style.display = 'inline-block'; }
+
+        /* Avatar */
         if (meta.avatar_url) {
           var img = document.createElement('img');
           img.src = meta.avatar_url;
@@ -2108,11 +2218,25 @@ function gerarPropostaPDF() {
           av.innerHTML = '';
           av.appendChild(img);
         }
+
+        /* Exibe ações rápidas */
+        var qa = document.getElementById('perfilQuickActions');
+        if (qa) qa.style.display = 'grid';
+
+        /* Botão de sair */
+        footer.innerHTML = '';
         var btnSair = document.createElement('button');
         btnSair.className = 'perfil-btn perfil-btn-logout';
-        btnSair.textContent = '🚪 Sair';
+        btnSair.textContent = '🚪 Sair da conta';
         btnSair.addEventListener('click', function () {
-          client.auth.signOut().then(function () { window.location.reload(); });
+          btnSair.textContent = 'Saindo…';
+          btnSair.disabled = true;
+          client.auth.signOut().then(function () {
+            window.location.reload();
+          }).catch(function () {
+            btnSair.textContent = '🚪 Sair da conta';
+            btnSair.disabled = false;
+          });
         });
         footer.appendChild(btnSair);
       } else {
