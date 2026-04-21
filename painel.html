@@ -311,7 +311,7 @@ body { font-family: 'Poppins', sans-serif; background: var(--bg); color: var(--c
         <input type="password" id="lk-senha" placeholder="••••••••"
                autocomplete="current-password" onkeydown="if(event.key==='Enter')loginSenha()">
       </div>
-      <div class="lock-error" id="lk-erro">❌ Credenciais inválidas. Tente novamente.</div>
+      <div class="lock-error" id="lk-erro"></div>
       <button class="btn btn-primary" style="width:100%;margin-top:14px;" onclick="loginSenha()">
         🔓 Entrar
       </button>
@@ -659,10 +659,20 @@ async function loginSenha() {
   const errEl = document.getElementById('lk-erro');
   errEl.style.display = 'none';
 
-  if (!email || !senha) { errEl.style.display = 'block'; return; }
+  if (!email || !senha) { errEl.textContent = '❌ Preencha e-mail e senha.'; errEl.style.display = 'block'; return; }
 
   const { data, error } = await _sb.auth.signInWithPassword({ email, password: senha });
   if (error) {
+    const errorMessage = error.message || '';
+    if (errorMessage.toLowerCase().includes('email not confirmed')) {
+      errEl.textContent = '❌ E-mail não confirmado. Verifique sua caixa de entrada e clique no link de confirmação.';
+    } else if (errorMessage.toLowerCase().includes('invalid login') || errorMessage.toLowerCase().includes('invalid credentials')) {
+      errEl.textContent = '❌ E-mail ou senha incorretos. Verifique os dados e tente novamente.';
+    } else if (errorMessage.toLowerCase().includes('too many requests') || errorMessage.toLowerCase().includes('rate limit')) {
+      errEl.textContent = '❌ Muitas tentativas. Aguarde alguns minutos e tente novamente.';
+    } else {
+      errEl.textContent = '❌ ' + (errorMessage || 'Credenciais inválidas. Tente novamente.');
+    }
     errEl.style.display = 'block'; return;
   }
   _session = data.session;
