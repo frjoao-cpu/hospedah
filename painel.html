@@ -383,10 +383,55 @@ body { font-family: 'Poppins', sans-serif; background: var(--bg); color: var(--c
   <a href="index.html" class="painel-logo">🏨 HOSPEDAH</a>
   <span id="painelRoleBadge" class="painel-role-badge"></span>
   <span id="painelUserName" style="font-size:0.8em;color:var(--cor-sub);margin-left:8px;"></span>
-  <button class="painel-user-btn" onclick="logout()" style="margin-left:auto;">
+
+  <!-- ── NOTIFICATION CENTER ── -->
+  <button class="painel-user-btn" id="notifBtn" onclick="toggleNotifDrawer()"
+          aria-label="Notificações" style="margin-left:auto;position:relative;">
+    🔔
+    <span id="notifBadge" style="display:none;position:absolute;top:-5px;right:-5px;
+      background:var(--vermelho);color:#fff;font-size:0.62em;font-weight:700;
+      border-radius:10px;padding:1px 5px;line-height:1.5;min-width:16px;text-align:center;">
+      0
+    </span>
+  </button>
+
+  <button class="painel-user-btn" onclick="logout()">
     🚪 Sair
   </button>
 </header>
+
+<!-- ── NOTIFICATION DRAWER ── -->
+<div id="notifOverlay" onclick="fecharNotifDrawer()"
+     style="display:none;position:fixed;inset:0;z-index:199;background:rgba(0,0,0,0.35);"></div>
+<aside id="notifDrawer" role="dialog" aria-label="Notificações" aria-modal="true"
+       style="display:none;position:fixed;top:0;right:0;width:min(360px,96vw);height:100vh;
+              z-index:200;background:var(--bg2);border-left:1px solid var(--borda);
+              padding:20px 16px;overflow-y:auto;animation:slideDrawer .25s ease both;">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+    <h3 style="color:var(--dourado);font-size:0.95em;">🔔 Notificações</h3>
+    <button onclick="fecharNotifDrawer()" style="background:none;border:none;color:var(--cor-sub);
+            font-size:1.4em;cursor:pointer;line-height:1;" aria-label="Fechar">✕</button>
+  </div>
+  <div id="notifList">
+    <p style="color:var(--cor-sub);font-size:0.85em;text-align:center;padding:24px 0;">
+      Sem notificações no momento.
+    </p>
+  </div>
+  <button onclick="marcarTodasLidas()"
+          style="width:100%;margin-top:14px;padding:9px;border:1px solid var(--borda);
+                 background:none;color:var(--cor-sub);border-radius:8px;font-size:0.8em;
+                 cursor:pointer;font-family:inherit;transition:color .15s,border-color .15s;"
+          onmouseover="this.style.color='var(--dourado)';this.style.borderColor='var(--dourado)'"
+          onmouseout="this.style.color='var(--cor-sub)';this.style.borderColor='var(--borda)'">
+    ✓ Marcar todas como lidas
+  </button>
+</aside>
+<style>
+@keyframes slideDrawer {
+  from { transform: translateX(100%); }
+  to   { transform: translateX(0); }
+}
+</style>
 
 <!-- ============================================================
      LAYOUT: SIDEBAR + CONTEÚDO
@@ -1239,6 +1284,116 @@ async function mudarRole(userId, novoRole) {
   }
   // Se não houver sessão, o lockOverlay já está visível por padrão
 })();
+
+// ============================================================
+// NOTIFICATION CENTER
+// ============================================================
+var _notificacoes = [];
+
+/** Carrega notificações do Supabase e popula o drawer */
+async function carregarNotificacoes(userId) {
+  try {
+    const { data } = await _sb
+      .from('notificacoes')
+      .select('*')
+      .eq('user_id', userId)
+      .order('criado_em', { ascending: false })
+      .limit(30);
+
+    _notificacoes = data || [];
+    atualizarNotifUI();
+
+    /* Escuta inserções em tempo real */
+    _sb.channel('notificacoes_' + userId)
+      .on('postgres_changes', {
+        event: 'INSERT',
+        schema: 'public',
+        table: 'notificacoes',
+        filter: 'user_id=eq.' + userId
+      }, function (payload) {
+        _notificacoes.unshift(payload.new);
+        atualizarNotifUI();
+      })
+      .subscribe();
+  } catch (e) { /* notificações não disponíveis, ignora */ }
+}
+
+function atualizarNotifUI() {
+  var naoLidas = _notificacoes.filter(function (n) { return !n.lida; }).length;
+  var badge = document.getElementById('notifBadge');
+  if (badge) {
+    badge.style.display = naoLidas > 0 ? '' : 'none';
+    badge.textContent   = naoLidas > 9 ? '9+' : naoLidas;
+  }
+
+  var list = document.getElementById('notifList');
+  if (!list) return;
+
+  if (!_notificacoes.length) {
+    list.innerHTML = '<p style="color:var(--cor-sub);font-size:0.85em;text-align:center;padding:24px 0;">Sem notificações no momento.</p>';
+    return;
+  }
+
+  list.innerHTML = _notificacoes.map(function (n) {
+    var iconMap = { proposta: '📋', confirmacao: '✅', pendencia: '⏳', aviso: '⚠️', info: 'ℹ️' };
+    var icon    = iconMap[n.tipo] || 'ℹ️';
+    var ts      = n.criado_em ? new Date(n.criado_em).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }) : '';
+    return [
+      '<div style="padding:12px 0;border-bottom:1px solid var(--borda);display:flex;gap:10px;align-items:flex-start;',
+      n.lida ? 'opacity:.6;' : '',
+      '" id="notif-', n.id, '">',
+        '<span style="font-size:1.3em;flex-shrink:0;">', icon, '</span>',
+        '<div style="flex:1;min-width:0;">',
+          '<p style="font-size:0.83em;margin:0 0 3px;', !n.lida ? 'font-weight:600;' : '', '">', n.mensagem || '', '</p>',
+          '<small style="color:var(--cor-sub);font-size:0.72em;">', ts, '</small>',
+        '</div>',
+        !n.lida ? '<button onclick="marcarLida(\'' + n.id + '\')" style="background:none;border:none;color:var(--cor-sub);font-size:0.7em;cursor:pointer;flex-shrink:0;padding:2px 6px;border-radius:6px;border:1px solid var(--borda);" onmouseover="this.style.color=\'var(--dourado)\'" onmouseout="this.style.color=\'var(--cor-sub)\'">lida</button>' : '',
+      '</div>'
+    ].join('');
+  }).join('');
+}
+
+function toggleNotifDrawer() {
+  var drawer  = document.getElementById('notifDrawer');
+  var overlay = document.getElementById('notifOverlay');
+  var open    = drawer.style.display !== 'none';
+  drawer.style.display  = open ? 'none' : 'block';
+  overlay.style.display = open ? 'none' : 'block';
+}
+
+function fecharNotifDrawer() {
+  document.getElementById('notifDrawer').style.display  = 'none';
+  document.getElementById('notifOverlay').style.display = 'none';
+}
+
+async function marcarLida(id) {
+  var n = _notificacoes.find(function (x) { return x.id === id; });
+  if (n) n.lida = true;
+  atualizarNotifUI();
+  try {
+    await _sb.from('notificacoes').update({ lida: true }).eq('id', id);
+  } catch (e) { /* silencioso */ }
+}
+
+async function marcarTodasLidas() {
+  var ids = _notificacoes.filter(function (n) { return !n.lida; }).map(function (n) { return n.id; });
+  _notificacoes.forEach(function (n) { n.lida = true; });
+  atualizarNotifUI();
+  if (ids.length) {
+    try {
+      await _sb.from('notificacoes').update({ lida: true }).in('id', ids);
+    } catch (e) { /* silencioso */ }
+  }
+}
+
+/* Integrar carregamento de notificações ao iniciar painel */
+var _origIniciarPainel = iniciarPainel;
+iniciarPainel = function () {
+  _origIniciarPainel.apply(this, arguments);
+  if (_session && _session.user) {
+    carregarNotificacoes(_session.user.id);
+  }
+};
 </script>
 
 <script>if ('serviceWorker' in navigator) { navigator.serviceWorker.register('/sw.js').catch(function(){}); }</script>

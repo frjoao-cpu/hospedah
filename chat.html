@@ -687,7 +687,7 @@ function iniciarChat() {
 
   // Mensagem de boas-vindas
   const boasVindas = `Olá, **${nomeHospede}**! 👋 Sou da equipe HOSPEDAH. Vi que você quer falar sobre **${assunto}**. Como posso te ajudar hoje?`;
-  addMessage('recv', 'HOSPEDAH', boasVindas);
+  addMessage('recv', 'HOSPEDAH', boasVindas, null);
 
   // Iniciar Realtime
   iniciarRealtime();
@@ -700,6 +700,9 @@ function iniciarChat() {
 // SUPABASE REALTIME
 // ============================================================
 function iniciarRealtime() {
+  // Carregar histórico de mensagens anteriores da conversa
+  carregarHistorico();
+
   subscription = sb
     .channel(`chat_${conversaId}`)
     .on('postgres_changes', {
@@ -711,10 +714,35 @@ function iniciarRealtime() {
       const msg = payload.new;
       if (msg.remetente === 'anfitriao' && !mensagensRendered.has(msg.id)) {
         mensagensRendered.add(msg.id);
-        addMessage('recv', msg.nome_remetente, msg.conteudo);
+        ocultarDigitando();
+        addMessage('recv', msg.nome_remetente, msg.conteudo, msg.created_at);
       }
     })
     .subscribe();
+}
+
+// ============================================================
+// CARREGAR HISTÓRICO
+// ============================================================
+async function carregarHistorico() {
+  try {
+    const { data } = await sb
+      .from('mensagens')
+      .select('*')
+      .eq('conversa_id', conversaId)
+      .order('created_at', { ascending: true });
+
+    if (data && data.length) {
+      data.forEach(function (msg) {
+        if (!mensagensRendered.has(msg.id)) {
+          mensagensRendered.add(msg.id);
+          const tipo = msg.remetente === 'hospede' ? 'sent' : 'recv';
+          addMessage(tipo, msg.nome_remetente, msg.conteudo, msg.created_at);
+        }
+      });
+      scrollToBottom();
+    }
+  } catch (e) { /* fallback silencioso */ }
 }
 
 // ============================================================
@@ -751,7 +779,7 @@ async function enviarMensagem() {
     mostrarDigitando();
     setTimeout(() => {
       ocultarDigitando();
-      addMessage('recv', 'HOSPEDAH', respAuto);
+      addMessage('recv', 'HOSPEDAH', respAuto, null);
       scrollToBottom();
     }, 1200 + Math.random() * 800);
   } else {
@@ -759,7 +787,7 @@ async function enviarMensagem() {
     mostrarDigitando();
     setTimeout(() => {
       ocultarDigitando();
-      addMessage('recv', 'HOSPEDAH', '✅ Mensagem recebida! Um especialista responderá em breve. Se preferir, pode também nos contatar pelo <a href="https://wa.me/5517982006382" target="_blank" style="color:var(--dourado)">WhatsApp</a>.');
+      addMessage('recv', 'HOSPEDAH', '✅ Mensagem recebida! Um especialista responderá em breve. Se preferir, pode também nos contatar pelo <a href="https://wa.me/5517982006382" target="_blank" style="color:var(--dourado)">WhatsApp</a>.', null);
       scrollToBottom();
     }, 1500);
   }
@@ -787,12 +815,13 @@ function sendFAQ(pergunta) {
 // ============================================================
 // ADD MENSAGEM NA UI
 // ============================================================
-function addMessage(tipo, nome, texto) {
+function addMessage(tipo, nome, texto, isoTimestamp) {
   const el = document.getElementById('chatMessages');
   const div = document.createElement('div');
   div.className = `msg ${tipo}`;
 
-  const hora = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+  const ts = isoTimestamp ? new Date(isoTimestamp) : new Date();
+  const hora = ts.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
   // Substituir **bold** por <strong>
   const textoFmt = texto.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
 
@@ -802,7 +831,64 @@ function addMessage(tipo, nome, texto) {
   `;
 
   el.appendChild(div);
+
+  /* Prepara contexto para handoff ao concierge AI */
+  prepararContextoAI(tipo, texto);
+
   scrollToBottom();
+}
+
+// ============================================================
+// AI HANDOFF HOOK
+// Prepara um objeto de contexto da conversa para futura
+// integração com um concierge AI (ex.: GPT, Gemini).
+// O contexto é salvo em sessionStorage e pode ser enviado
+// via webhook ou Edge Function quando o agente humano
+// solicitar escalonamento para IA.
+// ============================================================
+var _aiContext = {
+  lead: { nome: '', assunto: '' },
+  conversa_id: '',
+  mensagens: [],
+  timestamp_inicio: new Date().toISOString()
+};
+
+function prepararContextoAI(tipo, texto) {
+  _aiContext.lead.nome       = nomeHospede;
+  _aiContext.lead.assunto    = assunto;
+  _aiContext.conversa_id     = conversaId;
+  _aiContext.mensagens.push({
+    role: tipo === 'sent' ? 'user' : 'assistant',
+    content: texto,
+    ts: new Date().toISOString()
+  });
+  /* Manter apenas as últimas 30 mensagens para não exceder limites */
+  if (_aiContext.mensagens.length > 30) {
+    _aiContext.mensagens = _aiContext.mensagens.slice(-30);
+  }
+  try {
+    sessionStorage.setItem('hospedah_ai_ctx', JSON.stringify(_aiContext));
+  } catch (e) { /* storage cheio — silencioso */ }
+}
+
+/**
+ * Escala a conversa atual para o concierge AI.
+ * Chame esta função via botão ou evento externo.
+ * O payload é enviado para a Edge Function configurada.
+ */
+function escalarParaAI() {
+  const ctx = _aiContext;
+  /* TODO: substituir pela URL da Edge Function quando disponível */
+  const edgeFnUrl = null;
+  if (!edgeFnUrl) {
+    console.info('[HOSPEDAH] Handoff AI — contexto pronto, Edge Function não configurada.', ctx);
+    return;
+  }
+  fetch(edgeFnUrl, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(ctx)
+  }).catch(function () { /* silencioso */ });
 }
 
 // ============================================================
