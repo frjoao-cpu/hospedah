@@ -2639,8 +2639,8 @@ _supabase.auth.onAuthStateChange(function(event, session) {
   } else if ((event === 'SIGNED_IN' || event === 'INITIAL_SESSION') && session) {
     if (_aguardandoNovaSenha) return; // aguarda o usuário definir a nova senha
     if (_isAuthRedirect) {
-      /* Chegou via link de e-mail: permite acesso direto */
-      document.getElementById('lockOverlay').classList.remove('show');
+      /* Chegou via link de e-mail: permite acesso direto.
+         O overlay será ocultado apenas após validarAcessoPainelHospedah() confirmar permissão. */
       /* Limpa os parâmetros de autenticação da URL para evitar bypass do login em visitas futuras */
       if (window.history && window.history.replaceState) {
         window.history.replaceState({}, document.title, window.location.pathname);
@@ -2648,9 +2648,9 @@ _supabase.auth.onAuthStateChange(function(event, session) {
       inicializarSistema();
     } else if (event === 'INITIAL_SESSION') {
       /* Sessão válida encontrada: inicializar sistema sem exigir novo login.
+         O overlay será ocultado apenas após validarAcessoPainelHospedah() confirmar permissão.
          A segurança é mantida por validarAcessoPainelHospedah(), que verifica
          o token via getUser() no servidor e exige role admin/proprietario. */
-      document.getElementById('lockOverlay').classList.remove('show');
       inicializarSistema();
     }
     /* SIGNED_IN sem _isAuthRedirect: login manual já tratado por tentarLogin() */
@@ -2692,6 +2692,8 @@ function mostrarViewLogin() {
   document.getElementById('lockViewOTP').classList.remove('ativo');
   document.getElementById('lockViewReset').classList.remove('ativo');
   document.getElementById('lockViewNovaSenha').classList.remove('ativo');
+  var btn = document.querySelector('#lockViewLogin .btn-primary');
+  if (btn) { btn.disabled = false; btn.textContent = '🔓 Entrar'; }
   _focarElemento('lockEmail');
 }
 
@@ -2752,9 +2754,13 @@ function tentarLogin() {
     return;
   }
 
+  var btn = document.querySelector('#lockViewLogin .btn-primary');
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ Entrando...'; }
+
   _supabase.auth.signInWithPassword({ email: email, password: senha })
     .then(function(result) {
       if (result.error) {
+        if (btn) { btn.disabled = false; btn.textContent = '🔓 Entrar'; }
         _loginAttempts++;
         sessionStorage.setItem('_loginAttempts', _loginAttempts);
         if (_loginAttempts >= MAX_LOGIN_ATTEMPTS) {
@@ -2784,9 +2790,15 @@ function tentarLogin() {
         _loginAttempts = 0;
         sessionStorage.removeItem('_loginAttempts');
         sessionStorage.removeItem('_loginBlockedUntil');
-        document.getElementById('lockOverlay').classList.remove('show');
+        /* O overlay é ocultado apenas após validarAcessoPainelHospedah() confirmar permissão */
         inicializarSistema();
       }
+    })
+    .catch(function(e) {
+      console.warn('Erro ao autenticar com Supabase:', e);
+      if (btn) { btn.disabled = false; btn.textContent = '🔓 Entrar'; }
+      err.textContent = '❌ Erro de conexão. Verifique sua internet e tente novamente.';
+      err.style.display = 'block';
     });
 }
 
@@ -5307,13 +5319,16 @@ async function inicializarSistema() {
 
   /* Segurança de rota (client-side):
      - "sistema.html" só pode ser aberto por admin/proprietario autenticado.
-     - sem sessão ou sem permissão: redireciona para painel.html (login/dashboard).
+     - sem sessão ou sem permissão: mostra overlay com mensagem de erro.
      - bloqueia a inicialização completa antes de carregar dados sensíveis. */
   var acessoLiberado = await validarAcessoPainelHospedah();
   if (!acessoLiberado) {
     _sistemaInicializado = false;
     return;
   }
+
+  /* Acesso validado: oculta o overlay de login e inicializa o sistema */
+  document.getElementById('lockOverlay').classList.remove('show');
 
   sincronizarDoSupabase().catch(function(e) {
     console.warn('Falha ao sincronizar dados do servidor, usando cache local:', e);
@@ -5349,23 +5364,51 @@ async function validarAcessoPainelHospedah() {
     var userRes = await _supabase.auth.getUser();
     var uid = userRes && userRes.data && userRes.data.user && userRes.data.user.id;
     if (!uid) {
-      window.location.href = 'painel.html';
+      document.getElementById('lockOverlay').classList.add('show');
+      mostrarViewLogin();
       return false;
     }
 
     var roleRes = await _supabase.from('profiles').select('role').eq('id', uid).maybeSingle();
+
+    if (roleRes.error) {
+      console.warn('Erro ao verificar perfil de acesso:', roleRes.error);
+      await _supabase.auth.signOut();
+      var err = document.getElementById('lockError');
+      if (err) {
+        err.textContent = '❌ Erro ao verificar permissões de acesso. Tente novamente.';
+        err.style.display = 'block';
+      }
+      document.getElementById('lockOverlay').classList.add('show');
+      mostrarViewLogin();
+      return false;
+    }
+
     var role = roleRes && roleRes.data && roleRes.data.role;
     var podeAcessar = role === 'admin' || role === 'proprietario';
 
     if (!podeAcessar) {
-      window.location.href = 'painel.html';
+      await _supabase.auth.signOut();
+      var err = document.getElementById('lockError');
+      if (err) {
+        err.textContent = '❌ Esta conta não tem permissão de acesso ao Sistema Hospeda. Contate o administrador.';
+        err.style.display = 'block';
+      }
+      document.getElementById('lockOverlay').classList.add('show');
+      mostrarViewLogin();
       return false;
     }
 
     return true;
   } catch (e) {
     console.warn('Falha ao validar acesso do painel administrativo:', e);
-    window.location.href = 'painel.html';
+    var err = document.getElementById('lockError');
+    if (err) {
+      err.textContent = '❌ Erro ao validar acesso. Verifique sua conexão e tente novamente.';
+      err.style.display = 'block';
+    }
+    document.getElementById('lockOverlay').classList.add('show');
+    mostrarViewLogin();
     return false;
   }
 }
