@@ -805,8 +805,8 @@ function iniciarPainel() {
   // Navegar para seção inicial (com guarda de permissão por seção/hash).
   // Segurança: evita que um hóspede abra seções administrativas via URL (#dashboard/#usuarios).
   const hash = location.hash.replace('#', '') || getDefaultSection(role);
-  const secaoInicial = roleTemAcessoSecao(role, hash) ? hash : getDefaultSection(role);
-  navegarPara(secaoInicial, { replaceHistory: true });
+  const initialSection = roleTemAcessoSecao(role, hash) ? hash : getDefaultSection(role);
+  navegarPara(initialSection, { replaceHistory: true });
 
   // Carregar dados background
   if (role === 'hospede' || role === 'admin' || role === 'proprietario') {
@@ -891,28 +891,28 @@ function roleTemAcessoSecao(role, sectionId) {
 
 function navegarPara(id, options = {}) {
   const role = (_profile && _profile.role) || 'hospede';
-  const destinoPermitido = roleTemAcessoSecao(role, id) ? id : getDefaultSection(role);
+  const allowedDestination = roleTemAcessoSecao(role, id) ? id : getDefaultSection(role);
 
   // Segurança client-side: bloqueia tentativa de acesso a seções sem permissão
   // e força o usuário para a área compatível com seu perfil.
-  if (id !== destinoPermitido) {
+  if (id !== allowedDestination) {
     mostrarToast('🔒 Acesso restrito ao seu perfil. Redirecionando para sua área.', 'info');
   }
 
-  _currentSection = destinoPermitido;
+  _currentSection = allowedDestination;
   if (options.replaceHistory) {
-    history.replaceState(null, '', '#' + destinoPermitido);
+    history.replaceState(null, '', '#' + allowedDestination);
   } else {
-    history.pushState(null, '', '#' + destinoPermitido);
+    history.pushState(null, '', '#' + allowedDestination);
   }
 
   document.querySelectorAll('.painel-section').forEach(s => s.classList.remove('active'));
-  const sec = document.getElementById('sec-' + destinoPermitido);
+  const sec = document.getElementById('sec-' + allowedDestination);
   if (sec) sec.classList.add('active');
 
   // Marcar nav ativo
   document.querySelectorAll('.sidebar-nav a, .bottom-nav a').forEach(a => a.classList.remove('active'));
-  const active = document.querySelectorAll('#nav-' + destinoPermitido + ', #bn-' + destinoPermitido);
+  const active = document.querySelectorAll('#nav-' + allowedDestination + ', #bn-' + allowedDestination);
   active.forEach(a => a.classList.add('active'));
 
   window.scrollTo({ top: 0, behavior: 'smooth' });

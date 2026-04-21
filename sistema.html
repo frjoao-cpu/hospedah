@@ -6257,8 +6257,9 @@ function exportarDashboard() {
 // VIEWS POR ROLE — Proprietário vê disponibilidade + alertas
 // ============================================================
 var _origInicializarSistema = inicializarSistema;
-inicializarSistema = function() {
-  _origInicializarSistema.apply(this, arguments);
+inicializarSistema = async function() {
+  await _origInicializarSistema.apply(this, arguments);
+  if (!_sistemaInicializado) return;
   /* Aguardar inicialização e detectar role */
   _supabase.auth.getUser().then(function(result) {
     var uid = result && result.data && result.data.user && result.data.user.id;
