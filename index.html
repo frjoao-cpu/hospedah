@@ -1379,12 +1379,34 @@ function mostrarPainelSucesso() {
     var refUrl  = 'https://hospedah.tur.br/reservas.html?ref=' + refSlug;
     var refEl   = document.getElementById('orc_referral');
     if (refEl) {
-      refEl.innerHTML =
-        '<strong style="color:var(--dourado,#D4AF37)">🎁 Seu link de indicação:</strong><br>' +
-        '<span style="font-family:monospace;background:rgba(0,0,0,.3);padding:3px 8px;border-radius:5px;color:#fff;">' + refUrl + '</span><br>' +
-        '<small style="margin-top:6px;display:block;">Compartilhe com amigos e família — quem reservar via seu link ganha R$30 de desconto e você acumula pontos de fidelidade!</small>' +
-        '<button onclick="navigator.clipboard.writeText(\'' + refUrl + '\').then(function(){this.textContent=\'✅ Copiado!\';}).catch(function(){})" ' +
-        'style="margin-top:8px;padding:6px 16px;background:var(--dourado,#D4AF37);color:#0B1C3D;border:none;border-radius:6px;font-weight:700;cursor:pointer;font-size:.82em;">📋 Copiar link</button>';
+      refEl.innerHTML = '';
+
+      var title = document.createElement('strong');
+      title.style.color = 'var(--dourado,#D4AF37)';
+      title.textContent = '🎁 Seu link de indicação:';
+      refEl.appendChild(title);
+      refEl.appendChild(document.createElement('br'));
+
+      var urlSpan = document.createElement('span');
+      urlSpan.style.cssText = 'font-family:monospace;background:rgba(0,0,0,.3);padding:3px 8px;border-radius:5px;color:#fff;';
+      urlSpan.textContent = refUrl;
+      refEl.appendChild(urlSpan);
+      refEl.appendChild(document.createElement('br'));
+
+      var hint = document.createElement('small');
+      hint.style.cssText = 'margin-top:6px;display:block;';
+      hint.textContent = 'Compartilhe com amigos e família — quem reservar via seu link ganha R$30 de desconto e você acumula pontos de fidelidade!';
+      refEl.appendChild(hint);
+
+      var copyBtn = document.createElement('button');
+      copyBtn.style.cssText = 'margin-top:8px;padding:6px 16px;background:var(--dourado,#D4AF37);color:#0B1C3D;border:none;border-radius:6px;font-weight:700;cursor:pointer;font-size:.82em;';
+      copyBtn.textContent = '📋 Copiar link';
+      copyBtn.addEventListener('click', function () {
+        navigator.clipboard.writeText(refUrl)
+          .then(function () { copyBtn.textContent = '✅ Copiado!'; })
+          .catch(function () {});
+      });
+      refEl.appendChild(copyBtn);
     }
   }
 }
