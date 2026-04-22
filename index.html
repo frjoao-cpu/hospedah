@@ -420,7 +420,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   <div class="panel-duo">
     <!-- Cadastre seu Empreendimento -->
     <div class="panel-box">
-      <h2>🏢 Cadastre seu Empreendimento</h2>
+      <h2>🏠 Cadastro | Imóveis para Locação</h2>
       <form id="formCadastroEmp" onsubmit="enviarCadastroEmp(event)">
         <input id="empNome"      placeholder="Nome do empreendimento" required autocomplete="organization">
         <select id="empTipo" required>
@@ -759,24 +759,36 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 =========================================== -->
 <section class="section-form" id="multi" aria-labelledby="titulo-multi">
   <div class="section-wrap" style="padding-top:0;">
-    <h2 class="section-title" id="titulo-multi">🏨 Cadastre seu Empreendimento</h2>
+    <h2 class="section-title" id="titulo-multi">💎 Gestão | Multipropriedades</h2>
     <p style="text-align:center;opacity:.8;margin-bottom:24px;">
       Quer que seu resort, pousada ou imóvel apareça aqui?
     </p>
     <form class="form-std" id="formMulti" onsubmit="enviarCadastro(event)" novalidate>
-      <input type="text"  id="multi_nome"        placeholder="Nome do empreendimento"      required autocomplete="organization">
-      <input type="text"  id="multi_responsavel" placeholder="Nome do responsável"         required autocomplete="name">
-      <input type="tel"   id="multi_tel"         placeholder="WhatsApp / Telefone (DDD)"   required autocomplete="tel">
-      <input type="email" id="multi_email"       placeholder="E-mail de contato (opcional)" autocomplete="email">
-      <select id="multi_tipo" required>
-        <option value="">Tipo de empreendimento</option>
-        <option>Resort</option>
-        <option>Pousada</option>
-        <option>Hotel</option>
-        <option>Imóvel de temporada</option>
-        <option>Outro</option>
+      <input type="text"   id="multi_nome"        placeholder="Nome do empreendimento"      required autocomplete="organization">
+      <input type="text"   id="multi_proprietario" placeholder="Nome do proprietário"       required autocomplete="name">
+      <input type="tel"    id="multi_tel"          placeholder="Telefone (com DDD)"         required autocomplete="tel">
+      <select id="multi_dorm" required>
+        <option value="">Quantos dormitórios</option>
+        <option value="1">1 dormitório</option>
+        <option value="2">2 dormitórios</option>
+        <option value="3">3 dormitórios</option>
+        <option value="4">4+ dormitórios</option>
       </select>
-      <input type="text" id="multi_cidade" placeholder="Cidade / Estado" required>
+      <input type="text"   id="multi_andar"        placeholder="Qual andar"                 required>
+      <input type="text"   id="multi_vista"        placeholder="Vista da fachada"           required>
+      <select id="multi_temporada" required>
+        <option value="">Temporada</option>
+        <option value="Altíssima">Altíssima</option>
+        <option value="Alta">Alta</option>
+        <option value="Média">Média</option>
+      </select>
+      <input type="number" id="multi_semanas"      placeholder="Quantas semanas"  min="1"  required>
+      <select id="multi_quitada" required>
+        <option value="">Quitada</option>
+        <option value="Sim">Sim</option>
+        <option value="Não">Não</option>
+      </select>
+      <input type="number" id="multi_valor"        placeholder="Valor R$"         min="0"  required>
       <button type="submit">🚀 Enviar cadastro via WhatsApp</button>
     </form>
   </div>
@@ -1422,35 +1434,44 @@ function mostrarPainelSucesso() {
 function enviarCadastro(e) {
   e.preventDefault();
   var nome        = document.getElementById('multi_nome').value.trim();
-  var responsavel = document.getElementById('multi_responsavel').value.trim();
+  var proprietario = document.getElementById('multi_proprietario').value.trim();
   var tel         = document.getElementById('multi_tel').value.trim();
-  var email       = document.getElementById('multi_email').value.trim();
-  var tipo        = document.getElementById('multi_tipo').value;
-  var cidade      = document.getElementById('multi_cidade').value.trim();
-  if (!nome || !responsavel || !tel || !tipo || !cidade) {
+  var dorm        = document.getElementById('multi_dorm').value;
+  var andar       = document.getElementById('multi_andar').value.trim();
+  var vista       = document.getElementById('multi_vista').value.trim();
+  var temporada   = document.getElementById('multi_temporada').value;
+  var semanas     = document.getElementById('multi_semanas').value;
+  var quitada     = document.getElementById('multi_quitada').value;
+  var valor       = document.getElementById('multi_valor').value;
+  if (!nome || !proprietario || !tel || !dorm || !andar || !vista || !temporada || !semanas || !quitada || !valor) {
     alert('Preencha todos os campos obrigatórios.'); return;
   }
-  if (typeof fbq === 'function') fbq('track', 'Lead', { content_name: tipo });
-  if (window.dataLayer) dataLayer.push({ event: 'cadastro_empreendimento', tipo: tipo });
+  if (typeof fbq === 'function') fbq('track', 'Lead', { content_name: 'multipropriedade' });
+  if (window.dataLayer) dataLayer.push({ event: 'cadastro_multipropriedade' });
 
   /* Formspree — notifica equipe e alimenta CRM */
   fetch('https://formspree.io/f/xeepnbkk', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
     body: JSON.stringify({
-      tipo: 'cadastro_empreendimento', empreendimento: nome, responsavel: responsavel,
-      telefone: tel, email: email, tipo_imovel: tipo, cidade: cidade, utm: getUtmStr()
+      tipo: 'gestao_multipropriedade', empreendimento: nome, proprietario: proprietario,
+      telefone: tel, dormitorios: dorm, andar: andar, vista: vista,
+      temporada: temporada, semanas: semanas, quitada: quitada, valor: valor, utm: getUtmStr()
     })
   }).catch(function() {});
 
   var msg = encodeURIComponent(
-    '🏨 *Cadastro de Empreendimento — HOSPEDAH*\n\n' +
-    '🏢 Empreendimento: ' + nome        + '\n' +
-    '👤 Responsável: '    + responsavel + '\n' +
-    '📞 Telefone: '       + tel         + '\n' +
-    (email ? '📧 E-mail: ' + email + '\n' : '') +
-    '🏷️ Tipo: '           + tipo        + '\n' +
-    '📍 Cidade: '         + cidade      + '\n' +
+    '💎 *Gestão | Multipropriedades — HOSPEDAH*\n\n' +
+    '🏢 Empreendimento: '   + nome         + '\n' +
+    '👤 Proprietário: '     + proprietario + '\n' +
+    '📞 Telefone: '         + tel          + '\n' +
+    '🛏️ Dormitórios: '      + dorm         + '\n' +
+    '🏬 Andar: '            + andar        + '\n' +
+    '🌅 Vista da fachada: ' + vista        + '\n' +
+    '📅 Temporada: '        + temporada    + '\n' +
+    '📆 Semanas: '          + semanas      + '\n' +
+    '✅ Quitada: '          + quitada      + '\n' +
+    '💰 Valor: R$ '         + Number(valor).toLocaleString('pt-BR') + '\n' +
     getUtmSuffix()
   );
   window.open('https://wa.me/5517982006382?text=' + msg, '_blank');
