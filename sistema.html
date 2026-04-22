@@ -3274,8 +3274,8 @@ function renderTabelaAutomacoes() {
       '<td>' + escapeHtml(formatarData(a.dataAgendada)) + '</td>' +
       '<td><span class="badge badge-pendente">' + escapeHtml(statusLabelAutomacao(a.status)) + '</span></td>' +
       '<td class="actions">' +
-      (a.status !== 'concluido' ? '<button class="btn btn-secondary btn-sm" onclick="enviarAutomacao(\'' + escapeHtml(a.id) + '\')">📤 Enviar</button>' : '') +
-      (a.status !== 'concluido' ? '<button class="btn btn-success btn-sm" onclick="concluirAutomacao(\'' + escapeHtml(a.id) + '\')">✅ Concluir</button>' : '') +
+      (a.status !== 'concluido' ? '<button class="btn btn-secondary btn-sm" data-action="enviar" data-id="' + escapeHtml(a.id) + '">📤 Enviar</button>' : '') +
+      (a.status !== 'concluido' ? '<button class="btn btn-success btn-sm" data-action="concluir" data-id="' + escapeHtml(a.id) + '">✅ Concluir</button>' : '') +
       '</td>' +
       '</tr>';
   }).join('');
@@ -3369,7 +3369,7 @@ function renderTabelaManutencao() {
       '<td>' + escapeHtml(formatarData(m.data)) + '</td>' +
       '<td>' + st + '</td>' +
       '<td class="actions">' +
-      (m.status !== 'concluida' ? '<button class="btn btn-success btn-sm" onclick="concluirManutencao(\'' + escapeHtml(m.id) + '\')">✅ Concluir</button>' : '') +
+      (m.status !== 'concluida' ? '<button class="btn btn-success btn-sm" data-action="concluir" data-id="' + escapeHtml(m.id) + '">✅ Concluir</button>' : '') +
       '</td>' +
       '</tr>';
   }).join('');
@@ -3427,7 +3427,7 @@ function renderTabelaFAQ() {
       '<td>' + (i + 1) + '</td>' +
       '<td>' + escapeHtml(f.pergunta) + '</td>' +
       '<td>' + escapeHtml(f.resposta) + '</td>' +
-      '<td class="actions"><button class="btn btn-danger btn-sm" onclick="excluirFAQ(\'' + escapeHtml(f.id) + '\')">🗑️</button></td>' +
+      '<td class="actions"><button class="btn btn-danger btn-sm" data-action="excluir" data-id="' + escapeHtml(f.id) + '">🗑️</button></td>' +
       '</tr>';
   }).join('');
 }
@@ -3500,12 +3500,8 @@ function gerarId() {
 }
 
 function escapeHtml(str) {
-  return String(str == null ? '' : str)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;');
+  var MAP = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
+  return String(str == null ? '' : str).replace(/[&<>"']/g, function(c) { return MAP[c]; });
 }
 
 function mostrarToast(msg, tipo) {
@@ -6225,6 +6221,50 @@ document.addEventListener('DOMContentLoaded', function() {
   });
   var lo2 = document.getElementById('lockOverlay');
   if (lo2) classObserver.observe(lo2, { attributes: true, attributeFilter: ['class'] });
+
+  // Delegated click handlers for dynamic table rows (avoid inline onclick)
+  var autoBody = document.getElementById('automacoesBody');
+  if (autoBody) {
+    autoBody.addEventListener('click', function(e) {
+      var btn = e.target.closest('button[data-id]');
+      if (!btn) return;
+      var id = btn.getAttribute('data-id');
+      var action = btn.getAttribute('data-action');
+      if (action === 'enviar') enviarAutomacao(id);
+      else if (action === 'concluir') concluirAutomacao(id);
+    });
+  }
+
+  var onbBody = document.getElementById('onboardingBody');
+  if (onbBody) {
+    onbBody.addEventListener('click', function(e) {
+      var btn = e.target.closest('button[data-id]');
+      if (!btn) return;
+      var id = btn.getAttribute('data-id');
+      var status = btn.getAttribute('data-status');
+      if (status) atualizarStatusOnboarding(id, status);
+    });
+  }
+
+  var maintBody = document.getElementById('manutencaoBody');
+  if (maintBody) {
+    maintBody.addEventListener('click', function(e) {
+      var btn = e.target.closest('button[data-id]');
+      if (!btn) return;
+      var id = btn.getAttribute('data-id');
+      if (btn.getAttribute('data-action') === 'concluir') concluirManutencao(id);
+    });
+  }
+
+  var faqTbody = document.getElementById('faqBody');
+  if (faqTbody) {
+    faqTbody.addEventListener('click', function(e) {
+      var btn = e.target.closest('button[data-id]');
+      if (!btn) return;
+      var id = btn.getAttribute('data-id');
+      if (btn.getAttribute('data-action') === 'excluir') excluirFAQ(id);
+    });
+  }
 });
 
 // ============================================================
