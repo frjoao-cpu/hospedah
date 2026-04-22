@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://www.googletagmanager.com https://www.clarity.ms https://connect.facebook.net https://cdn.onesignal.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://ydrmjoppjxtmnwtvtinb.supabase.co https://formspree.io https://www.google-analytics.com https://stats.g.doubleclick.net https://www.googletagmanager.com; img-src 'self' data: https://i.imgur.com https://www.facebook.com https://www.googletagmanager.com; frame-src https://www.googletagmanager.com; worker-src 'self' blob:; object-src 'none'; base-uri 'self';">
 <title>Cadastre seu Empreendimento | HOSPEDAH</title>
 <meta name="description" content="Cadastre seu empreendimento na HOSPEDAH e alcance hóspedes que buscam experiências exclusivas.">
 <link rel="canonical" href="https://hospedah.tur.br/cadastro.html">
@@ -27,7 +28,8 @@ function initTracking() {
   t=l.createElement(r);t.async=1;t.src='https://www.clarity.ms/tag/'+i;
   y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
   })(window,document,'clarity','script','s5xr9k4m2p');
-  // Meta Pixel (substitua SEU_PIXEL_ID pelo ID real)
+  // Meta Pixel — ⚠️ AÇÃO NECESSÁRIA: substitua SEU_PIXEL_ID pelo ID real do seu pixel
+  // em https://business.facebook.com/events_manager > Fontes de Dados > seu Pixel > ID do Pixel
   !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
   n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
   n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;

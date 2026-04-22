@@ -1,13 +1,15 @@
 {
   "ci": {
     "collect": {
-      "staticDistDir": ".",
+      "startServerCommand": "python3 -m http.server 3000",
+      "startServerReadyPattern": "Serving HTTP",
+      "startServerReadyTimeout": 15000,
       "numberOfRuns": 1,
       "url": [
-        "http://localhost/index.html",
-        "http://localhost/reservas.html",
-        "http://localhost/busca.html",
-        "http://localhost/resorts/hotbeach.html"
+        "http://localhost:3000/index.html",
+        "http://localhost:3000/reservas.html",
+        "http://localhost:3000/busca.html",
+        "http://localhost:3000/resorts/hotbeach.html"
       ],
       "settings": {
         "emulatedFormFactor": "mobile",

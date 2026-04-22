@@ -111,44 +111,60 @@ function searchWeatherByCity(city) {
 }
 
 function fetchWeather(lat, lon) {
-    /* Se houver proxy configurado, usa-o para não expor API_KEY no cliente */
-    const url = WEATHER_CONFIG.proxyUrl
-        ? `${WEATHER_CONFIG.proxyUrl}?action=onecall&lat=${lat}&lon=${lon}&units=metric&lang=pt_br`
-        : `${BASE_URL}/onecall?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric&lang=pt_br`;
+    /* Usa data/2.5/weather (atual) + data/2.5/forecast (previsão 5 dias),
+       ambos disponíveis no plano gratuito da OpenWeatherMap.
+       O endpoint onecall foi removido do free tier. */
+    const currentUrl = WEATHER_CONFIG.proxyUrl
+        ? `${WEATHER_CONFIG.proxyUrl}?action=weather&lat=${lat}&lon=${lon}&units=metric&lang=pt_br`
+        : `${BASE_URL}/weather?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric&lang=pt_br`;
 
-    fetch(url)
-        .then(response => response.json())
-        .then(data => {
-            displayCurrentWeather(data.current, data.timezone);
-            displayForecast(data.daily);
-            displayDetails(data.current);
+    const forecastUrl = WEATHER_CONFIG.proxyUrl
+        ? `${WEATHER_CONFIG.proxyUrl}?action=forecast&lat=${lat}&lon=${lon}&units=metric&lang=pt_br`
+        : `${BASE_URL}/forecast?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric&lang=pt_br`;
+
+    Promise.all([fetch(currentUrl), fetch(forecastUrl)])
+        .then(function(responses) {
+            return Promise.all(responses.map(function(r) { return r.json(); }));
         })
-        .catch(error => console.error('Erro:', error));
+        .then(function(results) {
+            displayCurrentWeather(results[0]);
+            displayForecast(results[1].list);
+            displayDetails(results[0]);
+        })
+        .catch(function(error) { console.error('Erro:', error); });
 }
 
-function displayCurrentWeather(current, timezone) {
+function displayCurrentWeather(data) {
     const section = document.getElementById('currentWeather');
     if (!section) return;
-    
-    const icon = weatherIcons[current.weather[0].icon] || '🌤️';
-    
+
+    const icon = weatherIcons[data.weather[0].icon] || '🌤️';
+
     section.innerHTML = `
         <div class="weather-icon">${icon}</div>
-        <div class="city-name">${getTimeZoneName(timezone)}</div>
-        <div class="temperature">${Math.round(current.temp)}°C</div>
-        <div class="weather-description">${current.weather[0].description}</div>
-        <div class="feels-like">Sensação térmica: ${Math.round(current.feels_like)}°C</div>
+        <div class="city-name">${data.name}</div>
+        <div class="temperature">${Math.round(data.main.temp)}°C</div>
+        <div class="weather-description">${data.weather[0].description}</div>
+        <div class="feels-like">Sensação térmica: ${Math.round(data.main.feels_like)}°C</div>
     `;
 }
 
-function displayForecast(daily) {
+function displayForecast(list) {
     const grid = document.getElementById('forecastGrid');
     if (!grid) return;
-    
+
     grid.innerHTML = '';
 
-    for (let i = 1; i <= 5; i++) {
-        const day = daily[i];
+    /* Agrupa os registros de 3h por dia e seleciona os próximos 5 dias */
+    const seen = new Set();
+    const days = list.filter(function(item) {
+        const date = new Date(item.dt * 1000).toDateString();
+        if (seen.has(date)) return false;
+        seen.add(date);
+        return true;
+    }).slice(1, 6); /* ignora o dia atual (índice 0) */
+
+    days.forEach(function(day) {
         const date = new Date(day.dt * 1000);
         const icon = weatherIcons[day.weather[0].icon] || '🌤️';
 
@@ -157,50 +173,44 @@ function displayForecast(daily) {
         card.innerHTML = `
             <div class="forecast-date">${date.toLocaleDateString('pt-BR', { weekday: 'short' })}</div>
             <div class="forecast-icon">${icon}</div>
-            <div class="forecast-temp">${Math.round(day.temp.max)}° / ${Math.round(day.temp.min)}°</div>
+            <div class="forecast-temp">${Math.round(day.main.temp_max)}° / ${Math.round(day.main.temp_min)}°</div>
             <div class="forecast-desc">${day.weather[0].main}</div>
         `;
         grid.appendChild(card);
-    }
+    });
 }
 
-function displayDetails(current) {
+function displayDetails(data) {
     const section = document.getElementById('details');
     if (!section) return;
-    
+
+    const visKm = data.visibility != null ? (data.visibility / 1000).toFixed(1) + ' km' : '—';
+
     section.innerHTML = `
         <h2>Detalhes do Clima</h2>
         <div class="details-grid">
             <div class="detail-item">
                 <div class="detail-label">Umidade</div>
-                <div class="detail-value">${current.humidity}%</div>
+                <div class="detail-value">${data.main.humidity}%</div>
             </div>
             <div class="detail-item">
                 <div class="detail-label">Pressão</div>
-                <div class="detail-value">${current.pressure} hPa</div>
+                <div class="detail-value">${data.main.pressure} hPa</div>
             </div>
             <div class="detail-item">
                 <div class="detail-label">Vento</div>
-                <div class="detail-value">${(current.wind_speed * 3.6).toFixed(1)} km/h</div>
+                <div class="detail-value">${(data.wind.speed * 3.6).toFixed(1)} km/h</div>
             </div>
             <div class="detail-item">
                 <div class="detail-label">Nuvens</div>
-                <div class="detail-value">${current.clouds}%</div>
+                <div class="detail-value">${data.clouds.all}%</div>
             </div>
             <div class="detail-item">
                 <div class="detail-label">Visibilidade</div>
-                <div class="detail-value">${(current.visibility / 1000).toFixed(1)} km</div>
-            </div>
-            <div class="detail-item">
-                <div class="detail-label">Índice UV</div>
-                <div class="detail-value">${current.uvi.toFixed(1)}</div>
+                <div class="detail-value">${visKm}</div>
             </div>
         </div>
     `;
-}
-
-function getTimeZoneName(timezone) {
-    return timezone.split('/')[1]?.replace('_', ' ') || 'Localização';
 }
 /* ============================================================
    UTILITÁRIOS COMPARTILHADOS
