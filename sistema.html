@@ -2677,11 +2677,10 @@ _supabase.auth.onAuthStateChange(function(event, session) {
       }
       inicializarSistema();
     } else if (event === 'INITIAL_SESSION') {
-      /* Sessão válida encontrada: inicializar sistema sem exigir novo login.
-         O overlay será ocultado apenas após validarAcessoPainelHospedah() confirmar permissão.
-         A segurança é mantida por validarAcessoPainelHospedah(), que verifica
-         o token via getUser() no servidor e exige role admin/proprietario. */
-      inicializarSistema();
+      /* Sessão preexistente detectada: exige novo login manual a cada acesso.
+         Faz signOut para que o lockOverlay permaneça visível e o administrador
+         precise autenticar a cada abertura do sistema. */
+      _supabase.auth.signOut();
     }
     /* SIGNED_IN sem _isAuthRedirect: login manual já tratado por tentarLogin() */
   } else if (event === 'INITIAL_SESSION' && !session) {
@@ -2689,6 +2688,7 @@ _supabase.auth.onAuthStateChange(function(event, session) {
     _focarElemento('lockEmail');
   } else if (event === 'SIGNED_OUT') {
     _sistemaInicializado = false;
+    _plataformaCarregada = false;
     document.getElementById('lockOverlay').classList.add('show');
     mostrarViewLogin();
   }
@@ -3269,13 +3269,13 @@ function renderTabelaAutomacoes() {
   tbody.innerHTML = lista.map(function (a, i) {
     return '<tr>' +
       '<td>' + (i + 1) + '</td>' +
-      '<td>' + tipoLabelAutomacao(a.tipo) + '</td>' +
-      '<td>' + (a.cliente || '—') + '</td>' +
-      '<td>' + formatarData(a.dataAgendada) + '</td>' +
-      '<td><span class="badge badge-pendente">' + statusLabelAutomacao(a.status) + '</span></td>' +
+      '<td>' + escapeHtml(tipoLabelAutomacao(a.tipo)) + '</td>' +
+      '<td>' + escapeHtml(a.cliente || '—') + '</td>' +
+      '<td>' + escapeHtml(formatarData(a.dataAgendada)) + '</td>' +
+      '<td><span class="badge badge-pendente">' + escapeHtml(statusLabelAutomacao(a.status)) + '</span></td>' +
       '<td class="actions">' +
-      (a.status !== 'concluido' ? '<button class="btn btn-secondary btn-sm" onclick="enviarAutomacao(\'' + a.id + '\')">📤 Enviar</button>' : '') +
-      (a.status !== 'concluido' ? '<button class="btn btn-success btn-sm" onclick="concluirAutomacao(\'' + a.id + '\')">✅ Concluir</button>' : '') +
+      (a.status !== 'concluido' ? '<button class="btn btn-secondary btn-sm" onclick="enviarAutomacao(\'' + escapeHtml(a.id) + '\')">📤 Enviar</button>' : '') +
+      (a.status !== 'concluido' ? '<button class="btn btn-success btn-sm" onclick="concluirAutomacao(\'' + escapeHtml(a.id) + '\')">✅ Concluir</button>' : '') +
       '</td>' +
       '</tr>';
   }).join('');
@@ -3326,14 +3326,14 @@ function renderTabelaOnboarding() {
   tbody.innerHTML = onboardingFluxos.map(function (o, i) {
     return '<tr>' +
       '<td>' + (i + 1) + '</td>' +
-      '<td>' + o.nome + '</td>' +
-      '<td>' + o.propriedade + '</td>' +
-      '<td>' + statusLabelOnboarding(o.status) + '</td>' +
-      '<td>' + formatarData((o.atualizadoEm || '').slice(0, 10)) + '</td>' +
+      '<td>' + escapeHtml(o.nome) + '</td>' +
+      '<td>' + escapeHtml(o.propriedade) + '</td>' +
+      '<td>' + escapeHtml(statusLabelOnboarding(o.status)) + '</td>' +
+      '<td>' + escapeHtml(formatarData((o.atualizadoEm || '').slice(0, 10))) + '</td>' +
       '<td class="actions">' +
-      '<button class="btn btn-secondary btn-sm" onclick="atualizarStatusOnboarding(\'' + o.id + '\',\'em_aprovacao\')">🕒</button>' +
-      '<button class="btn btn-success btn-sm" onclick="atualizarStatusOnboarding(\'' + o.id + '\',\'aprovado\')">✅</button>' +
-      '<button class="btn btn-danger btn-sm" onclick="atualizarStatusOnboarding(\'' + o.id + '\',\'rejeitado\')">❌</button>' +
+      '<button class="btn btn-secondary btn-sm" onclick="atualizarStatusOnboarding(\'' + escapeHtml(o.id) + '\',\'em_aprovacao\')">🕒</button>' +
+      '<button class="btn btn-success btn-sm" onclick="atualizarStatusOnboarding(\'' + escapeHtml(o.id) + '\',\'aprovado\')">✅</button>' +
+      '<button class="btn btn-danger btn-sm" onclick="atualizarStatusOnboarding(\'' + escapeHtml(o.id) + '\',\'rejeitado\')">❌</button>' +
       '</td>' +
       '</tr>';
   }).join('');
@@ -3364,12 +3364,12 @@ function renderTabelaManutencao() {
     var st = m.status === 'concluida' ? '✅ Concluída' : '⏳ Pendente';
     return '<tr>' +
       '<td>' + (i + 1) + '</td>' +
-      '<td>' + m.tarefa + '</td>' +
-      '<td>' + (m.resort || '—') + '</td>' +
-      '<td>' + formatarData(m.data) + '</td>' +
+      '<td>' + escapeHtml(m.tarefa) + '</td>' +
+      '<td>' + escapeHtml(m.resort || '—') + '</td>' +
+      '<td>' + escapeHtml(formatarData(m.data)) + '</td>' +
       '<td>' + st + '</td>' +
       '<td class="actions">' +
-      (m.status !== 'concluida' ? '<button class="btn btn-success btn-sm" onclick="concluirManutencao(\'' + m.id + '\')">✅ Concluir</button>' : '') +
+      (m.status !== 'concluida' ? '<button class="btn btn-success btn-sm" onclick="concluirManutencao(\'' + escapeHtml(m.id) + '\')">✅ Concluir</button>' : '') +
       '</td>' +
       '</tr>';
   }).join('');
@@ -3425,9 +3425,9 @@ function renderTabelaFAQ() {
   tbody.innerHTML = faqRespostas.map(function (f, i) {
     return '<tr>' +
       '<td>' + (i + 1) + '</td>' +
-      '<td>' + f.pergunta + '</td>' +
-      '<td>' + f.resposta + '</td>' +
-      '<td class="actions"><button class="btn btn-danger btn-sm" onclick="excluirFAQ(\'' + f.id + '\')">🗑️</button></td>' +
+      '<td>' + escapeHtml(f.pergunta) + '</td>' +
+      '<td>' + escapeHtml(f.resposta) + '</td>' +
+      '<td class="actions"><button class="btn btn-danger btn-sm" onclick="excluirFAQ(\'' + escapeHtml(f.id) + '\')">🗑️</button></td>' +
       '</tr>';
   }).join('');
 }
@@ -3442,9 +3442,9 @@ function renderAuditoria() {
   tbody.innerHTML = auditLogs.slice(0, MAX_DISPLAYED_AUDIT_LOGS).map(function (a, i) {
     return '<tr>' +
       '<td>' + (i + 1) + '</td>' +
-      '<td>' + formatarData((a.quando || '').slice(0, 10)) + ' ' + (a.quando || '').slice(11, 16) + '</td>' +
-      '<td>' + (a.acao || '—') + '</td>' +
-      '<td>' + (a.detalhes || '—') + '</td>' +
+      '<td>' + escapeHtml(formatarData((a.quando || '').slice(0, 10))) + ' ' + escapeHtml((a.quando || '').slice(11, 16)) + '</td>' +
+      '<td>' + escapeHtml(a.acao || '—') + '</td>' +
+      '<td>' + escapeHtml(a.detalhes || '—') + '</td>' +
       '</tr>';
   }).join('');
 }
@@ -3497,6 +3497,15 @@ function formatarData(val) {
 
 function gerarId() {
   return Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+}
+
+function escapeHtml(str) {
+  return String(str == null ? '' : str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
 }
 
 function mostrarToast(msg, tipo) {
