@@ -10,9 +10,9 @@
 /* OneSignal Web Push — importa o SW do SDK para compatibilidade */
 
 importScripts('https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.sw.js');
-var CACHE_NAME = 'hospedah-v2';
-var ASSETS_CACHE = 'hospedah-assets-v2';
-var FONT_CACHE = 'hospedah-fonts-v2';
+var CACHE_NAME = 'hospedah-v3';
+var ASSETS_CACHE = 'hospedah-assets-v3';
+var FONT_CACHE = 'hospedah-fonts-v3';
 
 /* Recursos essenciais para funcionar offline */
 var PRECACHE_URLS = [
@@ -25,6 +25,14 @@ var PRECACHE_URLS = [
   '/cadastro.html',
   '/painel.html',
   '/sistema.html',
+  '/resorts/hotbeach.html',
+  '/resorts/saopedro.html',
+  '/resorts/olimpia.html',
+  '/resorts/solar.html',
+  '/resorts/wyndham.html',
+  '/resorts/juquehy.html',
+  '/resorts/ipioca.html',
+  '/resorts/portoi2.html',
   '/assets/mobile-first.css',
   '/assets/index.css',
   '/assets/style.css',
