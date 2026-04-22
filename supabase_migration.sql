@@ -268,6 +268,10 @@ RETURNS boolean LANGUAGE sql STABLE SECURITY DEFINER SET search_path = public AS
   SELECT EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin');
 $$;
 
+-- Concede permissão de execução à função para usuários autenticados.
+-- Necessário para que as policies que chamam is_admin_user() funcionem corretamente.
+GRANT EXECUTE ON FUNCTION is_admin_user() TO authenticated;
+
 -- Admin pode ler todos os perfis (usa função SECURITY DEFINER para evitar recursão)
 CREATE POLICY "profiles_leitura_admin"
   ON profiles FOR SELECT TO authenticated
@@ -562,19 +566,35 @@ END;
 $$;
 
 -- ============================================================
--- 21. DEFINIR PAPEL DO ADMINISTRADOR
+-- 21. DEFINIR PAPEL DO ADMINISTRADOR  ⚠️  OBRIGATÓRIO
 -- ============================================================
--- Execute o comando abaixo substituindo o e-mail pelo e-mail do
--- usuário administrador cadastrado no Supabase Auth.
--- Sem isso, o login no Sistema Hospeda será bloqueado porque o
--- perfil de todo novo usuário começa com role = 'hospede'.
+-- ⚠️  SEM EXECUTAR ESTES COMANDOS O LOGIN NO SISTEMA HOSPEDA
+--     SERÁ BLOQUEADO COM "PERFIL NÃO ENCONTRADO" OU "SEM PERMISSÃO".
+--
+-- Passo 1 – Garante que o usuário admin tenha um perfil (caso tenha
+-- sido criado antes do trigger on_auth_user_created existir):
+--
+--   INSERT INTO profiles (id, role)
+--   SELECT id, 'hospede'
+--   FROM auth.users
+--   WHERE email = 'admin@seu-dominio.com.br'
+--   ON CONFLICT (id) DO NOTHING;
+--
+-- Passo 2 – Define o papel 'admin' para o administrador principal
+-- (substitua pelo e-mail real cadastrado no Supabase Auth):
 --
 --   UPDATE profiles
 --   SET role = 'admin'
---   WHERE id = (SELECT id FROM auth.users WHERE email = 'admin@exemplo.com.br');
+--   WHERE id = (SELECT id FROM auth.users WHERE email = 'admin@seu-dominio.com.br');
 --
 -- Para tornar um usuário proprietário em vez de admin:
 --
+--   INSERT INTO profiles (id, role)
+--   SELECT id, 'hospede'
+--   FROM auth.users
+--   WHERE email = 'proprietario@seu-dominio.com.br'
+--   ON CONFLICT (id) DO NOTHING;
+--
 --   UPDATE profiles
 --   SET role = 'proprietario'
---   WHERE id = (SELECT id FROM auth.users WHERE email = 'proprietario@exemplo.com.br');
+--   WHERE id = (SELECT id FROM auth.users WHERE email = 'proprietario@seu-dominio.com.br');
