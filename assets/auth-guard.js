@@ -71,9 +71,9 @@
 
       var roleRes = await client.from('profiles').select('role').eq('id', user.id).maybeSingle();
       var role = roleRes && roleRes.data && roleRes.data.role;
-      var rolePermitida = allowedRoles.indexOf(role) !== -1;
+      var isRoleAllowed = allowedRoles.indexOf(role) !== -1;
 
-      if (!rolePermitida) {
+      if (!isRoleAllowed) {
         await client.auth.signOut();
         redirectToLogin(loginPath);
         return false;
