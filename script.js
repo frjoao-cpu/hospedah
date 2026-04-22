@@ -330,7 +330,7 @@ function trackAbandonedProposal(data) {
             data: data
         }));
         if (window.dataLayer) {
-            dataLayer.push({ event: 'proposta_abandonada', payload: data });
+            window.dataLayer.push({ event: 'proposta_abandonada', payload: data });
         }
     } catch (e) { /* silencioso */ }
 }
