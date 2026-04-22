@@ -206,12 +206,12 @@ html[data-theme="light"] footer                 { background: #e8e4d8; color: #4
   transition: opacity 1.2s ease;
 }
 .hero-slide.active { opacity: 1; }
-.hero-slide:nth-child(1)  { background-image: url('https://i.imgur.com/AmFSwwd.jpeg'); }
-.hero-slide:nth-child(2)  { background-image: url('https://i.imgur.com/iDMQ2XA.jpeg'); }
-.hero-slide:nth-child(3)  { background-image: url('https://i.imgur.com/S4tSUzG.jpeg'); }
-.hero-slide:nth-child(4)  { background-image: url('https://i.imgur.com/AseZPzL.jpeg'); }
-.hero-slide:nth-child(5)  { background-image: url('https://i.imgur.com/pyEKOtQ.jpeg'); }
-.hero-slide:nth-child(6)  { background-image: url('https://i.imgur.com/SxlktwS.jpeg'); }
+.hero-slide:nth-child(1)  { background-image: url('https://i.imgur.com/AmFSwwd.webp'); }
+.hero-slide:nth-child(2)  { background-image: url('https://i.imgur.com/iDMQ2XA.webp'); }
+.hero-slide:nth-child(3)  { background-image: url('https://i.imgur.com/S4tSUzG.webp'); }
+.hero-slide:nth-child(4)  { background-image: url('https://i.imgur.com/AseZPzL.webp'); }
+.hero-slide:nth-child(5)  { background-image: url('https://i.imgur.com/pyEKOtQ.webp'); }
+.hero-slide:nth-child(6)  { background-image: url('https://i.imgur.com/SxlktwS.webp'); }
 
 /* ✅ Overlay premium */
 .hero-overlay {

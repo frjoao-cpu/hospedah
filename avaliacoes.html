@@ -11,10 +11,10 @@
 <meta name="theme-color" content="#D4AF37">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+<!-- Google Fonts — carregado de forma não-bloqueante -->
+<link rel="preload" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap"></noscript>
 <link rel="stylesheet" href="/assets/mobile-first.css">
-<!-- Supabase -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root {
   --dourado: #D4AF37;
@@ -525,6 +525,8 @@ body {
 {"@context":"https://schema.org","@type":"LodgingBusiness","name":"HOSPEDAH","url":"https://hospedah.tur.br"}
 </script>
 
+<!-- Supabase carregado aqui (final do body) para não bloquear o render -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 // ============================================================
 // SUPABASE

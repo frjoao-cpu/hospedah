@@ -13,8 +13,6 @@
 <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap"></noscript>
 <!-- jsPDF para vouchers -->
 <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js" defer></script>
-<!-- Supabase -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <!-- Mobile-first CSS -->
 <link rel="stylesheet" href="/assets/mobile-first.css">
 <style>
@@ -612,6 +610,8 @@ body { font-family: 'Poppins', sans-serif; background: var(--bg); color: var(--c
 <!-- ============================================================
      SCRIPTS
 ============================================================ -->
+<!-- Scripts carregados aqui (final do body) para não bloquear o render -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 'use strict';
 
