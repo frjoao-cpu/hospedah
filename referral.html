@@ -255,10 +255,18 @@ body { font-family: 'Poppins', sans-serif; background: var(--bg); color: var(--c
 
 <!-- Supabase carregado aqui (final do body) para não bloquear o render -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="assets/auth-guard.js"></script>
 <script>
 var SUPABASE_URL = 'https://ydrmjoppjxtmnwtvtinb.supabase.co';
 var SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlkcm1qb3Bwanh0bW53dHZ0aW5iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYyNzA3MzksImV4cCI6MjA5MTg0NjczOX0.Gp4ed332v62sC5e5GXXbPqOIBNpS4EzMCFawnBJE_Cw';
 var sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+/* Segurança de rota:
+   link de indicação e pontos são dados privados do usuário autenticado. */
+window.HospedahAuthGuard.enforceProtectedRoute({
+  client: sb,
+  loginPath: 'painel.html'
+});
 
 var _refCode = null;
 var _refUrl  = null;

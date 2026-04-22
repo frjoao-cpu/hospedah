@@ -2591,6 +2591,7 @@ tbody td {
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="assets/auth-guard.js"></script>
 <script>
 'use strict';
 
@@ -2612,6 +2613,15 @@ var SUPABASE_URL  = 'https://ydrmjoppjxtmnwtvtinb.supabase.co';
 var SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlkcm1qb3Bwanh0bW53dHZ0aW5iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYyNzA3MzksImV4cCI6MjA5MTg0NjczOX0.Gp4ed332v62sC5e5GXXbPqOIBNpS4EzMCFawnBJE_Cw'; // chave pública (anon/public)
 
 var _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+
+/* Segurança de rota (front-end):
+   sistema.html é restrito para admin/proprietario.
+   Sem sessão/role válida, redireciona para a página de login (painel.html). */
+window.HospedahAuthGuard.enforceProtectedRoute({
+  client: _supabase,
+  loginPath: 'painel.html',
+  allowedRoles: ['admin', 'proprietario']
+});
 
 /* ==========================================
    PROTEÇÃO POR LOGIN
