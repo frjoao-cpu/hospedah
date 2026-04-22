@@ -621,13 +621,6 @@ const SUPABASE_URL = 'https://ydrmjoppjxtmnwtvtinb.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlkcm1qb3Bwanh0bW53dHZ0aW5iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYyNzA3MzksImV4cCI6MjA5MTg0NjczOX0.Gp4ed332v62sC5e5GXXbPqOIBNpS4EzMCFawnBJE_Cw';
 const _sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-// Segurança de rota (front-end): painel exige sessão válida.
-// Se a sessão não existir, o guard mantém o usuário na tela de login (painel.html).
-window.HospedahAuthGuard.enforceProtectedRoute({
-  client: _sb,
-  loginPath: 'painel.html'
-});
-
 // ── ESTADO ──
 let _session   = null;
 let _profile   = null;

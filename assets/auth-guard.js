@@ -9,7 +9,7 @@
    - Suporta validação opcional de role (ex.: admin/proprietario).
    ========================================================================== */
 (function () {
-  var PUBLIC_ROUTES = ['index.html', 'busca.html', 'cadastro.html', 'jornal.html'];
+  var PUBLIC_ROUTES = ['index.html', 'busca.html', 'cadastro.html', 'jornal.html', 'painel.html'];
 
   function getCurrentRouteFile() {
     var path = window.location.pathname || '';
@@ -49,10 +49,12 @@
     // Rotas públicas liberadas de forma explícita.
     if (PUBLIC_ROUTES.indexOf(route) !== -1) return true;
 
-    // Mantém o fluxo de magic link/reset sem redirecionamento prematuro.
-    if (isSupabaseAuthRedirect()) return true;
+    // Mantém o fluxo de magic link/reset sem redirecionamento prematuro
+    // apenas na rota de login.
+    if (isSupabaseAuthRedirect() && route === loginPath) return true;
 
     if (!client || !client.auth || typeof client.auth.getSession !== 'function') {
+      console.error('Auth guard sem cliente Supabase válido para a rota:', route);
       redirectToLogin(loginPath);
       return false;
     }
@@ -70,17 +72,22 @@
       if (!allowedRoles || !allowedRoles.length) return true;
 
       var roleRes = await client.from('profiles').select('role').eq('id', user.id).maybeSingle();
+      if (roleRes && roleRes.error) {
+        console.warn('Falha ao validar role em rota protegida:', roleRes.error);
+        redirectToLogin(loginPath);
+        return false;
+      }
       var role = roleRes && roleRes.data && roleRes.data.role;
       var isRoleAllowed = allowedRoles.indexOf(role) !== -1;
 
       if (!isRoleAllowed) {
-        await client.auth.signOut();
         redirectToLogin(loginPath);
         return false;
       }
 
       return true;
     } catch (err) {
+      console.warn('Falha ao validar sessão em rota protegida:', err);
       redirectToLogin(loginPath);
       return false;
     }
