@@ -3331,9 +3331,9 @@ function renderTabelaOnboarding() {
       '<td>' + escapeHtml(statusLabelOnboarding(o.status)) + '</td>' +
       '<td>' + escapeHtml(formatarData((o.atualizadoEm || '').slice(0, 10))) + '</td>' +
       '<td class="actions">' +
-      '<button class="btn btn-secondary btn-sm" onclick="atualizarStatusOnboarding(\'' + escapeHtml(o.id) + '\',\'em_aprovacao\')">🕒</button>' +
-      '<button class="btn btn-success btn-sm" onclick="atualizarStatusOnboarding(\'' + escapeHtml(o.id) + '\',\'aprovado\')">✅</button>' +
-      '<button class="btn btn-danger btn-sm" onclick="atualizarStatusOnboarding(\'' + escapeHtml(o.id) + '\',\'rejeitado\')">❌</button>' +
+      '<button class="btn btn-secondary btn-sm" data-status="em_aprovacao" data-id="' + escapeHtml(o.id) + '">🕒</button>' +
+      '<button class="btn btn-success btn-sm" data-status="aprovado" data-id="' + escapeHtml(o.id) + '">✅</button>' +
+      '<button class="btn btn-danger btn-sm" data-status="rejeitado" data-id="' + escapeHtml(o.id) + '">❌</button>' +
       '</td>' +
       '</tr>';
   }).join('');
@@ -3499,9 +3499,10 @@ function gerarId() {
   return Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
 }
 
+var _ESCAPE_HTML_RE = /[&<>"']/g;
+var _ESCAPE_HTML_MAP = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
 function escapeHtml(str) {
-  var MAP = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
-  return String(str == null ? '' : str).replace(/[&<>"']/g, function(c) { return MAP[c]; });
+  return String(str == null ? '' : str).replace(_ESCAPE_HTML_RE, function(c) { return _ESCAPE_HTML_MAP[c]; });
 }
 
 function mostrarToast(msg, tipo) {
