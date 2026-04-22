@@ -159,7 +159,7 @@ jobs:
       - name: Minificar CSS
         run: |
           set -e
-          for f in style.css assets/style.css; do
+          for f in style.css assets/style.css assets/index.css assets/mobile-first.css; do
             if [ -f "$f" ]; then
               echo "Minificando: $f"
               csso "$f" -o "$f.min" && mv "$f.min" "$f"

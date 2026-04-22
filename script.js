@@ -92,7 +92,12 @@ function searchWeather() {
 }
 
 function searchWeatherByCity(city) {
-    fetch(`${BASE_URL}/weather?q=${city}&appid=${API_KEY}&units=metric&lang=pt_br`)
+    /* Se houver proxy configurado, repassa a cidade sem expor a chave */
+    const geoUrl = WEATHER_CONFIG.proxyUrl
+        ? `${WEATHER_CONFIG.proxyUrl}?action=geo&q=${encodeURIComponent(city)}&units=metric&lang=pt_br`
+        : `${BASE_URL}/weather?q=${encodeURIComponent(city)}&appid=${API_KEY}&units=metric&lang=pt_br`;
+
+    fetch(geoUrl)
         .then(response => {
             if (!response.ok) throw new Error('Cidade não encontrada');
             return response.json();
@@ -106,7 +111,10 @@ function searchWeatherByCity(city) {
 }
 
 function fetchWeather(lat, lon) {
-    const url = `${BASE_URL}/onecall?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric&lang=pt_br`;
+    /* Se houver proxy configurado, usa-o para não expor API_KEY no cliente */
+    const url = WEATHER_CONFIG.proxyUrl
+        ? `${WEATHER_CONFIG.proxyUrl}?action=onecall&lat=${lat}&lon=${lon}&units=metric&lang=pt_br`
+        : `${BASE_URL}/onecall?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric&lang=pt_br`;
 
     fetch(url)
         .then(response => response.json())
