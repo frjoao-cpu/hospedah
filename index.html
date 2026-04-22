@@ -38,11 +38,11 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preconnect" href="https://i.imgur.com">
 <link rel="preconnect" href="https://www.googletagmanager.com">
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="preconnect" href="https://cdnjs.cloudflare.com">
 
-<!-- Supabase (social proof real, AggregateRating, lead tracking) -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<!-- jsPDF (geração de proposta em PDF) -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<!-- Preload LCP — primeira imagem do hero (background CSS) -->
+<link rel="preload" as="image" href="https://i.imgur.com/AmFSwwd.webp" fetchpriority="high">
 
 <!-- Google Tag Manager & Microsoft Clarity — carregados somente após consentimento LGPD -->
 <script>
@@ -79,7 +79,9 @@ function initTracking() {
 if (localStorage.getItem('hospedah_consent') === 'accepted') { initTracking(); }
 </script>
 
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+<!-- Google Fonts — carregado de forma não-bloqueante para evitar atraso no render -->
+<link rel="preload" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap"></noscript>
 <!-- Mobile-first CSS -->
 <link rel="stylesheet" href="/assets/mobile-first.css">
 
@@ -1835,7 +1837,10 @@ if ('serviceWorker' in navigator) {
 <!-- ============================================================
      SUPABASE: AggregateRating + Social Proof Real + Lead Tracking
      + jsPDF Proposal + Referral code
+     Carregados aqui (final do body) para não bloquear o render.
 ============================================================ -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script>
 (function () {
   'use strict';
