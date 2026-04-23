@@ -337,7 +337,10 @@ function salvarAbandonoSupabase(data) {
 
     var sid = sessionStorage.getItem('hospedah_session_id');
     if (!sid) {
-        sid = Date.now().toString(36) + Math.random().toString(36).slice(2);
+        /* Usa crypto.getRandomValues para gerar ID de sessão seguro */
+        var arr = new Uint32Array(3);
+        crypto.getRandomValues(arr);
+        sid = Array.from(arr, function(n) { return n.toString(36); }).join('');
         sessionStorage.setItem('hospedah_session_id', sid);
     }
 

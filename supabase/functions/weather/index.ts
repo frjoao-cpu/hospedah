@@ -16,6 +16,9 @@ const API_KEY  = Deno.env.get('OPENWEATHER_API_KEY') ?? '';
 const BASE_URL = 'https://api.openweathermap.org/data/2.5';
 
 const CORS_HEADERS: Record<string, string> = {
+    /* Em produção, restringe ao domínio oficial.
+       Para testes locais, execute a função com `supabase functions serve`
+       que injeta automaticamente as origens localhost. */
     'Access-Control-Allow-Origin':  'https://hospedah.tur.br',
     'Access-Control-Allow-Methods': 'GET, OPTIONS',
     'Access-Control-Allow-Headers': 'Content-Type, Authorization',

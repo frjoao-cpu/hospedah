@@ -66,8 +66,8 @@ serve(async (req: Request): Promise<Response> => {
             `📱 *Telefone:* ${record.telefone ?? '—'}`,
             `📧 *E-mail:*   ${record.email_hospede}`,
             `🏖️ *Resort:*   ${record.resort_nome ?? '—'}`,
-            `📅 *Check-in:* ${record.data_entrada}`,
-            `📅 *Check-out:*${record.data_saida}`,
+            `📅 *Check-in:*  ${record.data_entrada}`,
+            `📅 *Check-out:* ${record.data_saida}`,
             `👥 *Hóspedes:* ${record.num_hospedes}`,
             `💬 *Mensagem:* ${record.mensagem ?? '—'}`,
             '',
@@ -88,6 +88,8 @@ serve(async (req: Request): Promise<Response> => {
     // ── 2. WhatsApp de confirmação ao hóspede ───────────────
     if (zapiId && zapiToken && record.telefone) {
         const fone = record.telefone.replace(/\D/g, '');
+        /* Evita duplo prefixo se o número já inclui o DDI 55 */
+        const foneCompleto = fone.startsWith('55') ? fone : `55${fone}`;
         const msgHospede = [
             `✅ *Solicitação recebida — HOSPEDAH*`,
             '',
@@ -106,7 +108,7 @@ serve(async (req: Request): Promise<Response> => {
             {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ phone: `55${fone}`, message: msgHospede }),
+                body: JSON.stringify({ phone: foneCompleto, message: msgHospede }),
             },
         );
         results.push(`zapi_hospede:${zapiHospede.status}`);

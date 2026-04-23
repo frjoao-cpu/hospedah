@@ -53,6 +53,8 @@ serve(async (_req: Request): Promise<Response> => {
             resultados.push({ id: reserva.id, status: 'sem_telefone_ou_zapi' });
             continue;
         }
+        /* Evita duplo prefixo se o número já inclui o DDI 55 */
+        const foneCompleto = fone.startsWith('55') ? fone : `55${fone}`;
 
         const msg = [
             `🌟 *Lembrete de Check-in — HOSPEDAH*`,
@@ -73,7 +75,7 @@ serve(async (_req: Request): Promise<Response> => {
             {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ phone: `55${fone}`, message: msg }),
+                body: JSON.stringify({ phone: foneCompleto, message: msg }),
             },
         );
         resultados.push({ id: reserva.id, status: zapiRes.status });
