@@ -134,11 +134,20 @@ interface AiMessage {
   ts: string;
 }
 
+interface IntencaoContext {
+  pagina_origem?: string;
+  resort_interesse?: string;
+  data_entrada?: string;
+  data_saida?: string;
+  num_hospedes?: number | null;
+}
+
 interface AiContext {
   lead: { nome: string; assunto: string };
   conversa_id: string;
   mensagens: AiMessage[];
   timestamp_inicio: string;
+  contexto_intencao?: IntencaoContext;
   temperature?: number;
   stream?: boolean;
 }
@@ -188,6 +197,25 @@ serve(async (req: Request): Promise<Response> => {
     );
   }
 
+  // Construir contexto dinâmico do lead e intenção para injetar no system instruction
+  const leadLines: string[] = [];
+  if (ctx.lead?.nome) leadLines.push(`Nome do cliente: ${ctx.lead.nome}`);
+  if (ctx.lead?.assunto) leadLines.push(`Assunto de interesse: ${ctx.lead.assunto}`);
+  const intencao = ctx.contexto_intencao;
+  if (intencao) {
+    if (intencao.resort_interesse) leadLines.push(`Resort de interesse: ${intencao.resort_interesse}`);
+    if (intencao.data_entrada)     leadLines.push(`Data de entrada desejada: ${intencao.data_entrada}`);
+    if (intencao.data_saida)       leadLines.push(`Data de saída desejada: ${intencao.data_saida}`);
+    if (intencao.num_hospedes != null)     leadLines.push(`Número de hóspedes: ${intencao.num_hospedes}`);
+    if (intencao.pagina_origem && intencao.pagina_origem !== 'direto') {
+      leadLines.push(`Página de origem: ${intencao.pagina_origem}`);
+    }
+  }
+
+  const systemText = leadLines.length > 0
+    ? `${SYSTEM_PROMPT}\n\n---\nContexto da conversa atual:\n${leadLines.join('\n')}`
+    : SYSTEM_PROMPT;
+
   // Clamp temperature to [0, 1]; default 0.7
   const temperature = typeof ctx.temperature === 'number'
     ? Math.max(0, Math.min(1, ctx.temperature))
@@ -195,7 +223,7 @@ serve(async (req: Request): Promise<Response> => {
 
   const geminiPayload = {
     system_instruction: {
-      parts: [{ text: SYSTEM_PROMPT }],
+      parts: [{ text: systemText }],
     },
     contents,
     generationConfig: {
