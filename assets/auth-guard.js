@@ -3,13 +3,25 @@
 /* ==========================================================================
    HOSPEDAH AUTH GUARD (front-end)
    --------------------------------------------------------------------------
-   - Rotas públicas explicitamente liberadas.
-   - Demais rotas são tratadas como protegidas.
-   - Se não houver sessão válida, redireciona para a página de login.
+   - Rotas públicas explícitas não exigem login.
+   - Somente páginas administrativas/privadas devem chamar enforceProtectedRoute().
+   - O acesso ADM público ocorre apenas pelo atalho secreto (7 cliques no logo),
+     que leva para sistema.html (rota protegida).
+   - Se não houver sessão válida em rota protegida, redireciona para o login ADM.
    - Suporta validação opcional de role (ex.: admin/proprietario).
    ========================================================================== */
 (function () {
-  var PUBLIC_ROUTES = ['index.html', 'busca.html', 'cadastro.html', 'jornal.html', 'painel.html'];
+  var PUBLIC_ROUTES = [
+    'index.html',
+    'busca.html',
+    'cadastro.html',
+    'jornal.html',
+    'reservas.html',
+    'avaliacoes.html',
+    'chat.html',
+    'referral.html',
+    'painel.html'
+  ];
 
   function getCurrentRouteFile() {
     var path = window.location.pathname || '';
