@@ -248,8 +248,32 @@ jobs:
         id: deployment
         uses: actions/deploy-pages@v4
 
+
   # ──────────────────────────────────────────────
-  # 8. Smoke tests pós-deploy (somente na main)
+  # 8. Deploy Supabase Edge Functions (somente na main)
+  # ──────────────────────────────────────────────
+  deploy-edge-functions:
+    name: Deploy Edge Functions (Supabase)
+    needs: [validate-html, validate-js, validate-css]
+    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Instalar Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Deploy ai-concierge
+        run: supabase functions deploy ai-concierge --project-ref ydrmjoppjxtmnwtvtinb --no-verify-jwt
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+
+  # ──────────────────────────────────────────────
+  # 9. Smoke tests pós-deploy (somente na main)
   # ──────────────────────────────────────────────
   smoke-test:
     name: Smoke Tests
