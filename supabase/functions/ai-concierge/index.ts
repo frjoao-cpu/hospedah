@@ -71,7 +71,7 @@ Resorts disponíveis (detalhes):
 - A taxa do parque aquático é paga diretamente ao resort no momento do check-in
 - Pré check-in possível para uso do parque aquático mediante taxa adicional de R$15,00/pessoa; acesso ao apartamento somente a partir das 15h
 - Alimentação paga à parte diretamente no restaurante; pacotes de meia-pensão ou pensão completa podem ser negociados com a central de reservas após a confirmação da reserva
-- Dados necessários para reserva (hóspede responsável): nome, CPF, RG, data de nascimento, e-mail, endereço completo, bairro, cidade e CEP; demais hóspedes fazem cadastro no check-in
+- Dados necessários para reserva: nome, CPF, RG, data de nascimento, e-mail, endereço completo
 
 ♨️ SÃO PEDRO THERMAS — São Pedro/SP:
 - Águas termais naturais, piscinas aquecidas e acomodações premium.

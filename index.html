@@ -2285,7 +2285,7 @@ function gerarPropostaPDF() {
 <style>
 #hospedah-chat-btn {
   position: fixed;
-  bottom: 160px;
+  bottom: 190px;
   right: 20px;
   background: linear-gradient(135deg, #B8860B, #D4AF37);
   color: #0a2540;
@@ -2305,12 +2305,12 @@ function gerarPropostaPDF() {
 }
 @keyframes hcPulse { 50% { transform: scale(1.05); } }
 @media (max-width: 767px) {
-  #hospedah-chat-btn { bottom: 195px; } /* above bottom-nav (56px) + wpp button (~74px) + gap */
-  #hospedah-chat    { bottom: 265px !important; right: 12px !important; width: calc(100vw - 24px) !important; max-height: calc(100vh - 285px) !important; }
+  #hospedah-chat-btn { bottom: 225px; } /* above bottom-nav (56px) + wpp button (~74px) + gap */
+  #hospedah-chat    { bottom: 295px !important; right: 12px !important; width: calc(100vw - 24px) !important; max-height: calc(100vh - 315px) !important; }
 }
 #hospedah-chat {
   position: fixed;
-  bottom: 225px;
+  bottom: 255px;
   right: 20px;
   width: 360px;
   height: 520px;
@@ -2491,6 +2491,7 @@ function gerarPropostaPDF() {
         conversa_id:      hcConversaId,
         mensagens:        hcMensagens,
         timestamp_inicio: new Date().toISOString(),
+        contexto_intencao: { pagina_origem: 'index' },
         temperature:      0.7
       })
     })

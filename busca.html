@@ -2122,15 +2122,26 @@ filtrar = function() {
   function hcChamarIA(userMsg) {
     hcMensagens.push({ role: 'user', content: userMsg, ts: new Date().toISOString() });
     if (hcMensagens.length > 20) { hcMensagens = hcMensagens.slice(-20); }
+    var intencao = { pagina_origem: 'busca' };
+    var elDestino  = document.getElementById('f_destino');
+    var elHospedes = document.getElementById('f_hospedes');
+    if (elDestino  && elDestino.value.trim()) intencao.resort_interesse = elDestino.value.trim();
+    if (elHospedes && parseInt(elHospedes.value, 10)) intencao.num_hospedes = parseInt(elHospedes.value, 10);
+    if (typeof getDatasFiltro === 'function') {
+      var datas = getDatasFiltro();
+      if (datas.entrada && window.fpEntrada) intencao.data_entrada = window.fpEntrada.formatDate(datas.entrada, 'd/m/Y');
+      if (datas.saida   && window.fpSaida)   intencao.data_saida   = window.fpSaida.formatDate(datas.saida, 'd/m/Y');
+    }
     return fetch(EDGE_FN_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        lead:             { nome: hcNome, assunto: hcAssunto },
-        conversa_id:      hcConversaId,
-        mensagens:        hcMensagens,
-        timestamp_inicio: new Date().toISOString(),
-        temperature:      0.7
+        lead:              { nome: hcNome, assunto: hcAssunto },
+        conversa_id:       hcConversaId,
+        mensagens:         hcMensagens,
+        timestamp_inicio:  new Date().toISOString(),
+        contexto_intencao: intencao,
+        temperature:       0.7
       })
     })
     .then(function (res) { return res.json(); })
