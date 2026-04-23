@@ -2211,6 +2211,7 @@ function _checkDatesForWizard() {
   var hcWaiting    = false;
   var hcConversaId = 'widget_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8);
   var EDGE_FN_URL  = 'https://ydrmjoppjxtmnwtvtinb.supabase.co/functions/v1/ai-concierge';
+  var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlkcm1qb3Bwanh0bW53dHZ0aW5iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYyNzA3MzksImV4cCI6MjA5MTg0NjczOX0.Gp4ed332v62sC5e5GXXbPqOIBNpS4EzMCFawnBJE_Cw';
 
   hcBtn.addEventListener('click', function () {
     var shown = hcBox.style.display === 'flex';
@@ -2261,7 +2262,7 @@ function _checkDatesForWizard() {
     if (elHosp) { var h = parseInt(elHosp.value, 10); if (h) intencao.num_hospedes = h; }
     return fetch(EDGE_FN_URL, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SUPABASE_ANON_KEY },
       body: JSON.stringify({
         lead:              { nome: hcNome, assunto: hcAssunto },
         conversa_id:       hcConversaId,
