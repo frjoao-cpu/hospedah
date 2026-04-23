@@ -128,7 +128,7 @@ function buildUserPrompt(data: InsightsPayload): string {
     'Com base nesses dados, forneça até 5 insights práticos e recomendações acionáveis para melhorar o desempenho da agência.',
   );
 
-  return linhas.filter((l) => l !== undefined).join('\n');
+  return linhas.join('\n');
 }
 
 serve(async (req: Request): Promise<Response> => {

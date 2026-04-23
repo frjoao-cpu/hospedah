@@ -4536,13 +4536,13 @@ function gerarInsightsIA() {
     }
     totalVenda    += r.total || 0;
     totalCaptacao += r.valorCaptacao || 0;
-    lucroTotal    += r.valorCaptacao > 0 ? (r.total - r.valorCaptacao) : 0;
+    lucroTotal    += (r.total || 0) - (r.valorCaptacao || 0);
     if ((r.valorCaptacao || 0) > 0) reservasComCaptacao++;
   });
 
   var avalMedia = countAval > 0 ? (somaAval / countAval).toFixed(1) : null;
   var ticketMedio = reservasAtivas > 0 ? (totalVenda / reservasAtivas) : 0;
-  var margemLucro = (totalVenda > 0 && totalCaptacao > 0) ? ((lucroTotal / totalVenda) * 100) : null;
+  var margemLucro = totalVenda > 0 ? ((lucroTotal / totalVenda) * 100) : null;
   var rentabilidadeCaptacao = totalCaptacao > 0 ? ((lucroTotal / totalCaptacao) * 100) : null;
 
   var canalKeys = Object.keys(canaisMap).sort(function (a, b) { return canaisMap[b].count - canaisMap[a].count; });
