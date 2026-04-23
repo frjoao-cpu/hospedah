@@ -691,7 +691,7 @@ const FAQ_RESPOSTAS = {
   'quanto custa':                '💲 Os preços variam por resort e período. Veja na <a href="busca.html" style="color:var(--dourado)">busca</a> os valores atualizados. Qual destino te interessa?',
   'disponibilidade':             '🗓️ Para verificar disponibilidade, acesse <a href="reservas.html" style="color:var(--dourado)">reservas</a> e selecione as datas desejadas — o calendário mostrará as datas disponíveis em tempo real.',
   'tem disponibilidade':         '🗓️ Para verificar disponibilidade em tempo real, acesse <a href="reservas.html" style="color:var(--dourado)">reservas</a> e selecione as datas — o calendário mostra na hora!',
-  'qual resort':                 '🏨 Temos resorts em Olímpia/SP (Hot Beach, Thermas dos Laranjais), Foz do Iguaçu/PR (Mabu Thermas) e na Bahia (Porto Seguro Eco Bahia, Iberostar). Qual destino te interessa?',
+  'qual resort':                 '🏨 Temos resorts em Olímpia/SP (Hot Beach Suites, Olimpia Park Resort), São Pedro/SP (São Pedro Thermas), Solar das Águas, Wyndham Royal, Praia de Juquehy em São Sebastião/SP, Ipioca Beach Resort em Maceió/AL e Porto 2 Life. Qual destino te interessa?',
 };
 
 let nomeHospede  = '';
@@ -1069,7 +1069,7 @@ async function escalarParaAI(temperature) {
   try {
     const res  = await fetch(edgeFnUrl, {
       method:  'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SUPABASE_KEY },
       body:    JSON.stringify(ctx),
     });
     const data = await res.json();
@@ -1110,7 +1110,7 @@ function escalarParaAIStream(temperature) {
 
   return fetch(edgeFnUrl, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SUPABASE_KEY },
     body: JSON.stringify(ctx)
   }).then(function (res) {
     if (!res.ok || !res.body) return null; // chamador oculta typing indicator
