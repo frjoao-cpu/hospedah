@@ -2285,7 +2285,7 @@ function gerarPropostaPDF() {
 <style>
 #hospedah-chat-btn {
   position: fixed;
-  bottom: 160px;
+  bottom: calc(160px + 10cm);
   right: 20px;
   background: linear-gradient(135deg, #B8860B, #D4AF37);
   color: #0a2540;
@@ -2305,15 +2305,16 @@ function gerarPropostaPDF() {
 }
 @keyframes hcPulse { 50% { transform: scale(1.05); } }
 @media (max-width: 767px) {
-  #hospedah-chat-btn { bottom: 195px; } /* above bottom-nav (56px) + wpp button (~74px) + gap */
-  #hospedah-chat    { bottom: 265px !important; right: 12px !important; width: calc(100vw - 24px) !important; }
+  #hospedah-chat-btn { bottom: calc(195px + 10cm); } /* above bottom-nav (56px) + wpp button (~74px) + gap */
+  #hospedah-chat    { bottom: calc(265px + 10cm) !important; right: 12px !important; width: calc(100vw - 24px) !important; max-height: calc(100vh - 285px - 10cm) !important; }
 }
 #hospedah-chat {
   position: fixed;
-  bottom: 225px;
+  bottom: calc(225px + 10cm);
   right: 20px;
   width: 360px;
   height: 520px;
+  max-height: calc(100vh - 245px - 10cm);
   background: #fff;
   border-radius: 18px;
   display: none;
@@ -2434,6 +2435,7 @@ function gerarPropostaPDF() {
   var hcWaiting    = false;
   var hcConversaId = 'widget_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8);
   var EDGE_FN_URL  = 'https://ydrmjoppjxtmnwtvtinb.supabase.co/functions/v1/ai-concierge';
+  var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlkcm1qb3Bwanh0bW53dHZ0aW5iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYyNzA3MzksImV4cCI6MjA5MTg0NjczOX0.Gp4ed332v62sC5e5GXXbPqOIBNpS4EzMCFawnBJE_Cw';
 
   hcBtn.addEventListener('click', function () {
     var shown = hcBox.style.display === 'flex';
@@ -2480,7 +2482,10 @@ function gerarPropostaPDF() {
     if (hcMensagens.length > 20) { hcMensagens = hcMensagens.slice(-20); }
     return fetch(EDGE_FN_URL, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + SUPABASE_ANON_KEY
+      },
       body: JSON.stringify({
         lead:             { nome: hcNome, assunto: hcAssunto },
         conversa_id:      hcConversaId,
