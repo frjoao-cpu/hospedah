@@ -1943,5 +1943,248 @@ filtrar = function() {
   }
 })();
 </script>
+
+<!-- ============================================================
+     HOSPEDAH CHAT WIDGET — Lead capture → WhatsApp
+     CSS is fully scoped (hc-* prefixes) to avoid conflicts.
+     ============================================================ -->
+<style>
+#hospedah-chat-btn {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: linear-gradient(135deg, #0a2540, #2563eb);
+  color: #fff;
+  border-radius: 50px;
+  padding: 14px 22px;
+  font-weight: bold;
+  cursor: pointer;
+  z-index: 9999;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+  animation: hcPulse 2s infinite;
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+  border: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+@keyframes hcPulse { 50% { transform: scale(1.05); } }
+@media (max-width: 767px) {
+  #hospedah-chat-btn { bottom: 76px; }
+  #hospedah-chat    { bottom: 150px !important; right: 12px !important; width: calc(100vw - 24px) !important; }
+}
+#hospedah-chat {
+  position: fixed;
+  bottom: 90px;
+  right: 20px;
+  width: 360px;
+  height: 520px;
+  background: #fff;
+  border-radius: 18px;
+  display: none;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+  z-index: 9998;
+  font-family: Arial, sans-serif;
+}
+#hc-header {
+  background: linear-gradient(135deg, #0a2540, #2563eb);
+  color: #fff;
+  padding: 16px;
+  font-weight: bold;
+  font-size: 15px;
+}
+#hc-messages {
+  flex: 1;
+  padding: 12px;
+  overflow-y: auto;
+  background: #f3f4f6;
+}
+#hc-messages .hc-msg {
+  margin: 8px 0;
+  padding: 10px 12px;
+  border-radius: 12px;
+  max-width: 80%;
+  font-size: 14px;
+  line-height: 1.4;
+  word-break: break-word;
+}
+#hc-messages .hc-bot  { background: #e5e7eb; color: #111; }
+#hc-messages .hc-user { background: #2563eb; color: #fff; margin-left: auto; }
+#hc-input-area { display: flex; border-top: 1px solid #ddd; }
+#hc-user-input {
+  flex: 1;
+  padding: 12px;
+  border: none;
+  outline: none;
+  font-size: 14px;
+  font-family: Arial, sans-serif;
+}
+#hc-send-btn {
+  background: #2563eb;
+  color: #fff;
+  border: none;
+  padding: 12px 16px;
+  cursor: pointer;
+  font-size: 16px;
+}
+#hc-send-btn:hover { background: #1d4ed8; }
+#hc-send-btn:disabled { opacity: 0.5; cursor: default; }
+#hc-user-input:disabled { background: #f9fafb; }
+/* Typing dots indicator */
+#hc-messages .hc-typing {
+  padding: 10px 14px;
+  background: #e5e7eb;
+  border-radius: 12px;
+  max-width: 60px;
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+#hc-messages .hc-typing span {
+  width: 7px; height: 7px;
+  background: #6b7280;
+  border-radius: 50%;
+  display: inline-block;
+  animation: hcDot 1.2s infinite ease-in-out;
+}
+#hc-messages .hc-typing span:nth-child(2) { animation-delay: 0.2s; }
+#hc-messages .hc-typing span:nth-child(3) { animation-delay: 0.4s; }
+@keyframes hcDot {
+  0%, 60%, 100% { transform: translateY(0); }
+  30%           { transform: translateY(-6px); }
+}
+</style>
+
+<button id="hospedah-chat-btn" aria-label="Abrir chat de atendimento">💬 Atendimento</button>
+
+<div id="hospedah-chat" role="dialog" aria-label="Chat de atendimento HOSPEDAH">
+  <div id="hc-header">✨ Concierge IA · HOSPEDAH</div>
+  <div id="hc-messages" aria-live="polite"></div>
+  <div id="hc-input-area">
+    <input id="hc-user-input" placeholder="Digite aqui..." autocomplete="off"
+           onkeydown="if(event.key==='Enter') hcSend()">
+    <button id="hc-send-btn" onclick="hcSend()" aria-label="Enviar mensagem">➤</button>
+  </div>
+</div>
+
+<script>
+(function () {
+  var hcBtn  = document.getElementById('hospedah-chat-btn');
+  var hcBox  = document.getElementById('hospedah-chat');
+  var hcMsgs = document.getElementById('hc-messages');
+  var hcEtapa   = 0;
+  var hcNome    = '';
+  var hcAssunto = '';
+  var hcMensagens  = [];
+  var hcWaiting    = false;
+  var hcConversaId = 'widget_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8);
+  var EDGE_FN_URL  = 'https://ydrmjoppjxtmnwtvtinb.supabase.co/functions/v1/ai-concierge';
+
+  hcBtn.addEventListener('click', function () {
+    var shown = hcBox.style.display === 'flex';
+    hcBox.style.display = shown ? 'none' : 'flex';
+    hcBox.style.flexDirection = 'column';
+    if (!shown) document.getElementById('hc-user-input').focus();
+  });
+
+  function hcAddMsg(text, type) {
+    var div = document.createElement('div');
+    div.className = 'hc-msg hc-' + type;
+    div.textContent = text;
+    hcMsgs.appendChild(div);
+    hcMsgs.scrollTop = hcMsgs.scrollHeight;
+  }
+
+  function hcAddTyping() {
+    var div = document.createElement('div');
+    div.className = 'hc-msg hc-typing';
+    div.id = 'hc-typing-ind';
+    div.innerHTML = '<span></span><span></span><span></span>';
+    hcMsgs.appendChild(div);
+    hcMsgs.scrollTop = hcMsgs.scrollHeight;
+  }
+
+  function hcRemoveTyping() {
+    var el = document.getElementById('hc-typing-ind');
+    if (el) el.parentNode.removeChild(el);
+  }
+
+  function hcSetInput(disabled) {
+    document.getElementById('hc-user-input').disabled = disabled;
+    document.getElementById('hc-send-btn').disabled   = disabled;
+    if (!disabled) document.getElementById('hc-user-input').focus();
+  }
+
+  /* Chama a Edge Function ai-concierge (Gemini 2.0 Flash) */
+  function hcChamarIA(userMsg) {
+    hcMensagens.push({ role: 'user', content: userMsg, ts: new Date().toISOString() });
+    if (hcMensagens.length > 20) { hcMensagens = hcMensagens.slice(-20); }
+    return fetch(EDGE_FN_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        lead:             { nome: hcNome, assunto: hcAssunto },
+        conversa_id:      hcConversaId,
+        mensagens:        hcMensagens,
+        timestamp_inicio: new Date().toISOString(),
+        temperature:      0.7
+      })
+    })
+    .then(function (res) { return res.json(); })
+    .then(function (data) {
+      var resp = data.resposta || null;
+      if (resp) { hcMensagens.push({ role: 'assistant', content: resp, ts: new Date().toISOString() }); }
+      return resp;
+    })
+    .catch(function () { return null; });
+  }
+
+  window.hcSend = function () {
+    if (hcWaiting) return;
+    var input = document.getElementById('hc-user-input');
+    var txt = input.value.trim();
+    if (!txt) return;
+    hcAddMsg(txt, 'user');
+    input.value = '';
+
+    /* etapa 0 — coletar nome sem chamar a IA */
+    if (hcEtapa === 0) {
+      hcNome = txt; hcEtapa++;
+      hcSetInput(true);
+      setTimeout(function () {
+        hcAddMsg('Prazer, ' + hcNome + '! 😊 Qual sua dúvida sobre hospedagem ou reserva?', 'bot');
+        hcSetInput(false);
+      }, 500);
+      return;
+    }
+
+    /* etapa 1 — primeira pergunta: salvar como assunto e enviar à IA */
+    if (hcEtapa === 1) { hcAssunto = txt; hcEtapa++; }
+
+    /* etapa 2+ — Gemini responde */
+    hcWaiting = true;
+    hcSetInput(true);
+    hcAddTyping();
+    hcChamarIA(txt).then(function (resp) {
+      hcRemoveTyping();
+      if (resp) {
+        hcAddMsg(resp, 'bot');
+      } else {
+        hcAddMsg('Desculpe, não consegui responder agora. Fale pelo WhatsApp 📱 (17) 98200-6382', 'bot');
+      }
+      hcWaiting = false;
+      hcSetInput(false);
+    });
+  };
+
+  setTimeout(function () {
+    hcAddMsg('Olá 👋 Sou o Concierge IA da HOSPEDAH, com respostas em tempo real!', 'bot');
+    setTimeout(function () { hcAddMsg('Qual seu nome? 😊', 'bot'); }, 800);
+  }, 1200);
+}());
+</script>
 </body>
 </html>

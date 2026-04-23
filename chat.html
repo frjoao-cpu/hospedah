@@ -677,6 +677,7 @@ const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 const FAQ_RESPOSTAS = {
   'como faço para reservar':    'Para reservar, acesse nossa página de <a href="reservas.html" style="color:var(--dourado)">reservas</a>, escolha o resort, selecione as datas disponíveis e preencha seus dados. Nossa equipe confirma em até 2 horas! 📅',
   'como reservar':               'Para reservar, acesse nossa página de <a href="reservas.html" style="color:var(--dourado)">reservas</a>, escolha o resort, selecione as datas disponíveis e preencha seus dados. Nossa equipe confirma em até 2 horas! 📅',
+  'quero reservar':              '📅 Ótimo! Acesse nossa <a href="reservas.html" style="color:var(--dourado)">página de reservas</a> para escolher o resort e as datas. Nossa equipe confirma em até 2 horas!',
   'formas de pagamento':         'Aceitamos: ⚡ PIX (5% de desconto), 💳 Cartão de crédito (até 12x), 📄 Boleto bancário e 🏦 Transferência. Qual você prefere?',
   'quais são as formas de pagamento': 'Aceitamos: ⚡ PIX (5% de desconto), 💳 Cartão de crédito (até 12x), 📄 Boleto bancário e 🏦 Transferência. Qual você prefere?',
   'horário de check-in':         '🔑 Check-in a partir das **14h** e Check-out até as **11h**. Para horários especiais, entre em contato com antecedência que fazemos o possível para acomodar seu pedido!',
@@ -687,7 +688,10 @@ const FAQ_RESPOSTAS = {
   'como cancelar uma reserva':   '📋 Nossa política de cancelamento: cancelamentos com mais de 7 dias de antecedência recebem reembolso integral. Entre 3-7 dias, 50% de reembolso. Menos de 3 dias, sem reembolso. Tem alguma reserva específica?',
   'wifi':                        '📶 Sim! Todos os resorts dispõem de Wi-Fi gratuito em quartos e áreas comuns.',
   'preço':                       '💲 Os preços variam por resort e período. Confira nossa página de <a href="busca.html" style="color:var(--dourado)">busca</a> para ver disponibilidade e valores atualizados!',
+  'quanto custa':                '💲 Os preços variam por resort e período. Veja na <a href="busca.html" style="color:var(--dourado)">busca</a> os valores atualizados. Qual destino te interessa?',
   'disponibilidade':             '🗓️ Para verificar disponibilidade, acesse <a href="reservas.html" style="color:var(--dourado)">reservas</a> e selecione as datas desejadas — o calendário mostrará as datas disponíveis em tempo real.',
+  'tem disponibilidade':         '🗓️ Para verificar disponibilidade em tempo real, acesse <a href="reservas.html" style="color:var(--dourado)">reservas</a> e selecione as datas — o calendário mostra na hora!',
+  'qual resort':                 '🏨 Temos resorts em Olímpia/SP (Hot Beach, Thermas dos Laranjais), Foz do Iguaçu/PR (Mabu Thermas) e na Bahia (Porto Seguro Eco Bahia, Iberostar). Qual destino te interessa?',
 };
 
 let nomeHospede  = '';
@@ -696,6 +700,21 @@ let conversaId   = '';
 let subscription = null;
 let mensagensRendered = new Set();
 let faqDinamico  = {}; // Item 4: FAQ carregado dinamicamente do banco
+
+// ============================================================
+// RATE LIMITING — máx 5 msgs em 10 s para proteger a cota da IA
+// ============================================================
+var _rateLimitMsgs    = [];
+var _RATE_LIMIT_MAX    = 5;
+var _RATE_LIMIT_WINDOW = 10000; // ms
+
+function checkRateLimit() {
+  var now = Date.now();
+  _rateLimitMsgs = _rateLimitMsgs.filter(function (t) { return now - t < _RATE_LIMIT_WINDOW; });
+  if (_rateLimitMsgs.length >= _RATE_LIMIT_MAX) return false;
+  _rateLimitMsgs.push(now);
+  return true;
+}
 
 // ============================================================
 // INICIAR CHAT
@@ -789,6 +808,13 @@ async function enviarMensagem() {
   const texto = input.value.trim();
   if (!texto) return;
 
+  // Rate limiting
+  if (!checkRateLimit()) {
+    addMessage('recv', 'HOSPEDAH', '⏳ Aguarde um momento antes de enviar mais mensagens.', null);
+    scrollToBottom();
+    return;
+  }
+
   input.value = '';
   input.style.height = 'auto';
 
@@ -815,32 +841,46 @@ async function enviarMensagem() {
     mostrarDigitando();
     setTimeout(() => {
       ocultarDigitando();
-      addMessage('recv', 'HOSPEDAH', respAuto, null);
-      scrollToBottom();
+      typewriterMessage('HOSPEDAH', respAuto);
+      mostrarChipsFollowup();
     }, 1200 + Math.random() * 800);
   } else {
-    // Encaminhar para o Concierge IA
+    // Encaminhar para o Concierge IA (streaming, com fallback)
+    const temperature = detectTemperature(texto);
     mostrarDigitando();
-    escalarParaAI().then(function (resultado) {
-      ocultarDigitando();
-      const respostaIA = resultado.resposta;
-      if (respostaIA) {
-        const msgEl = addMessage('recv', 'HOSPEDAH ✨', respostaIA, null);
-        // Item 5: adicionar botões de feedback
-        if (resultado.logId) adicionarFeedback(msgEl, resultado.logId);
-        // Item 3: persistir resposta da IA na tabela mensagens
-        sb.from('mensagens').insert([{
+    escalarParaAIStream(temperature).then(async function (respostaIA) {
+      if (respostaIA === null) {
+        // Streaming falhou — tentar versão não-streaming com logging
+        const resultado = await escalarParaAI(temperature);
+        ocultarDigitando();
+        if (resultado && resultado.resposta) {
+          const msgEl = addMessage('recv', 'HOSPEDAH ✨', resultado.resposta, null);
+          if (resultado.logId) adicionarFeedback(msgEl, resultado.logId);
+          sb.from('mensagens').insert([{
+            conversa_id:    conversaId,
+            remetente:      'anfitriao',
+            nome_remetente: 'HOSPEDAH ✨',
+            conteudo:       resultado.resposta,
+          }]).select('id').single().then(function (r) {
+            if (r.data && r.data.id) mensagensRendered.add(r.data.id);
+          }).catch(function () {});
+          mostrarChipsFollowup();
+        } else {
+          addMessage('recv', 'HOSPEDAH', '✅ Mensagem recebida! Um especialista responderá em breve. Se preferir, pode também nos contatar pelo <a href="https://wa.me/5517982006382" target="_blank" style="color:var(--dourado)">WhatsApp</a>.', null);
+        }
+        scrollToBottom();
+        return;
+      }
+      // Streaming funcionou — salvar no Supabase
+      try {
+        await sb.from('mensagens').insert([{
           conversa_id:    conversaId,
           remetente:      'anfitriao',
           nome_remetente: 'HOSPEDAH ✨',
           conteudo:       respostaIA,
-        }]).select('id').single().then(function (r) {
-          // Marcar ID como renderizado para evitar re-exibição via Realtime
-          if (r.data && r.data.id) mensagensRendered.add(r.data.id);
-        }).catch(function () {});
-      } else {
-        addMessage('recv', 'HOSPEDAH', '✅ Mensagem recebida! Um especialista responderá em breve. Se preferir, pode também nos contatar pelo <a href="https://wa.me/5517982006382" target="_blank" style="color:var(--dourado)">WhatsApp</a>.', null);
-      }
+        }]);
+      } catch (e) { /* silencioso */ }
+      mostrarChipsFollowup();
       scrollToBottom();
     });
   }
@@ -860,6 +900,76 @@ function getBotResponse(texto) {
     if (lower.includes(chave)) return resp;
   }
   return null;
+}
+
+// ============================================================
+// TEMPERATURA ADAPTATIVA (item 9)
+// ============================================================
+function detectTemperature(texto) {
+  const lower = texto.toLowerCase();
+  const factualKws = ['preço', 'valor', 'custo', 'quanto', 'horário', 'horario',
+                      'check-in', 'check-out', 'cancelamento', 'pagamento',
+                      'pix', 'parcela', 'desconto', 'política', 'politica'];
+  for (const kw of factualKws) {
+    if (lower.includes(kw)) return 0.3;
+  }
+  return 0.8;
+}
+
+// ============================================================
+// FAQ CHIPS FOLLOW-UP DINÂMICO (item 8)
+// ============================================================
+const FAQ_FOLLOWUP = {
+  'Reservas':        ['Como fazer reserva?', 'Formas de pagamento', 'Política de cancelamento'],
+  'Disponibilidade': ['Como fazer reserva?', 'Qual o horário de check-in?', 'Formas de pagamento'],
+  'Preços':          ['Desconto no PIX?', 'Parcelamento em cartão', 'Como fazer reserva?'],
+  'Pagamento':       ['Formas de pagamento', 'Desconto no PIX?', 'Como fazer reserva?'],
+  'Geral':           ['Como fazer reserva?', 'Formas de pagamento', 'Qual o horário de check-in?'],
+};
+
+function mostrarChipsFollowup() {
+  const chips = FAQ_FOLLOWUP[assunto] || FAQ_FOLLOWUP['Geral'];
+  const bar = document.getElementById('faqBar');
+  bar.innerHTML = '';
+  chips.forEach(function (c) {
+    const span = document.createElement('span');
+    span.className = 'faq-chip';
+    span.textContent = c;
+    span.addEventListener('click', function () { sendFAQ(c); });
+    bar.appendChild(span);
+  });
+  bar.style.display = 'flex';
+}
+
+// ============================================================
+// TYPEWRITER EFFECT — respostas FAQ / fallback (item 2)
+// ============================================================
+function typewriterMessage(nome, texto, speed) {
+  const el = document.getElementById('chatMessages');
+  const div = document.createElement('div');
+  div.className = 'msg recv';
+  const hora = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+  const bubbleEl = document.createElement('div');
+  bubbleEl.className = 'msg-bubble';
+  const metaEl = document.createElement('div');
+  metaEl.className = 'msg-meta';
+  metaEl.textContent = nome + ' · ' + hora;
+  div.appendChild(bubbleEl);
+  div.appendChild(metaEl);
+  el.appendChild(div);
+  prepararContextoAI('recv', texto);
+  scrollToBottom();
+  let i = 0;
+  const ms = speed || 18;
+  const interval = setInterval(function () {
+    if (i < texto.length) {
+      i++;
+      bubbleEl.innerHTML = texto.slice(0, i).replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+      scrollToBottom();
+    } else {
+      clearInterval(interval);
+    }
+  }, ms);
 }
 
 // ============================================================
@@ -947,18 +1057,20 @@ function prepararContextoAI(tipo, texto) {
 }
 
 /**
- * Envia o contexto da conversa para o Concierge IA (Edge Function Supabase),
- * registra o log no banco (item 5) e retorna { resposta, logId }.
+ * Envia o contexto para o Concierge IA, registra log no banco e retorna { resposta, logId }.
+ * Usado como fallback quando streaming falha.
+ * @param {number} [temperature]
  * @returns {Promise<{resposta: string|null, logId: string|null}>}
  */
-async function escalarParaAI() {
+async function escalarParaAI(temperature) {
+  const ctx = Object.assign({}, _aiContext, { temperature: temperature || 0.7 });
   const edgeFnUrl = 'https://ydrmjoppjxtmnwtvtinb.supabase.co/functions/v1/ai-concierge';
   let resposta = null;
   try {
     const res  = await fetch(edgeFnUrl, {
       method:  'POST',
       headers: { 'Content-Type': 'application/json' },
-      body:    JSON.stringify(_aiContext),
+      body:    JSON.stringify(ctx),
     });
     const data = await res.json();
     resposta = data.resposta || null;
@@ -983,6 +1095,82 @@ async function escalarParaAI() {
   } catch (e) { /* silencioso */ }
 
   return { resposta, logId };
+}
+
+/**
+ * Versão streaming: exibe tokens em tempo real conforme chegam do Gemini.
+ * Retorna a string completa, '' se resposta vazia, ou null se requisição falhou
+ * (nesse caso o typing indicator NÃO foi ocultado e o caller deve fazê-lo).
+ * @param {number} temperature
+ * @returns {Promise<string|null>}
+ */
+function escalarParaAIStream(temperature) {
+  const ctx = Object.assign({}, _aiContext, { temperature: temperature || 0.7, stream: true });
+  const edgeFnUrl = 'https://ydrmjoppjxtmnwtvtinb.supabase.co/functions/v1/ai-concierge';
+
+  return fetch(edgeFnUrl, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(ctx)
+  }).then(function (res) {
+    if (!res.ok || !res.body) return null; // chamador oculta typing indicator
+
+    // Criar bolha de resposta e ocultar typing
+    const el = document.getElementById('chatMessages');
+    const div = document.createElement('div');
+    div.className = 'msg recv';
+    const hora = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+    const bubbleEl = document.createElement('div');
+    bubbleEl.className = 'msg-bubble';
+    const metaEl = document.createElement('div');
+    metaEl.className = 'msg-meta';
+    metaEl.textContent = 'HOSPEDAH ✨ · ' + hora;
+    div.appendChild(bubbleEl);
+    div.appendChild(metaEl);
+    el.appendChild(div);
+    ocultarDigitando();
+    scrollToBottom();
+
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder();
+    let fullText = '';
+    let buffer = '';
+
+    function readChunk() {
+      return reader.read().then(function (result) {
+        if (result.done) {
+          if (!fullText) return null;
+          prepararContextoAI('recv', fullText);
+          return fullText;
+        }
+        buffer += decoder.decode(result.value, { stream: true });
+        const lines = buffer.split('\n');
+        buffer = lines.pop() || '';
+        for (let j = 0; j < lines.length; j++) {
+          const line = lines[j];
+          if (!line.startsWith('data: ')) continue;
+          const jsonStr = line.slice(6).trim();
+          if (!jsonStr || jsonStr === '[DONE]') continue;
+          try {
+            const parsed = JSON.parse(jsonStr);
+            const partText =
+              (parsed && parsed.candidates && parsed.candidates[0] &&
+               parsed.candidates[0].content && parsed.candidates[0].content.parts &&
+               parsed.candidates[0].content.parts[0] &&
+               parsed.candidates[0].content.parts[0].text) || '';
+            if (partText) {
+              fullText += partText;
+              bubbleEl.innerHTML = fullText.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+              scrollToBottom();
+            }
+          } catch (e) { /* skip malformed chunk */ }
+        }
+        return readChunk();
+      });
+    }
+
+    return readChunk();
+  }).catch(function () { return null; });
 }
 
 // ============================================================

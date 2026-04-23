@@ -22,6 +22,8 @@ import { serve } from 'https://deno.land/std@0.224.0/http/server.ts';
 const GEMINI_API_KEY = Deno.env.get('GEMINI_API_KEY') ?? '';
 const GEMINI_URL =
   'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent';
+const GEMINI_STREAM_URL =
+  'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:streamGenerateContent';
 
 const CORS_HEADERS: Record<string, string> = {
   'Access-Control-Allow-Origin':  'https://hospedah.tur.br',
@@ -50,14 +52,14 @@ Formas de pagamento aceitas:
 - Boleto bancário
 - Transferência bancária
 
-Resorts disponíveis (principais):
-- Hot Beach Suites — Olímpia/SP (parque aquático, suítes premium, ideal para famílias)
-- Hot Beach Resort — Olímpia/SP (all-inclusive, piscinas de água quente)
-- Enjoy Olímpia Park — Olímpia/SP (resort temático, tobogãs)
-- Thermas dos Laranjais — Olímpia/SP (maior parque aquático termal da América Latina)
-- Mabu Thermas & Resort — Foz do Iguaçu/PR (termas naturais, próximo às cataratas)
-- Porto Seguro Eco Bahia — Porto Seguro/BA (resort à beira-mar, estrutura completa)
-- Iberostar Bahia — Costa do Sauípe/BA (resort 5 estrelas, all-inclusive)
+Resorts disponíveis (detalhes):
+- Hot Beach Suites — Olímpia/SP: suítes premium, parque aquático com 20 atrações, spa, academia e restaurante gourmet. Ideal para famílias e casais. WhatsApp: (17) 98200-6382
+- Hot Beach Resort — Olímpia/SP: all-inclusive premium, piscinas de água termal, 5 restaurantes, shows noturnos e kids club. WhatsApp: (17) 98200-6382
+- Enjoy Olímpia Park — Olímpia/SP: resort temático, 8 tobogãs, tirolesa e chalés privê com banheira. WhatsApp: (17) 99206-8296
+- Thermas dos Laranjais — Olímpia/SP: maior parque aquático termal da América Latina, mais de 70 atrações em 3,5 milhões de m². WhatsApp: (17) 99206-8296
+- Mabu Thermas & Resort — Foz do Iguaçu/PR: termas naturais, transfer para Cataratas do Iguaçu, 3 piscinas. WhatsApp: (17) 99920-68296
+- Porto Seguro Eco Bahia — Porto Seguro/BA: resort à beira-mar, praia privativa, esportes aquáticos, all-inclusive. WhatsApp: (17) 99920-68296
+- Iberostar Bahia — Costa do Sauípe/BA: 5 estrelas, all-inclusive premium, golf, spa e 7 restaurantes. WhatsApp: (17) 98200-6382
 
 Instruções de comportamento:
 - Responda SEMPRE em português do Brasil, de forma calorosa, educada e profissional.
@@ -78,6 +80,8 @@ interface AiContext {
   conversa_id: string;
   mensagens: AiMessage[];
   timestamp_inicio: string;
+  temperature?: number;
+  stream?: boolean;
 }
 
 serve(async (req: Request): Promise<Response> => {
@@ -125,13 +129,18 @@ serve(async (req: Request): Promise<Response> => {
     );
   }
 
+  // Clamp temperature to [0, 1]; default 0.7
+  const temperature = typeof ctx.temperature === 'number'
+    ? Math.max(0, Math.min(1, ctx.temperature))
+    : 0.7;
+
   const geminiPayload = {
     system_instruction: {
       parts: [{ text: SYSTEM_PROMPT }],
     },
     contents,
     generationConfig: {
-      temperature: 0.7,
+      temperature,
       maxOutputTokens: 1024,
     },
     safetySettings: [
@@ -142,6 +151,44 @@ serve(async (req: Request): Promise<Response> => {
     ],
   };
 
+  // ── STREAMING path ──────────────────────────────────────────
+  if (ctx.stream === true) {
+    let streamRes: Response;
+    try {
+      streamRes = await fetch(`${GEMINI_STREAM_URL}?alt=sse&key=${GEMINI_API_KEY}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(geminiPayload),
+      });
+    } catch (err) {
+      console.error('[ai-concierge] Erro ao chamar Gemini streaming:', err);
+      return new Response(
+        JSON.stringify({ error: 'Falha de comunicação com a IA. Tente novamente.' }),
+        { status: 502, headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' } },
+      );
+    }
+
+    if (!streamRes.ok) {
+      const errBody = await streamRes.text();
+      console.error('[ai-concierge] Gemini streaming erro:', streamRes.status, errBody);
+      return new Response(
+        JSON.stringify({ error: 'Serviço de IA indisponível. Tente mais tarde.' }),
+        { status: 502, headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' } },
+      );
+    }
+
+    return new Response(streamRes.body, {
+      status: 200,
+      headers: {
+        ...CORS_HEADERS,
+        'Content-Type': 'text/event-stream; charset=utf-8',
+        'Cache-Control': 'no-cache',
+        'X-Accel-Buffering': 'no',
+      },
+    });
+  }
+
+  // ── NON-STREAMING (default) path ────────────────────────────
   let geminiRes: Response;
   try {
     geminiRes = await fetch(`${GEMINI_URL}?key=${GEMINI_API_KEY}`, {
