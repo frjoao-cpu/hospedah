@@ -461,6 +461,35 @@ body {
   .chat-grid { grid-template-columns: 1fr; }
   .chat-info  { display: none; }
 }
+
+/* FEEDBACK IA */
+.feedback-bar {
+  display: flex;
+  gap: 6px;
+  margin-top: 4px;
+  align-items: center;
+}
+
+.feedback-label {
+  font-size: 0.68em;
+  color: var(--cor-sub);
+}
+
+.feedback-btn {
+  background: none;
+  border: 1px solid var(--borda);
+  border-radius: 12px;
+  color: var(--cor-sub);
+  font-size: 0.72em;
+  padding: 2px 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.feedback-btn:hover { border-color: var(--dourado); color: var(--dourado); }
+.feedback-btn:disabled { cursor: default; }
+.feedback-btn.ativo-pos { border-color: var(--verde); color: var(--verde); background: rgba(37,211,102,0.1); }
+.feedback-btn.ativo-neg { border-color: var(--vermelho); color: var(--vermelho); background: rgba(231,76,60,0.1); }
 </style>
 </head>
 <body>
@@ -666,6 +695,7 @@ let assunto      = '';
 let conversaId   = '';
 let subscription = null;
 let mensagensRendered = new Set();
+let faqDinamico  = {}; // Item 4: FAQ carregado dinamicamente do banco
 
 // ============================================================
 // INICIAR CHAT
@@ -791,10 +821,23 @@ async function enviarMensagem() {
   } else {
     // Encaminhar para o Concierge IA
     mostrarDigitando();
-    escalarParaAI().then(function (respostaIA) {
+    escalarParaAI().then(function (resultado) {
       ocultarDigitando();
+      const respostaIA = resultado.resposta;
       if (respostaIA) {
-        addMessage('recv', 'HOSPEDAH ✨', respostaIA, null);
+        const msgEl = addMessage('recv', 'HOSPEDAH ✨', respostaIA, null);
+        // Item 5: adicionar botões de feedback
+        if (resultado.logId) adicionarFeedback(msgEl, resultado.logId);
+        // Item 3: persistir resposta da IA na tabela mensagens
+        sb.from('mensagens').insert([{
+          conversa_id:    conversaId,
+          remetente:      'anfitriao',
+          nome_remetente: 'HOSPEDAH ✨',
+          conteudo:       respostaIA,
+        }]).select('id').single().then(function (r) {
+          // Marcar ID como renderizado para evitar re-exibição via Realtime
+          if (r.data && r.data.id) mensagensRendered.add(r.data.id);
+        }).catch(function () {});
       } else {
         addMessage('recv', 'HOSPEDAH', '✅ Mensagem recebida! Um especialista responderá em breve. Se preferir, pode também nos contatar pelo <a href="https://wa.me/5517982006382" target="_blank" style="color:var(--dourado)">WhatsApp</a>.', null);
       }
@@ -808,6 +851,11 @@ async function enviarMensagem() {
 // ============================================================
 function getBotResponse(texto) {
   const lower = texto.toLowerCase();
+  // Checar FAQ dinâmico (banco) primeiro
+  for (const [chave, resp] of Object.entries(faqDinamico)) {
+    if (lower.includes(chave)) return resp;
+  }
+  // Fallback: FAQ estático embutido
   for (const [chave, resp] of Object.entries(FAQ_RESPOSTAS)) {
     if (lower.includes(chave)) return resp;
   }
@@ -846,18 +894,38 @@ function addMessage(tipo, nome, texto, isoTimestamp) {
   prepararContextoAI(tipo, texto);
 
   scrollToBottom();
+  return div;
 }
 
 // ============================================================
 // AI CONCIERGE
 // Mantém o contexto da conversa e chama a Edge Function
-// ai-concierge (Gemini 1.5 Flash) quando o FAQ não tem resposta.
+// ai-concierge (Gemini 2.5 Flash) quando o FAQ não tem resposta.
 // ============================================================
 var _aiContext = {
   lead: { nome: '', assunto: '' },
   conversa_id: '',
   mensagens: [],
-  timestamp_inicio: new Date().toISOString()
+  timestamp_inicio: new Date().toISOString(),
+  // Item 2: capturar contexto de intenção a partir de URL e sessionStorage
+  contexto_intencao: (function () {
+    var intencao = { pagina_origem: document.referrer || 'direto' };
+    try {
+      var p = new URLSearchParams(window.location.search);
+      if (p.get('resort'))       intencao.resort_interesse = p.get('resort');
+      if (p.get('data_entrada')) intencao.data_entrada     = p.get('data_entrada');
+      if (p.get('data_saida'))   intencao.data_saida       = p.get('data_saida');
+      if (p.get('num_hospedes')) intencao.num_hospedes     = parseInt(p.get('num_hospedes'), 10) || null;
+    } catch (e) {}
+    try {
+      var s = JSON.parse(sessionStorage.getItem('hospedah_busca_ctx') || '{}');
+      if (s.resort       && !intencao.resort_interesse) intencao.resort_interesse = s.resort;
+      if (s.data_entrada && !intencao.data_entrada)     intencao.data_entrada     = s.data_entrada;
+      if (s.data_saida   && !intencao.data_saida)       intencao.data_saida       = s.data_saida;
+      if (s.num_hospedes && !intencao.num_hospedes)     intencao.num_hospedes     = s.num_hospedes;
+    } catch (e) {}
+    return intencao;
+  })()
 };
 
 function prepararContextoAI(tipo, texto) {
@@ -879,22 +947,126 @@ function prepararContextoAI(tipo, texto) {
 }
 
 /**
- * Envia o contexto da conversa para o Concierge IA (Edge Function Supabase)
- * e retorna a resposta gerada pelo Gemini, ou null em caso de falha.
- * @returns {Promise<string|null>}
+ * Envia o contexto da conversa para o Concierge IA (Edge Function Supabase),
+ * registra o log no banco (item 5) e retorna { resposta, logId }.
+ * @returns {Promise<{resposta: string|null, logId: string|null}>}
  */
-function escalarParaAI() {
-  const ctx = _aiContext;
+async function escalarParaAI() {
   const edgeFnUrl = 'https://ydrmjoppjxtmnwtvtinb.supabase.co/functions/v1/ai-concierge';
-  return fetch(edgeFnUrl, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(ctx)
-  })
-    .then(function (res) { return res.json(); })
-    .then(function (data) { return data.resposta || null; })
-    .catch(function () { return null; });
+  let resposta = null;
+  try {
+    const res  = await fetch(edgeFnUrl, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify(_aiContext),
+    });
+    const data = await res.json();
+    resposta = data.resposta || null;
+  } catch (e) {
+    return { resposta: null, logId: null };
+  }
+
+  if (!resposta) return { resposta: null, logId: null };
+
+  // Item 5: registrar interação no log de IA
+  let logId = null;
+  try {
+    const perguntaAtual = _aiContext.mensagens
+      .filter(function (m) { return m.role === 'user'; })
+      .slice(-1)[0]?.content ?? '';
+    const { data: logData } = await sb
+      .from('ai_logs')
+      .insert([{ conversa_id: conversaId, pergunta: perguntaAtual, resposta }])
+      .select('id')
+      .single();
+    logId = logData?.id ?? null;
+  } catch (e) { /* silencioso */ }
+
+  return { resposta, logId };
 }
+
+// ============================================================
+// Item 5: FEEDBACK DA RESPOSTA DA IA
+// ============================================================
+function adicionarFeedback(msgEl, logId) {
+  var bar = document.createElement('div');
+  bar.className = 'feedback-bar';
+  bar.dataset.logId = logId;
+
+  var lbl = document.createElement('span');
+  lbl.className = 'feedback-label';
+  lbl.textContent = 'Útil?';
+
+  var btnPos = document.createElement('button');
+  btnPos.className = 'feedback-btn';
+  btnPos.title = 'Resposta útil';
+  btnPos.textContent = '👍';
+  btnPos.addEventListener('click', function () { enviarFeedback(btnPos, 1); });
+
+  var btnNeg = document.createElement('button');
+  btnNeg.className = 'feedback-btn';
+  btnNeg.title = 'Resposta não útil';
+  btnNeg.textContent = '👎';
+  btnNeg.addEventListener('click', function () { enviarFeedback(btnNeg, -1); });
+
+  bar.appendChild(lbl);
+  bar.appendChild(btnPos);
+  bar.appendChild(btnNeg);
+  msgEl.appendChild(bar);
+}
+
+async function enviarFeedback(btn, avaliacao) {
+  var bar = btn.closest('.feedback-bar');
+  if (!bar || bar.dataset.voted) return;
+  var logId = bar.dataset.logId;
+  if (!logId) return;
+  bar.dataset.voted = '1';
+  bar.querySelectorAll('.feedback-btn').forEach(function (b) { b.disabled = true; });
+  btn.classList.add(avaliacao === 1 ? 'ativo-pos' : 'ativo-neg');
+  var lbl = bar.querySelector('.feedback-label');
+  if (lbl) lbl.textContent = avaliacao === 1 ? 'Obrigado! 😊' : 'Obrigado pelo feedback!';
+  try {
+    await sb.from('ai_logs').update({ avaliacao }).eq('id', logId);
+  } catch (e) { /* silencioso */ }
+}
+
+// ============================================================
+// Item 4: CARREGAR FAQ DINÂMICO DO BANCO
+// ============================================================
+async function carregarFAQDinamico() {
+  try {
+    const { data } = await sb
+      .from('faq')
+      .select('chave, label, resposta')
+      .eq('ativo', true)
+      .order('ordem', { ascending: true });
+
+    if (!data || !data.length) return;
+
+    faqDinamico = {};
+    data.forEach(function (f) {
+      faqDinamico[f.chave.toLowerCase()] = f.resposta;
+    });
+
+    // Substituir chips de FAQ pelas entradas do banco (primeiras 5)
+    var bar = document.getElementById('faqBar');
+    if (bar) {
+      bar.innerHTML = '';
+      data.slice(0, 5).forEach(function (f) {
+        var span = document.createElement('span');
+        span.className = 'faq-chip';
+        span.textContent = f.label;
+        span.addEventListener('click', (function (chave) {
+          return function () { sendFAQ(chave); };
+        })(f.chave));
+        bar.appendChild(span);
+      });
+    }
+  } catch (e) { /* mantém FAQ estático como fallback */ }
+}
+
+// Carregar FAQ do banco imediatamente
+carregarFAQDinamico();
 
 // ============================================================
 // TYPING INDICATOR
