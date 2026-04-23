@@ -4,6 +4,7 @@
 
 | Função | Acionamento | Descrição |
 |--------|-------------|-----------|
+| `ai-concierge` | HTTP POST (chat.html) | Concierge IA com Google Gemini 1.5 Flash — responde perguntas fora do FAQ automaticamente |
 | `weather` | HTTP GET | Proxy seguro para OpenWeatherMap (esconde a API key do front-end) |
 | `notificacao-reserva` | Database Webhook (INSERT em `reservas_hospede`) | Envia WhatsApp + e-mail ao hóspede e ao admin |
 | `lembrete-checkin` | pg_cron (diário 12:00 UTC) | Lembra hóspedes com check-in amanhã via WhatsApp |
@@ -26,6 +27,7 @@
 supabase functions deploy --project-ref ydrmjoppjxtmnwtvtinb
 
 # Deploy de uma função específica
+supabase functions deploy ai-concierge --project-ref ydrmjoppjxtmnwtvtinb
 supabase functions deploy weather --project-ref ydrmjoppjxtmnwtvtinb
 supabase functions deploy notificacao-reserva --project-ref ydrmjoppjxtmnwtvtinb
 supabase functions deploy lembrete-checkin --project-ref ydrmjoppjxtmnwtvtinb
@@ -90,6 +92,11 @@ supabase functions serve --env-file supabase/functions/.env
 
 # Testar a função weather
 curl "http://localhost:54321/functions/v1/weather?action=weather&lat=-23.5505&lon=-46.6333"
+
+# Testar ai-concierge (mock de conversa)
+curl -X POST "http://localhost:54321/functions/v1/ai-concierge" \
+  -H "Content-Type: application/json" \
+  -d '{"lead":{"nome":"João","assunto":"Reservas"},"conversa_id":"chat_test","mensagens":[{"role":"user","content":"Quais resorts têm parque aquático?","ts":"2026-01-01T00:00:00Z"}],"timestamp_inicio":"2026-01-01T00:00:00Z"}'
 
 # Testar notificacao-reserva (mock de webhook)
 curl -X POST "http://localhost:54321/functions/v1/notificacao-reserva" \
