@@ -566,6 +566,77 @@ END;
 $$;
 
 -- ============================================================
+-- 22. FAQ DINÂMICO — perguntas frequentes editáveis pelo painel
+-- ============================================================
+CREATE TABLE IF NOT EXISTS faq (
+  id        uuid    PRIMARY KEY DEFAULT gen_random_uuid(),
+  chave     text    NOT NULL UNIQUE,   -- palavra-chave para correspondência (minúsculas)
+  label     text    NOT NULL,          -- texto exibido no chip de sugestão
+  resposta  text    NOT NULL,          -- resposta enviada ao hóspede (suporta HTML básico e **bold**)
+  ativo     boolean NOT NULL DEFAULT true,
+  ordem     int     NOT NULL DEFAULT 0,
+  criado_em timestamptz DEFAULT now()
+);
+
+ALTER TABLE faq ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "faq_leitura_publica" ON faq;
+DROP POLICY IF EXISTS "faq_escrita_auth"    ON faq;
+
+CREATE POLICY "faq_leitura_publica"
+  ON faq FOR SELECT USING (ativo = true);
+
+CREATE POLICY "faq_escrita_auth"
+  ON faq FOR ALL TO authenticated USING (true) WITH CHECK (true);
+
+-- Dados iniciais (espelha o FAQ estático anterior do chat.html)
+INSERT INTO faq (chave, label, resposta, ordem) VALUES
+  ('como reservar',        'Como reservar?',       'Para reservar, acesse nossa página de <a href="reservas.html" style="color:var(--dourado)">reservas</a>, escolha o resort, selecione as datas disponíveis e preencha seus dados. Nossa equipe confirma em até 2 horas! 📅', 1),
+  ('formas de pagamento',  'Formas de pagamento',  'Aceitamos: ⚡ PIX (5% de desconto), 💳 Cartão de crédito (até 12x), 📄 Boleto bancário e 🏦 Transferência. Qual você prefere?', 2),
+  ('horário de check-in',  'Horário check-in',     '🔑 Check-in a partir das **14h** e Check-out até as **11h**. Para horários especiais, entre em contato com antecedência que fazemos o possível para acomodar seu pedido!', 3),
+  ('opções para criança',  'Para crianças',        '👶 Sim! Temos opções com atividades para crianças, berços disponíveis sob solicitação e parques aquáticos perfeitos para toda a família. Qual resort te interessa?', 4),
+  ('cancelamento',         'Cancelamento',         '📋 Nossa política de cancelamento: cancelamentos com mais de 7 dias de antecedência recebem reembolso integral. Entre 3-7 dias, 50% de reembolso. Menos de 3 dias, sem reembolso. Tem alguma reserva específica?', 5),
+  ('wifi',                 'Tem Wi-Fi?',           '📶 Sim! Todos os resorts dispõem de Wi-Fi gratuito em quartos e áreas comuns.', 6),
+  ('preço',                'Preços',               '💲 Os preços variam por resort e período. Confira nossa página de <a href="busca.html" style="color:var(--dourado)">busca</a> para ver disponibilidade e valores atualizados!', 7),
+  ('disponibilidade',      'Disponibilidade',      '🗓️ Para verificar disponibilidade, acesse <a href="reservas.html" style="color:var(--dourado)">reservas</a> e selecione as datas desejadas — o calendário mostrará as datas disponíveis em tempo real.', 8)
+ON CONFLICT (chave) DO NOTHING;
+
+CREATE INDEX IF NOT EXISTS idx_faq_ordem ON faq(ativo, ordem);
+
+-- ============================================================
+-- 23. LOGS DE IA — histórico de interações com feedback do hóspede
+-- ============================================================
+CREATE TABLE IF NOT EXISTS ai_logs (
+  id          uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  conversa_id text NOT NULL,
+  pergunta    text,
+  resposta    text,
+  avaliacao   int  CHECK (avaliacao IN (-1, 1)),  -- 1 = útil, -1 = não útil
+  criado_em   timestamptz DEFAULT now()
+);
+
+ALTER TABLE ai_logs ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "ai_logs_insercao_publica"  ON ai_logs;
+DROP POLICY IF EXISTS "ai_logs_avaliacao_publica" ON ai_logs;
+DROP POLICY IF EXISTS "ai_logs_leitura_admin"     ON ai_logs;
+
+-- Visitantes anônimos podem registrar e avaliar interações com a IA
+CREATE POLICY "ai_logs_insercao_publica"
+  ON ai_logs FOR INSERT WITH CHECK (true);
+
+CREATE POLICY "ai_logs_avaliacao_publica"
+  ON ai_logs FOR UPDATE USING (true) WITH CHECK (true);
+
+-- Apenas administradores lêem os logs completos
+CREATE POLICY "ai_logs_leitura_admin"
+  ON ai_logs FOR SELECT TO authenticated
+  USING (is_admin_user());
+
+CREATE INDEX IF NOT EXISTS idx_ai_logs_conversa  ON ai_logs(conversa_id, criado_em DESC);
+CREATE INDEX IF NOT EXISTS idx_ai_logs_avaliacao ON ai_logs(avaliacao) WHERE avaliacao IS NOT NULL;
+
+-- ============================================================
 -- 21. DEFINIR PAPEL DO ADMINISTRADOR  ⚠️  OBRIGATÓRIO
 -- ============================================================
 -- ⚠️  SEM EXECUTAR ESTES COMANDOS O LOGIN NO SISTEMA HOSPEDA
