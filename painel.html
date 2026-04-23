@@ -607,10 +607,8 @@ body { font-family: 'Poppins', sans-serif; background: var(--bg); color: var(--c
         </p>
         <ol style="font-size:0.88em;color:var(--cor-texto);line-height:1.9;padding-left:18px;margin-bottom:16px;">
           <li>Acesse o repositório no GitHub:
-            <a href="https://github.com/frjoao-cpu/hospedah" target="_blank" rel="noopener"
-               style="color:var(--dourado);word-break:break-all;">
-              github.com/frjoao-cpu/hospedah
-            </a>
+            <a id="ajuda-repo-link" href="#" target="_blank" rel="noopener"
+               style="color:var(--dourado);word-break:break-all;"></a>
           </li>
           <li>Clique na aba <strong>Actions</strong> (menu superior do repositório).</li>
           <li>Na lista à esquerda, selecione o workflow <strong>CI — Validação, Qualidade e Deploy</strong>.</li>
@@ -618,8 +616,7 @@ body { font-family: 'Poppins', sans-serif; background: var(--bg); color: var(--c
           <li>Confirme na branch <strong>main</strong> e clique em <strong>Run workflow</strong>.</li>
           <li>Aguarde o workflow concluir — o site estará atualizado em <a href="https://hospedah.tur.br" target="_blank" rel="noopener" style="color:var(--dourado);">hospedah.tur.br</a>.</li>
         </ol>
-        <a href="https://github.com/frjoao-cpu/hospedah/actions/workflows/ci.yml"
-           target="_blank" rel="noopener" class="btn btn-primary btn-sm">
+        <a id="ajuda-actions-link" href="#" target="_blank" rel="noopener" class="btn btn-primary btn-sm">
           ▶ Abrir GitHub Actions
         </a>
       </div>
@@ -635,10 +632,9 @@ body { font-family: 'Poppins', sans-serif; background: var(--bg); color: var(--c
           <li>Abra o terminal (ou Prompt de Comando) e execute:
             <div style="position:relative;margin:8px 0;">
               <code id="gitCloneCmd" style="display:block;background:rgba(0,0,0,0.4);color:var(--dourado);
-                border-radius:8px;padding:10px 42px 10px 12px;font-size:0.9em;word-break:break-all;">
-                git clone https://github.com/frjoao-cpu/hospedah.git
-              </code>
-              <button onclick="copiarComandoClone()" title="Copiar comando"
+                border-radius:8px;padding:10px 42px 10px 12px;font-size:0.9em;word-break:break-all;"></code>
+              <button onclick="copiarComandoClone()" title="Copiar comando git clone"
+                aria-label="Copiar comando git clone"
                 style="position:absolute;top:50%;right:8px;transform:translateY(-50%);
                        background:none;border:none;cursor:pointer;font-size:1.1em;color:var(--cor-sub);
                        transition:color .15s;" onmouseover="this.style.color='var(--dourado)'"
@@ -655,8 +651,7 @@ body { font-family: 'Poppins', sans-serif; background: var(--bg); color: var(--c
           </li>
           <li>O deploy será disparado automaticamente após o <code style="background:rgba(0,0,0,0.3);padding:2px 6px;border-radius:4px;font-size:0.88em;">git push</code>.</li>
         </ol>
-        <a href="https://github.com/frjoao-cpu/hospedah" target="_blank" rel="noopener"
-           class="btn btn-ghost btn-sm">
+        <a id="ajuda-repo-link2" href="#" target="_blank" rel="noopener" class="btn btn-ghost btn-sm">
           🔗 Abrir repositório no GitHub
         </a>
       </div>
@@ -688,6 +683,10 @@ body { font-family: 'Poppins', sans-serif; background: var(--bg); color: var(--c
 const SUPABASE_URL = 'https://ydrmjoppjxtmnwtvtinb.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlkcm1qb3Bwanh0bW53dHZ0aW5iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYyNzA3MzksImV4cCI6MjA5MTg0NjczOX0.Gp4ed332v62sC5e5GXXbPqOIBNpS4EzMCFawnBJE_Cw';
 const _sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// ── REPOSITÓRIO ──
+const REPO_URL       = 'https://github.com/frjoao-cpu/hospedah';
+const REPO_CLONE_URL = 'https://github.com/frjoao-cpu/hospedah.git';
 
 // ── ESTADO ──
 let _session   = null;
@@ -989,6 +988,8 @@ function navegarPara(id, options = {}) {
   document.querySelectorAll('.painel-section').forEach(s => s.classList.remove('active'));
   const sec = document.getElementById('sec-' + allowedDestination);
   if (sec) sec.classList.add('active');
+
+  if (allowedDestination === 'ajuda') inicializarAjuda();
 
   // Marcar nav ativo
   document.querySelectorAll('.sidebar-nav a, .bottom-nav a').forEach(a => a.classList.remove('active'));
@@ -1344,12 +1345,23 @@ function copiarLink() {
 }
 
 function copiarComandoClone() {
-  const cmd = 'git clone https://github.com/frjoao-cpu/hospedah.git';
+  const cmd = 'git clone ' + REPO_CLONE_URL;
   navigator.clipboard.writeText(cmd).then(() => {
     mostrarToast('✅ Comando copiado!', 'success');
   }).catch(() => {
     mostrarToast(cmd, 'info');
   });
+}
+
+function inicializarAjuda() {
+  const repoLink  = document.getElementById('ajuda-repo-link');
+  const repoLink2 = document.getElementById('ajuda-repo-link2');
+  const actLink   = document.getElementById('ajuda-actions-link');
+  const cloneCmd  = document.getElementById('gitCloneCmd');
+  if (repoLink)  { repoLink.href        = REPO_URL;  repoLink.textContent  = REPO_URL.replace('https://', ''); }
+  if (repoLink2) { repoLink2.href       = REPO_URL; }
+  if (actLink)   { actLink.href         = REPO_URL + '/actions/workflows/ci.yml'; }
+  if (cloneCmd)  { cloneCmd.textContent = 'git clone ' + REPO_CLONE_URL; }
 }
 
 // ── USUÁRIOS (admin) ──
