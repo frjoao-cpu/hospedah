@@ -68,6 +68,7 @@ Resorts disponíveis (detalhes):
 - Taxa de higienização da churrasqueira: R$40,00; o resort disponibiliza kit churrasco (1 tábua, 1 faca, 1 pegador, 1 garfo)
 - Taxa do parque aquático — Apartamento de 1 dormitório: R$129,00/dia (acima de 2 dias), valor total independente do número de hóspedes (ex.: 6 pessoas = R$129,00/dia)
 - Taxa do parque aquático — Apartamento de 2 dormitórios: R$169,00/dia (acima de 2 dias), valor total independente do número de hóspedes (ex.: 8 pessoas = R$169,00/dia); valores sujeitos a alterações
+- A taxa do parque aquático é paga diretamente ao resort no momento do check-in
 - Pré check-in possível para uso do parque aquático mediante taxa adicional de R$15,00/pessoa; acesso ao apartamento somente a partir das 15h
 - Alimentação paga à parte diretamente no restaurante; pacotes de meia-pensão ou pensão completa podem ser negociados com a central de reservas após a confirmação da reserva
 - Dados necessários para reserva (hóspede responsável): nome, CPF, RG, data de nascimento, e-mail, endereço completo, bairro, cidade e CEP; demais hóspedes fazem cadastro no check-in
