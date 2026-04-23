@@ -1,5 +1,5 @@
 // ============================================================
-// HOSPEDAH — Edge Function: Concierge IA (Google Gemini 1.5 Flash)
+// HOSPEDAH — Edge Function: Concierge IA (Google Gemini 2.0 Flash)
 //
 // Variáveis de ambiente necessárias (Supabase Dashboard → Settings → Edge Functions):
 //   GEMINI_API_KEY  → chave da API Google AI Studio (gratuita em aistudio.google.com)
@@ -115,7 +115,7 @@ serve(async (req: Request): Promise<Response> => {
 
   // Construir histórico de mensagens para o Gemini
   // O system prompt é injetado como primeiro turno "user" seguido de "model" vazio,
-  // pois o Gemini 1.5 aceita system_instruction como campo separado.
+  // pois o Gemini 2.0 aceita system_instruction como campo separado.
   const contents = (ctx.mensagens ?? []).map((m) => ({
     role: m.role === 'assistant' ? 'model' : 'user',
     parts: [{ text: m.content }],
