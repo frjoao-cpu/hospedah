@@ -1,0 +1,192 @@
+{
+  "resorts": [
+    {
+      "slug": "hotbeach",
+      "emoji": "🏖️",
+      "name": "Hot Beach Suites",
+      "title": "Hot Beach Suites - HOSPEDAH",
+      "description": "Hot Beach Suites em Olímpia-SP: piscinas termais, área de lazer completa e acomodações premium. Reserve com a HOSPEDAH.",
+      "schemaDescription": "Resort com piscinas termais, área de lazer completa e acomodações premium em Olímpia-SP.",
+      "city": "Olímpia",
+      "state": "SP",
+      "ogImage": "https://i.imgur.com/AmFSwwd.jpeg",
+      "whatsappMessage": "Olá! Tenho interesse no Hot Beach Suites. Pode me enviar mais informações e valores?",
+      "images": [
+        { "id": "AmFSwwd", "ext": "jpeg" },
+        { "id": "PMok8fe", "ext": "jpeg" },
+        { "id": "bOOUiLE", "ext": "jpeg" },
+        { "id": "aKhDzXz", "ext": "jpeg" },
+        { "id": "7lhbeim", "ext": "jpeg" },
+        { "id": "nw9K59D", "ext": "jpeg" },
+        { "id": "USBb1tj", "ext": "jpeg" },
+        { "id": "8b52cpI", "ext": "jpeg" },
+        { "id": "XFT7Fs2", "ext": "jpeg" },
+        { "id": "eydR2bp", "ext": "jpeg" }
+      ]
+    },
+    {
+      "slug": "saopedro",
+      "emoji": "♨️",
+      "name": "São Pedro Thermas",
+      "title": "São Pedro Thermas - HOSPEDAH",
+      "description": "São Pedro Thermas: águas termais, piscinas aquecidas e acomodações premium. Reserve com a HOSPEDAH.",
+      "schemaDescription": "Resort termal com piscinas aquecidas e acomodações premium.",
+      "city": "São Pedro",
+      "state": "SP",
+      "ogImage": "https://i.imgur.com/pyEKOtQ.jpeg",
+      "whatsappMessage": "Olá! Tenho interesse no São Pedro Thermas. Pode me enviar mais informações e valores?",
+      "images": [
+        { "id": "pyEKOtQ", "ext": "jpeg" },
+        { "id": "1HeNjKT", "ext": "jpeg" },
+        { "id": "9kgfR2y", "ext": "jpeg" },
+        { "id": "2MinAKg", "ext": "jpeg" },
+        { "id": "1eOkkpi", "ext": "jpeg" },
+        { "id": "VNUPsl2", "ext": "jpeg" },
+        { "id": "5pbb4ba", "ext": "jpeg" },
+        { "id": "uop7Fdo", "ext": "jpeg" },
+        { "id": "JAaWFiz", "ext": "jpeg" },
+        { "id": "61P9R4K", "ext": "jpeg" },
+        { "id": "VVc8UtU", "ext": "jpeg" }
+      ]
+    },
+    {
+      "slug": "olimpia",
+      "emoji": "🎢",
+      "name": "Olimpia Park Resort",
+      "title": "Olimpia Park Resort - HOSPEDAH",
+      "description": "Olimpia Park Resort em Olímpia-SP: parque aquático, piscinas e acomodações premium. Reserve com a HOSPEDAH.",
+      "schemaDescription": "Resort com parque aquático, piscinas e acomodações premium em Olímpia-SP.",
+      "city": "Olímpia",
+      "state": "SP",
+      "ogImage": "https://i.imgur.com/AseZPzL.jpeg",
+      "whatsappMessage": "Olá! Tenho interesse no Olimpia Park Resort. Pode me enviar mais informações e valores?",
+      "images": [
+        { "id": "AseZPzL", "ext": "jpeg" },
+        { "id": "uhGHhcA", "ext": "jpeg" },
+        { "id": "1xGGlIh", "ext": "jpeg" },
+        { "id": "04CvTwk", "ext": "jpeg" },
+        { "id": "pCZh2Pi", "ext": "jpeg" },
+        { "id": "BjgrodB", "ext": "jpeg" },
+        { "id": "90Fy5Hj", "ext": "jpeg" },
+        { "id": "wBiihZH", "ext": "jpeg" },
+        { "id": "1J6Tm4r", "ext": "jpeg" }
+      ]
+    },
+    {
+      "slug": "wyndham",
+      "emoji": "👑",
+      "name": "Wyndham Royal",
+      "title": "Wyndham Royal - HOSPEDAH",
+      "description": "Wyndham Royal: suítes de luxo, piscinas e lazer exclusivo. Reserve com a HOSPEDAH.",
+      "schemaDescription": "Resort com suítes de luxo, piscinas e lazer exclusivo.",
+      "city": "",
+      "state": "",
+      "ogImage": "https://i.imgur.com/iDMQ2XA.jpeg",
+      "whatsappMessage": "Olá! Tenho interesse no Wyndham Royal. Pode me enviar mais informações e valores?",
+      "images": [
+        { "id": "iDMQ2XA", "ext": "jpeg" },
+        { "id": "WOhzcpP", "ext": "jpeg" },
+        { "id": "UKiLRll", "ext": "jpeg" },
+        { "id": "cD4I3pX", "ext": "jpeg" },
+        { "id": "wAnVr9T", "ext": "jpeg" },
+        { "id": "7ExLNbI", "ext": "jpeg" },
+        { "id": "ptpX7Ti", "ext": "jpeg" },
+        { "id": "GHtjGQK", "ext": "jpeg" },
+        { "id": "tnuVQOh", "ext": "jpeg" },
+        { "id": "KxSsPe6", "ext": "jpeg" }
+      ]
+    },
+    {
+      "slug": "solar",
+      "emoji": "☀️",
+      "name": "Solar das Águas",
+      "title": "Solar das Águas - HOSPEDAH",
+      "description": "Solar das Águas: resort com piscinas, área de lazer e acomodações exclusivas. Reserve com a HOSPEDAH.",
+      "schemaDescription": "Resort com piscinas, área de lazer e acomodações exclusivas.",
+      "city": "",
+      "state": "",
+      "ogImage": "https://i.imgur.com/S4tSUzG.jpeg",
+      "whatsappMessage": "Olá! Tenho interesse no Solar das Águas. Pode me enviar mais informações e valores?",
+      "images": [
+        { "id": "S4tSUzG", "ext": "jpeg" },
+        { "id": "uiZei1A", "ext": "jpeg" },
+        { "id": "FGmyUSZ", "ext": "jpeg" },
+        { "id": "0Lv8TV6", "ext": "jpeg" },
+        { "id": "qkmupvj", "ext": "jpeg" },
+        { "id": "oFjs88I", "ext": "jpeg" },
+        { "id": "VgEN9lk", "ext": "jpeg" },
+        { "id": "vMOqQgq", "ext": "jpeg" },
+        { "id": "QpY0W4I", "ext": "jpeg" },
+        { "id": "x0fWdLu", "ext": "jpeg" }
+      ]
+    },
+    {
+      "slug": "juquehy",
+      "emoji": "🌊",
+      "name": "Praia de Juquehy",
+      "title": "Praia de Juquehy - HOSPEDAH",
+      "description": "Praia de Juquehy: mar azul, natureza exuberante e hospedagem premium. Reserve com a HOSPEDAH.",
+      "schemaDescription": "Hospedagem premium na Praia de Juquehy com mar azul e natureza exuberante.",
+      "city": "São Sebastião",
+      "state": "SP",
+      "ogImage": "https://i.imgur.com/SxlktwS.jpeg",
+      "whatsappMessage": "Olá! Tenho interesse na Praia de Juquehy. Pode me enviar mais informações e valores?",
+      "images": [
+        { "id": "SxlktwS", "ext": "jpeg" },
+        { "id": "uORu8RN", "ext": "jpeg" },
+        { "id": "6W559IH", "ext": "jpeg" },
+        { "id": "OEzuUL0", "ext": "jpeg" }
+      ]
+    },
+    {
+      "slug": "ipioca",
+      "emoji": "🌊",
+      "name": "Ipioca Beach Resort",
+      "title": "Ipioca Beach Resort - HOSPEDAH",
+      "description": "Ipioca Beach Resort em Maceió-AL: natureza exuberante, praia exclusiva e experiências inesquecíveis. Reserve com a HOSPEDAH.",
+      "schemaDescription": "Resort à beira-mar em Maceió-AL com natureza exuberante, praia exclusiva e infraestrutura completa para toda a família.",
+      "city": "Maceió",
+      "state": "AL",
+      "ogImage": "https://i.imgur.com/o4Esa54.jpg",
+      "whatsappMessage": "Olá! Tenho interesse no Ipioca Beach Resort. Pode me enviar mais informações e valores?",
+      "images": [
+        { "id": "o4Esa54", "ext": "jpg" },
+        { "id": "JkknBgp", "ext": "jpg" },
+        { "id": "kJC14PL", "ext": "jpg" },
+        { "id": "rQ0MSuI", "ext": "jpg" },
+        { "id": "NPXe84S", "ext": "jpg" },
+        { "id": "YQOtcCM", "ext": "jpg" },
+        { "id": "iKt6IXJ", "ext": "jpg" },
+        { "id": "zYs393D", "ext": "jpg" },
+        { "id": "92w8hn5", "ext": "jpg" },
+        { "id": "5aHRmTT", "ext": "jpg" },
+        { "id": "abnbLUI", "ext": "jpg" }
+      ]
+    },
+    {
+      "slug": "portoi2",
+      "emoji": "⚓",
+      "name": "Porto 2 Life",
+      "title": "Porto 2 Life - HOSPEDAH",
+      "description": "Porto 2 Life: resort moderno com lazer completo, piscinas e acomodações de alto padrão. Reserve com a HOSPEDAH.",
+      "schemaDescription": "Resort moderno com lazer completo, piscinas e acomodações de alto padrão para toda a família.",
+      "city": "",
+      "state": "",
+      "ogImage": "https://i.imgur.com/x23SHdy.jpeg",
+      "whatsappMessage": "Olá! Tenho interesse no Porto 2 Life. Pode me enviar mais informações e valores?",
+      "images": [
+        { "id": "x23SHdy", "ext": "jpeg" },
+        { "id": "0ebxdoj", "ext": "jpeg" },
+        { "id": "SmteM76", "ext": "jpeg" },
+        { "id": "UMwtzsO", "ext": "jpeg" },
+        { "id": "ZqvoSAl", "ext": "jpeg" },
+        { "id": "KX9s5Ut", "ext": "jpeg" },
+        { "id": "uW49hhx", "ext": "jpeg" },
+        { "id": "7AJ0XRm", "ext": "jpeg" },
+        { "id": "5SM0sDI", "ext": "jpeg" },
+        { "id": "y752mvd", "ext": "jpeg" },
+        { "id": "qDYmnf4", "ext": "jpeg" }
+      ]
+    }
+  ]
+}
