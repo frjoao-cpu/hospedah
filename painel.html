@@ -594,6 +594,74 @@ body { font-family: 'Poppins', sans-serif; background: var(--bg); color: var(--c
       </div>
     </section>
 
+    <!-- ── SEÇÃO: AJUDA & DEPLOY (admin) ── -->
+    <section class="painel-section" id="sec-ajuda" data-roles="admin">
+      <h2 style="color:var(--dourado);margin-bottom:20px;">🚀 Ajuda &amp; Deploy</h2>
+
+      <!-- Como fazer deploy -->
+      <div class="card">
+        <div class="card-title">🚀 Como fazer o deploy do site</div>
+        <p style="font-size:0.88em;color:var(--cor-sub);margin-bottom:16px;">
+          O deploy é feito automaticamente pelo GitHub Actions sempre que um commit é enviado para a branch <strong style="color:var(--dourado);">main</strong>.
+          Você também pode disparar um deploy manual a qualquer momento diretamente pelo GitHub:
+        </p>
+        <ol style="font-size:0.88em;color:var(--cor-texto);line-height:1.9;padding-left:18px;margin-bottom:16px;">
+          <li>Acesse o repositório no GitHub:
+            <a href="https://github.com/frjoao-cpu/hospedah" target="_blank" rel="noopener"
+               style="color:var(--dourado);word-break:break-all;">
+              github.com/frjoao-cpu/hospedah
+            </a>
+          </li>
+          <li>Clique na aba <strong>Actions</strong> (menu superior do repositório).</li>
+          <li>Na lista à esquerda, selecione o workflow <strong>CI — Validação, Qualidade e Deploy</strong>.</li>
+          <li>Clique no botão <strong style="color:var(--dourado);">Run workflow</strong> (lado direito da tela).</li>
+          <li>Confirme na branch <strong>main</strong> e clique em <strong>Run workflow</strong>.</li>
+          <li>Aguarde o workflow concluir — o site estará atualizado em <a href="https://hospedah.tur.br" target="_blank" rel="noopener" style="color:var(--dourado);">hospedah.tur.br</a>.</li>
+        </ol>
+        <a href="https://github.com/frjoao-cpu/hospedah/actions/workflows/ci.yml"
+           target="_blank" rel="noopener" class="btn btn-primary btn-sm">
+          ▶ Abrir GitHub Actions
+        </a>
+      </div>
+
+      <!-- Como copiar o código do GitHub -->
+      <div class="card">
+        <div class="card-title">📋 Como copiar o código do GitHub para sua máquina</div>
+        <p style="font-size:0.88em;color:var(--cor-sub);margin-bottom:14px;">
+          Para editar o código localmente e depois enviar as alterações, siga os passos abaixo:
+        </p>
+        <ol style="font-size:0.88em;color:var(--cor-texto);line-height:1.9;padding-left:18px;margin-bottom:16px;">
+          <li>Instale o <a href="https://git-scm.com/downloads" target="_blank" rel="noopener" style="color:var(--dourado);">Git</a> no seu computador (se ainda não tiver).</li>
+          <li>Abra o terminal (ou Prompt de Comando) e execute:
+            <div style="position:relative;margin:8px 0;">
+              <code id="gitCloneCmd" style="display:block;background:rgba(0,0,0,0.4);color:var(--dourado);
+                border-radius:8px;padding:10px 42px 10px 12px;font-size:0.9em;word-break:break-all;">
+                git clone https://github.com/frjoao-cpu/hospedah.git
+              </code>
+              <button onclick="copiarComandoClone()" title="Copiar comando"
+                style="position:absolute;top:50%;right:8px;transform:translateY(-50%);
+                       background:none;border:none;cursor:pointer;font-size:1.1em;color:var(--cor-sub);
+                       transition:color .15s;" onmouseover="this.style.color='var(--dourado)'"
+                       onmouseout="this.style.color='var(--cor-sub)'">📋</button>
+            </div>
+          </li>
+          <li>Entre na pasta do projeto: <code style="background:rgba(0,0,0,0.3);padding:2px 6px;border-radius:4px;font-size:0.88em;">cd hospedah</code></li>
+          <li>Faça suas alterações nos arquivos com o editor de sua preferência.</li>
+          <li>Envie as mudanças de volta ao GitHub:
+            <code style="display:block;background:rgba(0,0,0,0.4);color:var(--dourado);
+              border-radius:8px;padding:10px 12px;font-size:0.9em;margin-top:6px;">
+              git add .<br>git commit -m "Descrição da alteração"<br>git push origin main
+            </code>
+          </li>
+          <li>O deploy será disparado automaticamente após o <code style="background:rgba(0,0,0,0.3);padding:2px 6px;border-radius:4px;font-size:0.88em;">git push</code>.</li>
+        </ol>
+        <a href="https://github.com/frjoao-cpu/hospedah" target="_blank" rel="noopener"
+           class="btn btn-ghost btn-sm">
+          🔗 Abrir repositório no GitHub
+        </a>
+      </div>
+    </section>
+
   </main>
 </div>
 
@@ -854,6 +922,7 @@ function construirNav(role) {
     { id: 'fidelidade',     icon: '🏆', label: 'Fidelidade',       roles: ['hospede'] },
     { id: 'chat',           icon: '💬', label: 'Chat & Suporte',   roles: ['hospede','admin','proprietario'] },
     { id: 'usuarios',       icon: '👥', label: 'Usuários',         roles: ['admin'] },
+    { id: 'ajuda',          icon: '🚀', label: 'Ajuda & Deploy',   roles: ['admin'] },
   ];
 
   const links = allLinks.filter(l => l.roles.includes(role));
@@ -877,6 +946,7 @@ function construirBottomNav(role) {
     { id: 'fidelidade',      icon: '🏆', label: 'Pontos',    roles: ['hospede'], href: null },
     { icon: '🏠', label: 'Início', roles: ['hospede','admin','proprietario'], href: 'index.html' },
     { id: 'chat',            icon: '💬', label: 'Chat',      roles: ['hospede','admin','proprietario'], href: null },
+    { id: 'ajuda',           icon: '🚀', label: 'Deploy',    roles: ['admin'], href: null },
   ].filter(i => i.roles.includes(role)).slice(0, 5);
 
   document.getElementById('bottomNavList').innerHTML = items.map(i => {
@@ -1270,6 +1340,15 @@ function copiarLink() {
     mostrarToast('✅ Link copiado!', 'success');
   }).catch(() => {
     mostrarToast('Link: ' + link, 'info');
+  });
+}
+
+function copiarComandoClone() {
+  const cmd = 'git clone https://github.com/frjoao-cpu/hospedah.git';
+  navigator.clipboard.writeText(cmd).then(() => {
+    mostrarToast('✅ Comando copiado!', 'success');
+  }).catch(() => {
+    mostrarToast(cmd, 'info');
   });
 }
 
