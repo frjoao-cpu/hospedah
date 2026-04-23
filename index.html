@@ -2285,7 +2285,7 @@ function gerarPropostaPDF() {
 <style>
 #hospedah-chat-btn {
   position: fixed;
-  bottom: 20px;
+  bottom: 100px;
   right: 20px;
   background: linear-gradient(135deg, #0a2540, #2563eb);
   color: #fff;
@@ -2305,12 +2305,12 @@ function gerarPropostaPDF() {
 }
 @keyframes hcPulse { 50% { transform: scale(1.05); } }
 @media (max-width: 767px) {
-  #hospedah-chat-btn { bottom: 76px; } /* above 56 px bottom-nav + 20 px gap */
-  #hospedah-chat    { bottom: 150px !important; right: 12px !important; width: calc(100vw - 24px) !important; }
+  #hospedah-chat-btn { bottom: 136px; } /* above bottom-nav (56px) + wpp button (~74px) + gap */
+  #hospedah-chat    { bottom: 210px !important; right: 12px !important; width: calc(100vw - 24px) !important; }
 }
 #hospedah-chat {
   position: fixed;
-  bottom: 90px;
+  bottom: 165px;
   right: 20px;
   width: 360px;
   height: 520px;
@@ -2329,7 +2329,22 @@ function gerarPropostaPDF() {
   padding: 16px;
   font-weight: bold;
   font-size: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
+#hc-close-btn {
+  background: transparent;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  font-size: 18px;
+  padding: 0 4px;
+  line-height: 1;
+  opacity: 0.8;
+  flex-shrink: 0;
+}
+#hc-close-btn:hover { opacity: 1; }
 #hc-messages {
   flex: 1;
   padding: 12px;
@@ -2395,7 +2410,10 @@ function gerarPropostaPDF() {
 <button id="hospedah-chat-btn" aria-label="Abrir chat de atendimento">💬 Atendimento</button>
 
 <div id="hospedah-chat" role="dialog" aria-label="Chat de atendimento HOSPEDAH">
-  <div id="hc-header">✨ Concierge IA · HOSPEDAH</div>
+  <div id="hc-header">
+    <span>✨ Concierge IA · HOSPEDAH</span>
+    <button id="hc-close-btn" aria-label="Fechar chat">✕</button>
+  </div>
   <div id="hc-messages" aria-live="polite"></div>
   <div id="hc-input-area">
     <input id="hc-user-input" placeholder="Digite aqui..." autocomplete="off"
@@ -2422,6 +2440,10 @@ function gerarPropostaPDF() {
     hcBox.style.display = shown ? 'none' : 'flex';
     hcBox.style.flexDirection = 'column';
     if (!shown) document.getElementById('hc-user-input').focus();
+  });
+
+  document.getElementById('hc-close-btn').addEventListener('click', function () {
+    hcBox.style.display = 'none';
   });
 
   function hcAddMsg(text, type) {
