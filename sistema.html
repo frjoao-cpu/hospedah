@@ -752,6 +752,39 @@ tbody td {
 }
 
 /* ==========================================
+   AI INSIGHTS
+========================================== */
+.ai-insights-wrap {
+  margin-top: 20px;
+}
+.ai-insights-card {
+  background: linear-gradient(135deg, rgba(212,175,55,0.07), rgba(11,28,61,0.6));
+  border: 1px solid rgba(212,175,55,0.3);
+  border-radius: var(--radius);
+  padding: 20px 24px;
+  margin-top: 12px;
+  font-size: 0.88em;
+  line-height: 1.7;
+  color: var(--cor-texto);
+  white-space: pre-wrap;
+}
+.ai-insights-card strong {
+  color: var(--dourado);
+}
+.ai-insights-spinner {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(212,175,55,0.3);
+  border-top-color: var(--dourado);
+  border-radius: 50%;
+  animation: ai-spin 0.7s linear infinite;
+  vertical-align: middle;
+  margin-right: 6px;
+}
+@keyframes ai-spin { to { transform: rotate(360deg); } }
+
+/* ==========================================
    CAPTAÇÃO
 ========================================== */
 .badge-sim      { background: rgba(37,211,102,0.15); color: var(--verde); }
@@ -1623,6 +1656,13 @@ tbody td {
         <div class="chart-card-title">📈 Lucro — Últimos 12 Meses</div>
         <canvas id="chartLucro12"></canvas>
       </div>
+    </div>
+    <!-- AI Insights -->
+    <div class="ai-insights-wrap">
+      <button class="btn btn-secondary btn-sm" id="btnInsightsIA" onclick="gerarInsightsIA()" style="display:flex;align-items:center;gap:6px;">
+        ✨ Análise IA
+      </button>
+      <div id="aiInsightsResult" style="display:none;" class="ai-insights-card"></div>
     </div>
   </section>
 
@@ -4461,6 +4501,129 @@ function renderRelatorioDesempenho() {
 
   renderGraficoCanal();
   renderGraficoLucro12();
+}
+
+/* ==========================================
+   ANÁLISE IA — Insights de Desempenho
+========================================== */
+function gerarInsightsIA() {
+  var btn    = document.getElementById('btnInsightsIA');
+  var result = document.getElementById('aiInsightsResult');
+  if (!btn || !result) return;
+
+  /* Coletar as mesmas métricas de renderRelatorioDesempenho */
+  var canaisMap = {};
+  var somaAval  = 0;
+  var countAval = 0;
+  var totalVenda    = 0;
+  var totalCaptacao = 0;
+  var lucroTotal    = 0;
+  var reservasAtivas = 0;
+  var reservasComCaptacao = 0;
+
+  reservas.forEach(function (r) {
+    if (r.status === 'cancelado') return;
+    reservasAtivas++;
+    var c = r.canal || 'Direta';
+    if (!canaisMap[c]) canaisMap[c] = { count: 0, receita: 0, avaliacao: 0, countAval: 0 };
+    canaisMap[c].count++;
+    canaisMap[c].receita += r.total || 0;
+    if (r.avaliacao !== null && r.avaliacao !== undefined && !isNaN(r.avaliacao)) {
+      canaisMap[c].avaliacao  += r.avaliacao;
+      canaisMap[c].countAval++;
+      somaAval += r.avaliacao;
+      countAval++;
+    }
+    totalVenda    += r.total || 0;
+    totalCaptacao += r.valorCaptacao || 0;
+    lucroTotal    += r.valorCaptacao > 0 ? (r.total - r.valorCaptacao) : 0;
+    if ((r.valorCaptacao || 0) > 0) reservasComCaptacao++;
+  });
+
+  var avalMedia = countAval > 0 ? (somaAval / countAval).toFixed(1) : null;
+  var ticketMedio = reservasAtivas > 0 ? (totalVenda / reservasAtivas) : 0;
+  var margemLucro = (totalVenda > 0 && totalCaptacao > 0) ? ((lucroTotal / totalVenda) * 100) : null;
+  var rentabilidadeCaptacao = totalCaptacao > 0 ? ((lucroTotal / totalCaptacao) * 100) : null;
+
+  var canalKeys = Object.keys(canaisMap).sort(function (a, b) { return canaisMap[b].count - canaisMap[a].count; });
+  var canaisArr = canalKeys.map(function (c) {
+    var d = canaisMap[c];
+    return {
+      nome:       c,
+      count:      d.count,
+      pct:        reservasAtivas > 0 ? parseFloat(((d.count / reservasAtivas) * 100).toFixed(0)) : 0,
+      receita:    d.receita,
+      receitaPct: totalVenda > 0 ? parseFloat(((d.receita / totalVenda) * 100).toFixed(0)) : 0,
+      avalMedia:  d.countAval > 0 ? (d.avaliacao / d.countAval).toFixed(1) : null
+    };
+  });
+
+  /* Últimos 12 meses de lucro */
+  var hoje = new Date();
+  var lucro12 = [];
+  for (var i = 11; i >= 0; i--) {
+    var d = new Date(hoje.getFullYear(), hoje.getMonth() - i, 1);
+    var key = d.toISOString().slice(0, 7);
+    var mes = d.toLocaleDateString('pt-BR', { month: 'short', year: '2-digit' });
+    var rec = 0, cap = 0;
+    reservas.forEach(function (r) {
+      if (r.status !== 'cancelado' && r.entrada && r.entrada.slice(0, 7) === key) {
+        rec += r.total || 0;
+        cap += r.valorCaptacao || 0;
+      }
+    });
+    lucro12.push({ mes: mes, lucro: rec - cap });
+  }
+
+  var payload = {
+    totalVenda:           totalVenda,
+    totalCaptacao:        totalCaptacao,
+    lucroTotal:           lucroTotal,
+    margemLucro:          margemLucro,
+    ticketMedio:          ticketMedio,
+    reservasAtivas:       reservasAtivas,
+    reservasComCaptacao:  reservasComCaptacao,
+    rentabilidadeCaptacao: rentabilidadeCaptacao,
+    avalMedia:            avalMedia,
+    countAval:            countAval,
+    canais:               canaisArr,
+    lucro12meses:         lucro12
+  };
+
+  /* UI: carregando */
+  btn.disabled = true;
+  btn.innerHTML = '<span class="ai-insights-spinner"></span> Analisando…';
+  result.style.display = 'none';
+  result.textContent = '';
+
+  var edgeFnUrl = SUPABASE_URL + '/functions/v1/ai-insights';
+
+  fetch(edgeFnUrl, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  })
+    .then(function (res) { return res.json(); })
+    .then(function (data) {
+      btn.disabled = false;
+      btn.innerHTML = '✨ Análise IA';
+      if (data.insights) {
+        /* Formatar **negrito** como <strong> */
+        result.innerHTML = data.insights
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+        result.style.display = 'block';
+      } else {
+        mostrarToast('⚠️ A IA não retornou insights. Tente novamente.', 'error');
+      }
+    })
+    .catch(function () {
+      btn.disabled = false;
+      btn.innerHTML = '✨ Análise IA';
+      mostrarToast('⚠️ Falha ao obter insights. Verifique sua conexão.', 'error');
+    });
 }
 
 /* ==========================================
