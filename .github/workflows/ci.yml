@@ -23,6 +23,13 @@ jobs:
         with:
           node-version: '20'
 
+      - name: Cache npm
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-npm-htmlhint
+          restore-keys: ${{ runner.os }}-npm-
+
       - name: Instalar htmlhint
         run: npm install -g htmlhint
 
@@ -45,6 +52,13 @@ jobs:
         with:
           node-version: '20'
 
+      - name: Cache npm
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-npm-eslint8
+          restore-keys: ${{ runner.os }}-npm-
+
       - name: Instalar ESLint
         run: npm install -g eslint@8
 
@@ -66,6 +80,13 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
+
+      - name: Cache npm
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-npm-stylelint
+          restore-keys: ${{ runner.os }}-npm-
 
       - name: Instalar Stylelint
         run: npm install -g stylelint
@@ -106,6 +127,13 @@ jobs:
         with:
           node-version: '20'
 
+      - name: Cache npm
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-npm-lhci
+          restore-keys: ${{ runner.os }}-npm-
+
       - name: Instalar Lighthouse CI
         run: npm install -g @lhci/cli
 
@@ -113,7 +141,28 @@ jobs:
         run: lhci autorun
 
   # ──────────────────────────────────────────────
-  # 6. Publica no GitHub Pages (somente na main)
+  # 6. Varredura de segredos com TruffleHog
+  # ──────────────────────────────────────────────
+  secret-scan:
+    name: Varredura de Segredos
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: TruffleHog — detectar segredos expostos
+        uses: trufflesecurity/trufflehog@v3
+        with:
+          path: ./
+          base: ${{ github.event.repository.default_branch }}
+          head: HEAD
+          extra_args: --only-verified
+
+  # ──────────────────────────────────────────────
+  # 7. Publica no GitHub Pages (somente na main)
   # ──────────────────────────────────────────────
   deploy:
     name: Deploy GitHub Pages
@@ -134,8 +183,18 @@ jobs:
         with:
           node-version: '20'
 
+      - name: Cache npm
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-npm-deploy
+          restore-keys: ${{ runner.os }}-npm-
+
       - name: Instalar ferramentas de minificação
         run: npm install -g html-minifier-terser terser csso-cli
+
+      - name: Gerar páginas de resort a partir de data.json
+        run: node scripts/generate-resorts.js
 
       - name: Atualizar data do sitemap
         run: |
@@ -187,3 +246,42 @@ jobs:
       - name: Publicar no GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+
+  # ──────────────────────────────────────────────
+  # 8. Smoke tests pós-deploy (somente na main)
+  # ──────────────────────────────────────────────
+  smoke-test:
+    name: Smoke Tests
+    needs: [deploy]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Aguardar propagação do deploy
+        run: sleep 30
+
+      - name: Verificar páginas críticas
+        run: |
+          set -e
+          URLS=(
+            "https://hospedah.tur.br/"
+            "https://hospedah.tur.br/busca.html"
+            "https://hospedah.tur.br/reservas.html"
+            "https://hospedah.tur.br/resorts/hotbeach.html"
+            "https://hospedah.tur.br/resorts/ipioca.html"
+          )
+          FAILED=0
+          for url in "${URLS[@]}"; do
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 20 "$url")
+            if [ "$STATUS" = "200" ]; then
+              echo "✅ $url → HTTP $STATUS"
+            else
+              echo "❌ $url → HTTP $STATUS"
+              FAILED=$((FAILED+1))
+            fi
+          done
+          if [ "$FAILED" -gt 0 ]; then
+            echo "Smoke tests falharam em $FAILED página(s)"
+            exit 1
+          fi

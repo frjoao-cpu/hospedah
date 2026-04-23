@@ -1,30 +1,16 @@
 // ============================================================
-// ⚠️  ATENÇÃO — SEGURANÇA CRÍTICA
-//
-// A chave abaixo está exposta no código-fonte do site estático
-// e pode ser usada indevidamente por terceiros.
-//
-// AÇÃO IMEDIATA RECOMENDADA:
-//  1. Acesse https://home.openweathermap.org/api_keys
-//  2. Adicione uma restrição de HTTP Referer para hospedah.tur.br/*
-//  3. Migre a chamada para uma Supabase Edge Function ou proxy
-//     serverless (ex.: /api/weather) para que a chave nunca
-//     apareça no front-end.
-//
-// Enquanto a migração não é feita, NUNCA exponha outras chaves
-// (Supabase, pagamentos etc.) neste arquivo.
+// Clima — proxy via Supabase Edge Function (chave no servidor)
+// A API key da OpenWeatherMap está configurada como secret na
+// Edge Function `weather` e nunca é exposta ao cliente.
 // ============================================================
 
-/** @type {{ apiKey: string, baseUrl: string, proxyUrl: string|null }} */
+/** @type {{ apiKey: string, baseUrl: string, proxyUrl: string }} */
 const WEATHER_CONFIG = {
-    /* Substitua por uma Edge Function/proxy assim que possível */
-    apiKey: 'b6fd43b74eda4370d4f4948410281366',
-    baseUrl: 'https://api.openweathermap.org/data/2.5',
-    /* Se houver um proxy serverless, defina a URL aqui e a chave
-       será omitida das chamadas diretas ao cliente. Exemplo:
-       proxyUrl: 'https://ydrmjoppjxtmnwtvtinb.supabase.co/functions/v1/weather'
-    */
-    proxyUrl: null
+    /* A chave local só é usada como fallback de desenvolvimento;
+       em produção o proxyUrl sempre é preferido. */
+    apiKey:   '',
+    baseUrl:  'https://api.openweathermap.org/data/2.5',
+    proxyUrl: 'https://ydrmjoppjxtmnwtvtinb.supabase.co/functions/v1/weather'
 };
 
 // Atalhos para uso interno
@@ -318,8 +304,9 @@ function showToast(message, type, duration) {
 
 /**
  * Dispara um evento de "proposta abandonada" para integração com
- * automações de CRM / WhatsApp. Registra no dataLayer (GTM) e
- * armazena no sessionStorage para uso por webhooks externos.
+ * automações de CRM / WhatsApp. Registra no dataLayer (GTM),
+ * armazena no sessionStorage e persiste no Supabase para acionar
+ * a régua de recuperação automática.
  *
  * @param {Object} data  Dados do formulário parcialmente preenchido
  */
@@ -332,5 +319,54 @@ function trackAbandonedProposal(data) {
         if (window.dataLayer) {
             window.dataLayer.push({ event: 'proposta_abandonada', payload: data });
         }
+        salvarAbandonoSupabase(data);
+    } catch (e) { /* silencioso */ }
+}
+
+/**
+ * Persiste dados de abandono na tabela `abandono_reserva` do Supabase.
+ * Usa a anon key pública (protegida por RLS com INSERT público).
+ * Aciona automaticamente a Edge Function `recuperacao-abandono` via
+ * Database Webhook configurado no Supabase.
+ *
+ * @param {Object} data  Dados da sessão a salvar
+ */
+function salvarAbandonoSupabase(data) {
+    var SB_URL = 'https://ydrmjoppjxtmnwtvtinb.supabase.co';
+    var SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlkcm1qb3Bwanh0bW53dHZ0aW5iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYyNzA3MzksImV4cCI6MjA5MTg0NjczOX0.Gp4ed332v62sC5e5GXXbPqOIBNpS4EzMCFawnBJE_Cw';
+
+    var sid = sessionStorage.getItem('hospedah_session_id');
+    if (!sid) {
+        /* Usa crypto.getRandomValues para gerar ID de sessão seguro */
+        var arr = new Uint32Array(3);
+        crypto.getRandomValues(arr);
+        sid = Array.from(arr, function(n) { return n.toString(36); }).join('');
+        sessionStorage.setItem('hospedah_session_id', sid);
+    }
+
+    var payload = {
+        session_id:     sid,
+        resort_nome:    data.resort || data.destino || null,
+        email_hospede:  data.email || null,
+        telefone:       data.telefone || null,
+        data_entrada:   data.checkIn  || data.data || null,
+        data_saida:     data.checkOut || null,
+        valor_estimado: data.valor    || null
+    };
+
+    /* Ignora se não há informação suficiente para recuperação */
+    if (!payload.resort_nome && !payload.email_hospede) return;
+
+    try {
+        fetch(SB_URL + '/rest/v1/abandono_reserva', {
+            method: 'POST',
+            headers: {
+                'apikey':       SB_KEY,
+                'Authorization': 'Bearer ' + SB_KEY,
+                'Content-Type': 'application/json',
+                'Prefer':       'resolution=ignore-duplicates'
+            },
+            body: JSON.stringify(payload)
+        }).catch(function () { /* silencioso */ });
     } catch (e) { /* silencioso */ }
 }
