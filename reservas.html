@@ -2073,5 +2073,186 @@ function _checkDatesForWizard() {
 })();
 </script>
 
+<!-- ============================================================
+     HOSPEDAH CHAT WIDGET — Lead capture → WhatsApp
+     CSS is fully scoped (hc-* prefixes) to avoid conflicts.
+     ============================================================ -->
+<style>
+#hospedah-chat-btn {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: linear-gradient(135deg, #0a2540, #2563eb);
+  color: #fff;
+  border-radius: 50px;
+  padding: 14px 22px;
+  font-weight: bold;
+  cursor: pointer;
+  z-index: 9999;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+  animation: hcPulse 2s infinite;
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+  border: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+@keyframes hcPulse { 50% { transform: scale(1.05); } }
+@media (max-width: 767px) {
+  #hospedah-chat-btn { bottom: 76px; }
+  #hospedah-chat    { bottom: 150px !important; right: 12px !important; width: calc(100vw - 24px) !important; }
+}
+#hospedah-chat {
+  position: fixed;
+  bottom: 90px;
+  right: 20px;
+  width: 360px;
+  height: 520px;
+  background: #fff;
+  border-radius: 18px;
+  display: none;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+  z-index: 9998;
+  font-family: Arial, sans-serif;
+}
+#hc-header {
+  background: linear-gradient(135deg, #0a2540, #2563eb);
+  color: #fff;
+  padding: 16px;
+  font-weight: bold;
+  font-size: 15px;
+}
+#hc-messages {
+  flex: 1;
+  padding: 12px;
+  overflow-y: auto;
+  background: #f3f4f6;
+}
+#hc-messages .hc-msg {
+  margin: 8px 0;
+  padding: 10px 12px;
+  border-radius: 12px;
+  max-width: 80%;
+  font-size: 14px;
+  line-height: 1.4;
+  word-break: break-word;
+}
+#hc-messages .hc-bot  { background: #e5e7eb; color: #111; }
+#hc-messages .hc-user { background: #2563eb; color: #fff; margin-left: auto; }
+#hc-input-area { display: flex; border-top: 1px solid #ddd; }
+#hc-user-input {
+  flex: 1;
+  padding: 12px;
+  border: none;
+  outline: none;
+  font-size: 14px;
+  font-family: Arial, sans-serif;
+}
+#hc-send-btn {
+  background: #2563eb;
+  color: #fff;
+  border: none;
+  padding: 12px 16px;
+  cursor: pointer;
+  font-size: 16px;
+}
+#hc-send-btn:hover { background: #1d4ed8; }
+</style>
+
+<button id="hospedah-chat-btn" aria-label="Abrir chat de atendimento">💬 Atendimento</button>
+
+<div id="hospedah-chat" role="dialog" aria-label="Chat de atendimento HOSPEDAH">
+  <div id="hc-header">🏝️ Especialista HOSPEDAH</div>
+  <div id="hc-messages" aria-live="polite"></div>
+  <div id="hc-input-area">
+    <input id="hc-user-input" placeholder="Digite aqui..." autocomplete="off"
+           onkeydown="if(event.key==='Enter') hcSend()">
+    <button id="hc-send-btn" onclick="hcSend()" aria-label="Enviar mensagem">➤</button>
+  </div>
+</div>
+
+<script>
+(function () {
+  var hcBtn  = document.getElementById('hospedah-chat-btn');
+  var hcBox  = document.getElementById('hospedah-chat');
+  var hcMsgs = document.getElementById('hc-messages');
+  var hcEtapa = 0;
+  var hcLead  = { nome: '', destino: '', data: '', pessoas: '', perfil: '' };
+
+  hcBtn.addEventListener('click', function () {
+    var shown = hcBox.style.display === 'flex';
+    hcBox.style.display = shown ? 'none' : 'flex';
+    hcBox.style.flexDirection = 'column';
+    if (!shown) document.getElementById('hc-user-input').focus();
+  });
+
+  function hcAddMsg(text, type) {
+    var div = document.createElement('div');
+    div.className = 'hc-msg hc-' + type;
+    div.textContent = text;
+    hcMsgs.appendChild(div);
+    hcMsgs.scrollTop = hcMsgs.scrollHeight;
+  }
+
+  function hcResposta(msg) {
+    msg = msg.trim();
+    if (!msg) return null;
+    if (hcEtapa === 0) {
+      hcLead.nome = msg; hcEtapa++;
+      return 'Prazer, ' + hcLead.nome + ' 😊 Qual destino você deseja? (Ex: Olímpia, praia, resort luxo)';
+    }
+    if (hcEtapa === 1) {
+      hcLead.destino = msg; hcEtapa++;
+      return 'Ótima escolha! Para quando é sua viagem? 📅';
+    }
+    if (hcEtapa === 2) {
+      hcLead.data = msg; hcEtapa++;
+      return 'Perfeito! Quantas pessoas vão viajar? 👨‍👩‍👧';
+    }
+    if (hcEtapa === 3) {
+      hcLead.pessoas = msg; hcEtapa++;
+      return 'Você busca algo mais: Econômico, Conforto ou Luxo? 💰';
+    }
+    if (hcEtapa === 4) {
+      hcLead.perfil = msg; hcEtapa++;
+      setTimeout(function () { hcAddMsg('🔎 Buscando as melhores opções disponíveis...', 'bot'); }, 500);
+      setTimeout(function () { hcAddMsg('⚠️ Alta procura para essas datas!', 'bot'); }, 1500);
+      setTimeout(function () {
+        var texto = 'Olá! Quero cotação HOSPEDAH:\nNome: ' + hcLead.nome +
+          '\nDestino: ' + hcLead.destino + '\nData: ' + hcLead.data +
+          '\nPessoas: ' + hcLead.pessoas + '\nPerfil: ' + hcLead.perfil;
+        window.open('https://wa.me/5517982006382?text=' + encodeURIComponent(texto), '_blank', 'noopener');
+        hcAddMsg('📲 Te enviei para o WhatsApp com as melhores opções!', 'bot');
+      }, 2500);
+      return '🔥 Perfeito! Já estou finalizando sua busca...';
+    }
+    /* Reiniciar para nova cotação */
+    hcEtapa = 1;
+    hcLead = { nome: hcLead.nome, destino: msg, data: '', pessoas: '', perfil: '' };
+    return 'Ótima escolha! Para quando é sua viagem? 📅';
+  }
+
+  window.hcSend = function () {
+    var input = document.getElementById('hc-user-input');
+    var txt = input.value.trim();
+    if (!txt) return;
+    hcAddMsg(txt, 'user');
+    input.value = '';
+    setTimeout(function () {
+      var resp = hcResposta(txt);
+      if (resp) hcAddMsg(resp, 'bot');
+    }, 600);
+  };
+
+  setTimeout(function () {
+    hcAddMsg('Olá 👋 Sou especialista em hospedagens da HOSPEDAH!', 'bot');
+    setTimeout(function () { hcAddMsg('Qual seu nome? 😊', 'bot'); }, 800);
+  }, 1200);
+}());
+</script>
+
 </body>
 </html>
