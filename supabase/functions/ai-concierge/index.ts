@@ -1,5 +1,5 @@
 // ============================================================
-// HOSPEDAH — Edge Function: Concierge IA (Google Gemini 1.5 Flash)
+// HOSPEDAH — Edge Function: Concierge IA (Google Gemini 2.5 Flash)
 //
 // Variáveis de ambiente necessárias (Supabase Dashboard → Settings → Edge Functions):
 //   GEMINI_API_KEY  → chave da API Google AI Studio (gratuita em aistudio.google.com)
@@ -21,7 +21,7 @@ import { serve } from 'https://deno.land/std@0.224.0/http/server.ts';
 
 const GEMINI_API_KEY = Deno.env.get('GEMINI_API_KEY') ?? '';
 const GEMINI_URL =
-  'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
+  'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent';
 
 const CORS_HEADERS: Record<string, string> = {
   'Access-Control-Allow-Origin':  'https://hospedah.tur.br',
@@ -38,7 +38,7 @@ Informações sobre a HOSPEDAH:
 - Atendimento humano: segunda a sábado, 8h–20h (horário de Brasília)
 
 Política de reservas e estadia:
-- Check-in: a partir das 14h | Check-out: até as 12h
+- Check-in: a partir das 14h | Check-out: até as 11h
 - Para horários especiais, solicitar com antecedência
 - Cancelamento com mais de 7 dias: reembolso integral
 - Cancelamento entre 3–7 dias: 50% de reembolso
@@ -111,7 +111,7 @@ serve(async (req: Request): Promise<Response> => {
 
   // Construir histórico de mensagens para o Gemini
   // O system prompt é injetado como primeiro turno "user" seguido de "model" vazio,
-  // pois o Gemini 1.5 aceita system_instruction como campo separado.
+  // pois o Gemini 2.5 aceita system_instruction como campo separado.
   const contents = (ctx.mensagens ?? []).map((m) => ({
     role: m.role === 'assistant' ? 'model' : 'user',
     parts: [{ text: m.content }],
@@ -132,7 +132,7 @@ serve(async (req: Request): Promise<Response> => {
     contents,
     generationConfig: {
       temperature: 0.7,
-      maxOutputTokens: 512,
+      maxOutputTokens: 1024,
     },
     safetySettings: [
       { category: 'HARM_CATEGORY_HARASSMENT',        threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
