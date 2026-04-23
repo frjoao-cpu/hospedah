@@ -576,6 +576,60 @@ body { font-family: 'Poppins', sans-serif; background: var(--bg); color: var(--c
       </div>
     </section>
 
+    <!-- ── SEÇÃO: EDITOR DE FAQ (admin) ── -->
+    <section class="painel-section" id="sec-faq" data-roles="admin">
+      <h2 style="color:var(--dourado);margin-bottom:20px;">❓ Editor de FAQ</h2>
+
+      <!-- Formulário de adição / edição -->
+      <div class="card" id="faqFormCard">
+        <div class="card-title" id="faqFormTitle">➕ Nova Pergunta</div>
+        <input type="hidden" id="faqEditId">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+          <div>
+            <label style="font-size:0.78em;color:var(--cor-sub);display:block;margin-bottom:4px;">Palavra-chave (chave única)</label>
+            <input id="faqChave" type="text" placeholder="ex: wifi" maxlength="80"
+              style="width:100%;padding:10px;border-radius:8px;border:1.5px solid var(--borda);background:rgba(255,255,255,0.05);color:var(--cor-texto);font-family:inherit;font-size:0.88em;">
+          </div>
+          <div>
+            <label style="font-size:0.78em;color:var(--cor-sub);display:block;margin-bottom:4px;">Label (chip de sugestão)</label>
+            <input id="faqLabel" type="text" placeholder="ex: Tem Wi-Fi?" maxlength="80"
+              style="width:100%;padding:10px;border-radius:8px;border:1.5px solid var(--borda);background:rgba(255,255,255,0.05);color:var(--cor-texto);font-family:inherit;font-size:0.88em;">
+          </div>
+        </div>
+        <div style="margin-bottom:10px;">
+          <label style="font-size:0.78em;color:var(--cor-sub);display:block;margin-bottom:4px;">Resposta (suporta HTML básico e **negrito**)</label>
+          <textarea id="faqResposta" rows="3" placeholder="Digite a resposta que será exibida ao hóspede..."
+            style="width:100%;padding:10px;border-radius:8px;border:1.5px solid var(--borda);background:rgba(255,255,255,0.05);color:var(--cor-texto);font-family:inherit;font-size:0.88em;resize:vertical;"></textarea>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+          <div>
+            <label style="font-size:0.78em;color:var(--cor-sub);display:block;margin-bottom:4px;">Ordem</label>
+            <input id="faqOrdem" type="number" min="0" value="0"
+              style="width:80px;padding:10px;border-radius:8px;border:1.5px solid var(--borda);background:rgba(255,255,255,0.05);color:var(--cor-texto);font-family:inherit;font-size:0.88em;">
+          </div>
+          <div style="margin-top:18px;display:flex;gap:8px;">
+            <button class="btn btn-primary btn-sm" onclick="salvarFaq()">💾 Salvar</button>
+            <button class="btn btn-ghost btn-sm" id="faqBtnCancelar" onclick="cancelarEdicaoFaq()" style="display:none;">✕ Cancelar</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tabela de perguntas cadastradas -->
+      <div class="card" style="margin-top:0;">
+        <div class="card-title">📋 Perguntas Cadastradas</div>
+        <div class="table-wrap">
+          <table class="data-table" id="faqTable">
+            <thead><tr>
+              <th>Ord.</th><th>Chave</th><th>Label</th><th>Resposta</th><th>Ativo</th><th>Ações</th>
+            </tr></thead>
+            <tbody id="faqBody">
+              <tr><td colspan="6" class="loading-spinner"><div class="spinner"></div> Carregando...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
     <!-- ── SEÇÃO: GESTÃO DE USUÁRIOS (admin) ── -->
     <section class="painel-section" id="sec-usuarios" data-roles="admin">
       <h2 style="color:var(--dourado);margin-bottom:20px;">👥 Gestão de Usuários</h2>
@@ -899,6 +953,7 @@ function iniciarPainel() {
   }
   if (role === 'admin') {
     carregarUsuarios();
+    carregarFaq();
   }
 
   // Bottom nav (mobile)
@@ -920,6 +975,7 @@ function construirNav(role) {
     { id: 'pos-venda',      icon: '🌟', label: 'Pós-venda',        roles: ['hospede'] },
     { id: 'fidelidade',     icon: '🏆', label: 'Fidelidade',       roles: ['hospede'] },
     { id: 'chat',           icon: '💬', label: 'Chat & Suporte',   roles: ['hospede','admin','proprietario'] },
+    { id: 'faq',            icon: '❓', label: 'Editor FAQ',       roles: ['admin'] },
     { id: 'usuarios',       icon: '👥', label: 'Usuários',         roles: ['admin'] },
     { id: 'ajuda',          icon: '🚀', label: 'Ajuda & Deploy',   roles: ['admin'] },
   ];
@@ -945,6 +1001,7 @@ function construirBottomNav(role) {
     { id: 'fidelidade',      icon: '🏆', label: 'Pontos',    roles: ['hospede'], href: null },
     { icon: '🏠', label: 'Início', roles: ['hospede','admin','proprietario'], href: 'index.html' },
     { id: 'chat',            icon: '💬', label: 'Chat',      roles: ['hospede','admin','proprietario'], href: null },
+    { id: 'faq',             icon: '❓', label: 'FAQ',       roles: ['admin'], href: null },
     { id: 'ajuda',           icon: '🚀', label: 'Deploy',    roles: ['admin'], href: null },
   ].filter(i => i.roles.includes(role)).slice(0, 5);
 
@@ -1400,6 +1457,115 @@ async function mudarRole(userId, novoRole) {
     mostrarToast('✅ Role atualizado!', 'success');
   } catch (e) {
     mostrarToast('❌ Erro ao atualizar role.', 'error');
+  }
+}
+
+// ── FAQ EDITOR (admin) ──
+async function carregarFaq() {
+  const body = document.getElementById('faqBody');
+  if (!body) return;
+  try {
+    const { data, error } = await _sb.from('faq').select('*').order('ordem', { ascending: true });
+    if (error) throw error;
+    if (!data || !data.length) {
+      body.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--cor-sub);padding:20px;">Nenhuma pergunta cadastrada.</td></tr>';
+      return;
+    }
+    body.innerHTML = data.map(f => `
+      <tr id="faq-row-${f.id}">
+        <td data-label="Ord.">${f.ordem}</td>
+        <td data-label="Chave"><code style="font-size:0.8em;background:rgba(0,0,0,0.3);padding:2px 5px;border-radius:4px;">${esc(f.chave)}</code></td>
+        <td data-label="Label">${esc(f.label)}</td>
+        <td data-label="Resposta" style="max-width:240px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${esc(f.resposta)}">${esc(f.resposta)}</td>
+        <td data-label="Ativo">
+          <button onclick="toggleFaqAtivo('${f.id}', ${f.ativo})"
+            style="background:none;border:none;cursor:pointer;font-size:1.1em;" title="${f.ativo ? 'Desativar' : 'Ativar'}">
+            ${f.ativo ? '✅' : '⬜'}
+          </button>
+        </td>
+        <td data-label="Ações" style="white-space:nowrap;">
+          <button class="btn btn-ghost btn-sm" onclick="editarFaq('${f.id}','${esc(f.chave)}','${esc(f.label)}',${f.ordem})" style="font-size:0.75em;padding:4px 8px;">✏️</button>
+          <button class="btn btn-sm" onclick="excluirFaq('${f.id}')" style="font-size:0.75em;padding:4px 8px;background:rgba(231,76,60,0.15);border:1px solid rgba(231,76,60,0.35);color:#e74c3c;border-radius:6px;cursor:pointer;">🗑️</button>
+        </td>
+      </tr>
+    `).join('');
+  } catch (e) {
+    body.innerHTML = '<tr><td colspan="6" style="color:var(--cor-sub);padding:16px;">Erro ao carregar FAQ. Verifique a política RLS.</td></tr>';
+  }
+}
+
+async function salvarFaq() {
+  const id       = document.getElementById('faqEditId').value.trim();
+  const chave    = document.getElementById('faqChave').value.trim().toLowerCase();
+  const label    = document.getElementById('faqLabel').value.trim();
+  const resposta = document.getElementById('faqResposta').value.trim();
+  const ordem    = parseInt(document.getElementById('faqOrdem').value, 10) || 0;
+
+  if (!chave || !label || !resposta) {
+    mostrarToast('⚠️ Preencha chave, label e resposta.', 'error');
+    return;
+  }
+
+  try {
+    if (id) {
+      const { error } = await _sb.from('faq').update({ chave, label, resposta, ordem }).eq('id', id);
+      if (error) throw error;
+      mostrarToast('✅ Pergunta atualizada!', 'success');
+    } else {
+      const { error } = await _sb.from('faq').insert([{ chave, label, resposta, ordem }]);
+      if (error) throw error;
+      mostrarToast('✅ Pergunta adicionada!', 'success');
+    }
+    cancelarEdicaoFaq();
+    await carregarFaq();
+  } catch (e) {
+    mostrarToast('❌ Erro ao salvar: ' + (e.message || 'verifique a RLS.'), 'error');
+  }
+}
+
+function editarFaq(id, chave, label, ordem) {
+  const row = document.getElementById('faq-row-' + id);
+  const resposta = row ? row.querySelector('td[data-label="Resposta"]').getAttribute('title') : '';
+  document.getElementById('faqEditId').value       = id;
+  document.getElementById('faqChave').value        = chave;
+  document.getElementById('faqLabel').value        = label;
+  document.getElementById('faqResposta').value     = resposta;
+  document.getElementById('faqOrdem').value        = ordem;
+  document.getElementById('faqFormTitle').textContent = '✏️ Editar Pergunta';
+  document.getElementById('faqBtnCancelar').style.display = '';
+  document.getElementById('faqFormCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function cancelarEdicaoFaq() {
+  document.getElementById('faqEditId').value       = '';
+  document.getElementById('faqChave').value        = '';
+  document.getElementById('faqLabel').value        = '';
+  document.getElementById('faqResposta').value     = '';
+  document.getElementById('faqOrdem').value        = '0';
+  document.getElementById('faqFormTitle').textContent = '➕ Nova Pergunta';
+  document.getElementById('faqBtnCancelar').style.display = 'none';
+}
+
+async function excluirFaq(id) {
+  if (!confirm('Tem certeza que deseja excluir esta pergunta do FAQ?')) return;
+  try {
+    const { error } = await _sb.from('faq').delete().eq('id', id);
+    if (error) throw error;
+    mostrarToast('✅ Pergunta excluída!', 'success');
+    await carregarFaq();
+  } catch (e) {
+    mostrarToast('❌ Erro ao excluir.', 'error');
+  }
+}
+
+async function toggleFaqAtivo(id, ativoAtual) {
+  try {
+    const { error } = await _sb.from('faq').update({ ativo: !ativoAtual }).eq('id', id);
+    if (error) throw error;
+    mostrarToast(ativoAtual ? '⬜ Pergunta desativada.' : '✅ Pergunta ativada.', 'success');
+    await carregarFaq();
+  } catch (e) {
+    mostrarToast('❌ Erro ao alterar status.', 'error');
   }
 }
 

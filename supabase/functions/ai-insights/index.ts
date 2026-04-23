@@ -1,5 +1,5 @@
 // ============================================================
-// HOSPEDAH — Edge Function: Insights IA (Google Gemini 1.5 Flash)
+// HOSPEDAH — Edge Function: Insights IA (Google Gemini 2.5 Flash)
 //
 // Variáveis de ambiente necessárias (Supabase Dashboard → Settings → Edge Functions):
 //   GEMINI_API_KEY  → chave da API Google AI Studio (gratuita em aistudio.google.com)
@@ -29,7 +29,7 @@ import { serve } from 'https://deno.land/std@0.224.0/http/server.ts';
 
 const GEMINI_API_KEY = Deno.env.get('GEMINI_API_KEY') ?? '';
 const GEMINI_URL =
-  'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
+  'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent';
 
 const CORS_HEADERS: Record<string, string> = {
   'Access-Control-Allow-Origin':  'https://hospedah.tur.br',
