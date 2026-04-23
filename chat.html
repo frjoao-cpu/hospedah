@@ -789,13 +789,17 @@ async function enviarMensagem() {
       scrollToBottom();
     }, 1200 + Math.random() * 800);
   } else {
-    // Confirmação genérica
+    // Encaminhar para o Concierge IA
     mostrarDigitando();
-    setTimeout(() => {
+    escalarParaAI().then(function (respostaIA) {
       ocultarDigitando();
-      addMessage('recv', 'HOSPEDAH', '✅ Mensagem recebida! Um especialista responderá em breve. Se preferir, pode também nos contatar pelo <a href="https://wa.me/5517982006382" target="_blank" style="color:var(--dourado)">WhatsApp</a>.', null);
+      if (respostaIA) {
+        addMessage('recv', 'HOSPEDAH ✨', respostaIA, null);
+      } else {
+        addMessage('recv', 'HOSPEDAH', '✅ Mensagem recebida! Um especialista responderá em breve. Se preferir, pode também nos contatar pelo <a href="https://wa.me/5517982006382" target="_blank" style="color:var(--dourado)">WhatsApp</a>.', null);
+      }
       scrollToBottom();
-    }, 1500);
+    });
   }
 }
 
@@ -845,12 +849,9 @@ function addMessage(tipo, nome, texto, isoTimestamp) {
 }
 
 // ============================================================
-// AI HANDOFF HOOK
-// Prepara um objeto de contexto da conversa para futura
-// integração com um concierge AI (ex.: GPT, Gemini).
-// O contexto é salvo em sessionStorage e pode ser enviado
-// via webhook ou Edge Function quando o agente humano
-// solicitar escalonamento para IA.
+// AI CONCIERGE
+// Mantém o contexto da conversa e chama a Edge Function
+// ai-concierge (Gemini 1.5 Flash) quando o FAQ não tem resposta.
 // ============================================================
 var _aiContext = {
   lead: { nome: '', assunto: '' },
@@ -878,23 +879,21 @@ function prepararContextoAI(tipo, texto) {
 }
 
 /**
- * Escala a conversa atual para o concierge AI.
- * Chame esta função via botão ou evento externo.
- * O payload é enviado para a Edge Function configurada.
+ * Envia o contexto da conversa para o Concierge IA (Edge Function Supabase)
+ * e retorna a resposta gerada pelo Gemini, ou null em caso de falha.
+ * @returns {Promise<string|null>}
  */
 function escalarParaAI() {
   const ctx = _aiContext;
-  /* TODO: substituir pela URL da Edge Function quando disponível */
-  const edgeFnUrl = null;
-  if (!edgeFnUrl) {
-    console.info('[HOSPEDAH] Handoff AI — contexto pronto, Edge Function não configurada.', ctx);
-    return;
-  }
-  fetch(edgeFnUrl, {
+  const edgeFnUrl = 'https://ydrmjoppjxtmnwtvtinb.supabase.co/functions/v1/ai-concierge';
+  return fetch(edgeFnUrl, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(ctx)
-  }).catch(function () { /* silencioso */ });
+  })
+    .then(function (res) { return res.json(); })
+    .then(function (data) { return data.resposta || null; })
+    .catch(function () { return null; });
 }
 
 // ============================================================
