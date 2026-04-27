@@ -166,6 +166,7 @@ interface AiContext {
   contexto_intencao?: IntencaoContext;
   temperature?: number;
   stream?: boolean;
+  faq_extras?: string;
 }
 
 serve(async (req: Request): Promise<Response> => {
@@ -252,6 +253,11 @@ serve(async (req: Request): Promise<Response> => {
     ? `${SYSTEM_PROMPT}\n\n---\nContexto da conversa atual:\n${leadLines.join('\n')}`
     : SYSTEM_PROMPT;
 
+  const faqExtras = ctx.faq_extras && ctx.faq_extras.trim();
+  const finalSystemText = faqExtras
+    ? `${systemText}\n\n---\nInformações adicionais registradas pela equipe HOSPEDAH:\n${faqExtras}`
+    : systemText;
+
   // Clamp temperature to [0, 1]; default 0.7
   const temperature = typeof ctx.temperature === 'number'
     ? Math.max(0, Math.min(1, ctx.temperature))
@@ -259,12 +265,13 @@ serve(async (req: Request): Promise<Response> => {
 
   const geminiPayload = {
     system_instruction: {
-      parts: [{ text: systemText }],
+      parts: [{ text: finalSystemText }],
     },
     contents,
     generationConfig: {
       temperature,
-      maxOutputTokens: 4096,
+      maxOutputTokens: 8192,
+      thinkingConfig: { thinkingBudget: 0 },
     },
     safetySettings: [
       { category: 'HARM_CATEGORY_HARASSMENT',        threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
