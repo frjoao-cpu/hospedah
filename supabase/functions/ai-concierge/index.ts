@@ -1,5 +1,5 @@
 // ============================================================
-// HOSPEDAH — Edge Function: Concierge IA (Google Gemini 2.0 Flash)
+// HOSPEDAH — Edge Function: Concierge IA (Google Gemini 2.5 Flash)
 //
 // Variáveis de ambiente necessárias (Supabase Dashboard → Settings → Edge Functions):
 //   GEMINI_API_KEY  → chave da API Google AI Studio (gratuita em aistudio.google.com)
@@ -20,8 +20,8 @@
 import { serve } from 'https://deno.land/std@0.224.0/http/server.ts';
 
 const GEMINI_API_KEY = Deno.env.get('GEMINI_API_KEY') ?? '';
-// gemini-2.0-flash: stable non-thinking model, reliable for multi-turn conversations
-const GEMINI_MODEL = 'gemini-2.0-flash';
+// gemini-2.5-flash: stable, fast model for multi-turn conversations
+const GEMINI_MODEL = 'gemini-2.5-flash';
 const GEMINI_URL =
   `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`;
 const GEMINI_STREAM_URL =
