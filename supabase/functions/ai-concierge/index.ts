@@ -257,7 +257,12 @@ serve(async (req: Request): Promise<Response> => {
     contents,
     generationConfig: {
       temperature,
-      maxOutputTokens: 1024,
+      maxOutputTokens: 4096,
+      // Disable thinking to prevent the model from generating only thought tokens
+      // with no actual response text, which causes empty replies in multi-turn chats.
+      thinkingConfig: {
+        thinkingBudget: 0,
+      },
     },
     safetySettings: [
       { category: 'HARM_CATEGORY_HARASSMENT',        threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
@@ -330,14 +335,28 @@ serve(async (req: Request): Promise<Response> => {
   }
 
   const geminiData = await geminiRes.json();
+
+  // Log diagnostic info when candidates are missing (e.g. safety block)
+  if (!geminiData?.candidates?.length) {
+    const blockReason = geminiData?.promptFeedback?.blockReason ?? 'unknown';
+    console.error('[ai-concierge] Gemini retornou sem candidatos. blockReason:', blockReason);
+    return new Response(
+      JSON.stringify({ error: 'A IA não pôde processar a pergunta devido a restrições de segurança. Tente reformulá-la de outra forma.' }),
+      { status: 502, headers: { ...corsH, 'Content-Type': 'application/json' } },
+    );
+  }
+
+  const candidate = geminiData.candidates[0];
   const parts: Array<{ text?: string; thought?: boolean }> =
-    geminiData?.candidates?.[0]?.content?.parts ?? [];
+    candidate?.content?.parts ?? [];
   const responsePart = parts.find((p) => !p.thought && p.text);
   const resposta: string = responsePart?.text?.trim() ?? '';
 
   if (!resposta) {
+    const finishReason = candidate?.finishReason ?? 'unknown';
+    console.error('[ai-concierge] Resposta vazia. finishReason:', finishReason, 'parts count:', parts.length);
     return new Response(
-      JSON.stringify({ error: 'A IA não gerou uma resposta. Tente novamente.' }),
+      JSON.stringify({ error: 'A IA não conseguiu gerar uma resposta adequada. Tente reformular sua pergunta.' }),
       { status: 502, headers: { ...corsH, 'Content-Type': 'application/json' } },
     );
   }
