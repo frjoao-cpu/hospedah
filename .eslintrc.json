@@ -13,5 +13,14 @@
     "no-undef": "error",
     "no-console": "off",
     "semi": ["error", "always"]
-  }
+  },
+  "overrides": [
+    {
+      "files": ["scripts/**/*.js"],
+      "env": {
+        "node": true,
+        "browser": false
+      }
+    }
+  ]
 }
