@@ -1158,7 +1158,7 @@ function escalarParaAIStream(temperature) {
             const parts =
               (parsed && parsed.candidates && parsed.candidates[0] &&
                parsed.candidates[0].content && parsed.candidates[0].content.parts) || [];
-            const textPart = parts.find(function (p) { return !p.thought && p.text; });
+            const textPart = parts.find(function (p) { return p.text && !p.thought; });
             const partText = (textPart && textPart.text) || '';
             if (partText) {
               fullText += partText;
