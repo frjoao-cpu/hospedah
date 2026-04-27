@@ -51,7 +51,11 @@ function gallery(resort) {
     return resort.images.map((img, i) => {
         const src = `https://i.imgur.com/${img.id}.${img.ext}`;
         const alt = `${resort.name} ${i + 1}`;
-        return `<img src="${src}" alt="${alt}" loading="lazy" width="800" height="600" onclick="openImg(this)">`;
+        // First image is the LCP candidate — load eagerly with high priority
+        const loadAttr = i === 0
+            ? `loading="eager" fetchpriority="high"`
+            : `loading="lazy"`;
+        return `<img src="${src}" alt="${alt}" ${loadAttr} width="800" height="600" onclick="openImg(this)">`;
     }).join('\n');
 }
 
@@ -108,7 +112,14 @@ ${gallery(resort)}
 
 <a href="../index.html" style="position:fixed;top:20px;left:20px;background:#007AFF;color:white;padding:10px 15px;border-radius:8px;text-decoration:none;">← Voltar</a>
 
+<a href="../chat.html?resort=${encodeURIComponent(resort.slug)}" class="chat-resort">🤖 Chat IA</a>
+
 <script>
+// Salvar contexto do resort para o Concierge IA
+try {
+  sessionStorage.setItem('hospedah_busca_ctx', JSON.stringify({ resort: '${resort.slug}' }));
+} catch(e) {}
+
 function openImg(img){
     document.getElementById("lightbox").style.display = "flex";
     document.getElementById("lightbox-img").src = img.src;

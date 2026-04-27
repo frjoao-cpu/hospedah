@@ -161,3 +161,25 @@ h1 {
         flex-direction: column;
     }
 }
+
+.chat-resort {
+    position: fixed;
+    bottom: 90px;
+    right: 20px;
+    background: linear-gradient(135deg, #0B1C3D, #142850);
+    color: #D4AF37;
+    padding: 12px 18px;
+    border-radius: 30px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 14px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+    border: 1.5px solid #D4AF37;
+    z-index: 999;
+    transition: background 0.2s, color 0.2s;
+}
+
+.chat-resort:hover {
+    background: #D4AF37;
+    color: #0B1C3D;
+}
