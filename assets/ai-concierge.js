@@ -77,7 +77,10 @@
 
   function chamar(lead, mensagens, intencao, temperature) {
     var key = getKey();
-    if (!key) return Promise.resolve(null);
+    if (!key) {
+      console.warn('[HOSPEDAH_AI] GEMINI_API_KEY não configurada — Concierge IA desabilitado.');
+      return Promise.resolve(null);
+    }
     if (!mensagens || !mensagens.length) return Promise.resolve(null);
     var payload = buildPayload(lead, mensagens, intencao, temperature);
     if (!payload.contents.length) return Promise.resolve(null);
