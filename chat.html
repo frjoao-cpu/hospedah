@@ -720,6 +720,19 @@ function checkRateLimit() {
 // ============================================================
 // INICIAR CHAT
 // ============================================================
+
+// Mapa de slugs para nome amigável do resort
+const RESORT_NOMES = {
+  'hotbeach': 'Hot Beach Suites',
+  'saopedro': 'São Pedro Thermas',
+  'olimpia':  'Olimpia Park Resort',
+  'solar':    'Solar das Águas',
+  'wyndham':  'Wyndham Royal',
+  'juquehy':  'Praia de Juquehy',
+  'ipioca':   'Ipioca Beach Resort',
+  'portoi2':  'Porto 2 Life',
+};
+
 function iniciarChat() {
   const nome = document.getElementById('ob_nome').value.trim();
   if (!nome) {
@@ -741,11 +754,19 @@ function iniciarChat() {
   const layout = document.getElementById('chatLayout');
   layout.style.display = 'flex';
 
-  // Mensagem de boas-vindas (gerada pelo front-end, não deve fazer parte do contexto da IA)
-  const boasVindas = `Olá, **${nomeHospede}**! 👋 Sou da equipe HOSPEDAH. Vi que você quer falar sobre **${assunto}**. Como posso te ajudar hoje?`;
+  // Personalizar mensagem de boas-vindas com contexto de resort quando disponível
+  const resortSlug = _aiContext.contexto_intencao && _aiContext.contexto_intencao.resort_interesse;
+  const resortNome = resortSlug && RESORT_NOMES[resortSlug];
+  const contextoResort = resortNome
+    ? ` Estou vendo que você tem interesse no **${resortNome}** — pode perguntar qualquer coisa sobre ele!`
+    : ` Vi que você quer falar sobre **${assunto}**.`;
+  const boasVindas = `Olá, **${nomeHospede}**! 👋 Sou da equipe HOSPEDAH.${contextoResort} Como posso te ajudar hoje?`;
   addMessage('recv', 'HOSPEDAH', boasVindas, null);
   // Resetar mensagens: a boas-vindas é roteirizada e não deve ser enviada à IA
   _aiContext.mensagens = [];
+
+  // Exibir chips relevantes ao resort imediatamente
+  mostrarChipsFollowup();
 
   // Iniciar Realtime
   iniciarRealtime();
@@ -921,7 +942,21 @@ function detectTemperature(texto) {
 }
 
 // ============================================================
-// FAQ CHIPS FOLLOW-UP DINÂMICO (item 8)
+// FAQ CHIPS — perguntas específicas por resort
+// ============================================================
+const FAQ_RESORT_CHIPS = {
+  'hotbeach':  ['Taxa do parque aquático?', 'Estacionamento gratuito?', 'Pré check-in?', 'Aceita pets?', 'Utensílios de cozinha?'],
+  'saopedro':  ['Águas termais?', 'Horário de check-in?', 'Aceita pets?', 'Capacidade do apartamento', 'Formas de pagamento'],
+  'olimpia':   ['Parque aquático incluso?', 'Horário de check-in?', 'Estacionamento?', 'Aceita pets?', 'Formas de pagamento'],
+  'solar':     ['O que inclui na diária?', 'Horário de check-in?', 'Estacionamento?', 'Aceita pets?', 'Como reservar?'],
+  'wyndham':   ['Como reservar?', 'Localização?', 'Formas de pagamento', 'Horário de check-in?', 'Serviços do resort'],
+  'juquehy':   ['Fica na praia?', 'Como reservar?', 'Formas de pagamento', 'Horário de check-in?', 'Aceita pets?'],
+  'ipioca':    ['Praia exclusiva?', 'Localização em Maceió?', 'Como reservar?', 'Formas de pagamento', 'Aceita pets?'],
+  'portoi2':   ['O que inclui na diária?', 'Como reservar?', 'Formas de pagamento', 'Horário de check-in?', 'Localização?'],
+};
+
+// ============================================================
+// FAQ CHIPS FOLLOW-UP DINÂMICO
 // ============================================================
 const FAQ_FOLLOWUP = {
   'Reservas':        ['Como fazer reserva?', 'Formas de pagamento', 'Política de cancelamento'],
@@ -932,7 +967,8 @@ const FAQ_FOLLOWUP = {
 };
 
 function mostrarChipsFollowup() {
-  const chips = FAQ_FOLLOWUP[assunto] || FAQ_FOLLOWUP['Geral'];
+  const resort = _aiContext.contexto_intencao && _aiContext.contexto_intencao.resort_interesse;
+  const chips = (resort && FAQ_RESORT_CHIPS[resort]) || FAQ_FOLLOWUP[assunto] || FAQ_FOLLOWUP['Geral'];
   const bar = document.getElementById('faqBar');
   bar.innerHTML = '';
   chips.forEach(function (c) {
@@ -985,6 +1021,18 @@ function sendFAQ(pergunta) {
 }
 
 // ============================================================
+// UTILS — HTML sanitization
+// ============================================================
+function escapeHtml(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+// ============================================================
 // ADD MENSAGEM NA UI
 // ============================================================
 function addMessage(tipo, nome, texto, isoTimestamp) {
@@ -994,12 +1042,17 @@ function addMessage(tipo, nome, texto, isoTimestamp) {
 
   const ts = isoTimestamp ? new Date(isoTimestamp) : new Date();
   const hora = ts.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+
+  // For user-sent messages, escape HTML first to prevent XSS; bot messages may contain trusted HTML links.
+  const safeText = tipo === 'sent' ? escapeHtml(texto) : texto;
   // Substituir **bold** por <strong>
-  const textoFmt = texto.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+  const textoFmt = safeText.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+  // Always escape the sender name to prevent XSS
+  const nomeEscapado = escapeHtml(nome);
 
   div.innerHTML = `
     <div class="msg-bubble">${textoFmt}</div>
-    <div class="msg-meta">${tipo === 'recv' ? nome + ' · ' : ''}${hora}</div>
+    <div class="msg-meta">${tipo === 'recv' ? nomeEscapado + ' · ' : ''}${hora}</div>
   `;
 
   el.appendChild(div);
@@ -1021,7 +1074,7 @@ var _aiContext = {
   conversa_id: '',
   mensagens: [],
   timestamp_inicio: new Date().toISOString(),
-  // Item 2: capturar contexto de intenção a partir de URL e sessionStorage
+  // Capturar contexto de intenção a partir de URL, referrer e sessionStorage
   contexto_intencao: (function () {
     var intencao = { pagina_origem: document.referrer || 'direto' };
     try {
@@ -1038,6 +1091,13 @@ var _aiContext = {
       if (s.data_saida   && !intencao.data_saida)       intencao.data_saida       = s.data_saida;
       if (s.num_hospedes && !intencao.num_hospedes)     intencao.num_hospedes     = s.num_hospedes;
     } catch (e) {}
+    // Fallback: extrair resort do referrer quando a URL contém /resorts/<slug>.html
+    if (!intencao.resort_interesse && document.referrer) {
+      try {
+        var refMatch = document.referrer.match(/\/resorts\/([a-z0-9_-]+)\.html/i);
+        if (refMatch) intencao.resort_interesse = refMatch[1];
+      } catch (e) {}
+    }
     return intencao;
   })()
 };
