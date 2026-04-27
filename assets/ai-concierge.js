@@ -98,7 +98,12 @@
       body: JSON.stringify(payload)
     })
     .then(function (res) {
-      if (!res.ok) return null;
+      if (!res.ok) {
+        res.text().then(function (body) {
+          console.error('[HOSPEDAH_AI] Gemini API ' + res.status + ':', body.slice(0, 300));
+        }).catch(function () {});
+        return null;
+      }
       return res.json();
     })
     .then(function (data) {

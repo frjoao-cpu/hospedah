@@ -907,6 +907,17 @@ async function enviarMensagem() {
       } catch (e) { /* silencioso */ }
       mostrarChipsFollowup();
       scrollToBottom();
+    }).catch(async function (err) {
+      console.error('[HOSPEDAH] AI call failed:', err);
+      ocultarDigitando();
+      const resultado = await escalarParaAI(temperature);
+      if (resultado && resultado.resposta) {
+        const msgEl = addMessage('recv', 'HOSPEDAH ✨', resultado.resposta, null);
+        if (resultado.logId) adicionarFeedback(msgEl, resultado.logId);
+      } else {
+        addMessage('recv', 'HOSPEDAH', '✅ Mensagem recebida! Um especialista responderá em breve. Se preferir, pode também nos contatar pelo <a href="https://wa.me/5517982006382" target="_blank" style="color:var(--dourado)">WhatsApp</a>.', null);
+      }
+      scrollToBottom();
     });
   }
 }
@@ -1171,8 +1182,9 @@ async function escalarParaAI(temperature) {
  * @returns {Promise<string|null>}
  */
 function escalarParaAIStream(temperature) {
+  try {
   const key = (typeof window !== 'undefined' && window.GEMINI_API_KEY) || '';
-  if (!key) return Promise.resolve(null);
+  if (!key || !window.HOSPEDAH_AI) return Promise.resolve(null);
   const payload = window.HOSPEDAH_AI.buildPayload(
     _aiContext.lead,
     _aiContext.mensagens,
@@ -1187,7 +1199,10 @@ function escalarParaAIStream(temperature) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload)
   }).then(function (res) {
-    if (!res.ok || !res.body) return null; // chamador oculta typing indicator
+    if (!res.ok || !res.body) {
+      console.error('[HOSPEDAH] Stream API error:', res.status);
+      return null; // chamador oculta typing indicator
+    }
 
     // Criar bolha de resposta e ocultar typing
     const el = document.getElementById('chatMessages');
@@ -1248,7 +1263,11 @@ function escalarParaAIStream(temperature) {
     }
 
     return readChunk();
-  }).catch(function () { return null; });
+  }).catch(function (e) { console.error('[HOSPEDAH] Stream error:', e); return null; });
+  } catch (e) {
+    console.error('[HOSPEDAH] escalarParaAIStream error:', e);
+    return Promise.resolve(null);
+  }
 }
 
 // ============================================================
