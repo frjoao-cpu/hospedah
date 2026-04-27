@@ -902,6 +902,12 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   </button>
 </div>
 
+<!-- ✅ BOTÃO FLUTUANTE DE COMPARTILHAMENTO (apenas mobile) -->
+<button id="share-float-btn" aria-label="Compartilhar esta página">
+  <span id="share-float-icon">📤</span>
+</button>
+<span id="share-float-toast">Link copiado! 🔗</span>
+
 <!-- ==========================================
      SCRIPTS
 =========================================== -->
@@ -2303,6 +2309,54 @@ function gerarPropostaPDF() {
      CSS is fully scoped (hc-* prefixes) to avoid conflicts.
      ============================================================ -->
 <style>
+/* ── BOTÃO FLUTUANTE DE COMPARTILHAMENTO (apenas mobile) ── */
+#share-float-btn {
+  display: none; /* visível apenas em mobile via media query */
+  position: fixed;
+  left: 16px;
+  bottom: 70px; /* acima do bottom-nav (56px) + margem */
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #0B1C3D, #2563eb);
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  box-shadow: 0 4px 16px rgba(37,99,235,0.45);
+  z-index: 9989;
+  transition: transform .15s, box-shadow .15s;
+}
+#share-float-btn:hover { transform: scale(1.1); box-shadow: 0 6px 22px rgba(37,99,235,0.6); }
+#share-float-toast {
+  display: none;
+  position: fixed;
+  left: 50%;
+  bottom: 80px;
+  transform: translateX(-50%);
+  background: rgba(11,28,61,0.92);
+  color: #D4AF37;
+  padding: 8px 18px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-family: Arial, sans-serif;
+  z-index: 99999;
+  pointer-events: none;
+  animation: shareToastFade 2s ease forwards;
+}
+@keyframes shareToastFade {
+  0%   { opacity: 0; transform: translateX(-50%) translateY(8px); }
+  15%  { opacity: 1; transform: translateX(-50%) translateY(0); }
+  75%  { opacity: 1; }
+  100% { opacity: 0; transform: translateX(-50%) translateY(-4px); }
+}
+@media (max-width: 767px) {
+  #share-float-btn { display: flex; }
+}
+</style>
+<style>
 #hospedah-chat-btn {
   position: fixed;
   bottom: 230px;
@@ -2553,6 +2607,46 @@ function gerarPropostaPDF() {
     hcAddMsg('Olá 👋 Sou o Concierge IA da HOSPEDAH, com respostas em tempo real!', 'bot');
     setTimeout(function () { hcAddMsg('Qual seu nome? 😊', 'bot'); }, 800);
   }, 1200);
+}());
+</script>
+
+<script>
+/* ── BOTÃO FLUTUANTE DE COMPARTILHAMENTO (mobile) ── */
+(function () {
+  var btn   = document.getElementById('share-float-btn');
+  var toast = document.getElementById('share-float-toast');
+  if (!btn) return;
+
+  var toastTimer = null;
+  var TOAST_ANIM_MS = 2000; /* deve coincidir com a duração da animação shareToastFade (2s) */
+
+  function showToast(msg) {
+    toast.textContent = msg;
+    toast.style.display = 'block';
+    // Reinicia a animação
+    toast.style.animation = 'none';
+    void toast.offsetWidth; /* reflow */
+    toast.style.animation = 'shareToastFade ' + (TOAST_ANIM_MS / 1000) + 's ease forwards';
+    if (toastTimer) clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { toast.style.display = 'none'; }, TOAST_ANIM_MS + 100);
+  }
+
+  btn.addEventListener('click', function () {
+    var shareData = {
+      title: document.title,
+      text: 'Confira os melhores resorts com a HOSPEDAH! 🏖️',
+      url: window.location.href
+    };
+    if (navigator.share && navigator.canShare && navigator.canShare(shareData)) {
+      navigator.share(shareData).catch(function () { /* usuário cancelou */ });
+    } else if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(window.location.href).then(function () {
+        showToast('Link copiado! 🔗');
+      }).catch(function () { showToast('Copie: ' + window.location.href); });
+    } else {
+      showToast('Copie o link da barra de endereço 🔗');
+    }
+  });
 }());
 </script>
 </body>

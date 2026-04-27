@@ -70,7 +70,9 @@
       generationConfig: {
         temperature: temp,
         // 8192 tokens acomodam respostas detalhadas sobre resorts mais o FAQ injetado no contexto
-        maxOutputTokens: 8192
+        maxOutputTokens: 8192,
+        // Desabilita o modo de raciocínio (thinking) para obter respostas mais rápidas e confiáveis
+        thinkingConfig: { thinkingBudget: 0 }
       },
       safetySettings: [
         { category: 'HARM_CATEGORY_HARASSMENT',        threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
@@ -112,6 +114,9 @@
     return Date.now().toString(36) + '_' + FALLBACK_COUNTER.toString(36);
   }
 
+  // Comprimento máximo para mensagens de erro da Edge consideradas amigáveis ao usuário
+  var MAX_EDGE_ERROR_LENGTH = 300;
+
   function chamarEdge(lead, mensagens, intencao, temperature, faqExtras) {
     var payload = buildEdgePayload(lead, mensagens, intencao, temperature, faqExtras);
     return fetch(EDGE_FN_URL, {
@@ -120,17 +125,20 @@
       body: JSON.stringify(payload)
     })
     .then(function (res) {
-      if (!res.ok) {
-        return res.text().then(function (body) {
-          console.error('[HOSPEDAH_AI] Edge function ' + res.status + ':', body.slice(0, 500));
-        }).catch(function () {
-          console.warn('[HOSPEDAH_AI] Não foi possível ler o corpo do erro da Edge Function.');
-        }).then(function () { return null; });
-      }
-      return res.json();
-    })
-    .then(function (data) {
-      return data && data.resposta ? data.resposta.trim() : null;
+      return res.json().then(function (data) {
+        if (!res.ok) {
+          console.error('[HOSPEDAH_AI] Edge function ' + res.status + ':', JSON.stringify(data).slice(0, 500));
+          // Retorna a mensagem de erro da Edge quando disponível e amigável
+          return (data && typeof data.error === 'string' &&
+                  res.status !== 503 && data.error.length < MAX_EDGE_ERROR_LENGTH) ? data.error : null;
+        }
+        return data && data.resposta ? data.resposta.trim() : null;
+      }).catch(function () {
+        if (!res.ok) {
+          console.warn('[HOSPEDAH_AI] Não foi possível ler o corpo do erro da Edge Function (' + res.status + ').');
+        }
+        return null;
+      });
     })
     .catch(function () { return null; });
   }
@@ -143,7 +151,7 @@
       return chamarEdge(lead, mensagens, intencao, temperature, faqExtras);
     }
     var payload = buildPayload(lead, mensagens, intencao, temperature, faqExtras);
-    if (!payload.contents.length) return Promise.resolve(null);
+    if (!payload.contents.length) return chamarEdge(lead, mensagens, intencao, temperature, faqExtras);
     return fetch(GEMINI_BASE + ':generateContent?key=' + key, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
