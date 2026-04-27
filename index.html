@@ -2550,7 +2550,7 @@ function gerarPropostaPDF() {
     if (!disabled) document.getElementById('hc-user-input').focus();
   }
 
-  /* Chama a IA Gemini 2.5 Flash diretamente */
+  /* Chama a IA Gemini diretamente */
   function hcChamarIA(userMsg) {
     if (!window.HOSPEDAH_AI) return Promise.resolve(null);
     hcMensagens.push({ role: 'user', content: userMsg, ts: new Date().toISOString() });
