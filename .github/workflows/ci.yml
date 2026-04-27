@@ -155,10 +155,11 @@ jobs:
           fetch-depth: 0
 
       - name: TruffleHog — detectar segredos expostos
+        if: github.event_name != 'workflow_dispatch'
         uses: trufflesecurity/trufflehog@main
         with:
           path: ./
-          base: ${{ github.event.repository.default_branch }}
+          base: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || github.event.before }}
           head: HEAD
           extra_args: --only-verified
 
