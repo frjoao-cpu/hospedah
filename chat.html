@@ -1155,11 +1155,11 @@ function escalarParaAIStream(temperature) {
           if (!jsonStr || jsonStr === '[DONE]') continue;
           try {
             const parsed = JSON.parse(jsonStr);
-            const partText =
+            const parts =
               (parsed && parsed.candidates && parsed.candidates[0] &&
-               parsed.candidates[0].content && parsed.candidates[0].content.parts &&
-               parsed.candidates[0].content.parts[0] &&
-               parsed.candidates[0].content.parts[0].text) || '';
+               parsed.candidates[0].content && parsed.candidates[0].content.parts) || [];
+            const textPart = parts.find(function (p) { return !p.thought && p.text; });
+            const partText = (textPart && textPart.text) || '';
             if (partText) {
               fullText += partText;
               bubbleEl.innerHTML = fullText.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
