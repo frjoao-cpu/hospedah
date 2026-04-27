@@ -1,5 +1,5 @@
 // ============================================================
-// HOSPEDAH — Edge Function: Concierge IA (Google Gemini 2.5 Flash)
+// HOSPEDAH — Edge Function: Concierge IA (Google Gemini 2.0 Flash)
 //
 // Variáveis de ambiente necessárias (Supabase Dashboard → Settings → Edge Functions):
 //   GEMINI_API_KEY  → chave da API Google AI Studio (gratuita em aistudio.google.com)
@@ -20,8 +20,8 @@
 import { serve } from 'https://deno.land/std@0.224.0/http/server.ts';
 
 const GEMINI_API_KEY = Deno.env.get('GEMINI_API_KEY') ?? '';
-// gemini-2.5-flash: stable, fast model for multi-turn conversations
-const GEMINI_MODEL = 'gemini-2.5-flash';
+// gemini-2.0-flash: stable GA model, generous free quota (1500 RPD), no thinking mode
+const GEMINI_MODEL = 'gemini-2.0-flash';
 const GEMINI_URL =
   `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`;
 const GEMINI_STREAM_URL =
@@ -271,10 +271,6 @@ serve(async (req: Request): Promise<Response> => {
     generationConfig: {
       temperature,
       maxOutputTokens: 8192,
-      // Desabilitar thinking tokens do gemini-2.5-flash para garantir resposta textual consistente.
-      // Com thinking ativo (padrão), o modelo pode retornar apenas partes thought:true sem texto visível,
-      // causando falha silenciosa e exibição da mensagem de fallback para o usuário.
-      thinkingConfig: { thinkingBudget: 0 },
     },
     safetySettings: [
       { category: 'HARM_CATEGORY_HARASSMENT',        threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
@@ -359,9 +355,9 @@ serve(async (req: Request): Promise<Response> => {
   }
 
   const candidate = geminiData.candidates[0];
-  const parts: Array<{ text?: string; thought?: boolean }> =
+  const parts: Array<{ text?: string }> =
     candidate?.content?.parts ?? [];
-  const responsePart = parts.find((p) => !p.thought && p.text);
+  const responsePart = parts.find((p) => p.text);
   const resposta: string = responsePart?.text?.trim() ?? '';
 
   if (!resposta) {
