@@ -100,7 +100,7 @@
     .then(function (res) {
       if (!res.ok) {
         res.text().then(function (body) {
-          console.error('[HOSPEDAH_AI] Gemini API ' + res.status + ':', body.slice(0, 300));
+          console.error('[HOSPEDAH_AI] Gemini API ' + res.status + ':', body.slice(0, 500));
         }).catch(function () {});
         return null;
       }
