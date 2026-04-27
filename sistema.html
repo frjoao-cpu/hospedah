@@ -3504,6 +3504,8 @@ function limparAutomacoes() {
   automacoes = [];
   salvarListaStorage(AUTO_KEY, automacoes);
   renderTabelaAutomacoes();
+  atualizarDashAutomacoes();
+  registrarAuditoria('Automações limpas', 'Todas as automações foram removidas manualmente.');
 }
 
 function limparManutencoes() {
@@ -3511,6 +3513,7 @@ function limparManutencoes() {
   manutencoes = [];
   salvarListaStorage(MAINT_KEY, manutencoes);
   renderTabelaManutencao();
+  registrarAuditoria('Manutenções limpas', 'Todas as tarefas de manutenção foram removidas manualmente.');
 }
 
 function limparAuditoria() {
