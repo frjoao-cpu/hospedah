@@ -209,7 +209,7 @@ img {
   display: flex;
   list-style: none;
   margin: 0;
-  padding: 0 0 env(safe-area-inset-bottom, 0);
+  padding: 0 0 max(env(safe-area-inset-bottom, 0px), 4px);
 }
 
 .bottom-nav li {
@@ -371,10 +371,6 @@ img {
 }
 
 /* ── SAFE AREA (notch / Dynamic Island) ── */
-.bottom-nav ul {
-  padding-bottom: max(env(safe-area-inset-bottom, 0px), 4px);
-}
-
 body.has-bottom-nav {
   padding-bottom: calc(56px + max(env(safe-area-inset-bottom, 0px), 4px));
 }

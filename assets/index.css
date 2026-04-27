@@ -461,7 +461,6 @@ html[data-theme="light"] .section-title { color: #8B6914; }
   text-decoration: none; font-weight: 500;
   margin-bottom: 18px; display: inline-block;
 }
-html[data-theme="light"] .resort-link { color: var(--azul); }
 .resort-wpp-btn {
   display: inline-flex; align-items: center; gap: 6px;
   background: #25D366; color: #fff; font-size: .88rem; font-weight: 600;
