@@ -105,12 +105,11 @@
     })
     .then(function (res) {
       if (!res.ok) {
-        res.text().then(function (body) {
+        return res.text().then(function (body) {
           console.error('[HOSPEDAH_AI] Edge function ' + res.status + ':', body.slice(0, 500));
         }).catch(function () {
           console.warn('[HOSPEDAH_AI] Não foi possível ler o corpo do erro da Edge Function.');
-        });
-        return null;
+        }).then(function () { return null; });
       }
       return res.json();
     })
@@ -136,12 +135,11 @@
     })
     .then(function (res) {
       if (!res.ok) {
-        res.text().then(function (body) {
+        return res.text().then(function (body) {
           console.error('[HOSPEDAH_AI] Gemini API ' + res.status + ':', body.slice(0, 500));
         }).catch(function () {
           console.warn('[HOSPEDAH_AI] Não foi possível ler o corpo do erro do Gemini.');
-        });
-        return null;
+        }).then(function () { return null; });
       }
       return res.json();
     })
