@@ -1079,14 +1079,17 @@ var _aiContext = {
     var intencao = { pagina_origem: document.referrer || 'direto' };
     try {
       var p = new URLSearchParams(window.location.search);
-      if (p.get('resort'))       intencao.resort_interesse = p.get('resort');
+      // Validate resort slug: only accept lowercase alphanumeric values that match known resorts
+      var rawResort = p.get('resort');
+      if (rawResort && /^[a-z0-9]+$/.test(rawResort)) intencao.resort_interesse = rawResort;
       if (p.get('data_entrada')) intencao.data_entrada     = p.get('data_entrada');
       if (p.get('data_saida'))   intencao.data_saida       = p.get('data_saida');
       if (p.get('num_hospedes')) intencao.num_hospedes     = parseInt(p.get('num_hospedes'), 10) || null;
     } catch (e) {}
     try {
       var s = JSON.parse(sessionStorage.getItem('hospedah_busca_ctx') || '{}');
-      if (s.resort       && !intencao.resort_interesse) intencao.resort_interesse = s.resort;
+      // Validate resort slug from storage as well
+      if (s.resort && /^[a-z0-9]+$/.test(s.resort) && !intencao.resort_interesse) intencao.resort_interesse = s.resort;
       if (s.data_entrada && !intencao.data_entrada)     intencao.data_entrada     = s.data_entrada;
       if (s.data_saida   && !intencao.data_saida)       intencao.data_saida       = s.data_saida;
       if (s.num_hospedes && !intencao.num_hospedes)     intencao.num_hospedes     = s.num_hospedes;
@@ -1094,7 +1097,7 @@ var _aiContext = {
     // Fallback: extrair resort do referrer quando a URL contém /resorts/<slug>.html
     if (!intencao.resort_interesse && document.referrer) {
       try {
-        var refMatch = document.referrer.match(/\/resorts\/([a-z0-9_-]+)\.html/i);
+        var refMatch = document.referrer.match(/\/resorts\/([a-z0-9]+)\.html/i);
         if (refMatch) intencao.resort_interesse = refMatch[1];
       } catch (e) {}
     }
