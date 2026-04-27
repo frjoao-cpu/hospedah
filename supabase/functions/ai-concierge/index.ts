@@ -70,11 +70,12 @@ Resorts disponíveis (detalhes):
 🏖️ HOT BEACH SUITES — Olímpia/SP:
 - Piscinas termais, área de lazer completa e acomodações premium. Ideal para famílias e casais.
 - Check-in a partir das 15h | Check-out até as 11h
-- 1 vaga na garagem por apartamento
+- Estacionamento: 1 vaga na garagem gratuita por apartamento (inclusa na diária, sem custo adicional)
 - Apartamento equipado com utensílios completos de cozinha (panelas, cafeteira, talheres, pratos, copos, etc.), cooktop, forno microondas, geladeira e varanda gourmet com tela de proteção
 - É permitido trazer alimentos e bebidas; devem ser consumidos dentro do apartamento
 - Roupas de cama e banho fornecidas pelo resort
 - Acesso gratuito à Vila Guarani para hóspedes
+- Wi-Fi gratuito no apartamento e áreas comuns
 - Serviço de limpeza básica durante a estadia (retirada de lixo, arrumação das camas e troca de toalhas deixadas separadas pelo hóspede)
 - Taxa de higienização da churrasqueira: R$40,00; o resort disponibiliza kit churrasco (1 tábua, 1 faca, 1 pegador, 1 garfo)
 - Taxa do parque aquático — Apartamento de 1 dormitório: R$129,00/dia (acima de 2 dias), valor total independente do número de hóspedes (ex.: 6 pessoas = R$129,00/dia)
@@ -82,14 +83,16 @@ Resorts disponíveis (detalhes):
 - A taxa do parque aquático é paga diretamente ao resort no momento do check-in
 - Pré check-in possível para uso do parque aquático mediante taxa adicional de R$15,00/pessoa; acesso ao apartamento somente a partir das 15h
 - Alimentação paga à parte diretamente no restaurante; pacotes de meia-pensão ou pensão completa podem ser negociados com a central de reservas após a confirmação da reserva
+- Aceita pets: não informado — orientar o cliente a confirmar via WhatsApp
 - Dados necessários para reserva: nome, CPF, RG, data de nascimento, e-mail, endereço completo
 
 ♨️ SÃO PEDRO THERMAS — São Pedro/SP:
 - Águas termais naturais, piscinas aquecidas e acomodações premium.
 - Check-in a partir das 14h | Check-out até as 11h
-- 1 vaga na garagem por apartamento
+- Estacionamento: 1 vaga na garagem gratuita por apartamento (inclusa na diária, sem custo adicional)
 - Apartamento com roupas de cama e banho; NÃO inclui talheres, pratos, copos ou utensílios de cozinha
 - Voltagem do apartamento: 220V
+- Wi-Fi gratuito disponível
 - Não aceita pets
 - Menores desacompanhados dos pais necessitam de autorização prévia (informar no momento da reserva)
 - É proibido ultrapassar a capacidade máxima de hóspedes do apartamento (crianças e bebês contam como hóspedes)
@@ -98,9 +101,10 @@ Resorts disponíveis (detalhes):
 🎢 OLIMPIA PARK RESORT — Olímpia/SP:
 - Parque aquático com tobogãs e atrações, piscinas e acomodações premium.
 - Check-in a partir das 14h | Check-out até as 11h
-- 1 vaga na garagem por apartamento
+- Estacionamento: 1 vaga na garagem gratuita por apartamento (inclusa na diária, sem custo adicional)
 - Apartamento com roupas de cama e banho; NÃO inclui talheres, pratos, copos ou utensílios de cozinha
 - Voltagem do apartamento: 220V
+- Wi-Fi gratuito disponível
 - Não aceita pets
 - Menores desacompanhados dos pais necessitam de autorização prévia (informar no momento da reserva)
 - É proibido ultrapassar a capacidade máxima de hóspedes do apartamento (crianças e bebês contam como hóspedes)
@@ -109,9 +113,10 @@ Resorts disponíveis (detalhes):
 ☀️ SOLAR DAS ÁGUAS (localização: consulte via WhatsApp):
 - Resort com piscinas, área de lazer completa e acomodações exclusivas.
 - Check-in a partir das 14h | Check-out até as 11h
-- 1 vaga na garagem por apartamento
+- Estacionamento: 1 vaga na garagem gratuita por apartamento (inclusa na diária, sem custo adicional)
 - Apartamento com roupas de cama e banho; NÃO inclui talheres, pratos, copos ou utensílios de cozinha
 - Voltagem do apartamento: 220V
+- Wi-Fi gratuito disponível
 - Não aceita pets
 - Menores desacompanhados dos pais necessitam de autorização prévia (informar no momento da reserva)
 - É proibido ultrapassar a capacidade máxima de hóspedes do apartamento (crianças e bebês contam como hóspedes)
