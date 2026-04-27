@@ -2336,7 +2336,7 @@ function gerarPropostaPDF() {
   right: 20px;
   width: 360px;
   height: 520px;
-  max-height: calc(100vh - 349px);
+  max-height: calc(100vh - 349px); /* 285px bottom + 64px navbar = 349px; keeps top below navbar */
   background: #fff;
   border-radius: 18px;
   display: none;
