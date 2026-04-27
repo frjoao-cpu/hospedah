@@ -740,9 +740,11 @@ function iniciarChat() {
   const layout = document.getElementById('chatLayout');
   layout.style.display = 'flex';
 
-  // Mensagem de boas-vindas
+  // Mensagem de boas-vindas (gerada pelo front-end, não deve fazer parte do contexto da IA)
   const boasVindas = `Olá, **${nomeHospede}**! 👋 Sou da equipe HOSPEDAH. Vi que você quer falar sobre **${assunto}**. Como posso te ajudar hoje?`;
   addMessage('recv', 'HOSPEDAH', boasVindas, null);
+  // Resetar mensagens: a boas-vindas é roteirizada e não deve ser enviada à IA
+  _aiContext.mensagens = [];
 
   // Iniciar Realtime
   iniciarRealtime();
