@@ -83,7 +83,7 @@
   function buildEdgePayload(lead, mensagens, intencao, temperature, faqExtras) {
     return {
       lead: lead || { nome: '', assunto: '' },
-      conversa_id: 'web_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 8),
+      conversa_id: 'web_' + buildConversationId(),
       mensagens: mensagens || [],
       timestamp_inicio: new Date().toISOString(),
       contexto_intencao: intencao || {},
@@ -94,6 +94,11 @@
 
   function getKey() {
     return (typeof window !== 'undefined' && window.GEMINI_API_KEY) || '';
+  }
+
+  function buildConversationId() {
+    if (typeof crypto !== 'undefined' && crypto.randomUUID) return crypto.randomUUID();
+    return Date.now().toString(36) + Math.random().toString(36).slice(2, 10);
   }
 
   function chamarEdge(lead, mensagens, intencao, temperature, faqExtras) {
@@ -144,18 +149,20 @@
       return res.json();
     })
     .then(function (data) {
-      if (!data || !data.candidates || !data.candidates.length) return null;
+      if (!data || !data.candidates || !data.candidates.length) {
+        console.warn('[HOSPEDAH_AI] Gemini retornou sem candidatos.');
+        return null;
+      }
       var parts = (data.candidates[0].content && data.candidates[0].content.parts) || [];
       var textPart = null;
       for (var i = 0; i < parts.length; i++) {
         if (parts[i].text && !parts[i].thought) { textPart = parts[i]; break; }
       }
-      return textPart ? textPart.text.trim() : null;
-    })
-    .then(function (text) {
-      if (text) return text;
-      console.warn('[HOSPEDAH_AI] Gemini retornou vazio — tentando Edge Function.');
-      return chamarEdge(lead, mensagens, intencao, temperature, faqExtras);
+      if (!textPart || !textPart.text) {
+        console.warn('[HOSPEDAH_AI] Gemini retornou sem texto.');
+        return null;
+      }
+      return textPart.text.trim();
     })
     .catch(function () {
       return chamarEdge(lead, mensagens, intencao, temperature, faqExtras);
