@@ -107,7 +107,9 @@
       if (!res.ok) {
         res.text().then(function (body) {
           console.error('[HOSPEDAH_AI] Edge function ' + res.status + ':', body.slice(0, 500));
-        }).catch(function () {});
+        }).catch(function () {
+          console.warn('[HOSPEDAH_AI] Não foi possível ler o corpo do erro da Edge Function.');
+        });
         return null;
       }
       return res.json();
@@ -136,7 +138,9 @@
       if (!res.ok) {
         res.text().then(function (body) {
           console.error('[HOSPEDAH_AI] Gemini API ' + res.status + ':', body.slice(0, 500));
-        }).catch(function () {});
+        }).catch(function () {
+          console.warn('[HOSPEDAH_AI] Não foi possível ler o corpo do erro do Gemini.');
+        });
         return null;
       }
       return res.json();
@@ -152,6 +156,7 @@
     })
     .then(function (text) {
       if (text) return text;
+      console.warn('[HOSPEDAH_AI] Gemini retornou vazio — tentando Edge Function.');
       return chamarEdge(lead, mensagens, intencao, temperature, faqExtras);
     })
     .catch(function () {
