@@ -569,7 +569,7 @@ body { font-family: 'Poppins', sans-serif; background: var(--bg); color: var(--c
         <p style="font-size:0.9em;color:var(--cor-sub);margin-bottom:16px;">
           Acesse o chat em tempo real com a equipe HOSPEDAH.
         </p>
-        <a href="chat.html" class="btn btn-primary">💬 Abrir Chat Online</a>
+        <a href="chat.html" class="btn btn-primary">🤖 Abrir Chat IA</a>
         <a href="https://wa.me/5517982006382" target="_blank" rel="noopener" class="btn btn-success" style="margin-left:8px;">
           📱 WhatsApp Direto
         </a>
@@ -974,7 +974,7 @@ function construirNav(role) {
     { id: 'minhas-reservas',icon: '📋', label: 'Minhas Reservas',  roles: ['hospede','admin','proprietario'] },
     { id: 'pos-venda',      icon: '🌟', label: 'Pós-venda',        roles: ['hospede'] },
     { id: 'fidelidade',     icon: '🏆', label: 'Fidelidade',       roles: ['hospede'] },
-    { id: 'chat',           icon: '💬', label: 'Chat & Suporte',   roles: ['hospede','admin','proprietario'] },
+    { id: 'chat',           icon: '🤖', label: 'Chat IA & Suporte',   roles: ['hospede','admin','proprietario'] },
     { id: 'faq',            icon: '❓', label: 'Editor FAQ',       roles: ['admin'] },
     { id: 'usuarios',       icon: '👥', label: 'Usuários',         roles: ['admin'] },
     { id: 'ajuda',          icon: '🚀', label: 'Ajuda & Deploy',   roles: ['admin'] },
@@ -1000,7 +1000,7 @@ function construirBottomNav(role) {
     { id: 'pos-venda',       icon: '🌟', label: 'Pós-venda', roles: ['hospede'], href: null },
     { id: 'fidelidade',      icon: '🏆', label: 'Pontos',    roles: ['hospede'], href: null },
     { icon: '🏠', label: 'Início', roles: ['hospede','admin','proprietario'], href: 'index.html' },
-    { id: 'chat',            icon: '💬', label: 'Chat',      roles: ['hospede','admin','proprietario'], href: null },
+    { id: 'chat',            icon: '🤖', label: 'Chat IA',      roles: ['hospede','admin','proprietario'], href: null },
     { id: 'faq',             icon: '❓', label: 'FAQ',       roles: ['admin'], href: null },
     { id: 'ajuda',           icon: '🚀', label: 'Deploy',    roles: ['admin'], href: null },
   ].filter(i => i.roles.includes(role)).slice(0, 5);
