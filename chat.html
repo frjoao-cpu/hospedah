@@ -1073,6 +1073,7 @@ var _aiContext = {
   lead: { nome: '', assunto: '' },
   conversa_id: '',
   mensagens: [],
+  faq_extras: '',   // FAQ dinâmico carregado do banco (injetado no system prompt da IA)
   timestamp_inicio: new Date().toISOString(),
   // Capturar contexto de intenção a partir de URL, referrer e sessionStorage
   contexto_intencao: (function () {
@@ -1136,7 +1137,8 @@ async function escalarParaAI(temperature) {
       _aiContext.lead,
       _aiContext.mensagens,
       _aiContext.contexto_intencao,
-      temperature || 0.7
+      temperature || 0.7,
+      _aiContext.faq_extras
     );
   } catch (e) {
     return { resposta: null, logId: null };
@@ -1175,7 +1177,8 @@ function escalarParaAIStream(temperature) {
     _aiContext.lead,
     _aiContext.mensagens,
     _aiContext.contexto_intencao,
-    temperature || 0.7
+    temperature || 0.7,
+    _aiContext.faq_extras
   );
   if (!payload.contents || !payload.contents.length) return Promise.resolve(null);
 
@@ -1307,9 +1310,18 @@ async function carregarFAQDinamico() {
     if (!data || !data.length) return;
 
     faqDinamico = {};
+    var faqExtrasLines = [];
+    var _parser = new DOMParser();
     data.forEach(function (f) {
       faqDinamico[f.chave.toLowerCase()] = f.resposta;
+      // Versão plain-text para injetar no contexto da IA — usa DOMParser para extração segura sem XSS
+      var doc = _parser.parseFromString(f.resposta, 'text/html');
+      var plain = (doc.body.textContent || '').replace(/\s+/g, ' ').trim();
+      faqExtrasLines.push('Pergunta: ' + f.label + '\nResposta: ' + plain);
     });
+
+    // Injetar FAQ registrado no contexto da IA para que ela responda conforme informações cadastradas
+    _aiContext.faq_extras = faqExtrasLines.join('\n\n');
 
     // Substituir chips de FAQ pelas entradas do banco (primeiras 5)
     var bar = document.getElementById('faqBar');
