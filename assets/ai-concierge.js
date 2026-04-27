@@ -155,14 +155,16 @@
           console.error('[HOSPEDAH_AI] Gemini API ' + res.status + ':', body.slice(0, 500));
         }).catch(function () {
           console.warn('[HOSPEDAH_AI] Não foi possível ler o corpo do erro do Gemini.');
-        }).then(function () { return null; });
+        }).then(function () {
+          return chamarEdge(lead, mensagens, intencao, temperature, faqExtras);
+        });
       }
       return res.json();
     })
     .then(function (data) {
       if (!data || !data.candidates || !data.candidates.length) {
         console.warn('[HOSPEDAH_AI] Gemini retornou sem candidatos.');
-        return null;
+        return chamarEdge(lead, mensagens, intencao, temperature, faqExtras);
       }
       var parts = (data.candidates[0].content && data.candidates[0].content.parts) || [];
       var textPart = null;
@@ -171,7 +173,7 @@
       }
       if (!textPart || !textPart.text) {
         console.warn('[HOSPEDAH_AI] Gemini retornou sem texto.');
-        return null;
+        return chamarEdge(lead, mensagens, intencao, temperature, faqExtras);
       }
       return textPart.text.trim();
     })
