@@ -3427,8 +3427,21 @@ function adicionarFAQ() {
   var resposta = (document.getElementById('faq_resposta').value || '').trim();
   if (!pergunta) { mostrarToast('⚠️ Informe a pergunta-chave.', 'error'); return; }
   if (!resposta) { mostrarToast('⚠️ Informe a resposta automática.', 'error'); return; }
-  faqRespostas.push({ id: gerarId(), pergunta: pergunta, resposta: resposta, criadoEm: new Date().toISOString() });
+  var novoFAQ = { id: gerarId(), pergunta: pergunta, resposta: resposta, criadoEm: new Date().toISOString() };
+  faqRespostas.push(novoFAQ);
   salvarListaStorage(FAQ_KEY, faqRespostas);
+  // Sincroniza com a tabela 'faq' do Supabase para que o Concierge IA responda
+  // conforme as informações cadastradas aqui.
+  var chave = pergunta.toLowerCase().trim();
+  var ordem = faqRespostas.length;
+  _supabase.from('faq')
+    .upsert({ chave: chave, label: pergunta, resposta: resposta, ativo: true, ordem: ordem },
+             { onConflict: 'chave' })
+    .then(function (r) {
+      if (r.error) {
+        console.warn('[HOSPEDAH] Erro ao sincronizar FAQ com Supabase:', r.error.message);
+      }
+    });
   document.getElementById('faq_pergunta').value = '';
   document.getElementById('faq_resposta').value = '';
   renderTabelaFAQ();
@@ -3437,8 +3450,21 @@ function adicionarFAQ() {
 }
 
 function excluirFAQ(id) {
+  var faqItem = faqRespostas.find(function (x) { return x.id === id; });
   faqRespostas = faqRespostas.filter(function (x) { return x.id !== id; });
   salvarListaStorage(FAQ_KEY, faqRespostas);
+  // Remove também do Supabase para manter o Concierge IA sincronizado.
+  if (faqItem) {
+    var chave = (faqItem.pergunta || '').toLowerCase().trim();
+    _supabase.from('faq')
+      .delete()
+      .eq('chave', chave)
+      .then(function (r) {
+        if (r.error) {
+          console.warn('[HOSPEDAH] Erro ao remover FAQ do Supabase:', r.error.message);
+        }
+      });
+  }
   renderTabelaFAQ();
   registrarAuditoria('FAQ removido', id);
 }

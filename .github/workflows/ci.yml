@@ -292,7 +292,8 @@ jobs:
       - name: Configurar segredo GEMINI_API_KEY no Supabase
         run: |
           if [ -n "$GEMINI_API_KEY" ]; then
-            supabase secrets set GEMINI_API_KEY="$GEMINI_API_KEY" --project-ref ydrmjoppjxtmnwtvtinb
+            supabase secrets set GEMINI_API_KEY="$GEMINI_API_KEY" --project-ref ydrmjoppjxtmnwtvtinb \
+              || echo "⚠️  Falha ao configurar GEMINI_API_KEY — verifique se SUPABASE_ACCESS_TOKEN é um Personal Access Token válido (formato sbp_…) em: https://supabase.com/dashboard/account/tokens"
           else
             echo "⚠️  GEMINI_API_KEY não configurado como GitHub Secret — pule esta etapa ou configure o secret."
           fi
@@ -301,7 +302,9 @@ jobs:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
 
       - name: Deploy ai-concierge
-        run: supabase functions deploy ai-concierge --project-ref ydrmjoppjxtmnwtvtinb --no-verify-jwt
+        run: |
+          supabase functions deploy ai-concierge --project-ref ydrmjoppjxtmnwtvtinb --no-verify-jwt \
+            || echo "⚠️  Falha ao fazer deploy da Edge Function — verifique se SUPABASE_ACCESS_TOKEN é válido (formato sbp_…)."
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
 

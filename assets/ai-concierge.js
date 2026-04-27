@@ -159,23 +159,24 @@
           return chamarEdge(lead, mensagens, intencao, temperature, faqExtras);
         });
       }
-      return res.json();
-    })
-    .then(function (data) {
-      if (!data || !data.candidates || !data.candidates.length) {
-        console.warn('[HOSPEDAH_AI] Gemini retornou sem candidatos.');
-        return chamarEdge(lead, mensagens, intencao, temperature, faqExtras);
-      }
-      var parts = (data.candidates[0].content && data.candidates[0].content.parts) || [];
-      var textPart = null;
-      for (var i = 0; i < parts.length; i++) {
-        if (parts[i].text && !parts[i].thought) { textPart = parts[i]; break; }
-      }
-      if (!textPart || !textPart.text) {
-        console.warn('[HOSPEDAH_AI] Gemini retornou sem texto.');
-        return chamarEdge(lead, mensagens, intencao, temperature, faqExtras);
-      }
-      return textPart.text.trim();
+      // Parse e processa a resposta dentro do mesmo .then para evitar que o resultado
+      // de chamarEdge (string) seja passado ao bloco de parse do Gemini como se fosse JSON.
+      return res.json().then(function (data) {
+        if (!data || !data.candidates || !data.candidates.length) {
+          console.warn('[HOSPEDAH_AI] Gemini retornou sem candidatos.');
+          return chamarEdge(lead, mensagens, intencao, temperature, faqExtras);
+        }
+        var parts = (data.candidates[0].content && data.candidates[0].content.parts) || [];
+        var textPart = null;
+        for (var i = 0; i < parts.length; i++) {
+          if (parts[i].text && !parts[i].thought) { textPart = parts[i]; break; }
+        }
+        if (!textPart || !textPart.text) {
+          console.warn('[HOSPEDAH_AI] Gemini retornou sem texto.');
+          return chamarEdge(lead, mensagens, intencao, temperature, faqExtras);
+        }
+        return textPart.text.trim();
+      });
     })
     .catch(function () {
       return chamarEdge(lead, mensagens, intencao, temperature, faqExtras);
