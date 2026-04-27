@@ -112,9 +112,6 @@
     return Date.now().toString(36) + '_' + FALLBACK_COUNTER.toString(36);
   }
 
-  // Comprimento máximo para mensagens de erro da Edge consideradas amigáveis ao usuário
-  var MAX_EDGE_ERROR_LENGTH = 300;
-
   function chamarEdge(lead, mensagens, intencao, temperature, faqExtras) {
     var payload = buildEdgePayload(lead, mensagens, intencao, temperature, faqExtras);
     return fetch(EDGE_FN_URL, {
@@ -126,9 +123,7 @@
       return res.json().then(function (data) {
         if (!res.ok) {
           console.error('[HOSPEDAH_AI] Edge function ' + res.status + ':', JSON.stringify(data).slice(0, 500));
-          // Retorna a mensagem de erro da Edge quando disponível e amigável
-          return (data && typeof data.error === 'string' &&
-                  res.status !== 503 && data.error.length < MAX_EDGE_ERROR_LENGTH) ? data.error : null;
+          return null;
         }
         return data && data.resposta ? data.resposta.trim() : null;
       }).catch(function () {
