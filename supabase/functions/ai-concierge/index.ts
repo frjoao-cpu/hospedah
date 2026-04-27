@@ -26,10 +26,20 @@ const GEMINI_STREAM_URL =
   'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:streamGenerateContent';
 
 const CORS_HEADERS: Record<string, string> = {
-  'Access-Control-Allow-Origin':  '*',
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
   'Access-Control-Allow-Headers': 'Content-Type, Authorization',
 };
+
+const ALLOWED_ORIGINS = [
+  'https://hospedah.tur.br',
+  'https://www.hospedah.tur.br',
+  'https://frjoao-cpu.github.io',
+];
+
+function getCorsHeaders(origin: string | null): Record<string, string> {
+  const allowed = origin && ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0];
+  return { ...CORS_HEADERS, 'Access-Control-Allow-Origin': allowed, 'Vary': 'Origin' };
+}
 
 const SYSTEM_PROMPT = `Você é o Concierge IA da HOSPEDAH, uma agência de turismo especializada em resorts e hospedagens de luxo no Brasil.
 
@@ -152,21 +162,24 @@ interface AiContext {
 }
 
 serve(async (req: Request): Promise<Response> => {
+  const origin = req.headers.get('Origin');
+  const corsH  = getCorsHeaders(origin);
+
   if (req.method === 'OPTIONS') {
-    return new Response(null, { status: 204, headers: CORS_HEADERS });
+    return new Response(null, { status: 204, headers: corsH });
   }
 
   if (req.method !== 'POST') {
     return new Response(
       JSON.stringify({ error: 'Método não permitido. Use POST.' }),
-      { status: 405, headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' } },
+      { status: 405, headers: { ...corsH, 'Content-Type': 'application/json' } },
     );
   }
 
   if (!GEMINI_API_KEY) {
     return new Response(
       JSON.stringify({ error: 'GEMINI_API_KEY não configurada.' }),
-      { status: 503, headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' } },
+      { status: 503, headers: { ...corsH, 'Content-Type': 'application/json' } },
     );
   }
 
@@ -176,7 +189,7 @@ serve(async (req: Request): Promise<Response> => {
   } catch {
     return new Response(
       JSON.stringify({ error: 'Payload JSON inválido.' }),
-      { status: 400, headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' } },
+      { status: 400, headers: { ...corsH, 'Content-Type': 'application/json' } },
     );
   }
 
@@ -192,7 +205,7 @@ serve(async (req: Request): Promise<Response> => {
   if (contents.length === 0) {
     return new Response(
       JSON.stringify({ error: 'Nenhuma mensagem no contexto.' }),
-      { status: 400, headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' } },
+      { status: 400, headers: { ...corsH, 'Content-Type': 'application/json' } },
     );
   }
 
@@ -250,7 +263,7 @@ serve(async (req: Request): Promise<Response> => {
       console.error('[ai-concierge] Erro ao chamar Gemini streaming:', err);
       return new Response(
         JSON.stringify({ error: 'Falha de comunicação com a IA. Tente novamente.' }),
-        { status: 502, headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' } },
+        { status: 502, headers: { ...corsH, 'Content-Type': 'application/json' } },
       );
     }
 
@@ -259,14 +272,14 @@ serve(async (req: Request): Promise<Response> => {
       console.error('[ai-concierge] Gemini streaming erro:', streamRes.status, errBody);
       return new Response(
         JSON.stringify({ error: 'Serviço de IA indisponível. Tente mais tarde.' }),
-        { status: 502, headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' } },
+        { status: 502, headers: { ...corsH, 'Content-Type': 'application/json' } },
       );
     }
 
     return new Response(streamRes.body, {
       status: 200,
       headers: {
-        ...CORS_HEADERS,
+        ...corsH,
         'Content-Type': 'text/event-stream; charset=utf-8',
         'Cache-Control': 'no-cache',
         'X-Accel-Buffering': 'no',
@@ -286,7 +299,7 @@ serve(async (req: Request): Promise<Response> => {
     console.error('[ai-concierge] Erro ao chamar Gemini:', err);
     return new Response(
       JSON.stringify({ error: 'Falha de comunicação com a IA. Tente novamente.' }),
-      { status: 502, headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' } },
+      { status: 502, headers: { ...corsH, 'Content-Type': 'application/json' } },
     );
   }
 
@@ -295,7 +308,7 @@ serve(async (req: Request): Promise<Response> => {
     console.error('[ai-concierge] Gemini retornou erro:', geminiRes.status, errBody);
     return new Response(
       JSON.stringify({ error: 'Serviço de IA indisponível. Tente mais tarde.' }),
-      { status: 502, headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' } },
+      { status: 502, headers: { ...corsH, 'Content-Type': 'application/json' } },
     );
   }
 
@@ -306,12 +319,12 @@ serve(async (req: Request): Promise<Response> => {
   if (!resposta) {
     return new Response(
       JSON.stringify({ error: 'A IA não gerou uma resposta. Tente novamente.' }),
-      { status: 502, headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' } },
+      { status: 502, headers: { ...corsH, 'Content-Type': 'application/json' } },
     );
   }
 
   return new Response(
     JSON.stringify({ resposta }),
-    { status: 200, headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' } },
+    { status: 200, headers: { ...corsH, 'Content-Type': 'application/json' } },
   );
 });

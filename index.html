@@ -1530,14 +1530,14 @@ function compartilharSite() {
   };
   if (navigator.share) {
     navigator.share(shareData).catch(function () {});
+  } else if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(shareData.url).then(function () {
+      alert('Link copiado: ' + shareData.url);
+    }).catch(function () {
+      alert('Compartilhe: ' + shareData.url);
+    });
   } else {
-    var input = document.createElement('input');
-    input.value = shareData.url;
-    document.body.appendChild(input);
-    input.select();
-    document.execCommand('copy');
-    document.body.removeChild(input);
-    alert('Link copiado: ' + shareData.url);
+    alert('Compartilhe: ' + shareData.url);
   }
 }
 // Aparece automaticamente após 4 segundos

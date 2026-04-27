@@ -3525,7 +3525,7 @@ function limparAuditoria() {
 }
 
 function limparMensagens() {
-  if (!confirm('Deseja limpar a lista de mensagens exibidas?')) return;
+  if (!confirm('Deseja limpar a lista de mensagens da tela? (Os dados permanecem no servidor — clique em Atualizar para recarregar)')) return;
   var body = document.getElementById('msgBody');
   if (body) body.innerHTML = '<tr><td colspan="6"><div class="empty-state"><div class="empty-icon">💬</div><div>Nenhuma mensagem ainda.</div></div></td></tr>';
   mostrarToast('✅ Mensagens limpas da tela.', 'success');
