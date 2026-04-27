@@ -2618,6 +2618,7 @@ function gerarPropostaPDF() {
   if (!btn) return;
 
   var toastTimer = null;
+  var TOAST_ANIM_MS = 2000; /* deve coincidir com a duração da animação shareToastFade (2s) */
 
   function showToast(msg) {
     toast.textContent = msg;
@@ -2625,9 +2626,9 @@ function gerarPropostaPDF() {
     // Reinicia a animação
     toast.style.animation = 'none';
     void toast.offsetWidth; /* reflow */
-    toast.style.animation = 'shareToastFade 2s ease forwards';
+    toast.style.animation = 'shareToastFade ' + (TOAST_ANIM_MS / 1000) + 's ease forwards';
     if (toastTimer) clearTimeout(toastTimer);
-    toastTimer = setTimeout(function () { toast.style.display = 'none'; }, 2100);
+    toastTimer = setTimeout(function () { toast.style.display = 'none'; }, TOAST_ANIM_MS + 100);
   }
 
   btn.addEventListener('click', function () {
