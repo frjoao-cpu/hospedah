@@ -2496,7 +2496,7 @@ function gerarPropostaPDF() {
     if (!disabled) document.getElementById('hc-user-input').focus();
   }
 
-  /* Chama a IA Gemini 2.0 Flash diretamente */
+  /* Chama a IA Gemini 2.5 Flash diretamente */
   function hcChamarIA(userMsg) {
     hcMensagens.push({ role: 'user', content: userMsg, ts: new Date().toISOString() });
     if (hcMensagens.length > 20) { hcMensagens = hcMensagens.slice(-20); }
