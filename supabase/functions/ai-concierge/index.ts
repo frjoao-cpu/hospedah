@@ -271,6 +271,10 @@ serve(async (req: Request): Promise<Response> => {
     generationConfig: {
       temperature,
       maxOutputTokens: 8192,
+      // Desabilitar thinking tokens do gemini-2.5-flash para garantir resposta textual consistente.
+      // Com thinking ativo (padrão), o modelo pode retornar apenas partes thought:true sem texto visível,
+      // causando falha silenciosa e exibição da mensagem de fallback para o usuário.
+      thinkingConfig: { thinkingBudget: 0 },
     },
     safetySettings: [
       { category: 'HARM_CATEGORY_HARASSMENT',        threshold: 'BLOCK_MEDIUM_AND_ABOVE' },

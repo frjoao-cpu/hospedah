@@ -70,7 +70,11 @@
       generationConfig: {
         temperature: temp,
         // 8192 tokens acomodam respostas detalhadas sobre resorts mais o FAQ injetado no contexto
-        maxOutputTokens: 8192
+        maxOutputTokens: 8192,
+        // Desabilitar thinking tokens do gemini-2.5-flash para garantir resposta textual consistente.
+        // Com thinking ativo (padrão), o modelo pode retornar apenas partes thought:true sem texto visível,
+        // causando fallback para a Edge Function e eventualmente a mensagem de erro para o usuário.
+        thinkingConfig: { thinkingBudget: 0 }
       },
       safetySettings: [
         { category: 'HARM_CATEGORY_HARASSMENT',        threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
