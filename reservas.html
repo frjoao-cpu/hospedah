@@ -2272,13 +2272,23 @@ function _checkDatesForWizard() {
         temperature:       0.7
       })
     })
-    .then(function (res) { return res.json(); })
+    .then(function (res) {
+      if (!res.ok) {
+        return res.json().catch(function () { return {}; }).then(function (data) {
+          console.error('[ai-concierge] HTTP', res.status, data.error || '');
+          return null;
+        });
+      }
+      return res.json();
+    })
     .then(function (data) {
+      if (!data) return null;
       var resp = data.resposta || null;
+      if (!resp && data.error) { console.error('[ai-concierge]', data.error); }
       if (resp) { hcMensagens.push({ role: 'assistant', content: resp, ts: new Date().toISOString() }); }
       return resp;
     })
-    .catch(function () { return null; });
+    .catch(function (err) { console.error('[ai-concierge] fetch error', err); return null; });
   }
 
   window.hcSend = function () {

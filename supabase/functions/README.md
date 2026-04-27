@@ -4,11 +4,26 @@
 
 | Função | Acionamento | Descrição |
 |--------|-------------|-----------|
-| `ai-concierge` | HTTP POST (chat.html) | Concierge IA com Google Gemini 1.5 Flash — responde perguntas fora do FAQ automaticamente |
+| `ai-concierge` | HTTP POST (chat.html) | Concierge IA com Google Gemini 2.0 Flash — responde perguntas fora do FAQ automaticamente |
 | `weather` | HTTP GET | Proxy seguro para OpenWeatherMap (esconde a API key do front-end) |
 | `notificacao-reserva` | Database Webhook (INSERT em `reservas_hospede`) | Envia WhatsApp + e-mail ao hóspede e ao admin |
 | `lembrete-checkin` | pg_cron (diário 12:00 UTC) | Lembra hóspedes com check-in amanhã via WhatsApp |
 | `recuperacao-abandono` | Database Webhook (INSERT em `abandono_reserva`) | Agenda push OneSignal 30min após abandono |
+
+---
+
+## ⚠️ Configurar GitHub Secrets (obrigatório para deploy automático via CI)
+
+Para que o deploy automático funcione, configure os seguintes secrets em:
+**GitHub → Settings → Secrets and variables → Actions → New repository secret**
+
+| Secret | Valor | Onde obter |
+|--------|-------|------------|
+| `SUPABASE_ACCESS_TOKEN` | Personal Access Token do Supabase (formato `sbp_…`) | [supabase.com/dashboard/account/tokens](https://supabase.com/dashboard/account/tokens) |
+| `GEMINI_API_KEY` | Chave da API Google AI Studio | [aistudio.google.com/app/apikey](https://aistudio.google.com/app/apikey) |
+
+> **Atenção:** O `SUPABASE_ACCESS_TOKEN` deve ser um **Personal Access Token** (PAT) com formato `sbp_0102...`,
+> **NÃO** use a `anon key` (formato `eyJ...`). A `anon key` é para o cliente, não para o CLI.
 
 ---
 

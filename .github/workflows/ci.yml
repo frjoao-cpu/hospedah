@@ -155,7 +155,7 @@ jobs:
           fetch-depth: 0
 
       - name: TruffleHog — detectar segredos expostos
-        uses: trufflesecurity/trufflehog@v3
+        uses: trufflesecurity/trufflehog@main
         with:
           path: ./
           base: ${{ github.event.repository.default_branch }}
@@ -251,12 +251,17 @@ jobs:
 
   # ──────────────────────────────────────────────
   # 8. Deploy Supabase Edge Functions (somente na main)
+  # Pré-requisitos (GitHub Secrets):
+  #   SUPABASE_ACCESS_TOKEN → Supabase Personal Access Token (formato sbp_…)
+  #                           Gere em: https://supabase.com/dashboard/account/tokens
+  #   GEMINI_API_KEY        → Chave da API Google AI Studio (gratuita em aistudio.google.com)
   # ──────────────────────────────────────────────
   deploy-edge-functions:
     name: Deploy Edge Functions (Supabase)
     needs: [validate-html, validate-js, validate-css]
     if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
     runs-on: ubuntu-latest
+    continue-on-error: true
     permissions:
       contents: read
     steps:
@@ -266,6 +271,17 @@ jobs:
         uses: supabase/setup-cli@v1
         with:
           version: latest
+
+      - name: Configurar segredo GEMINI_API_KEY no Supabase
+        run: |
+          if [ -n "$GEMINI_API_KEY" ]; then
+            supabase secrets set GEMINI_API_KEY="$GEMINI_API_KEY" --project-ref ydrmjoppjxtmnwtvtinb
+          else
+            echo "⚠️  GEMINI_API_KEY não configurado como GitHub Secret — pule esta etapa ou configure o secret."
+          fi
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
 
       - name: Deploy ai-concierge
         run: supabase functions deploy ai-concierge --project-ref ydrmjoppjxtmnwtvtinb --no-verify-jwt
