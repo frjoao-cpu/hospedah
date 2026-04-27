@@ -271,6 +271,8 @@ serve(async (req: Request): Promise<Response> => {
     generationConfig: {
       temperature,
       maxOutputTokens: 8192,
+      // Desabilita o modo de raciocínio (thinking) para respostas mais rápidas e confiáveis
+      thinkingConfig: { thinkingBudget: 0 },
     },
     safetySettings: [
       { category: 'HARM_CATEGORY_HARASSMENT',        threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
