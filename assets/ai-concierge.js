@@ -12,7 +12,7 @@
 // ============================================================
 /* global window, fetch */
 (function () {
-  var GEMINI_MODEL = 'gemini-2.5-flash';
+  var GEMINI_MODEL = 'gemini-2.0-flash';
   var GEMINI_BASE = 'https://generativelanguage.googleapis.com/v1beta/models/' + GEMINI_MODEL;
   var EDGE_FN_URL = 'https://ydrmjoppjxtmnwtvtinb.supabase.co/functions/v1/ai-concierge';
   var FALLBACK_COUNTER = 0;
@@ -70,11 +70,7 @@
       generationConfig: {
         temperature: temp,
         // 8192 tokens acomodam respostas detalhadas sobre resorts mais o FAQ injetado no contexto
-        maxOutputTokens: 8192,
-        // Desabilitar thinking tokens do gemini-2.5-flash para garantir resposta textual consistente.
-        // Com thinking ativo (padrão), o modelo pode retornar apenas partes thought:true sem texto visível,
-        // causando fallback para a Edge Function e eventualmente a mensagem de erro para o usuário.
-        thinkingConfig: { thinkingBudget: 0 }
+        maxOutputTokens: 8192
       },
       safetySettings: [
         { category: 'HARM_CATEGORY_HARASSMENT',        threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
@@ -174,7 +170,7 @@
         var parts = (data.candidates[0].content && data.candidates[0].content.parts) || [];
         var textPart = null;
         for (var i = 0; i < parts.length; i++) {
-          if (parts[i].text && !parts[i].thought) { textPart = parts[i]; break; }
+          if (parts[i].text) { textPart = parts[i]; break; }
         }
         if (!textPart || !textPart.text) {
           console.warn('[HOSPEDAH_AI] Gemini retornou sem texto.');
