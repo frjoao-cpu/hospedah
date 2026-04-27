@@ -10,9 +10,9 @@
 /* OneSignal Web Push — importa o SW do SDK para compatibilidade */
 
 importScripts('https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.sw.js');
-var CACHE_NAME = 'hospedah-v3';
-var ASSETS_CACHE = 'hospedah-assets-v3';
-var FONT_CACHE = 'hospedah-fonts-v3';
+var CACHE_NAME = 'hospedah-v4';
+var ASSETS_CACHE = 'hospedah-assets-v4';
+var FONT_CACHE = 'hospedah-fonts-v4';
 
 /* Recursos essenciais para funcionar offline */
 var PRECACHE_URLS = [
@@ -121,8 +121,11 @@ self.addEventListener('fetch', function (event) {
     return;
   }
 
-  /* ai-config.js: sempre da rede — contém a chave de API injetada pelo CI e nunca deve ser servida do cache */
-  if (url.pathname === '/assets/ai-config.js') {
+  /* ai-config.js / ai-concierge.js: sempre da rede — ai-config.js contém a chave de API injetada
+     pelo CI; ai-concierge.js contém o sistema de IA que é atualizado frequentemente.
+     Nenhum deles deve ser servido de um cache antigo. */
+  if (url.pathname === '/assets/ai-config.js' ||
+      url.pathname === '/assets/ai-concierge.js') {
     event.respondWith(
       fetch(req).catch(function () {
         return caches.match(req);
