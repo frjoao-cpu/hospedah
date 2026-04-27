@@ -271,7 +271,6 @@ serve(async (req: Request): Promise<Response> => {
     generationConfig: {
       temperature,
       maxOutputTokens: 8192,
-      thinkingConfig: { thinkingBudget: 0 },
     },
     safetySettings: [
       { category: 'HARM_CATEGORY_HARASSMENT',        threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
