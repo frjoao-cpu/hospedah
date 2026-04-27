@@ -2119,7 +2119,7 @@ filtrar = function() {
     if (!disabled) document.getElementById('hc-user-input').focus();
   }
 
-  /* Chama a Edge Function ai-concierge (Gemini 2.0 Flash) */
+  /* Chama a Edge Function ai-concierge (Gemini 2.5 Flash) */
   function hcChamarIA(userMsg) {
     hcMensagens.push({ role: 'user', content: userMsg, ts: new Date().toISOString() });
     if (hcMensagens.length > 20) { hcMensagens = hcMensagens.slice(-20); }
