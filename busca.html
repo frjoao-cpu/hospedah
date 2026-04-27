@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://unpkg.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net https://unpkg.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://ydrmjoppjxtmnwtvtinb.supabase.co https://*.basemaps.cartocdn.com; img-src 'self' data: https://i.imgur.com https://*.tile.openstreetmap.org https://*.basemaps.cartocdn.com; object-src 'none'; base-uri 'self';">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://unpkg.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net https://unpkg.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://ydrmjoppjxtmnwtvtinb.supabase.co https://*.basemaps.cartocdn.com https://generativelanguage.googleapis.com; img-src 'self' data: https://i.imgur.com https://*.tile.openstreetmap.org https://*.basemaps.cartocdn.com; object-src 'none'; base-uri 'self';">
 <title>Buscar Acomodações | HOSPEDAH</title>
 <meta name="description" content="Encontre resorts e acomodações premium em todo o Brasil. Filtre por destino, datas, preço e comodidades.">
 <link rel="canonical" href="https://hospedah.tur.br/busca.html">
@@ -2070,6 +2070,8 @@ filtrar = function() {
   </div>
 </div>
 
+<script src="/assets/ai-config.js"></script>
+<script src="/assets/ai-concierge.js"></script>
 <script>
 (function () {
   var hcBtn  = document.getElementById('hospedah-chat-btn');
@@ -2081,8 +2083,6 @@ filtrar = function() {
   var hcMensagens  = [];
   var hcWaiting    = false;
   var hcConversaId = 'widget_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8);
-  var EDGE_FN_URL  = 'https://ydrmjoppjxtmnwtvtinb.supabase.co/functions/v1/ai-concierge';
-  var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlkcm1qb3Bwanh0bW53dHZ0aW5iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYyNzA3MzksImV4cCI6MjA5MTg0NjczOX0.Gp4ed332v62sC5e5GXXbPqOIBNpS4EzMCFawnBJE_Cw';
 
   hcBtn.addEventListener('click', function () {
     var shown = hcBox.style.display === 'flex';
@@ -2119,7 +2119,7 @@ filtrar = function() {
     if (!disabled) document.getElementById('hc-user-input').focus();
   }
 
-  /* Chama a Edge Function ai-concierge (Gemini 2.5 Flash) */
+  /* Chama a IA Gemini 2.0 Flash diretamente */
   function hcChamarIA(userMsg) {
     hcMensagens.push({ role: 'user', content: userMsg, ts: new Date().toISOString() });
     if (hcMensagens.length > 20) { hcMensagens = hcMensagens.slice(-20); }
@@ -2133,35 +2133,15 @@ filtrar = function() {
       if (datas.entrada && window.fpEntrada) intencao.data_entrada = window.fpEntrada.formatDate(datas.entrada, 'd/m/Y');
       if (datas.saida   && window.fpSaida)   intencao.data_saida   = window.fpSaida.formatDate(datas.saida, 'd/m/Y');
     }
-    return fetch(EDGE_FN_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SUPABASE_ANON_KEY },
-      body: JSON.stringify({
-        lead:              { nome: hcNome, assunto: hcAssunto },
-        conversa_id:       hcConversaId,
-        mensagens:         hcMensagens,
-        timestamp_inicio:  new Date().toISOString(),
-        contexto_intencao: intencao,
-        temperature:       0.7
-      })
-    })
-    .then(function (res) {
-      if (!res.ok) {
-        return res.json().catch(function () { return {}; }).then(function (data) {
-          console.error('[ai-concierge] HTTP', res.status, data.error || '');
-          return null;
-        });
-      }
-      return res.json();
-    })
-    .then(function (data) {
-      if (!data) return null;
-      var resp = data.resposta || null;
-      if (!resp && data.error) { console.error('[ai-concierge]', data.error); }
+    return window.HOSPEDAH_AI.chamar(
+      { nome: hcNome, assunto: hcAssunto },
+      hcMensagens,
+      intencao,
+      0.7
+    ).then(function (resp) {
       if (resp) { hcMensagens.push({ role: 'assistant', content: resp, ts: new Date().toISOString() }); }
       return resp;
-    })
-    .catch(function (err) { console.error('[ai-concierge] fetch error', err); return null; });
+    });
   }
 
   window.hcSend = function () {

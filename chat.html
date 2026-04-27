@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://ydrmjoppjxtmnwtvtinb.supabase.co; img-src 'self' data: https://i.imgur.com; object-src 'none'; base-uri 'self';">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://ydrmjoppjxtmnwtvtinb.supabase.co https://generativelanguage.googleapis.com; img-src 'self' data: https://i.imgur.com; object-src 'none'; base-uri 'self';">
 <title>Chat com a Equipe | HOSPEDAH</title>
 <meta name="description" content="Fale em tempo real com nossa equipe de especialistas HOSPEDAH. Tire dúvidas sobre reservas, disponibilidade e pacotes.">
 <link rel="canonical" href="https://hospedah.tur.br/chat.html">
@@ -661,6 +661,8 @@ body {
 <!-- Supabase carregado aqui (final do body) para não bloquear o render -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="assets/auth-guard.js"></script>
+<script src="/assets/ai-config.js"></script>
+<script src="/assets/ai-concierge.js"></script>
 <script>
 // ============================================================
 // SUPABASE
@@ -1059,30 +1061,27 @@ function prepararContextoAI(tipo, texto) {
 }
 
 /**
- * Envia o contexto para o Concierge IA, registra log no banco e retorna { resposta, logId }.
+ * Envia o contexto para o Concierge IA via Gemini e retorna { resposta, logId }.
  * Usado como fallback quando streaming falha.
  * @param {number} [temperature]
  * @returns {Promise<{resposta: string|null, logId: string|null}>}
  */
 async function escalarParaAI(temperature) {
-  const ctx = Object.assign({}, _aiContext, { temperature: temperature || 0.7 });
-  const edgeFnUrl = 'https://ydrmjoppjxtmnwtvtinb.supabase.co/functions/v1/ai-concierge';
   let resposta = null;
   try {
-    const res  = await fetch(edgeFnUrl, {
-      method:  'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SUPABASE_KEY },
-      body:    JSON.stringify(ctx),
-    });
-    const data = await res.json();
-    resposta = data.resposta || null;
+    resposta = await window.HOSPEDAH_AI.chamar(
+      _aiContext.lead,
+      _aiContext.mensagens,
+      _aiContext.contexto_intencao,
+      temperature || 0.7
+    );
   } catch (e) {
     return { resposta: null, logId: null };
   }
 
   if (!resposta) return { resposta: null, logId: null };
 
-  // Item 5: registrar interação no log de IA
+  // Registrar interação no log de IA
   let logId = null;
   try {
     const perguntaAtual = _aiContext.mensagens
@@ -1107,13 +1106,20 @@ async function escalarParaAI(temperature) {
  * @returns {Promise<string|null>}
  */
 function escalarParaAIStream(temperature) {
-  const ctx = Object.assign({}, _aiContext, { temperature: temperature || 0.7, stream: true });
-  const edgeFnUrl = 'https://ydrmjoppjxtmnwtvtinb.supabase.co/functions/v1/ai-concierge';
+  const key = (typeof window !== 'undefined' && window.GEMINI_API_KEY) || '';
+  if (!key) return Promise.resolve(null);
+  const payload = window.HOSPEDAH_AI.buildPayload(
+    _aiContext.lead,
+    _aiContext.mensagens,
+    _aiContext.contexto_intencao,
+    temperature || 0.7
+  );
+  if (!payload.contents || !payload.contents.length) return Promise.resolve(null);
 
-  return fetch(edgeFnUrl, {
+  return fetch(window.HOSPEDAH_AI.streamUrl(), {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SUPABASE_KEY },
-    body: JSON.stringify(ctx)
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
   }).then(function (res) {
     if (!res.ok || !res.body) return null; // chamador oculta typing indicator
 
