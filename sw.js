@@ -121,6 +121,16 @@ self.addEventListener('fetch', function (event) {
     return;
   }
 
+  /* ai-config.js: sempre da rede — contém a chave de API injetada pelo CI e nunca deve ser servida do cache */
+  if (url.pathname === '/assets/ai-config.js') {
+    event.respondWith(
+      fetch(req).catch(function () {
+        return caches.match(req);
+      })
+    );
+    return;
+  }
+
   /* CSS e JS locais: Stale-While-Revalidate — performance + frescor */
   if (url.origin === self.location.origin &&
       (url.pathname.endsWith('.css') || url.pathname.endsWith('.js'))) {
