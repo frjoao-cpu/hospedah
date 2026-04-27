@@ -1,5 +1,5 @@
 // ============================================================
-// HOSPEDAH — Edge Function: Concierge IA (Google Gemini 2.0 Flash)
+// HOSPEDAH — Edge Function: Concierge IA (Google Gemini 2.5 Flash)
 //
 // Variáveis de ambiente necessárias (Supabase Dashboard → Settings → Edge Functions):
 //   GEMINI_API_KEY  → chave da API Google AI Studio (gratuita em aistudio.google.com)
@@ -20,17 +20,26 @@
 import { serve } from 'https://deno.land/std@0.224.0/http/server.ts';
 
 const GEMINI_API_KEY = Deno.env.get('GEMINI_API_KEY') ?? '';
-const GEMINI_MODEL   = 'gemini-2.0-flash';
 const GEMINI_URL =
-  `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`;
+  'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent';
 const GEMINI_STREAM_URL =
-  `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:streamGenerateContent`;
+  'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:streamGenerateContent';
 
 const CORS_HEADERS: Record<string, string> = {
-  'Access-Control-Allow-Origin':  '*',
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
   'Access-Control-Allow-Headers': 'Content-Type, Authorization',
 };
+
+const ALLOWED_ORIGINS = [
+  'https://hospedah.tur.br',
+  'https://www.hospedah.tur.br',
+  'https://frjoao-cpu.github.io',
+];
+
+function getCorsHeaders(origin: string | null): Record<string, string> {
+  const allowed = origin && ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0];
+  return { ...CORS_HEADERS, 'Access-Control-Allow-Origin': allowed, 'Vary': 'Origin' };
+}
 
 const SYSTEM_PROMPT = `Você é o Concierge IA da HOSPEDAH, uma agência de turismo especializada em resorts e hospedagens de luxo no Brasil.
 
@@ -153,21 +162,24 @@ interface AiContext {
 }
 
 serve(async (req: Request): Promise<Response> => {
+  const origin = req.headers.get('Origin');
+  const corsH  = getCorsHeaders(origin);
+
   if (req.method === 'OPTIONS') {
-    return new Response(null, { status: 204, headers: CORS_HEADERS });
+    return new Response(null, { status: 204, headers: corsH });
   }
 
   if (req.method !== 'POST') {
     return new Response(
       JSON.stringify({ error: 'Método não permitido. Use POST.' }),
-      { status: 405, headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' } },
+      { status: 405, headers: { ...corsH, 'Content-Type': 'application/json' } },
     );
   }
 
   if (!GEMINI_API_KEY) {
     return new Response(
       JSON.stringify({ error: 'GEMINI_API_KEY não configurada.' }),
-      { status: 503, headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' } },
+      { status: 503, headers: { ...corsH, 'Content-Type': 'application/json' } },
     );
   }
 
@@ -177,23 +189,40 @@ serve(async (req: Request): Promise<Response> => {
   } catch {
     return new Response(
       JSON.stringify({ error: 'Payload JSON inválido.' }),
-      { status: 400, headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' } },
+      { status: 400, headers: { ...corsH, 'Content-Type': 'application/json' } },
     );
   }
 
   // Construir histórico de mensagens para o Gemini
   // O system prompt é injetado como primeiro turno "user" seguido de "model" vazio,
   // pois o Gemini 2.5 aceita system_instruction como campo separado.
-  const contents = (ctx.mensagens ?? []).map((m) => ({
+  const rawContents = (ctx.mensagens ?? []).map((m) => ({
     role: m.role === 'assistant' ? 'model' : 'user',
     parts: [{ text: m.content }],
   }));
 
+  // Gemini exige que o primeiro item em contents tenha role 'user'.
+  // Remover quaisquer mensagens 'model' no início do histórico
+  // (ex.: mensagem de boas-vindas roteirizada adicionada pelo front-end).
+  const firstUserIdx = rawContents.findIndex((c) => c.role === 'user');
+  const trimmedContents = firstUserIdx >= 0 ? rawContents.slice(firstUserIdx) : [];
+
+  // Mesclar mensagens consecutivas com o mesmo role para satisfazer a alternância obrigatória.
+  const contents: Array<{ role: string; parts: Array<{ text: string }> }> = [];
+  for (const c of trimmedContents) {
+    if (!c.parts.length) continue;
+    if (contents.length > 0 && contents[contents.length - 1].role === c.role) {
+      contents[contents.length - 1].parts[0].text += '\n' + c.parts[0].text;
+    } else {
+      contents.push({ role: c.role, parts: [{ text: c.parts[0].text }] });
+    }
+  }
+
   // Garantir que o histórico não esteja vazio antes de chamar a API
   if (contents.length === 0) {
     return new Response(
-      JSON.stringify({ error: 'Nenhuma mensagem no contexto.' }),
-      { status: 400, headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' } },
+      JSON.stringify({ error: 'Nenhuma mensagem do usuário no contexto.' }),
+      { status: 400, headers: { ...corsH, 'Content-Type': 'application/json' } },
     );
   }
 
@@ -228,7 +257,12 @@ serve(async (req: Request): Promise<Response> => {
     contents,
     generationConfig: {
       temperature,
-      maxOutputTokens: 1024,
+      maxOutputTokens: 4096,
+      // Disable thinking to prevent the model from generating only thought tokens
+      // with no actual response text, which causes empty replies in multi-turn chats.
+      thinkingConfig: {
+        thinkingBudget: 0,
+      },
     },
     safetySettings: [
       { category: 'HARM_CATEGORY_HARASSMENT',        threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
@@ -251,7 +285,7 @@ serve(async (req: Request): Promise<Response> => {
       console.error('[ai-concierge] Erro ao chamar Gemini streaming:', err);
       return new Response(
         JSON.stringify({ error: 'Falha de comunicação com a IA. Tente novamente.' }),
-        { status: 502, headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' } },
+        { status: 502, headers: { ...corsH, 'Content-Type': 'application/json' } },
       );
     }
 
@@ -260,14 +294,14 @@ serve(async (req: Request): Promise<Response> => {
       console.error('[ai-concierge] Gemini streaming erro:', streamRes.status, errBody);
       return new Response(
         JSON.stringify({ error: 'Serviço de IA indisponível. Tente mais tarde.' }),
-        { status: 502, headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' } },
+        { status: 502, headers: { ...corsH, 'Content-Type': 'application/json' } },
       );
     }
 
     return new Response(streamRes.body, {
       status: 200,
       headers: {
-        ...CORS_HEADERS,
+        ...corsH,
         'Content-Type': 'text/event-stream; charset=utf-8',
         'Cache-Control': 'no-cache',
         'X-Accel-Buffering': 'no',
@@ -287,7 +321,7 @@ serve(async (req: Request): Promise<Response> => {
     console.error('[ai-concierge] Erro ao chamar Gemini:', err);
     return new Response(
       JSON.stringify({ error: 'Falha de comunicação com a IA. Tente novamente.' }),
-      { status: 502, headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' } },
+      { status: 502, headers: { ...corsH, 'Content-Type': 'application/json' } },
     );
   }
 
@@ -296,23 +330,39 @@ serve(async (req: Request): Promise<Response> => {
     console.error('[ai-concierge] Gemini retornou erro:', geminiRes.status, errBody);
     return new Response(
       JSON.stringify({ error: 'Serviço de IA indisponível. Tente mais tarde.' }),
-      { status: 502, headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' } },
+      { status: 502, headers: { ...corsH, 'Content-Type': 'application/json' } },
     );
   }
 
   const geminiData = await geminiRes.json();
-  const resposta: string =
-    geminiData?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() ?? '';
+
+  // Log diagnostic info when candidates are missing (e.g. safety block)
+  if (!geminiData?.candidates?.length) {
+    const blockReason = geminiData?.promptFeedback?.blockReason ?? 'unknown';
+    console.error('[ai-concierge] Gemini retornou sem candidatos. blockReason:', blockReason);
+    return new Response(
+      JSON.stringify({ error: 'A IA não pôde processar a pergunta devido a restrições de segurança. Tente reformulá-la de outra forma.' }),
+      { status: 502, headers: { ...corsH, 'Content-Type': 'application/json' } },
+    );
+  }
+
+  const candidate = geminiData.candidates[0];
+  const parts: Array<{ text?: string; thought?: boolean }> =
+    candidate?.content?.parts ?? [];
+  const responsePart = parts.find((p) => !p.thought && p.text);
+  const resposta: string = responsePart?.text?.trim() ?? '';
 
   if (!resposta) {
+    const finishReason = candidate?.finishReason ?? 'unknown';
+    console.error('[ai-concierge] Resposta vazia. finishReason:', finishReason, 'parts count:', parts.length);
     return new Response(
-      JSON.stringify({ error: 'A IA não gerou uma resposta. Tente novamente.' }),
-      { status: 502, headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' } },
+      JSON.stringify({ error: 'A IA não conseguiu gerar uma resposta adequada. Tente reformular sua pergunta.' }),
+      { status: 502, headers: { ...corsH, 'Content-Type': 'application/json' } },
     );
   }
 
   return new Response(
     JSON.stringify({ resposta }),
-    { status: 200, headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' } },
+    { status: 200, headers: { ...corsH, 'Content-Type': 'application/json' } },
   );
 });

@@ -757,8 +757,8 @@ html[data-theme="light"] .panel-box textarea { background: #fafaf6; color: #222;
 .wpp-bubble {
   background: #fff; color: #222;
   border-radius: 14px 14px 4px 14px;
-  padding: 10px 14px; font-size: 12px;
-  font-weight: 500; max-width: 200px;
+  padding: 9px 12px; font-size: 12px;
+  font-weight: 500; max-width: 190px;
   box-shadow: 0 4px 18px rgba(0,0,0,0.2);
   display: none; text-align: left;
   line-height: 1.4;

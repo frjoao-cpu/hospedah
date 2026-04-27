@@ -1700,9 +1700,8 @@ tbody td {
       </div>
     </div>
 
-    <h3 style="margin:8px 0 10px; display:flex; align-items:center; justify-content:space-between;">
-      <span>📨 Comunicação automatizada (checkout / check-in / avaliações)</span>
-      <button class="btn btn-secondary btn-sm" onclick="limparAutomacoes()">🗑️ Limpar</button>
+    <h3 style="margin:8px 0 10px; display:flex; align-items:center; gap:10px;">📨 Comunicação automatizada (checkout / check-in / avaliações)
+      <button class="btn btn-secondary btn-sm" onclick="limparAutomacoes()" style="margin-left:auto;">🗑️ Limpar</button>
     </h3>
     <table>
       <thead>
@@ -1755,9 +1754,8 @@ tbody td {
       <tbody id="onboardingBody"></tbody>
     </table>
 
-    <h3 style="margin:20px 0 10px; display:flex; align-items:center; justify-content:space-between;">
-      <span>🧰 Tarefas e alertas automáticos (manutenção preventiva e pós-estada)</span>
-      <button class="btn btn-secondary btn-sm" onclick="limparManutencoes()">🗑️ Limpar</button>
+    <h3 style="margin:20px 0 10px; display:flex; align-items:center; gap:10px;">🧰 Tarefas e alertas automáticos (manutenção preventiva e pós-estada)
+      <button class="btn btn-secondary btn-sm" onclick="limparManutencoes()" style="margin-left:auto;">🗑️ Limpar</button>
     </h3>
     <table>
       <thead>
@@ -1809,9 +1807,8 @@ tbody td {
       <tbody id="faqBody"></tbody>
     </table>
 
-    <h3 style="margin:20px 0 10px; display:flex; align-items:center; justify-content:space-between;">
-      <span>🔐 Log de auditoria de operações</span>
-      <button class="btn btn-secondary btn-sm" onclick="limparAuditoria()">🗑️ Limpar</button>
+    <h3 style="margin:20px 0 10px; display:flex; align-items:center; gap:10px;">🔐 Log de auditoria de operações
+      <button class="btn btn-secondary btn-sm" onclick="limparAuditoria()" style="margin-left:auto;">🗑️ Limpar</button>
     </h3>
     <table>
       <thead>
@@ -3500,32 +3497,38 @@ function renderAuditoria() {
 }
 
 function limparAutomacoes() {
-  if (!confirm('Limpar todas as automações? Esta ação não pode ser desfeita.')) return;
+  if (!confirm('Deseja limpar todas as comunicações automatizadas?')) return;
   automacoes = [];
   salvarListaStorage(AUTO_KEY, automacoes);
-  renderTabelaAutomacoes();
   atualizarDashAutomacoes();
-  registrarAuditoria('Automações limpas', 'Todas as automações foram removidas manualmente.');
+  renderTabelaAutomacoes();
+  registrarAuditoria('Automações limpas', 'Tabela de comunicação automatizada foi esvaziada');
+  mostrarToast('✅ Comunicações limpas.', 'success');
 }
 
 function limparManutencoes() {
-  if (!confirm('Limpar todas as tarefas de manutenção? Esta ação não pode ser desfeita.')) return;
+  if (!confirm('Deseja limpar todas as tarefas de manutenção?')) return;
   manutencoes = [];
   salvarListaStorage(MAINT_KEY, manutencoes);
+  atualizarDashAutomacoes();
   renderTabelaManutencao();
-  registrarAuditoria('Manutenções limpas', 'Todas as tarefas de manutenção foram removidas manualmente.');
+  registrarAuditoria('Manutenções limpas', 'Tabela de tarefas e alertas foi esvaziada');
+  mostrarToast('✅ Tarefas limpas.', 'success');
 }
 
 function limparAuditoria() {
-  if (!confirm('Limpar todo o log de auditoria? Esta ação não pode ser desfeita.')) return;
+  if (!confirm('Deseja limpar o log de auditoria?')) return;
   auditLogs = [];
   salvarListaStorage(AUDIT_KEY, auditLogs);
   renderAuditoria();
+  mostrarToast('✅ Log de auditoria limpo.', 'success');
 }
 
 function limparMensagens() {
+  if (!confirm('Deseja limpar a lista de mensagens da tela? (Os dados permanecem no servidor — clique em Atualizar para recarregar)')) return;
   var body = document.getElementById('msgBody');
   if (body) body.innerHTML = '<tr><td colspan="6"><div class="empty-state"><div class="empty-icon">💬</div><div>Nenhuma mensagem ainda.</div></div></td></tr>';
+  mostrarToast('✅ Mensagens limpas da tela.', 'success');
 }
 
 function atualizarDashAutomacoes() {

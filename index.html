@@ -300,6 +300,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   <a href="#multi"       onclick="closeDrawer()">💎 Gestão | Multipropriedades</a>
   <a href="#contato"     onclick="closeDrawer()">📬 Contato</a>
   <a href="referral.html" onclick="closeDrawer()">🎁 Indicar &amp; Ganhar</a>
+  <a href="#" onclick="compartilharSite(); closeDrawer(); return false;">📤 Compartilhar site</a>
 
   <hr style="border-color:rgba(255,255,255,0.1);margin:8px 0;">
   <a href="https://wa.me/5517982006382" target="_blank" rel="noopener"
@@ -1518,6 +1519,27 @@ function trackWpp() {
   if (typeof fbq === 'function') fbq('track', 'Contact');
   if (window.dataLayer) dataLayer.push({ event: 'whatsapp_click', source: 'float_button' });
 }
+/* =====================
+   📤 COMPARTILHAR SITE
+===================== */
+function compartilharSite() {
+  var shareData = {
+    title: 'HOSPEDAH | Resorts e Experiências Exclusivas',
+    text: 'Conheça a HOSPEDAH! Resorts premium com atendimento exclusivo. Reserve agora!',
+    url: 'https://hospedah.tur.br/'
+  };
+  if (navigator.share) {
+    navigator.share(shareData).catch(function () {});
+  } else if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(shareData.url).then(function () {
+      alert('Link copiado: ' + shareData.url);
+    }).catch(function () {
+      alert('Compartilhe: ' + shareData.url);
+    });
+  } else {
+    alert('Compartilhe: ' + shareData.url);
+  }
+}
 // Aparece automaticamente após 4 segundos
 setTimeout(function () {
   if (!wppVisible) {
@@ -2285,7 +2307,7 @@ function gerarPropostaPDF() {
 <style>
 #hospedah-chat-btn {
   position: fixed;
-  bottom: 210px;
+  bottom: 230px;
   right: 20px;
   background: linear-gradient(135deg, #B8860B, #D4AF37);
   color: #0a2540;
@@ -2305,16 +2327,16 @@ function gerarPropostaPDF() {
 }
 @keyframes hcPulse { 50% { transform: scale(1.05); } }
 @media (max-width: 767px) {
-  #hospedah-chat-btn { bottom: 245px; } /* above bottom-nav (56px) + wpp button (~74px) + gap */
-  #hospedah-chat    { bottom: 315px !important; right: 12px !important; width: calc(100vw - 24px) !important; max-height: calc(100vh - 335px) !important; }
+  #hospedah-chat-btn { bottom: 268px; } /* above bottom-nav (56px) + wpp button (~74px) + bubble + gap */
+  #hospedah-chat    { bottom: 328px !important; right: 12px !important; width: calc(100vw - 24px) !important; max-height: calc(100vh - 392px) !important; }
 }
 #hospedah-chat {
   position: fixed;
-  bottom: 275px;
+  bottom: 285px;
   right: 20px;
   width: 360px;
   height: 520px;
-  max-height: calc(100vh - 275px);
+  max-height: calc(100vh - 349px); /* 285px bottom + 64px navbar = 349px; keeps top below navbar */
   background: #fff;
   border-radius: 18px;
   display: none;
@@ -2476,7 +2498,7 @@ function gerarPropostaPDF() {
     if (!disabled) document.getElementById('hc-user-input').focus();
   }
 
-  /* Chama a Edge Function ai-concierge (Gemini 2.0 Flash) */
+  /* Chama a Edge Function ai-concierge (Gemini 2.5 Flash) */
   function hcChamarIA(userMsg) {
     hcMensagens.push({ role: 'user', content: userMsg, ts: new Date().toISOString() });
     if (hcMensagens.length > 20) { hcMensagens = hcMensagens.slice(-20); }

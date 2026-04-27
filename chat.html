@@ -740,9 +740,11 @@ function iniciarChat() {
   const layout = document.getElementById('chatLayout');
   layout.style.display = 'flex';
 
-  // Mensagem de boas-vindas
+  // Mensagem de boas-vindas (gerada pelo front-end, não deve fazer parte do contexto da IA)
   const boasVindas = `Olá, **${nomeHospede}**! 👋 Sou da equipe HOSPEDAH. Vi que você quer falar sobre **${assunto}**. Como posso te ajudar hoje?`;
   addMessage('recv', 'HOSPEDAH', boasVindas, null);
+  // Resetar mensagens: a boas-vindas é roteirizada e não deve ser enviada à IA
+  _aiContext.mensagens = [];
 
   // Iniciar Realtime
   iniciarRealtime();
@@ -1153,11 +1155,11 @@ function escalarParaAIStream(temperature) {
           if (!jsonStr || jsonStr === '[DONE]') continue;
           try {
             const parsed = JSON.parse(jsonStr);
-            const partText =
+            const parts =
               (parsed && parsed.candidates && parsed.candidates[0] &&
-               parsed.candidates[0].content && parsed.candidates[0].content.parts &&
-               parsed.candidates[0].content.parts[0] &&
-               parsed.candidates[0].content.parts[0].text) || '';
+               parsed.candidates[0].content && parsed.candidates[0].content.parts) || [];
+            const textPart = parts.find(function (p) { return p.text && !p.thought; });
+            const partText = (textPart && textPart.text) || '';
             if (partText) {
               fullText += partText;
               bubbleEl.innerHTML = fullText.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
