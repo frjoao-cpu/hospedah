@@ -873,14 +873,15 @@ async function enviarMensagem() {
         scrollToBottom();
         return;
       }
-      // Streaming funcionou — salvar no Supabase
+      // Streaming funcionou — salvar no Supabase e registrar ID para evitar duplicata via Realtime
       try {
-        await sb.from('mensagens').insert([{
+        const { data: insertData } = await sb.from('mensagens').insert([{
           conversa_id:    conversaId,
           remetente:      'anfitriao',
           nome_remetente: 'HOSPEDAH ✨',
           conteudo:       respostaIA,
-        }]);
+        }]).select('id').single();
+        if (insertData && insertData.id) mensagensRendered.add(insertData.id);
       } catch (e) { /* silencioso */ }
       mostrarChipsFollowup();
       scrollToBottom();
@@ -1141,7 +1142,11 @@ function escalarParaAIStream(temperature) {
     function readChunk() {
       return reader.read().then(function (result) {
         if (result.done) {
-          if (!fullText) return null;
+          if (!fullText) {
+            // Remover bolha vazia criada antecipadamente
+            if (div.parentNode) div.parentNode.removeChild(div);
+            return null;
+          }
           prepararContextoAI('recv', fullText);
           return fullText;
         }
