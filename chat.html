@@ -834,7 +834,7 @@ async function enviarMensagem() {
 
   // Rate limiting
   if (!checkRateLimit()) {
-    addMessage('recv', 'HOSPEDAH', '⏳ Aguarde um momento antes de enviar mais mensagens.', null);
+    addMessage('recv', 'HOSPEDAH', '⏳ Aguarde um momento antes de enviar mais mensagens.', null, true);
     scrollToBottom();
     return;
   }
@@ -880,17 +880,18 @@ async function enviarMensagem() {
         if (resultado && resultado.resposta) {
           const msgEl = addMessage('recv', 'HOSPEDAH ✨', resultado.resposta, null);
           if (resultado.logId) adicionarFeedback(msgEl, resultado.logId);
-          sb.from('mensagens').insert([{
-            conversa_id:    conversaId,
-            remetente:      'anfitriao',
-            nome_remetente: 'HOSPEDAH ✨',
-            conteudo:       resultado.resposta,
-          }]).select('id').single().then(function (r) {
-            if (r.data && r.data.id) mensagensRendered.add(r.data.id);
-          }).catch(function () {});
+          try {
+            const { data: insertData } = await sb.from('mensagens').insert([{
+              conversa_id:    conversaId,
+              remetente:      'anfitriao',
+              nome_remetente: 'HOSPEDAH ✨',
+              conteudo:       resultado.resposta,
+            }]).select('id').single();
+            if (insertData && insertData.id) mensagensRendered.add(insertData.id);
+          } catch (e) { console.warn('[HOSPEDAH] Falha ao salvar resposta da IA no Supabase:', e); }
           mostrarChipsFollowup();
         } else {
-          addMessage('recv', 'HOSPEDAH', '✅ Mensagem recebida! Um especialista responderá em breve. Se preferir, pode também nos contatar pelo <a href="https://wa.me/5517982006382" target="_blank" style="color:var(--dourado)">WhatsApp</a>.', null);
+          addMessage('recv', 'HOSPEDAH', '✅ Mensagem recebida! Um especialista responderá em breve. Se preferir, pode também nos contatar pelo <a href="https://wa.me/5517982006382" target="_blank" style="color:var(--dourado)">WhatsApp</a>.', null, true);
         }
         scrollToBottom();
         return;
@@ -915,7 +916,7 @@ async function enviarMensagem() {
         const msgEl = addMessage('recv', 'HOSPEDAH ✨', resultado.resposta, null);
         if (resultado.logId) adicionarFeedback(msgEl, resultado.logId);
       } else {
-        addMessage('recv', 'HOSPEDAH', '✅ Mensagem recebida! Um especialista responderá em breve. Se preferir, pode também nos contatar pelo <a href="https://wa.me/5517982006382" target="_blank" style="color:var(--dourado)">WhatsApp</a>.', null);
+        addMessage('recv', 'HOSPEDAH', '✅ Mensagem recebida! Um especialista responderá em breve. Se preferir, pode também nos contatar pelo <a href="https://wa.me/5517982006382" target="_blank" style="color:var(--dourado)">WhatsApp</a>.', null, true);
       }
       scrollToBottom();
     });
@@ -1046,7 +1047,17 @@ function escapeHtml(str) {
 // ============================================================
 // ADD MENSAGEM NA UI
 // ============================================================
-function addMessage(tipo, nome, texto, isoTimestamp) {
+/**
+ * Adiciona uma mensagem na UI do chat.
+ * @param {'sent'|'recv'} tipo - Tipo da mensagem.
+ * @param {string} nome - Nome do remetente.
+ * @param {string} texto - Conteúdo da mensagem (HTML é permitido para mensagens 'recv').
+ * @param {string|null} isoTimestamp - Timestamp ISO ou null para usar a hora atual.
+ * @param {boolean} [skipContext=false] - Quando true, impede que a mensagem seja
+ *   adicionada ao histórico de contexto da IA (use para mensagens de sistema, avisos
+ *   de rate-limit e mensagens de fallback que não fazem parte da conversa com a IA).
+ */
+function addMessage(tipo, nome, texto, isoTimestamp, skipContext) {
   const el = document.getElementById('chatMessages');
   const div = document.createElement('div');
   div.className = `msg ${tipo}`;
@@ -1068,8 +1079,8 @@ function addMessage(tipo, nome, texto, isoTimestamp) {
 
   el.appendChild(div);
 
-  /* Prepara contexto para handoff ao concierge AI */
-  prepararContextoAI(tipo, texto);
+  /* Prepara contexto para handoff ao concierge AI — mensagens de sistema não entram no histórico */
+  if (!skipContext) prepararContextoAI(tipo, texto);
 
   scrollToBottom();
   return div;
