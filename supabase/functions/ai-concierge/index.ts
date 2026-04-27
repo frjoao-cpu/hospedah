@@ -26,10 +26,9 @@ const GEMINI_STREAM_URL =
   'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:streamGenerateContent';
 
 const CORS_HEADERS: Record<string, string> = {
-  'Access-Control-Allow-Origin':  'https://hospedah.tur.br',
+  'Access-Control-Allow-Origin':  '*',
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
   'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-  'Vary': 'Origin',
 };
 
 const SYSTEM_PROMPT = `Você é o Concierge IA da HOSPEDAH, uma agência de turismo especializada em resorts e hospedagens de luxo no Brasil.

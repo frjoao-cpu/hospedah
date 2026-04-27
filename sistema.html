@@ -1700,7 +1700,9 @@ tbody td {
       </div>
     </div>
 
-    <h3 style="margin:8px 0 10px;">📨 Comunicação automatizada (checkout / check-in / avaliações)</h3>
+    <h3 style="margin:8px 0 10px; display:flex; align-items:center; gap:10px;">📨 Comunicação automatizada (checkout / check-in / avaliações)
+      <button class="btn btn-secondary btn-sm" onclick="limparAutomacoes()" style="margin-left:auto;">🗑️ Limpar</button>
+    </h3>
     <table>
       <thead>
         <tr>
@@ -1752,7 +1754,9 @@ tbody td {
       <tbody id="onboardingBody"></tbody>
     </table>
 
-    <h3 style="margin:20px 0 10px;">🧰 Tarefas e alertas automáticos (manutenção preventiva e pós-estada)</h3>
+    <h3 style="margin:20px 0 10px; display:flex; align-items:center; gap:10px;">🧰 Tarefas e alertas automáticos (manutenção preventiva e pós-estada)
+      <button class="btn btn-secondary btn-sm" onclick="limparManutencoes()" style="margin-left:auto;">🗑️ Limpar</button>
+    </h3>
     <table>
       <thead>
         <tr>
@@ -1803,7 +1807,9 @@ tbody td {
       <tbody id="faqBody"></tbody>
     </table>
 
-    <h3 style="margin:20px 0 10px;">🔐 Log de auditoria de operações</h3>
+    <h3 style="margin:20px 0 10px; display:flex; align-items:center; gap:10px;">🔐 Log de auditoria de operações
+      <button class="btn btn-secondary btn-sm" onclick="limparAuditoria()" style="margin-left:auto;">🗑️ Limpar</button>
+    </h3>
     <table>
       <thead>
         <tr>
@@ -2329,6 +2335,7 @@ tbody td {
     <div class="section-title">
       💬 Mensagens Recebidas (Chat)
       <span style="margin-left:auto; display:flex; gap:8px;">
+        <button class="btn btn-secondary btn-sm" onclick="limparMensagens()">🗑️ Limpar</button>
         <button class="btn btn-secondary btn-sm" onclick="carregarMensagens()">🔄 Atualizar</button>
         <a href="chat.html" target="_blank"><button class="btn btn-secondary btn-sm">🔗 Abrir Chat</button></a>
       </span>
@@ -3487,6 +3494,41 @@ function renderAuditoria() {
       '<td>' + escapeHtml(a.detalhes || '—') + '</td>' +
       '</tr>';
   }).join('');
+}
+
+function limparAutomacoes() {
+  if (!confirm('Deseja limpar todas as comunicações automatizadas?')) return;
+  automacoes = [];
+  salvarListaStorage(AUTO_KEY, automacoes);
+  atualizarDashAutomacoes();
+  renderTabelaAutomacoes();
+  registrarAuditoria('Automações limpas', 'Tabela de comunicação automatizada foi esvaziada');
+  mostrarToast('✅ Comunicações limpas.', 'success');
+}
+
+function limparManutencoes() {
+  if (!confirm('Deseja limpar todas as tarefas de manutenção?')) return;
+  manutencoes = [];
+  salvarListaStorage(MAINT_KEY, manutencoes);
+  atualizarDashAutomacoes();
+  renderTabelaManutencao();
+  registrarAuditoria('Manutenções limpas', 'Tabela de tarefas e alertas foi esvaziada');
+  mostrarToast('✅ Tarefas limpas.', 'success');
+}
+
+function limparAuditoria() {
+  if (!confirm('Deseja limpar o log de auditoria?')) return;
+  auditLogs = [];
+  salvarListaStorage(AUDIT_KEY, auditLogs);
+  renderAuditoria();
+  mostrarToast('✅ Log de auditoria limpo.', 'success');
+}
+
+function limparMensagens() {
+  if (!confirm('Deseja limpar a lista de mensagens exibidas?')) return;
+  var body = document.getElementById('msgBody');
+  if (body) body.innerHTML = '<tr><td colspan="6"><div class="empty-state"><div class="empty-icon">💬</div><div>Nenhuma mensagem ainda.</div></div></td></tr>';
+  mostrarToast('✅ Mensagens limpas da tela.', 'success');
 }
 
 function atualizarDashAutomacoes() {
