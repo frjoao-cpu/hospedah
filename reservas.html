@@ -2248,8 +2248,9 @@ function _checkDatesForWizard() {
     if (!disabled) document.getElementById('hc-user-input').focus();
   }
 
-  /* Chama a IA Gemini 2.0 Flash diretamente */
+  /* Chama a IA Gemini diretamente */
   function hcChamarIA(userMsg) {
+    if (!window.HOSPEDAH_AI) return Promise.resolve(null);
     hcMensagens.push({ role: 'user', content: userMsg, ts: new Date().toISOString() });
     if (hcMensagens.length > 20) { hcMensagens = hcMensagens.slice(-20); }
     var intencao = { pagina_origem: 'reservas' };
@@ -2269,6 +2270,17 @@ function _checkDatesForWizard() {
       if (resp) { hcMensagens.push({ role: 'assistant', content: resp, ts: new Date().toISOString() }); }
       return resp;
     });
+  }
+
+  function hcHandleResp(resp) {
+    hcRemoveTyping();
+    if (resp) {
+      hcAddMsg(resp, 'bot');
+    } else {
+      hcAddMsg('Desculpe, não consegui responder agora. Fale pelo WhatsApp 📱 (17) 98200-6382', 'bot');
+    }
+    hcWaiting = false;
+    hcSetInput(false);
   }
 
   window.hcSend = function () {
@@ -2297,16 +2309,7 @@ function _checkDatesForWizard() {
     hcWaiting = true;
     hcSetInput(true);
     hcAddTyping();
-    hcChamarIA(txt).then(function (resp) {
-      hcRemoveTyping();
-      if (resp) {
-        hcAddMsg(resp, 'bot');
-      } else {
-        hcAddMsg('Desculpe, não consegui responder agora. Fale pelo WhatsApp 📱 (17) 98200-6382', 'bot');
-      }
-      hcWaiting = false;
-      hcSetInput(false);
-    });
+    hcChamarIA(txt).then(hcHandleResp).catch(function () { hcHandleResp(null); });
   };
 
   setTimeout(function () {
