@@ -196,15 +196,32 @@ serve(async (req: Request): Promise<Response> => {
   // Construir histórico de mensagens para o Gemini
   // O system prompt é injetado como primeiro turno "user" seguido de "model" vazio,
   // pois o Gemini 2.5 aceita system_instruction como campo separado.
-  const contents = (ctx.mensagens ?? []).map((m) => ({
+  const rawContents = (ctx.mensagens ?? []).map((m) => ({
     role: m.role === 'assistant' ? 'model' : 'user',
     parts: [{ text: m.content }],
   }));
 
+  // Gemini exige que o primeiro item em contents tenha role 'user'.
+  // Remover quaisquer mensagens 'model' no início do histórico
+  // (ex.: mensagem de boas-vindas roteirizada adicionada pelo front-end).
+  const firstUserIdx = rawContents.findIndex((c) => c.role === 'user');
+  const trimmedContents = firstUserIdx >= 0 ? rawContents.slice(firstUserIdx) : [];
+
+  // Mesclar mensagens consecutivas com o mesmo role para satisfazer a alternância obrigatória.
+  const contents: Array<{ role: string; parts: Array<{ text: string }> }> = [];
+  for (const c of trimmedContents) {
+    if (!c.parts.length) continue;
+    if (contents.length > 0 && contents[contents.length - 1].role === c.role) {
+      contents[contents.length - 1].parts[0].text += '\n' + c.parts[0].text;
+    } else {
+      contents.push({ role: c.role, parts: [{ text: c.parts[0].text }] });
+    }
+  }
+
   // Garantir que o histórico não esteja vazio antes de chamar a API
   if (contents.length === 0) {
     return new Response(
-      JSON.stringify({ error: 'Nenhuma mensagem no contexto.' }),
+      JSON.stringify({ error: 'Nenhuma mensagem do usuário no contexto.' }),
       { status: 400, headers: { ...corsH, 'Content-Type': 'application/json' } },
     );
   }
