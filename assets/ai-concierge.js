@@ -12,7 +12,7 @@
 // ============================================================
 /* global window, fetch */
 (function () {
-  var GEMINI_MODEL = 'gemini-2.0-flash';
+  var GEMINI_MODEL = 'gemini-2.5-flash';
   var GEMINI_BASE = 'https://generativelanguage.googleapis.com/v1beta/models/' + GEMINI_MODEL;
   var EDGE_FN_URL = 'https://ydrmjoppjxtmnwtvtinb.supabase.co/functions/v1/ai-concierge';
   // Chave anon pública do projeto Supabase — obrigatória no header da requisição
@@ -73,7 +73,9 @@
       generationConfig: {
         temperature: temp,
         // 8192 tokens acomodam respostas detalhadas sobre resorts mais o FAQ injetado no contexto
-        maxOutputTokens: 8192
+        maxOutputTokens: 8192,
+        // Desabilitar thinking mode: mantém o formato de resposta simples (sem partes de pensamento)
+        thinkingConfig: { thinkingBudget: 0 }
       },
       safetySettings: [
         { category: 'HARM_CATEGORY_HARASSMENT',        threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
@@ -180,7 +182,8 @@
         var parts = (data.candidates[0].content && data.candidates[0].content.parts) || [];
         var textPart = null;
         for (var i = 0; i < parts.length; i++) {
-          if (parts[i].text) { textPart = parts[i]; break; }
+          // Pular partes de "pensamento" (thought: true) que o modelo Gemini 2.5+ pode incluir
+          if (parts[i].text && !parts[i].thought) { textPart = parts[i]; break; }
         }
         if (!textPart || !textPart.text) {
           console.warn('[HOSPEDAH_AI] Gemini retornou sem texto.');
