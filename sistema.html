@@ -1535,8 +1535,11 @@ tbody td {
       <span style="margin-left:auto; display:flex; gap:8px;">
         <button class="btn btn-secondary btn-sm" onclick="exportarCSV()">📥 Exportar CSV</button>
         <button class="btn btn-secondary btn-sm" onclick="window.print()">🖨️ Imprimir</button>
+        <button class="btn btn-secondary btn-sm" id="reservasToggleBtn" onclick="toggleReservas()" title="Minimizar/Expandir tabela">▼ Minimizar</button>
       </span>
     </div>
+
+    <div id="reservasContent">
 
     <!-- Filtros -->
     <div class="filter-bar">
@@ -1623,6 +1626,8 @@ tbody td {
         </tr>
       </tbody>
     </table>
+
+    </div><!-- end reservasContent -->
   </section>
 
   <!-- ==========================================
@@ -2007,8 +2012,11 @@ tbody td {
       <span style="margin-left:auto; display:flex; gap:8px;">
         <button class="btn btn-secondary btn-sm" onclick="exportarCSVCaptacao()">📥 Exportar CSV</button>
         <button class="btn btn-secondary btn-sm" onclick="window.print()">🖨️ Imprimir</button>
+        <button class="btn btn-secondary btn-sm" id="captacoesToggleBtn" onclick="toggleCaptacoes()" title="Minimizar/Expandir tabela">▼ Minimizar</button>
       </span>
     </div>
+
+    <div id="captacoesContent">
 
     <!-- Filtros -->
     <div class="filter-bar">
@@ -2109,6 +2117,8 @@ tbody td {
         </tr>
       </tbody>
     </table>
+
+    </div><!-- end captacoesContent -->
   </section>
 
   <!-- ==========================================
@@ -6351,6 +6361,24 @@ function pdToggleTable() {
   if (!table || !btn) return;
   var collapsed = table.style.display === 'none';
   table.style.display = collapsed ? '' : 'none';
+  btn.textContent = collapsed ? '▼ Minimizar' : '▲ Expandir';
+}
+
+function toggleReservas() {
+  var content = document.getElementById('reservasContent');
+  var btn = document.getElementById('reservasToggleBtn');
+  if (!content || !btn) return;
+  var collapsed = content.style.display === 'none';
+  content.style.display = collapsed ? '' : 'none';
+  btn.textContent = collapsed ? '▼ Minimizar' : '▲ Expandir';
+}
+
+function toggleCaptacoes() {
+  var content = document.getElementById('captacoesContent');
+  var btn = document.getElementById('captacoesToggleBtn');
+  if (!content || !btn) return;
+  var collapsed = content.style.display === 'none';
+  content.style.display = collapsed ? '' : 'none';
   btn.textContent = collapsed ? '▼ Minimizar' : '▲ Expandir';
 }
 
