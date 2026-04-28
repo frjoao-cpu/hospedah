@@ -1088,11 +1088,12 @@ tbody td {
   max-width: 100%;
 }
 .pd-cal-day.blocked {
-  background: rgba(231,76,60,0.12);
-  border-color: rgba(231,76,60,0.25);
+  background: rgba(231,76,60,0.30);
+  border-color: rgba(231,76,60,0.70);
+  box-shadow: inset 0 0 0 1px rgba(231,76,60,0.45);
 }
-.pd-cal-day.blocked .d-num { color: var(--vermelho); }
-.pd-cal-day.blocked .d-price { color: rgba(231,76,60,0.7); }
+.pd-cal-day.blocked .d-num { color: var(--vermelho); font-weight: 700; }
+.pd-cal-day.blocked .d-price { color: rgba(231,76,60,0.85); }
 .pd-cal-day.range-start,
 .pd-cal-day.range-end {
   background: var(--dourado);
@@ -6489,6 +6490,21 @@ async function adicionarPrecoDinamico() {
   if (!preco || preco <= 0) { toastSistema('Informe o preço por noite.', 'error'); return; }
 
   try {
+    // Apaga preços existentes que se sobrepõem ao período selecionado antes de inserir o novo
+    var delQ = _supabase
+      .from('precos_dinamicos')
+      .delete()
+      .eq('resort_nome', resort)
+      .lte('data_inicio', fim)
+      .gte('data_fim', ini);
+    if (dormitorios) {
+      delQ = delQ.eq('num_dormitorios', dormitorios);
+    } else {
+      delQ = delQ.is('num_dormitorios', null);
+    }
+    var { error: delErr } = await delQ;
+    if (delErr) throw delErr;
+
     var { error } = await _supabase.from('precos_dinamicos').insert([{
       resort_nome:         resort,
       tipo_regra:          tipo,
