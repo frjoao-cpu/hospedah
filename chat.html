@@ -794,7 +794,7 @@ function iniciarRealtime() {
       if (msg.remetente === 'anfitriao' && !mensagensRendered.has(msg.id)) {
         mensagensRendered.add(msg.id);
         ocultarDigitando();
-        addMessage('recv', msg.nome_remetente, msg.conteudo, msg.created_at);
+        addMessage('recv', msg.nome_remetente, msg.conteudo, msg.criado_em);
       }
     })
     .subscribe();
@@ -809,19 +809,28 @@ async function carregarHistorico() {
       .from('mensagens')
       .select('*')
       .eq('conversa_id', conversaId)
-      .order('created_at', { ascending: true });
+      .order('criado_em', { ascending: true });
 
     if (data && data.length) {
       data.forEach(function (msg) {
         if (!mensagensRendered.has(msg.id)) {
           mensagensRendered.add(msg.id);
           const tipo = msg.remetente === 'hospede' ? 'sent' : 'recv';
-          addMessage(tipo, msg.nome_remetente, msg.conteudo, msg.created_at);
+          addMessage(tipo, msg.nome_remetente, msg.conteudo, msg.criado_em);
         }
       });
       scrollToBottom();
     }
   } catch (e) { /* fallback silencioso */ }
+}
+
+// Gera um UUID v4 com fallback de alta entropia para ambientes sem crypto.randomUUID
+function gerarMsgId() {
+  if (typeof crypto !== 'undefined' && crypto.randomUUID) return crypto.randomUUID();
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+    var r = Math.random() * 16 | 0;
+    return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+  });
 }
 
 // ============================================================
@@ -881,13 +890,16 @@ async function enviarMensagem() {
           const msgEl = addMessage('recv', 'HOSPEDAH ✨', resultado.resposta, null);
           if (resultado.logId) adicionarFeedback(msgEl, resultado.logId);
           try {
-            const { data: insertData } = await sb.from('mensagens').insert([{
+            // Pré-registrar UUID para evitar duplicata caso o Realtime dispare antes do insert retornar
+            const msgId = gerarMsgId();
+            mensagensRendered.add(msgId);
+            await sb.from('mensagens').insert([{
+              id:             msgId,
               conversa_id:    conversaId,
               remetente:      'anfitriao',
               nome_remetente: 'HOSPEDAH ✨',
               conteudo:       resultado.resposta,
-            }]).select('id').single();
-            if (insertData && insertData.id) mensagensRendered.add(insertData.id);
+            }]);
           } catch (e) { console.warn('[HOSPEDAH] Falha ao salvar resposta da IA no Supabase:', e); }
           mostrarChipsFollowup();
         } else {
@@ -896,15 +908,17 @@ async function enviarMensagem() {
         scrollToBottom();
         return;
       }
-      // Streaming funcionou — salvar no Supabase e registrar ID para evitar duplicata via Realtime
+      // Streaming funcionou — salvar no Supabase e pré-registrar ID para evitar duplicata via Realtime
       try {
-        const { data: insertData } = await sb.from('mensagens').insert([{
+        const msgId = gerarMsgId();
+        mensagensRendered.add(msgId);
+        await sb.from('mensagens').insert([{
+          id:             msgId,
           conversa_id:    conversaId,
           remetente:      'anfitriao',
           nome_remetente: 'HOSPEDAH ✨',
           conteudo:       respostaIA,
-        }]).select('id').single();
-        if (insertData && insertData.id) mensagensRendered.add(insertData.id);
+        }]);
       } catch (e) { /* silencioso */ }
       mostrarChipsFollowup();
       scrollToBottom();
@@ -915,6 +929,17 @@ async function enviarMensagem() {
       if (resultado && resultado.resposta) {
         const msgEl = addMessage('recv', 'HOSPEDAH ✨', resultado.resposta, null);
         if (resultado.logId) adicionarFeedback(msgEl, resultado.logId);
+        try {
+          const msgId = gerarMsgId();
+          mensagensRendered.add(msgId);
+          await sb.from('mensagens').insert([{
+            id:             msgId,
+            conversa_id:    conversaId,
+            remetente:      'anfitriao',
+            nome_remetente: 'HOSPEDAH ✨',
+            conteudo:       resultado.resposta,
+          }]);
+        } catch (e) { /* silencioso */ }
       } else {
         addMessage('recv', 'HOSPEDAH', '✅ Mensagem recebida! Um especialista responderá em breve. Se preferir, pode também nos contatar pelo <a href="https://wa.me/5517982006382" target="_blank" style="color:var(--dourado)">WhatsApp</a>.', null, true);
       }

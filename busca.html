@@ -2094,7 +2094,14 @@ filtrar = function() {
   function hcAddMsg(text, type) {
     var div = document.createElement('div');
     div.className = 'hc-msg hc-' + type;
-    div.textContent = text;
+    if (type === 'bot') {
+      var safe = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      safe = safe.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+      safe = safe.replace(/\n/g, '<br>');
+      div.innerHTML = safe;
+    } else {
+      div.textContent = text;
+    }
     hcMsgs.appendChild(div);
     hcMsgs.scrollTop = hcMsgs.scrollHeight;
   }
