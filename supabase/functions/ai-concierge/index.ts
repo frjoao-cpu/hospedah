@@ -1,15 +1,18 @@
 // ============================================================
 // HOSPEDAH — Edge Function: Concierge IA (Google Gemini 2.0 Flash)
 //
-// Variáveis de ambiente necessárias (Supabase Dashboard → Settings → Edge Functions):
-//   GEMINI_API_KEY  → chave da API Google AI Studio (gratuita em aistudio.google.com)
+// Variáveis de ambiente (Supabase Dashboard → Settings → Edge Functions):
+//   GEMINI_API_KEY  → chave da API Google AI Studio (aistudio.google.com)
+//                     Se não estiver configurada, a Edge Function aceita a chave
+//                     enviada pelo cliente no campo `gemini_key` do payload.
 //
 // Payload esperado (POST JSON):
 //   {
 //     lead: { nome: string, assunto: string },
 //     conversa_id: string,
 //     mensagens: Array<{ role: 'user' | 'assistant', content: string, ts: string }>,
-//     timestamp_inicio: string
+//     timestamp_inicio: string,
+//     gemini_key?: string   // fallback quando GEMINI_API_KEY não está no Supabase
 //   }
 //
 // Resposta:
@@ -167,6 +170,9 @@ interface AiContext {
   temperature?: number;
   stream?: boolean;
   faq_extras?: string;
+  /** Chave Gemini fornecida pelo cliente — usada como fallback quando a variável de
+   *  ambiente GEMINI_API_KEY não estiver configurada no Supabase. */
+  gemini_key?: string;
 }
 
 serve(async (req: Request): Promise<Response> => {
@@ -184,13 +190,6 @@ serve(async (req: Request): Promise<Response> => {
     );
   }
 
-  if (!GEMINI_API_KEY) {
-    return new Response(
-      JSON.stringify({ error: 'GEMINI_API_KEY não configurada.' }),
-      { status: 503, headers: { ...corsH, 'Content-Type': 'application/json' } },
-    );
-  }
-
   let ctx: AiContext;
   try {
     ctx = await req.json() as AiContext;
@@ -198,6 +197,17 @@ serve(async (req: Request): Promise<Response> => {
     return new Response(
       JSON.stringify({ error: 'Payload JSON inválido.' }),
       { status: 400, headers: { ...corsH, 'Content-Type': 'application/json' } },
+    );
+  }
+
+  // Escolher a chave Gemini: variável de ambiente (configurada no Supabase Dashboard)
+  // tem prioridade; caso não esteja definida, usa a chave fornecida pelo cliente no payload.
+  // Nota: gemini_key é a mesma chave já pública em assets/ai-config.js — não há exposição adicional.
+  const effectiveKey = GEMINI_API_KEY || ctx.gemini_key;
+  if (!effectiveKey) {
+    return new Response(
+      JSON.stringify({ error: 'GEMINI_API_KEY não configurada.' }),
+      { status: 503, headers: { ...corsH, 'Content-Type': 'application/json' } },
     );
   }
 
@@ -284,7 +294,7 @@ serve(async (req: Request): Promise<Response> => {
   if (ctx.stream === true) {
     let streamRes: Response;
     try {
-      streamRes = await fetch(`${GEMINI_STREAM_URL}?alt=sse&key=${GEMINI_API_KEY}`, {
+      streamRes = await fetch(`${GEMINI_STREAM_URL}?alt=sse&key=${effectiveKey}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(geminiPayload),
@@ -320,7 +330,7 @@ serve(async (req: Request): Promise<Response> => {
   // ── NON-STREAMING (default) path ────────────────────────────
   let geminiRes: Response;
   try {
-    geminiRes = await fetch(`${GEMINI_URL}?key=${GEMINI_API_KEY}`, {
+    geminiRes = await fetch(`${GEMINI_URL}?key=${effectiveKey}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(geminiPayload),

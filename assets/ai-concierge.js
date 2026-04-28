@@ -85,7 +85,8 @@
   }
 
   function buildEdgePayload(lead, mensagens, intencao, temperature, faqExtras) {
-    return {
+    var k = getKey();
+    var payload = {
       lead: lead || { nome: '', assunto: '' },
       conversa_id: 'web_' + buildConversationId(),
       mensagens: mensagens || [],
@@ -94,6 +95,8 @@
       temperature: typeof temperature === 'number' ? temperature : undefined,
       faq_extras: faqExtras || ''
     };
+    if (k) payload.gemini_key = k;
+    return payload;
   }
 
   function getKey() {
