@@ -1152,6 +1152,79 @@ tbody td {
   gap: 10px;
   margin-bottom: 12px;
 }
+
+/* ── Period picker widget (Início / Término) ── */
+.pd-period-picker {
+  background: rgba(212,175,55,0.05);
+  border: 1px solid rgba(212,175,55,0.25);
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-bottom: 16px;
+}
+.pd-period-picker-title {
+  font-size: 0.88em;
+  font-weight: 600;
+  color: var(--dourado);
+  margin-bottom: 10px;
+}
+.pd-period-fields {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  border: 1.5px solid rgba(212,175,55,0.35);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.pd-period-field {
+  flex: 1;
+  background: rgba(255,255,255,0.03);
+  padding: 10px 14px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+  min-width: 120px;
+}
+.pd-period-field:first-child {
+  border-right: 1px solid rgba(212,175,55,0.25);
+}
+.pd-period-field:focus-within,
+.pd-period-field.pd-field-active {
+  background: rgba(212,175,55,0.1);
+}
+.pd-period-field-label {
+  font-size: 0.70em;
+  color: var(--cor-sub);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 3px;
+}
+.pd-period-field input[type="date"] {
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--cor-texto);
+  font-size: 0.92em;
+  font-weight: 500;
+  font-family: inherit;
+  width: 100%;
+  cursor: pointer;
+  padding: 0;
+}
+.pd-period-field input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(0.6) sepia(1) saturate(2) hue-rotate(5deg);
+  cursor: pointer;
+  opacity: 0.7;
+}
+.pd-period-info {
+  margin-top: 10px;
+  font-size: 0.82em;
+  color: var(--cor-sub);
+  min-height: 1.3em;
+}
+.pd-period-info.has-nights {
+  color: var(--dourado);
+  font-weight: 600;
+}
 </style>
 </head>
 
@@ -2269,6 +2342,22 @@ tbody td {
 
     <!-- Step 2: Calendar (shown after resort selected) -->
     <div class="pd-cal-wrap" id="pdCalWrap">
+
+      <!-- Period picker: Início / Término -->
+      <div class="pd-period-picker" id="pdPeriodPicker">
+        <div class="pd-period-picker-title">📅 Selecione o período</div>
+        <div class="pd-period-fields">
+          <div class="pd-period-field" id="pdFieldIni">
+            <div class="pd-period-field-label">Início</div>
+            <input type="date" id="pd_date_ini_vis" onchange="pdDateInputChange()" title="Data de início">
+          </div>
+          <div class="pd-period-field" id="pdFieldFim">
+            <div class="pd-period-field-label">Término (opcional)</div>
+            <input type="date" id="pd_date_fim_vis" onchange="pdDateInputChange()" title="Data de término">
+          </div>
+        </div>
+        <div class="pd-period-info" id="pdPeriodInfo">Selecione noites únicas ou intervalos de datas para editar</div>
+      </div>
 
       <!-- Mode toggle + month navigation -->
       <div class="pd-cal-controls">
@@ -6149,6 +6238,7 @@ function pdCalClickDay(ds) {
     document.getElementById('pdEntryPanel').classList.remove('active');
     document.getElementById('pd_data_ini').value = '';
     document.getElementById('pd_data_fim').value = '';
+    pdSyncVisibleDateInputs();
   } else {
     // Set end
     if (ds < pdCal.rangeStart) {
@@ -6160,6 +6250,7 @@ function pdCalClickDay(ds) {
     // Populate hidden inputs
     document.getElementById('pd_data_ini').value = pdCal.rangeStart;
     document.getElementById('pd_data_fim').value = pdCal.rangeEnd;
+    pdSyncVisibleDateInputs();
     // Show entry panel
     pdShowEntryPanel();
   }
@@ -6183,6 +6274,7 @@ function pdShowEntryPanel() {
   if (noitesDisp) {
     noitesDisp.value = noites > 0 ? noites + (noites === 1 ? ' noite' : ' noites') : '1 noite';
   }
+  pdSyncVisibleDateInputs();
   if (panel) panel.classList.add('active');
   calcMultiplicador();
 }
@@ -6194,6 +6286,7 @@ function pdClearSelection() {
   document.getElementById('pdEntryPanel').classList.remove('active');
   document.getElementById('pd_data_ini').value = '';
   document.getElementById('pd_data_fim').value = '';
+  pdSyncVisibleDateInputs();
   pdUpdateRangeHighlight();
 }
 
@@ -6212,6 +6305,7 @@ function pdSetMode(mode) {
   document.getElementById('pdEntryPanel').classList.remove('active');
   document.getElementById('pd_data_ini').value = '';
   document.getElementById('pd_data_fim').value = '';
+  pdSyncVisibleDateInputs();
 
   var modeBtnIds = { price: 'pdModePrice', block: 'pdModeBlock', unblock: 'pdModeUnblock' };
   Object.keys(modeBtnIds).forEach(function(m) {
@@ -6219,6 +6313,97 @@ function pdSetMode(mode) {
     if (btn) btn.classList.toggle('active', m === mode);
   });
   pdUpdateRangeHighlight();
+}
+
+// Sync the visible date inputs (Início/Término) from pdCal state
+function pdSyncVisibleDateInputs() {
+  var iniEl = document.getElementById('pd_date_ini_vis');
+  var fimEl = document.getElementById('pd_date_fim_vis');
+  if (iniEl) iniEl.value = pdCal.rangeStart || '';
+  if (fimEl) fimEl.value = pdCal.rangeEnd   || '';
+  pdUpdatePeriodInfo();
+}
+
+// Called when user types/picks a date in the visible inputs
+function pdDateInputChange() {
+  var iniEl = document.getElementById('pd_date_ini_vis');
+  var fimEl = document.getElementById('pd_date_fim_vis');
+  var ini = iniEl ? iniEl.value : '';
+  var fim = fimEl ? fimEl.value : '';
+  var todayStr = pdTodayStr();
+
+  if (ini && ini < todayStr) {
+    toastSistema('A data de início não pode ser no passado.', 'error');
+    iniEl.value = '';
+    ini = '';
+  }
+  if (fim && fim < todayStr) {
+    toastSistema('A data de término não pode ser no passado.', 'error');
+    fimEl.value = '';
+    fim = '';
+  }
+
+  if (ini && fim) {
+    if (fim < ini) {
+      pdCal.rangeStart = fim;
+      pdCal.rangeEnd   = ini;
+      if (iniEl) iniEl.value = pdCal.rangeStart;
+      if (fimEl) fimEl.value = pdCal.rangeEnd;
+    } else {
+      pdCal.rangeStart = ini;
+      pdCal.rangeEnd   = fim;
+    }
+  } else if (ini) {
+    pdCal.rangeStart = ini;
+    pdCal.rangeEnd   = null;
+  } else {
+    pdCal.rangeStart = null;
+    pdCal.rangeEnd   = null;
+  }
+  pdCal.hoverDate = null;
+
+  // Navigate calendar to show the start date
+  if (pdCal.rangeStart) {
+    var parts = pdCal.rangeStart.split('-');
+    pdCal.year  = parseInt(parts[0], 10);
+    pdCal.month = parseInt(parts[1], 10) - 1;
+  }
+
+  // Sync hidden inputs
+  document.getElementById('pd_data_ini').value = pdCal.rangeStart || '';
+  document.getElementById('pd_data_fim').value = pdCal.rangeEnd   || '';
+
+  pdUpdatePeriodInfo();
+  pdRenderCalendar();
+
+  if (pdCal.rangeStart && pdCal.rangeEnd && pdCal.mode === 'price') {
+    pdShowEntryPanel();
+  } else {
+    var ep = document.getElementById('pdEntryPanel');
+    if (ep) ep.classList.remove('active');
+  }
+}
+
+// Update the "X noites selecionadas" info text
+function pdUpdatePeriodInfo() {
+  var infoEl = document.getElementById('pdPeriodInfo');
+  if (!infoEl) return;
+  var ini = pdCal.rangeStart;
+  var fim = pdCal.rangeEnd;
+  if (ini && fim) {
+    var d1 = new Date(ini + 'T00:00:00');
+    var d2 = new Date(fim + 'T00:00:00');
+    var noites = Math.round((d2 - d1) / 86400000);
+    noites = noites > 0 ? noites : 1;
+    infoEl.textContent = noites + (noites === 1 ? ' noite selecionada' : ' noites selecionadas');
+    infoEl.className = 'pd-period-info has-nights';
+  } else if (ini) {
+    infoEl.textContent = '1 noite selecionada';
+    infoEl.className = 'pd-period-info has-nights';
+  } else {
+    infoEl.textContent = 'Selecione noites únicas ou intervalos de datas para editar';
+    infoEl.className = 'pd-period-info';
+  }
 }
 
 async function pdToggleBlockDate(ds, block) {
