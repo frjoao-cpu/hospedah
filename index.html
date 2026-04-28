@@ -2626,30 +2626,9 @@ function gerarPropostaPDF() {
       hcNome = txt; hcEtapa++;
       hcSetInput(true);
       setTimeout(function () {
-        hcAddMsg('Prazer, ' + hcNome + '! 😊 Para te indicar o resort ideal, me conta:<br><br>👉 Quantas pessoas vão viajar?<br>👉 Prefere mais <b>economia</b> ou <b>conforto</b>?<br>👉 Quer ficar próximo aos parques aquáticos?', 'bot');
+        hcAddMsg('Prazer, ' + hcNome + '! 😊 Já tem algum resort em mente, ou prefere uma indicação personalizada?', 'bot');
         hcSetInput(false);
       }, 500);
-      return;
-    }
-
-    /* etapa 1 — qualificação de perfil → mostrar recomendação */
-    if (hcEtapa === 1) {
-      hcEtapa++;
-      var lower = txt.toLowerCase();
-      if (lower.match(/famil|grupo|crian|pessoas|adultos/)) hcPerfil.tipo = 'familia';
-      if (lower.match(/econom|barato|custo/))             hcPerfil.orcamento = 'baixo';
-      if (lower.match(/confort|luxo|premium/))            hcPerfil.orcamento = 'alto';
-      if (lower.match(/parque|aquatic|therma/))           hcPerfil.parque = true;
-      hcAssunto = 'Reserva';
-      hcSetInput(true);
-      hcAddTyping();
-      var recText = hcRecomendar(hcPerfil);
-      setTimeout(function () {
-        hcRemoveTyping();
-        hcAddMsg(recText, 'bot');
-        hcMensagens.push({ role: 'assistant', content: recText, ts: new Date().toISOString() });
-        hcSetInput(false);
-      }, 1200);
       return;
     }
 
