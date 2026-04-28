@@ -86,16 +86,17 @@
 
   function buildEdgePayload(lead, mensagens, intencao, temperature, faqExtras) {
     var k = getKey();
-    return {
+    var payload = {
       lead: lead || { nome: '', assunto: '' },
       conversa_id: 'web_' + buildConversationId(),
       mensagens: mensagens || [],
       timestamp_inicio: new Date().toISOString(),
       contexto_intencao: intencao || {},
       temperature: typeof temperature === 'number' ? temperature : undefined,
-      faq_extras: faqExtras || '',
-      gemini_key: k || undefined
+      faq_extras: faqExtras || ''
     };
+    if (k) payload.gemini_key = k;
+    return payload;
   }
 
   function getKey() {
