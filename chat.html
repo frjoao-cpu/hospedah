@@ -824,6 +824,15 @@ async function carregarHistorico() {
   } catch (e) { /* fallback silencioso */ }
 }
 
+// Gera um UUID v4 com fallback de alta entropia para ambientes sem crypto.randomUUID
+function gerarMsgId() {
+  if (typeof crypto !== 'undefined' && crypto.randomUUID) return crypto.randomUUID();
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+    var r = Math.random() * 16 | 0;
+    return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+  });
+}
+
 // ============================================================
 // ENVIAR MENSAGEM
 // ============================================================
@@ -882,10 +891,10 @@ async function enviarMensagem() {
           if (resultado.logId) adicionarFeedback(msgEl, resultado.logId);
           try {
             // Pré-registrar UUID para evitar duplicata caso o Realtime dispare antes do insert retornar
-            const msgId = typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : null;
-            if (msgId) mensagensRendered.add(msgId);
+            const msgId = gerarMsgId();
+            mensagensRendered.add(msgId);
             await sb.from('mensagens').insert([{
-              ...(msgId ? { id: msgId } : {}),
+              id:             msgId,
               conversa_id:    conversaId,
               remetente:      'anfitriao',
               nome_remetente: 'HOSPEDAH ✨',
@@ -901,10 +910,10 @@ async function enviarMensagem() {
       }
       // Streaming funcionou — salvar no Supabase e pré-registrar ID para evitar duplicata via Realtime
       try {
-        const msgId = typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : null;
-        if (msgId) mensagensRendered.add(msgId);
+        const msgId = gerarMsgId();
+        mensagensRendered.add(msgId);
         await sb.from('mensagens').insert([{
-          ...(msgId ? { id: msgId } : {}),
+          id:             msgId,
           conversa_id:    conversaId,
           remetente:      'anfitriao',
           nome_remetente: 'HOSPEDAH ✨',
@@ -921,10 +930,10 @@ async function enviarMensagem() {
         const msgEl = addMessage('recv', 'HOSPEDAH ✨', resultado.resposta, null);
         if (resultado.logId) adicionarFeedback(msgEl, resultado.logId);
         try {
-          const msgId = typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : null;
-          if (msgId) mensagensRendered.add(msgId);
+          const msgId = gerarMsgId();
+          mensagensRendered.add(msgId);
           await sb.from('mensagens').insert([{
-            ...(msgId ? { id: msgId } : {}),
+            id:             msgId,
             conversa_id:    conversaId,
             remetente:      'anfitriao',
             nome_remetente: 'HOSPEDAH ✨',

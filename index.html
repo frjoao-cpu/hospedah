@@ -2528,7 +2528,7 @@ function gerarPropostaPDF() {
     if (type === 'bot') {
       // Renderizar markdown básico nas respostas da IA (bold e quebras de linha)
       var safe = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-      safe = safe.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+      safe = safe.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
       safe = safe.replace(/\n/g, '<br>');
       div.innerHTML = safe;
     } else {

@@ -2096,7 +2096,7 @@ filtrar = function() {
     div.className = 'hc-msg hc-' + type;
     if (type === 'bot') {
       var safe = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-      safe = safe.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+      safe = safe.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
       safe = safe.replace(/\n/g, '<br>');
       div.innerHTML = safe;
     } else {
