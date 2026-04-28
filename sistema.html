@@ -2325,7 +2325,15 @@ tbody td {
 
     </div><!-- end pd-cal-wrap -->
 
-    <div id="pdTable" style="margin-top:20px;"></div>
+    <div id="pdTableSection" style="margin-top:20px;">
+      <div class="section-title" style="cursor:pointer; margin-bottom:0;" onclick="pdToggleTable()">
+        📋 Preços Cadastrados
+        <span style="margin-left:auto;">
+          <button class="btn btn-secondary btn-sm" id="pdTableToggleBtn" title="Minimizar/Expandir tabela">▼ Minimizar</button>
+        </span>
+      </div>
+      <div id="pdTable" style="margin-top:12px;"></div>
+    </div>
   </section>
 
   <!-- ==========================================
@@ -6335,6 +6343,15 @@ async function carregarTabelaPrecosDinamicos() {
   } catch(e) {
     wrap.innerHTML = '<p style="color:var(--vermelho); font-size:0.85em;">Execute a migração SQL para ativar esta funcionalidade.</p>';
   }
+}
+
+function pdToggleTable() {
+  var table = document.getElementById('pdTable');
+  var btn = document.getElementById('pdTableToggleBtn');
+  if (!table || !btn) return;
+  var collapsed = table.style.display === 'none';
+  table.style.display = collapsed ? '' : 'none';
+  btn.textContent = collapsed ? '▼ Minimizar' : '▲ Expandir';
 }
 
 async function deletarPrecoDinamico(id) {
