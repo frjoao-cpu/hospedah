@@ -2259,7 +2259,7 @@ tbody td {
       </div>
       <div class="field-group" id="pd_dormitorios_group" style="display:none; flex:1; min-width:160px; max-width:200px;">
         <label>Dormitórios</label>
-        <select id="pd_dormitorios">
+        <select id="pd_dormitorios" onchange="pdOnDormitoriosChange()">
           <option value="">Todos (sem filtro)</option>
           <option value="1">01 Dormitório</option>
           <option value="2">02 Dormitórios</option>
@@ -5890,6 +5890,7 @@ function pdTodayStr() {
 
 var pdCal = {
   resort: '',
+  dormitorios: null, // null | 1 | 2
   year: 0,
   month: 0,        // 0-based
   mode: 'price',   // 'price' | 'block' | 'unblock'
@@ -5907,7 +5908,11 @@ function pdOnResortChange() {
   if (group) {
     group.style.display = PD_RESORTS_COM_DORMITORIOS.includes(resort) ? '' : 'none';
   }
+  // Reset dormitorios selection when resort changes
+  var dormEl = document.getElementById('pd_dormitorios');
+  if (dormEl) dormEl.value = '';
   pdCal.resort = resort;
+  pdCal.dormitorios = null;
   pdCal.rangeStart = null;
   pdCal.rangeEnd   = null;
   pdCal.hoverDate  = null;
@@ -5930,6 +5935,17 @@ function pdOnResortChange() {
   pdLoadAndRender();
 }
 
+function pdOnDormitoriosChange() {
+  var dormEl = document.getElementById('pd_dormitorios');
+  pdCal.dormitorios = dormEl && dormEl.value ? parseInt(dormEl.value, 10) : null;
+  pdCal.rangeStart = null;
+  pdCal.rangeEnd   = null;
+  pdCal.hoverDate  = null;
+  var entryPanel = document.getElementById('pdEntryPanel');
+  if (entryPanel) entryPanel.classList.remove('active');
+  pdLoadAndRender();
+}
+
 async function pdLoadAndRender() {
   if (!pdCal.resort) return;
   pdCal.loading = true;
@@ -5941,12 +5957,14 @@ async function pdLoadAndRender() {
 
   try {
     // Load prices
-    var { data: pdData } = await _supabase
+    var pdQ = _supabase
       .from('precos_dinamicos')
       .select('*')
       .eq('resort_nome', pdCal.resort)
       .gte('data_fim', rangeFrom)
       .lte('data_inicio', rangeTo);
+    if (pdCal.dormitorios) pdQ = pdQ.eq('num_dormitorios', pdCal.dormitorios);
+    var { data: pdData } = await pdQ;
 
     // Load blocked dates
     var { data: dispData } = await _supabase
@@ -6323,6 +6341,7 @@ async function carregarTabelaPrecosDinamicos() {
   try {
     var q = _supabase.from('precos_dinamicos').select('*').order('data_inicio');
     if (resort) q = q.eq('resort_nome', resort);
+    if (pdCal.dormitorios) q = q.eq('num_dormitorios', pdCal.dormitorios);
     var { data, error } = await q;
     if (error) throw error;
 
