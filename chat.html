@@ -760,7 +760,7 @@ function iniciarChat() {
   const resortNome = resortSlug && RESORT_NOMES[resortSlug];
   const contextoResort = resortNome
     ? ` Estou vendo que você tem interesse no **${resortNome}** — pode perguntar qualquer coisa sobre ele! Como posso te ajudar?`
-    : `\n\nPara te indicar o resort ideal, me conta:\n👉 Quantas pessoas vão viajar?\n👉 Prefere mais **economia** ou **conforto**?\n👉 Quer ficar próximo aos parques aquáticos?`;
+    : `\n\nPara te indicar o resort ideal, me conta: já tem algum resort em mente, ou prefere uma indicação personalizada? 😊`;
   const boasVindas = `Olá, **${nomeHospede}**! 👋 Sou da equipe HOSPEDAH.${contextoResort}`;
   addMessage('recv', 'HOSPEDAH', boasVindas, null);
   // Resetar mensagens: a boas-vindas é roteirizada e não deve ser enviada à IA
@@ -881,23 +881,6 @@ async function enviarMensagem() {
   } else {
     // Detectar perfil do usuário (enriquece contexto da IA para toda a conversa)
     detectarPerfil(texto);
-
-    // Se é uma das primeiras mensagens e há perfil detectado, mostrar recomendação
-    // em vez de chamar a IA — a próxima mensagem do usuário irá para a IA com contexto enriquecido
-    const numMsgsUsuario = _aiContext.mensagens.filter(function (m) { return m.role === 'user'; }).length;
-    if (numMsgsUsuario <= 2) {
-      const recMsg = recomendarResortPorPerfil();
-      if (recMsg) {
-        mostrarDigitando();
-        setTimeout(function () {
-          ocultarDigitando();
-          typewriterMessage('HOSPEDAH', recMsg);
-          mostrarChipsFollowup();
-        }, 1200 + Math.random() * 400);
-        scrollToBottom();
-        return;
-      }
-    }
 
     // Encaminhar para o Concierge IA (streaming, com fallback)
     const temperature = detectTemperature(texto);
