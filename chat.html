@@ -701,6 +701,7 @@ let conversaId   = '';
 let subscription = null;
 let mensagensRendered = new Set();
 let faqDinamico  = {}; // Item 4: FAQ carregado dinamicamente do banco
+let chatUserPerfil = {}; // Perfil do usuário capturado durante a conversa
 
 // ============================================================
 // RATE LIMITING — máx 5 msgs em 10 s para proteger a cota da IA
@@ -758,9 +759,9 @@ function iniciarChat() {
   const resortSlug = _aiContext.contexto_intencao && _aiContext.contexto_intencao.resort_interesse;
   const resortNome = resortSlug && RESORT_NOMES[resortSlug];
   const contextoResort = resortNome
-    ? ` Estou vendo que você tem interesse no **${resortNome}** — pode perguntar qualquer coisa sobre ele!`
-    : ` Vi que você quer falar sobre **${assunto}**.`;
-  const boasVindas = `Olá, **${nomeHospede}**! 👋 Sou da equipe HOSPEDAH.${contextoResort} Como posso te ajudar hoje?`;
+    ? ` Estou vendo que você tem interesse no **${resortNome}** — pode perguntar qualquer coisa sobre ele! Como posso te ajudar?`
+    : `\n\nPara te indicar o resort ideal, me conta:\n👉 Quantas pessoas vão viajar?\n👉 Prefere mais **economia** ou **conforto**?\n👉 Quer ficar próximo aos parques aquáticos?`;
+  const boasVindas = `Olá, **${nomeHospede}**! 👋 Sou da equipe HOSPEDAH.${contextoResort}`;
   addMessage('recv', 'HOSPEDAH', boasVindas, null);
   // Resetar mensagens: a boas-vindas é roteirizada e não deve ser enviada à IA
   _aiContext.mensagens = [];
@@ -878,6 +879,26 @@ async function enviarMensagem() {
       mostrarChipsFollowup();
     }, 1200 + Math.random() * 800);
   } else {
+    // Detectar perfil do usuário (enriquece contexto da IA para toda a conversa)
+    detectarPerfil(texto);
+
+    // Se é uma das primeiras mensagens e há perfil detectado, mostrar recomendação
+    // em vez de chamar a IA — a próxima mensagem do usuário irá para a IA com contexto enriquecido
+    const numMsgsUsuario = _aiContext.mensagens.filter(function (m) { return m.role === 'user'; }).length;
+    if (numMsgsUsuario <= 2) {
+      const recMsg = recomendarResortPorPerfil();
+      if (recMsg) {
+        mostrarDigitando();
+        setTimeout(function () {
+          ocultarDigitando();
+          typewriterMessage('HOSPEDAH', recMsg);
+          mostrarChipsFollowup();
+        }, 1200 + Math.random() * 400);
+        scrollToBottom();
+        return;
+      }
+    }
+
     // Encaminhar para o Concierge IA (streaming, com fallback)
     const temperature = detectTemperature(texto);
     mostrarDigitando();
@@ -1430,6 +1451,45 @@ function handleEnter(e) {
 function autoResize(el) {
   el.style.height = 'auto';
   el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+}
+
+// ============================================================
+// PERFIL DO USUÁRIO — captura de preferências para recomendação
+// Espelha a lógica recommend() e userProfile do widget enviado
+// ============================================================
+function detectarPerfil(texto) {
+  var lower = texto.toLowerCase();
+  if (lower.match(/famil|grupo|crian|pessoas|adultos/)) chatUserPerfil.tipo = 'familia';
+  if (lower.match(/econom|barato|custo.benef/))         chatUserPerfil.orcamento = 'baixo';
+  if (lower.match(/confort|luxo|premium|alto padr/))    chatUserPerfil.orcamento = 'alto';
+  if (lower.match(/parque|aquatico|aquático|therma/))   chatUserPerfil.parque = true;
+  // Enriquecer contexto da IA com perfil detectado
+  if (chatUserPerfil.tipo)      _aiContext.contexto_intencao.perfil_tipo      = chatUserPerfil.tipo;
+  if (chatUserPerfil.orcamento) _aiContext.contexto_intencao.perfil_orcamento = chatUserPerfil.orcamento;
+  if (chatUserPerfil.parque)    _aiContext.contexto_intencao.perfil_parque    = true;
+}
+
+function recomendarResortPorPerfil() {
+  var p = chatUserPerfil;
+  if (!p.tipo && !p.orcamento && !p.parque) return null;
+
+  var linhas = ['Com base no que você me disse, aqui estão as melhores opções 👇\n'];
+
+  if (p.orcamento === 'baixo') {
+    linhas.push('🎢 **Olimpia Park Resort** — Olímpia/SP\n✔ Melhor custo-benefício\n✔ Apartamento completo\n✔ Parque aquático incluso\n');
+  }
+  if (p.orcamento === 'alto') {
+    linhas.push('👑 **Wyndham Royal** — Olímpia/SP\n✔ Suítes de alto padrão\n✔ Próximo ao Thermas dos Laranjais\n✔ Infraestrutura premium\n');
+  }
+  if (p.tipo === 'familia') {
+    linhas.push('🏖️ **Hot Beach Suites** — Olímpia/SP\n✔ Ideal para famílias\n✔ Apartamentos amplos com cozinha completa\n✔ Acesso ao parque aquático\n');
+  }
+  if (p.parque) {
+    linhas.push('♨️ **São Pedro Thermas** — São Pedro/SP\n✔ Águas termais naturais\n✔ Piscinas aquecidas\n✔ Tranquilidade e bem-estar\n');
+  }
+
+  linhas.push('⚠️ Valores de refeições e ingressos dos parques são contratados diretamente com o resort.\n\nQuer que eu verifique disponibilidade para algum desses? 😊');
+  return linhas.join('\n');
 }
 
 // Cleanup ao sair da página

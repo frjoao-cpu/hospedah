@@ -778,7 +778,9 @@ span.flatpickr-weekday {
           <option value="3">3 pessoas</option>
           <option value="4">4 pessoas</option>
           <option value="5">5 pessoas</option>
-          <option value="6">6 ou mais pessoas</option>
+          <option value="6">6 pessoas</option>
+          <option value="7">7 pessoas</option>
+          <option value="8">8 pessoas</option>
         </select>
       </div>
 
@@ -965,6 +967,13 @@ const RESORTS = [
 // Resorts que oferecem seleção de dormitórios
 const RESORTS_COM_DORMITORIOS = ['Hot Beach Suites', 'Olimpia Park Resort', 'Solar das Águas'];
 
+// Capacidade máxima por resort e número de dormitórios
+const CAPACIDADE_MAXIMA = {
+  'Hot Beach Suites':   { 1: 6, 2: 8 },
+  'Olimpia Park Resort': { 1: 6, 2: 8 },
+  'Solar das Águas':    { 1: 5, 2: 7 },
+};
+
 let resortAtual   = null;
 let dataEntradaFP = null;
 let dataSaidaFP   = null;
@@ -1004,12 +1013,30 @@ function onDormitoriosChange() {
   const val = document.getElementById('numDormitorios').value;
   const el  = document.getElementById('sumDormitorios');
   if (el) el.textContent = val === '2' ? '02 Dormitórios' : '01 Dormitório';
+  // Atualizar capacidade máxima de hóspedes para o resort e dormitório selecionados
+  atualizarMaxHospedes();
   // Recarregar regras de preço com novo filtro de dormitórios
   if (resortAtual) {
     carregarRegrasPreco(resortAtual.nome).then(() => {
       if (dataEntradaFP && dataSaidaFP) atualizarResumo();
     });
   }
+}
+
+// Atualiza o select de hóspedes ocultando opções acima da capacidade máxima do apartamento
+function atualizarMaxHospedes() {
+  if (!resortAtual) return;
+  const cap = CAPACIDADE_MAXIMA[resortAtual.nome];
+  if (!cap) return;
+  const dorm = getDormitoriosSelecionados() || 1;
+  const max  = cap[dorm] || 8;
+  const sel  = document.getElementById('numHospedes');
+  if (!sel) return;
+  Array.from(sel.options).forEach(function (opt) {
+    opt.hidden = parseInt(opt.value, 10) > max;
+  });
+  // Se o valor atual excede o novo máximo, ajustar para o máximo permitido
+  if (parseInt(sel.value, 10) > max) sel.value = String(max);
 }
 
 function getDormitoriosSelecionados() {
@@ -1044,6 +1071,8 @@ async function selecionarResort(id) {
   if (sumDorm) sumDorm.textContent = '01 Dormitório';
   const numDorm = document.getElementById('numDormitorios');
   if (numDorm) numDorm.value = '1';
+  // Atualizar opções de hóspedes conforme capacidade do resort/dormitório
+  atualizarMaxHospedes();
 
   // Atualizar resumo
   document.getElementById('sumResort').textContent = resortAtual.nome;
