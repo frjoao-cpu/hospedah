@@ -2507,6 +2507,7 @@ function gerarPropostaPDF() {
   var hcEtapa   = 0;
   var hcNome    = '';
   var hcAssunto = '';
+  var hcPerfil  = {};
   var hcMensagens  = [];
   var hcWaiting    = false;
   var hcConversaId = 'widget_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8);
@@ -2558,6 +2559,33 @@ function gerarPropostaPDF() {
     if (!disabled) document.getElementById('hc-user-input').focus();
   }
 
+  /* Gera recomendação de resort com base no perfil capturado */
+  function hcRecomendar(p) {
+    var msg = 'Com base no seu perfil, aqui estão as melhores opções 👇\n\n';
+    var temOpcao = false;
+    if (p.orcamento === 'baixo') {
+      msg += '🎢 **Olimpia Park Resort** — melhor custo-benefício, parque aquático incluso\n\n';
+      temOpcao = true;
+    }
+    if (p.orcamento === 'alto') {
+      msg += '👑 **Wyndham Royal** — alto padrão, próximo ao Thermas dos Laranjais\n\n';
+      temOpcao = true;
+    }
+    if (p.tipo === 'familia') {
+      msg += '🏖️ **Hot Beach Suites** — ideal para famílias, cozinha completa, acesso ao parque\n\n';
+      temOpcao = true;
+    }
+    if (p.parque) {
+      msg += '♨️ **São Pedro Thermas** — águas termais naturais, piscinas aquecidas\n\n';
+      temOpcao = true;
+    }
+    if (!temOpcao) {
+      msg += '☀️ **Solar das Águas** — resort completo, muitas piscinas, ideal para famílias\n\n';
+    }
+    msg += '⚠️ Valores de refeições e parques são contratados diretamente com o resort.\n\nPosso verificar disponibilidade! Quando você quer viajar? 😊';
+    return msg;
+  }
+
   /* Chama a IA Gemini diretamente */
   function hcChamarIA(userMsg) {
     if (!window.HOSPEDAH_AI) return Promise.resolve(null);
@@ -2566,7 +2594,7 @@ function gerarPropostaPDF() {
     return window.HOSPEDAH_AI.chamar(
       { nome: hcNome, assunto: hcAssunto },
       hcMensagens,
-      { pagina_origem: 'index' },
+      { pagina_origem: 'index', perfil_tipo: hcPerfil.tipo, perfil_orcamento: hcPerfil.orcamento, perfil_parque: hcPerfil.parque },
       0.7
     ).then(function (resp) {
       if (resp) { hcMensagens.push({ role: 'assistant', content: resp, ts: new Date().toISOString() }); }
@@ -2598,16 +2626,37 @@ function gerarPropostaPDF() {
       hcNome = txt; hcEtapa++;
       hcSetInput(true);
       setTimeout(function () {
-        hcAddMsg('Prazer, ' + hcNome + '! 😊 Qual sua dúvida sobre hospedagem ou reserva?', 'bot');
+        hcAddMsg('Prazer, ' + hcNome + '! 😊 Para te indicar o resort ideal, me conta:<br><br>👉 Quantas pessoas vão viajar?<br>👉 Prefere mais <b>economia</b> ou <b>conforto</b>?<br>👉 Quer ficar próximo aos parques aquáticos?', 'bot');
         hcSetInput(false);
       }, 500);
       return;
     }
 
-    /* etapa 1 — primeira pergunta: salvar como assunto e enviar à IA */
-    if (hcEtapa === 1) { hcAssunto = txt; hcEtapa++; }
+    /* etapa 1 — qualificação de perfil → mostrar recomendação */
+    if (hcEtapa === 1) {
+      hcEtapa++;
+      var lower = txt.toLowerCase();
+      if (lower.match(/famil|grupo|crian|pessoas|adultos/)) hcPerfil.tipo = 'familia';
+      if (lower.match(/econom|barato|custo/))             hcPerfil.orcamento = 'baixo';
+      if (lower.match(/confort|luxo|premium/))            hcPerfil.orcamento = 'alto';
+      if (lower.match(/parque|aquatic|therma/))           hcPerfil.parque = true;
+      hcAssunto = 'Reserva';
+      hcSetInput(true);
+      hcAddTyping();
+      var recText = hcRecomendar(hcPerfil);
+      setTimeout(function () {
+        hcRemoveTyping();
+        hcAddMsg(recText, 'bot');
+        hcMensagens.push({ role: 'assistant', content: recText, ts: new Date().toISOString() });
+        hcSetInput(false);
+      }, 1200);
+      return;
+    }
 
-    /* etapa 2+ — Gemini responde */
+    /* etapa 2 — primeira pergunta real: salvar como assunto e enviar à IA */
+    if (hcEtapa === 2) { hcAssunto = hcAssunto || txt; hcEtapa++; }
+
+    /* etapa 3+ — Gemini responde */
     hcWaiting = true;
     hcSetInput(true);
     hcAddTyping();
