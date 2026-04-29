@@ -1225,7 +1225,7 @@ function inicializarFlatpickr() {
     if (fpSaidaBlurHandler)  saidaInput.removeEventListener('blur',  fpSaidaBlurHandler);
 
     // Click: abre o calendário para seleção visual; o usuário pode fechar e digitar se preferir
-    fpSaidaClickHandler = function() { if (fpInstance) fpInstance.open(); };
+    fpSaidaClickHandler = function pdSaidaOpen() { if (fpInstance) fpInstance.open(); };
     saidaInput.addEventListener('click', fpSaidaClickHandler);
     // Nota: o evento 'focus' foi removido intencionalmente para não bloquear
     // a digitação quando o usuário acessa o campo pelo teclado (Tab).
@@ -1276,7 +1276,8 @@ function inicializarFlatpickr() {
         return;
       }
 
-      var hoje = new Date(); hoje.setHours(0, 0, 0, 0);
+      var hoje = new Date();
+      hoje.setHours(0, 0, 0, 0);
 
       // Check-out não pode ser no passado
       if (dataParsed < hoje) {
