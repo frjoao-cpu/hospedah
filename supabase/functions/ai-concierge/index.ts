@@ -46,6 +46,44 @@ function getCorsHeaders(origin: string | null): Record<string, string> {
   return { ...CORS_HEADERS, 'Access-Control-Allow-Origin': allowed, 'Vary': 'Origin' };
 }
 
+// Calls the Gemini REST API with automatic retry on HTTP 429 (rate-limit).
+// Attempts: 1 original + up to GEMINI_MAX_RETRIES retries.
+// Wait before retry i (1-based): GEMINI_RETRY_BASE_MS * i  (1.5 s, 3 s, …)
+const GEMINI_MAX_RETRIES  = 2;
+const GEMINI_RETRY_BASE_MS = 1500;
+
+async function fetchGeminiWithRetry(url: string, bodyStr: string): Promise<Response> {
+  let lastResponse: Response | null = null;
+  for (let attempt = 0; attempt <= GEMINI_MAX_RETRIES; attempt++) {
+    if (attempt > 0) {
+      await new Promise<void>((resolve) => setTimeout(resolve, GEMINI_RETRY_BASE_MS * attempt));
+    }
+    try {
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: bodyStr,
+      });
+      if (res.status !== 429) return res; // success or non-retryable error
+      lastResponse = res;
+      const remaining = GEMINI_MAX_RETRIES - attempt;
+      if (remaining > 0) {
+        console.warn(`[ai-concierge] Gemini 429 rate-limit (attempt ${attempt + 1}/${GEMINI_MAX_RETRIES + 1}) — retrying in ${GEMINI_RETRY_BASE_MS * (attempt + 1)} ms…`);
+      } else {
+        console.error(`[ai-concierge] Gemini 429 rate-limit — all ${GEMINI_MAX_RETRIES + 1} attempts exhausted.`);
+      }
+    } catch (err) {
+      if (attempt === GEMINI_MAX_RETRIES) {
+        console.error(`[ai-concierge] Gemini network error on final attempt (${attempt + 1}/${GEMINI_MAX_RETRIES + 1}):`, err);
+        throw err;
+      }
+      console.warn(`[ai-concierge] Gemini network error on attempt ${attempt + 1}/${GEMINI_MAX_RETRIES + 1}:`, err);
+    }
+  }
+  if (!lastResponse) throw new Error('[ai-concierge] Gemini: all retries exhausted with no response');
+  return lastResponse;
+}
+
 // Fallback hardcoded — used when ai_config table is unreachable.
 // The canonical value lives in the 'system_prompt' row of ai_config.
 const SYSTEM_PROMPT = `Você é o Concierge IA da HOSPEDAH, uma agência de turismo especializada em resorts e hospedagens de luxo no Brasil.
@@ -350,11 +388,10 @@ serve(async (req: Request): Promise<Response> => {
   if (ctx.stream === true) {
     let streamRes: Response;
     try {
-      streamRes = await fetch(`${GEMINI_STREAM_URL}?alt=sse&key=${effectiveKey}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(geminiPayload),
-      });
+      streamRes = await fetchGeminiWithRetry(
+        `${GEMINI_STREAM_URL}?alt=sse&key=${effectiveKey}`,
+        JSON.stringify(geminiPayload),
+      );
     } catch (err) {
       console.error('[ai-concierge] Erro ao chamar Gemini streaming:', err);
       return new Response(
@@ -386,11 +423,10 @@ serve(async (req: Request): Promise<Response> => {
   // ── NON-STREAMING (default) path ────────────────────────────
   let geminiRes: Response;
   try {
-    geminiRes = await fetch(`${GEMINI_URL}?key=${effectiveKey}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(geminiPayload),
-    });
+    geminiRes = await fetchGeminiWithRetry(
+      `${GEMINI_URL}?key=${effectiveKey}`,
+      JSON.stringify(geminiPayload),
+    );
   } catch (err) {
     console.error('[ai-concierge] Erro ao chamar Gemini:', err);
     return new Response(
