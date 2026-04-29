@@ -1,2 +1,2 @@
-# Arquivo gerado pelo CI com a chave da API Gemini — não comitar
-assets/ai-config.js
+# A chave da API Gemini foi movida para a Edge Function (Supabase).
+# O arquivo assets/ai-config.js agora é apenas um placeholder sem segredos.
