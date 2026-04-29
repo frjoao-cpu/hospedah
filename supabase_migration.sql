@@ -118,6 +118,13 @@ BEGIN
       AND contype = 'u'
       AND conname = 'disponibilidade_resort_nome_data_bloqueada_key'
   ) THEN
+    -- Remove linhas duplicadas antes de criar a constraint (mantém a mais antiga)
+    DELETE FROM disponibilidade
+    WHERE id NOT IN (
+      SELECT DISTINCT ON (resort_nome, data_bloqueada) id
+      FROM disponibilidade
+      ORDER BY resort_nome NULLS LAST, data_bloqueada, criado_em NULLS LAST
+    );
     ALTER TABLE disponibilidade ADD CONSTRAINT disponibilidade_resort_nome_data_bloqueada_key UNIQUE (resort_nome, data_bloqueada);
   END IF;
 END $$;
