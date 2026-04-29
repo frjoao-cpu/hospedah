@@ -1141,6 +1141,30 @@ tbody td {
   display: none;
 }
 .pd-entry-panel.active { display: block; }
+
+.pd-block-panel {
+  margin-top: 16px;
+  padding: 16px;
+  background: rgba(231,76,60,0.05);
+  border: 1px solid rgba(231,76,60,0.2);
+  border-radius: 10px;
+  display: none;
+}
+.pd-block-panel.active { display: block; }
+.pd-block-panel-title {
+  font-size: 0.92em;
+  font-weight: 600;
+  color: var(--vermelho);
+  margin-bottom: 8px;
+}
+.pd-block-panel.unblock-mode { background: rgba(46,213,115,0.05); border-color: rgba(46,213,115,0.25); }
+.pd-block-panel.unblock-mode .pd-block-panel-title { color: #2ed573; }
+.pd-block-info {
+  font-size: 0.88em;
+  color: var(--cor-sub);
+  margin-bottom: 12px;
+}
+
 .pd-entry-title {
   font-size: 0.92em;
   font-weight: 600;
@@ -2419,6 +2443,16 @@ tbody td {
         </div>
         <div class="btn-row">
           <button class="btn btn-primary" onclick="adicionarPrecoDinamico()">💲 Salvar período de preço</button>
+          <button class="btn btn-secondary" onclick="pdClearSelection()">✕ Cancelar seleção</button>
+        </div>
+      </div>
+
+      <!-- Block/Unblock action panel (shown when range selected in block/unblock mode) -->
+      <div class="pd-block-panel" id="pdBlockPanel">
+        <div class="pd-block-panel-title" id="pdBlockTitle">🚫 Período selecionado</div>
+        <div class="pd-block-info" id="pdBlockInfo"></div>
+        <div class="btn-row">
+          <button class="btn btn-danger" id="pdBlockApplyBtn" onclick="pdApplyBlockRange()">🚫 Bloquear período</button>
           <button class="btn btn-secondary" onclick="pdClearSelection()">✕ Cancelar seleção</button>
         </div>
       </div>
@@ -6221,22 +6255,15 @@ function pdCalClickDay(ds) {
   var todayStr = pdTodayStr();
   if (ds < todayStr) return; // ignore past dates in all modes
 
-  if (pdCal.mode === 'block') {
-    pdToggleBlockDate(ds, true);
-    return;
-  }
-  if (pdCal.mode === 'unblock') {
-    pdToggleBlockDate(ds, false);
-    return;
-  }
-
-  // Price mode: range selection
+  // All modes now use range selection
   if (!pdCal.rangeStart || pdCal.rangeEnd) {
     // Start new selection
     pdCal.rangeStart = ds;
     pdCal.rangeEnd   = null;
     pdCal.hoverDate  = null;
     document.getElementById('pdEntryPanel').classList.remove('active');
+    var bp = document.getElementById('pdBlockPanel');
+    if (bp) bp.classList.remove('active');
     document.getElementById('pd_data_ini').value = '';
     document.getElementById('pd_data_fim').value = '';
     pdSyncVisibleDateInputs();
@@ -6252,8 +6279,12 @@ function pdCalClickDay(ds) {
     document.getElementById('pd_data_ini').value = pdCal.rangeStart;
     document.getElementById('pd_data_fim').value = pdCal.rangeEnd;
     pdSyncVisibleDateInputs();
-    // Show entry panel
-    pdShowEntryPanel();
+    // Show appropriate action panel
+    if (pdCal.mode === 'price') {
+      pdShowEntryPanel();
+    } else {
+      pdShowBlockPanel();
+    }
   }
   pdUpdateRangeHighlight();
 }
@@ -6280,11 +6311,89 @@ function pdShowEntryPanel() {
   calcMultiplicador();
 }
 
+function pdShowBlockPanel() {
+  var ini = pdCal.rangeStart;
+  var fim = pdCal.rangeEnd;
+  if (!ini || !fim) return;
+  var isBlock = pdCal.mode === 'block';
+  var d1 = new Date(ini + 'T00:00:00');
+  var d2 = new Date(fim + 'T00:00:00');
+  // Count inclusive dates using UTC arithmetic to avoid DST issues
+  var dias = Math.round((Date.UTC(d2.getFullYear(), d2.getMonth(), d2.getDate())
+                       - Date.UTC(d1.getFullYear(), d1.getMonth(), d1.getDate())) / 86400000) + 1;
+  var fmtOpts = { day:'2-digit', month:'2-digit', year:'numeric' };
+  var panel  = document.getElementById('pdBlockPanel');
+  var title  = document.getElementById('pdBlockTitle');
+  var info   = document.getElementById('pdBlockInfo');
+  var btn    = document.getElementById('pdBlockApplyBtn');
+  if (title) {
+    title.textContent = (isBlock ? '🚫 Bloquear' : '✅ Liberar') + ' período: '
+      + d1.toLocaleDateString('pt-BR', fmtOpts) + ' → ' + d2.toLocaleDateString('pt-BR', fmtOpts);
+  }
+  if (info) {
+    info.textContent = dias + (dias === 1 ? ' data selecionada — ela será ' : ' datas selecionadas — elas serão ')
+      + (isBlock ? 'bloqueadas.' : 'liberadas.');
+  }
+  if (btn) {
+    btn.textContent = isBlock ? '🚫 Bloquear período' : '✅ Liberar período';
+    btn.className   = 'btn ' + (isBlock ? 'btn-danger' : 'btn-primary');
+  }
+  if (panel) {
+    panel.classList.toggle('unblock-mode', !isBlock);
+    panel.classList.add('active');
+  }
+  pdSyncVisibleDateInputs();
+}
+
+async function pdApplyBlockRange() {
+  var ini = pdCal.rangeStart;
+  var fim = pdCal.rangeEnd || pdCal.rangeStart;
+  if (!ini) { toastSistema('Selecione o período no calendário.', 'error'); return; }
+  if (!pdCal.resort) { toastSistema('Selecione o resort.', 'error'); return; }
+  var isBlock = pdCal.mode === 'block';
+
+  // Build list of all dates in range
+  var dates = [];
+  var cur = new Date(ini + 'T00:00:00');
+  var end = new Date(fim + 'T00:00:00');
+  while (cur <= end) {
+    dates.push(cur.toISOString().slice(0, 10));
+    cur.setDate(cur.getDate() + 1);
+  }
+
+  try {
+    if (isBlock) {
+      var rows = dates.map(function(d) {
+        return { resort_nome: pdCal.resort, data_bloqueada: d, motivo: 'bloqueio' };
+      });
+      var { error } = await _supabase.from('disponibilidade').upsert(rows, { onConflict: 'resort_nome,data_bloqueada', ignoreDuplicates: true });
+      if (error) throw error;
+      dates.forEach(function(d) { pdCal.blockedSet.add(d); });
+      toastSistema(dates.length + (dates.length === 1 ? ' data bloqueada.' : ' datas bloqueadas.'), 'success');
+    } else {
+      var { error: err2 } = await _supabase.from('disponibilidade')
+        .delete()
+        .eq('resort_nome', pdCal.resort)
+        .gte('data_bloqueada', ini)
+        .lte('data_bloqueada', fim);
+      if (err2) throw err2;
+      dates.forEach(function(d) { pdCal.blockedSet.delete(d); });
+      toastSistema(dates.length + (dates.length === 1 ? ' data liberada.' : ' datas liberadas.'), 'success');
+    }
+    pdClearSelection();
+    pdRenderCalendar();
+  } catch(e) {
+    toastSistema('Erro ao ' + (isBlock ? 'bloquear' : 'liberar') + ' período: ' + (e.message || ''), 'error');
+  }
+}
+
 function pdClearSelection() {
   pdCal.rangeStart = null;
   pdCal.rangeEnd   = null;
   pdCal.hoverDate  = null;
   document.getElementById('pdEntryPanel').classList.remove('active');
+  var bp = document.getElementById('pdBlockPanel');
+  if (bp) bp.classList.remove('active');
   document.getElementById('pd_data_ini').value = '';
   document.getElementById('pd_data_fim').value = '';
   pdSyncVisibleDateInputs();
@@ -6304,6 +6413,8 @@ function pdSetMode(mode) {
   pdCal.rangeEnd   = null;
   pdCal.hoverDate  = null;
   document.getElementById('pdEntryPanel').classList.remove('active');
+  var bp = document.getElementById('pdBlockPanel');
+  if (bp) bp.classList.remove('active');
   document.getElementById('pd_data_ini').value = '';
   document.getElementById('pd_data_fim').value = '';
   pdSyncVisibleDateInputs();
@@ -6379,9 +6490,13 @@ function pdDateInputChange() {
 
   if (pdCal.rangeStart && pdCal.rangeEnd && pdCal.mode === 'price') {
     pdShowEntryPanel();
+  } else if (pdCal.rangeStart && pdCal.rangeEnd && (pdCal.mode === 'block' || pdCal.mode === 'unblock')) {
+    pdShowBlockPanel();
   } else {
     var ep = document.getElementById('pdEntryPanel');
     if (ep) ep.classList.remove('active');
+    var bp = document.getElementById('pdBlockPanel');
+    if (bp) bp.classList.remove('active');
   }
 }
 
