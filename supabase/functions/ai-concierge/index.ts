@@ -351,11 +351,13 @@ serve(async (req: Request): Promise<Response> => {
     generationConfig: {
       temperature,
       maxOutputTokens: 8192,
-      // Disable thinking mode: prevents thought-signature parts (thought: true) from being
-      // emitted, which would break stateless multi-turn history reconstruction.
-      // Supported by gemini-2.5-flash via the v1beta API (generativelanguage.googleapis.com/v1beta).
+      // Explicitly request thought tokens so they are reliably emitted and can be
+      // round-tripped in the conversation history.  Gemini 2.5 Flash sometimes emits
+      // thought parts even when thinkingBudget:0 is set, and sending that history back
+      // with budget:0 causes the API to reject the request (inconsistent thinking mode).
+      // Using includeThoughts:true makes thinking consistent across all turns.
       // Ref: https://ai.google.dev/gemini-api/docs/thinking
-      thinkingConfig: { thinkingBudget: 0 },
+      thinkingConfig: { includeThoughts: true },
     },
     safetySettings: [
       { category: 'HARM_CATEGORY_HARASSMENT',        threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
@@ -442,12 +444,15 @@ serve(async (req: Request): Promise<Response> => {
   const candidate = geminiData.candidates[0];
   const parts: Array<{ text?: string; thought?: boolean }> =
     candidate?.content?.parts ?? [];
-  // Collect thought tokens (thought: true) for the client to round-trip in subsequent turns.
-  // Separate the visible response text from internal thinking tokens.
-  const thoughtPart   = parts.find((p) => p.thought && p.text);
+  // Collect ALL thought tokens (thought: true) for the client to round-trip in subsequent turns.
+  // Using join to concatenate multiple thought parts, which the streaming path also does.
+  const thoughts: string = parts
+    .filter((p) => p.thought && p.text)
+    .map((p) => p.text!)
+    .join('')
+    .trim();
   const responsePart  = parts.find((p) => p.text && !p.thought);
   const resposta: string = responsePart?.text?.trim() ?? '';
-  const thoughts: string = thoughtPart?.text?.trim() ?? '';
 
   if (!resposta) {
     const finishReason = candidate?.finishReason ?? 'unknown';
