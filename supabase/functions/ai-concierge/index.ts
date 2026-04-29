@@ -24,11 +24,13 @@ import { serve }        from 'https://deno.land/std@0.224.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 const GEMINI_API_KEY = Deno.env.get('GEMINI_API_KEY') ?? '';
-const GEMINI_MODEL = 'gemini-2.0-flash';
+const GEMINI_MODEL = 'gemini-2.5-flash';
 const GEMINI_URL =
   `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`;
 const GEMINI_STREAM_URL =
   `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:streamGenerateContent`;
+// Timeout for individual Gemini API requests (ms)
+const GEMINI_REQUEST_TIMEOUT_MS = 25000;
 
 const CORS_HEADERS: Record<string, string> = {
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
@@ -46,11 +48,13 @@ function getCorsHeaders(origin: string | null): Record<string, string> {
   return { ...CORS_HEADERS, 'Access-Control-Allow-Origin': allowed, 'Vary': 'Origin' };
 }
 
-// Calls the Gemini REST API with automatic retry on HTTP 429 (rate-limit).
+// Calls the Gemini REST API with automatic retry on HTTP 429 (rate-limit) and 5xx errors.
 // Attempts: 1 original + up to GEMINI_MAX_RETRIES retries.
 // Wait before retry i (1-based): GEMINI_RETRY_BASE_MS * i  (1.5 s, 3 s, …)
 const GEMINI_MAX_RETRIES  = 2;
 const GEMINI_RETRY_BASE_MS = 1500;
+// HTTP status codes that are worth retrying
+const GEMINI_RETRYABLE_STATUSES = new Set([429, 500, 502, 503, 504]);
 
 async function fetchGeminiWithRetry(url: string, bodyStr: string): Promise<Response> {
   let lastResponse: Response | null = null;
@@ -58,29 +62,34 @@ async function fetchGeminiWithRetry(url: string, bodyStr: string): Promise<Respo
     if (attempt > 0) {
       await new Promise<void>((resolve) => setTimeout(resolve, GEMINI_RETRY_BASE_MS * attempt));
     }
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), GEMINI_REQUEST_TIMEOUT_MS);
     try {
       const res = await fetch(url, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Referer': 'https://hospedah.tur.br',
         },
         body: bodyStr,
+        signal: controller.signal,
       });
-      if (res.status !== 429) return res; // success or non-retryable error
+      clearTimeout(timeoutId);
+      if (!GEMINI_RETRYABLE_STATUSES.has(res.status)) return res; // success or non-retryable error
       lastResponse = res;
       const remaining = GEMINI_MAX_RETRIES - attempt;
       if (remaining > 0) {
-        console.warn(`[ai-concierge] Gemini 429 rate-limit (attempt ${attempt + 1}/${GEMINI_MAX_RETRIES + 1}) — retrying in ${GEMINI_RETRY_BASE_MS * (attempt + 1)} ms…`);
+        console.warn(`[ai-concierge] Gemini ${res.status} (attempt ${attempt + 1}/${GEMINI_MAX_RETRIES + 1}) — retrying in ${GEMINI_RETRY_BASE_MS * (attempt + 1)} ms…`);
       } else {
-        console.error(`[ai-concierge] Gemini 429 rate-limit — all ${GEMINI_MAX_RETRIES + 1} attempts exhausted.`);
+        console.error(`[ai-concierge] Gemini ${res.status} — all ${GEMINI_MAX_RETRIES + 1} attempts exhausted.`);
       }
     } catch (err) {
+      clearTimeout(timeoutId);
+      const isTimeout = err instanceof Error && err.name === 'AbortError';
       if (attempt === GEMINI_MAX_RETRIES) {
-        console.error(`[ai-concierge] Gemini network error on final attempt (${attempt + 1}/${GEMINI_MAX_RETRIES + 1}):`, err);
+        console.error(`[ai-concierge] Gemini ${isTimeout ? 'timeout' : 'network error'} on final attempt (${attempt + 1}/${GEMINI_MAX_RETRIES + 1}):`, err);
         throw err;
       }
-      console.warn(`[ai-concierge] Gemini network error on attempt ${attempt + 1}/${GEMINI_MAX_RETRIES + 1}:`, err);
+      console.warn(`[ai-concierge] Gemini ${isTimeout ? 'timeout' : 'network error'} on attempt ${attempt + 1}/${GEMINI_MAX_RETRIES + 1}:`, err);
     }
   }
   if (!lastResponse) throw new Error('[ai-concierge] Gemini: all retries exhausted with no response');
