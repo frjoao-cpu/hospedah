@@ -1,5 +1,5 @@
 // ============================================================
-// HOSPEDAH — Concierge IA (Google Gemini 2.0 Flash)
+// HOSPEDAH — Concierge IA (Google Gemini 2.5 Flash)
 // Chamada direta à API Gemini a partir do navegador.
 //
 // Pré-requisito: window.GEMINI_API_KEY deve estar definido
@@ -12,7 +12,7 @@
 // ============================================================
 /* global window, fetch */
 (function () {
-  var GEMINI_MODEL = 'gemini-2.0-flash-001';
+  var GEMINI_MODEL = 'gemini-2.5-flash';
   var GEMINI_BASE = 'https://generativelanguage.googleapis.com/v1beta/models/' + GEMINI_MODEL;
   var EDGE_FN_URL = 'https://ydrmjoppjxtmnwtvtinb.supabase.co/functions/v1/ai-concierge';
   // Chave anon pública do projeto Supabase — obrigatória no header da requisição
