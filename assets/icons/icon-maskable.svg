@@ -1,4 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <title>HOSPEDAH</title>
   <!-- Fundo sem bordas arredondadas: pode ser mascarado em qualquer forma -->
   <rect width="512" height="512" fill="#0B1C3D"/>
   <!-- Conteúdo contido dentro da zona segura (círculo de 80% = raio 205px) -->
