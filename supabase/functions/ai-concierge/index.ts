@@ -291,9 +291,9 @@ serve(async (req: Request): Promise<Response> => {
     );
   }
 
-  // Escolher a chave Gemini: variável de ambiente (configurada no Supabase Dashboard)
-  // tem prioridade; caso não esteja definida, usa a chave fornecida pelo cliente no payload.
-  // Nota: gemini_key é a mesma chave já pública em assets/ai-config.js — não há exposição adicional.
+  // Usar a chave Gemini da variável de ambiente (configurada no Supabase Dashboard).
+  // ctx.gemini_key é mantido como fallback para compatibilidade, mas não é mais enviado
+  // pelo cliente desde que a chave foi removida do browser (assets/ai-config.js).
   const effectiveKey = GEMINI_API_KEY || ctx.gemini_key;
   if (!effectiveKey) {
     return new Response(
