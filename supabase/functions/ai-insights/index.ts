@@ -29,7 +29,7 @@ import { serve } from 'https://deno.land/std@0.224.0/http/server.ts';
 
 const GEMINI_API_KEY = Deno.env.get('GEMINI_API_KEY') ?? '';
 const GEMINI_URL =
-  'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent';
+  'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
 
 const CORS_HEADERS: Record<string, string> = {
   'Access-Control-Allow-Origin':  'https://hospedah.tur.br',
