@@ -10,14 +10,15 @@
 //   {
 //     lead: { nome: string, assunto: string },
 //     conversa_id: string,
-//     mensagens: Array<{ role: 'user' | 'assistant', content: string, ts: string }>,
+//     mensagens: Array<{ role: 'user' | 'assistant', content: string, ts: string,
+//                        thoughts?: string }>,
 //     timestamp_inicio: string,
 //     gemini_key?: string   // fallback quando GEMINI_API_KEY não está no Supabase
 //   }
 //
 // Resposta:
-//   { resposta: string }          → em caso de sucesso
-//   { error: string }             → em caso de falha
+//   { resposta: string, thoughts?: string }  → em caso de sucesso
+//   { error: string }                        → em caso de falha
 // ============================================================
 
 import { serve }        from 'https://deno.land/std@0.224.0/http/server.ts';
@@ -202,6 +203,8 @@ interface AiMessage {
   role: 'user' | 'assistant';
   content: string;
   ts: string;
+  /** Thought tokens from Gemini 2.5+ thinking mode — round-tripped for correct multi-turn. */
+  thoughts?: string;
 }
 
 interface IntencaoContext {
@@ -265,10 +268,18 @@ serve(async (req: Request): Promise<Response> => {
   // Construir histórico de mensagens para o Gemini
   // O system prompt é injetado como primeiro turno "user" seguido de "model" vazio,
   // pois o Gemini 2.5 aceita system_instruction como campo separado.
-  const rawContents = (ctx.mensagens ?? []).map((m) => ({
-    role: m.role === 'assistant' ? 'model' : 'user',
-    parts: [{ text: m.content }],
-  }));
+  // Model turns include thought parts when present so the API can properly reconstruct
+  // the conversation state across turns (required for Gemini 2.5 Flash thinking mode).
+  type GeminiPart = { text: string; thought?: boolean };
+  const rawContents = (ctx.mensagens ?? []).map((m) => {
+    if (m.role === 'assistant') {
+      const parts: GeminiPart[] = [];
+      if (m.thoughts) parts.push({ text: m.thoughts, thought: true });
+      parts.push({ text: m.content });
+      return { role: 'model' as const, parts };
+    }
+    return { role: 'user' as const, parts: [{ text: m.content }] as GeminiPart[] };
+  });
 
   // Gemini exige que o primeiro item em contents tenha role 'user'.
   // Remover quaisquer mensagens 'model' no início do histórico
@@ -277,13 +288,21 @@ serve(async (req: Request): Promise<Response> => {
   const trimmedContents = firstUserIdx >= 0 ? rawContents.slice(firstUserIdx) : [];
 
   // Mesclar mensagens consecutivas com o mesmo role para satisfazer a alternância obrigatória.
-  const contents: Array<{ role: string; parts: Array<{ text: string }> }> = [];
+  // For model turns that carry thought parts, only the non-thought text part is merged.
+  const contents: Array<{ role: string; parts: GeminiPart[] }> = [];
   for (const c of trimmedContents) {
     if (!c.parts.length) continue;
     if (contents.length > 0 && contents[contents.length - 1].role === c.role) {
-      contents[contents.length - 1].parts[0].text += '\n' + c.parts[0].text;
+      const lastParts = contents[contents.length - 1].parts;
+      const lastText = lastParts.find((p) => !p.thought);
+      const cText    = c.parts.find((p) => !p.thought);
+      if (lastText && cText) {
+        lastText.text += '\n' + cText.text;
+      } else if (cText) {
+        lastParts.push({ text: cText.text });
+      }
     } else {
-      contents.push({ role: c.role, parts: [{ text: c.parts[0].text }] });
+      contents.push({ role: c.role, parts: c.parts.map((p) => ({ ...p })) });
     }
   }
 
@@ -423,9 +442,12 @@ serve(async (req: Request): Promise<Response> => {
   const candidate = geminiData.candidates[0];
   const parts: Array<{ text?: string; thought?: boolean }> =
     candidate?.content?.parts ?? [];
-  // Skip thought parts (thought: true) that Gemini 2.5+ may include when thinking is enabled
-  const responsePart = parts.find((p) => p.text && !p.thought);
+  // Collect thought tokens (thought: true) for the client to round-trip in subsequent turns.
+  // Separate the visible response text from internal thinking tokens.
+  const thoughtPart   = parts.find((p) => p.thought && p.text);
+  const responsePart  = parts.find((p) => p.text && !p.thought);
   const resposta: string = responsePart?.text?.trim() ?? '';
+  const thoughts: string = thoughtPart?.text?.trim() ?? '';
 
   if (!resposta) {
     const finishReason = candidate?.finishReason ?? 'unknown';
@@ -437,7 +459,7 @@ serve(async (req: Request): Promise<Response> => {
   }
 
   return new Response(
-    JSON.stringify({ resposta }),
+    JSON.stringify({ resposta, ...(thoughts ? { thoughts } : {}) }),
     { status: 200, headers: { ...corsH, 'Content-Type': 'application/json' } },
   );
 });
