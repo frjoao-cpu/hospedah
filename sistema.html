@@ -6014,7 +6014,7 @@ function pdTodayStr() {
 
 var pdCal = {
   resort: '',
-  dormitorios: 1, // 1 | 2 | 3
+  dormitorios: 1, // default: 1 (01 Dormitório); valid values: 1 | 2 | 3
   year: 0,
   month: 0,        // 0-based
   mode: 'price',   // 'price' | 'block' | 'unblock'
@@ -6684,7 +6684,7 @@ async function carregarTabelaPrecosDinamicos() {
             : tipo === 'temporada_baixa' ? '❄️ Baixa'
             : tipo === 'valor_periodo' ? '📅 Valor período'
             : '🔥 Alta';
-          var dormLabel = r.num_dormitorios === 3 ? '03+ dorm.' : r.num_dormitorios ? r.num_dormitorios + ' dorm.' : '—';
+          var dormLabel = r.num_dormitorios === 3 ? '03 + dorm.' : r.num_dormitorios ? r.num_dormitorios + ' dorm.' : '—';
           return '<tr><td>' + (i+1) + '</td><td>' + esc(r.resort_nome) + '</td><td>' + dormLabel + '</td><td>' + tipoLabel + '</td>'
             + '<td>' + esc(r.nome_periodo) + '</td>'
             + '<td>' + fmtDate(r.data_inicio) + '</td><td>' + fmtDate(r.data_fim) + '</td>'
