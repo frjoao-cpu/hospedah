@@ -26,6 +26,19 @@
     return new Promise(function (resolve) { setTimeout(resolve, ms); });
   }
 
+  function getRetryAfterMs(res) {
+    var value = res.headers && res.headers.get('Retry-After');
+    if (!value) return null;
+
+    var seconds = Number(value);
+    if (Number.isFinite(seconds) && seconds >= 0) return seconds * 1000;
+
+    var dateMs = Date.parse(value);
+    if (Number.isFinite(dateMs)) return Math.max(0, dateMs - Date.now());
+
+    return null;
+  }
+
   function fetchGeminiWithRetry(url, options, label) {
     var totalAttempts = GEMINI_MAX_RETRIES + 1;
     var requestLabel = label || 'Gemini API';
@@ -39,7 +52,8 @@
           return res;
         }
 
-        var waitMs = GEMINI_RETRY_BASE_MS * Math.pow(2, attemptNumber - 1);
+        var retryAfterMs = getRetryAfterMs(res);
+        var waitMs = retryAfterMs != null ? retryAfterMs : GEMINI_RETRY_BASE_MS * Math.pow(2, attemptNumber - 1);
         console.warn('[HOSPEDAH_AI] ' + requestLabel + ' rate-limit 429 (tentativa ' + attemptNumber + '/' + totalAttempts + ') — tentando novamente em ' + waitMs + ' ms.');
         return sleep(waitMs).then(function () { return runAttempt(attemptNumber + 1); });
       });

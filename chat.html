@@ -1235,7 +1235,11 @@ function escalarParaAIStream(temperature) {
   );
   if (!payload.contents || !payload.contents.length) return Promise.resolve(null);
 
-  const fetchStream = window.HOSPEDAH_AI.fetchGeminiWithRetry || fetch;
+  let fetchStream = window.HOSPEDAH_AI.fetchGeminiWithRetry;
+  if (!fetchStream) {
+    console.warn('[HOSPEDAH] Retry Gemini indisponível para streaming; usando fetch direto.');
+    fetchStream = fetch;
+  }
   return fetchStream(window.HOSPEDAH_AI.streamUrl(), {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
