@@ -14,6 +14,7 @@
   // Chave anon pública do projeto Supabase — necessária no header
   // para que o gateway do Supabase aceite chamadas à Edge Function.
   var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlkcm1qb3Bwanh0bW53dHZ0aW5iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYyNzA3MzksImV4cCI6MjA5MTg0NjczOX0.Gp4ed332v62sC5e5GXXbPqOIBNpS4EzMCFawnBJE_Cw';
+  var DEFAULT_TEMPERATURE = 0.7;
   var FALLBACK_COUNTER = 0;
 
   function buildConversationId() {
@@ -41,6 +42,7 @@
    * @returns {Promise<string|null>}
    */
   function chamar(lead, mensagens, intencao, temperature, faqExtras) {
+    // Sem mensagens não há contexto para a IA responder.
     if (!mensagens || !mensagens.length) return Promise.resolve(null);
 
     var payload = {
@@ -49,7 +51,7 @@
       mensagens: mensagens,
       timestamp_inicio: new Date().toISOString(),
       contexto_intencao: intencao || {},
-      temperature: typeof temperature === 'number' ? temperature : 0.7,
+      temperature: typeof temperature === 'number' ? temperature : DEFAULT_TEMPERATURE,
       faq_extras: faqExtras || ''
     };
 
