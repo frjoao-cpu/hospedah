@@ -105,8 +105,22 @@ CREATE TABLE IF NOT EXISTS disponibilidade (
   resort_nome     text,         -- para uso sem acomodacao_id (modo texto)
   data_bloqueada  date          NOT NULL,
   motivo          text          DEFAULT 'reservado',
-  criado_em       timestamptz   DEFAULT now()
+  criado_em       timestamptz   DEFAULT now(),
+  UNIQUE(resort_nome, data_bloqueada)
 );
+
+-- Adicionar constraint de unicidade caso a tabela já exista sem ela
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint
+    WHERE conrelid = 'disponibilidade'::regclass
+      AND contype = 'u'
+      AND conname = 'disponibilidade_resort_nome_data_bloqueada_key'
+  ) THEN
+    ALTER TABLE disponibilidade ADD CONSTRAINT disponibilidade_resort_nome_data_bloqueada_key UNIQUE (resort_nome, data_bloqueada);
+  END IF;
+END $$;
 
 ALTER TABLE disponibilidade ENABLE ROW LEVEL SECURITY;
 
