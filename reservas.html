@@ -720,7 +720,7 @@ span.flatpickr-weekday {
       <h2>📅 2. Escolha as Datas</h2>
 
       <div class="info-box">
-        📌 Datas em <span style="color:#e74c3c; font-weight:600;">vermelho</span> já estão reservadas e não podem ser selecionadas. Selecione <strong>check-in</strong> e <strong>check-out</strong> no calendário abaixo.
+        📌 Datas em <span style="color:#e74c3c; font-weight:600;">vermelho</span> já estão reservadas e não podem ser selecionadas. Selecione <strong>check-in</strong> e <strong>check-out</strong> no calendário abaixo ou <strong>digite a data</strong> diretamente no campo (DD/MM/AAAA).
       </div>
 
       <!-- SMART DATES HINT -->
@@ -729,11 +729,13 @@ span.flatpickr-weekday {
       <div class="date-row">
         <div class="field-group">
           <label>Check-in</label>
-          <input type="text" id="dataEntrada" placeholder="DD/MM/AAAA" readonly>
+          <!-- allowInput: true no Flatpickr + remoção de readonly permitem digitação manual -->
+          <input type="text" id="dataEntrada" placeholder="DD/MM/AAAA" autocomplete="off">
         </div>
         <div class="field-group">
           <label>Check-out</label>
-          <input type="text" id="dataSaida" placeholder="DD/MM/AAAA" readonly>
+          <!-- Campo aceita digitação manual; blur handler valida e sincroniza com Flatpickr -->
+          <input type="text" id="dataSaida" placeholder="DD/MM/AAAA" autocomplete="off">
         </div>
       </div>
 
@@ -982,6 +984,7 @@ let datasIndisponiveis = [];
 let regrasPreco = [];
 let fpInstance    = null;
 let fpSaidaClickHandler = null;
+let fpSaidaBlurHandler  = null; // Handler de blur para validação de digitação manual no check-out
 const MS_PER_DAY = 86400000;
 
 // ============================================================
@@ -1174,7 +1177,9 @@ function inicializarFlatpickr() {
     locale: 'pt',
     disable: datasIndisponiveis,
     inline: false,
-    allowInput: false,
+    // [ALTERADO] allowInput: true — permite que o usuário digite a data manualmente
+    // além de selecionar pelo calendário (era allowInput: false)
+    allowInput: true,
     disableMobile: true,
     onChange(selectedDates, dateStr, instance) {
       if (selectedDates.length === 2) {
@@ -1213,12 +1218,108 @@ function inicializarFlatpickr() {
     fpInstance.setDate([savedEntrada, savedSaida], true);
   }
 
-  // Abrir o mesmo calendário ao clicar no campo de check-out
+  // --- Integração check-out: calendário (click) + digitação manual (blur) ---
   if (saidaInput) {
+    // Remover handlers anteriores para evitar duplicação ao reinicializar
     if (fpSaidaClickHandler) saidaInput.removeEventListener('click', fpSaidaClickHandler);
-    fpSaidaClickHandler = (e) => { e.preventDefault(); if (fpInstance) fpInstance.open(); };
+    if (fpSaidaBlurHandler)  saidaInput.removeEventListener('blur',  fpSaidaBlurHandler);
+
+    // Click: abre o calendário para seleção visual; o usuário pode fechar e digitar se preferir
+    fpSaidaClickHandler = function() { if (fpInstance) fpInstance.open(); };
     saidaInput.addEventListener('click', fpSaidaClickHandler);
-    saidaInput.addEventListener('focus', fpSaidaClickHandler);
+    // Nota: o evento 'focus' foi removido intencionalmente para não bloquear
+    // a digitação quando o usuário acessa o campo pelo teclado (Tab).
+
+    // Blur: valida a data digitada manualmente no check-out.
+    // A validação ocorre apenas ao sair do campo, evitando mensagens durante a digitação.
+    fpSaidaBlurHandler = function() {
+      var val = saidaInput.value.trim();
+
+      // Campo vazio: limpa o estado sem alertar
+      if (!val) {
+        dataSaidaFP = null;
+        _checkDatesForWizard();
+        return;
+      }
+
+      // Se o valor já coincide com a data previamente definida via calendário, nada a fazer
+      if (dataSaidaFP && val === fpInstance.formatDate(dataSaidaFP, 'd/m/Y')) return;
+
+      // Tentar interpretar a data no formato DD/MM/AAAA
+      var match = val.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+      if (!match) {
+        // Formato inválido — alerta amigável apenas ao sair do campo
+        _exibirErroDatas('Formato inválido. Use DD/MM/AAAA para o check-out.');
+        saidaInput.value = '';
+        dataSaidaFP = null;
+        _checkDatesForWizard();
+        return;
+      }
+
+      var dia  = parseInt(match[1], 10);
+      var mes  = parseInt(match[2], 10) - 1;
+      var ano  = parseInt(match[3], 10);
+      var dataParsed = new Date(ano, mes, dia);
+      dataParsed.setHours(0, 0, 0, 0);
+
+      // Verificar se a data é válida (ex: 31/02 não existe)
+      if (
+        isNaN(dataParsed.getTime()) ||
+        dataParsed.getDate()     !== dia  ||
+        dataParsed.getMonth()    !== mes  ||
+        dataParsed.getFullYear() !== ano
+      ) {
+        _exibirErroDatas('Data de check-out inválida. Verifique o dia, mês e ano informados.');
+        saidaInput.value = '';
+        dataSaidaFP = null;
+        _checkDatesForWizard();
+        return;
+      }
+
+      var hoje = new Date(); hoje.setHours(0, 0, 0, 0);
+
+      // Check-out não pode ser no passado
+      if (dataParsed < hoje) {
+        _exibirErroDatas('A data de check-out não pode ser no passado.');
+        saidaInput.value = '';
+        dataSaidaFP = null;
+        _checkDatesForWizard();
+        return;
+      }
+
+      // Check-out deve ser posterior ao check-in
+      if (dataEntradaFP && dataParsed <= dataEntradaFP) {
+        _exibirErroDatas('O check-out deve ser posterior ao check-in.');
+        saidaInput.value = '';
+        dataSaidaFP = null;
+        _checkDatesForWizard();
+        return;
+      }
+
+      // Data válida — sincronizar com o Flatpickr para manter consistência de estado
+      // (dispara onChange → verificarPeriodoDisponivel → atualizarResumo)
+      if (dataEntradaFP && fpInstance) {
+        fpInstance.setDate([dataEntradaFP, dataParsed], true);
+      } else {
+        // Sem check-in definido ainda, apenas armazena e aguarda
+        dataSaidaFP = dataParsed;
+        _checkDatesForWizard();
+      }
+    };
+    saidaInput.addEventListener('blur', fpSaidaBlurHandler);
+  }
+}
+
+// ============================================================
+// _exibirErroDatas — exibe mensagem de erro de data no campo de status
+// Ponto de integração: reutiliza o mesmo elemento statusDisponibilidade
+// usado pelo seletor de calendário, mantendo UX consistente entre as
+// duas formas de entrada (digitação e clique no calendário).
+// ============================================================
+function _exibirErroDatas(msg) {
+  var statusEl = document.getElementById('statusDisponibilidade');
+  if (statusEl) {
+    statusEl.innerHTML = '<span class="availability-tag tag-indisponivel">⚠️ ' + msg + '</span>';
   }
 }
 
@@ -1958,13 +2059,17 @@ function _checkDatesForWizard() {
   btn.disabled = !(entrada && saida);
 }
 
-/* Observa mudanças nos inputs de data */
+/* Observa mudanças nos inputs de data — funciona tanto para seleção via calendário
+   (MutationObserver / change) quanto para digitação manual (input event).
+   Ponto de integração: _checkDatesForWizard é o único ponto que habilita o botão "Próximo". */
 ['dataEntrada', 'dataSaida'].forEach(function(id) {
   var el = document.getElementById(id);
   if (el) {
     var obs = new MutationObserver(_checkDatesForWizard);
     obs.observe(el, { attributes: true, attributeFilter: ['value'] });
     el.addEventListener('change', _checkDatesForWizard);
+    // [ADICIONADO] input event: reage imediatamente à digitação manual
+    el.addEventListener('input', _checkDatesForWizard);
   }
 });
 
