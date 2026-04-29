@@ -1216,13 +1216,6 @@ async function escalarParaAI(temperature) {
 }
 
 /**
- * Versão streaming: exibe tokens em tempo real conforme chegam do Gemini.
- * Retorna a string completa, '' se resposta vazia, ou null se requisição falhou
- * (nesse caso o typing indicator NÃO foi ocultado e o caller deve fazê-lo).
- * @param {number} temperature
- * @returns {Promise<string|null>}
- */
-/**
  * Renderiza um SSE stream de resposta Gemini num elemento de bolha criado na hora.
  * Usado tanto pelo path direto quanto pelo path da Edge Function.
  * @param {Response} res - A Response HTTP do stream SSE.
@@ -1302,8 +1295,8 @@ function escalarParaAIStream(temperature) {
   if (!key) {
     // Sem chave no browser — usa Edge Function com streaming (pass-through SSE)
     if (!_aiContext.mensagens || !_aiContext.mensagens.length) return Promise.resolve(null);
-    var edgeUrl  = (window.HOSPEDAH_AI.edgeUrl) || (SUPABASE_URL + '/functions/v1/ai-concierge');
-    var edgeAnon = (window.HOSPEDAH_AI.edgeAnon) || SUPABASE_KEY;
+    const edgeUrl  = (window.HOSPEDAH_AI.edgeUrl) || (SUPABASE_URL + '/functions/v1/ai-concierge');
+    const edgeAnon = (window.HOSPEDAH_AI.edgeAnon) || SUPABASE_KEY;
     var edgePayload = {
       lead:             _aiContext.lead,
       conversa_id:      _aiContext.conversa_id || conversaId,
