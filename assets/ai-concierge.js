@@ -12,7 +12,7 @@
 // ============================================================
 /* global window, fetch */
 (function () {
-  var GEMINI_MODEL = 'gemini-2.0-flash';
+  var GEMINI_MODEL = 'gemini-2.0-flash-001';
   var GEMINI_BASE = 'https://generativelanguage.googleapis.com/v1beta/models/' + GEMINI_MODEL;
   var EDGE_FN_URL = 'https://ydrmjoppjxtmnwtvtinb.supabase.co/functions/v1/ai-concierge';
   // Chave anon pública do projeto Supabase — obrigatória no header da requisição
