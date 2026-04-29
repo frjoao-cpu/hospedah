@@ -1258,6 +1258,41 @@ tbody td {
   color: var(--dourado);
   font-weight: 600;
 }
+
+/* ── Concierge IA config cards ── */
+.ai-config-card {
+  background: var(--card-bg, #fff);
+  border: 1px solid #e0e0e0;
+  border-radius: 10px;
+  padding: 18px 20px 14px;
+  margin-bottom: 20px;
+}
+.ai-config-card textarea {
+  width: 100%;
+  font-family: monospace;
+  font-size: 0.82em;
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  resize: vertical;
+  box-sizing: border-box;
+  background: var(--input-bg, #fafafa);
+  color: var(--cor-texto, #333);
+}
+.ai-config-card-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+}
+.ai-config-card-footer {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  margin-top: 10px;
+  gap: 10px;
+}
 </style>
 </head>
 
@@ -1353,6 +1388,7 @@ tbody td {
     <a href="#graficos">📈 Gráficos</a>
     <a href="#relatorio">🏆 Relatório</a>
     <a href="#automacoes">🤖 Automações</a>
+    <a href="#config-ia">🧠 Concierge IA</a>
     <a href="#captacao">🏡 Captação</a>
     <a href="#reservas-hospede">🛎️ Solicitações</a>
     <a href="#moderacao-avaliacoes">⭐ Avaliações</a>
@@ -1932,6 +1968,28 @@ tbody td {
       </thead>
       <tbody id="auditBody"></tbody>
     </table>
+  </section>
+
+  <!-- ==========================================
+       CONFIGURAÇÃO DO CONCIERGE IA
+  =========================================== -->
+  <section id="config-ia" class="table-wrap">
+    <div class="section-title">
+      🧠 Configuração do Concierge IA
+      <span style="margin-left:auto; display:flex; gap:8px;">
+        <button class="btn btn-secondary btn-sm" onclick="carregarAiConfig()">🔄 Atualizar</button>
+      </span>
+    </div>
+
+    <p style="font-size:0.9em; color:var(--cor-sub); margin:0 0 16px;">
+      Configure o <strong>System Prompt</strong> e demais informações que alimentam o Concierge IA.
+      Alterações entram em vigor em até <strong>5 minutos</strong> (cache do servidor).
+      O FAQ dinâmico (aba Automações) também é injetado automaticamente como contexto adicional.
+    </p>
+
+    <div id="aiConfigLista">
+      <div class="empty-state"><div class="empty-icon">🧠</div><div>Carregando configurações...</div></div>
+    </div>
   </section>
 
   <!-- ==========================================
@@ -3653,6 +3711,88 @@ function renderTabelaFAQ() {
       '<td class="actions"><button class="btn btn-danger btn-sm" data-action="excluir" data-id="' + escapeHtml(f.id) + '">🗑️</button></td>' +
       '</tr>';
   }).join('');
+}
+
+/* ==========================================
+   CONFIGURAÇÃO DO CONCIERGE IA (ai_config)
+========================================== */
+var _aiConfigDados = [];
+
+async function carregarAiConfig() {
+  var container = document.getElementById('aiConfigLista');
+  if (!container) return;
+  container.innerHTML = '<div class="empty-state"><div class="empty-icon">🔄</div><div>Carregando...</div></div>';
+
+  var res = await _supabase.from('ai_config').select('*').order('chave');
+  if (res.error || !res.data) {
+    container.innerHTML = '<div class="empty-state"><div class="empty-icon">⚠️</div><div>Erro ao carregar configurações. Execute a migração SQL para criar a tabela <strong>ai_config</strong>.</div></div>';
+    return;
+  }
+
+  _aiConfigDados = res.data;
+  renderAiConfig();
+}
+
+function renderAiConfig() {
+  var container = document.getElementById('aiConfigLista');
+  if (!container) return;
+
+  if (!_aiConfigDados.length) {
+    container.innerHTML = '<div class="empty-state"><div class="empty-icon">🧠</div><div>Nenhuma configuração encontrada. Execute a migração SQL para criar a tabela <strong>ai_config</strong> e inserir os dados iniciais.</div></div>';
+    return;
+  }
+
+  var LABELS = { system_prompt: '📋 System Prompt — instruções principais da IA' };
+  container.innerHTML = _aiConfigDados.map(function (c) {
+    var label = LABELS[c.chave] || ('⚙️ ' + escapeHtml(c.chave));
+    var ativoChecked = c.ativo ? 'checked' : '';
+    var atualizadoEm = c.atualizado_em ? new Date(c.atualizado_em).toLocaleString('pt-BR') : '—';
+    var valorEsc = escapeHtml(c.valor || '');
+    return '<div class="ai-config-card" id="ai-config-card-' + escapeHtml(c.chave) + '">' +
+      '<div class="ai-config-card-header">' +
+        '<strong>' + label + '</strong>' +
+        '<label style="display:flex;align-items:center;gap:4px;font-size:0.88em;margin-left:auto;">' +
+          '<input type="checkbox" id="ai_config_ativo_' + escapeHtml(c.chave) + '" ' + ativoChecked + '> Ativo' +
+        '</label>' +
+        '<span style="font-size:0.8em;color:var(--cor-sub);">Atualizado: ' + atualizadoEm + '</span>' +
+      '</div>' +
+      '<textarea id="ai_config_valor_' + escapeHtml(c.chave) + '" rows="18">' + valorEsc + '</textarea>' +
+      '<div class="ai-config-card-footer">' +
+        '<span style="font-size:0.8em;color:var(--cor-sub);">Alterações entram em vigor em até 5 min (cache do servidor).</span>' +
+        '<button class="btn btn-primary btn-sm" onclick="salvarAiConfig(\'' + escapeHtml(c.chave) + '\')">💾 Salvar</button>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+
+async function salvarAiConfig(chave) {
+  var valorEl = document.getElementById('ai_config_valor_' + chave);
+  var ativoEl = document.getElementById('ai_config_ativo_' + chave);
+  if (!valorEl) return;
+
+  var valor = valorEl.value;
+  var ativo = ativoEl ? ativoEl.checked : true;
+
+  var res = await _supabase.from('ai_config').upsert(
+    { chave: chave, valor: valor, ativo: ativo, atualizado_em: new Date().toISOString() },
+    { onConflict: 'chave' }
+  );
+
+  if (res.error) {
+    mostrarToast('❌ Erro ao salvar: ' + res.error.message, 'error');
+    return;
+  }
+
+  var idx = _aiConfigDados.findIndex(function (c) { return c.chave === chave; });
+  if (idx >= 0) {
+    _aiConfigDados[idx].valor = valor;
+    _aiConfigDados[idx].ativo = ativo;
+    _aiConfigDados[idx].atualizado_em = new Date().toISOString();
+    renderAiConfig();
+  }
+
+  mostrarToast('✅ Configuração "' + chave + '" salva com sucesso!', 'success');
+  registrarAuditoria('AI Config salvo', chave);
 }
 
 function renderAuditoria() {
@@ -5785,6 +5925,7 @@ async function inicializarSistema() {
     var metaSalva = parseFloat(localStorage.getItem('hospeda_meta')) || CONFIG.metaPadrao;
     document.getElementById('inputMeta').value = metaSalva;
     sincronizarAutomacoes(true);
+    carregarAiConfig();
   });
 }
 
