@@ -237,21 +237,13 @@ jobs:
             fi
           done
 
-      - name: Gerar configuração da IA (GEMINI_API_KEY)
-        # SEGURANÇA: A chave GEMINI_API_KEY é incorporada nos arquivos estáticos
-        # e fica visível no código-fonte da página. Antes de usar em produção,
-        # RESTRINJA a chave ao domínio hospedah.tur.br em:
-        # Google Cloud Console → APIs & Services → Credentials → sua chave → Application restrictions
+      - name: Gerar configuração da IA (placeholder)
+        # A chave Gemini NÃO é mais exposta no browser.
+        # Todas as chamadas à IA passam pela Supabase Edge Function,
+        # que possui a chave configurada como variável de ambiente segura.
         run: |
-          if [ -n "$GEMINI_API_KEY" ]; then
-            echo "window.GEMINI_API_KEY='${GEMINI_API_KEY}';" > assets/ai-config.js
-            echo "✅ GEMINI_API_KEY injetado em assets/ai-config.js"
-          else
-            echo "window.GEMINI_API_KEY='';" > assets/ai-config.js
-            echo "⚠️  GEMINI_API_KEY não configurado — Concierge IA desabilitado"
-          fi
-        env:
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          echo "window.GEMINI_API_KEY='';" > assets/ai-config.js
+          echo "✅ assets/ai-config.js gerado (chave permanece exclusivamente no servidor)"
 
       - name: Configurar GitHub Pages
         uses: actions/configure-pages@v4
