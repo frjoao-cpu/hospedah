@@ -2358,9 +2358,9 @@ tbody td {
       <div class="field-group" id="pd_dormitorios_group" style="display:none; flex:1; min-width:160px; max-width:200px;">
         <label>Dormitórios</label>
         <select id="pd_dormitorios" onchange="pdOnDormitoriosChange()">
-          <option value="">Todos (sem filtro)</option>
           <option value="1">01 Dormitório</option>
           <option value="2">02 Dormitórios</option>
+          <option value="3">03 + Dormitórios</option>
         </select>
       </div>
     </div>
@@ -6014,7 +6014,7 @@ function pdTodayStr() {
 
 var pdCal = {
   resort: '',
-  dormitorios: null, // null | 1 | 2
+  dormitorios: 1, // 1 | 2 | 3
   year: 0,
   month: 0,        // 0-based
   mode: 'price',   // 'price' | 'block' | 'unblock'
@@ -6034,9 +6034,9 @@ function pdOnResortChange() {
   }
   // Reset dormitorios selection when resort changes
   var dormEl = document.getElementById('pd_dormitorios');
-  if (dormEl) dormEl.value = '';
+  if (dormEl) dormEl.value = '1';
   pdCal.resort = resort;
-  pdCal.dormitorios = null;
+  pdCal.dormitorios = 1;
   pdCal.rangeStart = null;
   pdCal.rangeEnd   = null;
   pdCal.hoverDate  = null;
@@ -6061,7 +6061,7 @@ function pdOnResortChange() {
 
 function pdOnDormitoriosChange() {
   var dormEl = document.getElementById('pd_dormitorios');
-  pdCal.dormitorios = dormEl && dormEl.value ? parseInt(dormEl.value, 10) : null;
+  pdCal.dormitorios = dormEl && dormEl.value ? parseInt(dormEl.value, 10) : 1;
   pdCal.rangeStart = null;
   pdCal.rangeEnd   = null;
   pdCal.hoverDate  = null;
@@ -6087,7 +6087,7 @@ async function pdLoadAndRender() {
       .eq('resort_nome', pdCal.resort)
       .gte('data_fim', rangeFrom)
       .lte('data_inicio', rangeTo);
-    if (pdCal.dormitorios) pdQ = pdQ.eq('num_dormitorios', pdCal.dormitorios);
+    pdQ = pdQ.eq('num_dormitorios', pdCal.dormitorios);
     var { data: pdData } = await pdQ;
 
     // Load blocked dates
@@ -6684,7 +6684,7 @@ async function carregarTabelaPrecosDinamicos() {
             : tipo === 'temporada_baixa' ? '❄️ Baixa'
             : tipo === 'valor_periodo' ? '📅 Valor período'
             : '🔥 Alta';
-          var dormLabel = r.num_dormitorios ? r.num_dormitorios + ' dorm.' : '—';
+          var dormLabel = r.num_dormitorios === 3 ? '03+ dorm.' : r.num_dormitorios ? r.num_dormitorios + ' dorm.' : '—';
           return '<tr><td>' + (i+1) + '</td><td>' + esc(r.resort_nome) + '</td><td>' + dormLabel + '</td><td>' + tipoLabel + '</td>'
             + '<td>' + esc(r.nome_periodo) + '</td>'
             + '<td>' + fmtDate(r.data_inicio) + '</td><td>' + fmtDate(r.data_fim) + '</td>'
