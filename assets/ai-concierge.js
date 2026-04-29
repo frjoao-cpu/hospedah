@@ -55,6 +55,11 @@
       faq_extras: faqExtras || ''
     };
 
+    var controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
+    var timeoutId = controller
+      ? setTimeout(function () { controller.abort(); }, 20000)
+      : null;
+
     return fetch(EDGE_FN_URL, {
       method: 'POST',
       headers: {
@@ -62,8 +67,10 @@
         'apikey': SUPABASE_ANON_KEY,
         'Authorization': 'Bearer ' + SUPABASE_ANON_KEY
       },
-      body: JSON.stringify(payload)
+      body: JSON.stringify(payload),
+      signal: controller ? controller.signal : undefined
     }).then(function (res) {
+      if (timeoutId) clearTimeout(timeoutId);
       return res.json().then(function (data) {
         if (!res.ok) {
           console.error('[HOSPEDAH_AI] Edge function ' + res.status + ':', JSON.stringify(data).slice(0, 500));
@@ -75,6 +82,7 @@
         return null;
       });
     }).catch(function () {
+      if (timeoutId) clearTimeout(timeoutId);
       console.error('[HOSPEDAH_AI] Erro de rede ao chamar a Edge Function.');
       return null;
     });
