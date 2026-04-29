@@ -1216,16 +1216,111 @@ async function escalarParaAI(temperature) {
 }
 
 /**
- * Versão streaming: exibe tokens em tempo real conforme chegam do Gemini.
- * Retorna a string completa, '' se resposta vazia, ou null se requisição falhou
- * (nesse caso o typing indicator NÃO foi ocultado e o caller deve fazê-lo).
- * @param {number} temperature
- * @returns {Promise<string|null>}
+ * Renderiza um SSE stream de resposta Gemini num elemento de bolha criado na hora.
+ * Usado tanto pelo path direto quanto pelo path da Edge Function.
+ * @param {Response} res - A Response HTTP do stream SSE.
+ * @returns {Promise<string|null>} Texto completo ou null se resposta vazia/erro.
  */
+function renderizarStream(res) {
+  if (!res.ok || !res.body) {
+    console.error('[HOSPEDAH] Stream response error:', res.status);
+    return Promise.resolve(null);
+  }
+
+  const el = document.getElementById('chatMessages');
+  const div = document.createElement('div');
+  div.className = 'msg recv';
+  const hora = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+  const bubbleEl = document.createElement('div');
+  bubbleEl.className = 'msg-bubble';
+  const metaEl = document.createElement('div');
+  metaEl.className = 'msg-meta';
+  metaEl.textContent = 'HOSPEDAH ✨ · ' + hora;
+  div.appendChild(bubbleEl);
+  div.appendChild(metaEl);
+  el.appendChild(div);
+  ocultarDigitando();
+  scrollToBottom();
+
+  const reader = res.body.getReader();
+  const decoder = new TextDecoder();
+  let fullText = '';
+  let buffer = '';
+
+  function readChunk() {
+    return reader.read().then(function (result) {
+      if (result.done) {
+        if (!fullText) {
+          if (div.parentNode) div.parentNode.removeChild(div);
+          return null;
+        }
+        prepararContextoAI('recv', fullText);
+        return fullText;
+      }
+      buffer += decoder.decode(result.value, { stream: true });
+      const lines = buffer.split('\n');
+      buffer = lines.pop() || '';
+      for (let j = 0; j < lines.length; j++) {
+        const line = lines[j];
+        if (!line.startsWith('data: ')) continue;
+        const jsonStr = line.slice(6).trim();
+        if (!jsonStr || jsonStr === '[DONE]') continue;
+        try {
+          const parsed = JSON.parse(jsonStr);
+          const parts =
+            (parsed && parsed.candidates && parsed.candidates[0] &&
+             parsed.candidates[0].content && parsed.candidates[0].content.parts) || [];
+          for (let k = 0; k < parts.length; k++) {
+            const p = parts[k];
+            if (p.text && !p.thought) {
+              fullText += p.text;
+              bubbleEl.innerHTML = fullText.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+              scrollToBottom();
+            }
+          }
+        } catch (e) { /* skip malformed chunk */ }
+      }
+      return readChunk();
+    });
+  }
+
+  return readChunk();
+}
+
 function escalarParaAIStream(temperature) {
   try {
+  if (!window.HOSPEDAH_AI) return Promise.resolve(null);
   const key = (typeof window !== 'undefined' && window.GEMINI_API_KEY) || '';
-  if (!key || !window.HOSPEDAH_AI) return Promise.resolve(null);
+
+  if (!key) {
+    // Sem chave no browser — usa Edge Function com streaming (pass-through SSE)
+    if (!_aiContext.mensagens || !_aiContext.mensagens.length) return Promise.resolve(null);
+    const edgeUrl  = (window.HOSPEDAH_AI.edgeUrl) || (SUPABASE_URL + '/functions/v1/ai-concierge');
+    const edgeAnon = (window.HOSPEDAH_AI.edgeAnon) || SUPABASE_KEY;
+    var edgePayload = {
+      lead:             _aiContext.lead,
+      conversa_id:      _aiContext.conversa_id || conversaId,
+      mensagens:        _aiContext.mensagens,
+      timestamp_inicio: _aiContext.timestamp_inicio,
+      contexto_intencao: _aiContext.contexto_intencao || {},
+      temperature:      typeof temperature === 'number' ? temperature : 0.7,
+      faq_extras:       _aiContext.faq_extras || '',
+      stream:           true
+    };
+    return fetch(edgeUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': edgeAnon,
+        'Authorization': 'Bearer ' + edgeAnon
+      },
+      body: JSON.stringify(edgePayload)
+    }).then(renderizarStream).catch(function (e) {
+      console.error('[HOSPEDAH] Edge stream error:', e);
+      return null;
+    });
+  }
+
   const payload = window.HOSPEDAH_AI.buildPayload(
     _aiContext.lead,
     _aiContext.mensagens,
@@ -1247,69 +1342,9 @@ function escalarParaAIStream(temperature) {
   }, 'Gemini streaming direto').then(function (res) {
     if (!res.ok || !res.body) {
       console.error('[HOSPEDAH] Stream API error:', res.status);
-      return null; // chamador oculta typing indicator
+      return null;
     }
-
-    // Criar bolha de resposta e ocultar typing
-    const el = document.getElementById('chatMessages');
-    const div = document.createElement('div');
-    div.className = 'msg recv';
-    const hora = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-    const bubbleEl = document.createElement('div');
-    bubbleEl.className = 'msg-bubble';
-    const metaEl = document.createElement('div');
-    metaEl.className = 'msg-meta';
-    metaEl.textContent = 'HOSPEDAH ✨ · ' + hora;
-    div.appendChild(bubbleEl);
-    div.appendChild(metaEl);
-    el.appendChild(div);
-    ocultarDigitando();
-    scrollToBottom();
-
-    const reader = res.body.getReader();
-    const decoder = new TextDecoder();
-    let fullText = '';
-    let buffer = '';
-
-    function readChunk() {
-      return reader.read().then(function (result) {
-        if (result.done) {
-          if (!fullText) {
-            // Remover bolha vazia criada antecipadamente
-            if (div.parentNode) div.parentNode.removeChild(div);
-            return null;
-          }
-          prepararContextoAI('recv', fullText);
-          return fullText;
-        }
-        buffer += decoder.decode(result.value, { stream: true });
-        const lines = buffer.split('\n');
-        buffer = lines.pop() || '';
-        for (let j = 0; j < lines.length; j++) {
-          const line = lines[j];
-          if (!line.startsWith('data: ')) continue;
-          const jsonStr = line.slice(6).trim();
-          if (!jsonStr || jsonStr === '[DONE]') continue;
-          try {
-            const parsed = JSON.parse(jsonStr);
-            const parts =
-              (parsed && parsed.candidates && parsed.candidates[0] &&
-               parsed.candidates[0].content && parsed.candidates[0].content.parts) || [];
-            for (let k = 0; k < parts.length; k++) {
-              const p = parts[k];
-              if (p.text && !p.thought) {
-                fullText += p.text;
-                bubbleEl.innerHTML = fullText.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
-                scrollToBottom();
-              }
-            }
-          } catch (e) { /* skip malformed chunk */ }
-        }
-        return readChunk();
-      });
-    }
-
-    return readChunk();
+    return renderizarStream(res);
   }).catch(function (e) { console.error('[HOSPEDAH] Stream error:', e); return null; });
   } catch (e) {
     console.error('[HOSPEDAH] escalarParaAIStream error:', e);
