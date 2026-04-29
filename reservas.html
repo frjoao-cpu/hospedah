@@ -703,6 +703,7 @@ span.flatpickr-weekday {
           <select id="numDormitorios" onchange="onDormitoriosChange()">
             <option value="1">01 Dormitório</option>
             <option value="2">02 Dormitórios</option>
+            <option value="3">03 + Dormitórios</option>
           </select>
         </div>
       </div>
@@ -1012,7 +1013,7 @@ function toggleDormitoriosGroup(resortNome) {
 function onDormitoriosChange() {
   const val = document.getElementById('numDormitorios').value;
   const el  = document.getElementById('sumDormitorios');
-  if (el) el.textContent = val === '2' ? '02 Dormitórios' : '01 Dormitório';
+  if (el) el.textContent = val === '3' ? '03 + Dormitórios' : val === '2' ? '02 Dormitórios' : '01 Dormitório';
   // Atualizar capacidade máxima de hóspedes para o resort e dormitório selecionados
   atualizarMaxHospedes();
   // Recarregar regras de preço com novo filtro de dormitórios
@@ -1304,7 +1305,7 @@ function atualizarResumo() {
   // Atualizar dormitórios no resumo
   const dorm = getDormitoriosSelecionados();
   const dormEl = document.getElementById('sumDormitorios');
-  if (dormEl && dorm) dormEl.textContent = dorm === 2 ? '02 Dormitórios' : '01 Dormitório';
+  if (dormEl && dorm) dormEl.textContent = dorm === 3 ? '03 + Dormitórios' : dorm === 2 ? '02 Dormitórios' : '01 Dormitório';
   // Mostrar desconto de indicação se houver ref code
   atualizarReferralRow();
 }
@@ -1589,7 +1590,7 @@ function montarResumoReserva() {
   const noites = calcularNoites(dataEntradaFP, dataSaidaFP);
   const det = calcularDetalhamentoPreco(dataEntradaFP, dataSaidaFP);
   const dorm = getDormitoriosSelecionados();
-  const dormTxt = dorm ? (dorm === 2 ? '02 Dormitórios' : '01 Dormitório') : null;
+  const dormTxt = dorm ? (dorm === 3 ? '03 + Dormitórios' : dorm === 2 ? '02 Dormitórios' : '01 Dormitório') : null;
 
   return (
     `Olá! Gostaria de reservar:\n` +
