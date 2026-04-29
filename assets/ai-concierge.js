@@ -112,8 +112,9 @@
         // round-tripped in the conversation history.  Gemini 2.5 Flash sometimes emits
         // thought parts even when thinkingBudget:0 is set, and sending that history back
         // with budget:0 causes the API to reject the request (inconsistent thinking mode).
-        // Using includeThoughts:true makes thinking consistent across all turns.
-        thinkingConfig: { includeThoughts: true }
+        // thinkingBudget must be set explicitly (> 0) whenever includeThoughts:true is
+        // used — omitting it causes a 400 Bad Request on Gemini 2.5 Flash.
+        thinkingConfig: { includeThoughts: true, thinkingBudget: 8192 }
       },
       safetySettings: [
         { category: 'HARM_CATEGORY_HARASSMENT',        threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
