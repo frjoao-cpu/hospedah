@@ -129,8 +129,7 @@
       contents: contents,
       generationConfig: {
         temperature: temp,
-        maxOutputTokens: 8192,
-        thinkingConfig: { thinkingBudget: 0 }
+        maxOutputTokens: 8192
       },
       safetySettings: [
         { category: 'HARM_CATEGORY_HARASSMENT',        threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
@@ -257,6 +256,8 @@
     chamar: chamar,
     buildPayload: buildPayload,
     streamUrl: streamUrl,
-    fetchGeminiWithRetry: fetchGeminiWithRetry
+    fetchGeminiWithRetry: fetchGeminiWithRetry,
+    edgeUrl: EDGE_FN_URL,
+    edgeAnon: SUPABASE_ANON_KEY
   };
 })();
