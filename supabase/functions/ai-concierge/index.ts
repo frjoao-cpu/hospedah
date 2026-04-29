@@ -268,15 +268,17 @@ serve(async (req: Request): Promise<Response> => {
   // Construir histórico de mensagens para o Gemini
   // O system prompt é injetado como primeiro turno "user" seguido de "model" vazio,
   // pois o Gemini 2.5 aceita system_instruction como campo separado.
-  // Model turns include thought parts when present so the API can properly reconstruct
-  // the conversation state across turns (required for Gemini 2.5 Flash thinking mode).
+  // NOTA: As partes de pensamento (`{thought: true, text: ...}`) emitidas pelo
+  // Gemini 2.5 Flash são OUTPUT-ONLY — a API rejeita requisições cujo `contents`
+  // contenha esses parts, fazendo todos os turnos após o 1º falharem
+  // (regressão recorrente, ver issues #205, #208, #209). Por isso só
+  // ecoamos o texto falado do assistente; os thoughts continuam sendo emitidos
+  // (via includeThoughts) e expostos ao cliente para o turno atual, mas nunca
+  // são reenviados ao modelo.
   type GeminiPart = { text: string; thought?: boolean };
   const rawContents = (ctx.mensagens ?? []).map((m) => {
     if (m.role === 'assistant') {
-      const parts: GeminiPart[] = [];
-      if (m.thoughts) parts.push({ text: m.thoughts, thought: true });
-      parts.push({ text: m.content });
-      return { role: 'model' as const, parts };
+      return { role: 'model' as const, parts: [{ text: m.content }] as GeminiPart[] };
     }
     return { role: 'user' as const, parts: [{ text: m.content }] as GeminiPart[] };
   });
