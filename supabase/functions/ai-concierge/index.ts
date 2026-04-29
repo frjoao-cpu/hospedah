@@ -281,6 +281,9 @@ serve(async (req: Request): Promise<Response> => {
     generationConfig: {
       temperature,
       maxOutputTokens: 8192,
+      // Disable thinking mode: prevents thought-signature parts from being emitted,
+      // which would break multi-turn conversations when the client doesn't round-trip them.
+      thinkingConfig: { thinkingBudget: 0 },
     },
     safetySettings: [
       { category: 'HARM_CATEGORY_HARASSMENT',        threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
