@@ -1,5 +1,5 @@
 // ============================================================
-// HOSPEDAH — Edge Function: Concierge IA (Google Gemini 2.5 Flash)
+// HOSPEDAH — Edge Function: Concierge IA (Google Gemini 2.0 Flash)
 //
 // Variáveis de ambiente (Supabase Dashboard → Settings → Edge Functions):
 //   GEMINI_API_KEY  → chave da API Google AI Studio (aistudio.google.com)
@@ -24,7 +24,7 @@ import { serve }        from 'https://deno.land/std@0.224.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 const GEMINI_API_KEY = Deno.env.get('GEMINI_API_KEY') ?? '';
-const GEMINI_MODEL = 'gemini-2.5-flash';
+const GEMINI_MODEL = 'gemini-2.0-flash';
 const GEMINI_URL =
   `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`;
 const GEMINI_STREAM_URL =
@@ -61,7 +61,10 @@ async function fetchGeminiWithRetry(url: string, bodyStr: string): Promise<Respo
     try {
       const res = await fetch(url, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'Referer': 'https://hospedah.tur.br',
+        },
         body: bodyStr,
       });
       if (res.status !== 429) return res; // success or non-retryable error
