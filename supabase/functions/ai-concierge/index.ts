@@ -332,8 +332,10 @@ serve(async (req: Request): Promise<Response> => {
     generationConfig: {
       temperature,
       maxOutputTokens: 8192,
-      // Disable thinking mode: prevents thought-signature parts from being emitted,
-      // which would break multi-turn conversations when the client doesn't round-trip them.
+      // Disable thinking mode: prevents thought-signature parts (thought: true) from being
+      // emitted, which would break stateless multi-turn history reconstruction.
+      // Supported by gemini-2.5-flash via the v1beta API (generativelanguage.googleapis.com/v1beta).
+      // Ref: https://ai.google.dev/gemini-api/docs/thinking
       thinkingConfig: { thinkingBudget: 0 },
     },
     safetySettings: [

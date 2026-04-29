@@ -681,6 +681,20 @@ DROP POLICY IF EXISTS "ai_config_acesso_auth" ON ai_config;
 CREATE POLICY "ai_config_acesso_auth"
   ON ai_config FOR ALL TO authenticated USING (true) WITH CHECK (true);
 
+-- Trigger: atualiza atualizado_em automaticamente em cada UPDATE
+CREATE OR REPLACE FUNCTION set_ai_config_atualizado_em()
+RETURNS TRIGGER LANGUAGE plpgsql AS $$
+BEGIN
+  NEW.atualizado_em := now();
+  RETURN NEW;
+END;
+$$;
+
+DROP TRIGGER IF EXISTS trg_ai_config_atualizado_em ON ai_config;
+CREATE TRIGGER trg_ai_config_atualizado_em
+  BEFORE UPDATE ON ai_config
+  FOR EACH ROW EXECUTE FUNCTION set_ai_config_atualizado_em();
+
 -- Valor inicial: system prompt completo (migrado do código)
 INSERT INTO ai_config (chave, valor, ativo) VALUES (
   'system_prompt',

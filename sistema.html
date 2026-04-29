@@ -3774,7 +3774,7 @@ async function salvarAiConfig(chave) {
   var ativo = ativoEl ? ativoEl.checked : true;
 
   var res = await _supabase.from('ai_config').upsert(
-    { chave: chave, valor: valor, ativo: ativo, atualizado_em: new Date().toISOString() },
+    { chave: chave, valor: valor, ativo: ativo },
     { onConflict: 'chave' }
   );
 
