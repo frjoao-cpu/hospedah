@@ -6363,10 +6363,17 @@ async function pdApplyBlockRange() {
 
   try {
     if (isBlock) {
+      // Delete any existing entries in range first to avoid duplicate constraint errors
+      var { error: delExisting } = await _supabase.from('disponibilidade')
+        .delete()
+        .eq('resort_nome', pdCal.resort)
+        .gte('data_bloqueada', ini)
+        .lte('data_bloqueada', fim);
+      if (delExisting) throw delExisting;
       var rows = dates.map(function(d) {
         return { resort_nome: pdCal.resort, data_bloqueada: d, motivo: 'bloqueio' };
       });
-      var { error } = await _supabase.from('disponibilidade').upsert(rows, { onConflict: 'resort_nome,data_bloqueada', ignoreDuplicates: true });
+      var { error } = await _supabase.from('disponibilidade').insert(rows);
       if (error) throw error;
       dates.forEach(function(d) { pdCal.blockedSet.add(d); });
       toastSistema(dates.length + (dates.length === 1 ? ' data bloqueada.' : ' datas bloqueadas.'), 'success');
