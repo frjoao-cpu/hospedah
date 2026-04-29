@@ -2632,10 +2632,10 @@ function gerarPropostaPDF() {
       return;
     }
 
-    /* etapa 2 — primeira pergunta real: salvar como assunto e enviar à IA */
-    if (hcEtapa === 2) { hcAssunto = hcAssunto || txt; hcEtapa++; }
+    /* etapa 1 — primeira pergunta real: salvar como assunto e enviar à IA */
+    if (hcEtapa === 1) { hcAssunto = hcAssunto || txt; hcEtapa++; }
 
-    /* etapa 3+ — Gemini responde */
+    /* etapa 2+ — Gemini responde */
     hcWaiting = true;
     hcSetInput(true);
     hcAddTyping();

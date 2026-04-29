@@ -73,9 +73,7 @@
       generationConfig: {
         temperature: temp,
         // 8192 tokens acomodam respostas detalhadas sobre resorts mais o FAQ injetado no contexto
-        maxOutputTokens: 8192,
-        // Desabilitar thinking mode: mantém o formato de resposta simples (sem partes de pensamento)
-        thinkingConfig: { thinkingBudget: 0 }
+        maxOutputTokens: 8192
       },
       safetySettings: [
         { category: 'HARM_CATEGORY_HARASSMENT',        threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
