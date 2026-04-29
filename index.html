@@ -2599,7 +2599,11 @@ function gerarPropostaPDF() {
       0.7
     ).then(function (resp) {
       if (resp) {
-        hcMensagens.push({ role: 'assistant', content: resp, ts: new Date().toISOString() });
+        var entry = { role: 'assistant', content: resp, ts: new Date().toISOString() };
+        // Preserve thought tokens so that buildPayload includes them in subsequent turns
+        var thoughts = window.HOSPEDAH_AI && window.HOSPEDAH_AI._lastThoughts;
+        if (thoughts) entry.thoughts = thoughts;
+        hcMensagens.push(entry);
       } else {
         hcMensagens.splice(userMsgIdx, 1); // descarta a mensagem do usuário em caso de falha para não poluir o histórico
       }

@@ -891,7 +891,7 @@ async function enviarMensagem() {
         const resultado = await escalarParaAI(temperature);
         ocultarDigitando();
         if (resultado && resultado.resposta) {
-          const msgEl = addMessage('recv', 'HOSPEDAH ✨', resultado.resposta, null);
+          const msgEl = addMessage('recv', 'HOSPEDAH ✨', resultado.resposta, null, false, resultado.thoughts || null);
           if (resultado.logId) adicionarFeedback(msgEl, resultado.logId);
           try {
             // Pré-registrar UUID para evitar duplicata caso o Realtime dispare antes do insert retornar
@@ -931,7 +931,7 @@ async function enviarMensagem() {
       ocultarDigitando();
       const resultado = await escalarParaAI(temperature);
       if (resultado && resultado.resposta) {
-        const msgEl = addMessage('recv', 'HOSPEDAH ✨', resultado.resposta, null);
+        const msgEl = addMessage('recv', 'HOSPEDAH ✨', resultado.resposta, null, false, resultado.thoughts || null);
         if (resultado.logId) adicionarFeedback(msgEl, resultado.logId);
         try {
           const msgId = gerarMsgId();
@@ -1085,8 +1085,10 @@ function escapeHtml(str) {
  * @param {boolean} [skipContext=false] - Quando true, impede que a mensagem seja
  *   adicionada ao histórico de contexto da IA (use para mensagens de sistema, avisos
  *   de rate-limit e mensagens de fallback que não fazem parte da conversa com a IA).
+ * @param {string|null} [thoughts] - Tokens de "pensamento" do modelo (Gemini 2.5+) a
+ *   preservar no histórico para multi-turn correto.
  */
-function addMessage(tipo, nome, texto, isoTimestamp, skipContext) {
+function addMessage(tipo, nome, texto, isoTimestamp, skipContext, thoughts) {
   const el = document.getElementById('chatMessages');
   const div = document.createElement('div');
   div.className = `msg ${tipo}`;
@@ -1109,7 +1111,7 @@ function addMessage(tipo, nome, texto, isoTimestamp, skipContext) {
   el.appendChild(div);
 
   /* Prepara contexto para handoff ao concierge AI — mensagens de sistema não entram no histórico */
-  if (!skipContext) prepararContextoAI(tipo, texto);
+  if (!skipContext) prepararContextoAI(tipo, texto, thoughts);
 
   scrollToBottom();
   return div;
@@ -1157,15 +1159,19 @@ var _aiContext = {
   })()
 };
 
-function prepararContextoAI(tipo, texto) {
+function prepararContextoAI(tipo, texto, thoughts) {
   _aiContext.lead.nome       = nomeHospede;
   _aiContext.lead.assunto    = assunto;
   _aiContext.conversa_id     = conversaId;
-  _aiContext.mensagens.push({
+  var entry = {
     role: tipo === 'sent' ? 'user' : 'assistant',
     content: texto,
     ts: new Date().toISOString()
-  });
+  };
+  // Preserve thought tokens for model turns so that the Gemini 2.5 Flash API
+  // can properly reconstruct the conversation state on subsequent turns.
+  if (tipo !== 'sent' && thoughts) entry.thoughts = thoughts;
+  _aiContext.mensagens.push(entry);
   /* Manter apenas as últimas 30 mensagens para não exceder limites */
   if (_aiContext.mensagens.length > 30) {
     _aiContext.mensagens = _aiContext.mensagens.slice(-30);
@@ -1197,6 +1203,9 @@ async function escalarParaAI(temperature) {
 
   if (!resposta) return { resposta: null, logId: null };
 
+  // Capture thoughts from the side-channel set by HOSPEDAH_AI.chamar
+  const thoughts = (window.HOSPEDAH_AI && window.HOSPEDAH_AI._lastThoughts) || null;
+
   // Registrar interação no log de IA
   let logId = null;
   try {
@@ -1211,7 +1220,7 @@ async function escalarParaAI(temperature) {
     logId = logData?.id ?? null;
   } catch (e) { /* silencioso */ }
 
-  return { resposta, logId };
+  return { resposta, thoughts, logId };
 }
 
 /**
@@ -1263,6 +1272,7 @@ function escalarParaAIStream(temperature) {
     const reader = res.body.getReader();
     const decoder = new TextDecoder();
     let fullText = '';
+    let fullThoughts = '';
     let buffer = '';
 
     function readChunk() {
@@ -1273,7 +1283,9 @@ function escalarParaAIStream(temperature) {
             if (div.parentNode) div.parentNode.removeChild(div);
             return null;
           }
-          prepararContextoAI('recv', fullText);
+          // Store thought tokens alongside the text so that buildPayload can include
+          // them in subsequent turns — required for Gemini 2.5 Flash multi-turn.
+          prepararContextoAI('recv', fullText, fullThoughts || undefined);
           return fullText;
         }
         buffer += decoder.decode(result.value, { stream: true });
@@ -1289,13 +1301,16 @@ function escalarParaAIStream(temperature) {
             const parts =
               (parsed && parsed.candidates && parsed.candidates[0] &&
                parsed.candidates[0].content && parsed.candidates[0].content.parts) || [];
-            // Skip thought parts (thought: true) that Gemini 2.5+ may include
-            const textPart = parts.find(function (p) { return p.text && !p.thought; });
-            const partText = (textPart && textPart.text) || '';
-            if (partText) {
-              fullText += partText;
-              bubbleEl.innerHTML = fullText.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
-              scrollToBottom();
+            for (let k = 0; k < parts.length; k++) {
+              const p = parts[k];
+              if (p.thought && p.text) {
+                // Accumulate thought tokens for multi-turn history round-trip
+                fullThoughts += p.text;
+              } else if (p.text && !p.thought) {
+                fullText += p.text;
+                bubbleEl.innerHTML = fullText.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+                scrollToBottom();
+              }
             }
           } catch (e) { /* skip malformed chunk */ }
         }
