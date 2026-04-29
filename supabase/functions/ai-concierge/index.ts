@@ -25,8 +25,7 @@ import { serve }        from 'https://deno.land/std@0.224.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 const GEMINI_API_KEY = Deno.env.get('GEMINI_API_KEY') ?? '';
-// gemini-2.5-flash: current recommended model replacing deprecated gemini-2.0-flash (EOL Jun 1 2026)
-const GEMINI_MODEL = 'gemini-2.5-flash';
+const GEMINI_MODEL = 'gemini-2.0-flash';
 const GEMINI_URL =
   `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`;
 const GEMINI_STREAM_URL =
@@ -353,14 +352,6 @@ serve(async (req: Request): Promise<Response> => {
     generationConfig: {
       temperature,
       maxOutputTokens: 8192,
-      // Explicitly request thought tokens so they are reliably emitted and can be
-      // round-tripped in the conversation history.  Gemini 2.5 Flash sometimes emits
-      // thought parts even when thinkingBudget:0 is set, and sending that history back
-      // with budget:0 causes the API to reject the request (inconsistent thinking mode).
-      // thinkingBudget must be set explicitly (> 0) whenever includeThoughts:true is
-      // used — omitting it causes a 400 Bad Request on Gemini 2.5 Flash.
-      // Ref: https://ai.google.dev/gemini-api/docs/thinking
-      thinkingConfig: { includeThoughts: true, thinkingBudget: 8192 },
     },
     safetySettings: [
       { category: 'HARM_CATEGORY_HARASSMENT',        threshold: 'BLOCK_MEDIUM_AND_ABOVE' },

@@ -12,7 +12,7 @@
 // ============================================================
 /* global window, fetch */
 (function () {
-  var GEMINI_MODEL = 'gemini-2.5-flash';
+  var GEMINI_MODEL = 'gemini-2.0-flash';
   var GEMINI_BASE = 'https://generativelanguage.googleapis.com/v1beta/models/' + GEMINI_MODEL;
   var EDGE_FN_URL = 'https://ydrmjoppjxtmnwtvtinb.supabase.co/functions/v1/ai-concierge';
   // Chave anon pública do projeto Supabase — obrigatória no header da requisição
@@ -106,15 +106,7 @@
       contents: contents,
       generationConfig: {
         temperature: temp,
-        // 8192 tokens acomodam respostas detalhadas sobre resorts mais o FAQ injetado no contexto
-        maxOutputTokens: 8192,
-        // Explicitly request thought tokens so they are reliably emitted and can be
-        // round-tripped in the conversation history.  Gemini 2.5 Flash sometimes emits
-        // thought parts even when thinkingBudget:0 is set, and sending that history back
-        // with budget:0 causes the API to reject the request (inconsistent thinking mode).
-        // thinkingBudget must be set explicitly (> 0) whenever includeThoughts:true is
-        // used — omitting it causes a 400 Bad Request on Gemini 2.5 Flash.
-        thinkingConfig: { includeThoughts: true, thinkingBudget: 8192 }
+        maxOutputTokens: 8192
       },
       safetySettings: [
         { category: 'HARM_CATEGORY_HARASSMENT',        threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
