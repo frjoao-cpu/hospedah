@@ -1215,6 +1215,14 @@ tbody td {
 .pd-period-field.pd-field-active {
   background: rgba(212,175,55,0.1);
 }
+/* Estado de erro amigável: destaque vermelho suave enquanto a data digitada está inválida */
+.pd-period-field.pd-field-error {
+  background: rgba(220,53,69,0.13);
+  border-color: rgba(220,53,69,0.45);
+}
+.pd-period-field.pd-field-error input[type="date"] {
+  color: #e74c3c;
+}
 .pd-period-field-label {
   font-size: 0.70em;
   color: var(--cor-sub);
@@ -2374,11 +2382,11 @@ tbody td {
         <div class="pd-period-fields">
           <div class="pd-period-field" id="pdFieldIni">
             <div class="pd-period-field-label">Início</div>
-            <input type="date" id="pd_date_ini_vis" onchange="pdDateInputChange()" title="Data de início">
+            <input type="date" id="pd_date_ini_vis" onchange="pdDateInputChange()" onblur="pdDateInputBlur('ini')" title="Data de início">
           </div>
           <div class="pd-period-field" id="pdFieldFim">
             <div class="pd-period-field-label">Término (opcional)</div>
-            <input type="date" id="pd_date_fim_vis" onchange="pdDateInputChange()" title="Data de término">
+            <input type="date" id="pd_date_fim_vis" onchange="pdDateInputChange()" onblur="pdDateInputBlur('fim')" title="Data de término">
           </div>
         </div>
         <div class="pd-period-info" id="pdPeriodInfo">Selecione noites únicas ou intervalos de datas para editar</div>
@@ -6441,37 +6449,41 @@ function pdSyncVisibleDateInputs() {
   pdUpdatePeriodInfo();
 }
 
-// Called when user types/picks a date in the visible inputs
+// Chamada a cada alteração nos campos visíveis de data (Início / Término).
+// NÃO exibe toast nem limpa o campo durante a digitação — isso evita erros
+// bloqueantes enquanto o usuário ainda está digitando a data manualmente.
+// Apenas aplica um destaque visual (pd-field-error) quando a data parcial
+// já está claramente no passado, sem interromper o fluxo de digitação.
 function pdDateInputChange() {
-  var iniEl = document.getElementById('pd_date_ini_vis');
-  var fimEl = document.getElementById('pd_date_fim_vis');
-  var ini = iniEl ? iniEl.value : '';
-  var fim = fimEl ? fimEl.value : '';
+  var iniEl   = document.getElementById('pd_date_ini_vis');
+  var fimEl   = document.getElementById('pd_date_fim_vis');
+  var ini     = iniEl ? iniEl.value : '';
+  var fim     = fimEl ? fimEl.value : '';
   var todayStr = pdTodayStr();
 
-  if (ini && ini < todayStr) {
-    toastSistema('A data de início não pode ser no passado.', 'error');
-    iniEl.value = '';
-    ini = '';
-  }
-  if (fim && fim < todayStr) {
-    toastSistema('A data de término não pode ser no passado.', 'error');
-    fimEl.value = '';
-    fim = '';
-  }
+  // Indicador visual de erro amigável: apenas realça o campo, sem bloquear a edição
+  var iniField = document.getElementById('pdFieldIni');
+  var fimField = document.getElementById('pdFieldFim');
+  if (iniField) iniField.classList.toggle('pd-field-error', ini !== '' && ini < todayStr);
+  if (fimField) fimField.classList.toggle('pd-field-error', fim !== '' && fim < todayStr);
 
-  if (ini && fim) {
-    if (fim < ini) {
-      pdCal.rangeStart = fim;
-      pdCal.rangeEnd   = ini;
+  // Atualiza o estado do calendário apenas com datas válidas (não no passado)
+  var validIni = (ini && ini >= todayStr) ? ini : null;
+  var validFim = (fim && fim >= todayStr) ? fim : null;
+
+  if (validIni && validFim) {
+    if (validFim < validIni) {
+      // Inverte automaticamente se Término for anterior ao Início
+      pdCal.rangeStart = validFim;
+      pdCal.rangeEnd   = validIni;
       if (iniEl) iniEl.value = pdCal.rangeStart;
       if (fimEl) fimEl.value = pdCal.rangeEnd;
     } else {
-      pdCal.rangeStart = ini;
-      pdCal.rangeEnd   = fim;
+      pdCal.rangeStart = validIni;
+      pdCal.rangeEnd   = validFim;
     }
-  } else if (ini) {
-    pdCal.rangeStart = ini;
+  } else if (validIni) {
+    pdCal.rangeStart = validIni;
     pdCal.rangeEnd   = null;
   } else {
     pdCal.rangeStart = null;
@@ -6479,14 +6491,14 @@ function pdDateInputChange() {
   }
   pdCal.hoverDate = null;
 
-  // Navigate calendar to show the start date
+  // Navega o calendário para o mês da data de início selecionada
   if (pdCal.rangeStart) {
     var parts = pdCal.rangeStart.split('-');
     pdCal.year  = parseInt(parts[0], 10);
     pdCal.month = parseInt(parts[1], 10) - 1;
   }
 
-  // Sync hidden inputs
+  // Sincroniza os inputs ocultos utilizados pelo formulário de envio
   document.getElementById('pd_data_ini').value = pdCal.rangeStart || '';
   document.getElementById('pd_data_fim').value = pdCal.rangeEnd   || '';
 
@@ -6502,6 +6514,44 @@ function pdDateInputChange() {
     if (ep) ep.classList.remove('active');
     var bp = document.getElementById('pdBlockPanel');
     if (bp) bp.classList.remove('active');
+  }
+}
+
+// Chamada quando o usuário SAI do campo de data (blur).
+// Somente neste momento a validação completa é feita: exibe mensagem amigável
+// e limpa o campo se a data confirmada estiver no passado.
+// Isso garante que a digitação manual não seja interrompida antes de terminar.
+function pdDateInputBlur(field) {
+  var todayStr = pdTodayStr();
+
+  if (field === 'ini') {
+    var iniEl    = document.getElementById('pd_date_ini_vis');
+    var iniField = document.getElementById('pdFieldIni');
+    if (iniEl && iniEl.value && iniEl.value < todayStr) {
+      // Data de início confirmada está no passado — exibe aviso e limpa o campo
+      toastSistema('A data de início não pode ser no passado.', 'error');
+      iniEl.value = '';
+      if (iniField) iniField.classList.remove('pd-field-error');
+      // Sincroniza calendário e hidden inputs manualmente, pois a atribuição
+      // programática de .value não dispara o evento change automaticamente.
+      pdDateInputChange();
+    } else if (iniField) {
+      iniField.classList.remove('pd-field-error');
+    }
+  } else if (field === 'fim') {
+    var fimEl    = document.getElementById('pd_date_fim_vis');
+    var fimField = document.getElementById('pdFieldFim');
+    if (fimEl && fimEl.value && fimEl.value < todayStr) {
+      // Data de término confirmada está no passado — exibe aviso e limpa o campo
+      toastSistema('A data de término não pode ser no passado.', 'error');
+      fimEl.value = '';
+      if (fimField) fimField.classList.remove('pd-field-error');
+      // Sincroniza calendário e hidden inputs manualmente, pois a atribuição
+      // programática de .value não dispara o evento change automaticamente.
+      pdDateInputChange();
+    } else if (fimField) {
+      fimField.classList.remove('pd-field-error');
+    }
   }
 }
 
