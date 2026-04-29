@@ -1292,7 +1292,7 @@ function escalarParaAIStream(temperature) {
                parsed.candidates[0].content && parsed.candidates[0].content.parts) || [];
             for (let k = 0; k < parts.length; k++) {
               const p = parts[k];
-              if (p.text) {
+              if (p.text && !p.thought) {
                 fullText += p.text;
                 bubbleEl.innerHTML = fullText.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
                 scrollToBottom();

@@ -336,6 +336,7 @@ serve(async (req: Request): Promise<Response> => {
     generationConfig: {
       temperature,
       maxOutputTokens: 8192,
+      thinkingConfig: { thinkingBudget: 0 },
     },
     safetySettings: [
       { category: 'HARM_CATEGORY_HARASSMENT',        threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
@@ -420,8 +421,8 @@ serve(async (req: Request): Promise<Response> => {
   }
 
   const candidate = geminiData.candidates[0];
-  const parts: Array<{ text?: string }> = candidate?.content?.parts ?? [];
-  const responsePart = parts.find((p) => p.text && p.text.trim());
+  const parts: Array<{ text?: string; thought?: boolean }> = candidate?.content?.parts ?? [];
+  const responsePart = parts.find((p) => p.text && p.text.trim() && !p.thought);
   const resposta: string = responsePart?.text?.trim() ?? '';
 
   if (!resposta) {

@@ -83,7 +83,8 @@
       contents: contents,
       generationConfig: {
         temperature: temp,
-        maxOutputTokens: 8192
+        maxOutputTokens: 8192,
+        thinkingConfig: { thinkingBudget: 0 }
       },
       safetySettings: [
         { category: 'HARM_CATEGORY_HARASSMENT',        threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
@@ -188,7 +189,7 @@
         var parts = (data.candidates[0].content && data.candidates[0].content.parts) || [];
         var textPart = null;
         for (var i = 0; i < parts.length; i++) {
-          if (parts[i].text && !textPart) { textPart = parts[i]; }
+          if (parts[i].text && !parts[i].thought && !textPart) { textPart = parts[i]; }
         }
         if (!textPart || !textPart.text || !textPart.text.trim()) {
           console.warn('[HOSPEDAH_AI] Gemini retornou sem texto.');
