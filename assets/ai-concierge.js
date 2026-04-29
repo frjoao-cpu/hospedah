@@ -21,6 +21,7 @@
   var FALLBACK_COUNTER = 0;
   var GEMINI_MAX_RETRIES = 2;
   var GEMINI_RETRY_BASE_MS = 1500;
+  var GEMINI_MAX_RETRY_DELAY_MS = 10000;
 
   function sleep(ms) {
     return new Promise(function (resolve) { setTimeout(resolve, ms); });
@@ -53,7 +54,10 @@
         }
 
         var retryAfterMs = getRetryAfterMs(res);
-        var waitMs = retryAfterMs != null ? retryAfterMs : GEMINI_RETRY_BASE_MS * Math.pow(2, attemptNumber - 1);
+        var waitMs = Math.min(
+          retryAfterMs != null ? retryAfterMs : GEMINI_RETRY_BASE_MS * Math.pow(2, attemptNumber - 1),
+          GEMINI_MAX_RETRY_DELAY_MS
+        );
         console.warn('[HOSPEDAH_AI] ' + requestLabel + ' rate-limit 429 (tentativa ' + attemptNumber + '/' + totalAttempts + ') — tentando novamente em ' + waitMs + ' ms.');
         return sleep(waitMs).then(function () { return runAttempt(attemptNumber + 1); });
       });
