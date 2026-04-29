@@ -31,10 +31,10 @@
     if (!value) return null;
 
     var seconds = Number(value);
-    if (Number.isFinite(seconds) && seconds >= 0) return seconds * 1000;
+    if (Number.isFinite(seconds) && seconds > 0) return seconds * 1000;
 
     var dateMs = Date.parse(value);
-    if (Number.isFinite(dateMs)) return Math.max(0, dateMs - Date.now());
+    if (Number.isFinite(dateMs) && dateMs > Date.now()) return dateMs - Date.now();
 
     return null;
   }
