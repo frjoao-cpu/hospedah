@@ -1235,11 +1235,16 @@ function escalarParaAIStream(temperature) {
   );
   if (!payload.contents || !payload.contents.length) return Promise.resolve(null);
 
-  return fetch(window.HOSPEDAH_AI.streamUrl(), {
+  let fetchStream = window.HOSPEDAH_AI.fetchGeminiWithRetry;
+  if (!fetchStream) {
+    console.warn('[HOSPEDAH] Retry Gemini indisponível para streaming; usando fetch direto.');
+    fetchStream = fetch;
+  }
+  return fetchStream(window.HOSPEDAH_AI.streamUrl(), {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload)
-  }).then(function (res) {
+  }, 'Gemini streaming direto').then(function (res) {
     if (!res.ok || !res.body) {
       console.error('[HOSPEDAH] Stream API error:', res.status);
       return null; // chamador oculta typing indicator
