@@ -2591,13 +2591,18 @@ function gerarPropostaPDF() {
     if (!window.HOSPEDAH_AI) return Promise.resolve(null);
     hcMensagens.push({ role: 'user', content: userMsg, ts: new Date().toISOString() });
     if (hcMensagens.length > 20) { hcMensagens = hcMensagens.slice(-20); }
+    var userMsgIdx = hcMensagens.length - 1;
     return window.HOSPEDAH_AI.chamar(
       { nome: hcNome, assunto: hcAssunto },
       hcMensagens,
       { pagina_origem: 'index', perfil_tipo: hcPerfil.tipo, perfil_orcamento: hcPerfil.orcamento, perfil_parque: hcPerfil.parque },
       0.7
     ).then(function (resp) {
-      if (resp) { hcMensagens.push({ role: 'assistant', content: resp, ts: new Date().toISOString() }); }
+      if (resp) {
+        hcMensagens.push({ role: 'assistant', content: resp, ts: new Date().toISOString() });
+      } else {
+        hcMensagens.splice(userMsgIdx, 1); // descarta a mensagem do usuário em caso de falha para não poluir o histórico
+      }
       return resp;
     });
   }

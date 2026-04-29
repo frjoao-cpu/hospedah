@@ -2396,6 +2396,7 @@ function _checkDatesForWizard() {
     if (!window.HOSPEDAH_AI) return Promise.resolve(null);
     hcMensagens.push({ role: 'user', content: userMsg, ts: new Date().toISOString() });
     if (hcMensagens.length > 20) { hcMensagens = hcMensagens.slice(-20); }
+    var userMsgIdx = hcMensagens.length - 1;
     var intencao = { pagina_origem: 'reservas' };
     if (typeof resortAtual !== 'undefined' && resortAtual && resortAtual.nome) intencao.resort_interesse = resortAtual.nome;
     var elEntrada = document.getElementById('dataEntrada');
@@ -2410,7 +2411,11 @@ function _checkDatesForWizard() {
       intencao,
       0.7
     ).then(function (resp) {
-      if (resp) { hcMensagens.push({ role: 'assistant', content: resp, ts: new Date().toISOString() }); }
+      if (resp) {
+        hcMensagens.push({ role: 'assistant', content: resp, ts: new Date().toISOString() });
+      } else {
+        hcMensagens.splice(userMsgIdx, 1); // descarta a mensagem do usuário em caso de falha para não poluir o histórico
+      }
       return resp;
     });
   }
