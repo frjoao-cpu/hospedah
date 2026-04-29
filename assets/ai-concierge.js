@@ -73,7 +73,10 @@
       generationConfig: {
         temperature: temp,
         // 8192 tokens acomodam respostas detalhadas sobre resorts mais o FAQ injetado no contexto
-        maxOutputTokens: 8192
+        maxOutputTokens: 8192,
+        // Disable thinking mode: prevents thought-signature parts from being emitted,
+        // which would break multi-turn conversations when the client doesn't round-trip them.
+        thinkingConfig: { thinkingBudget: 0 }
       },
       safetySettings: [
         { category: 'HARM_CATEGORY_HARASSMENT',        threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
