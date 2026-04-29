@@ -1,5 +1,5 @@
 // ============================================================
-// HOSPEDAH — Edge Function: Concierge IA (Google Gemini 2.5 Flash)
+// HOSPEDAH — Edge Function: Concierge IA (Google Gemini 2.0 Flash)
 //
 // Variáveis de ambiente (Supabase Dashboard → Settings → Edge Functions):
 //   GEMINI_API_KEY  → chave da API Google AI Studio (aistudio.google.com)
@@ -10,15 +10,14 @@
 //   {
 //     lead: { nome: string, assunto: string },
 //     conversa_id: string,
-//     mensagens: Array<{ role: 'user' | 'assistant', content: string, ts: string,
-//                        thoughts?: string }>,
+//     mensagens: Array<{ role: 'user' | 'assistant', content: string, ts: string }>,
 //     timestamp_inicio: string,
 //     gemini_key?: string   // fallback quando GEMINI_API_KEY não está no Supabase
 //   }
 //
 // Resposta:
-//   { resposta: string, thoughts?: string }  → em caso de sucesso
-//   { error: string }                        → em caso de falha
+//   { resposta: string }  → em caso de sucesso
+//   { error: string }     → em caso de falha
 // ============================================================
 
 import { serve }        from 'https://deno.land/std@0.224.0/http/server.ts';
@@ -202,8 +201,6 @@ interface AiMessage {
   role: 'user' | 'assistant';
   content: string;
   ts: string;
-  /** Thought tokens from Gemini 2.5+ thinking mode — round-tripped for correct multi-turn. */
-  thoughts?: string;
 }
 
 interface IntencaoContext {
@@ -264,46 +261,33 @@ serve(async (req: Request): Promise<Response> => {
     );
   }
 
-  // Construir histórico de mensagens para o Gemini
-  // O system prompt é injetado como primeiro turno "user" seguido de "model" vazio,
-  // pois o Gemini 2.5 aceita system_instruction como campo separado.
-  // NOTA: As partes de pensamento (`{thought: true, text: ...}`) emitidas pelo
-  // Gemini 2.5 Flash são OUTPUT-ONLY — a API rejeita requisições cujo `contents`
-  // contenha esses parts, fazendo todos os turnos após o 1º falharem
-  // (regressão recorrente, ver issues #205, #208, #209). Por isso só
-  // ecoamos o texto falado do assistente; os thoughts continuam sendo emitidos
-  // (via includeThoughts) e expostos ao cliente para o turno atual, mas nunca
-  // são reenviados ao modelo.
-  type GeminiPart = { text: string; thought?: boolean };
+  // Construir histórico de mensagens para o Gemini.
+  // Gemini 2.0 Flash usa apenas texto simples nas partes — nenhum campo extra
+  // (thought, etc.) deve ser incluído, caso contrário a API retorna 400.
+  // content é convertido para string para evitar {"text":null} que também causa 400.
+  type GeminiPart = { text: string };
   const rawContents = (ctx.mensagens ?? []).map((m) => {
+    const text = (m.content != null) ? String(m.content) : '';
     if (m.role === 'assistant') {
-      return { role: 'model' as const, parts: [{ text: m.content }] as GeminiPart[] };
+      return { role: 'model' as const, parts: [{ text }] as GeminiPart[] };
     }
-    return { role: 'user' as const, parts: [{ text: m.content }] as GeminiPart[] };
+    return { role: 'user' as const, parts: [{ text }] as GeminiPart[] };
   });
 
   // Gemini exige que o primeiro item em contents tenha role 'user'.
-  // Remover quaisquer mensagens 'model' no início do histórico
-  // (ex.: mensagem de boas-vindas roteirizada adicionada pelo front-end).
+  // Remover quaisquer mensagens 'model' no início do histórico.
   const firstUserIdx = rawContents.findIndex((c) => c.role === 'user');
   const trimmedContents = firstUserIdx >= 0 ? rawContents.slice(firstUserIdx) : [];
 
-  // Mesclar mensagens consecutivas com o mesmo role para satisfazer a alternância obrigatória.
-  // For model turns that carry thought parts, only the non-thought text part is merged.
+  // Mesclar mensagens consecutivas com o mesmo role e filtrar entradas com texto vazio.
   const contents: Array<{ role: string; parts: GeminiPart[] }> = [];
   for (const c of trimmedContents) {
-    if (!c.parts.length) continue;
+    const cText = c.parts.length > 0 ? c.parts[0].text : '';
+    if (!cText) continue; // pular turnos com conteúdo vazio
     if (contents.length > 0 && contents[contents.length - 1].role === c.role) {
-      const lastParts = contents[contents.length - 1].parts;
-      const lastText = lastParts.find((p) => !p.thought);
-      const cText    = c.parts.find((p) => !p.thought);
-      if (lastText && cText) {
-        lastText.text += '\n' + cText.text;
-      } else if (cText) {
-        lastParts.push({ text: cText.text });
-      }
+      contents[contents.length - 1].parts[0].text += '\n' + cText;
     } else {
-      contents.push({ role: c.role, parts: c.parts.map((p) => ({ ...p })) });
+      contents.push({ role: c.role, parts: [{ text: cText }] });
     }
   }
 
@@ -436,16 +420,8 @@ serve(async (req: Request): Promise<Response> => {
   }
 
   const candidate = geminiData.candidates[0];
-  const parts: Array<{ text?: string; thought?: boolean }> =
-    candidate?.content?.parts ?? [];
-  // Collect ALL thought tokens (thought: true) for the client to round-trip in subsequent turns.
-  // Using join to concatenate multiple thought parts, which the streaming path also does.
-  const thoughts: string = parts
-    .filter((p) => p.thought && p.text)
-    .map((p) => p.text!)
-    .join('')
-    .trim();
-  const responsePart  = parts.find((p) => p.text && !p.thought);
+  const parts: Array<{ text?: string }> = candidate?.content?.parts ?? [];
+  const responsePart = parts.find((p) => p.text && p.text.trim());
   const resposta: string = responsePart?.text?.trim() ?? '';
 
   if (!resposta) {
@@ -458,7 +434,7 @@ serve(async (req: Request): Promise<Response> => {
   }
 
   return new Response(
-    JSON.stringify({ resposta, ...(thoughts ? { thoughts } : {}) }),
+    JSON.stringify({ resposta }),
     { status: 200, headers: { ...corsH, 'Content-Type': 'application/json' } },
   );
 });
