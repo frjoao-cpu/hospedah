@@ -6363,7 +6363,7 @@ async function pdApplyBlockRange() {
 
   try {
     if (isBlock) {
-      // Delete any existing entries in range first to avoid duplicate constraint errors
+      // Delete any existing entries in range first to avoid constraint errors
       var { error: delExisting } = await _supabase.from('disponibilidade')
         .delete()
         .eq('resort_nome', pdCal.resort)
@@ -6375,7 +6375,6 @@ async function pdApplyBlockRange() {
       });
       var { error } = await _supabase.from('disponibilidade').insert(rows);
       if (error) throw error;
-      dates.forEach(function(d) { pdCal.blockedSet.add(d); });
       toastSistema(dates.length + (dates.length === 1 ? ' data bloqueada.' : ' datas bloqueadas.'), 'success');
     } else {
       var { error: err2 } = await _supabase.from('disponibilidade')
@@ -6384,11 +6383,10 @@ async function pdApplyBlockRange() {
         .gte('data_bloqueada', ini)
         .lte('data_bloqueada', fim);
       if (err2) throw err2;
-      dates.forEach(function(d) { pdCal.blockedSet.delete(d); });
       toastSistema(dates.length + (dates.length === 1 ? ' data liberada.' : ' datas liberadas.'), 'success');
     }
     pdClearSelection();
-    pdRenderCalendar();
+    pdLoadAndRender();
   } catch(e) {
     toastSistema('Erro ao ' + (isBlock ? 'bloquear' : 'liberar') + ' período: ' + (e.message || ''), 'error');
   }
@@ -6533,13 +6531,18 @@ async function pdToggleBlockDate(ds, block) {
   if (!pdCal.resort) { toastSistema('Selecione o resort.', 'error'); return; }
   try {
     if (block) {
+      // Delete first to avoid constraint errors, then insert
+      var { error: delErr } = await _supabase.from('disponibilidade')
+        .delete()
+        .eq('resort_nome', pdCal.resort)
+        .eq('data_bloqueada', ds);
+      if (delErr) throw delErr;
       var { error } = await _supabase.from('disponibilidade').insert([{
         resort_nome:    pdCal.resort,
         data_bloqueada: ds,
         motivo:         'bloqueio',
       }]);
-      if (error && error.code !== '23505') throw error;
-      pdCal.blockedSet.add(ds);
+      if (error) throw error;
       toastSistema('Data ' + fmtDate(ds) + ' bloqueada.', 'success');
     } else {
       var { error: err2 } = await _supabase.from('disponibilidade')
@@ -6547,10 +6550,9 @@ async function pdToggleBlockDate(ds, block) {
         .eq('resort_nome', pdCal.resort)
         .eq('data_bloqueada', ds);
       if (err2) throw err2;
-      pdCal.blockedSet.delete(ds);
       toastSistema('Data ' + fmtDate(ds) + ' liberada.', 'success');
     }
-    pdRenderCalendar();
+    pdLoadAndRender();
   } catch(e) {
     toastSistema('Erro ao ' + (block ? 'bloquear' : 'liberar') + ' data: ' + (e.message || ''), 'error');
   }
