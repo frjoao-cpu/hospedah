@@ -264,9 +264,9 @@ img {
     display: none !important;
   }
 
-  /* Hero mais compacto */
+  /* Hero compacto — top preserva clearance da navbar fixa (64px) + safe-area */
   .hero-content {
-    padding: 16px;
+    padding: calc(64px + 16px + env(safe-area-inset-top, 0px)) 16px 16px;
   }
 
   /* Cards em coluna única */
