@@ -1800,6 +1800,8 @@ function verificarPeriodoDisponivel() {
   if (conflito) {
     statusEl.innerHTML = '<span class="availability-tag tag-indisponivel">❌ Há datas bloqueadas neste período. Por favor, escolha outras datas.</span>';
     document.getElementById('availTag').innerHTML = '<span class="availability-tag tag-indisponivel">❌ Indisponível</span>';
+    // Preserve check-in parcial so a spurious onChange(length=0) post-close does not also clear dataEntradaFP.
+    if (!_fpEntradaParcial && dataEntradaFP) _fpEntradaParcial = dataEntradaFP;
     dataSaidaFP = null;
     pararContadorUrgencia();
     atualizarResumo();
@@ -2483,9 +2485,29 @@ function irParaStep(step) {
     return;
   }
   if (step === 3) {
+    // If FP state variables are not yet set (e.g. user typed dates without blurring),
+    // try to parse the raw input values as a fallback before rejecting.
+    if (!dataEntradaFP || !dataSaidaFP) {
+      var _parseInputDate = function(s) {
+        var m = (s || '').trim().match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+        if (!m) return null;
+        var d = new Date(+m[3], +m[2] - 1, +m[1]);
+        d.setHours(0, 0, 0, 0);
+        return (d.getDate() === +m[1] && d.getMonth() === +m[2] - 1 && d.getFullYear() === +m[3]) ? d : null;
+      };
+      var _entEl = document.getElementById('dataEntrada');
+      var _saiEl = document.getElementById('dataSaida');
+      if (!dataEntradaFP && _entEl && _entEl.value) {
+        var _pEnt = _parseInputDate(_entEl.value);
+        if (_pEnt) dataEntradaFP = _pEnt;
+      }
+      if (!dataSaidaFP && _saiEl && _saiEl.value) {
+        var _pSai = _parseInputDate(_saiEl.value);
+        if (_pSai && dataEntradaFP && _pSai > dataEntradaFP) dataSaidaFP = _pSai;
+      }
+    }
     if (!dataEntradaFP || !dataSaidaFP) {
       toast('Selecione o check-in e o check-out para continuar.', 'error');
-      document.getElementById('dataEntrada').focus();
       return;
     }
   }
@@ -2592,7 +2614,16 @@ function onResortSelect(resortId) {
 function _checkDatesForWizard() {
   var btn = document.getElementById('btnNext2');
   if (!btn) return;
-  btn.disabled = !(dataEntradaFP && dataSaidaFP);
+  var ok = !!(dataEntradaFP && dataSaidaFP);
+  if (!ok) {
+    // Fallback: enable the button when both inputs contain a value that looks like
+    // a complete date (DD/MM/YYYY). The final validation happens in irParaStep.
+    var _entVal = (document.getElementById('dataEntrada')  || {}).value || '';
+    var _saiVal = (document.getElementById('dataSaida') || {}).value || '';
+    var _dateRe = /^\d{1,2}\/\d{1,2}\/\d{4}$/;
+    ok = _dateRe.test(_entVal.trim()) && _dateRe.test(_saiVal.trim());
+  }
+  btn.disabled = !ok;
 }
 
 /* Habilitar botão "Próximo" do step 3 quando nome e e-mail estão preenchidos */
