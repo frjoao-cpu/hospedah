@@ -896,3 +896,6 @@ CREATE POLICY "visitas_insercao_publica"
 CREATE POLICY "visitas_leitura_admin"
   ON visitas_site FOR SELECT TO authenticated
   USING (EXISTS (SELECT 1 FROM profiles p WHERE p.id = auth.uid() AND p.role IN ('admin', 'proprietario')));
+
+CREATE INDEX IF NOT EXISTS idx_visitas_criado_em ON visitas_site(criado_em DESC);
+CREATE INDEX IF NOT EXISTS idx_visitas_pagina    ON visitas_site(pagina);
