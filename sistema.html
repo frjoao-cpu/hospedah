@@ -2480,8 +2480,11 @@ tbody td {
       👁️ Acessos ao Site
       <span style="margin-left:auto; display:flex; gap:8px;">
         <button class="btn btn-secondary btn-sm" onclick="carregarVisitasSite()">🔄 Atualizar</button>
+        <button class="btn btn-secondary btn-sm" id="visitasSiteToggleBtn" onclick="toggleVisitasSite()" title="Minimizar/Expandir seção" aria-label="Minimizar/Expandir seção Acessos ao Site">▲ Expandir</button>
       </span>
     </div>
+
+    <div id="visitasSiteContent" style="display:none;">
 
     <!-- CARDS DE RESUMO -->
     <div class="dashboard-grid" style="margin-bottom:16px;">
@@ -2542,6 +2545,8 @@ tbody td {
         </tbody>
       </table>
     </div>
+
+    </div><!-- /visitasSiteContent -->
   </section>
 
   <!-- ==========================================
@@ -7138,6 +7143,15 @@ function toggleReservas() {
 function toggleCaptacoes() {
   var content = document.getElementById('captacoesContent');
   var btn = document.getElementById('captacoesToggleBtn');
+  if (!content || !btn) return;
+  var collapsed = content.style.display === 'none';
+  content.style.display = collapsed ? '' : 'none';
+  btn.textContent = collapsed ? '▼ Minimizar' : '▲ Expandir';
+}
+
+function toggleVisitasSite() {
+  var content = document.getElementById('visitasSiteContent');
+  var btn = document.getElementById('visitasSiteToggleBtn');
   if (!content || !btn) return;
   var collapsed = content.style.display === 'none';
   content.style.display = collapsed ? '' : 'none';
