@@ -300,6 +300,41 @@ jobs:
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
 
+      - name: Deploy ai-insights
+        run: |
+          supabase functions deploy ai-insights --project-ref ydrmjoppjxtmnwtvtinb --no-verify-jwt \
+            || echo "⚠️  Falha ao fazer deploy da Edge Function ai-insights."
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+
+      - name: Deploy lembrete-checkin
+        run: |
+          supabase functions deploy lembrete-checkin --project-ref ydrmjoppjxtmnwtvtinb --no-verify-jwt \
+            || echo "⚠️  Falha ao fazer deploy da Edge Function lembrete-checkin."
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+
+      - name: Deploy notificacao-reserva
+        run: |
+          supabase functions deploy notificacao-reserva --project-ref ydrmjoppjxtmnwtvtinb --no-verify-jwt \
+            || echo "⚠️  Falha ao fazer deploy da Edge Function notificacao-reserva."
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+
+      - name: Deploy recuperacao-abandono
+        run: |
+          supabase functions deploy recuperacao-abandono --project-ref ydrmjoppjxtmnwtvtinb --no-verify-jwt \
+            || echo "⚠️  Falha ao fazer deploy da Edge Function recuperacao-abandono."
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+
+      - name: Deploy weather
+        run: |
+          supabase functions deploy weather --project-ref ydrmjoppjxtmnwtvtinb --no-verify-jwt \
+            || echo "⚠️  Falha ao fazer deploy da Edge Function weather."
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+
   # ──────────────────────────────────────────────
   # 9. Smoke tests pós-deploy (somente na main)
   # ──────────────────────────────────────────────
