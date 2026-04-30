@@ -3738,10 +3738,14 @@ async function carregarAiConfig() {
   // não re-executaram a migração após a atualização arquitetural.
   var hasCustomInstructions = _aiConfigDados.some(function (c) { return c.chave === 'custom_instructions'; });
   if (!hasCustomInstructions) {
-    await _supabase.from('ai_config')
+    var upsertRes = await _supabase.from('ai_config')
       .upsert({ chave: 'custom_instructions', valor: '', ativo: true }, { onConflict: 'chave' });
-    var refreshed = await _supabase.from('ai_config').select('*').order('chave');
-    if (!refreshed.error && refreshed.data) _aiConfigDados = refreshed.data;
+    if (upsertRes.error) {
+      console.warn('[HOSPEDAH] Não foi possível criar custom_instructions no ai_config:', upsertRes.error.message);
+    } else {
+      var refreshed = await _supabase.from('ai_config').select('*').order('chave');
+      if (!refreshed.error && refreshed.data) _aiConfigDados = refreshed.data;
+    }
   }
 
   renderAiConfig();

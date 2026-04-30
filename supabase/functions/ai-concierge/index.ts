@@ -304,7 +304,7 @@ async function getConfig(): Promise<{ systemPrompt: string; faqExtras: string }>
     const sb = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY, { auth: { persistSession: false } });
 
     // Fetch custom_instructions and FAQ in parallel to minimise latency.
-    const [aiConfigRes, faqExtras] = await Promise.all([
+    const [customInstructionsRes, faqExtras] = await Promise.all([
       sb.from('ai_config')
         .select('chave, valor')
         .eq('ativo', true)
@@ -315,8 +315,8 @@ async function getConfig(): Promise<{ systemPrompt: string; faqExtras: string }>
 
     // Build final system prompt: hardcoded base + optional custom addendum.
     let systemPrompt = SYSTEM_PROMPT;
-    const customInstructions = aiConfigRes.data?.valor?.trim();
-    if (!aiConfigRes.error && customInstructions) {
+    const customInstructions = customInstructionsRes.data?.valor?.trim();
+    if (!customInstructionsRes.error && customInstructions) {
       systemPrompt = `${SYSTEM_PROMPT}\n\n---\nInstruções personalizadas da equipe HOSPEDAH:\n${customInstructions}`;
     }
 
