@@ -24,7 +24,11 @@
    RESET
 ========================================== */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { scroll-behavior: smooth; }
+html {
+  scroll-behavior: smooth;
+  /* Compensa a navbar fixa (64px) ao rolar para âncoras (#galeria, #faq…) */
+  scroll-padding-top: 64px;
+}
 body {
   font-family: 'Poppins', sans-serif;
   background: var(--bg-dark);
