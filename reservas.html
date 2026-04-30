@@ -753,19 +753,6 @@ span.flatpickr-weekday {
     </div>
     </div><!-- /wstep-2 -->
 
-    <!-- URGENCY INLINE BLOCK — aparece abaixo de "Escolha as Datas" quando as datas estão disponíveis -->
-    <div id="urgencyInlineBlock" style="display:none; margin-top:16px; margin-bottom:4px;">
-      <div style="background:linear-gradient(135deg,rgba(212,175,55,0.10),rgba(248,113,113,0.08)); border:1px solid rgba(212,175,55,0.35); border-radius:var(--radius); padding:22px 24px; display:flex; align-items:center; justify-content:space-between; gap:20px; flex-wrap:wrap; box-shadow:0 4px 24px rgba(212,175,55,0.08);">
-        <div style="flex:1; min-width:180px;">
-          <div style="font-size:1em; color:var(--dourado); font-weight:700; margin-bottom:4px; letter-spacing:0.2px;">⏰ Seu preço ainda está disponível!</div>
-          <div style="font-size:0.82em; color:var(--cor-sub); line-height:1.6;">As datas que você selecionou ainda estão disponíveis.<br>Confirme agora para garantir!</div>
-        </div>
-        <div style="display:flex; flex-direction:column; gap:8px; min-width:200px;">
-          <button class="btn btn-primary" style="font-size:0.9em; padding:11px 20px;" onclick="irParaStep(3);">📋 Preencher Dados e Confirmar →</button>
-        </div>
-      </div>
-    </div>
-
     <!-- STEP 3: DADOS DO HÓSPEDE -->
     <div class="wizard-step" id="wstep-3">
     <div class="form-card">
@@ -1277,6 +1264,9 @@ function inicializarFlatpickr() {
         resetarStatus();
       } else {
         // Flatpickr cleared the range (can happen when closing with only 1 date selected).
+        // If we already have a complete two-date selection, this is a spurious post-close
+        // event — ignore it to prevent the race condition that erases valid dates.
+        if (dataEntradaFP && dataSaidaFP) return;
         // Preserve check-in if we already have a partial — do NOT wipe what the user chose.
         if (_fpEntradaParcial) {
           dataSaidaFP = null;
@@ -1498,7 +1488,6 @@ function verificarPeriodoDisponivel() {
   if (conflito) {
     statusEl.innerHTML = '<span class="availability-tag tag-indisponivel">❌ Há datas bloqueadas neste período. Por favor, escolha outras datas.</span>';
     document.getElementById('availTag').innerHTML = '<span class="availability-tag tag-indisponivel">❌ Indisponível</span>';
-    document.getElementById('urgencyInlineBlock').style.display = 'none';
     dataSaidaFP = null;
     pararContadorUrgencia();
     atualizarResumo();
@@ -1510,12 +1499,6 @@ function verificarPeriodoDisponivel() {
   const noites = calcularNoites(dataEntradaFP, dataSaidaFP);
   statusEl.innerHTML = `<span class="availability-tag tag-disponivel">✅ Disponível — ${noites} noite${noites !== 1 ? 's' : ''} selecionada${noites !== 1 ? 's' : ''}</span>`;
   document.getElementById('availTag').innerHTML = '<span class="availability-tag tag-disponivel">✅ Disponível</span>';
-  document.getElementById('urgencyInlineBlock').style.display = 'block';
-  // Scroll suave para mostrar o bloco de ação (próximo passo)
-  setTimeout(function() {
-    var uib = document.getElementById('urgencyInlineBlock');
-    if (uib) uib.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-  }, 350);
 
   // Urgency countdown + Pixel InitiateCheckout
   iniciarContadorUrgencia();
@@ -1531,7 +1514,6 @@ function verificarPeriodoDisponivel() {
 function resetarStatus() {
   document.getElementById('statusDisponibilidade').innerHTML = '';
   document.getElementById('availTag').innerHTML = '';
-  document.getElementById('urgencyInlineBlock').style.display = 'none';
   atualizarResumo();
   atualizarBotao();
 }
@@ -1860,6 +1842,7 @@ function calcularDetalhamentoPreco(entrada, saida) {
 function montarResumoReserva() {
   const nome = document.getElementById('nomeHospede').value.trim();
   const email = document.getElementById('emailHospede').value.trim();
+  const telefone = document.getElementById('telefoneHospede').value.trim();
   const numHosp = parseInt(document.getElementById('numHospedes').value, 10);
   const tipo = document.getElementById('tipoAcomodacao').value;
   const msg = document.getElementById('mensagemHospede').value.trim();
@@ -1867,22 +1850,27 @@ function montarResumoReserva() {
   const det = calcularDetalhamentoPreco(dataEntradaFP, dataSaidaFP);
   const dorm = getDormitoriosSelecionados();
   const dormTxt = dorm ? (dorm === 3 ? '03 + Dormitórios' : dorm === 2 ? '02 Dormitórios' : '01 Dormitório') : null;
+  const tipoFmt = tipo ? tipo.charAt(0).toUpperCase() + tipo.slice(1) : '';
 
   return (
-    `Olá! Gostaria de reservar:\n` +
-    `🏨 ${resortAtual.nome}\n` +
-    (dormTxt ? `🛏️ Dormitórios: ${dormTxt}\n` : '') +
-    `🏷️ Tipo: ${tipo}\n` +
-    `📅 Check-in: ${dataEntradaFP.toLocaleDateString('pt-BR')}\n` +
-    `📅 Check-out: ${dataSaidaFP.toLocaleDateString('pt-BR')}\n` +
-    `🌙 ${noites} noite(s)\n` +
-    `👥 ${numHosp} hóspede(s)\n` +
-    `💰 Valor estimado: R$ ${det.total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}\n` +
-    `📊 Diferença por período: ${det.diferenca >= 0 ? '+' : '-'}R$ ${Math.abs(det.diferenca).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}\n` +
-    `📌 ${det.linhas.join(' | ')}\n` +
-    (nome ? `👤 ${nome}\n` : '') +
-    (email ? `📧 ${email}\n` : '') +
-    (msg ? `💬 ${msg}` : '')
+    `━━━━━━━━━━━━━━━━━━━━━━\n` +
+    `🏨 *SOLICITAÇÃO DE RESERVA*\n` +
+    `━━━━━━━━━━━━━━━━━━━━━━\n\n` +
+    `🏖️ *Resort:* ${resortAtual.nome}\n` +
+    (dormTxt ? `🛏️ *Dormitórios:* ${dormTxt}\n` : '') +
+    `🏷️ *Acomodação:* ${tipoFmt}\n\n` +
+    `📅 *Check-in:*  ${dataEntradaFP.toLocaleDateString('pt-BR')}\n` +
+    `📅 *Check-out:* ${dataSaidaFP.toLocaleDateString('pt-BR')}\n` +
+    `🌙 *Período:* ${noites} noite${noites !== 1 ? 's' : ''}\n` +
+    `👥 *Hóspedes:* ${numHosp} pessoa${numHosp !== 1 ? 's' : ''}\n\n` +
+    `━━━━━━━━━━━━━━━━━━━━━━\n` +
+    `💰 *Valor estimado: R$ ${det.total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}*\n` +
+    `━━━━━━━━━━━━━━━━━━━━━━\n\n` +
+    (nome ? `👤 *Nome:* ${nome}\n` : '') +
+    (email ? `📧 *E-mail:* ${email}\n` : '') +
+    (telefone ? `📱 *WhatsApp:* ${telefone}\n` : '') +
+    (msg ? `\n💬 *Mensagem:* ${msg}\n` : '') +
+    `\n_Aguardo confirmação de disponibilidade e valores finais. Obrigado(a)!_`
   );
 }
 
@@ -2182,40 +2170,10 @@ function irParaStep(step) {
     return;
   }
   if (step === 3) {
-    // Restaurar os inputs a partir das variáveis de estado FP antes de validar.
-    // Isso evita falso negativo causado por um RAF do Flatpickr que ainda não
-    // executou (ou que rodou enquanto o botão era clicado e apagou os campos).
-    if (dataEntradaFP && fpInstance) {
-      document.getElementById('dataEntrada').value = fpInstance.formatDate(dataEntradaFP, 'd/m/Y');
-    }
-    if (dataSaidaFP && fpInstance) {
-      document.getElementById('dataSaida').value = fpInstance.formatDate(dataSaidaFP, 'd/m/Y');
-    }
-    // Fallback: se o estado FP foi limpo por um evento de timing do Flatpickr,
-    // recuperar as datas a partir dos valores já exibidos nos inputs (DD/MM/AAAA).
     if (!dataEntradaFP || !dataSaidaFP) {
-      var _eVal = document.getElementById('dataEntrada').value.trim();
-      var _sVal = document.getElementById('dataSaida').value.trim();
-      var _mE = _eVal.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
-      var _mS = _sVal.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
-      if (_mE && !dataEntradaFP) {
-        dataEntradaFP = new Date(+_mE[3], +_mE[2] - 1, +_mE[1]);
-        dataEntradaFP.setHours(0, 0, 0, 0);
-      }
-      if (_mS && !dataSaidaFP) {
-        dataSaidaFP = new Date(+_mS[3], +_mS[2] - 1, +_mS[1]);
-        dataSaidaFP.setHours(0, 0, 0, 0);
-      }
-    }
-    // Validar usando o estado FP como fonte primária de verdade
-    // Se o botão btnNext2 está habilitado (datas válidas), confiar nisso.
-    var btn2 = document.getElementById('btnNext2');
-    var btn2Enabled = btn2 && !btn2.disabled;
-    if (!dataEntradaFP || !dataSaidaFP) {
-      if (!btn2Enabled) {
-        document.getElementById('dataEntrada').focus();
-        return;
-      }
+      toast('Selecione o check-in e o check-out para continuar.', 'error');
+      document.getElementById('dataEntrada').focus();
+      return;
     }
   }
   if (step === 4) {
@@ -2255,17 +2213,16 @@ function irParaStep(step) {
     c.textContent = '✓';
   });
 
-  /* Controlar visibilidade do bloco de urgência (abaixo do step 2) */
-  var uib = document.getElementById('urgencyInlineBlock');
-  if (uib) {
-    if (step === 2 && dataEntradaFP && dataSaidaFP) {
-      uib.style.display = 'block';
-    } else {
-      uib.style.display = 'none';
-    }
-  }
-
   window.scrollTo({ top: 0, behavior: 'smooth' });
+  /* Rolar suavemente até o próximo bloco para que o usuário acompanhe o avanço */
+  if (next) {
+    setTimeout(function() {
+      var rect = next.getBoundingClientRect();
+      var scrollTop = window.scrollY !== undefined ? window.scrollY : document.documentElement.scrollTop;
+      var offset = 72; /* altura aproximada do header fixo */
+      window.scrollTo({ top: rect.top + scrollTop - offset, behavior: 'smooth' });
+    }, 50);
+  }
 }
 
 /* Preenche o resumo de confirmação (wstep-4) com os dados do formulário */
@@ -2309,9 +2266,7 @@ function onResortSelect(resortId) {
 function _checkDatesForWizard() {
   var btn = document.getElementById('btnNext2');
   if (!btn) return;
-  var fpOk    = !!(dataEntradaFP && dataSaidaFP);
-  var inputOk = !!(document.getElementById('dataEntrada').value && document.getElementById('dataSaida').value);
-  btn.disabled = !(fpOk || inputOk);
+  btn.disabled = !(dataEntradaFP && dataSaidaFP);
 }
 
 /* Habilitar botão "Próximo" do step 3 quando nome e e-mail estão preenchidos */
