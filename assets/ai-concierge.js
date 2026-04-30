@@ -73,7 +73,15 @@
       if (timeoutId) clearTimeout(timeoutId);
       return res.json().then(function (data) {
         if (!res.ok) {
-          console.error('[HOSPEDAH_AI] Edge function ' + res.status + ':', JSON.stringify(data).slice(0, 500));
+          var detail = data && data.error ? data.error : '(sem detalhe)';
+          var model  = data && data.model  ? data.model  : '';
+          var gStatus = data && data.geminiStatus ? data.geminiStatus : '';
+          console.error(
+            '[HOSPEDAH_AI] Edge function HTTP ' + res.status +
+            (model  ? ' | modelo: ' + model   : '') +
+            (gStatus ? ' | Gemini: ' + gStatus : '') +
+            ' | erro: ' + detail
+          );
           return null;
         }
         return (data && data.resposta) ? data.resposta.trim() : null;
