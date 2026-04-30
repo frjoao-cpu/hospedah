@@ -1443,6 +1443,7 @@ function verificarPeriodoDisponivel() {
     pararContadorUrgencia();
     atualizarResumo();
     atualizarBotao();
+    _checkDatesForWizard();
     return;
   }
 
@@ -1458,6 +1459,7 @@ function verificarPeriodoDisponivel() {
 
   atualizarResumo();
   atualizarBotao();
+  _checkDatesForWizard();
 }
 
 function resetarStatus() {
