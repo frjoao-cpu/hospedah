@@ -1133,6 +1133,13 @@ async function selecionarResort(id) {
 
   // Mostrar/ocultar seleção de dormitórios
   toggleDormitoriosGroup(resortAtual.nome);
+
+  // Rolar para mostrar o botão "Próximo: Datas →" ao usuário
+  // (80ms garante que o layout do dormitoriosGroup já foi aplicado antes do scroll)
+  setTimeout(function() {
+    var nav1 = document.querySelector('#wstep-1 .wizard-nav');
+    if (nav1) nav1.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }, 80);
   const sumDorm = document.getElementById('sumDormitorios');
   if (sumDorm) sumDorm.textContent = '01 Dormitório';
   const numDorm = document.getElementById('numDormitorios');
@@ -2215,16 +2222,16 @@ function irParaStep(step) {
     c.textContent = '✓';
   });
 
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-  /* Rolar suavemente até o próximo bloco para que o usuário acompanhe o avanço */
-  if (next) {
-    setTimeout(function() {
-      var rect = next.getBoundingClientRect();
+  /* Rolar suavemente até o início do wizard (barra de progresso + próximo step) */
+  setTimeout(function() {
+    var wizardTop = document.getElementById('wizardProgress') || next;
+    if (wizardTop) {
+      var rect = wizardTop.getBoundingClientRect();
       var scrollTop = window.scrollY !== undefined ? window.scrollY : document.documentElement.scrollTop;
-      var offset = 72; /* altura aproximada do header fixo */
+      var offset = 80; /* altura do header fixo (~72px) + margem de 8px para respiração visual */
       window.scrollTo({ top: rect.top + scrollTop - offset, behavior: 'smooth' });
-    }, 50);
-  }
+    }
+  }, 50);
 }
 
 /* Preenche o resumo de confirmação (wstep-4) com os dados do formulário */
