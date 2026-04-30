@@ -1342,7 +1342,7 @@ let dataSaidaFP   = null;
 let datasIndisponiveis = [];
 let regrasPreco = [];
 let fpInstance    = null;
-let fpSaidaClickHandler = null;
+let fpSaidaInstance    = null;
 let fpSaidaBlurHandler  = null; // Handler de blur para validação de digitação manual no check-out
 const MS_PER_DAY = 86400000;
 
@@ -1537,87 +1537,31 @@ async function carregarDisponibilidade(resortNome) {
 // ============================================================
 // INICIALIZAR FLATPICKR
 // ============================================================
-// Guarda check-in parcial para restaurar quando o usuário clicar em check-out
-let _fpEntradaParcial = null;
 
 function inicializarFlatpickr() {
-  const hoje = new Date();
-  hoje.setHours(0, 0, 0, 0);
-
-  // Preservar datas já selecionadas antes de destruir a instância anterior
+  // Preservar datas já selecionadas antes de destruir as instâncias anteriores
   const savedEntrada = dataEntradaFP;
   const savedSaida   = dataSaidaFP;
 
-  if (fpInstance) fpInstance.destroy();
-  _fpEntradaParcial = null;
+  if (fpInstance)      { fpInstance.destroy();      fpInstance      = null; }
+  if (fpSaidaInstance) { fpSaidaInstance.destroy(); fpSaidaInstance = null; }
 
   const saidaInput = document.getElementById('dataSaida');
 
-  const opcoes = {
-    mode: 'range',
-    minDate: 'today',
+  // Remover blur handler anterior para evitar duplicação ao reinicializar
+  if (fpSaidaBlurHandler && saidaInput) {
+    saidaInput.removeEventListener('blur', fpSaidaBlurHandler);
+    fpSaidaBlurHandler = null;
+  }
+
+  // Opções comuns para ambas as instâncias
+  const opcoesComuns = {
     dateFormat: 'd/m/Y',
     locale: 'pt',
     disable: datasIndisponiveis,
-    inline: false,
     allowInput: true,
     disableMobile: true,
-    onChange(selectedDates, dateStr, instance) {
-      if (selectedDates.length === 2) {
-        dataEntradaFP = selectedDates[0];
-        dataSaidaFP   = selectedDates[1];
-        _fpEntradaParcial = null;
-        // Update both inputs explicitly
-        instance.input.value = instance.formatDate(selectedDates[0], instance.config.dateFormat);
-        if (saidaInput) saidaInput.value = instance.formatDate(selectedDates[1], instance.config.dateFormat);
-        verificarPeriodoDisponivel();
-      } else if (selectedDates.length === 1) {
-        dataEntradaFP = selectedDates[0];
-        dataSaidaFP   = null;
-        _fpEntradaParcial = selectedDates[0]; // Save immediately so onClose and requestAnimationFrame callbacks can access it
-        // Set the check-in input value explicitly
-        instance.input.value = instance.formatDate(selectedDates[0], instance.config.dateFormat);
-        if (saidaInput) saidaInput.value = '';
-        resetarStatus();
-      } else {
-        // Flatpickr cleared the range (can happen when closing with only 1 date selected).
-        // If we already have a complete two-date selection, this is a spurious post-close
-        // event — ignore it to prevent the race condition that erases valid dates.
-        if (dataEntradaFP && dataSaidaFP) return;
-        // Preserve check-in if we already have a partial — do NOT wipe what the user chose.
-        if (_fpEntradaParcial) {
-          dataSaidaFP = null;
-          if (saidaInput) saidaInput.value = '';
-          // dataEntradaFP keeps its value from the length===1 case above
-          _checkDatesForWizard();
-        } else {
-          dataEntradaFP = null;
-          dataSaidaFP   = null;
-          if (saidaInput) saidaInput.value = '';
-          resetarStatus();
-        }
-      }
-    },
-    onClose(selectedDates, dateStr, instance) {
-      // When the calendar closes with only check-in selected, preserve it
-      if (selectedDates.length === 1) {
-        _fpEntradaParcial = selectedDates[0];
-        dataEntradaFP = selectedDates[0];
-      }
-      // After flatpickr finishes its post-close cleanup (which may reset the input),
-      // restore the check-in date in the input field via rAF.
-      var dateToShow = dataEntradaFP || _fpEntradaParcial;
-      if (dateToShow) {
-        requestAnimationFrame(function() {
-          if (instance && instance.input) {
-            instance.input.value = instance.formatDate(dateToShow, instance.config.dateFormat);
-          }
-        });
-      }
-    },
     onOpen(selectedDates, dateStr, instance) {
-      // Scroll so the input is visible below the sticky header, then let
-      // Flatpickr position the calendar naturally (no custom override).
       var inputEl = instance.input;
       requestAnimationFrame(function() {
         var headerEl = document.querySelector('.header');
@@ -1628,68 +1572,70 @@ function inicializarFlatpickr() {
         }
       });
     },
-    onValueUpdate(selectedDates, dateStr, instance) {
-      // Use requestAnimationFrame so our per-field format always wins over flatpickr's
-      // range "start to end" string that it may write synchronously before this fires.
-      var partial = _fpEntradaParcial;
-      var savedEntrada2 = dataEntradaFP;
-      // Capturar dataSaidaFP antes do RAF: evita que eventos intermediários do
-      // Flatpickr (disparo com 0 ou 1 data durante fechamento do calendário)
-      // apaguem um check-out que o usuário já havia selecionado/digitado.
-      var savedSaida2 = dataSaidaFP;
-      requestAnimationFrame(function() {
-        if (selectedDates.length >= 1) {
-          instance.input.value = instance.formatDate(selectedDates[0], instance.config.dateFormat);
-        } else if (savedEntrada2 || partial) {
-          var d = savedEntrada2 || partial;
-          instance.input.value = instance.formatDate(d, instance.config.dateFormat);
-        }
-        if (selectedDates.length === 2) {
-          if (saidaInput) saidaInput.value = instance.formatDate(selectedDates[1], instance.config.dateFormat);
-        } else if (savedSaida2) {
-          // Preservar check-out já definido: não limpar o input se o estado FP
-          // possui uma data de saída válida (previne apagamento por RAF tardio).
-          if (saidaInput) saidaInput.value = instance.formatDate(savedSaida2, 'd/m/Y');
-        } else {
-          // Sem check-out no estado FP nem no Flatpickr: não alterar o input.
-          // O onChange já limpou saidaInput em sincronia quando necessário.
-        }
-      });
-    },
   };
 
-  fpInstance = flatpickr('#dataEntrada', opcoes);
+  // --- Instância Check-in (single mode): um clique seleciona o check-in ---
+  fpInstance = flatpickr('#dataEntrada', Object.assign({}, opcoesComuns, {
+    mode: 'single',
+    minDate: 'today',
+    onChange(selectedDates) {
+      if (selectedDates.length === 1) {
+        dataEntradaFP = selectedDates[0];
+        // Atualizar minDate do check-out: deve ser pelo menos um dia após check-in
+        var proximoDia = new Date(selectedDates[0]);
+        proximoDia.setDate(proximoDia.getDate() + 1);
+        if (fpSaidaInstance) fpSaidaInstance.set('minDate', proximoDia);
+        // Se check-out já definido for anterior ou igual ao novo check-in, limpar
+        if (dataSaidaFP && dataSaidaFP <= dataEntradaFP) {
+          dataSaidaFP = null;
+          if (saidaInput) saidaInput.value = '';
+          if (fpSaidaInstance) fpSaidaInstance.clear();
+        }
+        if (dataEntradaFP && dataSaidaFP) {
+          verificarPeriodoDisponivel();
+        } else {
+          resetarStatus();
+        }
+      } else {
+        dataEntradaFP = null;
+        resetarStatus();
+      }
+    },
+  }));
 
-  // Restaurar datas preservadas (dispara onChange → recalcula preço dinâmico com as regras do novo resort)
-  if (savedEntrada && savedSaida) {
-    fpInstance.setDate([savedEntrada, savedSaida], true);
+  // Calcular minDate inicial do check-out
+  var minSaida = 'today';
+  if (savedEntrada) {
+    var d = new Date(savedEntrada);
+    d.setDate(d.getDate() + 1);
+    minSaida = d;
   }
 
-  // --- Integração check-out: calendário (click) + digitação manual (blur) ---
-  if (saidaInput) {
-    // Remover handlers anteriores para evitar duplicação ao reinicializar
-    if (fpSaidaClickHandler) saidaInput.removeEventListener('click', fpSaidaClickHandler);
-    if (fpSaidaBlurHandler)  saidaInput.removeEventListener('blur',  fpSaidaBlurHandler);
-
-    // Click: abre o calendário para seleção visual; restaura check-in se necessário
-    fpSaidaClickHandler = function pdSaidaOpen() {
-      if (!fpInstance) return;
-      var dateToRestore = dataEntradaFP || _fpEntradaParcial;
-      fpInstance.open();
-      // Re-set the check-in in the calendar so the user can pick the check-out date
-      // without having to re-select the check-in again.
-      if (dateToRestore && !dataSaidaFP) {
-        requestAnimationFrame(function() {
-          if (fpInstance) fpInstance.setDate([dateToRestore], true);
-        });
+  // --- Instância Check-out (single mode): um clique seleciona o check-out ---
+  fpSaidaInstance = flatpickr('#dataSaida', Object.assign({}, opcoesComuns, {
+    mode: 'single',
+    minDate: minSaida,
+    onChange(selectedDates) {
+      if (selectedDates.length === 1) {
+        dataSaidaFP = selectedDates[0];
+        if (dataEntradaFP && dataSaidaFP) {
+          verificarPeriodoDisponivel();
+        } else {
+          resetarStatus();
+        }
+      } else {
+        dataSaidaFP = null;
+        resetarStatus();
       }
-    };
-    saidaInput.addEventListener('click', fpSaidaClickHandler);
-    // Nota: o evento 'focus' foi removido intencionalmente para não bloquear
-    // a digitação quando o usuário acessa o campo pelo teclado (Tab).
+    },
+  }));
 
-    // Blur: valida a data digitada manualmente no check-out.
-    // A validação ocorre apenas ao sair do campo, evitando mensagens durante a digitação.
+  // Restaurar datas preservadas (dispara onChange → recalcula preço dinâmico)
+  if (savedEntrada) fpInstance.setDate(savedEntrada, true);
+  if (savedSaida)   fpSaidaInstance.setDate(savedSaida, true);
+
+  // --- Validação por digitação manual no check-out ---
+  if (saidaInput) {
     fpSaidaBlurHandler = function() {
       var val = saidaInput.value.trim();
 
@@ -1701,12 +1647,11 @@ function inicializarFlatpickr() {
       }
 
       // Se o valor já coincide com a data previamente definida via calendário, nada a fazer
-      if (dataSaidaFP && val === fpInstance.formatDate(dataSaidaFP, 'd/m/Y')) return;
+      if (dataSaidaFP && fpSaidaInstance && val === fpSaidaInstance.formatDate(dataSaidaFP, 'd/m/Y')) return;
 
       // Tentar interpretar a data no formato DD/MM/AAAA
       var match = val.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
       if (!match) {
-        // Formato inválido — alerta amigável apenas ao sair do campo
         _exibirErroDatas('Formato inválido. Use DD/MM/AAAA para o check-out.');
         saidaInput.value = '';
         dataSaidaFP = null;
@@ -1755,13 +1700,12 @@ function inicializarFlatpickr() {
         return;
       }
 
-      // Data válida — sincronizar com o Flatpickr para manter consistência de estado
-      // (dispara onChange → verificarPeriodoDisponivel → atualizarResumo)
-      if (dataEntradaFP && fpInstance) {
-        fpInstance.setDate([dataEntradaFP, dataParsed], true);
+      // Data válida — sincronizar com a instância de check-out e verificar disponibilidade
+      dataSaidaFP = dataParsed;
+      if (fpSaidaInstance) fpSaidaInstance.setDate(dataParsed, false);
+      if (dataEntradaFP && dataSaidaFP) {
+        verificarPeriodoDisponivel();
       } else {
-        // Sem check-in definido ainda, apenas armazena e aguarda
-        dataSaidaFP = dataParsed;
         _checkDatesForWizard();
       }
     };
@@ -1800,9 +1744,8 @@ function verificarPeriodoDisponivel() {
   if (conflito) {
     statusEl.innerHTML = '<span class="availability-tag tag-indisponivel">❌ Há datas bloqueadas neste período. Por favor, escolha outras datas.</span>';
     document.getElementById('availTag').innerHTML = '<span class="availability-tag tag-indisponivel">❌ Indisponível</span>';
-    // Preserve check-in parcial so a spurious onChange(length=0) post-close does not also clear dataEntradaFP.
-    if (!_fpEntradaParcial && dataEntradaFP) _fpEntradaParcial = dataEntradaFP;
     dataSaidaFP = null;
+    if (fpSaidaInstance) fpSaidaInstance.clear();
     pararContadorUrgencia();
     atualizarResumo();
     atualizarBotao();
@@ -2224,9 +2167,12 @@ carregarDemandasResorts();
     await selecionarResort(resortId);
   }
 
-  if (entrada && saida && fpInstance) {
+  if (entrada && fpInstance) {
     // Converter YYYY-MM-DD e disparar onChange para registrar datas e calcular preço dinâmico
-    fpInstance.setDate([entrada, saida], true, 'Y-m-d');
+    fpInstance.setDate(entrada, true, 'Y-m-d');
+  }
+  if (saida && fpSaidaInstance) {
+    fpSaidaInstance.setDate(saida, true, 'Y-m-d');
   }
 })();
 
@@ -2699,6 +2645,9 @@ function _checkDadosForWizard() {
 </script>
 
 <script>if ('serviceWorker' in navigator) { navigator.serviceWorker.register('/sw.js').catch(function(){}); }</script>
+
+<!-- SECURITY SEAL -->
+<div class="security-seal" aria-label="Site seguro">🔒 <strong>Site Seguro</strong> &nbsp;·&nbsp; SSL Criptografado &nbsp;·&nbsp; 🛡️ Dados Protegidos</div>
 
 <!-- BOTTOM NAV (mobile) -->
 <nav class="bottom-nav" aria-label="Navegação principal">

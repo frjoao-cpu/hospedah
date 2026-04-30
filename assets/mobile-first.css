@@ -595,3 +595,21 @@ body.has-bottom-nav {
   color: #e74c3c;
 }
 .perfil-btn-logout:hover { background: rgba(231, 76, 60, 0.2); }
+
+/* ── SECURITY SEAL ────────────────────────────────────────── */
+.security-seal {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 7px 16px;
+  background: rgba(39, 174, 96, 0.1);
+  border: 1px solid rgba(39, 174, 96, 0.25);
+  border-radius: 8px;
+  color: #27ae60;
+  font-size: 0.72rem;
+  text-align: center;
+  margin: 8px auto 12px;
+  max-width: 480px;
+  flex-wrap: wrap;
+}
