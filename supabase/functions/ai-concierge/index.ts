@@ -30,7 +30,7 @@ const GEMINI_URL =
 const GEMINI_STREAM_URL =
   `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:streamGenerateContent`;
 // Timeout for individual Gemini API requests (ms)
-const GEMINI_REQUEST_TIMEOUT_MS = 25000;
+const GEMINI_REQUEST_TIMEOUT_MS = 30000;
 
 const CORS_HEADERS: Record<string, string> = {
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
@@ -386,6 +386,9 @@ serve(async (req: Request): Promise<Response> => {
     generationConfig: {
       temperature,
       maxOutputTokens: 8192,
+      thinkingConfig: {
+        thinkingBudget: 0,
+      },
     },
     safetySettings: [
       { category: 'HARM_CATEGORY_HARASSMENT',        threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
