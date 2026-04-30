@@ -977,6 +977,14 @@ const CAPACIDADE_MAXIMA = {
   'Solar das Águas':    { 1: 5, 2: 7 },
 };
 
+// Capacidade fixa para resorts sem seleção de dormitórios
+// (usada no Resumo da Reserva para exibir "Até X pessoas")
+const CAPACIDADE_FIXA = {
+  'São Pedro Thermas':  6, // apartamento padrão — até 06 pessoas
+  'Wyndham Royal Resort': 5, // suíte — até 05 pessoas
+  'Praia de Juquehy':   3, // casa/apto — capacidade "3+" conforme cadastro; exibido como "Até 3 pessoas" no resumo
+};
+
 let resortAtual   = null;
 let dataEntradaFP = null;
 let dataSaidaFP   = null;
@@ -1047,6 +1055,19 @@ function getDormitoriosSelecionados() {
   const group = document.getElementById('dormitoriosGroup');
   if (!group || group.style.display === 'none') return null;
   return parseInt(document.getElementById('numDormitorios').value, 10) || 1;
+}
+
+// Retorna a capacidade máxima do apartamento selecionado (resort + dormitórios).
+// Usa CAPACIDADE_MAXIMA para resorts com seleção de dormitórios e
+// CAPACIDADE_FIXA para os demais. Retorna null se não há resort selecionado.
+function obterCapacidadeApartamento() {
+  if (!resortAtual) return null;
+  const capPorDorm = CAPACIDADE_MAXIMA[resortAtual.nome];
+  if (capPorDorm) {
+    const dorm = getDormitoriosSelecionados() || 1;
+    return capPorDorm[dorm] || null;
+  }
+  return CAPACIDADE_FIXA[resortAtual.nome] || null;
 }
 
 // ============================================================
@@ -1251,6 +1272,10 @@ function inicializarFlatpickr() {
       // range "start to end" string that it may write synchronously before this fires.
       var partial = _fpEntradaParcial;
       var savedEntrada2 = dataEntradaFP;
+      // Capturar dataSaidaFP antes do RAF: evita que eventos intermediários do
+      // Flatpickr (disparo com 0 ou 1 data durante fechamento do calendário)
+      // apaguem um check-out que o usuário já havia selecionado/digitado.
+      var savedSaida2 = dataSaidaFP;
       requestAnimationFrame(function() {
         if (selectedDates.length >= 1) {
           instance.input.value = instance.formatDate(selectedDates[0], instance.config.dateFormat);
@@ -1260,8 +1285,13 @@ function inicializarFlatpickr() {
         }
         if (selectedDates.length === 2) {
           if (saidaInput) saidaInput.value = instance.formatDate(selectedDates[1], instance.config.dateFormat);
+        } else if (savedSaida2) {
+          // Preservar check-out já definido: não limpar o input se o estado FP
+          // possui uma data de saída válida (previne apagamento por RAF tardio).
+          if (saidaInput) saidaInput.value = instance.formatDate(savedSaida2, 'd/m/Y');
         } else {
-          if (saidaInput) saidaInput.value = '';
+          // Sem check-out no estado FP nem no Flatpickr: não alterar o input.
+          // O onChange já limpou saidaInput em sincronia quando necessário.
         }
       });
     },
@@ -1468,7 +1498,14 @@ function atualizarResumo() {
   }
 
   const numHosp = document.getElementById('numHospedes').value;
-  document.getElementById('sumHospedes').textContent = `${numHosp} pessoa${numHosp > 1 ? 's' : ''}`;
+  // Exibir capacidade máxima do apartamento selecionado (resort + dormitórios).
+  // Se não houver capacidade cadastrada, usa o número de hóspedes selecionado.
+  const cap = obterCapacidadeApartamento();
+  if (cap) {
+    document.getElementById('sumHospedes').textContent = `Até ${cap} pessoa${cap > 1 ? 's' : ''}`;
+  } else {
+    document.getElementById('sumHospedes').textContent = `${numHosp} pessoa${numHosp > 1 ? 's' : ''}`;
+  }
   const tipo = document.getElementById('tipoAcomodacao').value;
   document.getElementById('sumTipoAcomodacao').textContent = tipo ? tipo.charAt(0).toUpperCase() + tipo.slice(1) : '—';
   // Atualizar dormitórios no resumo
@@ -2075,9 +2112,17 @@ function irParaStep(step) {
     return;
   }
   if (step === 3) {
-    var entrada = document.getElementById('dataEntrada').value;
-    var saida   = document.getElementById('dataSaida').value;
-    if (!entrada || !saida) {
+    // Restaurar os inputs a partir das variáveis de estado FP antes de validar.
+    // Isso evita falso negativo causado por um RAF do Flatpickr que ainda não
+    // executou (ou que rodou enquanto o botão era clicado e apagou os campos).
+    if (dataEntradaFP && fpInstance) {
+      document.getElementById('dataEntrada').value = fpInstance.formatDate(dataEntradaFP, 'd/m/Y');
+    }
+    if (dataSaidaFP && fpInstance) {
+      document.getElementById('dataSaida').value = fpInstance.formatDate(dataSaidaFP, 'd/m/Y');
+    }
+    // Validar usando o estado FP como fonte primária de verdade
+    if (!dataEntradaFP || !dataSaidaFP) {
       document.getElementById('dataEntrada').focus();
       return;
     }
@@ -2118,13 +2163,16 @@ function onResortSelect(resortId) {
   if (btn) btn.disabled = false;
 }
 
-/* Habilitar botão "Próximo" do step 2 quando datas são selecionadas */
+/* Habilitar botão "Próximo" do step 2 quando datas são selecionadas.
+   Usa o estado FP (dataEntradaFP / dataSaidaFP) como fonte primária;
+   os valores dos inputs servem de fallback para digitação parcial ainda
+   não confirmada pelo blur handler. */
 function _checkDatesForWizard() {
   var btn = document.getElementById('btnNext2');
   if (!btn) return;
-  var entrada = document.getElementById('dataEntrada').value;
-  var saida   = document.getElementById('dataSaida').value;
-  btn.disabled = !(entrada && saida);
+  var fpOk    = !!(dataEntradaFP && dataSaidaFP);
+  var inputOk = !!(document.getElementById('dataEntrada').value && document.getElementById('dataSaida').value);
+  btn.disabled = !(fpOk || inputOk);
 }
 
 /* Observa mudanças nos inputs de data — funciona tanto para seleção via calendário
