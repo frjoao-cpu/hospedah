@@ -27,12 +27,17 @@ const GEMINI_API_KEY = Deno.env.get('GEMINI_API_KEY') ?? '';
 // Model can be overridden via GEMINI_MODEL env variable (Supabase Dashboard → Settings → Edge Functions → Secrets).
 // Default: gemini-2.5-flash. Supports any model available in the Gemini v1beta API.
 const GEMINI_MODEL = Deno.env.get('GEMINI_MODEL') || 'gemini-2.5-flash';
+// Fallback model used when the primary model fails after all retries (rate-limit, availability issues).
+// Can be overridden via GEMINI_FALLBACK_MODEL env variable. Set to empty string to disable fallback.
+const GEMINI_FALLBACK_MODEL = Deno.env.get('GEMINI_FALLBACK_MODEL') ?? 'gemini-2.0-flash';
 const GEMINI_URL =
   `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`;
 const GEMINI_STREAM_URL =
   `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:streamGenerateContent`;
-// Timeout for individual Gemini API requests (ms)
-const GEMINI_REQUEST_TIMEOUT_MS = 30000;
+// Timeout for individual Gemini API requests (ms).
+// Reduced from 30s to 25s so that primary model + one fallback attempt both fit
+// within the 45s client-side AbortController timeout in ai-concierge.js.
+const GEMINI_REQUEST_TIMEOUT_MS = 25000;
 // Models that support thinkingConfig. Maintained as an explicit set to avoid
 // false positives from prefix matching (e.g. a future gemini-2.5-lite variant
 // that may not support thinking). Add new thinking-capable models here as needed.
@@ -43,9 +48,13 @@ const THINKING_CAPABLE_MODELS = new Set([
   'gemini-3.0-flash',
   'gemini-3.0-pro',
 ]);
-const SUPPORTS_THINKING = THINKING_CAPABLE_MODELS.has(GEMINI_MODEL) ||
-  // Also match versioned aliases like gemini-2.5-flash-preview-05-20
-  GEMINI_MODEL.startsWith('gemini-2.5-') || GEMINI_MODEL.startsWith('gemini-3.');
+
+function modelSupportsThinking(model: string): boolean {
+  return THINKING_CAPABLE_MODELS.has(model) ||
+    model.startsWith('gemini-2.5-') || model.startsWith('gemini-3.');
+}
+
+const SUPPORTS_THINKING = modelSupportsThinking(GEMINI_MODEL);
 
 const CORS_HEADERS: Record<string, string> = {
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
@@ -393,28 +402,32 @@ serve(async (req: Request): Promise<Response> => {
     ? Math.max(0, Math.min(1, ctx.temperature))
     : 0.7;
 
-  const generationConfig: Record<string, unknown> = {
-    temperature,
-    maxOutputTokens: 8192,
-    // Disable thinking for supported models. Setting thinkingBudget to 0 turns off
-    // the thinking phase entirely, reducing latency and token cost for chat use cases.
-    // Only valid for thinking-capable models (gemini-2.5+). Non-thinking models (e.g.
-    // gemini-2.0-flash) must omit this field, otherwise the API returns 400.
-    ...(SUPPORTS_THINKING ? { thinkingConfig: { thinkingBudget: 0 } } : {}),
-  };
+  function buildGenerationConfig(supportsThinking: boolean, temp: number): Record<string, unknown> {
+    return {
+      temperature: temp,
+      maxOutputTokens: 8192,
+      // Disable thinking for supported models. Setting thinkingBudget to 0 turns off
+      // the thinking phase entirely, reducing latency and token cost for chat use cases.
+      // Only valid for thinking-capable models (gemini-2.5+). Non-thinking models (e.g.
+      // gemini-2.0-flash) must omit this field, otherwise the API returns 400.
+      ...(supportsThinking ? { thinkingConfig: { thinkingBudget: 0 } } : {}),
+    };
+  }
+
+  const safetySettings = [
+    { category: 'HARM_CATEGORY_HARASSMENT',        threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
+    { category: 'HARM_CATEGORY_HATE_SPEECH',       threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
+    { category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
+    { category: 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
+  ];
 
   const geminiPayload = {
     system_instruction: {
       parts: [{ text: finalSystemText }],
     },
     contents,
-    generationConfig,
-    safetySettings: [
-      { category: 'HARM_CATEGORY_HARASSMENT',        threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
-      { category: 'HARM_CATEGORY_HATE_SPEECH',       threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
-      { category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
-      { category: 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
-    ],
+    generationConfig: buildGenerationConfig(SUPPORTS_THINKING, temperature),
+    safetySettings,
   };
 
   // ── STREAMING path ──────────────────────────────────────────
@@ -459,62 +472,88 @@ serve(async (req: Request): Promise<Response> => {
   }
 
   // ── NON-STREAMING (default) path ────────────────────────────
-  let geminiRes: Response;
+  // Helper: call a specific Gemini model and return the response text or throw on failure.
+  async function callGeminiModel(modelName: string, payload: Record<string, unknown>): Promise<string> {
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${effectiveKey}`;
+    const res = await fetchGeminiWithRetry(url, JSON.stringify(payload));
+    if (!res.ok) {
+      const errBody = await res.text();
+      let msg = `HTTP ${res.status}`;
+      try {
+        const p = JSON.parse(errBody);
+        if (p?.error?.message) msg = p.error.message;
+      } catch { /* ignore parse error */ }
+      const e = new Error(msg) as Error & { status: number };
+      e.status = res.status;
+      throw e;
+    }
+    const data = await res.json();
+    if (!data?.candidates?.length) {
+      const blockReason = data?.promptFeedback?.blockReason ?? 'unknown';
+      throw new Error(`no_candidates:${blockReason}`);
+    }
+    const cand = data.candidates[0];
+    const parts: Array<{ text?: string; thought?: boolean }> = cand?.content?.parts ?? [];
+    const responsePart = parts.find((p) => p.text && p.text.trim() && !p.thought);
+    const text = responsePart?.text?.trim() ?? '';
+    if (!text) {
+      const finishReason = cand?.finishReason ?? 'unknown';
+      throw new Error(`empty_response:${finishReason}`);
+    }
+    return text;
+  }
+
+  let resposta = '';
+  let usedModel = GEMINI_MODEL;
+  // Returns a 502 Response based on the error message from a failed Gemini call.
+  function geminiErrorResponse(err: unknown, model: string): Response {
+    const msg = err instanceof Error ? err.message : String(err);
+    if (msg.startsWith('no_candidates:')) {
+      return new Response(
+        JSON.stringify({ error: 'A IA não pôde processar a pergunta devido a restrições de segurança. Tente reformulá-la de outra forma.' }),
+        { status: 502, headers: { ...corsH, 'Content-Type': 'application/json' } },
+      );
+    }
+    if (msg.startsWith('empty_response:')) {
+      return new Response(
+        JSON.stringify({ error: 'A IA não conseguiu gerar uma resposta adequada. Tente reformular sua pergunta.' }),
+        { status: 502, headers: { ...corsH, 'Content-Type': 'application/json' } },
+      );
+    }
+    return new Response(
+      JSON.stringify({ error: 'Serviço de IA temporariamente indisponível. Tente novamente.', model }),
+      { status: 502, headers: { ...corsH, 'Content-Type': 'application/json' } },
+    );
+  }
+
   try {
-    geminiRes = await fetchGeminiWithRetry(
-      `${GEMINI_URL}?key=${effectiveKey}`,
-      JSON.stringify(geminiPayload),
-    );
-  } catch (err) {
-    console.error('[ai-concierge] Erro ao chamar Gemini:', err);
-    return new Response(
-      JSON.stringify({ error: 'Falha de comunicação com a IA. Tente novamente.', model: GEMINI_MODEL }),
-      { status: 502, headers: { ...corsH, 'Content-Type': 'application/json' } },
-    );
-  }
-
-  if (!geminiRes.ok) {
-    const errBody = await geminiRes.text();
-    console.error('[ai-concierge] Gemini retornou erro:', geminiRes.status, errBody);
-    let geminiError = 'Serviço de IA indisponível. Tente mais tarde.';
-    try {
-      const parsed = JSON.parse(errBody);
-      if (parsed?.error?.message) geminiError = parsed.error.message;
-    } catch { /* ignore parse error */ }
-    return new Response(
-      JSON.stringify({ error: geminiError, geminiStatus: geminiRes.status, model: GEMINI_MODEL }),
-      { status: 502, headers: { ...corsH, 'Content-Type': 'application/json' } },
-    );
-  }
-
-  const geminiData = await geminiRes.json();
-
-  // Log diagnostic info when candidates are missing (e.g. safety block)
-  if (!geminiData?.candidates?.length) {
-    const blockReason = geminiData?.promptFeedback?.blockReason ?? 'unknown';
-    console.error('[ai-concierge] Gemini retornou sem candidatos. blockReason:', blockReason);
-    return new Response(
-      JSON.stringify({ error: 'A IA não pôde processar a pergunta devido a restrições de segurança. Tente reformulá-la de outra forma.' }),
-      { status: 502, headers: { ...corsH, 'Content-Type': 'application/json' } },
-    );
-  }
-
-  const candidate = geminiData.candidates[0];
-  const parts: Array<{ text?: string; thought?: boolean }> = candidate?.content?.parts ?? [];
-  const responsePart = parts.find((p) => p.text && p.text.trim() && !p.thought);
-  const resposta: string = responsePart?.text?.trim() ?? '';
-
-  if (!resposta) {
-    const finishReason = candidate?.finishReason ?? 'unknown';
-    console.error('[ai-concierge] Resposta vazia. finishReason:', finishReason, 'parts count:', parts.length);
-    return new Response(
-      JSON.stringify({ error: 'A IA não conseguiu gerar uma resposta adequada. Tente reformular sua pergunta.' }),
-      { status: 502, headers: { ...corsH, 'Content-Type': 'application/json' } },
-    );
+    resposta = await callGeminiModel(GEMINI_MODEL, geminiPayload);
+  } catch (primaryErr) {
+    console.warn('[ai-concierge] Primary model failed:', primaryErr instanceof Error ? primaryErr.message : primaryErr);
+    // Attempt fallback model if configured and different from primary
+    if (GEMINI_FALLBACK_MODEL && GEMINI_FALLBACK_MODEL !== GEMINI_MODEL) {
+      usedModel = GEMINI_FALLBACK_MODEL;
+      const fallbackSupportsThinking = modelSupportsThinking(GEMINI_FALLBACK_MODEL);
+      const fallbackPayload = {
+        ...geminiPayload,
+        generationConfig: buildGenerationConfig(fallbackSupportsThinking, temperature),
+      };
+      try {
+        resposta = await callGeminiModel(GEMINI_FALLBACK_MODEL, fallbackPayload);
+        console.log('[ai-concierge] Fallback model succeeded:', GEMINI_FALLBACK_MODEL);
+      } catch (fallbackErr) {
+        console.error('[ai-concierge] Both models failed. Primary:', primaryErr, '| Fallback:', fallbackErr);
+        return geminiErrorResponse(primaryErr, usedModel);
+      }
+    } else {
+      // No fallback configured — surface the primary error
+      console.error('[ai-concierge] Primary model failed (no fallback):', primaryErr);
+      return geminiErrorResponse(primaryErr, usedModel);
+    }
   }
 
   return new Response(
-    JSON.stringify({ resposta }),
+    JSON.stringify({ resposta, model: usedModel }),
     { status: 200, headers: { ...corsH, 'Content-Type': 'application/json' } },
   );
 });
