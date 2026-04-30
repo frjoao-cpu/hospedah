@@ -695,7 +695,19 @@ CREATE TRIGGER trg_ai_config_atualizado_em
   BEFORE UPDATE ON ai_config
   FOR EACH ROW EXECUTE FUNCTION set_ai_config_atualizado_em();
 
--- Valor inicial: system prompt completo (migrado do código)
+-- ⚠️  NOTA ARQUITETURAL (atualizada):
+-- A Edge Function NÃO usa mais a chave 'system_prompt' para construir o contexto da IA.
+-- Em vez disso, ela usa SEMPRE o SYSTEM_PROMPT hardcoded (que contém informações
+-- completas sobre alimentação, resort e políticas) e appenda a chave 'custom_instructions'
+-- como conteúdo suplementar.
+-- Isso elimina o conflito de armazenamento onde um 'system_prompt' desatualizado no
+-- banco suprimia informações de alimentação do contexto da IA.
+--
+-- A chave 'system_prompt' abaixo é mantida apenas para compatibilidade com instâncias
+-- existentes do banco que já a possuem. Ela NÃO é mais lida pela Edge Function.
+-- Use 'custom_instructions' (abaixo) para personalizar o comportamento da IA via sistema.html.
+
+-- Chave legada — mantida para referência, não mais usada pela Edge Function.
 INSERT INTO ai_config (chave, valor, ativo) VALUES (
   'system_prompt',
   $$Você é o Concierge IA da HOSPEDAH, uma agência de turismo especializada em resorts e hospedagens de luxo no Brasil.
@@ -814,6 +826,15 @@ Instruções de comportamento:
 - Se não souber a resposta com certeza, oriente o cliente a entrar em contato pelo WhatsApp ou acessar o site.
 - Nunca invente preços, datas de disponibilidade ou políticas não mencionadas acima.
 - Não discuta tópicos fora de turismo, hospedagem e serviços da HOSPEDAH.$$,
+  true
+) ON CONFLICT (chave) DO NOTHING;
+
+-- Nova chave: instruções personalizadas adicionais (appended ao SYSTEM_PROMPT hardcoded).
+-- Edite este valor via sistema.html → Concierge IA → Instruções Personalizadas para
+-- adicionar informações extras sem risco de sobrescrever os dados completos de resort.
+INSERT INTO ai_config (chave, valor, ativo) VALUES (
+  'custom_instructions',
+  '',
   true
 ) ON CONFLICT (chave) DO NOTHING;
 

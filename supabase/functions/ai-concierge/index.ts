@@ -240,35 +240,90 @@ Instruções de comportamento:
 - Nunca invente preços, datas de disponibilidade ou políticas não mencionadas acima.
 - Não discuta tópicos fora de turismo, hospedagem e serviços da HOSPEDAH.`;
 
-// ── ai_config cache ──────────────────────────────────────────
-// Caches the 'system_prompt' row from ai_config for 5 minutes so that
-// the DB is not queried on every single AI request.
+// ── ai_config + FAQ cache ─────────────────────────────────────
+// Caches ai_config rows and DB FAQ for 5 minutes to avoid querying on
+// every single AI request.
+//
+// Architecture:
+//   SYSTEM_PROMPT (hardcoded) — always the authoritative base.
+//     Contains complete resort info including food/dining policies.
+//   ai_config.custom_instructions — admin-managed ADDENDUM appended on top.
+//     Use this via sistema.html to add notes without risking data loss.
+//   faq table — Q&A pairs loaded server-side, always appended.
+//     Synced from painel.html / sistema.html.
+//
+// NOTE: the legacy ai_config key 'system_prompt' is intentionally ignored
+// here. Because it REPLACES the entire prompt, an outdated value stored
+// there would remove all food/dining information from the AI's context —
+// causing the "alimentação de outra parte" conflict. Custom overrides
+// should use 'custom_instructions' instead.
 const SUPABASE_URL         = Deno.env.get('SUPABASE_URL')             ?? '';
 const SUPABASE_SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '';
 const CONFIG_CACHE_TTL_MS  = 5 * 60 * 1000; // 5 minutes
 
-interface ConfigCache { value: string; fetchedAt: number; }
-let _systemPromptCache: ConfigCache | null = null;
+interface ConfigCache { systemPrompt: string; faqExtras: string; fetchedAt: number; }
+let _configCache: ConfigCache | null = null;
 
-async function getSystemPrompt(): Promise<string> {
-  const now = Date.now();
-  if (_systemPromptCache && now - _systemPromptCache.fetchedAt < CONFIG_CACHE_TTL_MS) {
-    return _systemPromptCache.value;
+/** Strips HTML tags from a string for safe plain-text injection into the AI prompt. */
+function stripHtml(html: string): string {
+  return html.replace(/<[^>]*>/g, ' ').replace(/\s{2,}/g, ' ').trim();
+}
+
+/** Loads active FAQ entries from the DB and formats them for injection into the AI prompt. */
+async function fetchFaqFromDb(sbClient: ReturnType<typeof createClient>): Promise<string> {
+  try {
+    const { data, error } = await sbClient
+      .from('faq')
+      .select('label, resposta')
+      .eq('ativo', true)
+      .order('ordem', { ascending: true });
+    if (error || !data?.length) return '';
+    return (data as Array<{ label: string; resposta: string }>)
+      .map((f) => `Pergunta: ${f.label}\nResposta: ${stripHtml(f.resposta)}`)
+      .join('\n\n');
+  } catch {
+    return '';
   }
-  if (!SUPABASE_URL || !SUPABASE_SERVICE_KEY) return SYSTEM_PROMPT;
+}
+
+/**
+ * Returns the final system prompt and server-side FAQ extras.
+ * Always starts from the hardcoded SYSTEM_PROMPT (complete resort knowledge)
+ * and appends 'custom_instructions' from ai_config if present.
+ * Also loads FAQ from the 'faq' table server-side for consistent, conflict-free context.
+ */
+async function getConfig(): Promise<{ systemPrompt: string; faqExtras: string }> {
+  const now = Date.now();
+  if (_configCache && now - _configCache.fetchedAt < CONFIG_CACHE_TTL_MS) {
+    return { systemPrompt: _configCache.systemPrompt, faqExtras: _configCache.faqExtras };
+  }
+  if (!SUPABASE_URL || !SUPABASE_SERVICE_KEY) {
+    return { systemPrompt: SYSTEM_PROMPT, faqExtras: '' };
+  }
   try {
     const sb = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY, { auth: { persistSession: false } });
-    const { data, error } = await sb
-      .from('ai_config')
-      .select('valor')
-      .eq('chave', 'system_prompt')
-      .eq('ativo', true)
-      .maybeSingle();
-    if (error || !data?.valor?.trim()) return SYSTEM_PROMPT;
-    _systemPromptCache = { value: data.valor, fetchedAt: now };
-    return data.valor;
+
+    // Fetch custom_instructions and FAQ in parallel to minimise latency.
+    const [aiConfigRes, faqExtras] = await Promise.all([
+      sb.from('ai_config')
+        .select('chave, valor')
+        .eq('ativo', true)
+        .eq('chave', 'custom_instructions')
+        .maybeSingle(),
+      fetchFaqFromDb(sb),
+    ]);
+
+    // Build final system prompt: hardcoded base + optional custom addendum.
+    let systemPrompt = SYSTEM_PROMPT;
+    const customInstructions = aiConfigRes.data?.valor?.trim();
+    if (!aiConfigRes.error && customInstructions) {
+      systemPrompt = `${SYSTEM_PROMPT}\n\n---\nInstruções personalizadas da equipe HOSPEDAH:\n${customInstructions}`;
+    }
+
+    _configCache = { systemPrompt, faqExtras, fetchedAt: now };
+    return { systemPrompt, faqExtras };
   } catch {
-    return SYSTEM_PROMPT;
+    return { systemPrompt: SYSTEM_PROMPT, faqExtras: '' };
   }
 }
 
@@ -389,13 +444,19 @@ serve(async (req: Request): Promise<Response> => {
     }
   }
 
-  const systemText = leadLines.length > 0
-    ? `${await getSystemPrompt()}\n\n---\nContexto da conversa atual:\n${leadLines.join('\n')}`
-    : await getSystemPrompt();
+  // Load system prompt and server-side FAQ in one DB round-trip (cached 5 min).
+  const { systemPrompt, faqExtras: serverFaqExtras } = await getConfig();
 
-  const faqExtras = ctx.faq_extras && ctx.faq_extras.trim();
-  const finalSystemText = faqExtras
-    ? `${systemText}\n\n---\nInformações adicionais registradas pela equipe HOSPEDAH:\n${faqExtras}`
+  const systemText = leadLines.length > 0
+    ? `${systemPrompt}\n\n---\nContexto da conversa atual:\n${leadLines.join('\n')}`
+    : systemPrompt;
+
+  // Server-side FAQ (from 'faq' table) is authoritative; client-sent faq_extras
+  // (ctx.faq_extras) is appended as supplementary in case the client has extra context.
+  const clientFaqExtras = ctx.faq_extras && ctx.faq_extras.trim();
+  const allFaqExtras = [serverFaqExtras, clientFaqExtras].filter(Boolean).join('\n\n');
+  const finalSystemText = allFaqExtras
+    ? `${systemText}\n\n---\nInformações adicionais registradas pela equipe HOSPEDAH:\n${allFaqExtras}`
     : systemText;
 
   // Clamp temperature to [0, 1]; default 0.7

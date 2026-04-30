@@ -1124,7 +1124,9 @@ var _aiContext = {
   lead: { nome: '', assunto: '' },
   conversa_id: '',
   mensagens: [],
-  faq_extras: '',   // FAQ dinâmico carregado do banco (injetado no system prompt da IA)
+  // faq_extras é carregado server-side pela Edge Function diretamente do banco;
+  // não é mais enviado pelo cliente para evitar conflito de armazenamento.
+  faq_extras: '',
   timestamp_inicio: new Date().toISOString(),
   // Capturar contexto de intenção a partir de URL, referrer e sessionStorage
   contexto_intencao: (function () {
@@ -1399,6 +1401,10 @@ async function enviarFeedback(btn, avaliacao) {
 
 // ============================================================
 // Item 4: CARREGAR FAQ DINÂMICO DO BANCO
+// Carrega o FAQ para: (a) respostas automáticas locais e (b) chips de sugestão.
+// A injeção no contexto da IA foi removida daqui — a Edge Function
+// carrega o FAQ diretamente do banco server-side, garantindo dados
+// consistentes e eliminando o conflito de armazenamento.
 // ============================================================
 async function carregarFAQDinamico() {
   try {
@@ -1411,18 +1417,9 @@ async function carregarFAQDinamico() {
     if (!data || !data.length) return;
 
     faqDinamico = {};
-    var faqExtrasLines = [];
-    var _parser = new DOMParser();
     data.forEach(function (f) {
       faqDinamico[f.chave.toLowerCase()] = f.resposta;
-      // Versão plain-text para injetar no contexto da IA — usa DOMParser para extração segura sem XSS
-      var doc = _parser.parseFromString(f.resposta, 'text/html');
-      var plain = (doc.body.textContent || '').replace(/\s+/g, ' ').trim();
-      faqExtrasLines.push('Pergunta: ' + f.label + '\nResposta: ' + plain);
     });
-
-    // Injetar FAQ registrado no contexto da IA para que ela responda conforme informações cadastradas
-    _aiContext.faq_extras = faqExtrasLines.join('\n\n');
 
     // Substituir chips de FAQ pelas entradas do banco (primeiras 5)
     var bar = document.getElementById('faqBar');
