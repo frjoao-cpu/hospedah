@@ -1982,9 +1982,12 @@ tbody td {
     </div>
 
     <p style="font-size:0.9em; color:var(--cor-sub); margin:0 0 16px;">
-      Configure o <strong>System Prompt</strong> e demais informações que alimentam o Concierge IA.
+      Configure <strong>Instruções Personalizadas</strong> que são injetadas no Concierge IA
+      como conteúdo adicional ao prompt base (que contém todas as informações de resorts,
+      alimentação e políticas). Use este campo para adicionar avisos temporários, promoções
+      ou regras específicas sem risco de perder as informações completas dos resorts.
       Alterações entram em vigor em até <strong>5 minutos</strong> (cache do servidor).
-      O FAQ dinâmico (aba Automações) também é injetado automaticamente como contexto adicional.
+      O FAQ dinâmico (aba Automações) também é carregado automaticamente pelo servidor.
     </p>
 
     <div id="aiConfigLista">
@@ -3730,6 +3733,21 @@ async function carregarAiConfig() {
   }
 
   _aiConfigDados = res.data;
+
+  // Garantir que a chave 'custom_instructions' exista para instâncias que
+  // não re-executaram a migração após a atualização arquitetural.
+  var hasCustomInstructions = _aiConfigDados.some(function (c) { return c.chave === 'custom_instructions'; });
+  if (!hasCustomInstructions) {
+    var upsertRes = await _supabase.from('ai_config')
+      .upsert({ chave: 'custom_instructions', valor: '', ativo: true }, { onConflict: 'chave' });
+    if (upsertRes.error) {
+      console.warn('[HOSPEDAH] Não foi possível criar custom_instructions no ai_config:', upsertRes.error.message);
+    } else {
+      var refreshed = await _supabase.from('ai_config').select('*').order('chave');
+      if (!refreshed.error && refreshed.data) _aiConfigDados = refreshed.data;
+    }
+  }
+
   renderAiConfig();
 }
 
@@ -3742,13 +3760,25 @@ function renderAiConfig() {
     return;
   }
 
-  var LABELS = { system_prompt: '📋 System Prompt — instruções principais da IA' };
-  container.innerHTML = _aiConfigDados.map(function (c) {
+  var LABELS = {
+    'system_prompt': '📋 System Prompt (legado — não é mais usado pela Edge Function; use Instruções Personalizadas)',
+    'custom_instructions': '✏️ Instruções Personalizadas — conteúdo extra injetado no Concierge IA (appended ao base hardcoded)'
+  };
+  // Ordenar: custom_instructions primeiro (principal), depois outros
+  var ordered = _aiConfigDados.slice().sort(function(a, b) {
+    if (a.chave === 'custom_instructions') return -1;
+    if (b.chave === 'custom_instructions') return 1;
+    return a.chave.localeCompare(b.chave);
+  });
+  container.innerHTML = ordered.map(function (c) {
     var label = LABELS[c.chave] || ('⚙️ ' + escapeHtml(c.chave));
     var ativoChecked = c.ativo ? 'checked' : '';
     var atualizadoEm = c.atualizado_em ? new Date(c.atualizado_em).toLocaleString('pt-BR') : '—';
     var valorEsc = escapeHtml(c.valor || '');
-    return '<div class="ai-config-card" id="ai-config-card-' + escapeHtml(c.chave) + '">' +
+    var isLegacy = c.chave === 'system_prompt';
+    var cardStyle = isLegacy ? 'opacity:0.6;' : '';
+    var rowsCount = c.chave === 'custom_instructions' ? 8 : 6;
+    return '<div class="ai-config-card" id="ai-config-card-' + escapeHtml(c.chave) + '" style="' + cardStyle + '">' +
       '<div class="ai-config-card-header">' +
         '<strong>' + label + '</strong>' +
         '<label style="display:flex;align-items:center;gap:4px;font-size:0.88em;margin-left:auto;">' +
@@ -3756,10 +3786,10 @@ function renderAiConfig() {
         '</label>' +
         '<span style="font-size:0.8em;color:var(--cor-sub);">Atualizado: ' + atualizadoEm + '</span>' +
       '</div>' +
-      '<textarea id="ai_config_valor_' + escapeHtml(c.chave) + '" rows="18">' + valorEsc + '</textarea>' +
+      '<textarea id="ai_config_valor_' + escapeHtml(c.chave) + '" rows="' + rowsCount + '" placeholder="' + (c.chave === 'custom_instructions' ? 'Ex.: Promoção de julho: 10% off no Hot Beach. Pacote família disponível até 15/07.' : '') + '">' + valorEsc + '</textarea>' +
       '<div class="ai-config-card-footer">' +
         '<span style="font-size:0.8em;color:var(--cor-sub);">Alterações entram em vigor em até 5 min (cache do servidor).</span>' +
-        '<button class="btn btn-primary btn-sm" onclick="salvarAiConfig(\'' + escapeHtml(c.chave) + '\')">💾 Salvar</button>' +
+        (isLegacy ? '' : '<button class="btn btn-primary btn-sm" onclick="salvarAiConfig(\'' + escapeHtml(c.chave) + '\')">💾 Salvar</button>') +
       '</div>' +
     '</div>';
   }).join('');
