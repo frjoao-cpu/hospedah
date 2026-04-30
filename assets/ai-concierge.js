@@ -96,8 +96,114 @@
     });
   }
 
+  /**
+   * Escapa HTML e converte markdown básico (bold e quebras de linha) para HTML seguro.
+   * Usada pelos widgets inline para renderizar respostas da IA.
+   * @param {string} text
+   * @returns {string}
+   */
+  function renderMarkdown(text) {
+    var safe = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    safe = safe.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
+    return safe;
+  }
+
+  /**
+   * Chama a IA com streaming SSE, renderizando tokens conforme chegam.
+   * @param {{ nome: string, assunto: string }} lead
+   * @param {Array<{ role: string, content: string, ts: string }>} mensagens
+   * @param {object} [intencao]
+   * @param {number} [temperature]
+   * @param {string} [faqExtras]
+   * @param {function} onToken - chamado com (chunk, textoAcumulado) a cada token recebido
+   * @param {function} onDone - chamado com (textoFinal|null) ao terminar ou em caso de erro
+   */
+  function chamarStream(lead, mensagens, intencao, temperature, faqExtras, onToken, onDone) {
+    if (!mensagens || !mensagens.length) {
+      if (onDone) onDone(null);
+      return;
+    }
+
+    var payload = {
+      lead: lead || { nome: '', assunto: '' },
+      conversa_id: 'web_' + buildConversationId(),
+      mensagens: mensagens,
+      timestamp_inicio: new Date().toISOString(),
+      contexto_intencao: intencao || {},
+      temperature: typeof temperature === 'number' ? temperature : DEFAULT_TEMPERATURE,
+      faq_extras: faqExtras || '',
+      stream: true
+    };
+
+    var controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
+    var timeoutId = controller
+      ? setTimeout(function () { controller.abort(); }, 45000)
+      : null;
+
+    fetch(EDGE_FN_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': SUPABASE_ANON_KEY,
+        'Authorization': 'Bearer ' + SUPABASE_ANON_KEY
+      },
+      body: JSON.stringify(payload),
+      signal: controller ? controller.signal : undefined
+    }).then(function (res) {
+      if (timeoutId) clearTimeout(timeoutId);
+      if (!res.ok || !res.body) {
+        console.error('[HOSPEDAH_AI] Stream: HTTP ' + res.status);
+        if (onDone) onDone(null);
+        return;
+      }
+      var reader = res.body.getReader();
+      var decoder = new TextDecoder();
+      var buffer = '';
+      var fullText = '';
+      function readChunk() {
+        reader.read().then(function (result) {
+          if (result.done) {
+            if (onDone) onDone(fullText || null);
+            return;
+          }
+          buffer += decoder.decode(result.value, { stream: true });
+          var lines = buffer.split('\n');
+          buffer = lines.pop() || '';
+          for (var i = 0; i < lines.length; i++) {
+            var line = lines[i];
+            if (!line.startsWith('data: ')) continue;
+            var jsonStr = line.slice(6).trim();
+            if (!jsonStr || jsonStr === '[DONE]') continue;
+            try {
+              var parsed = JSON.parse(jsonStr);
+              var parts = (parsed && parsed.candidates && parsed.candidates[0] &&
+                parsed.candidates[0].content && parsed.candidates[0].content.parts) || [];
+              for (var k = 0; k < parts.length; k++) {
+                var p = parts[k];
+                if (p.text && !p.thought) {
+                  fullText += p.text;
+                  if (onToken) onToken(p.text, fullText);
+                }
+              }
+            } catch (e) { /* skip malformed chunk */ }
+          }
+          readChunk();
+        }).catch(function () {
+          if (onDone) onDone(fullText || null);
+        });
+      }
+      readChunk();
+    }).catch(function () {
+      if (timeoutId) clearTimeout(timeoutId);
+      console.error('[HOSPEDAH_AI] Erro de rede ao chamar a Edge Function (stream).');
+      if (onDone) onDone(null);
+    });
+  }
+
   window.HOSPEDAH_AI = {
     chamar: chamar,
+    chamarStream: chamarStream,
+    renderMarkdown: renderMarkdown,
     edgeUrl: EDGE_FN_URL,
     edgeAnon: SUPABASE_ANON_KEY
   };
