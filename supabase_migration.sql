@@ -871,3 +871,31 @@ INSERT INTO ai_config (chave, valor, ativo) VALUES (
 --   UPDATE profiles
 --   SET role = 'proprietario'
 --   WHERE id = (SELECT id FROM auth.users WHERE email = 'proprietario@seu-dominio.com.br');
+
+-- ============================================================
+-- 25. VISITAS_SITE — contador de acessos por página
+-- ============================================================
+-- Execute este bloco no Supabase SQL Editor para criar a tabela.
+-- Depois consulte: SELECT pagina, COUNT(*) AS visitas FROM visitas_site GROUP BY pagina ORDER BY visitas DESC;
+CREATE TABLE IF NOT EXISTS visitas_site (
+  id         uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
+  pagina     text        NOT NULL,          -- ex: 'reservas', 'index', 'busca'
+  criado_em  timestamptz DEFAULT now()
+);
+
+ALTER TABLE visitas_site ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "visitas_insercao_publica" ON visitas_site;
+DROP POLICY IF EXISTS "visitas_leitura_admin"    ON visitas_site;
+
+-- Qualquer visitante pode registrar uma visita
+CREATE POLICY "visitas_insercao_publica"
+  ON visitas_site FOR INSERT WITH CHECK (true);
+
+-- Apenas administradores lêem os dados de visita
+CREATE POLICY "visitas_leitura_admin"
+  ON visitas_site FOR SELECT TO authenticated
+  USING (EXISTS (SELECT 1 FROM profiles p WHERE p.id = auth.uid() AND p.role IN ('admin', 'proprietario')));
+
+CREATE INDEX IF NOT EXISTS idx_visitas_criado_em ON visitas_site(criado_em DESC);
+CREATE INDEX IF NOT EXISTS idx_visitas_pagina    ON visitas_site(pagina);

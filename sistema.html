@@ -49,19 +49,26 @@ body {
 /* ==========================================
    HEADER
 ========================================== */
+/* ==========================================
+   HEADER — TOPBAR + NAV
+========================================== */
 .sys-header {
   background: linear-gradient(135deg, var(--azul), var(--azul2));
   border-bottom: 2px solid var(--dourado);
-  padding: 14px 20px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 10px;
   position: sticky;
   top: 0;
   z-index: 100;
-  box-shadow: var(--sombra);
+  box-shadow: 0 2px 20px rgba(0,0,0,0.4);
+}
+
+/* ── TOP BAR: logo + utilities ── */
+.sys-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 20px 8px;
+  gap: 12px;
+  border-bottom: 1px solid rgba(212,175,55,0.12);
 }
 
 .sys-logo {
@@ -71,52 +78,128 @@ body {
 }
 
 .sys-logo span {
-  font-size: 1.3em;
+  font-size: 1.25em;
   font-weight: 700;
   color: var(--dourado);
   letter-spacing: 1px;
 }
 
 .sys-logo small {
-  font-size: 0.65em;
+  font-size: 0.62em;
   color: var(--cor-sub);
   font-weight: 400;
   display: block;
-  line-height: 1;
+  line-height: 1.1;
+  margin-top: 1px;
 }
 
-.sys-nav {
+/* ── TOPBAR UTILITY LINKS ── */
+.sys-topbar-utils {
   display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
 }
 
-.sys-nav a {
+.sys-topbar-utils a,
+.sys-topbar-utils button {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
   color: var(--cor-sub);
   text-decoration: none;
-  padding: 6px 14px;
+  font-family: inherit;
+  font-size: 0.78em;
+  font-weight: 500;
+  padding: 5px 12px;
   border-radius: 20px;
-  font-size: 0.85em;
-  transition: all 0.2s;
   border: 1px solid var(--borda);
+  background: rgba(255,255,255,0.04);
+  cursor: pointer;
+  transition: all 0.18s;
+  white-space: nowrap;
 }
 
-.sys-nav a:hover, .sys-nav a.active {
-  background: var(--dourado);
-  color: var(--azul);
-  border-color: var(--dourado);
+.sys-topbar-utils a:hover,
+.sys-topbar-utils button:hover {
+  color: var(--dourado);
+  border-color: rgba(212,175,55,0.5);
+  background: rgba(212,175,55,0.08);
+}
+
+.sys-topbar-utils a.util-danger:hover,
+.sys-topbar-utils button.util-danger:hover {
+  color: var(--vermelho);
+  border-color: rgba(231,76,60,0.4);
+  background: rgba(231,76,60,0.08);
 }
 
 #syncStatus {
-  font-size: 0.85em;
+  font-size: 0.8em;
   cursor: default;
   white-space: nowrap;
-  opacity: 0.85;
-  padding: 4px 8px;
+  padding: 5px 10px;
   border-radius: 20px;
   border: 1px solid var(--borda);
   background: rgba(255,255,255,0.04);
   transition: all 0.3s;
+  color: var(--cor-sub);
+}
+
+/* ── NAV ROW: scrollable tab bar ── */
+.sys-nav {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 8px 12px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.sys-nav::-webkit-scrollbar { display: none; }
+
+.sys-nav a {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--cor-sub);
+  text-decoration: none;
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 0.8em;
+  font-weight: 500;
+  white-space: nowrap;
+  transition: all 0.18s;
+  border: 1px solid transparent;
+  background: transparent;
+  cursor: pointer;
+  flex-shrink: 0;
+  letter-spacing: 0.2px;
+}
+
+.sys-nav a:hover {
+  color: var(--dourado);
+  background: rgba(212,175,55,0.08);
+  border-color: rgba(212,175,55,0.25);
+}
+
+.sys-nav a.active {
+  background: var(--dourado);
+  color: var(--azul);
+  border-color: var(--dourado);
+  font-weight: 700;
+  box-shadow: 0 2px 10px rgba(212,175,55,0.3);
+}
+
+/* Group dividers */
+.nav-sep {
+  display: inline-block;
+  width: 1px;
+  height: 20px;
+  background: rgba(212,175,55,0.18);
+  margin: 0 6px;
+  flex-shrink: 0;
+  align-self: center;
 }
 
 #syncWarning {
@@ -590,9 +673,11 @@ tbody td {
    RESPONSIVO
 ========================================== */
 @media (max-width: 600px) {
-  .sys-header { padding: 10px 14px; }
-  .sys-logo span { font-size: 1.1em; }
-  .sys-nav a { padding: 5px 10px; font-size: 0.8em; }
+  .sys-topbar { padding: 10px 14px 6px; }
+  .sys-logo span { font-size: 1.05em; }
+  .sys-topbar-utils a, .sys-topbar-utils button { padding: 4px 9px; font-size: 0.74em; }
+  .sys-nav { padding: 6px 10px; }
+  .sys-nav a { padding: 5px 11px; font-size: 0.76em; }
   .calc-section, .table-wrap { padding: 16px; }
 }
 
@@ -1374,32 +1459,45 @@ tbody td {
 
 
 <header class="sys-header">
-  <div class="sys-logo">
-    <div>
-      <span>💼 HOSPEDA-SISTEMA</span>
-      <small>Gestão Financeira · HOSPEDAH</small>
+  <!-- TOP BAR: logo + utilities -->
+  <div class="sys-topbar">
+    <div class="sys-logo">
+      <div>
+        <span>💼 HOSPEDA-SISTEMA</span>
+        <small>Gestão Financeira · HOSPEDAH</small>
+      </div>
+    </div>
+    <div class="sys-topbar-utils">
+      <span id="syncStatus" title="Aguardando sincronização...">☁️</span>
+      <a href="javascript:void(0)" onclick="toggleFloatCalc()">🧮 Calculadora</a>
+      <a href="javascript:void(0)" onclick="exportarBackup()">💾 Backup</a>
+      <a href="javascript:void(0)" onclick="importarBackup()">📂 Importar</a>
+      <a href="index.html">🏠 Site</a>
+      <a href="javascript:void(0)" class="util-danger" onclick="fazerLogout()">🚪 Sair</a>
     </div>
   </div>
+
+  <!-- NAV ROW: scrollable tab navigation grouped by category -->
   <nav class="sys-nav">
+    <!-- Financeiro -->
     <a href="#dashboard" class="active">📊 Dashboard</a>
     <a href="#nova-reserva">➕ Nova Reserva</a>
     <a href="#reservas">📋 Reservas</a>
     <a href="#mensal">📅 Mensal</a>
     <a href="#graficos">📈 Gráficos</a>
     <a href="#relatorio">🏆 Relatório</a>
-    <a href="#automacoes">🤖 Automações</a>
-    <a href="#config-ia">🧠 Concierge IA</a>
-    <a href="#captacao">🏡 Captação</a>
+    <span class="nav-sep"></span>
+    <!-- Plataforma -->
     <a href="#reservas-hospede">🛎️ Solicitações</a>
+    <a href="#visitas-site">👁️ Visitas</a>
     <a href="#moderacao-avaliacoes">⭐ Avaliações</a>
     <a href="#precos-dinamicos">💲 Preços Dinâmicos</a>
     <a href="#mensagens-hospede">💬 Mensagens</a>
-    <a href="javascript:void(0)" onclick="toggleFloatCalc()">🧮 Calculadora</a>
-    <a href="javascript:void(0)" onclick="exportarBackup()">💾 Backup</a>
-    <a href="javascript:void(0)" onclick="importarBackup()">📂 Importar</a>
-    <a href="index.html">🏠 Site</a>
-    <a href="javascript:void(0)" onclick="fazerLogout()">🚪 Sair</a>
-    <span id="syncStatus" title="Aguardando sincronização...">☁️</span>
+    <span class="nav-sep"></span>
+    <!-- Gestão -->
+    <a href="#automacoes">🤖 Automações</a>
+    <a href="#config-ia">🧠 Concierge IA</a>
+    <a href="#captacao">🏡 Captação</a>
   </nav>
 </header>
 <div id="syncWarning">⚠️ Dados salvos apenas localmente — sem sincronização com o servidor. Verifique se a tabela <strong>hospeda_data</strong> foi criada no Supabase e se você está logado com o mesmo e-mail em todos os dispositivos.</div>
@@ -1489,6 +1587,12 @@ tbody td {
           <input type="number" id="inputMeta" placeholder="R$ meta..." min="0" step="100">
           <button class="btn btn-secondary btn-sm" onclick="salvarMeta()">✔</button>
         </div>
+      </div>
+      <div class="dash-card" style="cursor:pointer;" onclick="document.querySelector('[href=\'#visitas-site\']').click()">
+        <div class="dash-icon">👁️</div>
+        <div class="dash-label">Visitas ao Site</div>
+        <div class="dash-value" id="dash-visitas-total">—</div>
+        <div style="font-size:0.7em;color:var(--cor-sub);margin-top:4px;" id="dash-visitas-hoje">Hoje: —</div>
       </div>
     </div>
   </section>
@@ -2345,6 +2449,78 @@ tbody td {
         <tr><td colspan="13"><div class="empty-state"><div class="empty-icon">🛎️</div><div>Nenhuma solicitação de reserva ainda.</div><div style="font-size:0.85em; margin-top:6px; color:var(--cinza)">Solicitações feitas em <a href="reservas.html" target="_blank" style="color:var(--dourado)">reservas.html</a> aparecerão aqui.</div></div></td></tr>
       </tbody>
     </table>
+  </section>
+
+  <!-- ==========================================
+       VISITAS AO SITE
+  =========================================== -->
+  <section id="visitas-site" class="table-wrap">
+    <div class="section-title">
+      👁️ Acessos ao Site
+      <span style="margin-left:auto; display:flex; gap:8px;">
+        <button class="btn btn-secondary btn-sm" onclick="carregarVisitasSite()">🔄 Atualizar</button>
+      </span>
+    </div>
+
+    <!-- CARDS DE RESUMO -->
+    <div class="dashboard-grid" style="margin-bottom:16px;">
+      <div class="dash-card verde">
+        <div class="dash-icon">👁️</div>
+        <div class="dash-label">Total de Visitas</div>
+        <div class="dash-value" id="vs-total">—</div>
+      </div>
+      <div class="dash-card">
+        <div class="dash-icon">📅</div>
+        <div class="dash-label">Hoje</div>
+        <div class="dash-value" id="vs-hoje">—</div>
+      </div>
+      <div class="dash-card">
+        <div class="dash-icon">🗓️</div>
+        <div class="dash-label">Esta Semana</div>
+        <div class="dash-value" id="vs-semana">—</div>
+      </div>
+      <div class="dash-card amarelo">
+        <div class="dash-icon">📆</div>
+        <div class="dash-label">Este Mês</div>
+        <div class="dash-value" id="vs-mes">—</div>
+      </div>
+    </div>
+
+    <!-- TABELA DE ACESSOS POR PÁGINA -->
+    <div style="margin-bottom:16px;">
+      <div style="font-size:0.82em;color:var(--dourado);font-weight:600;margin-bottom:10px;">📊 Visitas por Página</div>
+      <table>
+        <thead>
+          <tr>
+            <th>Página</th>
+            <th>Total de Visitas</th>
+            <th>Hoje</th>
+            <th>Esta Semana</th>
+            <th>Este Mês</th>
+          </tr>
+        </thead>
+        <tbody id="vs-por-pagina">
+          <tr><td colspan="5"><div class="empty-state"><div class="empty-icon">👁️</div><div>Carregando…</div></div></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- TABELA DE ACESSOS RECENTES -->
+    <div>
+      <div style="font-size:0.82em;color:var(--dourado);font-weight:600;margin-bottom:10px;">🕐 Acessos Recentes (últimos 50)</div>
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Página</th>
+            <th>Data/Hora</th>
+          </tr>
+        </thead>
+        <tbody id="vs-recentes">
+          <tr><td colspan="3"><div class="empty-state"><div class="empty-icon">👁️</div><div>Carregando…</div></div></td></tr>
+        </tbody>
+      </table>
+    </div>
   </section>
 
   <!-- ==========================================
@@ -7022,6 +7198,103 @@ function toastSistema(msg, tipo) {
 }
 
 // ──────────────────────────────────────────────────────────
+// VISITAS AO SITE — Acompanhamento de Acessos
+// ──────────────────────────────────────────────────────────
+async function carregarVisitasSite() {
+  try {
+    var { data, error } = await _supabase
+      .from('visitas_site')
+      .select('pagina, criado_em')
+      .order('criado_em', { ascending: false })
+      .limit(500);
+
+    if (error) throw error;
+
+    var lista = data || [];
+
+    // Calcular limites de tempo
+    var agora    = new Date();
+    var inicioHoje   = new Date(agora.getFullYear(), agora.getMonth(), agora.getDate());
+    var inicioSemana = new Date(inicioHoje);
+    inicioSemana.setDate(inicioHoje.getDate() - inicioHoje.getDay());
+    var inicioMes    = new Date(agora.getFullYear(), agora.getMonth(), 1);
+
+    var total   = lista.length;
+    var hoje    = lista.filter(function(r){ return r.criado_em && new Date(r.criado_em) >= inicioHoje; }).length;
+    var semana  = lista.filter(function(r){ return r.criado_em && new Date(r.criado_em) >= inicioSemana; }).length;
+    var mes     = lista.filter(function(r){ return r.criado_em && new Date(r.criado_em) >= inicioMes; }).length;
+
+    // Atualizar cards de resumo na seção dedicada
+    document.getElementById('vs-total').textContent  = total;
+    document.getElementById('vs-hoje').textContent   = hoje;
+    document.getElementById('vs-semana').textContent = semana;
+    document.getElementById('vs-mes').textContent    = mes;
+
+    // Atualizar card do dashboard principal
+    var dashTotal = document.getElementById('dash-visitas-total');
+    var dashHoje  = document.getElementById('dash-visitas-hoje');
+    if (dashTotal) dashTotal.textContent = total;
+    if (dashHoje)  dashHoje.textContent  = 'Hoje: ' + hoje;
+
+    // ── Tabela por página ──
+    var porPagina = {};
+    lista.forEach(function(r) {
+      var pg = r.pagina || '(desconhecida)';
+      if (!porPagina[pg]) porPagina[pg] = { total: 0, hoje: 0, semana: 0, mes: 0 };
+      porPagina[pg].total++;
+      var dt = r.criado_em ? new Date(r.criado_em) : null;
+      if (dt) {
+        if (dt >= inicioHoje)   porPagina[pg].hoje++;
+        if (dt >= inicioSemana) porPagina[pg].semana++;
+        if (dt >= inicioMes)    porPagina[pg].mes++;
+      }
+    });
+
+    var paginaBody = document.getElementById('vs-por-pagina');
+    var paginaNomes = Object.keys(porPagina).sort(function(a, b){ return porPagina[b].total - porPagina[a].total; });
+    if (paginaNomes.length === 0) {
+      paginaBody.innerHTML = '<tr><td colspan="5"><div class="empty-state"><div class="empty-icon">👁️</div><div>Nenhuma visita registrada ainda.</div><div style="font-size:0.82em;color:var(--cinza);margin-top:4px;">Execute o SQL da tabela <strong>visitas_site</strong> no Supabase.</div></div></td></tr>';
+    } else {
+      paginaBody.innerHTML = paginaNomes.map(function(pg) {
+        var s = porPagina[pg];
+        return '<tr>'
+          + '<td><strong>' + esc(pg) + '</strong></td>'
+          + '<td style="color:var(--dourado);font-weight:700;">' + s.total + '</td>'
+          + '<td>' + s.hoje + '</td>'
+          + '<td>' + s.semana + '</td>'
+          + '<td>' + s.mes + '</td>'
+          + '</tr>';
+      }).join('');
+    }
+
+    // ── Tabela de acessos recentes (50 mais recentes) ──
+    var recentesBody = document.getElementById('vs-recentes');
+    var recentes = lista.slice(0, 50);
+    if (recentes.length === 0) {
+      recentesBody.innerHTML = '<tr><td colspan="3"><div class="empty-state"><div class="empty-icon">🕐</div><div>Sem registros de acesso ainda.</div></div></td></tr>';
+    } else {
+      recentesBody.innerHTML = recentes.map(function(r, i) {
+        var dtHr = r.criado_em ? new Date(r.criado_em).toLocaleString('pt-BR') : '—';
+        return '<tr>'
+          + '<td>' + (i + 1) + '</td>'
+          + '<td><strong>' + esc(r.pagina || '(desconhecida)') + '</strong></td>'
+          + '<td style="font-size:0.85em;color:var(--cor-sub);">' + dtHr + '</td>'
+          + '</tr>';
+      }).join('');
+    }
+  } catch(e) {
+    var isNotFound = e && (String(e.message || '').toLowerCase().includes('does not exist') || (e.code && e.code === '42P01'));
+    var msg = isNotFound
+      ? 'Tabela <strong>visitas_site</strong> não encontrada. Execute o SQL da migração para ativá-la.'
+      : 'Erro ao carregar visitas: ' + esc(String(e.message || e));
+    var paginaBody = document.getElementById('vs-por-pagina');
+    var recentesBody = document.getElementById('vs-recentes');
+    if (paginaBody)   paginaBody.innerHTML   = '<tr><td colspan="5"><div class="empty-state"><div class="empty-icon">⚠️</div><div>' + msg + '</div></div></td></tr>';
+    if (recentesBody) recentesBody.innerHTML = '<tr><td colspan="3"><div class="empty-state"><div class="empty-icon">⚠️</div><div>' + msg + '</div></div></td></tr>';
+  }
+}
+
+// ──────────────────────────────────────────────────────────
 // CARREGAR TUDO AO INICIALIZAR
 // ──────────────────────────────────────────────────────────
 var _plataformaCarregada = false;
@@ -7034,6 +7307,7 @@ function carregarFuncoesPlataforma() {
     carregarAvaliacoesMod();
     carregarTabelaPrecosDinamicos();
     carregarMensagens();
+    carregarVisitasSite();
   }, 2000);
 }
 
