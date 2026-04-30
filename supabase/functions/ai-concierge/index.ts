@@ -35,9 +35,9 @@ const GEMINI_URL =
 const GEMINI_STREAM_URL =
   `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:streamGenerateContent`;
 // Timeout for individual Gemini API requests (ms).
-// Reduced from 30s to 25s so that primary model + one fallback attempt both fit
-// within the 45s client-side AbortController timeout in ai-concierge.js.
-const GEMINI_REQUEST_TIMEOUT_MS = 25000;
+// With GEMINI_MAX_RETRIES=1 (2 attempts total), worst-case primary = 12s + 1.5s + 12s = 25.5s,
+// leaving room for a fallback model call within the 45s client-side AbortController timeout.
+const GEMINI_REQUEST_TIMEOUT_MS = 12000;
 // Models that support thinkingConfig. Maintained as an explicit set to avoid
 // false positives from prefix matching (e.g. a future gemini-2.5-lite variant
 // that may not support thinking). Add new thinking-capable models here as needed.
@@ -72,13 +72,14 @@ function getCorsHeaders(origin: string | null): Record<string, string> {
   return { ...CORS_HEADERS, 'Access-Control-Allow-Origin': allowed, 'Vary': 'Origin' };
 }
 
-// Calls the Gemini REST API with automatic retry on HTTP 429 (rate-limit) and 5xx errors.
-// Attempts: 1 original + up to GEMINI_MAX_RETRIES retries.
-// Wait before retry i (1-based): GEMINI_RETRY_BASE_MS * i  (1.5 s, 3 s, …)
-const GEMINI_MAX_RETRIES  = 2;
-const GEMINI_RETRY_BASE_MS = 1500;
+
 // HTTP status codes that are worth retrying
 const GEMINI_RETRYABLE_STATUSES = new Set([429, 500, 502, 503, 504]);
+// Calls the Gemini REST API with automatic retry on HTTP 429 (rate-limit) and 5xx errors.
+// Attempts: 1 original + up to GEMINI_MAX_RETRIES retries.
+// Wait before retry i (1-based): GEMINI_RETRY_BASE_MS * i  (1.5 s, …)
+const GEMINI_MAX_RETRIES  = 1;
+const GEMINI_RETRY_BASE_MS = 1500;
 
 async function fetchGeminiWithRetry(url: string, bodyStr: string): Promise<Response> {
   let lastResponse: Response | null = null;

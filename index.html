@@ -2586,21 +2586,51 @@ function gerarPropostaPDF() {
     return msg;
   }
 
-  /* Chama a IA Gemini diretamente */
+  /* Chama a IA Gemini — usa streaming quando disponível para respostas em tempo real */
   function hcChamarIA(userMsg) {
     if (!window.HOSPEDAH_AI) return Promise.resolve(null);
     hcMensagens.push({ role: 'user', content: userMsg, ts: new Date().toISOString() });
     if (hcMensagens.length > 20) { hcMensagens = hcMensagens.slice(-20); }
     var userMsgIdx = hcMensagens.length - 1;
+    var intencao = { pagina_origem: 'index', perfil_tipo: hcPerfil.tipo, perfil_orcamento: hcPerfil.orcamento, perfil_parque: hcPerfil.parque };
+    if (window.HOSPEDAH_AI.chamarStream) {
+      return new Promise(function (resolve) {
+        hcRemoveTyping();
+        var div = document.createElement('div');
+        div.className = 'hc-msg hc-bot';
+        hcMsgs.appendChild(div);
+        hcMsgs.scrollTop = hcMsgs.scrollHeight;
+        window.HOSPEDAH_AI.chamarStream(
+          { nome: hcNome, assunto: hcAssunto },
+          hcMensagens,
+          intencao,
+          0.7,
+          '',
+          function (chunk, accumulated) {
+            div.innerHTML = window.HOSPEDAH_AI.renderMarkdown(accumulated);
+            hcMsgs.scrollTop = hcMsgs.scrollHeight;
+          },
+          function (finalText) {
+            if (!finalText) {
+              if (div.parentNode) div.parentNode.removeChild(div);
+              hcMensagens.splice(userMsgIdx, 1);
+              resolve(null);
+            } else {
+              hcMensagens.push({ role: 'assistant', content: finalText, ts: new Date().toISOString() });
+              resolve('STREAMED');
+            }
+          }
+        );
+      });
+    }
     return window.HOSPEDAH_AI.chamar(
       { nome: hcNome, assunto: hcAssunto },
       hcMensagens,
-      { pagina_origem: 'index', perfil_tipo: hcPerfil.tipo, perfil_orcamento: hcPerfil.orcamento, perfil_parque: hcPerfil.parque },
+      intencao,
       0.7
     ).then(function (resp) {
       if (resp) {
-        var entry = { role: 'assistant', content: resp, ts: new Date().toISOString() };
-        hcMensagens.push(entry);
+        hcMensagens.push({ role: 'assistant', content: resp, ts: new Date().toISOString() });
       } else {
         hcMensagens.splice(userMsgIdx, 1); // descarta a mensagem do usuário em caso de falha para não poluir o histórico
       }
@@ -2610,7 +2640,9 @@ function gerarPropostaPDF() {
 
   function hcHandleResp(resp) {
     hcRemoveTyping();
-    if (resp) {
+    if (resp === 'STREAMED') {
+      /* mensagem já renderizada durante streaming — nada a fazer */
+    } else if (resp) {
       hcAddMsg(resp, 'bot');
     } else {
       hcAddMsg('Desculpe, não consegui responder agora. Fale pelo WhatsApp 📱 (17) 98200-6382', 'bot');
