@@ -872,6 +872,14 @@ span.flatpickr-weekday {
         <span id="availTag"></span>
       </div>
 
+      <!-- URGENCY INLINE BLOCK — aparece quando as datas estão confirmadas como disponíveis -->
+      <div id="urgencyInlineBlock" style="display:none; margin-top:14px; background:rgba(248,113,113,0.08); border:1px solid rgba(248,113,113,0.3); border-radius:var(--radius); padding:16px; text-align:center;">
+        <div style="font-size:0.92em; color:#f87171; font-weight:700; margin-bottom:6px;">⏰ Seu preço ainda está disponível!</div>
+        <div style="font-size:0.8em; color:var(--cor-sub); margin-bottom:12px; line-height:1.5;">As datas que você selecionou ainda estão disponíveis. Confirme agora para garantir!</div>
+        <button class="btn btn-primary" style="margin-bottom:8px;" onclick="irParaStep(3);">✅ Confirmar Reserva</button>
+        <button class="btn" style="background:rgba(255,255,255,0.06);color:var(--cor-sub);border:1px solid var(--borda);" onclick="document.getElementById('urgencyInlineBlock').style.display='none'">Fechar</button>
+      </div>
+
       <p style="font-size:0.73em; color:var(--cor-sub); margin-top:14px; text-align:center; line-height:1.5;">
         * Valor estimado com base no preço base. O valor final será confirmado pela nossa equipe via WhatsApp/e-mail.
       </p>
@@ -1439,6 +1447,7 @@ function verificarPeriodoDisponivel() {
   if (conflito) {
     statusEl.innerHTML = '<span class="availability-tag tag-indisponivel">❌ Há datas bloqueadas neste período. Por favor, escolha outras datas.</span>';
     document.getElementById('availTag').innerHTML = '<span class="availability-tag tag-indisponivel">❌ Indisponível</span>';
+    document.getElementById('urgencyInlineBlock').style.display = 'none';
     dataSaidaFP = null;
     pararContadorUrgencia();
     atualizarResumo();
@@ -1450,6 +1459,7 @@ function verificarPeriodoDisponivel() {
   const noites = calcularNoites(dataEntradaFP, dataSaidaFP);
   statusEl.innerHTML = `<span class="availability-tag tag-disponivel">✅ Disponível — ${noites} noite${noites !== 1 ? 's' : ''} selecionada${noites !== 1 ? 's' : ''}</span>`;
   document.getElementById('availTag').innerHTML = '<span class="availability-tag tag-disponivel">✅ Disponível</span>';
+  document.getElementById('urgencyInlineBlock').style.display = 'block';
 
   // Urgency countdown + Pixel InitiateCheckout
   iniciarContadorUrgencia();
@@ -1465,6 +1475,7 @@ function verificarPeriodoDisponivel() {
 function resetarStatus() {
   document.getElementById('statusDisponibilidade').innerHTML = '';
   document.getElementById('availTag').innerHTML = '';
+  document.getElementById('urgencyInlineBlock').style.display = 'none';
   atualizarResumo();
   atualizarBotao();
 }
@@ -2123,6 +2134,22 @@ function irParaStep(step) {
     if (dataSaidaFP && fpInstance) {
       document.getElementById('dataSaida').value = fpInstance.formatDate(dataSaidaFP, 'd/m/Y');
     }
+    // Fallback: se o estado FP foi limpo por um evento de timing do Flatpickr,
+    // recuperar as datas a partir dos valores já exibidos nos inputs (DD/MM/AAAA).
+    if (!dataEntradaFP || !dataSaidaFP) {
+      var _eVal = document.getElementById('dataEntrada').value.trim();
+      var _sVal = document.getElementById('dataSaida').value.trim();
+      var _mE = _eVal.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+      var _mS = _sVal.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+      if (_mE && !dataEntradaFP) {
+        dataEntradaFP = new Date(+_mE[3], +_mE[2] - 1, +_mE[1]);
+        dataEntradaFP.setHours(0, 0, 0, 0);
+      }
+      if (_mS && !dataSaidaFP) {
+        dataSaidaFP = new Date(+_mS[3], +_mS[2] - 1, +_mS[1]);
+        dataSaidaFP.setHours(0, 0, 0, 0);
+      }
+    }
     // Validar usando o estado FP como fonte primária de verdade
     if (!dataEntradaFP || !dataSaidaFP) {
       document.getElementById('dataEntrada').focus();
@@ -2212,7 +2239,24 @@ function _checkDatesForWizard() {
     });
     ob.observe(el, { childList: true, subtree: true, characterData: true });
   }
-})();</script>
+})();
+
+// ============================================================
+// RASTREIO DE VISITAS — contador simples de acessos
+// ============================================================
+// Registra uma visita na tabela visitas_site do Supabase (uma por sessão).
+// Consulte os dados no painel do Supabase:
+//   SELECT pagina, COUNT(*) AS visitas FROM visitas_site GROUP BY pagina ORDER BY visitas DESC;
+(function registrarVisita() {
+  var key = 'hospedah_visited_reservas';
+  if (sessionStorage.getItem(key)) return; // já registrado nesta sessão
+  try {
+    sb.from('visitas_site').insert([{ pagina: 'reservas' }]).then(function() {
+      sessionStorage.setItem(key, '1');
+    }).catch(function(){});
+  } catch (_) {}
+})();
+</script>
 
 <script>if ('serviceWorker' in navigator) { navigator.serviceWorker.register('/sw.js').catch(function(){}); }</script>
 
