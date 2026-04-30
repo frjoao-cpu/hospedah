@@ -1391,6 +1391,7 @@ tbody td {
     <a href="#config-ia">🧠 Concierge IA</a>
     <a href="#captacao">🏡 Captação</a>
     <a href="#reservas-hospede">🛎️ Solicitações</a>
+    <a href="#visitas-site">👁️ Visitas</a>
     <a href="#moderacao-avaliacoes">⭐ Avaliações</a>
     <a href="#precos-dinamicos">💲 Preços Dinâmicos</a>
     <a href="#mensagens-hospede">💬 Mensagens</a>
@@ -1489,6 +1490,12 @@ tbody td {
           <input type="number" id="inputMeta" placeholder="R$ meta..." min="0" step="100">
           <button class="btn btn-secondary btn-sm" onclick="salvarMeta()">✔</button>
         </div>
+      </div>
+      <div class="dash-card" style="cursor:pointer;" onclick="document.querySelector('[href=\'#visitas-site\']').click()">
+        <div class="dash-icon">👁️</div>
+        <div class="dash-label">Visitas ao Site</div>
+        <div class="dash-value" id="dash-visitas-total">—</div>
+        <div style="font-size:0.7em;color:var(--cor-sub);margin-top:4px;" id="dash-visitas-hoje">Hoje: —</div>
       </div>
     </div>
   </section>
@@ -2345,6 +2352,78 @@ tbody td {
         <tr><td colspan="13"><div class="empty-state"><div class="empty-icon">🛎️</div><div>Nenhuma solicitação de reserva ainda.</div><div style="font-size:0.85em; margin-top:6px; color:var(--cinza)">Solicitações feitas em <a href="reservas.html" target="_blank" style="color:var(--dourado)">reservas.html</a> aparecerão aqui.</div></div></td></tr>
       </tbody>
     </table>
+  </section>
+
+  <!-- ==========================================
+       VISITAS AO SITE
+  =========================================== -->
+  <section id="visitas-site" class="table-wrap">
+    <div class="section-title">
+      👁️ Acessos ao Site
+      <span style="margin-left:auto; display:flex; gap:8px;">
+        <button class="btn btn-secondary btn-sm" onclick="carregarVisitasSite()">🔄 Atualizar</button>
+      </span>
+    </div>
+
+    <!-- CARDS DE RESUMO -->
+    <div class="dashboard-grid" style="margin-bottom:16px;">
+      <div class="dash-card verde">
+        <div class="dash-icon">👁️</div>
+        <div class="dash-label">Total de Visitas</div>
+        <div class="dash-value" id="vs-total">—</div>
+      </div>
+      <div class="dash-card">
+        <div class="dash-icon">📅</div>
+        <div class="dash-label">Hoje</div>
+        <div class="dash-value" id="vs-hoje">—</div>
+      </div>
+      <div class="dash-card">
+        <div class="dash-icon">🗓️</div>
+        <div class="dash-label">Esta Semana</div>
+        <div class="dash-value" id="vs-semana">—</div>
+      </div>
+      <div class="dash-card amarelo">
+        <div class="dash-icon">📆</div>
+        <div class="dash-label">Este Mês</div>
+        <div class="dash-value" id="vs-mes">—</div>
+      </div>
+    </div>
+
+    <!-- TABELA DE ACESSOS POR PÁGINA -->
+    <div style="margin-bottom:16px;">
+      <div style="font-size:0.82em;color:var(--dourado);font-weight:600;margin-bottom:10px;">📊 Visitas por Página</div>
+      <table>
+        <thead>
+          <tr>
+            <th>Página</th>
+            <th>Total de Visitas</th>
+            <th>Hoje</th>
+            <th>Esta Semana</th>
+            <th>Este Mês</th>
+          </tr>
+        </thead>
+        <tbody id="vs-por-pagina">
+          <tr><td colspan="5"><div class="empty-state"><div class="empty-icon">👁️</div><div>Carregando…</div></div></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- TABELA DE ACESSOS RECENTES -->
+    <div>
+      <div style="font-size:0.82em;color:var(--dourado);font-weight:600;margin-bottom:10px;">🕐 Acessos Recentes (últimos 50)</div>
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Página</th>
+            <th>Data/Hora</th>
+          </tr>
+        </thead>
+        <tbody id="vs-recentes">
+          <tr><td colspan="3"><div class="empty-state"><div class="empty-icon">👁️</div><div>Carregando…</div></div></td></tr>
+        </tbody>
+      </table>
+    </div>
   </section>
 
   <!-- ==========================================
