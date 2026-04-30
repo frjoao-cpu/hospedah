@@ -960,7 +960,7 @@ const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 // ============================================================
 const RESORTS = [
   { id: 'hotbeach',   nome: 'Hot Beach Suites',       cidade: 'Olímpia-SP',     preco: 370, icon: '🌊', slug: 'hotbeach' },
-  { id: 'saopedro',   nome: 'São Pedro Thermas',       cidade: 'São Pedro-SP',   preco: 350, icon: '♨️', slug: 'saopedro' },
+  { id: 'saopedro',   nome: 'São Pedro Thermas',       cidade: 'São Pedro-SP',   preco: 450, icon: '♨️', slug: 'saopedro' },
   { id: 'olimpia',    nome: 'Olimpia Park Resort',     cidade: 'Olímpia-SP',     preco: 290, icon: '🎢', slug: 'olimpia' },
   { id: 'solar',      nome: 'Solar das Águas',         cidade: 'Olímpia-SP',     preco: 286, icon: '☀️', slug: 'solar' },
   { id: 'wyndham',    nome: 'Wyndham Royal Resort',    cidade: 'Olímpia-SP',     preco: 320, icon: '👑', slug: 'wyndham' },
@@ -1158,6 +1158,9 @@ async function carregarDisponibilidade(resortNome) {
 // ============================================================
 // INICIALIZAR FLATPICKR
 // ============================================================
+// Guarda check-in parcial para restaurar quando o usuário clicar em check-out
+let _fpEntradaParcial = null;
+
 function inicializarFlatpickr() {
   const hoje = new Date();
   hoje.setHours(0, 0, 0, 0);
@@ -1167,6 +1170,7 @@ function inicializarFlatpickr() {
   const savedSaida   = dataSaidaFP;
 
   if (fpInstance) fpInstance.destroy();
+  _fpEntradaParcial = null;
 
   const saidaInput = document.getElementById('dataSaida');
 
@@ -1177,14 +1181,13 @@ function inicializarFlatpickr() {
     locale: 'pt',
     disable: datasIndisponiveis,
     inline: false,
-    // [ALTERADO] allowInput: true — permite que o usuário digite a data manualmente
-    // além de selecionar pelo calendário (era allowInput: false)
     allowInput: true,
     disableMobile: true,
     onChange(selectedDates, dateStr, instance) {
       if (selectedDates.length === 2) {
         dataEntradaFP = selectedDates[0];
         dataSaidaFP   = selectedDates[1];
+        _fpEntradaParcial = null;
         verificarPeriodoDisponivel();
       } else if (selectedDates.length === 1) {
         dataEntradaFP = selectedDates[0];
@@ -1197,6 +1200,27 @@ function inicializarFlatpickr() {
         if (saidaInput) saidaInput.value = '';
         resetarStatus();
       }
+    },
+    onClose(selectedDates) {
+      // Salva check-in parcial para restaurar se o usuário abrir pelo campo check-out
+      if (selectedDates.length === 1) {
+        _fpEntradaParcial = selectedDates[0];
+      }
+    },
+    onOpen(selectedDates, dateStr, instance) {
+      // Posiciona o calendário acima dos campos de data
+      requestAnimationFrame(function() {
+        var cal   = instance.calendarContainer;
+        var input = instance.input;
+        var rect  = input.getBoundingClientRect();
+        var calH  = cal.offsetHeight || 320;
+        var scrollTop  = window.pageYOffset || document.documentElement.scrollTop;
+        var scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
+        cal.style.top  = (rect.top + scrollTop - calH - 4) + 'px';
+        cal.style.left = (rect.left + scrollLeft) + 'px';
+        cal.classList.remove('arrowTop');
+        cal.classList.add('arrowBottom');
+      });
     },
     onValueUpdate(selectedDates, dateStr, instance) {
       // Exibir apenas o check-in no primeiro campo e o check-out no segundo
@@ -1224,8 +1248,20 @@ function inicializarFlatpickr() {
     if (fpSaidaClickHandler) saidaInput.removeEventListener('click', fpSaidaClickHandler);
     if (fpSaidaBlurHandler)  saidaInput.removeEventListener('blur',  fpSaidaBlurHandler);
 
-    // Click: abre o calendário para seleção visual; o usuário pode fechar e digitar se preferir
-    fpSaidaClickHandler = function pdSaidaOpen() { if (fpInstance) fpInstance.open(); };
+    // Click: abre o calendário para seleção visual; restaura check-in parcial se necessário
+    fpSaidaClickHandler = function pdSaidaOpen() {
+      if (!fpInstance) return;
+      var partial = _fpEntradaParcial;
+      fpInstance.open();
+      // Se o calendário foi fechado após o usuário ter selecionado só o check-in,
+      // flatpickr limpa a seleção ao fechar — restauramos aqui para que o usuário
+      // possa escolher o check-out sem precisar redigitar o check-in.
+      if (partial && !dataEntradaFP) {
+        requestAnimationFrame(function() {
+          fpInstance.setDate([partial], true);
+        });
+      }
+    };
     saidaInput.addEventListener('click', fpSaidaClickHandler);
     // Nota: o evento 'focus' foi removido intencionalmente para não bloquear
     // a digitação quando o usuário acessa o campo pelo teclado (Tab).
