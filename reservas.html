@@ -802,21 +802,69 @@ span.flatpickr-weekday {
         <textarea id="mensagemHospede" rows="3" placeholder="Ex.: Aniversário, berço para bebê, horário preferencial de chegada..."></textarea>
       </div>
 
-      <button class="btn btn-primary" id="btnReservar" onclick="enviarReserva()" disabled>
-        📩 Enviar Solicitação de Reserva
-      </button>
-      <button class="btn btn-whatsapp" id="btnWhatsApp" onclick="abrirWhatsAppReserva()" disabled>
-        📱 Reservar via WhatsApp
-      </button>
       <div class="wizard-nav" style="margin-top:10px;">
         <button class="btn-prev" onclick="irParaStep(2)">← Voltar às Datas</button>
+        <button class="btn-next" onclick="irParaStep(4)" id="btnNext3" disabled>Próximo: Confirmação →</button>
       </div>
     </div>
     </div><!-- /wstep-3 -->
+
+    <!-- STEP 4: CONFIRMAÇÃO -->
+    <div class="wizard-step" id="wstep-4">
+    <div class="form-card">
+      <h2>✅ 4. Confirmar Reserva</h2>
+
+      <p style="font-size:0.88em; color:var(--cor-sub); margin-bottom:20px; line-height:1.5;">
+        Revise os detalhes abaixo antes de enviar sua solicitação. Nossa equipe entrará em contato em até <strong>2 horas</strong> para confirmar e finalizar.
+      </p>
+
+      <!-- Resumo da confirmação -->
+      <div style="background:var(--azul); border:1px solid var(--borda); border-radius:var(--radius); padding:18px; margin-bottom:20px;">
+        <div style="font-size:0.82em; color:var(--dourado); font-weight:600; margin-bottom:12px; letter-spacing:0.5px;">📋 RESUMO DA RESERVA</div>
+        <div class="summary-row"><span class="s-label">🏨 Resort</span><span class="s-value" id="conf-resort">—</span></div>
+        <div class="summary-row"><span class="s-label">📅 Check-in</span><span class="s-value" id="conf-entrada">—</span></div>
+        <div class="summary-row"><span class="s-label">📅 Check-out</span><span class="s-value" id="conf-saida">—</span></div>
+        <div class="summary-row"><span class="s-label">🌙 Noites</span><span class="s-value" id="conf-noites">—</span></div>
+        <div class="summary-row"><span class="s-label">👤 Nome</span><span class="s-value" id="conf-nome">—</span></div>
+        <div class="summary-row"><span class="s-label">📧 E-mail</span><span class="s-value" id="conf-email">—</span></div>
+        <div class="summary-row"><span class="s-label">📱 WhatsApp</span><span class="s-value" id="conf-telefone">—</span></div>
+        <div class="summary-row"><span class="s-label">👥 Hóspedes</span><span class="s-value" id="conf-hospedes">—</span></div>
+        <div class="summary-row"><span class="s-label">🏷️ Acomodação</span><span class="s-value" id="conf-tipo">—</span></div>
+        <div style="border-top:1px solid var(--borda); margin-top:12px; padding-top:12px; display:flex; justify-content:space-between; align-items:center;">
+          <span style="font-size:0.88em; color:var(--cor-sub);">Valor Estimado</span>
+          <span style="font-size:1.2em; font-weight:700; color:var(--dourado);" id="conf-total">R$ —</span>
+        </div>
+      </div>
+
+      <button class="btn btn-primary" id="btnReservar" onclick="enviarReserva()" style="margin-bottom:10px;">
+        📩 Enviar Solicitação de Reserva
+      </button>
+      <button class="btn btn-whatsapp" id="btnWhatsApp" onclick="abrirWhatsAppReserva()" style="margin-bottom:10px;">
+        📱 Reservar via WhatsApp
+      </button>
+
+      <p style="font-size:0.72em; color:var(--cor-sub); text-align:center; margin-top:8px; line-height:1.5;">
+        * O valor final será confirmado pela nossa equipe via WhatsApp/e-mail.
+      </p>
+
+      <div class="wizard-nav" style="margin-top:10px;">
+        <button class="btn-prev" onclick="irParaStep(3)">← Voltar aos Dados</button>
+      </div>
+    </div>
+    </div><!-- /wstep-4 -->
   </div>
 
   <!-- RESUMO LATERAL -->
   <div>
+
+    <!-- URGENCY INLINE BLOCK — bloco premium standalone, aparece quando as datas estão disponíveis -->
+    <div id="urgencyInlineBlock" style="display:none; margin-bottom:16px; background:linear-gradient(135deg,rgba(248,113,113,0.12),rgba(212,175,55,0.08)); border:1px solid rgba(248,113,113,0.4); border-radius:var(--radius); padding:20px; text-align:center; box-shadow:0 4px 20px rgba(248,113,113,0.1);">
+      <div style="font-size:1em; color:#f87171; font-weight:700; margin-bottom:6px; letter-spacing:0.3px;">⏰ Seu preço ainda está disponível!</div>
+      <div style="font-size:0.82em; color:var(--cor-sub); margin-bottom:16px; line-height:1.6;">As datas que você selecionou ainda estão disponíveis.<br>Confirme agora para garantir!</div>
+      <button class="btn btn-primary" style="margin-bottom:10px; width:100%; font-size:0.9em;" onclick="irParaStep(3);">📋 Preencher Dados e Confirmar →</button>
+      <button class="btn" style="width:100%; background:rgba(255,255,255,0.04); color:var(--cor-sub); border:1px solid var(--borda); font-size:0.82em;" onclick="document.getElementById('urgencyInlineBlock').style.display='none'">Fechar</button>
+    </div>
+
     <div class="summary-card">
       <h2>📋 Resumo da Reserva</h2>
 
@@ -870,14 +918,6 @@ span.flatpickr-weekday {
 
       <div style="text-align:center; margin-top:10px;">
         <span id="availTag"></span>
-      </div>
-
-      <!-- URGENCY INLINE BLOCK — aparece quando as datas estão confirmadas como disponíveis -->
-      <div id="urgencyInlineBlock" style="display:none; margin-top:14px; background:rgba(248,113,113,0.08); border:1px solid rgba(248,113,113,0.3); border-radius:var(--radius); padding:16px; text-align:center;">
-        <div style="font-size:0.92em; color:#f87171; font-weight:700; margin-bottom:6px;">⏰ Seu preço ainda está disponível!</div>
-        <div style="font-size:0.8em; color:var(--cor-sub); margin-bottom:12px; line-height:1.5;">As datas que você selecionou ainda estão disponíveis. Confirme agora para garantir!</div>
-        <button class="btn btn-primary" style="margin-bottom:8px;" onclick="irParaStep(3);">✅ Confirmar Reserva</button>
-        <button class="btn" style="background:rgba(255,255,255,0.06);color:var(--cor-sub);border:1px solid var(--borda);" onclick="document.getElementById('urgencyInlineBlock').style.display='none'">Fechar</button>
       </div>
 
       <p style="font-size:0.73em; color:var(--cor-sub); margin-top:14px; text-align:center; line-height:1.5;">
@@ -938,8 +978,8 @@ span.flatpickr-weekday {
     <h3>⏰ Seu preço ainda está disponível!</h3>
     <p>As datas que você selecionou ainda estão disponíveis. Confirme agora para garantir!</p>
     <button class="btn btn-primary" style="width:100%;margin-bottom:8px;"
-            onclick="document.getElementById('urgencyModal').classList.remove('open');document.getElementById('btnReservar').focus();">
-      ✅ Confirmar Reserva
+            onclick="document.getElementById('urgencyModal').classList.remove('open');irParaStep(3);">
+      📋 Preencher Dados e Confirmar →
     </button>
     <button class="btn" style="width:100%;background:rgba(255,255,255,0.06);color:var(--cor-sub);border:1px solid var(--borda);"
             onclick="document.getElementById('urgencyModal').classList.remove('open')">
@@ -1534,9 +1574,10 @@ function atualizarResumo() {
 // ============================================================
 function atualizarBotao() {
   const btn = document.getElementById('btnReservar');
+  const btnWA = document.getElementById('btnWhatsApp');
   const habilitar = !!(resortAtual && dataEntradaFP && dataSaidaFP);
-  btn.disabled = !habilitar;
-  document.getElementById('btnWhatsApp').disabled = !habilitar;
+  if (btn)   btn.disabled   = !habilitar;
+  if (btnWA) btnWA.disabled = !habilitar;
 }
 
 // ============================================================
@@ -2151,10 +2192,27 @@ function irParaStep(step) {
       }
     }
     // Validar usando o estado FP como fonte primária de verdade
+    // Se o botão btnNext2 está habilitado (datas válidas), confiar nisso.
+    var btn2 = document.getElementById('btnNext2');
+    var btn2Enabled = btn2 && !btn2.disabled;
     if (!dataEntradaFP || !dataSaidaFP) {
-      document.getElementById('dataEntrada').focus();
+      if (!btn2Enabled) {
+        document.getElementById('dataEntrada').focus();
+        return;
+      }
+    }
+  }
+  if (step === 4) {
+    // Validar que nome e e-mail estão preenchidos antes de avançar para confirmação
+    var nome  = (document.getElementById('nomeHospede') || {}).value || '';
+    var email = (document.getElementById('emailHospede') || {}).value || '';
+    if (!nome.trim() || !email.trim()) {
+      var el = nome.trim() ? document.getElementById('emailHospede') : document.getElementById('nomeHospede');
+      if (el) el.focus();
       return;
     }
+    // Preencher o bloco de confirmação (wstep-4) com os dados atuais
+    _preencherConfirmacao();
   }
 
   /* Ocultar step atual */
@@ -2184,6 +2242,32 @@ function irParaStep(step) {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
+/* Preenche o resumo de confirmação (wstep-4) com os dados do formulário */
+function _preencherConfirmacao() {
+  var fmtData = function(d) { return d ? d.toLocaleDateString('pt-BR') : '—'; };
+  var el = function(id) { return document.getElementById(id); };
+  var val = function(id) { var e = document.getElementById(id); return e ? e.value : ''; };
+
+  if (el('conf-resort'))   el('conf-resort').textContent  = resortAtual ? resortAtual.nome : '—';
+  if (el('conf-entrada'))  el('conf-entrada').textContent  = fmtData(dataEntradaFP);
+  if (el('conf-saida'))    el('conf-saida').textContent    = fmtData(dataSaidaFP);
+
+  if (dataEntradaFP && dataSaidaFP) {
+    var noites = calcularNoites(dataEntradaFP, dataSaidaFP);
+    if (el('conf-noites')) el('conf-noites').textContent = noites + ' noite' + (noites !== 1 ? 's' : '');
+    var det = calcularDetalhamentoPreco(dataEntradaFP, dataSaidaFP);
+    if (el('conf-total'))  el('conf-total').textContent  = 'R$ ' + det.total.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+  }
+
+  if (el('conf-nome'))     el('conf-nome').textContent     = val('nomeHospede') || '—';
+  if (el('conf-email'))    el('conf-email').textContent    = val('emailHospede') || '—';
+  if (el('conf-telefone')) el('conf-telefone').textContent = val('telefoneHospede') || '—';
+  var numHosp = val('numHospedes');
+  if (el('conf-hospedes')) el('conf-hospedes').textContent = numHosp ? numHosp + ' pessoa' + (parseInt(numHosp,10) > 1 ? 's' : '') : '—';
+  var tipo = val('tipoAcomodacao');
+  if (el('conf-tipo'))     el('conf-tipo').textContent     = tipo ? tipo.charAt(0).toUpperCase() + tipo.slice(1) : '—';
+}
+
 /* Habilitar botão "Próximo" do step 1 quando resort é selecionado */
 var _origOnResortSelect = typeof onResortSelect === 'function' ? onResortSelect : null;
 function onResortSelect(resortId) {
@@ -2204,6 +2288,15 @@ function _checkDatesForWizard() {
   btn.disabled = !(fpOk || inputOk);
 }
 
+/* Habilitar botão "Próximo" do step 3 quando nome e e-mail estão preenchidos */
+function _checkDadosForWizard() {
+  var btn = document.getElementById('btnNext3');
+  if (!btn) return;
+  var nome  = (document.getElementById('nomeHospede')  || {}).value || '';
+  var email = (document.getElementById('emailHospede') || {}).value || '';
+  btn.disabled = !(nome.trim() && email.trim());
+}
+
 /* Observa mudanças nos inputs de data — funciona tanto para seleção via calendário
    (MutationObserver / change) quanto para digitação manual (input event).
    Ponto de integração: _checkDatesForWizard é o único ponto que habilita o botão "Próximo". */
@@ -2215,6 +2308,15 @@ function _checkDatesForWizard() {
     el.addEventListener('change', _checkDatesForWizard);
     // [ADICIONADO] input event: reage imediatamente à digitação manual
     el.addEventListener('input', _checkDatesForWizard);
+  }
+});
+
+/* Observa mudanças nos campos nome/e-mail para habilitar o botão do step 3 */
+['nomeHospede', 'emailHospede'].forEach(function(id) {
+  var el = document.getElementById(id);
+  if (el) {
+    el.addEventListener('input', _checkDadosForWizard);
+    el.addEventListener('change', _checkDadosForWizard);
   }
 });
 
