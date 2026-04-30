@@ -24,13 +24,28 @@ import { serve }        from 'https://deno.land/std@0.224.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 const GEMINI_API_KEY = Deno.env.get('GEMINI_API_KEY') ?? '';
-const GEMINI_MODEL = 'gemini-2.0-flash';
+// Model can be overridden via GEMINI_MODEL env variable (Supabase Dashboard → Settings → Edge Functions → Secrets).
+// Default: gemini-2.5-flash. Supports any model available in the Gemini v1beta API.
+const GEMINI_MODEL = Deno.env.get('GEMINI_MODEL') || 'gemini-2.5-flash';
 const GEMINI_URL =
   `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`;
 const GEMINI_STREAM_URL =
   `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:streamGenerateContent`;
 // Timeout for individual Gemini API requests (ms)
 const GEMINI_REQUEST_TIMEOUT_MS = 30000;
+// Models that support thinkingConfig. Maintained as an explicit set to avoid
+// false positives from prefix matching (e.g. a future gemini-2.5-lite variant
+// that may not support thinking). Add new thinking-capable models here as needed.
+const THINKING_CAPABLE_MODELS = new Set([
+  'gemini-2.5-flash',
+  'gemini-2.5-pro',
+  'gemini-2.5-flash-8b',
+  'gemini-3.0-flash',
+  'gemini-3.0-pro',
+]);
+const SUPPORTS_THINKING = THINKING_CAPABLE_MODELS.has(GEMINI_MODEL) ||
+  // Also match versioned aliases like gemini-2.5-flash-preview-05-20
+  GEMINI_MODEL.startsWith('gemini-2.5-') || GEMINI_MODEL.startsWith('gemini-3.');
 
 const CORS_HEADERS: Record<string, string> = {
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
@@ -378,15 +393,22 @@ serve(async (req: Request): Promise<Response> => {
     ? Math.max(0, Math.min(1, ctx.temperature))
     : 0.7;
 
+  const generationConfig: Record<string, unknown> = {
+    temperature,
+    maxOutputTokens: 8192,
+    // Disable thinking for supported models. Setting thinkingBudget to 0 turns off
+    // the thinking phase entirely, reducing latency and token cost for chat use cases.
+    // Only valid for thinking-capable models (gemini-2.5+). Non-thinking models (e.g.
+    // gemini-2.0-flash) must omit this field, otherwise the API returns 400.
+    ...(SUPPORTS_THINKING ? { thinkingConfig: { thinkingBudget: 0 } } : {}),
+  };
+
   const geminiPayload = {
     system_instruction: {
       parts: [{ text: finalSystemText }],
     },
     contents,
-    generationConfig: {
-      temperature,
-      maxOutputTokens: 8192,
-    },
+    generationConfig,
     safetySettings: [
       { category: 'HARM_CATEGORY_HARASSMENT',        threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
       { category: 'HARM_CATEGORY_HATE_SPEECH',       threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
@@ -406,7 +428,7 @@ serve(async (req: Request): Promise<Response> => {
     } catch (err) {
       console.error('[ai-concierge] Erro ao chamar Gemini streaming:', err);
       return new Response(
-        JSON.stringify({ error: 'Falha de comunicação com a IA. Tente novamente.' }),
+        JSON.stringify({ error: 'Falha de comunicação com a IA. Tente novamente.', model: GEMINI_MODEL }),
         { status: 502, headers: { ...corsH, 'Content-Type': 'application/json' } },
       );
     }
@@ -414,8 +436,13 @@ serve(async (req: Request): Promise<Response> => {
     if (!streamRes.ok) {
       const errBody = await streamRes.text();
       console.error('[ai-concierge] Gemini streaming erro:', streamRes.status, errBody);
+      let geminiError = 'Serviço de IA indisponível. Tente mais tarde.';
+      try {
+        const parsed = JSON.parse(errBody);
+        if (parsed?.error?.message) geminiError = parsed.error.message;
+      } catch { /* ignore parse error */ }
       return new Response(
-        JSON.stringify({ error: 'Serviço de IA indisponível. Tente mais tarde.' }),
+        JSON.stringify({ error: geminiError, geminiStatus: streamRes.status, model: GEMINI_MODEL }),
         { status: 502, headers: { ...corsH, 'Content-Type': 'application/json' } },
       );
     }
@@ -441,7 +468,7 @@ serve(async (req: Request): Promise<Response> => {
   } catch (err) {
     console.error('[ai-concierge] Erro ao chamar Gemini:', err);
     return new Response(
-      JSON.stringify({ error: 'Falha de comunicação com a IA. Tente novamente.' }),
+      JSON.stringify({ error: 'Falha de comunicação com a IA. Tente novamente.', model: GEMINI_MODEL }),
       { status: 502, headers: { ...corsH, 'Content-Type': 'application/json' } },
     );
   }
@@ -449,8 +476,13 @@ serve(async (req: Request): Promise<Response> => {
   if (!geminiRes.ok) {
     const errBody = await geminiRes.text();
     console.error('[ai-concierge] Gemini retornou erro:', geminiRes.status, errBody);
+    let geminiError = 'Serviço de IA indisponível. Tente mais tarde.';
+    try {
+      const parsed = JSON.parse(errBody);
+      if (parsed?.error?.message) geminiError = parsed.error.message;
+    } catch { /* ignore parse error */ }
     return new Response(
-      JSON.stringify({ error: 'Serviço de IA indisponível. Tente mais tarde.' }),
+      JSON.stringify({ error: geminiError, geminiStatus: geminiRes.status, model: GEMINI_MODEL }),
       { status: 502, headers: { ...corsH, 'Content-Type': 'application/json' } },
     );
   }
