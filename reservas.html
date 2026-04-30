@@ -1210,16 +1210,15 @@ function inicializarFlatpickr() {
     onOpen(selectedDates, dateStr, instance) {
       // Posiciona o calendário acima dos campos de data
       requestAnimationFrame(function() {
-        var cal   = instance.calendarContainer;
-        var input = instance.input;
-        var rect  = input.getBoundingClientRect();
-        var calH  = cal.offsetHeight || 320;
-        var scrollTop  = window.pageYOffset || document.documentElement.scrollTop;
-        var scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
-        cal.style.top  = (rect.top + scrollTop - calH - 4) + 'px';
-        cal.style.left = (rect.left + scrollLeft) + 'px';
-        cal.classList.remove('arrowTop');
-        cal.classList.add('arrowBottom');
+        var calendar      = instance.calendarContainer;
+        var inputRect     = instance.input.getBoundingClientRect();
+        var calendarHeight = calendar.offsetHeight || 320;
+        var scrollTop  = window.scrollY !== undefined ? window.scrollY : document.documentElement.scrollTop;
+        var scrollLeft = window.scrollX !== undefined ? window.scrollX : document.documentElement.scrollLeft;
+        calendar.style.top  = (inputRect.top + scrollTop - calendarHeight - 4) + 'px';
+        calendar.style.left = (inputRect.left + scrollLeft) + 'px';
+        calendar.classList.remove('arrowTop');
+        calendar.classList.add('arrowBottom');
       });
     },
     onValueUpdate(selectedDates, dateStr, instance) {
