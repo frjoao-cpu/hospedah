@@ -1733,7 +1733,7 @@ tbody td {
 
       <div class="field-group">
         <label>Valor Total (R$)</label>
-        <input type="number" id="c_valor_total" min="0" step="0.01" placeholder="Calculado automaticamente" readonly>
+        <input type="number" id="c_valor_total" min="0" step="0.01" placeholder="Digite ou calculado automaticamente" oninput="calcValorNoitePorTotal()">
       </div>
 
       <div class="field-group">
@@ -4148,7 +4148,7 @@ function mostrarToast(msg, tipo) {
 /* ==========================================
    CALCULADORA — FORMULÁRIO PRINCIPAL
 ========================================== */
-function calcularFormulario() {
+function calcularFormulario(skipTotal) {
   var entrada   = document.getElementById('c_entrada').value;
   var saida     = document.getElementById('c_saida').value;
   var valorNoite = parseFloat(document.getElementById('c_valor_noite').value) || 0;
@@ -4174,7 +4174,10 @@ function calcularFormulario() {
 
   // Preenche campos readonly
   document.getElementById('c_noites').value      = noites > 0 ? noites : '';
-  document.getElementById('c_valor_total').value = total > 0  ? total.toFixed(2) : '';
+  var totalEl = document.getElementById('c_valor_total');
+  if (!skipTotal) {
+    totalEl.value = total > 0 ? total.toFixed(2) : '';
+  }
   document.getElementById('c_comissao_val').value = comissao > 0 ? comissao.toFixed(2) : '';
 
   // Atualiza card de resultado
@@ -4200,6 +4203,20 @@ function calcularFormulario() {
     el.addEventListener('change', calcularFormulario);
   }
 });
+
+// Calcula Valor por Noite automaticamente quando o usuário digita o Valor Total
+function calcValorNoitePorTotal() {
+  var noites    = parseInt(document.getElementById('c_noites').value)       || 0;
+  var totalEl   = document.getElementById('c_valor_total');
+  var total     = parseFloat(totalEl.value) || 0;
+  if (noites > 0 && total > 0) {
+    var noiteEl = document.getElementById('c_valor_noite');
+    noiteEl.value = (total / noites).toFixed(2);
+    noiteEl.dataset.autofilled = '0';
+    document.getElementById('c_preco_hint').style.display = 'none';
+    calcularFormulario(true);
+  }
+}
 
 // Cache de regras de preço dinâmico para o resort selecionado no formulário de nova reserva
 var _precosFormCache = { resort: '', regras: [], promise: null };
