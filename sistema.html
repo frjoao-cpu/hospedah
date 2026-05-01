@@ -7483,13 +7483,14 @@ function filtrarPeriodoDash(period) {
 
   if (period === 'month') {
     de = new Date(now.getFullYear(), now.getMonth(), 1);
-    ate = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+    ate = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
   } else if (period === '3m') {
-    de = new Date(now); de.setMonth(de.getMonth() - 3);
+    de = new Date(now); de.setMonth(de.getMonth() - 3); de.setHours(0, 0, 0, 0);
   } else if (period === '6m') {
-    de = new Date(now); de.setMonth(de.getMonth() - 6);
+    de = new Date(now); de.setMonth(de.getMonth() - 6); de.setHours(0, 0, 0, 0);
   } else if (period === 'year') {
     de = new Date(now.getFullYear(), 0, 1);
+    ate = new Date(now.getFullYear(), 11, 31, 23, 59, 59, 999);
   } else if (period === 'custom') {
     var deVal  = document.getElementById('dashPeriodDe').value;
     var ateVal = document.getElementById('dashPeriodAte').value;
@@ -7527,6 +7528,8 @@ function _recalcularDashboard(lista) {
   var noites    = 0;
   var canceladas = 0;
   var lucro     = 0;
+  var somaAval  = 0;
+  var countAval = 0;
   lista.forEach(function(r) {
     if ((r.status || '').toLowerCase() === 'cancelado') { canceladas++; return; }
     receita  += parseFloat(r.total    || r.valorTotal    || r.valor_total    || 0);
@@ -7535,17 +7538,22 @@ function _recalcularDashboard(lista) {
     lucro    += (parseFloat(r.valorCaptacao || 0) > 0) ? (parseFloat(r.total || 0) - parseFloat(r.valorCaptacao || 0))
                                                        : (r.lucro ? parseFloat(r.lucro) : 0);
     if ((r.status || '').toLowerCase() === 'pendente') pendente += parseFloat(r.total || r.valorTotal || r.valor_total || 0);
+    if (r.avaliacao !== null && r.avaliacao !== undefined && !isNaN(r.avaliacao)) {
+      somaAval += parseFloat(r.avaliacao);
+      countAval++;
+    }
   });
   var fmt       = function(v) { return 'R$ ' + v.toLocaleString('pt-BR', { minimumFractionDigits: 2 }); };
 
   var set = function(id, val) { var el = document.getElementById(id); if (el) el.textContent = val; };
-  set('dash-total',     total);
-  set('dash-receita',   fmt(receita));
-  set('dash-comissao',  fmt(comissao));
-  set('dash-pendente',  fmt(pendente));
-  set('dash-noites',    noites);
+  set('dash-total',      total);
+  set('dash-receita',    fmt(receita));
+  set('dash-comissao',   fmt(comissao));
+  set('dash-pendente',   fmt(pendente));
+  set('dash-noites',     noites);
   set('dash-canceladas', canceladas);
-  set('dash-lucro',     fmt(lucro));
+  set('dash-lucro',      fmt(lucro));
+  set('dash-avaliacao',  countAval > 0 ? (somaAval / countAval).toFixed(1) + ' ⭐' : '—');
 
   /* Meta progress */
   var metaSalva = parseFloat(localStorage.getItem('hospeda_meta')) || 0;
@@ -7553,7 +7561,11 @@ function _recalcularDashboard(lista) {
     var pct = Math.min(100, Math.round((receita / metaSalva) * 100));
     set('dash-meta-pct', pct + '%');
     var bar = document.getElementById('dash-meta-bar');
-    if (bar) bar.style.width = pct + '%';
+    if (bar) {
+      bar.style.width = pct + '%';
+      if (pct >= 100) bar.classList.add('completa');
+      else bar.classList.remove('completa');
+    }
   }
 }
 
@@ -7570,13 +7582,14 @@ function exportarDashboard() {
     var ate  = null;
     if (_dashPeriod === 'month') {
       de = new Date(now.getFullYear(), now.getMonth(), 1);
-      ate = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
+      ate = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
     } else if (_dashPeriod === '3m') {
-      de = new Date(now); de.setMonth(de.getMonth() - 3);
+      de = new Date(now); de.setMonth(de.getMonth() - 3); de.setHours(0, 0, 0, 0);
     } else if (_dashPeriod === '6m') {
-      de = new Date(now); de.setMonth(de.getMonth() - 6);
+      de = new Date(now); de.setMonth(de.getMonth() - 6); de.setHours(0, 0, 0, 0);
     } else if (_dashPeriod === 'year') {
       de = new Date(now.getFullYear(), 0, 1);
+      ate = new Date(now.getFullYear(), 11, 31, 23, 59, 59, 999);
     } else if (_dashPeriod === 'custom') {
       var deVal  = document.getElementById('dashPeriodDe').value;
       var ateVal = document.getElementById('dashPeriodAte').value;
