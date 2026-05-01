@@ -4739,13 +4739,13 @@ document.getElementById('editModal').addEventListener('click', function (e) {
    DASHBOARD
 ========================================== */
 function atualizarDashboard() {
-  /* Usa o período ativo para filtrar as reservas. _dashPeriod e
-     _getFilteredReservas são declarados mais abaixo, mas como funções/vars
-     no mesmo bloco <script>, ficam disponíveis em tempo de execução. */
+  /* Usa o período ativo para filtrar as reservas. _dashPeriod é declarado
+     mais abaixo no mesmo bloco <script>; a atribuição `var _dashPeriod` é
+     hoisted, mas o valor 'all' só é atribuído quando o script executa essa
+     linha — all atualizarDashboard calls are async, so _dashPeriod is always
+     set by then. _getFilteredReservas is a function declaration and is hoisted. */
   var periodo = (typeof _dashPeriod !== 'undefined') ? _dashPeriod : 'all';
-  var lista   = (typeof _getFilteredReservas === 'function')
-                  ? _getFilteredReservas(periodo)
-                  : reservas;
+  var lista   = _getFilteredReservas(periodo);
 
   var total      = lista.length;
   var receita    = 0;
