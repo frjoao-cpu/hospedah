@@ -1529,8 +1529,14 @@ tbody td {
        DASHBOARD
   =========================================== -->
   <section id="dashboard">
-    <div class="section-title">📊 Resumo Geral</div>
+    <div class="section-title">
+      📊 Resumo Geral
+      <span style="margin-left:auto;">
+        <button class="btn btn-secondary btn-sm" id="dashboardToggleBtn" onclick="toggleDashboard()" title="Minimizar/Expandir seção">▼ Minimizar</button>
+      </span>
+    </div>
 
+    <div id="dashboardContent">
     <!-- FILTRO DE PERÍODO -->
     <div id="dashPeriodFilter" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:16px;
          padding:12px 16px;background:rgba(255,255,255,0.03);border:1px solid var(--borda);border-radius:10px;">
@@ -1615,6 +1621,7 @@ tbody td {
         <div style="font-size:0.7em;color:var(--cor-sub);margin-top:4px;" id="dash-visitas-hoje">Hoje: —</div>
       </div>
     </div>
+    </div><!-- /dashboardContent -->
   </section>
 
   <!-- PROPRIETÁRIO VIEW: Disponibilidade + Alertas de Pendência -->
@@ -7154,6 +7161,15 @@ function pdToggleTable() {
   if (!table || !btn) return;
   var collapsed = table.style.display === 'none';
   table.style.display = collapsed ? '' : 'none';
+  btn.textContent = collapsed ? '▼ Minimizar' : '▲ Expandir';
+}
+
+function toggleDashboard() {
+  var content = document.getElementById('dashboardContent');
+  var btn = document.getElementById('dashboardToggleBtn');
+  if (!content || !btn) return;
+  var collapsed = content.style.display === 'none';
+  content.style.display = collapsed ? '' : 'none';
   btn.textContent = collapsed ? '▼ Minimizar' : '▲ Expandir';
 }
 
