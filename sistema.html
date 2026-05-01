@@ -7493,21 +7493,22 @@ function filtrarPeriodoDash(period) {
   } else if (period === 'custom') {
     var deVal  = document.getElementById('dashPeriodDe').value;
     var ateVal = document.getElementById('dashPeriodAte').value;
-    de  = deVal  ? new Date(deVal)  : null;
-    ate = ateVal ? new Date(ateVal) : null;
+    de  = deVal  ? new Date(deVal  + 'T00:00:00') : null;
+    ate = ateVal ? new Date(ateVal + 'T23:59:59') : null;
   }
 
   /* Filtrar array global de reservas */
   var filtradas = (typeof reservas !== 'undefined' ? reservas : []).filter(function(r) {
     var rawDate = r.dataEntrada || r.data_entrada || r.criado_em || '';
     if (!rawDate) return period === 'all';
-    /* Suporta ISO (2025-04-21, 2025-04-21T...) e DD/MM/YYYY */
+    /* Suporta ISO (2025-04-21, 2025-04-21T...) e DD/MM/YYYY — normaliza para meia-noite local */
     var ts;
-    if (/^\d{4}-\d{2}-\d{2}/.test(rawDate)) {
-      ts = new Date(rawDate);
+    var isoMatch = rawDate.match(/^(\d{4}-\d{2}-\d{2})/);
+    if (isoMatch) {
+      ts = new Date(isoMatch[1] + 'T00:00:00');
     } else {
       var parts = rawDate.match(/^(\d{2})\/(\d{2})\/(\d{4})/);
-      ts = parts ? new Date(parts[3] + '-' + parts[2] + '-' + parts[1]) : null;
+      ts = parts ? new Date(parts[3] + '-' + parts[2] + '-' + parts[1] + 'T00:00:00') : null;
     }
     if (!ts || isNaN(ts.getTime())) return period === 'all';
     if (de  && ts < de)  return false;
