@@ -1678,6 +1678,25 @@ tbody td {
         <div style="font-size:0.7em;color:var(--cor-sub);margin-top:4px;" id="dash-visitas-hoje">Hoje: —</div>
       </div>
     </div>
+
+    <!-- RESULTADO CONSOLIDADO DO MÊS -->
+    <div id="dash-mes-bloco" style="margin-top:20px;">
+      <div style="font-size:0.75em;font-weight:700;color:var(--cor-sub);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;">
+        📆 Resultado Consolidado do Mês
+      </div>
+      <div class="month-card" id="dash-mes-card">
+        <div class="month-name" id="dash-mes-nome">—</div>
+        <div class="month-row"><span>📋 Reservas</span><span id="dash-mes-reservas">0</span></div>
+        <div class="month-row"><span>🌙 Noites</span><span id="dash-mes-noites">0</span></div>
+        <div class="month-row"><span>💰 Receita</span><span id="dash-mes-receita">R$ 0,00</span></div>
+        <div class="month-row"><span>🏷️ Comissão</span><span id="dash-mes-comissao">R$ 0,00</span></div>
+        <div class="month-row"><span>📤 Repasse</span><span id="dash-mes-repasse">R$ 0,00</span></div>
+        <div class="month-row"><span>⏳ Pendente</span><span id="dash-mes-pendente">R$ 0,00</span></div>
+        <div class="month-row"><span>❌ Canceladas</span><span id="dash-mes-canceladas">0</span></div>
+        <div class="month-row lucro"><span>📈 Lucro</span><span id="dash-mes-lucro">R$ 0,00</span></div>
+      </div>
+    </div>
+
     </div><!-- /dashboardContent -->
   </section>
 
@@ -4810,6 +4829,40 @@ function atualizarDashboard() {
     if (pct >= 100) barEl.classList.add('completa');
     else barEl.classList.remove('completa');
   }
+
+  /* Resultado consolidado do mês atual */
+  var mesAtualKey = new Date().toISOString().slice(0, 7);
+  var mesPartes   = mesAtualKey.split('-');
+  var mesNome     = new Date(parseInt(mesPartes[0]), parseInt(mesPartes[1]) - 1, 1)
+    .toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+  mesNome = mesNome.charAt(0).toUpperCase() + mesNome.slice(1);
+
+  var mesRes = 0, mesNoites = 0, mesReceita = 0, mesComissao = 0,
+      mesRepasse = 0, mesPendente = 0, mesCanceladas = 0, mesLucro = 0;
+
+  reservas.forEach(function(r) {
+    if (!r.entrada || r.entrada.slice(0, 7) !== mesAtualKey) return;
+    if ((r.status || '').toLowerCase() === 'cancelado') { mesCanceladas++; return; }
+    mesRes++;
+    mesNoites    += parseInt(r.noites    || 0, 10);
+    mesReceita   += parseFloat(r.total   || 0);
+    mesComissao  += parseFloat(r.comissao || 0);
+    mesRepasse   += parseFloat(r.repasse  || 0);
+    mesLucro     += parseFloat(r.lucro    || 0);
+    if ((r.status || '').toLowerCase() === 'pendente') mesPendente += parseFloat(r.total || 0);
+  });
+
+  document.getElementById('dash-mes-nome').textContent        = '📅 ' + mesNome;
+  document.getElementById('dash-mes-reservas').textContent    = mesRes;
+  document.getElementById('dash-mes-noites').textContent      = mesNoites;
+  document.getElementById('dash-mes-receita').textContent     = formatBRL(mesReceita);
+  document.getElementById('dash-mes-comissao').textContent    = formatBRL(mesComissao);
+  document.getElementById('dash-mes-repasse').textContent     = formatBRL(mesRepasse);
+  document.getElementById('dash-mes-pendente').textContent    = formatBRL(mesPendente);
+  document.getElementById('dash-mes-canceladas').textContent  = mesCanceladas;
+  var lucroEl = document.getElementById('dash-mes-lucro');
+  lucroEl.textContent = formatBRL(mesLucro);
+  lucroEl.style.color = mesLucro >= 0 ? 'var(--verde)' : 'var(--vermelho)';
 }
 
 /* ==========================================
