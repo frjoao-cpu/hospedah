@@ -4739,7 +4739,15 @@ document.getElementById('editModal').addEventListener('click', function (e) {
    DASHBOARD
 ========================================== */
 function atualizarDashboard() {
-  var total      = reservas.length;
+  /* Usa o período ativo para filtrar as reservas. _dashPeriod e
+     _getFilteredReservas são declarados mais abaixo, mas como funções/vars
+     no mesmo bloco <script>, ficam disponíveis em tempo de execução. */
+  var periodo = (typeof _dashPeriod !== 'undefined') ? _dashPeriod : 'all';
+  var lista   = (typeof _getFilteredReservas === 'function')
+                  ? _getFilteredReservas(periodo)
+                  : reservas;
+
+  var total      = lista.length;
   var receita    = 0;
   var comissao   = 0;
   var pendente   = 0;
@@ -4749,41 +4757,59 @@ function atualizarDashboard() {
   var somaAval   = 0;
   var countAval  = 0;
 
-  /* Receita do mês atual para a meta */
-  var mesAtual = new Date().toISOString().slice(0, 7);
-  var receitaMes = 0;
-
-  reservas.forEach(function (r) {
-    if (r.status === 'cancelado') { canceladas++; return; }
-    receita  += r.total    || 0;
-    comissao += r.comissao || 0;
-    noites   += r.noites   || 0;
-    lucroTotal += parseFloat(r.lucro || 0);
+  lista.forEach(function (r) {
+    if ((r.status || '').toLowerCase() === 'cancelado') { canceladas++; return; }
+    receita    += parseFloat(r.total    || 0);
+    comissao   += parseFloat(r.comissao || 0);
+    noites     += parseInt(r.noites     || 0, 10);
+    lucroTotal += parseFloat(r.lucro    || 0);
     if (r.avaliacao !== null && r.avaliacao !== undefined && !isNaN(r.avaliacao)) {
-      somaAval += r.avaliacao;
+      somaAval += parseFloat(r.avaliacao);
       countAval++;
     }
-    if (r.status === 'pendente') pendente += r.total || 0;
-    if (r.entrada && r.entrada.slice(0, 7) === mesAtual) receitaMes += r.total || 0;
+    if ((r.status || '').toLowerCase() === 'pendente') pendente += parseFloat(r.total || 0);
   });
 
-  document.getElementById('dash-total').textContent     = total;
-  document.getElementById('dash-receita').textContent   = formatBRL(receita);
-  document.getElementById('dash-comissao').textContent  = formatBRL(comissao);
-  document.getElementById('dash-pendente').textContent  = formatBRL(pendente);
-  document.getElementById('dash-noites').textContent    = noites;
+  document.getElementById('dash-total').textContent      = total;
+  document.getElementById('dash-receita').textContent    = formatBRL(receita);
+  document.getElementById('dash-comissao').textContent   = formatBRL(comissao);
+  document.getElementById('dash-pendente').textContent   = formatBRL(pendente);
+  document.getElementById('dash-noites').textContent     = noites;
   document.getElementById('dash-canceladas').textContent = canceladas;
-  document.getElementById('dash-lucro').textContent     = formatBRL(lucroTotal);
-  document.getElementById('dash-avaliacao').textContent = countAval > 0 ? (somaAval / countAval).toFixed(1) + ' ⭐' : '—';
+  document.getElementById('dash-lucro').textContent      = formatBRL(lucroTotal);
+  document.getElementById('dash-avaliacao').textContent  = countAval > 0 ? (somaAval / countAval).toFixed(1) + ' ⭐' : '—';
 
-  /* Meta mensal */
+  /* Badge de contagem do período */
+  var countEl = document.getElementById('dashPeriodCount');
+  if (countEl) {
+    var naoCancel = lista.filter(function(r) { return (r.status || '').toLowerCase() !== 'cancelado'; }).length;
+    countEl.textContent = naoCancel + (naoCancel === 1 ? ' reserva' : ' reservas');
+  }
+
+  /* Meta: para período específico usa receita filtrada; para "todos" usa o mês atual */
+  var metaBase;
+  if (!periodo || periodo === 'all') {
+    var mesAtual = new Date().toISOString().slice(0, 7);
+    metaBase = 0;
+    lista.forEach(function(r) {
+      if ((r.status || '').toLowerCase() !== 'cancelado' &&
+          r.entrada && r.entrada.slice(0, 7) === mesAtual) {
+        metaBase += parseFloat(r.total || 0);
+      }
+    });
+  } else {
+    metaBase = receita;
+  }
+
   var meta = parseFloat(localStorage.getItem('hospeda_meta')) || CONFIG.metaPadrao;
-  var pct  = meta > 0 ? Math.min(100, Math.round((receitaMes / meta) * 100)) : 0;
+  var pct  = meta > 0 ? Math.min(100, Math.round((metaBase / meta) * 100)) : 0;
   document.getElementById('dash-meta-pct').textContent = pct + '%';
   var barEl = document.getElementById('dash-meta-bar');
-  barEl.style.width = pct + '%';
-  if (pct >= 100) barEl.classList.add('completa');
-  else barEl.classList.remove('completa');
+  if (barEl) {
+    barEl.style.width = pct + '%';
+    if (pct >= 100) barEl.classList.add('completa');
+    else barEl.classList.remove('completa');
+  }
 }
 
 /* ==========================================
@@ -7596,67 +7622,9 @@ function filtrarPeriodoDash(period) {
     if (ateEl) ateEl.value = intervalo.ate ? intervalo.ate.toISOString().slice(0, 10) : '';
   }
 
-  var filtradas = _getFilteredReservas(period);
-
-  /* Atualizar badge de contagem */
-  var countEl = document.getElementById('dashPeriodCount');
-  if (countEl) {
-    var naoCancel = filtradas.filter(function(r) { return (r.status || '').toLowerCase() !== 'cancelado'; }).length;
-    countEl.textContent = naoCancel + (naoCancel === 1 ? ' reserva' : ' reservas');
-  }
-
-  _recalcularDashboard(filtradas);
+  atualizarDashboard();
 }
 
-function _recalcularDashboard(lista) {
-  var total      = lista.length;
-  var receita    = 0;
-  var comissao   = 0;
-  var pendente   = 0;
-  var noites     = 0;
-  var canceladas = 0;
-  var lucro      = 0;
-  var somaAval   = 0;
-  var countAval  = 0;
-
-  lista.forEach(function(r) {
-    if ((r.status || '').toLowerCase() === 'cancelado') { canceladas++; return; }
-    receita  += parseFloat(r.total    || 0);
-    comissao += parseFloat(r.comissao || 0);
-    noites   += parseInt(r.noites     || 0, 10);
-    lucro    += parseFloat(r.lucro    || 0);
-    if ((r.status || '').toLowerCase() === 'pendente') pendente += parseFloat(r.total || 0);
-    if (r.avaliacao !== null && r.avaliacao !== undefined && !isNaN(r.avaliacao)) {
-      somaAval += parseFloat(r.avaliacao);
-      countAval++;
-    }
-  });
-
-  var fmt = function(v) { return 'R$ ' + v.toLocaleString('pt-BR', { minimumFractionDigits: 2 }); };
-  var set = function(id, val) { var el = document.getElementById(id); if (el) el.textContent = val; };
-
-  set('dash-total',      total);
-  set('dash-receita',    fmt(receita));
-  set('dash-comissao',   fmt(comissao));
-  set('dash-pendente',   fmt(pendente));
-  set('dash-noites',     noites);
-  set('dash-canceladas', canceladas);
-  set('dash-lucro',      fmt(lucro));
-  set('dash-avaliacao',  countAval > 0 ? (somaAval / countAval).toFixed(1) + ' ⭐' : '—');
-
-  /* Meta progress */
-  var metaSalva = parseFloat(localStorage.getItem('hospeda_meta')) || 0;
-  if (metaSalva > 0) {
-    var pct = Math.min(100, Math.round((receita / metaSalva) * 100));
-    set('dash-meta-pct', pct + '%');
-    var bar = document.getElementById('dash-meta-bar');
-    if (bar) {
-      bar.style.width = pct + '%';
-      if (pct >= 100) bar.classList.add('completa');
-      else bar.classList.remove('completa');
-    }
-  }
-}
 
 // ============================================================
 // EXPORTAR DADOS DO DASHBOARD (CSV)
@@ -7767,23 +7735,7 @@ async function _carregarViewProprietario() {
   }
 }
 
-/* Integrar período ao atualizarDashboard após cada renderização */
-var _origAtualizarDash = atualizarDashboard;
-atualizarDashboard = function() {
-  if (_dashPeriod === 'all') {
-    /* Período "todos": usa o cálculo original (sem filtro) e atualiza o badge */
-    _origAtualizarDash.apply(this, arguments);
-    var countEl = document.getElementById('dashPeriodCount');
-    if (countEl) {
-      var todas = (typeof reservas !== 'undefined' ? reservas : []);
-      var naoCancel = todas.filter(function(r) { return (r.status || '').toLowerCase() !== 'cancelado'; }).length;
-      countEl.textContent = naoCancel + (naoCancel === 1 ? ' reserva' : ' reservas');
-    }
-  } else {
-    /* Período com filtro: re-aplica o filtro imediatamente (sem timeout) */
-    filtrarPeriodoDash(_dashPeriod);
-  }
-};
+
 </script>
 
 <!-- PWA -->
