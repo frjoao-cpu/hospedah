@@ -4158,7 +4158,17 @@ function calcularFormulario() {
 
   var noites     = calcularNoites(entrada, saida);
   var total      = noites * valorNoite;
-  var comissao   = total * (comPct / 100);
+
+  // Quando Valor Captado é informado, calcula a comissão automaticamente
+  var comissao;
+  if (valorCaptacao > 0 && total > 0) {
+    comissao = total - valorCaptacao;
+    comPct = (comissao / total) * 100;
+    document.getElementById('c_comissao_pct').value = comPct.toFixed(2);
+  } else {
+    comissao = total * (comPct / 100);
+  }
+
   var repasse    = total - comissao;
   var lucro      = valorCaptacao > 0 ? total - valorCaptacao : null;
 
