@@ -1529,8 +1529,14 @@ tbody td {
        DASHBOARD
   =========================================== -->
   <section id="dashboard">
-    <div class="section-title">📊 Resumo Geral</div>
+    <div class="section-title">📊 Resumo Geral
+      <button id="btnMinimizarDash" onclick="toggleDashboard()" title="Minimizar / Expandir"
+              style="margin-left:auto;background:rgba(255,255,255,0.06);border:1px solid var(--borda);
+                     color:var(--cor-sub);border-radius:6px;padding:3px 10px;font-size:0.8em;
+                     cursor:pointer;font-family:inherit;line-height:1.4;">➖ Minimizar</button>
+    </div>
 
+    <div id="dashboardContent">
     <!-- FILTRO DE PERÍODO -->
     <div id="dashPeriodFilter" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:16px;
          padding:12px 16px;background:rgba(255,255,255,0.03);border:1px solid var(--borda);border-radius:10px;">
@@ -1615,6 +1621,7 @@ tbody td {
         <div style="font-size:0.7em;color:var(--cor-sub);margin-top:4px;" id="dash-visitas-hoje">Hoje: —</div>
       </div>
     </div>
+    </div><!-- /dashboardContent -->
   </section>
 
   <!-- PROPRIETÁRIO VIEW: Disponibilidade + Alertas de Pendência -->
@@ -7431,6 +7438,20 @@ document.addEventListener('DOMContentLoaded', function() {
 // FILTRO DE PERÍODO DO DASHBOARD
 // ============================================================
 var _dashPeriod = 'all';
+var _dashMinimizado = false;
+
+function toggleDashboard() {
+  _dashMinimizado = !_dashMinimizado;
+  var content = document.getElementById('dashboardContent');
+  var btn     = document.getElementById('btnMinimizarDash');
+  if (_dashMinimizado) {
+    content.style.display = 'none';
+    btn.textContent = '➕ Expandir';
+  } else {
+    content.style.display = '';
+    btn.textContent = '➖ Minimizar';
+  }
+}
 
 function filtrarPeriodoDash(period) {
   _dashPeriod = period;
