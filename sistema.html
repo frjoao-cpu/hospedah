@@ -7499,7 +7499,7 @@ function filtrarPeriodoDash(period) {
 
   /* Filtrar array global de reservas */
   var filtradas = (typeof reservas !== 'undefined' ? reservas : []).filter(function(r) {
-    var rawDate = r.dataEntrada || r.data_entrada || r.criado_em || '';
+    var rawDate = r.entrada || r.dataEntrada || r.data_entrada || r.criadoEm || r.criado_em || '';
     if (!rawDate) return period === 'all';
     /* Suporta ISO (2025-04-21, 2025-04-21T...) e DD/MM/YYYY — normaliza para meia-noite local */
     var ts;
@@ -7521,13 +7521,21 @@ function filtrarPeriodoDash(period) {
 
 function _recalcularDashboard(lista) {
   var total     = lista.length;
-  var receita   = lista.reduce(function(s, r) { return s + parseFloat(r.valorTotal || r.valor_total || 0); }, 0);
-  var comissao  = lista.reduce(function(s, r) { return s + parseFloat(r.comissao    || r.valor_comissao || 0); }, 0);
-  var pendente  = lista.filter(function(r) { return (r.status||'').toLowerCase() === 'pendente'; })
-                       .reduce(function(s, r) { return s + parseFloat(r.valorTotal || r.valor_total || 0); }, 0);
-  var noites    = lista.reduce(function(s, r) { return s + parseInt(r.totalNoites || r.noites || 0, 10); }, 0);
-  var canceladas = lista.filter(function(r) { return (r.status||'').toLowerCase() === 'cancelada'; }).length;
-  var lucro     = receita - comissao;
+  var receita   = 0;
+  var comissao  = 0;
+  var pendente  = 0;
+  var noites    = 0;
+  var canceladas = 0;
+  var lucro     = 0;
+  lista.forEach(function(r) {
+    if ((r.status || '').toLowerCase() === 'cancelado') { canceladas++; return; }
+    receita  += parseFloat(r.total    || r.valorTotal    || r.valor_total    || 0);
+    comissao += parseFloat(r.comissao || r.valor_comissao || 0);
+    noites   += parseInt(r.noites || r.totalNoites || 0, 10);
+    lucro    += (parseFloat(r.valorCaptacao || 0) > 0) ? (parseFloat(r.total || 0) - parseFloat(r.valorCaptacao || 0))
+                                                       : (r.lucro ? parseFloat(r.lucro) : 0);
+    if ((r.status || '').toLowerCase() === 'pendente') pendente += parseFloat(r.total || r.valorTotal || r.valor_total || 0);
+  });
   var fmt       = function(v) { return 'R$ ' + v.toLocaleString('pt-BR', { minimumFractionDigits: 2 }); };
 
   var set = function(id, val) { var el = document.getElementById(id); if (el) el.textContent = val; };
@@ -7553,21 +7561,59 @@ function _recalcularDashboard(lista) {
 // EXPORTAR DADOS DO DASHBOARD (CSV)
 // ============================================================
 function exportarDashboard() {
-  var lista = (typeof reservas !== 'undefined' ? reservas : []);
-  if (!lista.length) { alert('Nenhum dado para exportar.'); return; }
+  /* Respeitar o filtro de período ativo — re-usa a mesma lógica de filtrarPeriodoDash */
+  var todas = (typeof reservas !== 'undefined' ? reservas : []);
+  var lista = todas;
+  if (_dashPeriod !== 'all') {
+    var now  = new Date();
+    var de   = null;
+    var ate  = null;
+    if (_dashPeriod === 'month') {
+      de = new Date(now.getFullYear(), now.getMonth(), 1);
+      ate = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
+    } else if (_dashPeriod === '3m') {
+      de = new Date(now); de.setMonth(de.getMonth() - 3);
+    } else if (_dashPeriod === '6m') {
+      de = new Date(now); de.setMonth(de.getMonth() - 6);
+    } else if (_dashPeriod === 'year') {
+      de = new Date(now.getFullYear(), 0, 1);
+    } else if (_dashPeriod === 'custom') {
+      var deVal  = document.getElementById('dashPeriodDe').value;
+      var ateVal = document.getElementById('dashPeriodAte').value;
+      de  = deVal  ? new Date(deVal  + 'T00:00:00') : null;
+      ate = ateVal ? new Date(ateVal + 'T23:59:59') : null;
+    }
+    lista = todas.filter(function(r) {
+      var rawDate = r.entrada || r.dataEntrada || r.data_entrada || r.criadoEm || r.criado_em || '';
+      if (!rawDate) return false;
+      var ts;
+      var isoMatch = rawDate.match(/^(\d{4}-\d{2}-\d{2})/);
+      if (isoMatch) {
+        ts = new Date(isoMatch[1] + 'T00:00:00');
+      } else {
+        var parts = rawDate.match(/^(\d{2})\/(\d{2})\/(\d{4})/);
+        ts = parts ? new Date(parts[3] + '-' + parts[2] + '-' + parts[1] + 'T00:00:00') : null;
+      }
+      if (!ts || isNaN(ts.getTime())) return false;
+      if (de  && ts < de)  return false;
+      if (ate && ts > ate) return false;
+      return true;
+    });
+  }
+  if (!lista.length) { alert('Nenhum dado para exportar no período selecionado.'); return; }
 
-  var cols = ['Resort', 'Hóspede', 'Email', 'Tel', 'Entrada', 'Saída', 'Noites', 'Hóspedes', 'Valor', 'Status'];
+  var cols = ['Resort', 'Hóspede', 'Canal', 'Entrada', 'Saída', 'Noites', 'Valor Total', 'Comissão', 'Lucro', 'Status'];
   var rows = lista.map(function(r) {
     return [
       r.resort || r.resort_nome || '',
-      r.nomeHospede || r.nome_hospede || '',
-      r.emailHospede || r.email_hospede || '',
-      r.telefoneHospede || r.telefone || '',
-      r.dataEntrada || r.data_entrada || '',
-      r.dataSaida || r.data_saida || '',
-      r.totalNoites || r.noites || '',
-      r.numHospedes || r.num_hospedes || '',
-      r.valorTotal || r.valor_total || '',
+      r.cliente || r.nomeHospede || r.nome_hospede || '',
+      r.canal || '',
+      r.entrada || r.dataEntrada || r.data_entrada || '',
+      r.saida || r.dataSaida || r.data_saida || '',
+      r.noites || r.totalNoites || '',
+      r.total || r.valorTotal || r.valor_total || '',
+      r.comissao || '',
+      (parseFloat(r.valorCaptacao || 0) > 0 ? (parseFloat(r.total || 0) - parseFloat(r.valorCaptacao || 0)).toFixed(2) : r.lucro || ''),
       r.status || ''
     ].map(function(v) { return '"' + String(v).replace(/"/g, '""') + '"'; }).join(',');
   });
