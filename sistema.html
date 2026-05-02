@@ -891,6 +891,33 @@ tbody td {
 .relatorio-row .rel-val   { font-weight: 600; color: var(--cor-texto); }
 .relatorio-row .rel-val.verde { color: #25D366; }
 .relatorio-row .rel-val.vermelho { color: var(--vermelho); }
+.relatorio-card-full {
+  grid-column: 1 / -1;
+}
+.rel-hist-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.81em;
+  margin-top: 4px;
+}
+.rel-hist-table thead th {
+  color: var(--cor-sub);
+  font-weight: 600;
+  text-align: left;
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--borda);
+  white-space: nowrap;
+}
+.rel-hist-table tbody tr { border-bottom: 1px solid rgba(255,255,255,0.04); }
+.rel-hist-table tbody tr:last-child { border-bottom: none; }
+.rel-hist-table tbody td {
+  padding: 6px 8px;
+  color: var(--cor-texto);
+  white-space: nowrap;
+}
+.rel-hist-table tbody td.mes-nome { color: var(--dourado); font-weight: 600; }
+.rel-hist-table tbody td.val-verde { color: #25D366; font-weight: 600; }
+.rel-hist-table tbody td.val-vermelho { color: var(--vermelho); font-weight: 600; }
 .charts-section-3 {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -5212,6 +5239,55 @@ function renderRelatorioDesempenho() {
         '</div>';
     });
     html += '</div>';
+  }
+
+  /* ---- BLOCO 4: Histórico de Vendas por Mês ---- */
+  var mesesMap = {};
+  reservas.forEach(function (r) {
+    if ((r.status || '').toLowerCase() === 'cancelado') return;
+    var key = r.entrada ? r.entrada.slice(0, 7) : null;
+    if (!key) return;
+    if (!mesesMap[key]) mesesMap[key] = { reservas: 0, noites: 0, venda: 0, captacao: 0, lucro: 0 };
+    mesesMap[key].reservas++;
+    mesesMap[key].noites   += parseInt(r.noites || 0, 10);
+    mesesMap[key].venda    += parseFloat(r.total || 0);
+    mesesMap[key].captacao += parseFloat(r.valorCaptacao || 0);
+    mesesMap[key].lucro    += r.valorCaptacao > 0 ? (parseFloat(r.total || 0) - parseFloat(r.valorCaptacao || 0)) : 0;
+  });
+
+  var mesesKeys = Object.keys(mesesMap).sort().reverse();
+  var temCaptacaoHist = mesesKeys.some(function (k) { return mesesMap[k].captacao > 0; });
+
+  if (mesesKeys.length > 0) {
+    html += '<div class="relatorio-card relatorio-card-full">' +
+      '<div class="relatorio-card-title">📅 Histórico de Vendas por Mês</div>' +
+      '<div style="overflow-x:auto;">' +
+      '<table class="rel-hist-table"><thead><tr>' +
+      '<th>Mês</th><th>Reservas</th><th>Noites</th><th>Total de Venda</th>' +
+      (temCaptacaoHist ? '<th>Captação</th><th>Lucro</th>' : '') +
+      '</tr></thead><tbody>';
+
+    mesesKeys.forEach(function (key) {
+      var m = mesesMap[key];
+      var partes = key.split('-');
+      var nomeMes = new Date(parseInt(partes[0]), parseInt(partes[1]) - 1, 1)
+        .toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+      nomeMes = nomeMes.charAt(0).toUpperCase() + nomeMes.slice(1);
+      var lucroClass = m.lucro >= 0 ? 'val-verde' : 'val-vermelho';
+      var captCells = temCaptacaoHist
+        ? '<td>' + (m.captacao > 0 ? formatBRL(m.captacao) : '—') + '</td>' +
+          '<td class="' + (m.captacao > 0 ? lucroClass : '') + '">' + (m.captacao > 0 ? formatBRL(m.lucro) : '—') + '</td>'
+        : '';
+      html += '<tr>' +
+        '<td class="mes-nome">' + nomeMes + '</td>' +
+        '<td>' + m.reservas + '</td>' +
+        '<td>' + m.noites + '</td>' +
+        '<td>' + formatBRL(m.venda) + '</td>' +
+        captCells +
+        '</tr>';
+    });
+
+    html += '</tbody></table></div></div>';
   }
 
   grid.innerHTML = html || '<div style="color:var(--cor-sub);font-size:0.9em;padding:10px;">Nenhum dado disponível ainda.</div>';
