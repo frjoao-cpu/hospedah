@@ -199,6 +199,9 @@ if (localStorage.getItem('hospedah_consent') === 'accepted') { initTracking(); }
 </head>
 <body>
 
+<!-- Skip to main content (acessibilidade) -->
+<a class="skip-link" href="#sobre">Ir para o conteúdo principal</a>
+
 <!-- ==========================================
      EXIT-INTENT POPUP
 =========================================== -->
@@ -248,7 +251,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <div id="cookie-banner" role="dialog" aria-live="polite" aria-label="Aviso de cookies">
   <p>
     🍪 Usamos cookies e tecnologias de rastreamento (Google Tag Manager, Microsoft Clarity, Meta Pixel e notificações push via OneSignal) para melhorar sua experiência e exibir anúncios relevantes.
-    Ao clicar em <strong>Aceitar</strong>, você concorda com nossa política de privacidade e uso de dados, nos termos da <strong>LGPD</strong>.
+    Ao clicar em <strong>Aceitar</strong>, você concorda com nossa <a href="privacidade.html" style="color:var(--dourado,#D4AF37);text-decoration:underline;">política de privacidade</a> e uso de dados, nos termos da <strong>LGPD</strong>.
   </p>
   <div class="cookie-btns">
     <button class="btn-cookie-accept" id="btnCookieAccept" type="button">✓ Aceitar</button>
@@ -503,6 +506,66 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       <button class="btn-painel" onclick="buscar()">🔍 Buscar opções</button>
       <div id="resultado"></div>
     </div>
+  </div>
+</section>
+
+<!-- ==========================================
+     ✨ STORIES / DESTAQUES DOS RESORTS
+=========================================== -->
+<section class="stories-section" id="stories" aria-labelledby="stories-titulo">
+  <div class="section-wrap" style="padding-bottom:12px;">
+    <h2 class="section-title" id="stories-titulo" style="margin-bottom:16px;">✨ Destaques dos Resorts</h2>
+    <p style="text-align:center;opacity:.7;font-size:.88em;margin-bottom:20px;">Toque para conhecer cada destino</p>
+  </div>
+  <div class="stories-rail" role="list" aria-label="Destaques dos resorts">
+    <a class="story-item" href="resorts/hotbeach.html" role="listitem" aria-label="Hot Beach Suites — Olímpia SP">
+      <div class="story-ring">
+        <img src="https://i.imgur.com/AmFSwwd.jpeg" alt="Hot Beach Suites" loading="lazy" decoding="async" width="80" height="80">
+      </div>
+      <span class="story-label">Hot Beach</span>
+    </a>
+    <a class="story-item" href="resorts/saopedro.html" role="listitem" aria-label="São Pedro Thermas — SP">
+      <div class="story-ring">
+        <img src="https://i.imgur.com/pyEKOtQ.jpeg" alt="São Pedro Thermas" loading="lazy" decoding="async" width="80" height="80">
+      </div>
+      <span class="story-label">São Pedro</span>
+    </a>
+    <a class="story-item" href="resorts/olimpia.html" role="listitem" aria-label="Olimpia Park Resort — SP">
+      <div class="story-ring">
+        <img src="https://i.imgur.com/AseZPzL.jpeg" alt="Olimpia Park Resort" loading="lazy" decoding="async" width="80" height="80">
+      </div>
+      <span class="story-label">Olimpia Park</span>
+    </a>
+    <a class="story-item" href="resorts/solar.html" role="listitem" aria-label="Solar das Águas — SP">
+      <div class="story-ring">
+        <img src="https://i.imgur.com/S4tSUzG.jpeg" alt="Solar das Águas" loading="lazy" decoding="async" width="80" height="80">
+      </div>
+      <span class="story-label">Solar das Águas</span>
+    </a>
+    <a class="story-item" href="resorts/wyndham.html" role="listitem" aria-label="Wyndham Royal Resort — SP">
+      <div class="story-ring">
+        <img src="https://i.imgur.com/iDMQ2XA.jpeg" alt="Wyndham Royal Resort" loading="lazy" decoding="async" width="80" height="80">
+      </div>
+      <span class="story-label">Wyndham</span>
+    </a>
+    <a class="story-item" href="resorts/juquehy.html" role="listitem" aria-label="Praia de Juquehy — SP">
+      <div class="story-ring">
+        <img src="https://i.imgur.com/SxlktwS.jpeg" alt="Praia de Juquehy" loading="lazy" decoding="async" width="80" height="80">
+      </div>
+      <span class="story-label">Juquehy</span>
+    </a>
+    <a class="story-item" href="resorts/ipioca.html" role="listitem" aria-label="Ipioca Beach Resort — AL">
+      <div class="story-ring">
+        <img src="https://i.imgur.com/o4Esa54.jpg" alt="Ipioca Beach Resort" loading="lazy" decoding="async" width="80" height="80">
+      </div>
+      <span class="story-label">Ipioca Beach</span>
+    </a>
+    <a class="story-item" href="resorts/portoi2.html" role="listitem" aria-label="Porto 2 Life — SP">
+      <div class="story-ring">
+        <img src="https://i.imgur.com/x23SHdy.jpeg" alt="Porto 2 Life" loading="lazy" decoding="async" width="80" height="80">
+      </div>
+      <span class="story-label">Porto 2 Life</span>
+    </a>
   </div>
 </section>
 
@@ -947,6 +1010,58 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </section>
 
 <!-- ==========================================
+     💰 CALCULADORA DE ECONOMIA
+=========================================== -->
+<section class="section-form" id="calculadora" aria-labelledby="titulo-calc">
+  <div class="section-wrap" style="padding-top:0;">
+    <h2 class="section-title" id="titulo-calc">💰 Calculadora de Economia</h2>
+    <p style="text-align:center;opacity:.75;font-size:.9em;margin-bottom:28px;max-width:600px;margin-left:auto;margin-right:auto;">
+      Veja quanto você pode economizar reservando com a HOSPEDAH em vez de direto no resort.
+    </p>
+    <div class="calc-wrap">
+      <div class="calc-box">
+        <div class="calc-field-group">
+          <label for="calc_resort">🏨 Resort</label>
+          <select id="calc_resort" onchange="calcularEconomia()">
+            <option value="470">Hot Beach Suites (R$ 470/noite)</option>
+            <option value="540">São Pedro Thermas (R$ 540/noite)</option>
+            <option value="320">Olimpia Park Resort (R$ 320/noite)</option>
+            <option value="480">Solar das Águas (R$ 480/noite)</option>
+            <option value="600">Wyndham Royal Resort (R$ 600/noite)</option>
+            <option value="380">Praia de Juquehy (R$ 380/noite)</option>
+          </select>
+        </div>
+        <div class="calc-field-group">
+          <label for="calc_noites">🌙 Número de noites</label>
+          <input type="number" id="calc_noites" value="3" min="1" max="30" oninput="calcularEconomia()">
+        </div>
+        <div class="calc-field-group">
+          <label for="calc_pessoas">👥 Número de pessoas</label>
+          <input type="number" id="calc_pessoas" value="2" min="1" max="12" oninput="calcularEconomia()">
+        </div>
+      </div>
+      <div class="calc-result" id="calcResult" aria-live="polite">
+        <div class="calc-row">
+          <span class="calc-label">💳 Preço direto no resort</span>
+          <span class="calc-value" id="calcDireto">R$ 1.410,00</span>
+        </div>
+        <div class="calc-row highlight-row">
+          <span class="calc-label">✅ Preço HOSPEDAH</span>
+          <span class="calc-value verde" id="calcHospedah">R$ 1.269,00</span>
+        </div>
+        <div class="calc-divider"></div>
+        <div class="calc-row total-row">
+          <span class="calc-label">🎉 Sua economia estimada</span>
+          <span class="calc-value dourado" id="calcEconomia">R$ 141,00</span>
+        </div>
+        <div class="calc-disclaimer">* Estimativa com 10% de desconto médio negociado pela HOSPEDAH. O valor real é confirmado no orçamento.</div>
+        <a href="#orcamento" class="calc-cta-btn">📩 Solicitar orçamento agora →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==========================================
      FAQ
 =========================================== -->
 <section class="faq-section" id="faq" aria-labelledby="faq-titulo">
@@ -1009,7 +1124,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   &copy; 2026 <strong>HOSPEDAH</strong> — Todos os direitos reservados.
   <br><small>
     <a href="https://wa.me/5517982006382" target="_blank" rel="noopener">WhatsApp Flávio</a> &nbsp;|&nbsp;
-    <a href="https://wa.me/5517992068296" target="_blank" rel="noopener">WhatsApp Juliana</a>
+    <a href="https://wa.me/5517992068296" target="_blank" rel="noopener">WhatsApp Juliana</a> &nbsp;|&nbsp;
+    <a href="privacidade.html">Política de Privacidade</a>
   </small>
   <div class="security-seal" aria-label="Site seguro">🔒 <strong>Site Seguro</strong> &nbsp;·&nbsp; SSL Criptografado &nbsp;·&nbsp; 🛡️ Dados Protegidos</div>
 </footer>
@@ -1042,6 +1158,28 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 =========================================== -->
 <script>
 'use strict';
+
+/* =====================
+   💰 CALCULADORA DE ECONOMIA
+===================== */
+var ECONOMIA_DESCONTO = 0.10; // desconto médio estimado negociado pela HOSPEDAH
+
+function calcularEconomia() {
+  var precoNoite = parseFloat(document.getElementById('calc_resort').value) || 470;
+  var noites     = parseInt(document.getElementById('calc_noites').value, 10) || 3;
+  var pessoas    = parseInt(document.getElementById('calc_pessoas').value, 10) || 2;
+  if (noites < 1) noites = 1;
+  if (noites > 30) noites = 30;
+  var totalDireto   = precoNoite * noites;
+  var totalHospedah = totalDireto * (1 - ECONOMIA_DESCONTO);
+  var economia      = totalDireto - totalHospedah;
+  var fmt = function(v) { return 'R$ ' + v.toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.'); };
+  document.getElementById('calcDireto').textContent   = fmt(totalDireto);
+  document.getElementById('calcHospedah').textContent = fmt(totalHospedah);
+  document.getElementById('calcEconomia').textContent = fmt(economia);
+}
+// Inicializa ao carregar
+document.addEventListener('DOMContentLoaded', calcularEconomia);
 
 /* =====================
    TEMA

@@ -89,7 +89,21 @@ body {
   border-color: var(--dourado);
 }
 
-/* ONBOARDING */
+/* SKIP LINK */
+.skip-link {
+  position: absolute;
+  top: -999px;
+  left: -999px;
+  background: var(--dourado);
+  color: var(--azul);
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 0.9em;
+  z-index: 10000;
+  text-decoration: none;
+}
+.skip-link:focus { top: 12px; left: 12px; }
 .onboarding {
   flex: 1;
   display: flex;
@@ -494,6 +508,9 @@ body {
 </head>
 <body>
 
+<!-- Skip to main content (acessibilidade) -->
+<a class="skip-link" href="#chat-main">Ir para o conteúdo principal</a>
+
 <header class="header">
   <a href="index.html" class="logo">🏨 HOSPEDAH</a>
   <nav class="nav-links">
@@ -506,7 +523,14 @@ body {
   </nav>
 </header>
 
+<nav style="background:var(--azul2);border-bottom:1px solid var(--borda);padding:9px 24px;display:flex;align-items:center;gap:7px;font-size:0.78em;color:var(--cor-sub);flex-wrap:wrap;flex-shrink:0;" aria-label="Navegação estrutural">
+  <a href="index.html" style="color:var(--cor-sub);text-decoration:none;transition:color 0.2s;" onmouseover="this.style.color='var(--dourado)'" onmouseout="this.style.color='var(--cor-sub)'">🏠 Início</a>
+  <span aria-hidden="true" style="opacity:0.4;">›</span>
+  <span style="color:var(--dourado);font-weight:500;" aria-current="page">🤖 Chat IA</span>
+</nav>
+
 <!-- ONBOARDING -->
+<div id="chat-main">
 <div class="onboarding" id="onboarding">
   <div class="onboarding-box">
     <div class="ob-icon">💬</div>
@@ -1634,5 +1658,6 @@ window.addEventListener('beforeunload', () => {
 })();
 </script>
 
+</div><!-- /#chat-main -->
 </body>
 </html>

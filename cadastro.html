@@ -63,6 +63,10 @@ color:#fff;
 min-height:100vh;
 }
 
+/* SKIP LINK */
+.skip-link{position:absolute;top:-999px;left:-999px;background:var(--dourado);color:var(--azul);padding:10px 18px;border-radius:8px;font-weight:700;font-size:.9em;z-index:10000;text-decoration:none;}
+.skip-link:focus{top:12px;left:12px;}
+
 /* TOPO */
 .topo{
 display:flex;
@@ -280,9 +284,12 @@ border-top:1px solid rgba(212,175,55,.3);font-size:13px;line-height:1.5;
 
 <body>
 
+<!-- Skip to main content (acessibilidade) -->
+<a class="skip-link" href="#cadastro-main">Ir para o conteúdo principal</a>
+
 <!-- LGPD Banner -->
 <div id="cookie-banner-cad">
-  <p>🍪 Usamos cookies, Google Tag Manager, Microsoft Clarity, Meta Pixel e notificações push para melhorar sua experiência, nos termos da <strong>LGPD</strong>.</p>
+  <p>🍪 Usamos cookies, Google Tag Manager, Microsoft Clarity, Meta Pixel e notificações push para melhorar sua experiência, nos termos da <strong>LGPD</strong>. <a href="privacidade.html" style="color:var(--dourado);text-decoration:underline;">Política de Privacidade</a>.</p>
   <div class="cad-cookie-btns">
     <button class="btn-cad-accept" id="btnCadAccept">✓ Aceitar</button>
     <button class="btn-cad-decline" id="btnCadDecline">Recusar</button>
@@ -299,8 +306,15 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <a href="index.html" class="btn-voltar">← Voltar</a>
 </div>
 
+<!-- BREADCRUMB -->
+<nav style="background:rgba(11,28,61,0.85);border-bottom:1px solid rgba(212,175,55,0.15);padding:9px 24px;display:flex;align-items:center;gap:7px;font-size:0.78em;color:rgba(170,180,196,0.85);flex-wrap:wrap;" aria-label="Navegação estrutural">
+  <a href="index.html" style="color:rgba(170,180,196,0.85);text-decoration:none;" onmouseover="this.style.color='#D4AF37'" onmouseout="this.style.color='rgba(170,180,196,0.85)'">🏠 Início</a>
+  <span aria-hidden="true" style="opacity:0.4;">›</span>
+  <span style="color:#D4AF37;font-weight:500;" aria-current="page">🏡 Cadastrar Imóvel</span>
+</nav>
+
 <!-- HERO -->
-<div class="hero">
+<div class="hero" id="cadastro-main">
 <h1>🏢 Cadastre seu Empreendimento</h1>
 <p>Anuncie seu imóvel ou resort na HOSPEDAH e conecte-se a hóspedes que buscam experiências exclusivas.</p>
 </div>

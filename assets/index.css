@@ -4,6 +4,27 @@
    ============================================================ */
 
 /* ==========================================
+   SKIP LINK (acessibilidade)
+========================================== */
+.skip-link {
+  position: absolute;
+  top: -999px;
+  left: -999px;
+  background: var(--dourado);
+  color: var(--azul);
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 0.9em;
+  z-index: 10000;
+  text-decoration: none;
+}
+.skip-link:focus {
+  top: 12px;
+  left: 12px;
+}
+
+/* ==========================================
    VARIÁVEIS GLOBAIS
 ========================================== */
 :root {
@@ -1001,6 +1022,198 @@ html[data-theme="light"] .faq-btn { color: var(--azul); }
 .sp-text strong { display:block; font-size:.92em; }
 .sp-time  { font-size:.76em; opacity:.55; margin-top:2px; }
 .sp-emoji { font-size:1.3em; }
+
+/* ==========================================
+   ✨ STORIES / DESTAQUES DOS RESORTS
+========================================== */
+.stories-section {
+  padding: 8px 0 28px;
+}
+
+.stories-rail {
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  padding: 8px 24px 16px;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  scroll-snap-type: x mandatory;
+}
+
+.stories-rail::-webkit-scrollbar { display: none; }
+
+.story-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  flex-shrink: 0;
+  scroll-snap-align: start;
+  transition: transform 0.22s;
+}
+
+.story-item:hover { transform: translateY(-4px); }
+
+.story-ring {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  padding: 3px;
+  background: linear-gradient(135deg, var(--dourado), #f5d060, #b8961e);
+  box-shadow: 0 0 0 2px rgba(212,175,55,0.15), 0 4px 16px rgba(0,0,0,0.3);
+  transition: box-shadow 0.22s;
+}
+
+.story-item:hover .story-ring {
+  box-shadow: 0 0 0 3px rgba(212,175,55,0.5), 0 6px 20px rgba(212,175,55,0.2);
+}
+
+.story-ring img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--azul);
+  display: block;
+}
+
+.story-label {
+  font-size: 0.72em;
+  color: var(--cor-texto, #e8eaf0);
+  font-weight: 500;
+  text-align: center;
+  max-width: 80px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ==========================================
+   💰 CALCULADORA DE ECONOMIA
+========================================== */
+.calc-wrap {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+@media (max-width: 640px) {
+  .calc-wrap { grid-template-columns: 1fr; }
+}
+
+.calc-box {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.calc-field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.calc-field-group label {
+  font-size: 0.75em;
+  color: var(--cor-sub, #aab4c4);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.calc-field-group input,
+.calc-field-group select {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(212,175,55,0.2);
+  border-radius: 10px;
+  color: var(--cor-texto, #e8eaf0);
+  font-family: inherit;
+  font-size: 0.9em;
+  padding: 10px 13px;
+  transition: border-color 0.2s;
+  width: 100%;
+}
+
+.calc-field-group input:focus,
+.calc-field-group select:focus {
+  outline: none;
+  border-color: var(--dourado);
+}
+
+.calc-field-group select option { background: var(--azul2, #142850); }
+
+.calc-result {
+  background: rgba(20,40,80,0.5);
+  border: 1px solid var(--borda, rgba(212,175,55,0.15));
+  border-radius: 14px;
+  padding: 22px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  position: relative;
+  overflow: hidden;
+}
+
+.calc-result::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--dourado), transparent);
+}
+
+.calc-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.88em;
+}
+
+.calc-label { color: var(--cor-sub, #aab4c4); }
+.calc-value { font-weight: 600; color: var(--cor-texto, #e8eaf0); }
+.calc-value.verde { color: #4ade80; }
+.calc-value.dourado { color: var(--dourado); font-size: 1.15em; font-weight: 700; }
+
+.calc-divider {
+  height: 1px;
+  background: var(--borda, rgba(212,175,55,0.15));
+  margin: 2px 0;
+}
+
+.highlight-row { background: rgba(74,222,128,0.04); border-radius: 8px; padding: 6px 10px; margin: -2px -10px; }
+.total-row     { background: rgba(212,175,55,0.06);  border-radius: 8px; padding: 8px 10px; margin: -2px -10px; }
+
+.calc-disclaimer {
+  font-size: 0.7em;
+  color: var(--cor-sub, #aab4c4);
+  opacity: 0.7;
+  line-height: 1.5;
+  margin-top: 4px;
+}
+
+.calc-cta-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #f5d060, var(--dourado), #b8961e);
+  color: var(--azul, #0B1C3D);
+  padding: 12px 20px;
+  border-radius: 10px;
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 0.88em;
+  margin-top: 8px;
+  box-shadow: 0 4px 16px rgba(212,175,55,0.3);
+  transition: all 0.22s;
+}
+
+.calc-cta-btn:hover {
+  box-shadow: 0 6px 24px rgba(212,175,55,0.45);
+  transform: translateY(-2px);
+}
 
 /* ==========================================
    FAIXA DE URGÊNCIA
