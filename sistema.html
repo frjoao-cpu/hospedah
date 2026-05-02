@@ -4790,7 +4790,7 @@ function atualizarDashboard() {
   /* Meta: para período específico usa receita filtrada; para "todos" usa o mês atual */
   var metaBase;
   if (!periodo || periodo === 'all') {
-    var mesAtual = new Date().toISOString().slice(0, 7);
+    var mesAtual = _mesKey(new Date());
     metaBase = 0;
     lista.forEach(function(r) {
       if ((r.status || '').toLowerCase() !== 'cancelado' &&
@@ -4813,7 +4813,7 @@ function atualizarDashboard() {
   }
 
   /* Resultado consolidado do mês atual */
-  var mesAtualKey = new Date().toISOString().slice(0, 7);
+  var mesAtualKey = _mesKey(new Date());
   var mesPartes   = mesAtualKey.split('-');
   var mesNome     = new Date(parseInt(mesPartes[0]), parseInt(mesPartes[1]) - 1, 1)
     .toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
@@ -4977,6 +4977,12 @@ var _chartStatus  = null;
 var _chartCanal   = null;
 var _chartLucro12 = null;
 
+/* Retorna a chave "AAAA-MM" para um objeto Date usando horário local,
+   evitando o deslocamento UTC que toISOString() introduz em fusos UTC+. */
+function _mesKey(d) {
+  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+}
+
 function renderGraficos() {
   if (typeof Chart === 'undefined') return;
   renderGraficoReceita();
@@ -4991,7 +4997,7 @@ function renderGraficoReceita() {
 
   for (var i = 5; i >= 0; i--) {
     var d   = new Date(hoje.getFullYear(), hoje.getMonth() - i, 1);
-    var key = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+    var key = _mesKey(d);
     labels.push(d.toLocaleDateString('pt-BR', { month: 'short', year: '2-digit' }));
     var rec = 0, com = 0;
     reservas.forEach(function (r) {
@@ -5108,7 +5114,7 @@ function renderGraficoLucro12() {
 
   for (var i = 11; i >= 0; i--) {
     var d   = new Date(hoje.getFullYear(), hoje.getMonth() - i, 1);
-    var key = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+    var key = _mesKey(d);
     labels.push(d.toLocaleDateString('pt-BR', { month: 'short', year: '2-digit' }));
     var rec = 0, cap = 0;
     reservas.forEach(function (r) {
@@ -5306,13 +5312,13 @@ function gerarInsightsIA() {
   var lucro12 = [];
   for (var i = 11; i >= 0; i--) {
     var d = new Date(hoje.getFullYear(), hoje.getMonth() - i, 1);
-    var key = d.toISOString().slice(0, 7);
+    var key = _mesKey(d);
     var mes = d.toLocaleDateString('pt-BR', { month: 'short', year: '2-digit' });
     var rec = 0, cap = 0;
     reservas.forEach(function (r) {
-      if (r.status !== 'cancelado' && r.entrada && r.entrada.slice(0, 7) === key) {
-        rec += r.total || 0;
-        cap += r.valorCaptacao || 0;
+      if ((r.status || '').toLowerCase() !== 'cancelado' && r.entrada && r.entrada.slice(0, 7) === key) {
+        rec += parseFloat(r.total || 0);
+        cap += parseFloat(r.valorCaptacao || 0);
       }
     });
     lucro12.push({ mes: mes, lucro: rec - cap });
