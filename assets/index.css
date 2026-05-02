@@ -1027,7 +1027,25 @@ html[data-theme="light"] .faq-btn { color: var(--azul); }
    ✨ STORIES / DESTAQUES DOS RESORTS
 ========================================== */
 .stories-section {
-  padding: 8px 0 28px;
+  display: block;
+  width: 100%;
+  padding: 32px 0 28px;
+}
+
+.stories-header {
+  text-align: center;
+  padding: 0 16px 20px;
+}
+
+.stories-header .section-title {
+  margin-bottom: 10px;
+}
+
+.stories-sub {
+  text-align: center;
+  opacity: .7;
+  font-size: .88em;
+  margin: 0;
 }
 
 .stories-rail {
@@ -1038,6 +1056,8 @@ html[data-theme="light"] .faq-btn { color: var(--azul); }
   scrollbar-width: none;
   -ms-overflow-style: none;
   scroll-snap-type: x mandatory;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .stories-rail::-webkit-scrollbar { display: none; }
