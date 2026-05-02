@@ -3663,7 +3663,7 @@ function sincronizarAutomacoes(silencioso) {
   var hoje = new Date().toISOString().slice(0, 10);
   var porResortMes = {};
   reservas.forEach(function (r) {
-    if (!r || r.status === 'cancelado' || !r.entrada || !r.saida) return;
+    if (!r || (r.status || '').toLowerCase() === 'cancelado' || !r.entrada || !r.saida) return;
     var diasAteCheckin = diffDias(hoje, r.entrada);
     var diasAteCheckout = diffDias(hoje, r.saida);
 
@@ -4854,18 +4854,18 @@ function atualizarMensal() {
   var meses = {};
 
   reservas.forEach(function (r) {
-    if (r.status === 'cancelado') return;
+    if ((r.status || '').toLowerCase() === 'cancelado') return;
     var mes = r.entrada ? r.entrada.slice(0, 7) : 'desconhecido';
     if (!meses[mes]) {
       meses[mes] = { reservas: 0, receita: 0, comissao: 0, repasse: 0, noites: 0, captacao: 0, lucro: 0 };
     }
     meses[mes].reservas++;
-    meses[mes].receita   += r.total    || 0;
-    meses[mes].comissao  += r.comissao || 0;
-    meses[mes].repasse   += r.repasse  || 0;
-    meses[mes].noites    += r.noites   || 0;
-    meses[mes].captacao  += r.valorCaptacao || 0;
-    meses[mes].lucro     += (r.valorCaptacao > 0) ? (r.total - r.valorCaptacao) : 0;
+    meses[mes].receita   += parseFloat(r.total    || 0);
+    meses[mes].comissao  += parseFloat(r.comissao || 0);
+    meses[mes].repasse   += parseFloat(r.repasse  || 0);
+    meses[mes].noites    += parseInt(r.noites     || 0, 10);
+    meses[mes].captacao  += parseFloat(r.valorCaptacao || 0);
+    meses[mes].lucro     += (r.valorCaptacao > 0) ? (parseFloat(r.total || 0) - parseFloat(r.valorCaptacao || 0)) : 0;
   });
 
   var chaves = Object.keys(meses).sort().reverse();
@@ -4873,6 +4873,7 @@ function atualizarMensal() {
 
   if (chaves.length === 0) {
     grid.innerHTML = '<div style="color: var(--cor-sub); font-size:0.9em; padding:10px;">Nenhum dado disponível. Adicione reservas para ver o resumo mensal.</div>';
+    renderGraficos();
     return;
   }
 
@@ -4990,13 +4991,13 @@ function renderGraficoReceita() {
 
   for (var i = 5; i >= 0; i--) {
     var d   = new Date(hoje.getFullYear(), hoje.getMonth() - i, 1);
-    var key = d.toISOString().slice(0, 7);
+    var key = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
     labels.push(d.toLocaleDateString('pt-BR', { month: 'short', year: '2-digit' }));
     var rec = 0, com = 0;
     reservas.forEach(function (r) {
-      if (r.status !== 'cancelado' && r.entrada && r.entrada.slice(0, 7) === key) {
-        rec += r.total    || 0;
-        com += r.comissao || 0;
+      if ((r.status || '').toLowerCase() !== 'cancelado' && r.entrada && r.entrada.slice(0, 7) === key) {
+        rec += parseFloat(r.total    || 0);
+        com += parseFloat(r.comissao || 0);
       }
     });
     dadosReceita.push(rec);
@@ -5038,8 +5039,9 @@ function renderGraficoReceita() {
 function renderGraficoStatus() {
   var pago = 0, pendente = 0, cancelado = 0;
   reservas.forEach(function (r) {
-    if (r.status === 'pago')      pago++;
-    else if (r.status === 'cancelado') cancelado++;
+    var st = (r.status || '').toLowerCase();
+    if (st === 'pago')      pago++;
+    else if (st === 'cancelado') cancelado++;
     else pendente++;
   });
 
@@ -5068,7 +5070,7 @@ function renderGraficoStatus() {
 function renderGraficoCanal() {
   var canais = {};
   reservas.forEach(function (r) {
-    if (r.status === 'cancelado') return;
+    if ((r.status || '').toLowerCase() === 'cancelado') return;
     var c = r.canal || 'Direta';
     canais[c] = (canais[c] || 0) + 1;
   });
@@ -5106,13 +5108,13 @@ function renderGraficoLucro12() {
 
   for (var i = 11; i >= 0; i--) {
     var d   = new Date(hoje.getFullYear(), hoje.getMonth() - i, 1);
-    var key = d.toISOString().slice(0, 7);
+    var key = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
     labels.push(d.toLocaleDateString('pt-BR', { month: 'short', year: '2-digit' }));
     var rec = 0, cap = 0;
     reservas.forEach(function (r) {
-      if (r.status !== 'cancelado' && r.entrada && r.entrada.slice(0, 7) === key) {
-        rec += r.total || 0;
-        cap += r.valorCaptacao || 0;
+      if ((r.status || '').toLowerCase() !== 'cancelado' && r.entrada && r.entrada.slice(0, 7) === key) {
+        rec += parseFloat(r.total || 0);
+        cap += parseFloat(r.valorCaptacao || 0);
       }
     });
     dadosReceita.push(rec);
@@ -5170,21 +5172,21 @@ function renderRelatorioDesempenho() {
   var reservasComCaptacao = 0;
 
   reservas.forEach(function (r) {
-    if (r.status === 'cancelado') return;
+    if ((r.status || '').toLowerCase() === 'cancelado') return;
     reservasAtivas++;
     var c = r.canal || 'Direta';
     if (!canais[c]) canais[c] = { count: 0, receita: 0, avaliacao: 0, countAval: 0 };
     canais[c].count++;
-    canais[c].receita += r.total || 0;
+    canais[c].receita += parseFloat(r.total || 0);
     if (r.avaliacao !== null && r.avaliacao !== undefined && !isNaN(r.avaliacao)) {
-      canais[c].avaliacao  += r.avaliacao;
+      canais[c].avaliacao  += parseFloat(r.avaliacao);
       canais[c].countAval++;
-      somaAval += r.avaliacao;
+      somaAval += parseFloat(r.avaliacao);
       countAval++;
     }
-    totalVenda    += r.total || 0;
-    totalCaptacao += r.valorCaptacao || 0;
-    lucroTotal    += r.valorCaptacao > 0 ? (r.total - r.valorCaptacao) : 0;
+    totalVenda    += parseFloat(r.total || 0);
+    totalCaptacao += parseFloat(r.valorCaptacao || 0);
+    lucroTotal    += r.valorCaptacao > 0 ? (parseFloat(r.total || 0) - parseFloat(r.valorCaptacao || 0)) : 0;
     if ((r.valorCaptacao || 0) > 0) reservasComCaptacao++;
   });
 
@@ -6282,7 +6284,7 @@ async function inicializarSistema() {
   /* Acesso validado: oculta o overlay de login e inicializa o sistema */
   document.getElementById('lockOverlay').classList.remove('show');
 
-  sincronizarDoSupabase().catch(function(e) {
+  return sincronizarDoSupabase().catch(function(e) {
     console.warn('Falha ao sincronizar dados do servidor, usando cache local:', e);
   }).then(function() {
     reservas = carregarReservas();
