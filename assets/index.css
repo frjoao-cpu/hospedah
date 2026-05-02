@@ -1058,6 +1058,7 @@ html[data-theme="light"] .faq-btn { color: var(--azul); }
   scroll-snap-type: x mandatory;
   width: 100%;
   box-sizing: border-box;
+  justify-content: safe center;
 }
 
 .stories-rail::-webkit-scrollbar { display: none; }
