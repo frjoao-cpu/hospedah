@@ -4813,39 +4813,6 @@ function atualizarDashboard() {
     else barEl.classList.remove('completa');
   }
 
-  /* Resultado consolidado do mês atual */
-  var mesAtualKey = _mesKey(new Date());
-  var mesPartes   = mesAtualKey.split('-');
-  var mesNome     = new Date(parseInt(mesPartes[0]), parseInt(mesPartes[1]) - 1, 1)
-    .toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
-  mesNome = mesNome.charAt(0).toUpperCase() + mesNome.slice(1);
-
-  var mesRes = 0, mesNoites = 0, mesReceita = 0, mesComissao = 0,
-      mesRepasse = 0, mesPendente = 0, mesCanceladas = 0, mesLucro = 0;
-
-  reservas.forEach(function(r) {
-    if (!r.entrada || r.entrada.slice(0, 7) !== mesAtualKey) return;
-    if ((r.status || '').toLowerCase() === 'cancelado') { mesCanceladas++; return; }
-    mesRes++;
-    mesNoites    += parseInt(r.noites    || 0, 10);
-    mesReceita   += parseFloat(r.total   || 0);
-    mesComissao  += parseFloat(r.comissao || 0);
-    mesRepasse   += parseFloat(r.repasse  || 0);
-    mesLucro     += parseFloat(r.lucro    || 0);
-    if ((r.status || '').toLowerCase() === 'pendente') mesPendente += parseFloat(r.total || 0);
-  });
-
-  document.getElementById('dash-mes-nome').textContent        = '📅 ' + mesNome;
-  document.getElementById('dash-mes-reservas').textContent    = mesRes;
-  document.getElementById('dash-mes-noites').textContent      = mesNoites;
-  document.getElementById('dash-mes-receita').textContent     = formatBRL(mesReceita);
-  document.getElementById('dash-mes-comissao').textContent    = formatBRL(mesComissao);
-  document.getElementById('dash-mes-repasse').textContent     = formatBRL(mesRepasse);
-  document.getElementById('dash-mes-pendente').textContent    = formatBRL(mesPendente);
-  document.getElementById('dash-mes-canceladas').textContent  = mesCanceladas;
-  var lucroEl = document.getElementById('dash-mes-lucro');
-  lucroEl.textContent = formatBRL(mesLucro);
-  lucroEl.style.color = mesLucro >= 0 ? 'var(--verde)' : 'var(--vermelho)';
 }
 
 /* ==========================================
