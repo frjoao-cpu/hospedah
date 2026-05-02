@@ -207,7 +207,7 @@ html[data-theme="light"] footer                 { background: #e8e4d8; color: #4
   background-size: cover;
   background-position: center;
   opacity: 0;
-  transition: opacity 1.2s ease;
+  transition: opacity 0.75s ease;
 }
 .hero-slide.active { opacity: 1; }
 .hero-slide:nth-child(1)  { background-image: url('https://i.imgur.com/AmFSwwd.jpeg'); }
@@ -222,9 +222,9 @@ html[data-theme="light"] footer                 { background: #e8e4d8; color: #4
   position: absolute; inset: 0;
   background: linear-gradient(
     to bottom,
-    rgba(11,28,61,0.45) 0%,
-    rgba(11,28,61,0.62) 40%,
-    rgba(11,28,61,0.85) 100%
+    rgba(11,28,61,0.60) 0%,
+    rgba(11,28,61,0.72) 40%,
+    rgba(11,28,61,0.90) 100%
   );
   z-index: 1;
 }
@@ -248,9 +248,9 @@ html[data-theme="light"] footer                 { background: #e8e4d8; color: #4
   to   { opacity: 1; transform: scale(1) translateY(0); }
 }
 .hero-tagline {
-  font-size: 1.15rem; font-weight: 300;
-  color: rgba(255,255,255,0.88);
-  letter-spacing: 3px; text-transform: uppercase;
+  font-size: 1.15rem; font-weight: 400;
+  color: rgba(255,255,255,0.92);
+  letter-spacing: 4px; text-transform: uppercase;
   margin-bottom: 6px;
   animation: fadeUp .9s .2s both;
 }
@@ -258,8 +258,8 @@ html[data-theme="light"] footer                 { background: #e8e4d8; color: #4
   display: inline-block;
   background: var(--dourado);
   color: var(--azul); font-weight: 700;
-  font-size: .85rem; letter-spacing: 1px;
-  padding: 4px 18px; border-radius: 20px;
+  font-size: 1rem; letter-spacing: 1px;
+  padding: 6px 24px; border-radius: 20px;
   margin-bottom: 28px;
   animation: fadeUp .9s .35s both;
 }
@@ -317,11 +317,11 @@ html[data-theme="light"] footer                 { background: #e8e4d8; color: #4
   font-weight: 700; font-size: 16px;
   cursor: pointer; white-space: nowrap;
   transition: background .15s, transform .12s, box-shadow .15s;
-  box-shadow: 0 4px 20px rgba(212,175,55,0.5);
+  box-shadow: 0 4px 24px rgba(212,175,55,0.65);
   letter-spacing: .3px;
 }
-.hs-btn:hover   { background: var(--dourado-hover); transform: translateY(-2px); box-shadow: 0 6px 28px rgba(212,175,55,0.65); }
-.hs-btn:active  { transform: translateY(0); box-shadow: 0 2px 10px rgba(212,175,55,0.35); }
+.hs-btn:hover   { background: var(--dourado-hover); transform: translateY(-3px); box-shadow: 0 10px 36px rgba(212,175,55,0.8); }
+.hs-btn:active  { transform: translateY(0); box-shadow: 0 2px 10px rgba(212,175,55,0.4); }
 
 @media (max-width: 768px) {
   .hero-content {
@@ -433,7 +433,7 @@ html[data-theme="light"] .contato-b p { color: #555; }
   padding: 48px 16px 32px;
 }
 .section-title {
-  text-align: center; font-size: 1.4rem;
+  text-align: center; font-size: 1.6rem;
   font-weight: 700; color: var(--dourado);
   margin-bottom: 32px; letter-spacing: .04em;
 }
@@ -488,8 +488,8 @@ html[data-theme="light"] .section-title { color: #8B6914; }
   transition: transform .2s, box-shadow .2s;
 }
 .gallery img:hover {
-  transform: scale(1.04);
-  box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+  transform: scale(1.06);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.45);
 }
 .gallery img:focus-visible { outline: 3px solid var(--cor-foco); }
 @media (max-width: 500px) { .gallery img { height: 130px; } }
@@ -547,7 +547,7 @@ html[data-theme="light"] .section-title { color: #8B6914; }
 }
 .depo-card {
   border-radius: 16px;
-  box-shadow: 0 2px 18px rgba(212,175,55,0.1);
+  box-shadow: 0 4px 24px rgba(212,175,55,0.22);
   max-width: 380px; min-height: 360px;
   padding: 34px 26px 28px;
   text-align: center;
@@ -757,8 +757,8 @@ html[data-theme="light"] .panel-box textarea { background: #fafaf6; color: #222;
 }
 .wpp-float-btn:hover { background: #1ebe58; transform: scale(1.1); }
 @keyframes wppPulse {
-  0%, 100% { box-shadow: 0 4px 18px rgba(37,211,102,0.5); }
-  50%       { box-shadow: 0 4px 32px rgba(37,211,102,0.85); }
+  0%, 100% { box-shadow: 0 4px 18px rgba(37,211,102,0.5); transform: scale(1); }
+  50%       { box-shadow: 0 4px 36px rgba(37,211,102,0.9); transform: scale(1.05); }
 }
 .wpp-bubble {
   background: #fff; color: #222;
@@ -904,8 +904,8 @@ html[data-theme="light"] .faq-btn { color: var(--azul); }
   background:linear-gradient(135deg,#0B1C3D,#142850);
   color:#fff; border-radius:20px; padding:40px 32px 32px;
   max-width:420px; width:92%; text-align:center;
-  border:1px solid rgba(212,175,55,.35);
-  box-shadow:0 8px 48px rgba(0,0,0,.55);
+  border:1px solid rgba(212,175,55,.7);
+  box-shadow:0 12px 64px rgba(0,0,0,.7);
   position:relative; animation:popIn .35s cubic-bezier(.22,1.2,.46,1) both;
 }
 @keyframes popIn {
@@ -945,11 +945,11 @@ html[data-theme="light"] .faq-btn { color: var(--azul); }
   pointer-events:none;
 }
 .fomo-pill {
-  background:rgba(11,28,61,.92); color:#fff;
-  border:1px solid rgba(212,175,55,.4); border-radius:30px;
-  padding:7px 18px; font-size:.82em; font-weight:600;
+  background:rgba(11,28,61,.97); color:#fff;
+  border:1px solid rgba(212,175,55,.75); border-radius:30px;
+  padding:8px 20px; font-size:.85em; font-weight:600;
   display:flex; align-items:center; gap:8px;
-  box-shadow:0 2px 14px rgba(0,0,0,.35); white-space:nowrap;
+  box-shadow:0 4px 20px rgba(0,0,0,.5); white-space:nowrap;
   pointer-events:auto;
 }
 .fomo-dot {
