@@ -4137,10 +4137,11 @@ function limparAuditoria() {
 }
 
 function limparMensagens() {
-  if (!confirm('Deseja limpar a lista de mensagens da tela? (Os dados permanecem no servidor — clique em Atualizar para recarregar)')) return;
+  if (!confirm('Deseja ocultar as mensagens recebidas? Elas não aparecerão novamente. Novas mensagens continuarão sendo exibidas.')) return;
+  localStorage.setItem('msgClearedAt', new Date().toISOString());
   var body = document.getElementById('msgBody');
   if (body) body.innerHTML = '<tr><td colspan="6"><div class="empty-state"><div class="empty-icon">💬</div><div>Nenhuma mensagem ainda.</div></div></td></tr>';
-  mostrarToast('✅ Mensagens limpas da tela.', 'success');
+  mostrarToast('✅ Mensagens ocultadas.', 'success');
 }
 
 function atualizarDashAutomacoes() {
@@ -7351,7 +7352,11 @@ async function carregarMensagens() {
       .limit(50);
     if (error) throw error;
 
-    var lista = data || [];
+    var clearedAt = localStorage.getItem('msgClearedAt');
+    var lista = (data || []).filter(function(r) {
+      if (!clearedAt) return true;
+      return r.criado_em && new Date(r.criado_em) > new Date(clearedAt);
+    });
     var body  = document.getElementById('msgBody');
 
     if (lista.length === 0) {
