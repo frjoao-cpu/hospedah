@@ -585,9 +585,256 @@ details.adv-filters[open] > summary { color: var(--dourado); border-color: var(-
 }
 @keyframes spSlideIn { from { transform: translateX(-110%); opacity:0; } to { transform: translateX(0); opacity:1; } }
 @keyframes spFadeOut { from { opacity:1; } to { opacity:0; transform: translateX(-110%); } }
+
+/* SKIP LINK */
+.skip-link {
+  position: absolute;
+  top: -999px;
+  left: -999px;
+  background: var(--dourado);
+  color: var(--azul);
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 0.9em;
+  z-index: 10000;
+  text-decoration: none;
+}
+.skip-link:focus { top: 12px; left: 12px; }
+
+/* BREADCRUMB */
+.breadcrumb-bar {
+  background: var(--azul2);
+  border-bottom: 1px solid var(--borda);
+  padding: 9px 24px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 0.78em;
+  color: var(--cor-sub);
+  flex-wrap: wrap;
+}
+.breadcrumb-bar a { color: var(--cor-sub); text-decoration: none; transition: color 0.2s; }
+.breadcrumb-bar a:hover { color: var(--dourado); }
+.breadcrumb-bar [aria-current="page"] { color: var(--dourado); font-weight: 500; }
+
+/* COMPARADOR */
+.compare-btn {
+  background: transparent;
+  border: 1px solid var(--borda);
+  border-radius: 6px;
+  padding: 4px 9px;
+  font-family: inherit;
+  font-size: 0.72em;
+  color: var(--cor-sub);
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+.compare-btn:hover,
+.compare-btn.added {
+  border-color: var(--dourado);
+  color: var(--dourado);
+  background: rgba(212,175,55,0.08);
+}
+
+.comparator-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 4000;
+  background: linear-gradient(135deg, var(--azul), var(--azul2));
+  border-top: 2px solid var(--dourado);
+  padding: 12px 20px;
+  display: none;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  box-shadow: 0 -4px 24px rgba(0,0,0,0.5);
+}
+.comparator-bar.visible { display: flex; }
+
+.comparator-items {
+  display: flex;
+  gap: 10px;
+  flex: 1;
+  flex-wrap: wrap;
+}
+
+.comparator-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(212,175,55,0.1);
+  border: 1px solid rgba(212,175,55,0.35);
+  border-radius: 20px;
+  padding: 5px 12px;
+  font-size: 0.8em;
+  color: var(--cor-texto);
+}
+
+.comparator-chip button {
+  background: none;
+  border: none;
+  color: var(--cor-sub);
+  cursor: pointer;
+  font-size: 0.9em;
+  padding: 0;
+  line-height: 1;
+  transition: color 0.2s;
+}
+.comparator-chip button:hover { color: var(--vermelho); }
+
+.btn-comparar {
+  background: var(--dourado);
+  color: var(--azul);
+  border: none;
+  border-radius: 8px;
+  padding: 9px 18px;
+  font-family: inherit;
+  font-size: 0.88em;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s;
+  white-space: nowrap;
+}
+.btn-comparar:hover { background: var(--dourado-hover); }
+
+.btn-comparar:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.comparator-hint {
+  font-size: 0.8em;
+  color: var(--cor-sub);
+  white-space: nowrap;
+}
+
+/* MODAL COMPARADOR */
+.compare-modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.85);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  z-index: 5000;
+  align-items: flex-start;
+  justify-content: center;
+  overflow-y: auto;
+  padding: 20px;
+}
+.compare-modal-overlay.open { display: flex; }
+
+.compare-modal-box {
+  background: linear-gradient(160deg, #0d1e38, #071120);
+  border: 1px solid rgba(212,175,55,0.3);
+  border-radius: 18px;
+  width: 100%;
+  max-width: 900px;
+  margin: auto;
+  overflow: hidden;
+  box-shadow: 0 24px 80px rgba(0,0,0,0.7);
+  position: relative;
+}
+
+.compare-modal-header {
+  background: linear-gradient(135deg, rgba(212,175,55,0.18), rgba(212,175,55,0.06));
+  border-bottom: 1px solid rgba(212,175,55,0.2);
+  padding: 18px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.compare-modal-header h2 {
+  color: var(--dourado);
+  font-size: 1em;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.compare-modal-close {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid var(--borda);
+  border-radius: 8px;
+  color: var(--cor-sub);
+  padding: 6px 12px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.85em;
+  transition: all 0.2s;
+}
+.compare-modal-close:hover { border-color: var(--vermelho); color: var(--vermelho); }
+
+.compare-table-wrap { overflow-x: auto; padding: 20px; }
+
+.compare-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.84em;
+}
+
+.compare-table th {
+  text-align: center;
+  padding: 14px 16px;
+  border-bottom: 2px solid rgba(212,175,55,0.25);
+  color: var(--dourado);
+  font-weight: 700;
+  font-size: 0.9em;
+  background: rgba(212,175,55,0.04);
+  min-width: 150px;
+}
+
+.compare-table th:first-child {
+  text-align: left;
+  min-width: 120px;
+  color: var(--cor-sub);
+  font-size: 0.78em;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.compare-table td {
+  text-align: center;
+  padding: 11px 16px;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  color: var(--cor-texto);
+  vertical-align: middle;
+}
+
+.compare-table td:first-child {
+  text-align: left;
+  color: var(--cor-sub);
+  font-size: 0.82em;
+}
+
+.compare-table tr:hover td { background: rgba(212,175,55,0.03); }
+
+.compare-check { color: #4ade80; font-size: 1.1em; }
+.compare-x     { color: rgba(255,255,255,0.2); font-size: 1.1em; }
+.compare-price { color: var(--dourado); font-weight: 700; }
+
+.compare-table .btn-reservar-compare {
+  display: inline-block;
+  background: var(--dourado);
+  color: var(--azul);
+  padding: 7px 14px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-size: 0.82em;
+  font-weight: 700;
+  transition: background 0.2s;
+}
+.compare-table .btn-reservar-compare:hover { background: var(--dourado-hover); }
 </style>
 </head>
 <body>
+
+<!-- Skip to main content (acessibilidade) -->
+<a class="skip-link" href="#busca-main">Ir para o conteúdo principal</a>
 
 <header class="header">
   <a href="index.html" class="logo">🏨 HOSPEDAH</a>
@@ -600,6 +847,13 @@ details.adv-filters[open] > summary { color: var(--dourado); border-color: var(-
     <a href="cadastro.html">🏡 Cadastrar Imóvel</a>
   </nav>
 </header>
+
+<!-- BREADCRUMB -->
+<nav class="breadcrumb-bar" aria-label="Navegação estrutural">
+  <a href="index.html">🏠 Início</a>
+  <span aria-hidden="true">›</span>
+  <span aria-current="page">🔍 Buscar Acomodações</span>
+</nav>
 
 <!-- FILTROS -->
 <div class="filter-bar">
@@ -677,7 +931,7 @@ details.adv-filters[open] > summary { color: var(--dourado); border-color: var(-
 </div>
 
 <!-- MAIN -->
-<div class="main-layout">
+<div class="main-layout" id="busca-main">
 
   <!-- LISTA -->
   <div>
@@ -1141,9 +1395,13 @@ function renderCards(lista) {
             ${precoLabel}
             <div>${renderStars(r.nota)}</div>
           </div>
-          <a href="${reservasUrl}" class="reservar-link">
-            <button class="btn-reservar-sm">📅 Reservar</button>
-          </a>
+          <div style="display:flex;flex-direction:column;gap:5px;align-items:flex-end;">
+            <a href="${reservasUrl}" class="reservar-link">
+              <button class="btn-reservar-sm">📅 Reservar</button>
+            </a>
+            <button class="compare-btn" data-compare-id="${r.id}" aria-pressed="false"
+              onclick="event.stopPropagation();toggleComparar('${r.id}')">+ Comparar</button>
+          </div>
         </div>
       </div>
     </div>
@@ -1155,10 +1413,18 @@ function renderCards(lista) {
     const id = decodeURIComponent(card.dataset.resortId || '');
     card.addEventListener('click', e => {
       if (e.target.closest('.reservar-link')) return; // let link bubble
+      if (e.target.closest('.compare-btn')) return;   // handled by toggleComparar
       abrirNoMapa(id);
     });
     card.addEventListener('mouseenter', () => pulseMarker(id));
     card.addEventListener('mouseleave', () => pulseMarker(null));
+    // restore comparator button state if already added
+    const compareBtn = card.querySelector('.compare-btn');
+    if (compareBtn && compareList.some(r => r.id === id)) {
+      compareBtn.classList.add('added');
+      compareBtn.textContent = '✓ Adicionado';
+      compareBtn.setAttribute('aria-pressed', 'true');
+    }
   });
 }
 
@@ -2237,6 +2503,147 @@ filtrar = function() {
     setTimeout(function () { hcAddMsg('Qual seu nome? 😊', 'bot'); }, 800);
   }, 1200);
 }());
+</script>
+
+<!-- ============================================================
+     COMPARADOR DE RESORTS
+============================================================ -->
+<div class="comparator-bar" id="comparatorBar" role="region" aria-label="Comparador de resorts">
+  <span class="comparator-hint">⚖️ Comparar:</span>
+  <div class="comparator-items" id="comparatorItems"></div>
+  <button class="btn-comparar" id="btnCompararAbrir" onclick="abrirComparador()" disabled>
+    Comparar (<span id="compareCount">0</span>/3)
+  </button>
+  <button class="btn-comparar" style="background:transparent;border-color:rgba(255,255,255,0.15);color:var(--cor-sub);" onclick="limparComparador()">✕ Limpar</button>
+</div>
+
+<!-- Modal Comparador -->
+<div class="compare-modal-overlay" id="compareModal" role="dialog" aria-modal="true" aria-label="Comparação de resorts">
+  <div class="compare-modal-box">
+    <div class="compare-modal-header">
+      <h2>⚖️ Comparação de Resorts</h2>
+      <button class="compare-modal-close" onclick="fecharComparador()">✕ Fechar</button>
+    </div>
+    <div class="compare-table-wrap">
+      <table class="compare-table" id="compareTable">
+        <thead id="compareHead"></thead>
+        <tbody id="compareBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// COMPARADOR DE RESORTS
+// ============================================================
+var compareList = [];
+var MAX_COMPARE = 3;
+
+function toggleComparar(id) {
+  var resort = RESORTS.find(function(r) { return r.id === id; });
+  if (!resort) return;
+  var idx = compareList.findIndex(function(r) { return r.id === id; });
+  if (idx > -1) {
+    compareList.splice(idx, 1);
+  } else {
+    if (compareList.length >= MAX_COMPARE) return;
+    compareList.push(resort);
+  }
+  renderComparatorBar();
+  // update button state on card
+  document.querySelectorAll('[data-compare-id="' + id + '"]').forEach(function(btn) {
+    var added = compareList.some(function(r) { return r.id === id; });
+    btn.classList.toggle('added', added);
+    btn.textContent = added ? '✓ Adicionado' : '+ Comparar';
+    btn.setAttribute('aria-pressed', added ? 'true' : 'false');
+  });
+}
+
+function renderComparatorBar() {
+  var bar   = document.getElementById('comparatorBar');
+  var items = document.getElementById('comparatorItems');
+  var count = document.getElementById('compareCount');
+  var btn   = document.getElementById('btnCompararAbrir');
+
+  items.innerHTML = compareList.map(function(r) {
+    return '<div class="comparator-chip">' +
+      r.icon + ' ' + r.nome +
+      '<button onclick="toggleComparar(\'' + r.id + '\')" aria-label="Remover ' + r.nome + ' da comparação">✕</button>' +
+    '</div>';
+  }).join('');
+
+  count.textContent = compareList.length + '/3';
+  btn.disabled = compareList.length < 2;
+  bar.classList.toggle('visible', compareList.length > 0);
+}
+
+function abrirComparador() {
+  if (compareList.length < 2) return;
+
+  var head = document.getElementById('compareHead');
+  var body = document.getElementById('compareBody');
+
+  // Cabeçalho
+  var thRow = '<tr><th>Característica</th>' +
+    compareList.map(function(r) {
+      return '<th>' + r.icon + ' ' + r.nome + '<br><small style="font-weight:400;color:var(--cor-sub);font-size:.8em;">' + r.cidade + '</small></th>';
+    }).join('') + '</tr>';
+  head.innerHTML = thRow;
+
+  // Linhas
+  var rows = [
+    { label: '💲 Preço/noite',   fn: function(r) { return '<span class="compare-price">R$ ' + r.preco.toFixed(2).replace('.', ',') + '</span>'; } },
+    { label: '⭐ Avaliação',      fn: function(r) { return '★ ' + r.nota.toFixed(1); } },
+    { label: '🌊 Tipo',          fn: function(r) { var t = {resort:'Resort',praia:'Praia',termas:'Termas/SPA'}; return t[r.tipo] || r.tipo; } },
+    { label: '👥 Capacidade',    fn: function(r) { return 'até ' + r.capacidade + ' pessoas'; } },
+    { label: '🏊 Piscina',       fn: function(r) { return hasAm(r,'Piscina') || hasAm(r,'Parque aquático') ? '<span class="compare-check">✓</span>' : '<span class="compare-x">—</span>'; } },
+    { label: '♨️ Termas/SPA',    fn: function(r) { return hasAm(r,'Termas') || hasAm(r,'SPA') ? '<span class="compare-check">✓</span>' : '<span class="compare-x">—</span>'; } },
+    { label: '🍳 Café da manhã', fn: function(r) { return hasAm(r,'Café da manhã') ? '<span class="compare-check">✓</span>' : '<span class="compare-x">—</span>'; } },
+    { label: '📶 Wi-Fi',         fn: function(r) { return hasAm(r,'Wi-Fi') ? '<span class="compare-check">✓</span>' : '<span class="compare-x">—</span>'; } },
+    { label: '🚗 Estacionamento',fn: function(r) { return hasAm(r,'Estacionamento') ? '<span class="compare-check">✓</span>' : '<span class="compare-x">—</span>'; } },
+    { label: '🍽️ Restaurante',  fn: function(r) { return hasAm(r,'Restaurante') ? '<span class="compare-check">✓</span>' : '<span class="compare-x">—</span>'; } },
+    { label: '🔗 Reservar',      fn: function(r) { return '<a class="btn-reservar-compare" href="reservas.html?resort=' + r.id + '" target="_blank" rel="noopener">📅 Reservar</a>'; } },
+  ];
+
+  function hasAm(r, label) {
+    return r.comodidades && r.comodidades.some(function(c) { return c.toLowerCase().indexOf(label.toLowerCase()) > -1; });
+  }
+
+  body.innerHTML = rows.map(function(row) {
+    return '<tr><td>' + row.label + '</td>' +
+      compareList.map(function(r) { return '<td>' + row.fn(r) + '</td>'; }).join('') +
+    '</tr>';
+  }).join('');
+
+  document.getElementById('compareModal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function fecharComparador() {
+  document.getElementById('compareModal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+// Fecha modal ao clicar fora
+document.getElementById('compareModal').addEventListener('click', function(e) {
+  if (e.target === this) fecharComparador();
+});
+
+function limparComparador() {
+  compareList = [];
+  document.querySelectorAll('.compare-btn').forEach(function(btn) {
+    btn.classList.remove('added');
+    btn.textContent = '+ Comparar';
+    btn.setAttribute('aria-pressed', 'false');
+  });
+  renderComparatorBar();
+}
+
+// Tecla Escape fecha modal comparador
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') fecharComparador();
+});
 </script>
 </body>
 </html>
