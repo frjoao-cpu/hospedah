@@ -1034,6 +1034,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 /* =====================
    💰 CALCULADORA DE ECONOMIA
 ===================== */
+var ECONOMIA_DESCONTO = 0.10; // desconto médio estimado negociado pela HOSPEDAH
+
 function calcularEconomia() {
   var precoNoite = parseFloat(document.getElementById('calc_resort').value) || 470;
   var noites     = parseInt(document.getElementById('calc_noites').value, 10) || 3;
@@ -1041,7 +1043,7 @@ function calcularEconomia() {
   if (noites < 1) noites = 1;
   if (noites > 30) noites = 30;
   var totalDireto   = precoNoite * noites;
-  var totalHospedah = totalDireto * 0.90; // desconto médio estimado de 10%
+  var totalHospedah = totalDireto * (1 - ECONOMIA_DESCONTO);
   var economia      = totalDireto - totalHospedah;
   var fmt = function(v) { return 'R$ ' + v.toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.'); };
   document.getElementById('calcDireto').textContent   = fmt(totalDireto);
