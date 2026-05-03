@@ -1037,9 +1037,30 @@ GROUP BY 1;
 CREATE UNIQUE INDEX IF NOT EXISTS idx_dashboard_resumo_dia ON dashboard_resumo(dia);
 
 -- ============================================================
+-- 29. MATERIALIZED VIEW — dashboard_resumo_global
+--     Agrega reservas em uma única linha com totais globais.
+--     Ideal para cards de contagem no painel admin/proprietário.
+--     Atualizada via cron a cada 15 min (ver supabase_cron.sql).
+--     Atualização manual: REFRESH MATERIALIZED VIEW CONCURRENTLY dashboard_resumo_global;
+-- ============================================================
+CREATE MATERIALIZED VIEW IF NOT EXISTS dashboard_resumo_global AS
+SELECT
+  1                                                        AS id,
+  COUNT(*)                                                 AS total_reservas,
+  COALESCE(SUM(valor_total), 0)                            AS faturamento,
+  COUNT(*) FILTER (WHERE status = 'confirmada')            AS confirmadas,
+  COUNT(*) FILTER (WHERE status = 'pendente')              AS pendentes,
+  COUNT(*) FILTER (WHERE status = 'cancelada')             AS canceladas,
+  COUNT(*) FILTER (WHERE status = 'concluida')             AS concluidas
+FROM reservas_hospede;
+
+-- Índice único obrigatório para REFRESH CONCURRENTLY
+CREATE UNIQUE INDEX IF NOT EXISTS idx_dashboard_resumo_global_id ON dashboard_resumo_global(id);
+
+-- ============================================================
 -- FUNÇÃO MANUTENÇÃO HOSPEDAH
 --     Invocada mensalmente pelo cron (ver supabase_cron.sql).
---     Cria partição do mês seguinte e atualiza o dashboard.
+--     Cria partição do mês seguinte e atualiza os dashboards.
 -- ============================================================
 CREATE OR REPLACE FUNCTION manutencao_hospedah()
 RETURNS void LANGUAGE plpgsql AS $$
@@ -1049,7 +1070,8 @@ BEGIN
     DATE_TRUNC('month', NOW() + INTERVAL '1 month')::date
   );
 
-  -- Atualiza o dashboard de forma não-bloqueante
+  -- Atualiza os dashboards de forma não-bloqueante
   REFRESH MATERIALIZED VIEW CONCURRENTLY dashboard_resumo;
+  REFRESH MATERIALIZED VIEW CONCURRENTLY dashboard_resumo_global;
 END;
 $$;

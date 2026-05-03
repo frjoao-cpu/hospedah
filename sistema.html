@@ -7721,19 +7721,20 @@ function _aplicarViewRole(role) {
 
 async function _carregarViewProprietario() {
   try {
-    var { data } = await _supabase
-      .from('reservas_hospede')
-      .select('status')
-      .order('criado_em', { ascending: false })
-      .limit(100);
+    var { data: resumo } = await _supabase
+      .from('dashboard_resumo_global')
+      .select('total_reservas,confirmadas,pendentes,canceladas,concluidas')
+      .single();
 
-    var lista      = data || [];
-    var pendentes  = lista.filter(function(r) { return r.status === 'pendente'; }).length;
-    var confirmadas = lista.filter(function(r) { return r.status === 'confirmada'; }).length;
-    var total      = lista.length;
+    var g           = resumo || {};
+    var total       = Number(g.total_reservas || 0);
+    var confirmadas = Number(g.confirmadas    || 0);
+    var pendentes   = Number(g.pendentes      || 0);
+    // outros = canceladas + concluidas (não confirmadas nem pendentes)
+    var outros      = Number(g.canceladas || 0) + Number(g.concluidas || 0);
 
     var set = function(id, val) { var el = document.getElementById(id); if (el) el.textContent = val; };
-    set('prop-disp-total',    total - confirmadas - pendentes);
+    set('prop-disp-total',    outros);
     set('prop-disp-ocupadas', confirmadas);
     set('prop-disp-pendentes', pendentes);
 

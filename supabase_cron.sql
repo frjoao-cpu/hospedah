@@ -164,6 +164,20 @@ SELECT cron.schedule(
       command  = EXCLUDED.command;
 
 -- ============================================================
+-- 7. REFRESH dashboard_resumo_global — a cada 15 minutos
+--    Mantém os cards de totais globais do painel sempre frescos.
+-- ============================================================
+SELECT cron.schedule(
+    'refresh-dashboard-global',
+    '*/15 * * * *',
+    $$
+    REFRESH MATERIALIZED VIEW CONCURRENTLY dashboard_resumo_global;
+    $$
+) ON CONFLICT (jobname) DO UPDATE
+  SET schedule = EXCLUDED.schedule,
+      command  = EXCLUDED.command;
+
+-- ============================================================
 -- Verificar jobs agendados
 -- ============================================================
 -- SELECT jobid, jobname, schedule, command, active FROM cron.job ORDER BY jobname;
