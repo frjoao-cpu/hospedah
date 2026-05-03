@@ -8456,10 +8456,11 @@ function _pixCRC16(payload) {
   for (var i = 0; i < payload.length; i++) {
     crc ^= payload.charCodeAt(i) << 8;
     for (var j = 0; j < 8; j++) {
-      crc = (crc & 0x8000) ? (crc << 1) ^ 0x1021 : crc << 1;
+      crc = (crc & 0x8000) ? ((crc << 1) ^ 0x1021) : (crc << 1);
+      crc &= 0xFFFF; /* keep within 16-bit range */
     }
   }
-  return ((crc & 0xFFFF).toString(16).toUpperCase()).padStart(4, '0');
+  return (crc & 0xFFFF).toString(16).toUpperCase().padStart(4, '0');
 }
 
 function _pixTLV(id, value) {
@@ -8491,7 +8492,7 @@ function gerarCodigoPix() {
     _pixTLV('58', 'BR') +
     _pixTLV('59', 'HOSPEDAH') +
     _pixTLV('60', 'SAO PAULO') +
-    _pixTLV('62', _pixTLV('05', '***')) +
+    _pixTLV('62', _pixTLV('05', descricao.replace(/[^A-Za-z0-9]/g, '').slice(0, 25) || 'HOSPEDAH')) +
     '6304';
 
   var crc = _pixCRC16(payload);
@@ -8506,10 +8507,12 @@ function copiarCodigoPix() {
     navigator.clipboard.writeText(el.value).then(function(){
       mostrarToast('📋 Código PIX copiado!', 'success');
     }).catch(function(){
+      /* fallback para navegadores antigos (deprecated, mas necessário para IE/Safari legado) */
       el.select(); document.execCommand('copy');
       mostrarToast('📋 Código PIX copiado!', 'success');
     });
   } else {
+    /* fallback para navegadores sem suporte à Clipboard API */
     el.select(); document.execCommand('copy');
     mostrarToast('📋 Código PIX copiado!', 'success');
   }

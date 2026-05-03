@@ -200,6 +200,10 @@ SELECT cron.schedule(
 -- 9. LEMBRETES DE COBRANÇA — todo dia às 12:00 UTC (09:00 BRT)
 --    Dispara a Edge Function cobranca-automatica para cobranças
 --    que vencem em 1 ou 3 dias (excluindo já pagas/canceladas).
+--    ⚠️ Substitua <SERVICE_ROLE_KEY> pela sua Service Role Key
+--       (Supabase Dashboard > Settings > API) ou configure via:
+--       ALTER DATABASE postgres SET app.service_role_key = '<sua_key>';
+--       e use current_setting('app.service_role_key') abaixo.
 -- ============================================================
 SELECT cron.schedule(
     'lembretes-cobranca-diarios',
@@ -207,7 +211,10 @@ SELECT cron.schedule(
     $$
     SELECT net.http_post(
         url     := 'https://ydrmjoppjxtmnwtvtinb.supabase.co/functions/v1/cobranca-automatica',
-        headers := '{"Content-Type":"application/json","Authorization":"******"}'::jsonb,
+        headers := jsonb_build_object(
+            'Content-Type',  'application/json',
+            'Authorization', 'Bearer ' || current_setting('app.service_role_key', true)
+        ),
         body    := '{}'::jsonb
     );
     $$
