@@ -1607,6 +1607,9 @@ tbody td {
     <!-- Gestão -->
     <a href="#automacoes">🤖 Automações</a>
     <a href="#config-ia">🧠 Concierge IA</a>
+    <span class="nav-sep"></span>
+    <!-- Cobrança -->
+    <a href="#cobrancas">💰 Cobranças</a>
   </nav>
 </header>
 <div id="syncWarning">⚠️ Dados salvos apenas localmente — sem sincronização com o servidor. Verifique se a tabela <strong>hospeda_data</strong> foi criada no Supabase e se você está logado com o mesmo e-mail em todos os dispositivos.</div>
@@ -1899,6 +1902,30 @@ tbody td {
 
     <div id="reservasContent" style="display:none">
 
+    <!-- Resumo de Cobranças das Reservas -->
+    <div class="dashboard-grid" style="margin-bottom:14px;" id="cobResGrid">
+      <div class="dash-card amarelo">
+        <div class="dash-icon">💳</div>
+        <div class="dash-label">A Receber (total)</div>
+        <div class="dash-value" id="cobRes-aberto">R$ 0,00</div>
+      </div>
+      <div class="dash-card vermelho">
+        <div class="dash-icon">🟠</div>
+        <div class="dash-label">Vencido</div>
+        <div class="dash-value" id="cobRes-vencido">R$ 0,00</div>
+      </div>
+      <div class="dash-card verde">
+        <div class="dash-icon">🟢</div>
+        <div class="dash-label">Pago este mês</div>
+        <div class="dash-value" id="cobRes-pago-mes">R$ 0,00</div>
+      </div>
+      <div class="dash-card">
+        <div class="dash-icon">🟡</div>
+        <div class="dash-label">Cobranças Pendentes</div>
+        <div class="dash-value" id="cobRes-pendentes">0</div>
+      </div>
+    </div>
+
     <!-- Filtros -->
     <div class="filter-bar">
       <div class="field-group">
@@ -1927,6 +1954,17 @@ tbody td {
           <option value="pago">✅ Pago</option>
           <option value="pendente">⏳ Pendente</option>
           <option value="cancelado">❌ Cancelado</option>
+        </select>
+      </div>
+      <div class="field-group">
+        <label>Cobrança</label>
+        <select id="f_cobranca" onchange="renderTabela()">
+          <option value="">Todas</option>
+          <option value="pendente">🟡 Pendente</option>
+          <option value="vencido">🟠 Vencida</option>
+          <option value="pago">🟢 Paga</option>
+          <option value="parcial">🔵 Parcial</option>
+          <option value="sem">— Sem cobrança</option>
         </select>
       </div>
       <div class="field-group">
@@ -1967,12 +2005,13 @@ tbody td {
           <th>Repasse</th>
           <th>Avaliação</th>
           <th>Status</th>
+          <th>Cobrança</th>
           <th>Ações</th>
         </tr>
       </thead>
       <tbody id="tabelaBody">
         <tr>
-          <td colspan="15">
+          <td colspan="16">
             <div class="empty-state">
               <div class="empty-icon">📋</div>
               <div>Nenhuma reserva cadastrada ainda.</div>
@@ -2247,6 +2286,16 @@ tbody td {
         <div class="dash-label">Com Pendências</div>
         <div class="dash-value" id="capDash-pendencias">0</div>
       </div>
+      <div class="dash-card amarelo">
+        <div class="dash-icon">⏳</div>
+        <div class="dash-label">Repasses Pendentes</div>
+        <div class="dash-value" id="capDash-repasses-pend">0</div>
+      </div>
+      <div class="dash-card vermelho">
+        <div class="dash-icon">💸</div>
+        <div class="dash-label">Valor Total a Repassar</div>
+        <div class="dash-value" id="capDash-repasses-valor">R$ 0,00</div>
+      </div>
     </div>
   </section>
   <section id="captacao" class="calc-section">
@@ -2483,12 +2532,13 @@ tbody td {
           <th>Dt. Pagamento</th>
           <th>Pagamento</th>
           <th>Reserva</th>
+          <th>Repasse</th>
           <th>Ações</th>
         </tr>
       </thead>
       <tbody id="capTabelaBody">
         <tr>
-          <td colspan="15">
+          <td colspan="16">
             <div class="empty-state">
               <div class="empty-icon">🏡</div>
               <div>Nenhuma captação cadastrada ainda.</div>
@@ -3137,6 +3187,115 @@ tbody td {
 
 <!-- TOAST -->
 <div class="toast-container" id="toastContainer"></div>
+
+<!-- ==========================================
+     MODAL DE COBRANÇA
+=========================================== -->
+<div class="modal-overlay" id="modalCobranca">
+  <div class="modal-box" style="max-width:640px;">
+    <button class="modal-close" onclick="fecharModalCobranca()" aria-label="Fechar">✕</button>
+    <h3 id="modalCobrancaTitulo">💰 Nova Cobrança</h3>
+    <input type="hidden" id="cob_id">
+    <div class="modal-grid">
+      <div class="field-group">
+        <label>Tipo de Origem</label>
+        <select id="cob_origem_tipo">
+          <option value="reserva">📋 Reserva</option>
+          <option value="captacao">🏡 Captação</option>
+        </select>
+      </div>
+      <div class="field-group">
+        <label>Forma de Pagamento</label>
+        <select id="cob_forma_pagamento">
+          <option value="pix">⚡ Pix</option>
+          <option value="cartao">💳 Cartão</option>
+          <option value="boleto">📄 Boleto</option>
+          <option value="transferencia">🏦 Transferência</option>
+          <option value="dinheiro">💵 Dinheiro</option>
+        </select>
+      </div>
+      <div class="field-group" style="grid-column: span 2;">
+        <label>Descrição *</label>
+        <input type="text" id="cob_descricao" placeholder="Ex.: Entrada reserva João – Resort Camburi">
+      </div>
+      <div class="field-group">
+        <label>Nome do Devedor</label>
+        <input type="text" id="cob_nome_devedor" placeholder="Nome do hóspede ou proprietário">
+      </div>
+      <div class="field-group">
+        <label>WhatsApp do Devedor</label>
+        <input type="tel" id="cob_telefone_devedor" placeholder="(11) 99999-9999">
+      </div>
+      <div class="field-group">
+        <label>Valor Total (R$) *</label>
+        <input type="number" id="cob_valor_total" min="0" step="0.01" placeholder="0,00" oninput="calcCobAberto()">
+      </div>
+      <div class="field-group">
+        <label>Valor Pago (R$)</label>
+        <input type="number" id="cob_valor_pago" min="0" step="0.01" placeholder="0,00" oninput="calcCobAberto()">
+      </div>
+      <div class="field-group">
+        <label>Valor em Aberto (R$)</label>
+        <input type="number" id="cob_valor_aberto" min="0" step="0.01" readonly>
+      </div>
+      <div class="field-group">
+        <label>Data de Vencimento *</label>
+        <input type="date" id="cob_data_vencimento">
+      </div>
+      <div class="field-group">
+        <label>Parcelas</label>
+        <input type="number" id="cob_num_parcelas" min="1" max="24" value="1">
+      </div>
+      <div class="field-group">
+        <label>Parcela Atual</label>
+        <input type="number" id="cob_parcela_atual" min="1" max="24" value="1">
+      </div>
+      <div class="field-group" style="grid-column: span 2;">
+        <label>Chave PIX (para gerar código)</label>
+        <input type="text" id="cob_chave_pix" placeholder="CPF, CNPJ, e-mail, telefone ou chave aleatória">
+      </div>
+      <div class="field-group" style="grid-column: span 2;">
+        <label>Código PIX gerado (copia-e-cola)</label>
+        <div style="display:flex; gap:8px; align-items:stretch;">
+          <input type="text" id="cob_codigo_pix" readonly placeholder="Clique em ⚡ Gerar PIX para criar o código" style="flex:1; font-size:0.78em;">
+          <button class="btn btn-secondary btn-sm" onclick="gerarCodigoPix()" title="Gerar código PIX BR Code">⚡ Gerar PIX</button>
+          <button class="btn btn-secondary btn-sm" onclick="copiarCodigoPix()" title="Copiar código PIX">📋</button>
+        </div>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="salvarCobranca()">💾 Salvar Cobrança</button>
+      <button class="btn btn-secondary btn-sm" onclick="gerarCodigoPix()">⚡ Gerar PIX</button>
+      <button class="btn btn-secondary" onclick="fecharModalCobranca()">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ==========================================
+     MODAL HISTÓRICO DE COBRANÇAS
+=========================================== -->
+<div class="modal-overlay" id="modalHistoricoCobrancas">
+  <div class="modal-box" style="max-width:720px;">
+    <button class="modal-close" onclick="document.getElementById('modalHistoricoCobrancas').classList.remove('open')" aria-label="Fechar">✕</button>
+    <h3>📊 Histórico de Cobranças</h3>
+    <p id="modalHistoricoTitulo" style="font-size:0.9em; color:var(--cor-sub); margin:0 0 12px;"></p>
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Descrição</th>
+          <th>Valor</th>
+          <th>Vencimento</th>
+          <th>Status</th>
+          <th>Parcela</th>
+          <th>Lembretes</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody id="histCobBody"></tbody>
+    </table>
+  </div>
+</div>
 
 <!-- Scripts carregados aqui (final do body) para não bloquear o render -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
@@ -4515,6 +4674,7 @@ function limparFiltros() {
   document.getElementById('f_status').value = '';
   document.getElementById('f_canal').value  = '';
   document.getElementById('f_mes').value    = '';
+  var fc = document.getElementById('f_cobranca'); if (fc) fc.value = '';
   renderTabela();
 }
 
@@ -4524,6 +4684,7 @@ function getReservasFiltradas() {
   var status = document.getElementById('f_status').value  || '';
   var canal  = document.getElementById('f_canal').value   || '';
   var mes    = document.getElementById('f_mes').value     || '';
+  var cobFilt = (document.getElementById('f_cobranca') || {value:''}).value;
 
   return reservas.filter(function (r) {
     if (busca  && !r.cliente.toLowerCase().includes(busca) && !r.resort.toLowerCase().includes(busca)) return false;
@@ -4534,8 +4695,38 @@ function getReservasFiltradas() {
       var mesEntrada = r.entrada ? r.entrada.slice(0, 7) : '';
       if (mesEntrada !== mes) return false;
     }
+    if (cobFilt) {
+      var cobList = (typeof cobrancas !== 'undefined' ? cobrancas : []).filter(function(c){ return c.origemId === r.id && c.origemTipo === 'reserva'; });
+      if (cobFilt === 'sem') {
+        if (cobList.length > 0) return false;
+      } else {
+        if (!cobList.length) return false;
+        var ordem = { vencido:4, parcial:3, pendente:2, pago:1, cancelado:0 };
+        var pior = cobList.reduce(function(acc, c) {
+          var st = (typeof _cobStatusFromData === 'function') ? _cobStatusFromData(c) : c.statusCobranca;
+          var stAcc = (typeof _cobStatusFromData === 'function') ? _cobStatusFromData(acc) : acc.statusCobranca;
+          return (ordem[st]||0) > (ordem[stAcc]||0) ? c : acc;
+        });
+        var stPior = (typeof _cobStatusFromData === 'function') ? _cobStatusFromData(pior) : pior.statusCobranca;
+        if (stPior !== cobFilt) return false;
+      }
+    }
     return true;
   });
+}
+
+/* Helper: retorna o badge de cobrança da reserva (usa o status da cobrança mais recente) */
+function _renderCobBadge(resId) {
+  if (typeof cobrancas === 'undefined') return '<span style="color:var(--cinza);font-size:0.8em;">—</span>';
+  var lista = cobrancas.filter(function(c){ return c.origemId === resId && c.origemTipo === 'reserva'; });
+  if (!lista.length) return '<span style="color:var(--cinza);font-size:0.8em;">—</span>';
+  /* pior status tem prioridade (vencido > parcial > pendente > pago) */
+  var ordem = { vencido:4, parcial:3, pendente:2, pago:1, cancelado:0 };
+  var pior = lista.reduce(function(acc, c) {
+    var st = _cobStatusFromData(c);
+    return (ordem[st] || 0) > (ordem[_cobStatusFromData(acc)] || 0) ? c : acc;
+  });
+  return _cobStatusBadge(_cobStatusFromData(pior));
 }
 
 /* ==========================================
@@ -4547,7 +4738,7 @@ function renderTabela() {
 
   if (lista.length === 0) {
     tbody.innerHTML =
-      '<tr><td colspan="15"><div class="empty-state">' +
+      '<tr><td colspan="16"><div class="empty-state">' +
       '<div class="empty-icon">📋</div>' +
       '<div>' + (reservas.length === 0 ? 'Nenhuma reserva cadastrada ainda.' : 'Nenhuma reserva corresponde aos filtros.') + '</div>' +
       '</div></td></tr>';
@@ -4582,10 +4773,13 @@ function renderTabela() {
       '<td style="color:#4da6ff;">' + formatBRL(r.repasse) + '</td>' +
       '<td>' + avalHtml + '</td>' +
       '<td><span class="badge ' + badgeClass + '">' + badgeText + '</span></td>' +
+      '<td>' + _renderCobBadge(r.id) + '</td>' +
       '<td><div class="actions">' +
         '<button class="btn btn-secondary btn-sm" onclick="abrirEdicao(\'' + r.id + '\')" title="Editar">✏️</button>' +
         (r.status !== 'pago' ? '<button class="btn btn-success btn-sm" onclick="marcarPago(\'' + r.id + '\')" title="Marcar como pago">✅</button>' : '') +
         '<button class="btn btn-secondary btn-sm" onclick="enviarWhatsApp(\'' + r.id + '\')" title="WhatsApp">💬</button>' +
+        '<button class="btn btn-secondary btn-sm" onclick="abrirCobrancaReserva(\'' + r.id + '\')" title="Gerar Cobrança">💰</button>' +
+        '<button class="btn btn-secondary btn-sm" onclick="abrirHistoricoCobrancas(\'' + r.id + '\',\'reserva\',\'' + r.cliente + ' – ' + r.resort + '\')" title="Histórico de Cobranças">📊</button>' +
         '<button class="btn btn-secondary btn-sm" onclick="gerarVoucher(\'' + r.id + '\')" title="Voucher PDF">📄</button>' +
         '<button class="btn btn-danger btn-sm" onclick="excluirReserva(\'' + r.id + '\')" title="Excluir">🗑️</button>' +
       '</div></td>' +
@@ -5798,7 +5992,7 @@ function renderTabelaCaptacao() {
   var tbody = document.getElementById('capTabelaBody');
   if (!lista.length) {
     tbody.innerHTML =
-      '<tr><td colspan="15"><div class="empty-state">' +
+      '<tr><td colspan="16"><div class="empty-state">' +
       '<div class="empty-icon">🏡</div>' +
       '<div>Nenhuma captação encontrada.</div>' +
       '<div style="font-size:0.85em;margin-top:6px;color:var(--cinza)">Use o formulário acima para adicionar a primeira captação.</div>' +
@@ -5825,6 +6019,15 @@ function renderTabelaCaptacao() {
       ? '<a href="https://wa.me/55' + c.telefone.replace(/\D/g,'') + '" target="_blank" style="color:var(--verde);">📱 ' + c.telefone + '</a>'
       : '—';
 
+    /* Repasse badge */
+    var repSt = c.repasseStatus || 'pendente';
+    var repBadge = repSt === 'repassado'
+      ? '<span class="badge badge-pago">✅ Repassado</span>'
+      : repSt === 'atrasado'
+        ? '<span class="badge badge-cancelado">⚠️ Atrasado</span>'
+        : '<span class="badge badge-pendente">⏳ Pendente</span>';
+    var repData = (repSt === 'repassado' && c.repasseData) ? '<br><small style="color:var(--cinza);">' + formatarData(c.repasseData) + '</small>' : '';
+
     return '<tr>' +
       '<td>' + (i + 1) + '</td>' +
       '<td><strong>' + c.proprietario + '</strong></td>' +
@@ -5840,11 +6043,13 @@ function renderTabelaCaptacao() {
       '<td>' + (c.dataPag ? formatarData(c.dataPag) : '—') + '</td>' +
       '<td>' + (formaLabel[c.formaPag] || c.formaPag) + parcInfo + '</td>' +
       '<td>' + statusBadge + '</td>' +
-      '<td class="actions">' +
+      '<td>' + repBadge + repData + '</td>' +
+      '<td><div class="actions">' +
         '<button class="btn btn-secondary btn-sm" onclick="editarCaptacao(\'' + c.id + '\')">✏️</button>' +
         '<button class="btn btn-success btn-sm" onclick="enviarWhatsAppCaptacao(\'' + c.id + '\')">📱</button>' +
+        '<button class="btn btn-secondary btn-sm" onclick="registrarRepasse(\'' + c.id + '\')" title="' + (repSt === 'repassado' ? 'Desfazer repasse' : 'Registrar repasse') + '">💸</button>' +
         '<button class="btn btn-danger btn-sm" onclick="excluirCaptacao(\'' + c.id + '\')">🗑️</button>' +
-      '</td>' +
+      '</div></td>' +
       '</tr>';
   }).join('');
 }
@@ -6339,6 +6544,7 @@ async function inicializarSistema() {
   }).then(function() {
     reservas = carregarReservas();
     captacoes = carregarCaptacoes();
+    cobrancas = carregarCobrancas();
     automacoes = carregarListaStorage(AUTO_KEY);
     onboardingFluxos = carregarListaStorage(ONB_KEY);
     manutencoes = carregarListaStorage(MAINT_KEY);
@@ -6357,6 +6563,10 @@ async function inicializarSistema() {
     renderTabelaFAQ();
     renderAuditoria();
     atualizarDashAutomacoes();
+    renderTabelaCobrancas();
+    atualizarDashCobrancas();
+    verificarCobrancasVencidas();
+    verificarRepassesAtrasados();
     var metaSalva = parseFloat(localStorage.getItem('hospeda_meta')) || CONFIG.metaPadrao;
     document.getElementById('inputMeta').value = metaSalva;
     sincronizarAutomacoes(true);
@@ -7828,9 +8038,571 @@ async function _carregarViewProprietario() {
 }
 
 
-</script>
+/* ==========================================
+   SISTEMA DE COBRANÇAS
+   Storage key: hospeda_cobrancas
+   Data model: { id, origemTipo, origemId, descricao, valorTotal, valorPago,
+                 dataVencimento, statusCobranca, formaPagamento, numParcelas,
+                 parcelaAtual, codigoPix, chavePix, nomeDevedor, telefoneDevedor,
+                 lembreteCount, enviadoWhatsappEm, criadoEm }
+========================================== */
 
-<!-- PWA -->
+var COB_KEY  = 'hospeda_cobrancas';
+var cobrancas = [];
+
+function carregarCobrancas() {
+  try {
+    var d = localStorage.getItem(COB_KEY);
+    return d ? JSON.parse(d) : [];
+  } catch (e) { return []; }
+}
+
+function salvarCobrancasStorage(lista) {
+  localStorage.setItem(COB_KEY, JSON.stringify(lista));
+}
+
+/* ── UTILITÁRIOS COBRANÇA ── */
+function _cobStatusBadge(status) {
+  var map = {
+    pendente:  '<span class="badge badge-pendente">🟡 Pendente</span>',
+    vencido:   '<span class="badge badge-cancelado">🟠 Vencida</span>',
+    pago:      '<span class="badge badge-pago">🟢 Pago</span>',
+    parcial:   '<span class="badge" style="background:rgba(77,166,255,0.15);color:#4da6ff;border-color:rgba(77,166,255,0.35);">🔵 Parcial</span>',
+    cancelado: '<span class="badge" style="background:rgba(100,100,100,0.15);color:#888;border-color:rgba(100,100,100,0.3);">⚫ Cancelada</span>'
+  };
+  return map[status] || '<span class="badge">' + (status || '—') + '</span>';
+}
+
+function _cobStatusFromData(c) {
+  if (c.statusCobranca === 'cancelado' || c.statusCobranca === 'pago') return c.statusCobranca;
+  var hoje = new Date(); hoje.setHours(0,0,0,0);
+  if (c.dataVencimento) {
+    var venc = new Date(c.dataVencimento + 'T00:00:00');
+    if (venc < hoje && c.statusCobranca !== 'pago') return 'vencido';
+  }
+  var pago = parseFloat(c.valorPago) || 0;
+  var total = parseFloat(c.valorTotal) || 0;
+  if (pago >= total && total > 0) return 'pago';
+  if (pago > 0 && pago < total) return 'parcial';
+  return c.statusCobranca || 'pendente';
+}
+
+/* ── STORAGE + DASHBOARD COBRANÇAS ── */
+function atualizarDashCobrancas() {
+  var hoje = new Date(); hoje.setHours(0,0,0,0);
+  var mesAtual = hoje.getFullYear() + '-' + String(hoje.getMonth() + 1).padStart(2, '0');
+  var totalAberto = 0, vencidas = 0, pagasMes = 0, inadimplentes = 0;
+
+  cobrancas.forEach(function (c) {
+    var st = _cobStatusFromData(c);
+    var aberto = Math.max(0, (parseFloat(c.valorTotal) || 0) - (parseFloat(c.valorPago) || 0));
+    if (st !== 'pago' && st !== 'cancelado') totalAberto += aberto;
+    if (st === 'vencido') vencidas++;
+    if (st === 'pago' && c.criadoEm && c.criadoEm.slice(0, 7) === mesAtual) {
+      pagasMes += parseFloat(c.valorTotal) || 0;
+    }
+    if ((c.lembreteCount || 0) >= 3 && st !== 'pago' && st !== 'cancelado') inadimplentes++;
+  });
+
+  function _s(id, v) { var el = document.getElementById(id); if (el) el.textContent = v; }
+  _s('cob-total-aberto', formatBRL(totalAberto));
+  _s('cob-vencidas', vencidas);
+  _s('cob-pagas-mes', formatBRL(pagasMes));
+  _s('cob-inadimplentes', inadimplentes);
+
+  /* Summary cards na seção reservas */
+  var aReceber = 0, vencidoVal = 0, pagoMesVal = 0, pendentesN = 0;
+  cobrancas.filter(function(c){ return c.origemTipo === 'reserva'; }).forEach(function(c) {
+    var st = _cobStatusFromData(c);
+    var aberto = Math.max(0, (parseFloat(c.valorTotal)||0) - (parseFloat(c.valorPago)||0));
+    if (st !== 'pago' && st !== 'cancelado') aReceber += aberto;
+    if (st === 'vencido') vencidoVal += aberto;
+    if (st === 'pago' && c.criadoEm && c.criadoEm.slice(0, 7) === mesAtual) pagoMesVal += parseFloat(c.valorTotal)||0;
+    if (st === 'pendente') pendentesN++;
+  });
+  _s('cobRes-aberto', formatBRL(aReceber));
+  _s('cobRes-vencido', formatBRL(vencidoVal));
+  _s('cobRes-pago-mes', formatBRL(pagoMesVal));
+  _s('cobRes-pendentes', pendentesN);
+
+  /* Summary cards repasses captação */
+  var repPend = 0, repValor = 0;
+  (typeof captacoes !== 'undefined' ? captacoes : []).forEach(function(c) {
+    if (!c.repasseStatus || c.repasseStatus === 'pendente' || c.repasseStatus === 'atrasado') {
+      repPend++;
+      repValor += parseFloat(c.valorPeriodo) || 0;
+    }
+  });
+  _s('capDash-repasses-pend', repPend);
+  _s('capDash-repasses-valor', formatBRL(repValor));
+}
+
+/* ── RENDER TABELA COBRANÇAS ── */
+function renderTabelaCobrancas() {
+  var bEl = document.getElementById('cobf_busca');
+  var busca     = bEl ? (bEl.value || '').toLowerCase() : '';
+  var fTipo     = (document.getElementById('cobf_tipo')     || {value:''}).value;
+  var fStatus   = (document.getElementById('cobf_status')   || {value:''}).value;
+  var fVencIni  = (document.getElementById('cobf_venc_ini') || {value:''}).value;
+  var fVencFim  = (document.getElementById('cobf_venc_fim') || {value:''}).value;
+
+  var lista = cobrancas.filter(function (c) {
+    var stComp = _cobStatusFromData(c);
+    if (busca && !(
+      (c.descricao || '').toLowerCase().includes(busca) ||
+      (c.nomeDevedor || '').toLowerCase().includes(busca)
+    )) return false;
+    if (fTipo   && c.origemTipo !== fTipo)    return false;
+    if (fStatus && stComp !== fStatus)        return false;
+    if (fVencIni && c.dataVencimento < fVencIni) return false;
+    if (fVencFim && c.dataVencimento > fVencFim) return false;
+    return true;
+  });
+
+  var tbody = document.getElementById('cobTabelaBody');
+  if (!tbody) return;
+  if (!lista.length) {
+    tbody.innerHTML =
+      '<tr><td colspan="13"><div class="empty-state">' +
+      '<div class="empty-icon">💰</div>' +
+      '<div>Nenhuma cobrança encontrada.</div>' +
+      '</div></td></tr>';
+    var btnLote = document.getElementById('btnLoteCobranca');
+    if (btnLote) btnLote.style.display = 'none';
+    return;
+  }
+
+  var formaLabel = { pix:'⚡ Pix', cartao:'💳 Cartão', boleto:'📄 Boleto', transferencia:'🏦 Transf.', dinheiro:'💵 Dinheiro' };
+
+  tbody.innerHTML = lista.map(function (c, i) {
+    var st = _cobStatusFromData(c);
+    var aberto = Math.max(0, (parseFloat(c.valorTotal)||0) - (parseFloat(c.valorPago)||0));
+    var inadBadge = (c.lembreteCount || 0) >= 3 && st !== 'pago' && st !== 'cancelado'
+      ? ' <span title="Inadimplente" style="color:var(--amarelo)">⚠️</span>' : '';
+    var tipoLabel = c.origemTipo === 'reserva'
+      ? '<span class="badge" style="background:rgba(212,175,55,0.12);color:var(--dourado);border-color:rgba(212,175,55,0.3);">📋 Reserva</span>'
+      : '<span class="badge" style="background:rgba(37,211,102,0.12);color:var(--verde);border-color:rgba(37,211,102,0.3);">🏡 Captação</span>';
+
+    return '<tr>' +
+      '<td><input type="checkbox" class="cob-check" data-id="' + c.id + '" onchange="_onCobCheck()"></td>' +
+      '<td>' + (i + 1) + '</td>' +
+      '<td>' + tipoLabel + '</td>' +
+      '<td style="max-width:200px; white-space:normal;">' + escapeHtml(c.descricao || '—') + inadBadge + '</td>' +
+      '<td>' + escapeHtml(c.nomeDevedor || '—') + '</td>' +
+      '<td style="color:var(--dourado);font-weight:600;">' + formatBRL(c.valorTotal) + '</td>' +
+      '<td style="color:var(--verde);">' + formatBRL(c.valorPago) + '</td>' +
+      '<td style="color:' + (aberto > 0 ? 'var(--amarelo)' : 'var(--verde)') + ';font-weight:600;">' + (aberto > 0 ? formatBRL(aberto) : 'Quitado') + '</td>' +
+      '<td>' + (c.dataVencimento ? formatarData(c.dataVencimento) : '—') + '</td>' +
+      '<td>' + _cobStatusBadge(st) + '</td>' +
+      '<td>' + (formaLabel[c.formaPagamento] || c.formaPagamento || '—') +
+        (c.numParcelas > 1 ? '<br><small class="badge">' + (c.parcelaAtual||1) + '/' + c.numParcelas + 'x</small>' : '') + '</td>' +
+      '<td style="text-align:center;">' + (c.lembreteCount || 0) + '</td>' +
+      '<td><div class="actions">' +
+        '<button class="btn btn-secondary btn-sm" onclick="editarCobranca(\'' + c.id + '\')" title="Editar">✏️</button>' +
+        (st !== 'pago' && st !== 'cancelado' ? '<button class="btn btn-success btn-sm" onclick="marcarCobrancaPaga(\'' + c.id + '\')" title="Marcar como pago">✅</button>' : '') +
+        (c.telefoneDevedor ? '<button class="btn btn-secondary btn-sm" onclick="dispararLembreteCobranca(\'' + c.id + '\')" title="Lembrete WhatsApp">📱</button>' : '') +
+        '<button class="btn btn-danger btn-sm" onclick="excluirCobranca(\'' + c.id + '\')" title="Excluir">🗑️</button>' +
+      '</div></td>' +
+      '</tr>';
+  }).join('');
+}
+
+function _onCobCheck() {
+  var any = document.querySelectorAll('.cob-check:checked').length > 0;
+  var btn = document.getElementById('btnLoteCobranca');
+  if (btn) btn.style.display = any ? '' : 'none';
+}
+
+function toggleCheckAllCobrancas(checked) {
+  document.querySelectorAll('.cob-check').forEach(function(cb){ cb.checked = checked; });
+  _onCobCheck();
+}
+
+function limparFiltrosCobrancas() {
+  ['cobf_busca','cobf_venc_ini','cobf_venc_fim'].forEach(function(id){
+    var el = document.getElementById(id); if (el) el.value = '';
+  });
+  var t = document.getElementById('cobf_tipo'); if (t) t.value = '';
+  var s = document.getElementById('cobf_status'); if (s) s.value = '';
+  renderTabelaCobrancas();
+}
+
+/* ── MODAL COBRANÇA ── */
+function abrirModalCobranca(origemId, origemTipo, dadosPrefill) {
+  var mc = document.getElementById('modalCobranca');
+  if (!mc) return;
+  document.getElementById('cob_id').value = '';
+  document.getElementById('cob_origem_tipo').value = origemTipo || 'reserva';
+  document.getElementById('cob_descricao').value = (dadosPrefill && dadosPrefill.descricao) || '';
+  document.getElementById('cob_nome_devedor').value = (dadosPrefill && dadosPrefill.nome) || '';
+  document.getElementById('cob_telefone_devedor').value = (dadosPrefill && dadosPrefill.telefone) || '';
+  document.getElementById('cob_valor_total').value = (dadosPrefill && dadosPrefill.valorTotal) || '';
+  document.getElementById('cob_valor_pago').value = '0';
+  document.getElementById('cob_valor_aberto').value = (dadosPrefill && dadosPrefill.valorTotal) || '';
+  document.getElementById('cob_data_vencimento').value = '';
+  document.getElementById('cob_num_parcelas').value = '1';
+  document.getElementById('cob_parcela_atual').value = '1';
+  document.getElementById('cob_forma_pagamento').value = 'pix';
+  document.getElementById('cob_chave_pix').value = '';
+  document.getElementById('cob_codigo_pix').value = '';
+  document.getElementById('modalCobrancaTitulo').textContent = '💰 Nova Cobrança';
+  mc.dataset.origemId = origemId || '';
+  mc.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function editarCobranca(id) {
+  var c = cobrancas.find(function(x){ return x.id === id; });
+  if (!c) return;
+  var mc = document.getElementById('modalCobranca');
+  if (!mc) return;
+  document.getElementById('cob_id').value = c.id;
+  document.getElementById('cob_origem_tipo').value = c.origemTipo || 'reserva';
+  document.getElementById('cob_descricao').value = c.descricao || '';
+  document.getElementById('cob_nome_devedor').value = c.nomeDevedor || '';
+  document.getElementById('cob_telefone_devedor').value = c.telefoneDevedor || '';
+  document.getElementById('cob_valor_total').value = c.valorTotal || '';
+  document.getElementById('cob_valor_pago').value = c.valorPago || '0';
+  document.getElementById('cob_valor_aberto').value = Math.max(0, (parseFloat(c.valorTotal)||0) - (parseFloat(c.valorPago)||0)).toFixed(2);
+  document.getElementById('cob_data_vencimento').value = c.dataVencimento || '';
+  document.getElementById('cob_num_parcelas').value = c.numParcelas || '1';
+  document.getElementById('cob_parcela_atual').value = c.parcelaAtual || '1';
+  document.getElementById('cob_forma_pagamento').value = c.formaPagamento || 'pix';
+  document.getElementById('cob_chave_pix').value = c.chavePix || '';
+  document.getElementById('cob_codigo_pix').value = c.codigoPix || '';
+  document.getElementById('modalCobrancaTitulo').textContent = '✏️ Editar Cobrança';
+  mc.dataset.origemId = c.origemId || '';
+  mc.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function fecharModalCobranca() {
+  var mc = document.getElementById('modalCobranca');
+  if (mc) mc.classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function calcCobAberto() {
+  var total = parseFloat(document.getElementById('cob_valor_total').value) || 0;
+  var pago  = parseFloat(document.getElementById('cob_valor_pago').value)  || 0;
+  document.getElementById('cob_valor_aberto').value = Math.max(0, total - pago).toFixed(2);
+}
+
+function salvarCobranca() {
+  var mc        = document.getElementById('modalCobranca');
+  var idExist   = document.getElementById('cob_id').value;
+  var origemId  = mc ? (mc.dataset.origemId || '') : '';
+  var origemTipo = document.getElementById('cob_origem_tipo').value;
+  var descricao = document.getElementById('cob_descricao').value.trim();
+  var nomeDevedor = document.getElementById('cob_nome_devedor').value.trim();
+  var telefone  = document.getElementById('cob_telefone_devedor').value.trim();
+  var valorTotal = parseFloat(document.getElementById('cob_valor_total').value) || 0;
+  var valorPago  = parseFloat(document.getElementById('cob_valor_pago').value)  || 0;
+  var dataVenc  = document.getElementById('cob_data_vencimento').value;
+  var forma     = document.getElementById('cob_forma_pagamento').value;
+  var parcelas  = parseInt(document.getElementById('cob_num_parcelas').value) || 1;
+  var parcelaAt = parseInt(document.getElementById('cob_parcela_atual').value) || 1;
+  var chavePix  = document.getElementById('cob_chave_pix').value.trim();
+  var codigoPix = document.getElementById('cob_codigo_pix').value.trim();
+
+  if (!descricao)  { mostrarToast('⚠️ Informe a descrição.', 'error'); return; }
+  if (!dataVenc)   { mostrarToast('⚠️ Informe a data de vencimento.', 'error'); return; }
+  if (valorTotal <= 0) { mostrarToast('⚠️ Informe o valor total.', 'error'); return; }
+
+  var status = valorPago >= valorTotal && valorTotal > 0 ? 'pago'
+    : valorPago > 0 ? 'parcial'
+    : 'pendente';
+
+  if (idExist) {
+    var idx = cobrancas.findIndex(function(x){ return x.id === idExist; });
+    if (idx === -1) { mostrarToast('Cobrança não encontrada.', 'error'); return; }
+    cobrancas[idx] = Object.assign({}, cobrancas[idx], {
+      origemId: origemId, origemTipo: origemTipo,
+      descricao: descricao, nomeDevedor: nomeDevedor, telefoneDevedor: telefone,
+      valorTotal: parseFloat(valorTotal.toFixed(2)), valorPago: parseFloat(valorPago.toFixed(2)),
+      dataVencimento: dataVenc, statusCobranca: status,
+      formaPagamento: forma, numParcelas: parcelas, parcelaAtual: parcelaAt,
+      chavePix: chavePix, codigoPix: codigoPix
+    });
+    mostrarToast('✅ Cobrança atualizada!', 'success');
+  } else {
+    cobrancas.push({
+      id:            gerarId(),
+      origemId:      origemId, origemTipo: origemTipo,
+      descricao:     descricao, nomeDevedor: nomeDevedor, telefoneDevedor: telefone,
+      valorTotal:    parseFloat(valorTotal.toFixed(2)), valorPago: parseFloat(valorPago.toFixed(2)),
+      dataVencimento: dataVenc, statusCobranca: status,
+      formaPagamento: forma, numParcelas: parcelas, parcelaAtual: parcelaAt,
+      chavePix:      chavePix, codigoPix: codigoPix,
+      lembreteCount: 0,
+      criadoEm:      new Date().toISOString()
+    });
+    registrarAuditoria('Cobrança criada', descricao);
+    mostrarToast('✅ Cobrança adicionada!', 'success');
+  }
+
+  salvarCobrancasStorage(cobrancas);
+  fecharModalCobranca();
+  renderTabelaCobrancas();
+  renderTabela();
+  atualizarDashCobrancas();
+}
+
+function marcarCobrancaPaga(id) {
+  var c = cobrancas.find(function(x){ return x.id === id; });
+  if (!c) return;
+  c.valorPago = c.valorTotal;
+  c.statusCobranca = 'pago';
+  salvarCobrancasStorage(cobrancas);
+  renderTabelaCobrancas();
+  renderTabela();
+  atualizarDashCobrancas();
+  registrarAuditoria('Cobrança paga', c.descricao);
+  mostrarToast('✅ Cobrança marcada como paga!', 'success');
+}
+
+function excluirCobranca(id) {
+  if (!confirm('Excluir esta cobrança? Esta ação não pode ser desfeita.')) return;
+  var alvo = cobrancas.find(function(x){ return x.id === id; });
+  cobrancas = cobrancas.filter(function(x){ return x.id !== id; });
+  salvarCobrancasStorage(cobrancas);
+  renderTabelaCobrancas();
+  renderTabela();
+  atualizarDashCobrancas();
+  if (alvo) registrarAuditoria('Cobrança excluída', alvo.descricao);
+  mostrarToast('🗑️ Cobrança excluída.', '');
+}
+
+function dispararLembreteCobranca(id) {
+  var c = cobrancas.find(function(x){ return x.id === id; });
+  if (!c) return;
+  var tel = c.telefoneDevedor ? c.telefoneDevedor.replace(/\D/g,'') : '';
+  var vencStr = c.dataVencimento ? formatarData(c.dataVencimento) : '—';
+  var aberto = Math.max(0, (parseFloat(c.valorTotal)||0) - (parseFloat(c.valorPago)||0));
+  var msg =
+    '💰 *HOSPEDAH — Lembrete de Cobrança*\n\n' +
+    'Olá, ' + (c.nomeDevedor || 'Cliente') + '!\n\n' +
+    '📋 *' + (c.descricao || '') + '*\n' +
+    '💵 Valor em aberto: *' + formatBRL(aberto) + '*\n' +
+    '📅 Vencimento: *' + vencStr + '*\n' +
+    (c.codigoPix ? '\n⚡ *Código PIX (copia-e-cola):*\n' + c.codigoPix + '\n' : '') +
+    '\nEm caso de dúvidas, entre em contato.\n🔗 https://hospedah.tur.br';
+
+  var base = tel ? 'https://wa.me/55' + tel : 'https://api.whatsapp.com/send';
+  window.open(base + '?text=' + encodeURIComponent(msg), '_blank');
+
+  c.lembreteCount = (c.lembreteCount || 0) + 1;
+  c.enviadoWhatsappEm = new Date().toISOString();
+  salvarCobrancasStorage(cobrancas);
+  renderTabelaCobrancas();
+  atualizarDashCobrancas();
+}
+
+function dispararLoteLembretes() {
+  var selecionados = [];
+  document.querySelectorAll('.cob-check:checked').forEach(function(cb){
+    selecionados.push(cb.dataset.id);
+  });
+  if (!selecionados.length) { mostrarToast('Selecione cobranças para disparar lembretes.', 'error'); return; }
+  selecionados.forEach(function(id){ dispararLembreteCobranca(id); });
+  mostrarToast('📣 Lembretes enviados para ' + selecionados.length + ' cobranças.', 'success');
+}
+
+/* ── BOTÃO "💰 COBRAR" NA TABELA DE RESERVAS ── */
+function abrirCobrancaReserva(resId) {
+  var r = reservas.find(function(x){ return x.id === resId; });
+  if (!r) return;
+  abrirModalCobranca(resId, 'reserva', {
+    descricao:  'Reserva ' + r.cliente + ' – ' + r.resort,
+    nome:       r.cliente,
+    telefone:   '',
+    valorTotal: r.total
+  });
+}
+
+/* ── HISTÓRICO DE COBRANÇAS POR ORIGEM ── */
+function abrirHistoricoCobrancas(origemId, origemTipo, label) {
+  var lista = cobrancas.filter(function(c){ return c.origemId === origemId && c.origemTipo === origemTipo; });
+  var tbody = document.getElementById('histCobBody');
+  var titulo = document.getElementById('modalHistoricoTitulo');
+  if (!tbody) return;
+  if (titulo) titulo.textContent = label || '';
+
+  if (!lista.length) {
+    tbody.innerHTML = '<tr><td colspan="8"><div class="empty-state"><div class="empty-icon">📊</div><div>Nenhuma cobrança para este registro.</div></div></td></tr>';
+  } else {
+    tbody.innerHTML = lista.map(function(c, i) {
+      var st = _cobStatusFromData(c);
+      return '<tr>' +
+        '<td>' + (i+1) + '</td>' +
+        '<td style="max-width:180px;white-space:normal;">' + escapeHtml(c.descricao||'—') + '</td>' +
+        '<td>' + formatBRL(c.valorTotal) + '</td>' +
+        '<td>' + (c.dataVencimento ? formatarData(c.dataVencimento) : '—') + '</td>' +
+        '<td>' + _cobStatusBadge(st) + '</td>' +
+        '<td style="text-align:center;">' + (c.numParcelas > 1 ? (c.parcelaAtual||1) + '/' + c.numParcelas : '—') + '</td>' +
+        '<td style="text-align:center;">' + (c.lembreteCount || 0) + '</td>' +
+        '<td><div class="actions">' +
+          (st !== 'pago' && st !== 'cancelado' ? '<button class="btn btn-success btn-sm" onclick="marcarCobrancaPaga(\'' + c.id + '\')">✅</button>' : '') +
+          '<button class="btn btn-danger btn-sm" onclick="excluirCobranca(\'' + c.id + '\')">🗑️</button>' +
+        '</div></td></tr>';
+    }).join('');
+  }
+  document.getElementById('modalHistoricoCobrancas').classList.add('open');
+}
+
+/* ── GERAÇÃO DE CÓDIGO PIX BR CODE (client-side, padrão BACEN) ── */
+function _pixCRC16(payload) {
+  var crc = 0xFFFF;
+  for (var i = 0; i < payload.length; i++) {
+    crc ^= payload.charCodeAt(i) << 8;
+    for (var j = 0; j < 8; j++) {
+      crc = (crc & 0x8000) ? ((crc << 1) ^ 0x1021) : (crc << 1);
+      crc &= 0xFFFF; /* keep within 16-bit range */
+    }
+  }
+  return (crc & 0xFFFF).toString(16).toUpperCase().padStart(4, '0');
+}
+
+function _pixTLV(id, value) {
+  return id + String(value.length).padStart(2, '0') + value;
+}
+
+function gerarCodigoPix() {
+  var chave     = (document.getElementById('cob_chave_pix').value || '').trim();
+  var valorStr  = (document.getElementById('cob_valor_total').value || '0');
+  var descricao = (document.getElementById('cob_descricao').value || '').slice(0, 25).trim() || 'HOSPEDAH';
+  var valor     = parseFloat(valorStr);
+
+  if (!chave) { mostrarToast('⚠️ Informe a Chave PIX antes de gerar o código.', 'error'); return; }
+
+  var merchantAccountInfo =
+    _pixTLV('00', 'BR.GOV.BCB.PIX') +
+    _pixTLV('01', chave);
+
+  var merchantAccountInfoField = _pixTLV('26', merchantAccountInfo);
+
+  var txAmountField = (!isNaN(valor) && valor > 0) ? _pixTLV('54', valor.toFixed(2)) : '';
+
+  var payload =
+    _pixTLV('00', '01') +
+    merchantAccountInfoField +
+    _pixTLV('52', '0000') +
+    _pixTLV('53', '986') +
+    txAmountField +
+    _pixTLV('58', 'BR') +
+    _pixTLV('59', 'HOSPEDAH') +
+    _pixTLV('60', 'SAO PAULO') +
+    _pixTLV('62', _pixTLV('05', descricao.replace(/[^A-Za-z0-9]/g, '').slice(0, 25) || 'HOSPEDAH')) +
+    '6304';
+
+  var crc = _pixCRC16(payload);
+  document.getElementById('cob_codigo_pix').value = payload + crc;
+  mostrarToast('⚡ Código PIX gerado com sucesso!', 'success');
+}
+
+function copiarCodigoPix() {
+  var el = document.getElementById('cob_codigo_pix');
+  if (!el || !el.value) { mostrarToast('Gere o código PIX primeiro.', 'error'); return; }
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(el.value).then(function(){
+      mostrarToast('📋 Código PIX copiado!', 'success');
+    }).catch(function(){
+      /* fallback para navegadores antigos (deprecated, mas necessário para IE/Safari legado) */
+      el.select(); document.execCommand('copy');
+      mostrarToast('📋 Código PIX copiado!', 'success');
+    });
+  } else {
+    /* fallback para navegadores sem suporte à Clipboard API */
+    el.select(); document.execCommand('copy');
+    mostrarToast('📋 Código PIX copiado!', 'success');
+  }
+}
+
+/* ── EXPORTAR CSV COBRANÇAS ── */
+function exportarCSVCobrancas() {
+  if (!cobrancas.length) { mostrarToast('Nenhuma cobrança para exportar.', 'error'); return; }
+  var cols = ['Tipo','Descrição','Devedor','Telefone','Valor Total','Valor Pago',
+              'Valor Aberto','Vencimento','Status','Forma Pagamento',
+              'Parcelas','Parcela Atual','Lembretes','Criado Em'];
+  var rows = cobrancas.map(function(c) {
+    var aberto = Math.max(0, (parseFloat(c.valorTotal)||0) - (parseFloat(c.valorPago)||0));
+    return [
+      c.origemTipo||'', c.descricao||'', c.nomeDevedor||'', c.telefoneDevedor||'',
+      c.valorTotal||0, c.valorPago||0, aberto.toFixed(2),
+      c.dataVencimento||'', _cobStatusFromData(c), c.formaPagamento||'',
+      c.numParcelas||1, c.parcelaAtual||1, c.lembreteCount||0,
+      c.criadoEm ? c.criadoEm.slice(0,10) : ''
+    ].map(function(v){ return '"' + String(v == null ? '' : v).replace(/"/g,'""') + '"'; }).join(',');
+  });
+  var csv  = '\uFEFF' + cols.join(',') + '\n' + rows.join('\n');
+  var blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  var url  = URL.createObjectURL(blob);
+  var a    = document.createElement('a');
+  a.href = url; a.download = 'cobrancas-' + new Date().toISOString().slice(0,10) + '.csv';
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a); URL.revokeObjectURL(url);
+  mostrarToast('📥 CSV de cobranças exportado!', 'success');
+}
+
+/* ── REGISTRAR REPASSE PROPRIETÁRIO (Captações) ── */
+function registrarRepasse(capId) {
+  var c = (typeof captacoes !== 'undefined' ? captacoes : []).find(function(x){ return x.id === capId; });
+  if (!c) return;
+  var novaStatus = c.repasseStatus === 'repassado' ? 'pendente' : 'repassado';
+  c.repasseStatus = novaStatus;
+  c.repasseData   = novaStatus === 'repassado' ? new Date().toISOString().slice(0,10) : null;
+  if (typeof salvarCaptacoes === 'function') salvarCaptacoes(captacoes);
+  if (typeof renderTabelaCaptacao === 'function') renderTabelaCaptacao();
+  if (typeof atualizarDashboardCaptacao === 'function') atualizarDashboardCaptacao();
+  atualizarDashCobrancas();
+  if (typeof registrarAuditoria === 'function') registrarAuditoria('Repasse ' + novaStatus, c.proprietario + ' • ' + c.nome);
+  mostrarToast(novaStatus === 'repassado' ? '✅ Repasse registrado!' : '⏳ Repasse marcado como pendente.', 'success');
+}
+
+/* ── AUTO-EXPIRAR COBRANÇAS VENCIDAS (client-side) ── */
+function verificarCobrancasVencidas() {
+  var hoje = new Date(); hoje.setHours(0,0,0,0);
+  var alterou = false;
+  cobrancas.forEach(function(c) {
+    if (c.statusCobranca === 'pago' || c.statusCobranca === 'cancelado' || c.statusCobranca === 'vencido') return;
+    if (!c.dataVencimento) return;
+    var venc = new Date(c.dataVencimento + 'T00:00:00');
+    if (venc < hoje) { c.statusCobranca = 'vencido'; alterou = true; }
+  });
+  if (alterou) {
+    salvarCobrancasStorage(cobrancas);
+    renderTabelaCobrancas();
+    renderTabela();
+    atualizarDashCobrancas();
+  }
+}
+
+/* ── ALERTA DE REPASSE ATRASADO (7 dias após checkout sem repasse) ── */
+function verificarRepassesAtrasados() {
+  var hoje = new Date(); hoje.setHours(0,0,0,0);
+  var alterou = false;
+  (typeof captacoes !== 'undefined' ? captacoes : []).forEach(function(c) {
+    if (c.repasseStatus === 'repassado') return;
+    if (!c.dataFim) return;
+    var fim = new Date(c.dataFim + 'T00:00:00');
+    var dias = Math.round((hoje - fim) / 86400000);
+    if (dias > 7 && c.repasseStatus !== 'atrasado') {
+      c.repasseStatus = 'atrasado';
+      alterou = true;
+    }
+  });
+  if (alterou && typeof salvarCaptacoes === 'function') salvarCaptacoes(captacoes);
+}
+
+/* Fechar modais de cobrança ao clicar fora */
+(function() {
+  var mc = document.getElementById('modalCobranca');
+  if (mc) mc.addEventListener('click', function(e){ if (e.target === this) fecharModalCobranca(); });
+  var mh = document.getElementById('modalHistoricoCobrancas');
+  if (mh) mh.addEventListener('click', function(e){ if (e.target === this) this.classList.remove('open'); });
+})();
+
+</script>
 <script>
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', function () {
@@ -7841,6 +8613,115 @@ if ('serviceWorker' in navigator) {
 
 <!-- SECURITY SEAL -->
 <div class="security-seal" aria-label="Site seguro">🔒 <strong>Site Seguro</strong> &nbsp;·&nbsp; SSL Criptografado &nbsp;·&nbsp; 🛡️ Dados Protegidos</div>
+
+  <!-- ==========================================
+       COBRANÇAS — PAINEL UNIFICADO
+  =========================================== -->
+  <section id="cobrancas" class="table-wrap">
+    <div class="section-title">
+      💰 Cobranças
+      <span style="margin-left:auto; display:flex; gap:8px;">
+        <button class="btn btn-secondary btn-sm" onclick="exportarCSVCobrancas()">📥 Exportar CSV</button>
+        <button class="btn btn-primary btn-sm" onclick="abrirModalCobranca(null,'reserva')">➕ Nova Cobrança</button>
+      </span>
+    </div>
+
+    <!-- Resumo -->
+    <div class="dashboard-grid" style="margin-bottom:14px;">
+      <div class="dash-card amarelo">
+        <div class="dash-icon">💳</div>
+        <div class="dash-label">Total em Aberto</div>
+        <div class="dash-value" id="cob-total-aberto">R$ 0,00</div>
+      </div>
+      <div class="dash-card vermelho">
+        <div class="dash-icon">🟠</div>
+        <div class="dash-label">Vencidas</div>
+        <div class="dash-value" id="cob-vencidas">0</div>
+      </div>
+      <div class="dash-card verde">
+        <div class="dash-icon">✅</div>
+        <div class="dash-label">Pagas este mês</div>
+        <div class="dash-value" id="cob-pagas-mes">R$ 0,00</div>
+      </div>
+      <div class="dash-card">
+        <div class="dash-icon">⚠️</div>
+        <div class="dash-label">Inadimplentes (3+ lembretes)</div>
+        <div class="dash-value" id="cob-inadimplentes">0</div>
+      </div>
+    </div>
+
+    <!-- Filtros -->
+    <div class="filter-bar">
+      <div class="field-group">
+        <label>🔍 Buscar</label>
+        <input type="text" id="cobf_busca" placeholder="Descrição ou devedor..." oninput="renderTabelaCobrancas()">
+      </div>
+      <div class="field-group">
+        <label>Tipo</label>
+        <select id="cobf_tipo" onchange="renderTabelaCobrancas()">
+          <option value="">Todos</option>
+          <option value="reserva">📋 Reserva</option>
+          <option value="captacao">🏡 Captação</option>
+        </select>
+      </div>
+      <div class="field-group">
+        <label>Status</label>
+        <select id="cobf_status" onchange="renderTabelaCobrancas()">
+          <option value="">Todos</option>
+          <option value="pendente">🟡 Pendente</option>
+          <option value="vencido">🟠 Vencida</option>
+          <option value="parcial">🔵 Parcial</option>
+          <option value="pago">🟢 Paga</option>
+          <option value="cancelado">⚫ Cancelada</option>
+        </select>
+      </div>
+      <div class="field-group">
+        <label>Vencimento — De</label>
+        <input type="date" id="cobf_venc_ini" onchange="renderTabelaCobrancas()">
+      </div>
+      <div class="field-group">
+        <label>Vencimento — Até</label>
+        <input type="date" id="cobf_venc_fim" onchange="renderTabelaCobrancas()">
+      </div>
+      <div class="field-group" style="justify-content:flex-end; padding-top:18px; gap:6px; display:flex; flex-direction:row; align-items:flex-end;">
+        <button class="btn btn-secondary btn-sm" onclick="limparFiltrosCobrancas()">✕ Limpar</button>
+        <button class="btn btn-danger btn-sm" id="btnLoteCobranca" onclick="dispararLoteLembretes()" style="display:none;">📣 Lembrar Selecionadas</button>
+      </div>
+    </div>
+
+    <table id="tabelaCobrancas">
+      <thead>
+        <tr>
+          <th><input type="checkbox" id="cobCheckAll" onchange="toggleCheckAllCobrancas(this.checked)" title="Selecionar todas"></th>
+          <th>#</th>
+          <th>Tipo</th>
+          <th>Descrição</th>
+          <th>Devedor</th>
+          <th>Valor Total</th>
+          <th>Pago</th>
+          <th>Em Aberto</th>
+          <th>Vencimento</th>
+          <th>Status</th>
+          <th>Pagamento</th>
+          <th>Lembretes</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody id="cobTabelaBody">
+        <tr>
+          <td colspan="13">
+            <div class="empty-state">
+              <div class="empty-icon">💰</div>
+              <div>Nenhuma cobrança cadastrada ainda.</div>
+              <div style="font-size:0.85em; margin-top:6px; color:var(--cinza)">
+                Use o botão "➕ Nova Cobrança" ou clique em "💰 Cobrar" na planilha de reservas.
+              </div>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
 
 </main>
 </body>
