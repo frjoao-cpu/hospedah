@@ -899,3 +899,157 @@ CREATE POLICY "visitas_leitura_admin"
 
 CREATE INDEX IF NOT EXISTS idx_visitas_criado_em ON visitas_site(criado_em DESC);
 CREATE INDEX IF NOT EXISTS idx_visitas_pagina    ON visitas_site(pagina);
+
+-- ============================================================
+-- 26. EVENTOS — log de auditoria de negócio (event sourcing)
+--     Registra automaticamente cada nova reserva em hospede.
+--     Útil para rastreabilidade, depuração e histórico imutável.
+-- ============================================================
+CREATE TABLE IF NOT EXISTS eventos (
+  id        uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
+  tipo      text        NOT NULL,   -- ex: 'reserva_criada', 'reserva_cancelada'
+  dados     jsonb,
+  criado_em timestamptz DEFAULT now()
+);
+
+ALTER TABLE eventos ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "eventos_leitura_admin"    ON eventos;
+DROP POLICY IF EXISTS "eventos_insercao_sistema" ON eventos;
+
+-- Apenas administradores e proprietários lêem o log de eventos
+CREATE POLICY "eventos_leitura_admin"
+  ON eventos FOR SELECT TO authenticated
+  USING (is_admin_user());
+
+-- Inserções feitas via trigger (service role ignora RLS); bloqueio explícito para autenticados
+CREATE POLICY "eventos_insercao_sistema"
+  ON eventos FOR INSERT TO authenticated
+  WITH CHECK (is_admin_user());
+
+CREATE INDEX IF NOT EXISTS idx_eventos_tipo      ON eventos(tipo);
+CREATE INDEX IF NOT EXISTS idx_eventos_criado_em ON eventos(criado_em DESC);
+
+-- Trigger: registra evento ao criar reserva_hospede
+CREATE OR REPLACE FUNCTION registrar_evento_reserva()
+RETURNS TRIGGER LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
+BEGIN
+  INSERT INTO eventos (tipo, dados)
+  VALUES (
+    'reserva_criada',
+    jsonb_build_object(
+      'reserva_id',  NEW.id,
+      'resort_nome', NEW.resort_nome,
+      'valor_total', NEW.valor_total,
+      'status',      NEW.status,
+      'criado_em',   NOW()
+    )
+  );
+  RETURN NEW;
+END;
+$$;
+
+DROP TRIGGER IF EXISTS trg_eventos_reserva_criada ON reservas_hospede;
+CREATE TRIGGER trg_eventos_reserva_criada
+  AFTER INSERT ON reservas_hospede
+  FOR EACH ROW EXECUTE FUNCTION registrar_evento_reserva();
+
+-- Trigger: registra mudança de status da reserva
+CREATE OR REPLACE FUNCTION registrar_evento_status_reserva()
+RETURNS TRIGGER LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
+BEGIN
+  IF NEW.status IS DISTINCT FROM OLD.status THEN
+    INSERT INTO eventos (tipo, dados)
+    VALUES (
+      'reserva_status_alterado',
+      jsonb_build_object(
+        'reserva_id',  NEW.id,
+        'resort_nome', NEW.resort_nome,
+        'status_de',   OLD.status,
+        'status_para', NEW.status,
+        'alterado_em', NOW()
+      )
+    );
+  END IF;
+  RETURN NEW;
+END;
+$$;
+
+DROP TRIGGER IF EXISTS trg_eventos_reserva_status ON reservas_hospede;
+CREATE TRIGGER trg_eventos_reserva_status
+  AFTER UPDATE ON reservas_hospede
+  FOR EACH ROW EXECUTE FUNCTION registrar_evento_status_reserva();
+
+-- ============================================================
+-- 27. PARTICIONAMENTO MENSAL DE reservas_hospede
+--     Cria automaticamente a partição do mês seguinte.
+--     NOTA: Requer que reservas_hospede seja convertida para
+--     tabela particionada. Executar apenas em banco novo ou após
+--     migração de dados. Para bancos existentes, use apenas a
+--     função criar_particao_reservas_hospede() via cron.
+-- ============================================================
+
+-- Função: cria a partição mensal de reservas_hospede (idempotente)
+CREATE OR REPLACE FUNCTION criar_particao_reservas_hospede(data_inicio DATE)
+RETURNS void LANGUAGE plpgsql AS $$
+DECLARE
+  data_fim    DATE := data_inicio + INTERVAL '1 month';
+  nome_tabela TEXT := 'reservas_hospede_' || TO_CHAR(data_inicio, 'YYYY_MM');
+BEGIN
+  -- Só executa se reservas_hospede for particionada (relkind = 'p')
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_class
+    WHERE relname = 'reservas_hospede' AND relkind = 'p'
+  ) THEN
+    RAISE NOTICE 'reservas_hospede não é tabela particionada — criação de partição ignorada.';
+    RETURN;
+  END IF;
+
+  EXECUTE format(
+    'CREATE TABLE IF NOT EXISTS %I PARTITION OF reservas_hospede
+     FOR VALUES FROM (%L) TO (%L)',
+    nome_tabela, data_inicio, data_fim
+  );
+END;
+$$;
+
+-- Cria a partição do mês atual (no-op se a tabela não for particionada)
+SELECT criar_particao_reservas_hospede(DATE_TRUNC('month', NOW())::date);
+
+-- ============================================================
+-- 28. MATERIALIZED VIEW — dashboard_resumo
+--     Agrega reservas por dia para o painel admin.
+--     Atualizada automaticamente via cron (ver supabase_cron.sql).
+--     Atualização manual: REFRESH MATERIALIZED VIEW CONCURRENTLY dashboard_resumo;
+-- ============================================================
+CREATE MATERIALIZED VIEW IF NOT EXISTS dashboard_resumo AS
+SELECT
+  DATE_TRUNC('day', criado_em)::date AS dia,
+  COUNT(*)                           AS total_reservas,
+  SUM(valor_total)                   AS faturamento,
+  COUNT(*) FILTER (WHERE status = 'confirmada')  AS confirmadas,
+  COUNT(*) FILTER (WHERE status = 'pendente')    AS pendentes,
+  COUNT(*) FILTER (WHERE status = 'cancelada')   AS canceladas
+FROM reservas_hospede
+GROUP BY 1;
+
+-- Índice único obrigatório para REFRESH CONCURRENTLY
+CREATE UNIQUE INDEX IF NOT EXISTS idx_dashboard_resumo_dia ON dashboard_resumo(dia);
+
+-- ============================================================
+-- FUNÇÃO MANUTENÇÃO HOSPEDAH
+--     Invocada mensalmente pelo cron (ver supabase_cron.sql).
+--     Cria partição do mês seguinte e atualiza o dashboard.
+-- ============================================================
+CREATE OR REPLACE FUNCTION manutencao_hospedah()
+RETURNS void LANGUAGE plpgsql AS $$
+BEGIN
+  -- Cria partição do próximo mês (no-op se não particionada)
+  PERFORM criar_particao_reservas_hospede(
+    DATE_TRUNC('month', NOW() + INTERVAL '1 month')::date
+  );
+
+  -- Atualiza o dashboard de forma não-bloqueante
+  REFRESH MATERIALIZED VIEW CONCURRENTLY dashboard_resumo;
+END;
+$$;
