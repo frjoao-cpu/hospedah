@@ -178,6 +178,76 @@ SELECT cron.schedule(
       command  = EXCLUDED.command;
 
 -- ============================================================
+-- 8. COBRANÇAS VENCIDAS — todo dia às 11:00 UTC (08:00 BRT)
+--    Marca como 'vencido' toda cobrança cujo data_vencimento já passou
+--    e que ainda não esteja paga, cancelada ou já marcada como vencida.
+-- ============================================================
+SELECT cron.schedule(
+    'marcar-cobrancas-vencidas',
+    '0 11 * * *',
+    $$
+    UPDATE cobrancas
+    SET status_cobranca = 'vencido',
+        atualizado_em   = now()
+    WHERE data_vencimento < CURRENT_DATE
+      AND status_cobranca NOT IN ('pago', 'cancelado', 'vencido');
+    $$
+) ON CONFLICT (jobname) DO UPDATE
+  SET schedule = EXCLUDED.schedule,
+      command  = EXCLUDED.command;
+
+-- ============================================================
+-- 9. LEMBRETES DE COBRANÇA — todo dia às 12:00 UTC (09:00 BRT)
+--    Dispara a Edge Function cobranca-automatica para cobranças
+--    que vencem em 1 ou 3 dias (excluindo já pagas/canceladas).
+-- ============================================================
+SELECT cron.schedule(
+    'lembretes-cobranca-diarios',
+    '0 12 * * *',
+    $$
+    SELECT net.http_post(
+        url     := 'https://ydrmjoppjxtmnwtvtinb.supabase.co/functions/v1/cobranca-automatica',
+        headers := '{"Content-Type":"application/json","Authorization":"******"}'::jsonb,
+        body    := '{}'::jsonb
+    );
+    $$
+) ON CONFLICT (jobname) DO UPDATE
+  SET schedule = EXCLUDED.schedule,
+      command  = EXCLUDED.command;
+
+-- ============================================================
+-- 10. RELATÓRIO SEMANAL DE INADIMPLÊNCIA — toda segunda 11:00 UTC
+--     Salva em hospeda_data o resumo de cobranças vencidas e
+--     com 3+ lembretes sem pagamento, para exibir no dashboard.
+-- ============================================================
+SELECT cron.schedule(
+    'relatorio-inadimplencia-semanal',
+    '0 11 * * 1',
+    $$
+    INSERT INTO hospeda_data (user_id, chave, valor, atualizado_em)
+    SELECT
+        (SELECT id FROM profiles WHERE role = 'admin' LIMIT 1),
+        'relatorio_inadimplencia_' || to_char(now(), 'IYYY_IW'),
+        jsonb_build_object(
+            'semana',            to_char(now(), 'IYYY-IW'),
+            'total_vencidas',    (SELECT COUNT(*)   FROM cobrancas WHERE status_cobranca = 'vencido'),
+            'valor_vencido',     (SELECT COALESCE(SUM(valor_aberto), 0) FROM cobrancas WHERE status_cobranca = 'vencido'),
+            'inadimplentes',     (SELECT COUNT(*)   FROM cobrancas WHERE lembrete_count >= 3 AND status_cobranca != 'pago'),
+            'pendentes_hoje',    (SELECT COUNT(*)   FROM cobrancas WHERE status_cobranca = 'pendente'),
+            'pagas_semana',      (SELECT COUNT(*)   FROM cobrancas WHERE status_cobranca = 'pago'
+                                   AND atualizado_em > now() - INTERVAL '7 days'),
+            'gerado_em',         now()
+        ),
+        now()
+    WHERE EXISTS (SELECT 1 FROM profiles WHERE role = 'admin' LIMIT 1)
+    ON CONFLICT (user_id, chave)
+    DO UPDATE SET valor = EXCLUDED.valor, atualizado_em = now();
+    $$
+) ON CONFLICT (jobname) DO UPDATE
+  SET schedule = EXCLUDED.schedule,
+      command  = EXCLUDED.command;
+
+-- ============================================================
 -- Verificar jobs agendados
 -- ============================================================
 -- SELECT jobid, jobname, schedule, command, active FROM cron.job ORDER BY jobname;

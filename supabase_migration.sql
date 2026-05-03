@@ -1058,6 +1058,69 @@ FROM reservas_hospede;
 CREATE UNIQUE INDEX IF NOT EXISTS idx_dashboard_resumo_global_id ON dashboard_resumo_global(id);
 
 -- ============================================================
+-- 30. COBRANÇAS — sistema de cobrança avançada e automatizada
+--     Centraliza todas as cobranças vinculadas a reservas e captações.
+--     Suporta parcelamento, PIX, lembretes automáticos e controle de
+--     inadimplência. Integrado com pg_cron (ver supabase_cron.sql) e
+--     Edge Function cobranca-automatica.
+-- ============================================================
+CREATE TABLE IF NOT EXISTS cobrancas (
+  id                  uuid          PRIMARY KEY DEFAULT gen_random_uuid(),
+  origem_tipo         text          NOT NULL CHECK (origem_tipo IN ('reserva', 'captacao')),
+  origem_id           text          NOT NULL,   -- ID local (localStorage) da reserva ou captação
+  descricao           text          NOT NULL,
+  valor_total         numeric(10,2) NOT NULL DEFAULT 0,
+  valor_pago          numeric(10,2) NOT NULL DEFAULT 0,
+  valor_aberto        numeric(10,2) GENERATED ALWAYS AS (GREATEST(0, valor_total - valor_pago)) STORED,
+  data_vencimento     date          NOT NULL,
+  status_cobranca     text          NOT NULL DEFAULT 'pendente'
+                                    CHECK (status_cobranca IN ('pendente','parcial','pago','vencido','cancelado')),
+  forma_pagamento     text          NOT NULL DEFAULT 'pix'
+                                    CHECK (forma_pagamento IN ('pix','cartao','boleto','transferencia','dinheiro')),
+  num_parcelas        int           NOT NULL DEFAULT 1,
+  parcela_atual       int           NOT NULL DEFAULT 1,
+  codigo_pix          text,         -- BR Code copia-e-cola gerado no cliente
+  chave_pix           text,         -- chave PIX configurada pelo admin
+  nome_devedor        text,         -- nome do hóspede/proprietário
+  telefone_devedor    text,         -- WhatsApp para lembrete
+  enviado_whatsapp_em timestamptz,
+  enviado_email_em    timestamptz,
+  lembrete_count      int           NOT NULL DEFAULT 0,
+  user_id             uuid          REFERENCES auth.users(id) ON DELETE CASCADE,
+  criado_em           timestamptz   DEFAULT now(),
+  atualizado_em       timestamptz   DEFAULT now()
+);
+
+ALTER TABLE cobrancas ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "cobrancas_acesso_auth" ON cobrancas;
+
+-- Apenas usuários autenticados (admin/proprietario) gerenciam cobranças
+CREATE POLICY "cobrancas_acesso_auth"
+  ON cobrancas FOR ALL TO authenticated
+  USING (auth.uid() = user_id OR is_admin_user())
+  WITH CHECK (auth.uid() = user_id OR is_admin_user());
+
+-- Trigger: atualiza atualizado_em automaticamente
+CREATE OR REPLACE FUNCTION set_cobrancas_atualizado_em()
+RETURNS TRIGGER LANGUAGE plpgsql AS $$
+BEGIN
+  NEW.atualizado_em := now();
+  RETURN NEW;
+END;
+$$;
+
+DROP TRIGGER IF EXISTS trg_cobrancas_atualizado_em ON cobrancas;
+CREATE TRIGGER trg_cobrancas_atualizado_em
+  BEFORE UPDATE ON cobrancas
+  FOR EACH ROW EXECUTE FUNCTION set_cobrancas_atualizado_em();
+
+-- Índices
+CREATE INDEX IF NOT EXISTS idx_cobrancas_user        ON cobrancas(user_id, status_cobranca);
+CREATE INDEX IF NOT EXISTS idx_cobrancas_vencimento  ON cobrancas(data_vencimento, status_cobranca);
+CREATE INDEX IF NOT EXISTS idx_cobrancas_origem      ON cobrancas(origem_tipo, origem_id);
+
+-- ============================================================
 -- FUNÇÃO MANUTENÇÃO HOSPEDAH
 --     Invocada mensalmente pelo cron (ver supabase_cron.sql).
 --     Cria partição do mês seguinte e atualiza os dashboards.
