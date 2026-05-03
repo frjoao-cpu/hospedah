@@ -149,6 +149,35 @@ SELECT cron.schedule(
       command  = EXCLUDED.command;
 
 -- ============================================================
+-- 6. MANUTENÇÃO MENSAL — dia 28 de cada mês às 02:00 UTC
+--    Cria partição do mês seguinte em reservas_hospede (se
+--    particionada) e atualiza a materialized view dashboard_resumo.
+-- ============================================================
+SELECT cron.schedule(
+    'manutencao-mensal-hospedah',
+    '0 2 28 * *',
+    $$
+    SELECT manutencao_hospedah();
+    $$
+) ON CONFLICT (jobname) DO UPDATE
+  SET schedule = EXCLUDED.schedule,
+      command  = EXCLUDED.command;
+
+-- ============================================================
+-- 7. REFRESH dashboard_resumo_global — a cada 15 minutos
+--    Mantém os cards de totais globais do painel sempre frescos.
+-- ============================================================
+SELECT cron.schedule(
+    'refresh-dashboard-global',
+    '*/15 * * * *',
+    $$
+    REFRESH MATERIALIZED VIEW CONCURRENTLY dashboard_resumo_global;
+    $$
+) ON CONFLICT (jobname) DO UPDATE
+  SET schedule = EXCLUDED.schedule,
+      command  = EXCLUDED.command;
+
+-- ============================================================
 -- Verificar jobs agendados
 -- ============================================================
 -- SELECT jobid, jobname, schedule, command, active FROM cron.job ORDER BY jobname;
