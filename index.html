@@ -1170,8 +1170,8 @@ function calcularEconomia() {
   var pessoas    = parseInt(document.getElementById('calc_pessoas').value, 10) || 2;
   if (noites < 1) noites = 1;
   if (noites > 30) noites = 30;
-  var totalDireto   = precoNoite * noites;
-  var totalHospedah = totalDireto * (1 - ECONOMIA_DESCONTO);
+  var totalHospedah = precoNoite * noites;
+  var totalDireto   = totalHospedah * 1.30;
   var economia      = totalDireto - totalHospedah;
   var fmt = function(v) { return 'R$ ' + v.toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.'); };
   document.getElementById('calcDireto').textContent   = fmt(totalDireto);
