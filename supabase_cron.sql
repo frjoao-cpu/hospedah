@@ -22,6 +22,9 @@ GRANT USAGE ON SCHEMA cron TO postgres;
 -- do seu projeto Supabase antes de executar.
 -- Encontre em: Dashboard → Settings → API → service_role key
 -- ============================================================
+SELECT cron.unschedule('lembrete-checkin-diario')
+WHERE EXISTS (SELECT 1 FROM cron.job WHERE jobname = 'lembrete-checkin-diario');
+
 SELECT cron.schedule(
     'lembrete-checkin-diario',
     '0 12 * * *',
@@ -32,14 +35,15 @@ SELECT cron.schedule(
         body    := '{}'::jsonb
     );
     $$
-) ON CONFLICT (jobname) DO UPDATE
-  SET schedule = EXCLUDED.schedule,
-      command  = EXCLUDED.command;
+);
 
 -- ============================================================
 -- 2. ATUALIZAÇÃO DE NÍVEL DE FIDELIDADE — todo domingo 03:00 UTC
 --    Bronze → Prata (≥3 estadias) → Ouro (≥10 estadias)
 -- ============================================================
+SELECT cron.unschedule('atualizar-nivel-fidelidade')
+WHERE EXISTS (SELECT 1 FROM cron.job WHERE jobname = 'atualizar-nivel-fidelidade');
+
 SELECT cron.schedule(
     'atualizar-nivel-fidelidade',
     '0 3 * * 0',
@@ -53,14 +57,15 @@ SELECT cron.schedule(
         END,
         atualizado_em = now();
     $$
-) ON CONFLICT (jobname) DO UPDATE
-  SET schedule = EXCLUDED.schedule,
-      command  = EXCLUDED.command;
+);
 
 -- ============================================================
 -- 3. LIMPEZA DE ABANDONOS ANTIGOS — toda segunda 02:00 UTC
 --    Remove registros de abandono_reserva com mais de 30 dias
 -- ============================================================
+SELECT cron.unschedule('limpar-abandonos-antigos')
+WHERE EXISTS (SELECT 1 FROM cron.job WHERE jobname = 'limpar-abandonos-antigos');
+
 SELECT cron.schedule(
     'limpar-abandonos-antigos',
     '0 2 * * 1',
@@ -68,14 +73,15 @@ SELECT cron.schedule(
     DELETE FROM abandono_reserva
     WHERE criado_em < now() - INTERVAL '30 days';
     $$
-) ON CONFLICT (jobname) DO UPDATE
-  SET schedule = EXCLUDED.schedule,
-      command  = EXCLUDED.command;
+);
 
 -- ============================================================
 -- 4. RELATÓRIO SEMANAL DE OCUPAÇÃO — toda segunda 08:00 UTC
 --    Salva métricas na tabela hospeda_data para o dashboard admin
 -- ============================================================
+SELECT cron.unschedule('relatorio-ocupacao-semanal')
+WHERE EXISTS (SELECT 1 FROM cron.job WHERE jobname = 'relatorio-ocupacao-semanal');
+
 SELECT cron.schedule(
     'relatorio-ocupacao-semanal',
     '0 8 * * 1',
@@ -102,15 +108,16 @@ SELECT cron.schedule(
     ON CONFLICT (user_id, chave)
     DO UPDATE SET valor = EXCLUDED.valor, atualizado_em = now();
     $$
-) ON CONFLICT (jobname) DO UPDATE
-  SET schedule = EXCLUDED.schedule,
-      command  = EXCLUDED.command;
+);
 
 -- ============================================================
 -- 5. FOLLOW-UP AUTOMÁTICO — todo dia 10:00 UTC (07:00 BRT)
 --    Marca reservas pendentes com mais de 48h para follow-up
 --    (cria registro em hospeda_data para alertar o admin)
 -- ============================================================
+SELECT cron.unschedule('followup-reservas-pendentes')
+WHERE EXISTS (SELECT 1 FROM cron.job WHERE jobname = 'followup-reservas-pendentes');
+
 SELECT cron.schedule(
     'followup-reservas-pendentes',
     '0 10 * * *',
@@ -144,44 +151,47 @@ SELECT cron.schedule(
     ON CONFLICT (user_id, chave)
     DO UPDATE SET valor = EXCLUDED.valor, atualizado_em = now();
     $$
-) ON CONFLICT (jobname) DO UPDATE
-  SET schedule = EXCLUDED.schedule,
-      command  = EXCLUDED.command;
+);
 
 -- ============================================================
 -- 6. MANUTENÇÃO MENSAL — dia 28 de cada mês às 02:00 UTC
 --    Cria partição do mês seguinte em reservas_hospede (se
 --    particionada) e atualiza a materialized view dashboard_resumo.
 -- ============================================================
+SELECT cron.unschedule('manutencao-mensal-hospedah')
+WHERE EXISTS (SELECT 1 FROM cron.job WHERE jobname = 'manutencao-mensal-hospedah');
+
 SELECT cron.schedule(
     'manutencao-mensal-hospedah',
     '0 2 28 * *',
     $$
     SELECT manutencao_hospedah();
     $$
-) ON CONFLICT (jobname) DO UPDATE
-  SET schedule = EXCLUDED.schedule,
-      command  = EXCLUDED.command;
+);
 
 -- ============================================================
 -- 7. REFRESH dashboard_resumo_global — a cada 15 minutos
 --    Mantém os cards de totais globais do painel sempre frescos.
 -- ============================================================
+SELECT cron.unschedule('refresh-dashboard-global')
+WHERE EXISTS (SELECT 1 FROM cron.job WHERE jobname = 'refresh-dashboard-global');
+
 SELECT cron.schedule(
     'refresh-dashboard-global',
     '*/15 * * * *',
     $$
     REFRESH MATERIALIZED VIEW CONCURRENTLY dashboard_resumo_global;
     $$
-) ON CONFLICT (jobname) DO UPDATE
-  SET schedule = EXCLUDED.schedule,
-      command  = EXCLUDED.command;
+);
 
 -- ============================================================
 -- 8. COBRANÇAS VENCIDAS — todo dia às 11:00 UTC (08:00 BRT)
 --    Marca como 'vencido' toda cobrança cujo data_vencimento já passou
 --    e que ainda não esteja paga, cancelada ou já marcada como vencida.
 -- ============================================================
+SELECT cron.unschedule('marcar-cobrancas-vencidas')
+WHERE EXISTS (SELECT 1 FROM cron.job WHERE jobname = 'marcar-cobrancas-vencidas');
+
 SELECT cron.schedule(
     'marcar-cobrancas-vencidas',
     '0 11 * * *',
@@ -192,9 +202,7 @@ SELECT cron.schedule(
     WHERE data_vencimento < CURRENT_DATE
       AND status_cobranca NOT IN ('pago', 'cancelado', 'vencido');
     $$
-) ON CONFLICT (jobname) DO UPDATE
-  SET schedule = EXCLUDED.schedule,
-      command  = EXCLUDED.command;
+);
 
 -- ============================================================
 -- 9. LEMBRETES DE COBRANÇA — todo dia às 12:00 UTC (09:00 BRT)
@@ -205,6 +213,9 @@ SELECT cron.schedule(
 --       ALTER DATABASE postgres SET app.service_role_key = '<sua_key>';
 --       e use current_setting('app.service_role_key') abaixo.
 -- ============================================================
+SELECT cron.unschedule('lembretes-cobranca-diarios')
+WHERE EXISTS (SELECT 1 FROM cron.job WHERE jobname = 'lembretes-cobranca-diarios');
+
 SELECT cron.schedule(
     'lembretes-cobranca-diarios',
     '0 12 * * *',
@@ -218,15 +229,16 @@ SELECT cron.schedule(
         body    := '{}'::jsonb
     );
     $$
-) ON CONFLICT (jobname) DO UPDATE
-  SET schedule = EXCLUDED.schedule,
-      command  = EXCLUDED.command;
+);
 
 -- ============================================================
 -- 10. RELATÓRIO SEMANAL DE INADIMPLÊNCIA — toda segunda 11:00 UTC
 --     Salva em hospeda_data o resumo de cobranças vencidas e
 --     com 3+ lembretes sem pagamento, para exibir no dashboard.
 -- ============================================================
+SELECT cron.unschedule('relatorio-inadimplencia-semanal')
+WHERE EXISTS (SELECT 1 FROM cron.job WHERE jobname = 'relatorio-inadimplencia-semanal');
+
 SELECT cron.schedule(
     'relatorio-inadimplencia-semanal',
     '0 11 * * 1',
@@ -250,11 +262,45 @@ SELECT cron.schedule(
     ON CONFLICT (user_id, chave)
     DO UPDATE SET valor = EXCLUDED.valor, atualizado_em = now();
     $$
-) ON CONFLICT (jobname) DO UPDATE
-  SET schedule = EXCLUDED.schedule,
-      command  = EXCLUDED.command;
+);
 
 -- ============================================================
 -- Verificar jobs agendados
 -- ============================================================
 -- SELECT jobid, jobname, schedule, command, active FROM cron.job ORDER BY jobname;
+
+-- ============================================================
+-- 11. AGREGAÇÃO DE VISITAS ANTIGAS — todo dia às 03:00 UTC
+--     Move registros de visitas_site com mais de 30 dias para
+--     visitas_resumo_diario (agrupados por dia e página) e os
+--     deleta da tabela de detalhe, mantendo-a sempre enxuta.
+--     Assim o histórico é preservado sem acúmulo ilimitado.
+-- ============================================================
+SELECT cron.unschedule('agregar-visitas-diarias')
+WHERE EXISTS (SELECT 1 FROM cron.job WHERE jobname = 'agregar-visitas-diarias');
+
+SELECT cron.schedule(
+    'agregar-visitas-diarias',
+    '0 3 * * *',
+    $$
+    -- 1. Agrega os registros antigos no resumo diário
+    INSERT INTO visitas_resumo_diario (data, pagina, total_visitas, criado_em, atualizado_em)
+    SELECT
+        criado_em::date AS data,
+        pagina,
+        COUNT(*)::int   AS total_visitas,
+        now(),
+        now()
+    FROM visitas_site
+    WHERE criado_em < now() - INTERVAL '30 days'
+    GROUP BY criado_em::date, pagina
+    ON CONFLICT (data, pagina)
+    DO UPDATE SET
+        total_visitas = visitas_resumo_diario.total_visitas + EXCLUDED.total_visitas,
+        atualizado_em = now();
+
+    -- 2. Remove os registros detalhados já agregados
+    DELETE FROM visitas_site
+    WHERE criado_em < now() - INTERVAL '30 days';
+    $$
+);

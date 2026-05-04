@@ -901,6 +901,51 @@ CREATE INDEX IF NOT EXISTS idx_visitas_criado_em ON visitas_site(criado_em DESC)
 CREATE INDEX IF NOT EXISTS idx_visitas_pagina    ON visitas_site(pagina);
 
 -- ============================================================
+-- 25b. VISITAS_RESUMO_DIARIO — agregação histórica de acessos
+--      Cada linha representa o total de visitas de uma página
+--      em um determinado dia. Os registros detalhados de
+--      visitas_site com mais de 30 dias são movidos para cá
+--      automaticamente pelo job pg_cron 'agregar-visitas-diarias'
+--      (ver supabase_cron.sql), mantendo a tabela visitas_site
+--      enxuta sem perder o histórico acumulado.
+-- ============================================================
+CREATE TABLE IF NOT EXISTS visitas_resumo_diario (
+  id             uuid  PRIMARY KEY DEFAULT gen_random_uuid(),
+  data           date  NOT NULL,              -- dia do acesso (sem horário)
+  pagina         text  NOT NULL,              -- ex: 'reservas', 'index', 'busca'
+  total_visitas  int   NOT NULL DEFAULT 0,    -- soma de visitas naquele dia/página
+  criado_em      timestamptz DEFAULT now(),
+  atualizado_em  timestamptz DEFAULT now(),
+  UNIQUE (data, pagina)
+);
+
+ALTER TABLE visitas_resumo_diario ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "resumo_visitas_leitura_admin" ON visitas_resumo_diario;
+
+-- Apenas administradores lêem os totais históricos
+CREATE POLICY "resumo_visitas_leitura_admin"
+  ON visitas_resumo_diario FOR SELECT TO authenticated
+  USING (EXISTS (SELECT 1 FROM profiles p WHERE p.id = auth.uid() AND p.role IN ('admin', 'proprietario')));
+
+-- Trigger para manter atualizado_em atualizado
+CREATE OR REPLACE FUNCTION set_resumo_visitas_atualizado_em()
+RETURNS trigger LANGUAGE plpgsql AS $$
+BEGIN
+  NEW.atualizado_em := now();
+  RETURN NEW;
+END;
+$$;
+
+DROP TRIGGER IF EXISTS trg_resumo_visitas_atualizado_em ON visitas_resumo_diario;
+CREATE TRIGGER trg_resumo_visitas_atualizado_em
+  BEFORE UPDATE ON visitas_resumo_diario
+  FOR EACH ROW EXECUTE FUNCTION set_resumo_visitas_atualizado_em();
+
+CREATE INDEX IF NOT EXISTS idx_resumo_visitas_data    ON visitas_resumo_diario(data DESC);
+CREATE INDEX IF NOT EXISTS idx_resumo_visitas_pagina  ON visitas_resumo_diario(pagina);
+
+-- ============================================================
 -- 26. EVENTOS — log de auditoria de negócio (event sourcing)
 --     Registra automaticamente cada nova reserva em hospede.
 --     Útil para rastreabilidade, depuração e histórico imutável.
