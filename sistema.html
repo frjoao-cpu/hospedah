@@ -134,6 +134,18 @@ body {
   background: rgba(231,76,60,0.08);
 }
 
+.sys-topbar-utils a.util-cobrancas {
+  color: var(--dourado);
+  border-color: rgba(212,175,55,0.45);
+  background: rgba(212,175,55,0.1);
+  font-weight: 700;
+}
+.sys-topbar-utils a.util-cobrancas:hover {
+  background: rgba(212,175,55,0.22);
+  border-color: var(--dourado);
+  box-shadow: 0 0 8px rgba(212,175,55,0.25);
+}
+
 #syncStatus {
   font-size: 0.8em;
   cursor: default;
@@ -1648,6 +1660,7 @@ tbody td {
       <a href="javascript:void(0)" onclick="toggleFloatCalc()">🧮 Calculadora</a>
       <a href="javascript:void(0)" onclick="exportarBackup()">💾 Backup</a>
       <a href="javascript:void(0)" onclick="importarBackup()">📂 Importar</a>
+      <a href="#cobrancas" class="util-cobrancas">💰 Cobranças</a>
       <a href="index.html">🏠 Site</a>
       <a href="javascript:void(0)" class="util-danger" onclick="fazerLogout()">🚪 Sair</a>
     </div>
@@ -1686,9 +1699,6 @@ tbody td {
     <!-- Gestão -->
     <a href="#automacoes">🤖 Automações</a>
     <a href="#config-ia">🧠 Concierge IA</a>
-    <span class="nav-sep"></span>
-    <!-- Cobrança -->
-    <a href="#cobrancas">💰 Cobranças</a>
   </nav>
 </header>
 <div id="syncWarning">⚠️ Dados salvos apenas localmente — sem sincronização com o servidor. Verifique se a tabela <strong>hospeda_data</strong> foi criada no Supabase e se você está logado com o mesmo e-mail em todos os dispositivos.</div>
