@@ -576,6 +576,15 @@ body { font-family: 'Poppins', sans-serif; background: var(--bg); color: var(--c
       </div>
     </section>
 
+    <!-- ── SEÇÃO: COBRANÇAS (admin, proprietario) ── -->
+    <section class="painel-section" id="sec-cobrancas" data-roles="admin,proprietario">
+      <h2 style="color:var(--dourado);margin-bottom:20px;">💰 Cobranças</h2>
+      <div class="card">
+        <div class="card-title">Cobranças e Pagamentos</div>
+        <p style="font-size:0.88em;color:var(--cor-sub);">Em breve: gestão completa de cobranças e pagamentos.</p>
+      </div>
+    </section>
+
     <!-- ── SEÇÃO: EDITOR DE FAQ (admin) ── -->
     <section class="painel-section" id="sec-faq" data-roles="admin">
       <h2 style="color:var(--dourado);margin-bottom:20px;">❓ Editor de FAQ</h2>
@@ -978,6 +987,7 @@ function construirNav(role) {
     { id: 'pos-venda',      icon: '🌟', label: 'Pós-venda',        roles: ['hospede'] },
     { id: 'fidelidade',     icon: '🏆', label: 'Fidelidade',       roles: ['hospede'] },
     { id: 'chat',           icon: '🤖', label: 'Chat IA & Suporte',   roles: ['hospede','admin','proprietario'] },
+    { id: 'cobrancas',      icon: '💰', label: 'Cobranças',        roles: ['admin','proprietario'] },
     { id: 'faq',            icon: '❓', label: 'Editor FAQ',       roles: ['admin'] },
     { id: 'usuarios',       icon: '👥', label: 'Usuários',         roles: ['admin'] },
     { id: 'ajuda',          icon: '🚀', label: 'Ajuda & Deploy',   roles: ['admin'] },
@@ -1000,6 +1010,7 @@ function construirBottomNav(role) {
   const items = [
     { id: 'minhas-reservas', icon: '📋', label: 'Reservas',  roles: ['hospede','admin','proprietario'], href: null },
     { id: 'dashboard',       icon: '📊', label: 'Dashboard', roles: ['admin','proprietario'], href: null },
+    { id: 'cobrancas',       icon: '💰', label: 'Cobranças', roles: ['admin','proprietario'], href: null },
     { id: 'pos-venda',       icon: '🌟', label: 'Pós-venda', roles: ['hospede'], href: null },
     { id: 'fidelidade',      icon: '🏆', label: 'Pontos',    roles: ['hospede'], href: null },
     { icon: '🏠', label: 'Início', roles: ['hospede','admin','proprietario'], href: 'index.html' },
