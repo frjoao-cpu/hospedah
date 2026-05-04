@@ -240,8 +240,8 @@ body {
 }
 .nav-dropdown-menu {
   display: none;
-  position: absolute;
-  top: calc(100% + 6px);
+  position: fixed;
+  top: 0;
   left: 0;
   z-index: 9999;
   background: var(--azul-claro, #1a2035);
@@ -7687,7 +7687,21 @@ function toggleCobrancas() {
 function toggleNavDropdown(id) {
   var el = document.getElementById(id);
   if (!el) return;
-  el.classList.toggle('open');
+  var isOpen = el.classList.contains('open');
+  // Close any open dropdowns first
+  document.querySelectorAll('.nav-dropdown.open').forEach(function(dd) {
+    dd.classList.remove('open');
+  });
+  if (!isOpen) {
+    var btn = el.querySelector('.nav-dropdown-btn');
+    var menu = el.querySelector('.nav-dropdown-menu');
+    if (btn && menu) {
+      var rect = btn.getBoundingClientRect();
+      menu.style.top  = (rect.bottom + 6) + 'px';
+      menu.style.left = rect.left + 'px';
+    }
+    el.classList.add('open');
+  }
 }
 
 function fecharNavDropdown(id) {
