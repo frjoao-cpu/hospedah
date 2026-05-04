@@ -1633,8 +1633,8 @@ tbody td {
     <div id="dashPeriodFilter" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:16px;
          padding:12px 16px;background:rgba(255,255,255,0.03);border:1px solid var(--borda);border-radius:12px;">
       <span style="font-size:0.82em;color:var(--cor-sub);font-weight:600;">📅 Período:</span>
-      <button class="dash-period-btn active" data-period="all"   onclick="filtrarPeriodoDash('all')">Todos</button>
-      <button class="dash-period-btn"        data-period="month" onclick="filtrarPeriodoDash('month')">Este mês</button>
+      <button class="dash-period-btn"        data-period="all"   onclick="filtrarPeriodoDash('all')">Todos</button>
+      <button class="dash-period-btn active" data-period="month" onclick="filtrarPeriodoDash('month')">Este mês</button>
       <button class="dash-period-btn"        data-period="3m"    onclick="filtrarPeriodoDash('3m')">3 meses</button>
       <button class="dash-period-btn"        data-period="6m"    onclick="filtrarPeriodoDash('6m')">6 meses</button>
       <button class="dash-period-btn"        data-period="year"  onclick="filtrarPeriodoDash('year')">Este ano</button>
@@ -2751,8 +2751,14 @@ tbody td {
        PREÇOS DINÂMICOS
   =========================================== -->
   <section id="precos-dinamicos" class="calc-section">
-    <div class="section-title">💲 Preços Dinâmicos — Calendário por Resort</div>
+    <div class="section-title">
+      💲 Preços Dinâmicos — Calendário por Resort
+      <span style="margin-left:auto;">
+        <button class="btn btn-secondary btn-sm" id="precosToggleBtn" onclick="togglePrecosDinamicos()" title="Minimizar/Expandir seção">▼ Minimizar</button>
+      </span>
+    </div>
 
+    <div id="precosContent">
     <!-- Step 1: Select resort -->
     <div style="display:flex; gap:12px; flex-wrap:wrap; align-items:flex-end; margin-bottom:16px;">
       <div class="field-group" style="flex:1; min-width:200px; max-width:320px;">
@@ -2880,6 +2886,7 @@ tbody td {
       </div>
       <div id="pdTable" style="margin-top:12px; display:none;"></div>
     </div>
+    </div><!-- end precosContent -->
   </section>
 
   <!-- ==========================================
@@ -7580,6 +7587,24 @@ function toggleVisitasSite() {
   btn.textContent = collapsed ? '▼ Minimizar' : '▲ Expandir';
 }
 
+function togglePrecosDinamicos() {
+  var content = document.getElementById('precosContent');
+  var btn = document.getElementById('precosToggleBtn');
+  if (!content || !btn) return;
+  var collapsed = content.style.display === 'none';
+  content.style.display = collapsed ? '' : 'none';
+  btn.textContent = collapsed ? '▼ Minimizar' : '▲ Expandir';
+}
+
+function toggleCobrancas() {
+  var content = document.getElementById('cobrancasContent');
+  var btn = document.getElementById('cobrancasToggleBtn');
+  if (!content || !btn) return;
+  var collapsed = content.style.display === 'none';
+  content.style.display = collapsed ? '' : 'none';
+  btn.textContent = collapsed ? '▼ Minimizar' : '▲ Expandir';
+}
+
 async function deletarPrecoDinamico(id) {
   try {
     var { error } = await _supabase.from('precos_dinamicos').delete().eq('id', id);
@@ -7847,7 +7872,7 @@ document.addEventListener('DOMContentLoaded', function() {
 // ============================================================
 // FILTRO DE PERÍODO DO DASHBOARD
 // ============================================================
-var _dashPeriod = 'all';
+var _dashPeriod = 'month';
 
 /* ── Helper: converte um campo de data (ISO ou DD/MM/YYYY) para Date ── */
 function _parseDateField(raw) {
@@ -8623,10 +8648,11 @@ if ('serviceWorker' in navigator) {
       <span style="margin-left:auto; display:flex; gap:8px;">
         <button class="btn btn-secondary btn-sm" onclick="exportarCSVCobrancas()">📥 Exportar CSV</button>
         <button class="btn btn-primary btn-sm" onclick="abrirModalCobranca(null,'reserva')">➕ Nova Cobrança</button>
+        <button class="btn btn-secondary btn-sm" id="cobrancasToggleBtn" onclick="toggleCobrancas()" title="Minimizar/Expandir seção">▼ Minimizar</button>
       </span>
     </div>
 
-    <!-- Resumo -->
+    <div id="cobrancasContent">
     <div class="dashboard-grid" style="margin-bottom:14px;">
       <div class="dash-card amarelo">
         <div class="dash-icon">💳</div>
@@ -8721,6 +8747,7 @@ if ('serviceWorker' in navigator) {
         </tr>
       </tbody>
     </table>
+    </div><!-- end cobrancasContent -->
   </section>
 
 </main>
