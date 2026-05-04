@@ -202,6 +202,78 @@ body {
   align-self: center;
 }
 
+/* Nav dropdown (Captação) */
+.nav-dropdown {
+  position: relative;
+  flex-shrink: 0;
+}
+.nav-dropdown-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--cor-sub);
+  text-decoration: none;
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 0.8em;
+  font-weight: 500;
+  white-space: nowrap;
+  transition: all 0.18s;
+  border: 1px solid transparent;
+  background: transparent;
+  cursor: pointer;
+  letter-spacing: 0.2px;
+}
+.nav-dropdown-btn:hover,
+.nav-dropdown.open .nav-dropdown-btn {
+  color: var(--dourado);
+  background: rgba(212,175,55,0.08);
+  border-color: rgba(212,175,55,0.25);
+}
+.nav-dropdown-arrow {
+  font-size: 0.75em;
+  opacity: 0.7;
+  transition: transform 0.18s;
+}
+.nav-dropdown.open .nav-dropdown-arrow {
+  transform: rotate(180deg);
+}
+.nav-dropdown-menu {
+  display: none;
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 9999;
+  background: var(--azul-claro, #1a2035);
+  border: 1px solid rgba(212,175,55,0.3);
+  border-radius: 10px;
+  padding: 6px;
+  min-width: 200px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.35);
+}
+.nav-dropdown.open .nav-dropdown-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.nav-dropdown-menu a {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 12px;
+  border-radius: 7px;
+  font-size: 0.82em;
+  font-weight: 500;
+  color: var(--cor-sub);
+  text-decoration: none;
+  white-space: nowrap;
+  transition: all 0.15s;
+}
+.nav-dropdown-menu a:hover {
+  color: var(--dourado);
+  background: rgba(212,175,55,0.1);
+}
+
 #syncWarning {
   display: none;
   background: rgba(231,76,60,0.12);
@@ -1587,9 +1659,16 @@ tbody td {
     <a href="#dashboard" class="active">📊 Dashboard</a>
     <span class="nav-sep"></span>
     <!-- Captação -->
-    <a href="#captacao-resumo">🏡 Captações — Resumo</a>
-    <a href="#captacao">➕ Nova Captação</a>
-    <a href="#captacoes">🏡 Captações Cadastradas</a>
+    <div class="nav-dropdown" id="navCaptacaoDropdown">
+      <button class="nav-dropdown-btn" onclick="toggleNavDropdown('navCaptacaoDropdown')" title="Captação">
+        🏡 Captação <span class="nav-dropdown-arrow">▾</span>
+      </button>
+      <div class="nav-dropdown-menu">
+        <a href="#captacao-resumo" onclick="fecharNavDropdown('navCaptacaoDropdown')">🏡 Captações — Resumo</a>
+        <a href="#captacao"        onclick="fecharNavDropdown('navCaptacaoDropdown')">➕ Nova Captação</a>
+        <a href="#captacoes"       onclick="fecharNavDropdown('navCaptacaoDropdown')">🏡 Captações Cadastradas</a>
+      </div>
+    </div>
     <span class="nav-sep"></span>
     <a href="#nova-reserva">➕ Nova Reserva</a>
     <a href="#reservas">📋 Reservas</a>
@@ -7605,6 +7684,17 @@ function toggleCobrancas() {
   btn.textContent = collapsed ? '▼ Minimizar' : '▲ Expandir';
 }
 
+function toggleNavDropdown(id) {
+  var el = document.getElementById(id);
+  if (!el) return;
+  el.classList.toggle('open');
+}
+
+function fecharNavDropdown(id) {
+  var el = document.getElementById(id);
+  if (el) el.classList.remove('open');
+}
+
 async function deletarPrecoDinamico(id) {
   try {
     var { error } = await _supabase.from('precos_dinamicos').delete().eq('id', id);
@@ -7867,6 +7957,13 @@ document.addEventListener('DOMContentLoaded', function() {
       if (btn.getAttribute('data-action') === 'excluir') excluirFAQ(id);
     });
   }
+
+  // Fechar dropdowns de nav ao clicar fora
+  document.addEventListener('click', function(e) {
+    document.querySelectorAll('.nav-dropdown.open').forEach(function(dd) {
+      if (!dd.contains(e.target)) dd.classList.remove('open');
+    });
+  });
 });
 
 // ============================================================
