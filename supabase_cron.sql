@@ -258,3 +258,38 @@ SELECT cron.schedule(
 -- Verificar jobs agendados
 -- ============================================================
 -- SELECT jobid, jobname, schedule, command, active FROM cron.job ORDER BY jobname;
+
+-- ============================================================
+-- 11. AGREGAÇÃO DE VISITAS ANTIGAS — todo dia às 03:00 UTC
+--     Move registros de visitas_site com mais de 30 dias para
+--     visitas_resumo_diario (agrupados por dia e página) e os
+--     deleta da tabela de detalhe, mantendo-a sempre enxuta.
+--     Assim o histórico é preservado sem acúmulo ilimitado.
+-- ============================================================
+SELECT cron.schedule(
+    'agregar-visitas-diarias',
+    '0 3 * * *',
+    $$
+    -- 1. Agrega os registros antigos no resumo diário
+    INSERT INTO visitas_resumo_diario (data, pagina, total_visitas, criado_em, atualizado_em)
+    SELECT
+        criado_em::date AS data,
+        pagina,
+        COUNT(*)::int   AS total_visitas,
+        now(),
+        now()
+    FROM visitas_site
+    WHERE criado_em < now() - INTERVAL '30 days'
+    GROUP BY criado_em::date, pagina
+    ON CONFLICT (data, pagina)
+    DO UPDATE SET
+        total_visitas = visitas_resumo_diario.total_visitas + EXCLUDED.total_visitas,
+        atualizado_em = now();
+
+    -- 2. Remove os registros detalhados já agregados
+    DELETE FROM visitas_site
+    WHERE criado_em < now() - INTERVAL '30 days';
+    $$
+) ON CONFLICT (jobname) DO UPDATE
+  SET schedule = EXCLUDED.schedule,
+      command  = EXCLUDED.command;

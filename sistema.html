@@ -7799,30 +7799,46 @@ function toastSistema(msg, tipo) {
 
 // ──────────────────────────────────────────────────────────
 // VISITAS AO SITE — Acompanhamento de Acessos
+// Camada 1: visitas_site        — detalhe dos últimos 30 dias
+// Camada 2: visitas_resumo_diario — totais históricos agregados
+// O job pg_cron 'agregar-visitas-diarias' move automaticamente
+// os registros com >30 dias para o resumo diário todo dia 03:00 UTC.
 // ──────────────────────────────────────────────────────────
 async function carregarVisitasSite() {
   try {
-    var { data, error } = await _supabase
-      .from('visitas_site')
-      .select('pagina, criado_em')
-      .order('criado_em', { ascending: false })
-      .limit(500);
+    // Buscar registros detalhados (≤30 dias) e resumo histórico em paralelo
+    var [recenteRes, resumoRes] = await Promise.all([
+      _supabase
+        .from('visitas_site')
+        .select('pagina, criado_em')
+        .order('criado_em', { ascending: false })
+        .limit(500),
+      _supabase
+        .from('visitas_resumo_diario')
+        .select('data, pagina, total_visitas')
+    ]);
 
-    if (error) throw error;
-
-    var lista = data || [];
+    if (recenteRes.error) throw recenteRes.error;
+    // Ignorar erro de visitas_resumo_diario caso a tabela ainda não exista
+    var lista   = recenteRes.data || [];
+    var resumo  = (resumoRes.error ? [] : resumoRes.data) || [];
 
     // Calcular limites de tempo
-    var agora    = new Date();
+    var agora        = new Date();
     var inicioHoje   = new Date(agora.getFullYear(), agora.getMonth(), agora.getDate());
     var inicioSemana = new Date(inicioHoje);
     inicioSemana.setDate(inicioHoje.getDate() - inicioHoje.getDay());
     var inicioMes    = new Date(agora.getFullYear(), agora.getMonth(), 1);
 
-    var total   = lista.length;
-    var hoje    = lista.filter(function(r){ return r.criado_em && new Date(r.criado_em) >= inicioHoje; }).length;
-    var semana  = lista.filter(function(r){ return r.criado_em && new Date(r.criado_em) >= inicioSemana; }).length;
-    var mes     = lista.filter(function(r){ return r.criado_em && new Date(r.criado_em) >= inicioMes; }).length;
+    // Métricas dos registros detalhados recentes
+    var totalRecente  = lista.length;
+    var hoje          = lista.filter(function(r){ return r.criado_em && new Date(r.criado_em) >= inicioHoje; }).length;
+    var semana        = lista.filter(function(r){ return r.criado_em && new Date(r.criado_em) >= inicioSemana; }).length;
+    var mes           = lista.filter(function(r){ return r.criado_em && new Date(r.criado_em) >= inicioMes; }).length;
+
+    // Total acumulado = registros recentes + totais históricos já agregados
+    var totalHistorico = resumo.reduce(function(acc, r){ return acc + (r.total_visitas || 0); }, 0);
+    var total = totalRecente + totalHistorico;
 
     // Atualizar cards de resumo na seção dedicada
     document.getElementById('vs-total').textContent  = total;
@@ -7836,8 +7852,17 @@ async function carregarVisitasSite() {
     if (dashTotal) dashTotal.textContent = total;
     if (dashHoje)  dashHoje.textContent  = 'Hoje: ' + hoje;
 
-    // ── Tabela por página ──
+    // ── Tabela por página — combina recentes + histórico agregado ──
     var porPagina = {};
+
+    // Primeiro acumular os totais históricos do resumo diário
+    resumo.forEach(function(r) {
+      var pg = r.pagina || '(desconhecida)';
+      if (!porPagina[pg]) porPagina[pg] = { total: 0, hoje: 0, semana: 0, mes: 0 };
+      porPagina[pg].total += (r.total_visitas || 0);
+    });
+
+    // Depois sobrepor com os registros detalhados recentes
     lista.forEach(function(r) {
       var pg = r.pagina || '(desconhecida)';
       if (!porPagina[pg]) porPagina[pg] = { total: 0, hoje: 0, semana: 0, mes: 0 };
@@ -7850,7 +7875,7 @@ async function carregarVisitasSite() {
       }
     });
 
-    var paginaBody = document.getElementById('vs-por-pagina');
+    var paginaBody  = document.getElementById('vs-por-pagina');
     var paginaNomes = Object.keys(porPagina).sort(function(a, b){ return porPagina[b].total - porPagina[a].total; });
     if (paginaNomes.length === 0) {
       paginaBody.innerHTML = '<tr><td colspan="5"><div class="empty-state"><div class="empty-icon">👁️</div><div>Nenhuma visita registrada ainda.</div><div style="font-size:0.82em;color:var(--cinza);margin-top:4px;">Execute o SQL da tabela <strong>visitas_site</strong> no Supabase.</div></div></td></tr>';
@@ -7867,7 +7892,8 @@ async function carregarVisitasSite() {
       }).join('');
     }
 
-    // ── Tabela de acessos recentes (50 mais recentes) ──
+    // ── Tabela de acessos recentes (50 mais recentes com horário detalhado) ──
+    // Sempre exibe registros detalhados pois visitas_site retém os últimos 30 dias
     var recentesBody = document.getElementById('vs-recentes');
     var recentes = lista.slice(0, 50);
     if (recentes.length === 0) {
@@ -7887,7 +7913,7 @@ async function carregarVisitasSite() {
     var msg = isNotFound
       ? 'Tabela <strong>visitas_site</strong> não encontrada. Execute o SQL da migração para ativá-la.'
       : 'Erro ao carregar visitas: ' + esc(String(e.message || e));
-    var paginaBody = document.getElementById('vs-por-pagina');
+    var paginaBody   = document.getElementById('vs-por-pagina');
     var recentesBody = document.getElementById('vs-recentes');
     if (paginaBody)   paginaBody.innerHTML   = '<tr><td colspan="5"><div class="empty-state"><div class="empty-icon">⚠️</div><div>' + msg + '</div></div></td></tr>';
     if (recentesBody) recentesBody.innerHTML = '<tr><td colspan="3"><div class="empty-state"><div class="empty-icon">⚠️</div><div>' + msg + '</div></div></td></tr>';
