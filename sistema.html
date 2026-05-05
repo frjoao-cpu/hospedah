@@ -2664,7 +2664,10 @@ thead .col-sticky-right {
 
       <div class="field-group">
         <label>Nome da Propriedade *</label>
-        <input type="text" id="cap_nome" placeholder="Ex.: Apt 302 — Olimpia" autocomplete="off">
+        <select id="cap_nome_sel" onchange="onCapNomeSel()">
+          <option value="">— Selecione o resort —</option>
+        </select>
+        <input type="text" id="cap_nome" placeholder="Informe o nome da propriedade" autocomplete="off" style="display:none;margin-top:6px;">
       </div>
 
       <div class="field-group">
@@ -3435,7 +3438,10 @@ thead .col-sticky-right {
       </div>
       <div class="field-group">
         <label>Nome da Propriedade</label>
-        <input type="text" id="editCap_nome">
+        <select id="editCap_nome_sel" onchange="onEditCapNomeSel()">
+          <option value="">— Selecione o resort —</option>
+        </select>
+        <input type="text" id="editCap_nome" placeholder="Informe o nome da propriedade" style="display:none;margin-top:6px;">
       </div>
       <div class="field-group">
         <label>Data Inicial</label>
@@ -6662,6 +6668,67 @@ function importarBackup() {
 }
 
 /* ==========================================
+   CAPTAÇÃO — NOMES DE RESORTS
+========================================== */
+var RESORTS = [
+  { emoji: '🏖️', name: 'Hot Beach Suites'    },
+  { emoji: '♨️',  name: 'São Pedro Thermas'   },
+  { emoji: '🎢', name: 'Olimpia Park Resort'  },
+  { emoji: '👑', name: 'Wyndham Royal'        },
+  { emoji: '☀️',  name: 'Solar das Águas'     },
+  { emoji: '🌊', name: 'Praia de Juquehy'     },
+  { emoji: '🌊', name: 'Ipioca Beach Resort'  },
+  { emoji: '⚓', name: 'Porto 2 Life'         }
+];
+var RESORT_NAMES = RESORTS.map(function(r) { return r.name; });
+
+function preencherSelectsResort() {
+  var optHtml = '<option value="">— Selecione o resort —</option>';
+  RESORTS.forEach(function(r) {
+    optHtml += '<option value="' + r.name + '">' + r.emoji + ' ' + r.name + '</option>';
+  });
+  optHtml += '<option value="outro">✏️ Outro (informar nome)</option>';
+  ['cap_nome_sel', 'editCap_nome_sel'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) el.innerHTML = optHtml;
+  });
+}
+
+function onCapNomeSel() {
+  var sel = document.getElementById('cap_nome_sel');
+  var inp = document.getElementById('cap_nome');
+  if (sel.value === 'outro') {
+    inp.style.display = '';
+    inp.focus();
+  } else {
+    inp.style.display = 'none';
+    inp.value = '';
+  }
+}
+
+function onEditCapNomeSel() {
+  var sel = document.getElementById('editCap_nome_sel');
+  var inp = document.getElementById('editCap_nome');
+  if (sel.value === 'outro') {
+    inp.style.display = '';
+    inp.focus();
+  } else {
+    inp.style.display = 'none';
+    inp.value = '';
+  }
+}
+
+function obterNomeCaptacao(selId, inputId) {
+  var sel = document.getElementById(selId);
+  if (!sel) return '';
+  if (sel.value === 'outro') {
+    var inp = document.getElementById(inputId);
+    return inp ? inp.value.trim() : '';
+  }
+  return sel.value;
+}
+
+/* ==========================================
    CAPTAÇÃO — STORAGE
 ========================================== */
 var CAP_KEY  = 'hospeda_captacoes';
@@ -6721,7 +6788,7 @@ function onFormaPagCaptacao() {
 function adicionarCaptacao() {
   var proprietario = document.getElementById('cap_proprietario').value.trim();
   var telefone     = document.getElementById('cap_telefone').value.trim();
-  var nome         = document.getElementById('cap_nome').value.trim();
+  var nome         = obterNomeCaptacao('cap_nome_sel', 'cap_nome');
   var obs          = document.getElementById('cap_obs').value.trim();
   var periodo      = document.getElementById('cap_periodo').value;
   var cota         = document.getElementById('cap_cota').value;
@@ -6775,12 +6842,16 @@ function adicionarCaptacao() {
 }
 
 function limparFormCaptacao() {
-  ['cap_proprietario','cap_telefone','cap_nome','cap_obs','cap_data_ini',
+  ['cap_proprietario','cap_telefone','cap_obs','cap_data_ini',
    'cap_data_fim','cap_dias','cap_valor_periodo','cap_valor_pago',
    'cap_valor_aberto','cap_data_pag'].forEach(function (id) {
     var el = document.getElementById(id);
     if (el) el.value = '';
   });
+  var capNomeSel = document.getElementById('cap_nome_sel');
+  if (capNomeSel) capNomeSel.value = '';
+  var capNomeInp = document.getElementById('cap_nome');
+  if (capNomeInp) { capNomeInp.value = ''; capNomeInp.style.display = 'none'; }
   document.getElementById('cap_forma_pag').value       = 'pix';
   document.getElementById('cap_status_reserva').value  = 'nao';
   document.getElementById('cap_periodo').value         = '';
@@ -6907,7 +6978,17 @@ function editarCaptacao(id) {
   document.getElementById('editCap_id').value           = c.id;
   document.getElementById('editCap_proprietario').value = c.proprietario;
   document.getElementById('editCap_telefone').value     = c.telefone     || '';
-  document.getElementById('editCap_nome').value         = c.nome;
+  var editNomeSel = document.getElementById('editCap_nome_sel');
+  var editNomeInp = document.getElementById('editCap_nome');
+  if (RESORT_NAMES.indexOf(c.nome) !== -1) {
+    editNomeSel.value       = c.nome;
+    editNomeInp.style.display = 'none';
+    editNomeInp.value       = '';
+  } else {
+    editNomeSel.value       = 'outro';
+    editNomeInp.style.display = '';
+    editNomeInp.value       = c.nome;
+  }
   document.getElementById('editCap_obs').value          = c.obs          || '';
   document.getElementById('editCap_periodo').value      = c.periodo      || '';
   document.getElementById('editCap_cota').value         = c.cota         || '';
@@ -6968,7 +7049,7 @@ function salvarEdicaoCaptacao() {
   var id           = document.getElementById('editCap_id').value;
   var proprietario = document.getElementById('editCap_proprietario').value.trim();
   var telefone     = document.getElementById('editCap_telefone').value.trim();
-  var nome         = document.getElementById('editCap_nome').value.trim();
+  var nome         = obterNomeCaptacao('editCap_nome_sel', 'editCap_nome');
   var obs          = document.getElementById('editCap_obs').value.trim();
   var periodo      = document.getElementById('editCap_periodo').value;
   var cota         = document.getElementById('editCap_cota').value;
@@ -7370,6 +7451,7 @@ async function inicializarSistema() {
 
   /* Acesso validado: oculta o overlay de login e inicializa o sistema */
   document.getElementById('lockOverlay').classList.remove('show');
+  preencherSelectsResort();
 
   return sincronizarDoSupabase().catch(function(e) {
     console.warn('Falha ao sincronizar dados do servidor, usando cache local:', e);
