@@ -2643,16 +2643,7 @@ thead .col-sticky-right {
         <div class="dash-label">Com Pendências</div>
         <div class="dash-value" id="capDash-pendencias">0</div>
       </div>
-      <div class="dash-card amarelo">
-        <div class="dash-icon">⏳</div>
-        <div class="dash-label">Repasses Pendentes</div>
-        <div class="dash-value" id="capDash-repasses-pend">0</div>
-      </div>
-      <div class="dash-card vermelho">
-        <div class="dash-icon">💸</div>
-        <div class="dash-label">Valor Total a Repassar</div>
-        <div class="dash-value" id="capDash-repasses-valor">R$ 0,00</div>
-      </div>
+
     </div>
   </section>
   <section id="captacao" class="calc-section">
@@ -9216,16 +9207,7 @@ function atualizarDashCobrancas() {
   _s('cobRes-pago-mes', formatBRL(pagoMesVal));
   _s('cobRes-pendentes', pendentesN);
 
-  /* Summary cards repasses captação */
-  var repPend = 0, repValor = 0;
-  (typeof captacoes !== 'undefined' ? captacoes : []).forEach(function(c) {
-    if (!c.repasseStatus || c.repasseStatus === 'pendente' || c.repasseStatus === 'atrasado') {
-      repPend++;
-      repValor += parseFloat(c.valorPeriodo) || 0;
-    }
-  });
-  _s('capDash-repasses-pend', repPend);
-  _s('capDash-repasses-valor', formatBRL(repValor));
+
 }
 
 /* ── RENDER TABELA COBRANÇAS ── */
