@@ -1002,6 +1002,110 @@ tbody td {
 .rel-hist-table tbody td.mes-nome { color: var(--dourado); font-weight: 600; }
 .rel-hist-table tbody td.val-verde { color: #25D366; font-weight: 600; }
 .rel-hist-table tbody td.val-vermelho { color: var(--vermelho); font-weight: 600; }
+
+/* ---- Tabela Unificada de Vendas Anuais ---- */
+.vendas-anuais-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.88em;
+}
+.vendas-anuais-table thead th {
+  color: var(--dourado);
+  font-weight: 600;
+  text-align: right;
+  padding: 10px 12px;
+  border-bottom: 2px solid var(--borda);
+  white-space: nowrap;
+  font-size: 0.82em;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+.vendas-anuais-table thead th:first-child { text-align: left; }
+.vendas-anuais-table tbody tr {
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  transition: background .15s;
+}
+.vendas-anuais-table tbody tr:hover { background: rgba(212,175,55,0.07); }
+.vendas-anuais-table tbody tr.va-vazio { opacity: 0.38; }
+.vendas-anuais-table tbody tr.va-atual {
+  background: rgba(212,175,55,0.09);
+  border-left: 3px solid var(--dourado);
+}
+.vendas-anuais-table tbody td {
+  padding: 9px 12px;
+  color: var(--cor-texto);
+  white-space: nowrap;
+  text-align: right;
+}
+.vendas-anuais-table tbody td:first-child { text-align: left; color: var(--dourado); font-weight: 600; }
+.vendas-anuais-table tfoot td {
+  padding: 10px 12px;
+  border-top: 2px solid var(--borda);
+  font-weight: 700;
+  white-space: nowrap;
+  text-align: right;
+}
+.vendas-anuais-table tfoot td:first-child { text-align: left; color: var(--dourado); }
+.vendas-anuais-table tfoot tr.va-media td { font-weight: 400; opacity: 0.65; }
+/* colapso da tabela */
+.va-table-wrap {
+  overflow: hidden;
+  max-height: 900px;
+  transition: max-height .35s ease, opacity .3s ease;
+  opacity: 1;
+}
+.va-table-wrap.va-collapsed {
+  max-height: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+.va-min-btn {
+  display: flex; align-items: center; justify-content: center;
+  width: 26px; height: 26px;
+  border-radius: 50%;
+  border: 1px solid var(--borda);
+  background: rgba(255,255,255,0.04);
+  color: var(--cor-sub);
+  cursor: pointer;
+  font-size: 0.8em;
+  line-height: 1;
+  transition: background .15s, color .15s, transform .25s;
+  flex-shrink: 0;
+}
+.va-min-btn:hover { background: rgba(212,175,55,0.12); color: var(--dourado); }
+.va-min-btn.va-collapsed { transform: rotate(180deg); }
+.va-bar-wrap { display: flex; align-items: center; gap: 7px; justify-content: flex-end; }
+.va-bar-bg {
+  width: 56px; height: 5px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 3px; overflow: hidden; flex-shrink: 0;
+}
+.va-bar-fill {
+  height: 100%; border-radius: 3px;
+  background: linear-gradient(90deg, rgba(212,175,55,0.55), var(--dourado));
+  transition: width .45s ease;
+}
+.va-badge-up   { color: #25D366; font-size: 0.78em; font-weight: 700; }
+.va-badge-down { color: var(--vermelho); font-size: 0.78em; font-weight: 700; }
+.va-badge-new  { color: #4da6ff; font-size: 0.78em; font-weight: 700; }
+.va-pct        { color: var(--cor-sub); font-size: 0.82em; }
+.va-comissao   { color: var(--verde); font-weight: 600; }
+.va-lucro-pos  { color: #25D366; font-weight: 600; }
+.va-lucro-neg  { color: var(--vermelho); font-weight: 600; }
+.va-tag-atual  { font-size: 0.68em; opacity: 0.65; font-weight: 400; margin-left: 4px; }
+.va-agrup-toggle {
+  display: flex; gap: 0;
+  border: 1px solid var(--borda);
+  border-radius: 20px; overflow: hidden;
+}
+.va-agrup-btn {
+  padding: 4px 11px; background: none; border: none;
+  color: var(--cor-sub); cursor: pointer;
+  font-size: 0.76em; font-family: inherit;
+  transition: background .15s, color .15s;
+}
+.va-agrup-btn.active { background: rgba(212,175,55,0.18); color: var(--dourado); font-weight: 600; }
+.va-agrup-btn:hover:not(.active) { background: rgba(255,255,255,0.05); color: var(--cor-texto); }
 .charts-section-3 {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -2129,26 +2233,28 @@ tbody td {
   </section>
 
   <!-- ==========================================
-       RESULTADOS DE VENDAS POR ANO
+       RESULTADOS DE VENDAS POR ANO (UNIFICADO)
   =========================================== -->
   <section id="vendas-anuais">
-    <div class="section-title">📊 Resultados de Vendas por Ano</div>
-    <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
-      <button class="btn btn-secondary btn-sm" onclick="mudarAnoVendas(-1)">◀ Anterior</button>
-      <span id="vendas-ano-label" style="font-size:1.1em;font-weight:700;color:var(--dourado);min-width:60px;text-align:center;">2026</span>
-      <button class="btn btn-secondary btn-sm" onclick="mudarAnoVendas(1)">Próximo ▶</button>
+    <div class="section-title">
+      📊 Resultados de Vendas por Ano
+      <span style="margin-left:auto;display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+        <div class="va-agrup-toggle">
+          <button class="va-agrup-btn active" id="vaAgrupEntrada" onclick="setAgrupVendas('entrada')">Por check-in</button>
+          <button class="va-agrup-btn" id="vaAgrupCriado" onclick="setAgrupVendas('criado')">Por cadastro</button>
+        </div>
+        <button class="btn btn-secondary btn-sm" onclick="mudarAnoVendas(-1)">◀</button>
+        <span id="vendas-ano-label" style="font-size:1.1em;font-weight:700;color:var(--dourado);min-width:52px;text-align:center;">2026</span>
+        <button class="btn btn-secondary btn-sm" onclick="mudarAnoVendas(1)">▶</button>
+        <button class="btn btn-secondary btn-sm" onclick="exportarVendasAnuaisCSV()" title="Exportar tabela em CSV">📥 CSV</button>
+        <button class="va-min-btn" id="vaMinBtn" onclick="toggleVendasAnuais()" title="Minimizar / Expandir tabela">▲</button>
+      </span>
     </div>
-    <div style="overflow-x:auto;">
-      <table id="tabelaVendasAnuais" style="width:100%;border-collapse:collapse;font-size:0.9em;">
-        <thead>
-          <tr>
-            <th style="text-align:left;padding:10px 14px;border-bottom:2px solid var(--borda);color:var(--dourado);">Mês</th>
-            <th style="text-align:right;padding:10px 14px;border-bottom:2px solid var(--borda);color:var(--dourado);">💵 Venda Total Mês</th>
-            <th style="text-align:right;padding:10px 14px;border-bottom:2px solid var(--borda);color:var(--dourado);">🏷️ Lucro/Comissão do Mês</th>
-          </tr>
-        </thead>
+    <div class="va-table-wrap" id="vaTableWrap" style="overflow-x:auto;">
+      <table id="tabelaVendasAnuais" class="vendas-anuais-table">
+        <thead id="cabecalhoVendasAnuais"></thead>
         <tbody id="corpoVendasAnuais">
-          <tr><td colspan="3" style="padding:12px 14px;color:var(--cor-sub);">Carregando…</td></tr>
+          <tr><td colspan="8" style="padding:12px 14px;color:var(--cor-sub);">Carregando…</td></tr>
         </tbody>
         <tfoot id="rodapeVendasAnuais"></tfoot>
       </table>
@@ -5220,9 +5326,10 @@ function atualizarMensal() {
 }
 
 /* ==========================================
-   RESULTADOS DE VENDAS POR ANO
+   RESULTADOS DE VENDAS POR ANO (UNIFICADO)
 ========================================== */
 var _anoVendasAtual = new Date().getFullYear();
+var _agrupVendas    = 'entrada'; /* 'entrada' = por check-in | 'criado' = por cadastro */
 
 var _NOMES_MESES = [
   'Janeiro','Fevereiro','Março','Abril','Maio','Junho',
@@ -5234,60 +5341,249 @@ function mudarAnoVendas(delta) {
   atualizarVendasAnuais();
 }
 
+function setAgrupVendas(modo) {
+  _agrupVendas = modo;
+  var btnE = document.getElementById('vaAgrupEntrada');
+  var btnC = document.getElementById('vaAgrupCriado');
+  if (btnE) btnE.classList.toggle('active', modo === 'entrada');
+  if (btnC) btnC.classList.toggle('active', modo === 'criado');
+  atualizarVendasAnuais();
+}
+
+function toggleVendasAnuais() {
+  var wrap = document.getElementById('vaTableWrap');
+  var btn  = document.getElementById('vaMinBtn');
+  if (!wrap || !btn) return;
+  var collapsed = wrap.classList.toggle('va-collapsed');
+  btn.classList.toggle('va-collapsed', collapsed);
+  btn.title = collapsed ? 'Expandir tabela' : 'Minimizar tabela';
+}
+
 function atualizarVendasAnuais() {
-  var ano = _anoVendasAtual;
+  var ano   = _anoVendasAtual;
   var label = document.getElementById('vendas-ano-label');
   if (label) label.textContent = String(ano);
 
-  /* agrupa pelo mês em que a reserva foi CADASTRADA (criadoEm) */
-  var totais = {};
+  var campoData = _agrupVendas === 'criado' ? 'criadoEm' : 'entrada';
+
+  /* inicializa acumuladores para o ano selecionado e para o ano anterior (YoY) */
+  var totais = {}, antAno = {};
   for (var m = 1; m <= 12; m++) {
-    totais[m] = { venda: 0, comissao: 0 };
+    totais[m] = { reservas: 0, noites: 0, venda: 0, comissao: 0, captacao: 0, lucro: 0 };
+    antAno[m] = { venda: 0 };
   }
 
   reservas.forEach(function (r) {
     if ((r.status || '').toLowerCase() === 'cancelado') return;
-    var criado = r.criadoEm ? r.criadoEm.slice(0, 7) : null; /* YYYY-MM */
-    if (!criado) return;
-    var partes = criado.split('-');
-    if (parseInt(partes[0], 10) !== ano) return;
-    var mes = parseInt(partes[1], 10);
-    totais[mes].venda    += parseFloat(r.total    || 0);
-    totais[mes].comissao += parseFloat(r.comissao || 0);
+    var dt = r[campoData] ? r[campoData].slice(0, 7) : null;
+    if (!dt) return;
+    var partes = dt.split('-');
+    var rAno   = parseInt(partes[0], 10);
+    var rMes   = parseInt(partes[1], 10);
+    if (rMes < 1 || rMes > 12) return;
+    var venda = parseFloat(r.total         || 0);
+    var cap   = parseFloat(r.valorCaptacao || 0);
+    if (rAno === ano) {
+      var t = totais[rMes];
+      t.reservas++;
+      t.noites   += parseInt(r.noites    || 0, 10);
+      t.venda    += venda;
+      t.comissao += parseFloat(r.comissao || 0);
+      t.captacao += cap;
+      t.lucro    += cap > 0 ? venda - cap : 0;
+    } else if (rAno === ano - 1) {
+      antAno[rMes].venda += venda;
+    }
   });
 
-  var corpo = document.getElementById('corpoVendasAnuais');
+  /* flags para colunas opcionais */
+  var temCaptacao = false;
+  for (var m = 1; m <= 12; m++) { if (totais[m].captacao > 0) { temCaptacao = true; break; } }
+
+  /* máximo de venda mensal → barra de desempenho relativa */
+  var maxVenda = 0;
+  for (var m = 1; m <= 12; m++) { if (totais[m].venda > maxVenda) maxVenda = totais[m].venda; }
+
+  /* totais anuais */
+  var totAno = { reservas: 0, noites: 0, venda: 0, comissao: 0, captacao: 0, lucro: 0 };
+  for (var m = 1; m <= 12; m++) {
+    totAno.reservas  += totais[m].reservas;
+    totAno.noites    += totais[m].noites;
+    totAno.venda     += totais[m].venda;
+    totAno.comissao  += totais[m].comissao;
+    totAno.captacao  += totais[m].captacao;
+    totAno.lucro     += totais[m].lucro;
+  }
+
+  var mesAtual = new Date().getMonth() + 1;
+  var anoAtual = new Date().getFullYear();
+  var numCols  = 6 + (temCaptacao ? 2 : 0); /* para colspan em linha vazia */
+
+  /* ---- cabeçalho dinâmico ---- */
+  var cabEl = document.getElementById('cabecalhoVendasAnuais');
+  if (cabEl) {
+    cabEl.innerHTML =
+      '<tr>' +
+      '<th style="text-align:left;">Mês</th>' +
+      '<th>Reservas</th>' +
+      '<th>🌙 Noites</th>' +
+      '<th style="min-width:160px;">💵 Venda Total</th>' +
+      '<th>% do Ano</th>' +
+      (temCaptacao ? '<th>🛒 Captação</th><th>📈 Lucro</th>' : '') +
+      '<th>🏷️ Comissão</th>' +
+      '<th>↕ vs ' + (ano - 1) + '</th>' +
+      '</tr>';
+  }
+
+  var corpo  = document.getElementById('corpoVendasAnuais');
   var rodape = document.getElementById('rodapeVendasAnuais');
   if (!corpo) return;
 
-  var totalVenda = 0, totalComissao = 0;
   var html = '';
   for (var i = 1; i <= 12; i++) {
-    var v = totais[i].venda;
-    var c = totais[i].comissao;
-    totalVenda    += v;
-    totalComissao += c;
-    var bg = (i % 2 === 0) ? 'background:rgba(255,255,255,0.02);' : '';
+    var t   = totais[i];
+    var ant = antAno[i];
+    var vazio  = t.reservas === 0;
+    var atual  = (i === mesAtual && ano === anoAtual);
+    var pct    = totAno.venda > 0 ? ((t.venda / totAno.venda) * 100).toFixed(1) : '0.0';
+    var barPct = maxVenda > 0 ? Math.round((t.venda / maxVenda) * 100) : 0;
+
+    /* YoY badge */
+    var yoy = '—';
+    if (!vazio && ant.venda > 0) {
+      var delta = ((t.venda - ant.venda) / ant.venda * 100);
+      var sinal = delta >= 0 ? '↑' : '↓';
+      var cls   = delta >= 0 ? 'va-badge-up' : 'va-badge-down';
+      yoy = '<span class="' + cls + '">' + sinal + ' ' + Math.abs(delta).toFixed(0) + '%</span>';
+    } else if (!vazio && ant.venda === 0) {
+      yoy = '<span class="va-badge-new">✦ Novo</span>';
+    }
+
+    var lucroClass = t.lucro >= 0 ? 'va-lucro-pos' : 'va-lucro-neg';
+    var captCells  = temCaptacao
+      ? '<td>' + (t.captacao > 0 ? formatBRL(t.captacao) : '<span class="va-pct">—</span>') + '</td>' +
+        '<td class="' + (t.captacao > 0 ? lucroClass : '') + '">' + (t.captacao > 0 ? formatBRL(t.lucro) : '<span class="va-pct">—</span>') + '</td>'
+      : '';
+
     html +=
-      '<tr style="' + bg + '">' +
-      '<td style="padding:9px 14px;border-bottom:1px solid var(--borda);">' + _NOMES_MESES[i - 1] + '</td>' +
-      '<td style="padding:9px 14px;border-bottom:1px solid var(--borda);text-align:right;color:var(--dourado);font-weight:600;">' + formatBRL(v) + '</td>' +
-      '<td style="padding:9px 14px;border-bottom:1px solid var(--borda);text-align:right;color:var(--verde);font-weight:600;">' + formatBRL(c) + '</td>' +
+      '<tr class="' + (atual ? 'va-atual' : '') + (vazio ? ' va-vazio' : '') + '">' +
+      '<td>' + _NOMES_MESES[i - 1] + (atual ? '<span class="va-tag-atual">◀ atual</span>' : '') + '</td>' +
+      '<td>' + (t.reservas > 0 ? t.reservas : '<span class="va-pct">—</span>') + '</td>' +
+      '<td>' + (t.noites   > 0 ? t.noites   : '<span class="va-pct">—</span>') + '</td>' +
+      '<td>' +
+        '<div class="va-bar-wrap">' +
+          '<div class="va-bar-bg"><div class="va-bar-fill" style="width:' + barPct + '%"></div></div>' +
+          formatBRL(t.venda) +
+        '</div>' +
+      '</td>' +
+      '<td><span class="va-pct">' + (t.venda > 0 ? pct + '%' : '—') + '</span></td>' +
+      captCells +
+      '<td class="va-comissao">' + (t.comissao > 0 ? formatBRL(t.comissao) : '<span class="va-pct">—</span>') + '</td>' +
+      '<td>' + yoy + '</td>' +
       '</tr>';
   }
   corpo.innerHTML = html;
 
+  /* ---- rodapé: total + média mensal ---- */
+  var captTotCells = temCaptacao
+    ? '<td style="color:var(--dourado);">' + formatBRL(totAno.captacao) + '</td>' +
+      '<td class="va-lucro-' + (totAno.lucro >= 0 ? 'pos' : 'neg') + '">' + formatBRL(totAno.lucro) + '</td>'
+    : '';
+  var captMedCells = temCaptacao
+    ? '<td>' + formatBRL(totAno.captacao / 12) + '</td>' +
+      '<td>' + formatBRL(totAno.lucro    / 12) + '</td>'
+    : '';
+
   rodape.innerHTML =
-    '<tr style="font-weight:700;">' +
-    '<td style="padding:10px 14px;border-top:2px solid var(--borda);">Total ' + ano + '</td>' +
-    '<td style="padding:10px 14px;border-top:2px solid var(--borda);text-align:right;color:var(--dourado);">' + formatBRL(totalVenda) + '</td>' +
-    '<td style="padding:10px 14px;border-top:2px solid var(--borda);text-align:right;color:var(--verde);">' + formatBRL(totalComissao) + '</td>' +
-    '</tr>';
+    '<tr>' +
+    '<td>Total ' + ano + '</td>' +
+    '<td>' + (totAno.reservas > 0 ? totAno.reservas : '—') + '</td>' +
+    '<td>' + (totAno.noites   > 0 ? totAno.noites   : '—') + '</td>' +
+    '<td style="color:var(--dourado);">' + formatBRL(totAno.venda) + '</td>' +
+    '<td></td>' +
+    captTotCells +
+    '<td class="va-comissao">' + formatBRL(totAno.comissao) + '</td>' +
+    '<td></td>' +
+    '</tr>' +
+    (totAno.reservas > 0
+      ? '<tr class="va-media">' +
+        '<td>Média mensal</td>' +
+        '<td>' + (totAno.reservas / 12).toFixed(1) + '</td>' +
+        '<td>' + (totAno.noites   / 12).toFixed(1) + '</td>' +
+        '<td>' + formatBRL(totAno.venda    / 12) + '</td>' +
+        '<td></td>' +
+        captMedCells +
+        '<td>' + formatBRL(totAno.comissao / 12) + '</td>' +
+        '<td></td>' +
+        '</tr>'
+      : '');
 }
 
 /* ==========================================
-   EXPORTAR CSV
+   EXPORTAR CSV — VENDAS ANUAIS
 ========================================== */
+function exportarVendasAnuaisCSV() {
+  var ano       = _anoVendasAtual;
+  var campoData = _agrupVendas === 'criado' ? 'criadoEm' : 'entrada';
+
+  var totais = {};
+  for (var m = 1; m <= 12; m++) {
+    totais[m] = { reservas: 0, noites: 0, venda: 0, comissao: 0, captacao: 0, lucro: 0 };
+  }
+  reservas.forEach(function (r) {
+    if ((r.status || '').toLowerCase() === 'cancelado') return;
+    var dt = r[campoData] ? r[campoData].slice(0, 7) : null;
+    if (!dt) return;
+    var partes = dt.split('-');
+    if (parseInt(partes[0], 10) !== ano) return;
+    var mes   = parseInt(partes[1], 10);
+    if (mes < 1 || mes > 12) return;
+    var venda = parseFloat(r.total || 0);
+    var cap   = parseFloat(r.valorCaptacao || 0);
+    var t     = totais[mes];
+    t.reservas++;
+    t.noites   += parseInt(r.noites || 0, 10);
+    t.venda    += venda;
+    t.comissao += parseFloat(r.comissao || 0);
+    t.captacao += cap;
+    t.lucro    += cap > 0 ? venda - cap : 0;
+  });
+
+  var temCaptacao = false;
+  for (var m = 1; m <= 12; m++) { if (totais[m].captacao > 0) { temCaptacao = true; break; } }
+
+  var agrupLabel = _agrupVendas === 'criado' ? 'Por Cadastro' : 'Por Check-in';
+  var cols = ['Mês', 'Reservas', 'Noites', 'Venda Total (R$)', '% do Ano'];
+  if (temCaptacao) cols.push('Captação (R$)', 'Lucro (R$)');
+  cols.push('Comissão (R$)');
+
+  var totalVenda = 0;
+  for (var m = 1; m <= 12; m++) totalVenda += totais[m].venda;
+
+  var fmtN = function (v) { return v.toFixed(2).replace('.', ','); };
+  var linhas = [];
+  for (var i = 1; i <= 12; i++) {
+    var t   = totais[i];
+    var pct = totalVenda > 0 ? ((t.venda / totalVenda) * 100).toFixed(1) : '0,0';
+    var row = [_NOMES_MESES[i - 1], t.reservas, t.noites, fmtN(t.venda), pct + '%'];
+    if (temCaptacao) row.push(fmtN(t.captacao), fmtN(t.lucro));
+    row.push(fmtN(t.comissao));
+    linhas.push(row.join(';'));
+  }
+
+  var csv  = '\uFEFF' + 'Resultados de Vendas ' + ano + ' — ' + agrupLabel + '\n' +
+             cols.join(';') + '\n' + linhas.join('\n');
+  var blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  var url  = URL.createObjectURL(blob);
+  var a    = document.createElement('a');
+  a.href     = url;
+  a.download = 'vendas-' + ano + '-' + (_agrupVendas === 'criado' ? 'cadastro' : 'checkin') + '.csv';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  mostrarToast('📥 CSV exportado com sucesso!', 'success');
+}
 function exportarCSV() {
   var lista = getReservasFiltradas();
   if (lista.length === 0) {
@@ -5626,55 +5922,6 @@ function renderRelatorioDesempenho() {
         '</div>';
     });
     html += '</div>';
-  }
-
-  /* ---- BLOCO 4: Histórico de Vendas por Mês ---- */
-  var mesesMap = {};
-  reservas.forEach(function (r) {
-    if ((r.status || '').toLowerCase() === 'cancelado') return;
-    var key = r.entrada ? r.entrada.slice(0, 7) : null;
-    if (!key) return;
-    if (!mesesMap[key]) mesesMap[key] = { reservas: 0, noites: 0, venda: 0, captacao: 0, lucro: 0 };
-    mesesMap[key].reservas++;
-    mesesMap[key].noites   += parseInt(r.noites || 0, 10);
-    mesesMap[key].venda    += parseFloat(r.total || 0);
-    mesesMap[key].captacao += parseFloat(r.valorCaptacao || 0);
-    mesesMap[key].lucro    += r.valorCaptacao > 0 ? (parseFloat(r.total || 0) - parseFloat(r.valorCaptacao || 0)) : 0;
-  });
-
-  var mesesKeys = Object.keys(mesesMap).sort().reverse();
-  var temCaptacaoHist = mesesKeys.some(function (k) { return mesesMap[k].captacao > 0; });
-
-  if (mesesKeys.length > 0) {
-    html += '<div class="relatorio-card relatorio-card-full">' +
-      '<div class="relatorio-card-title">📅 Histórico de Vendas por Mês</div>' +
-      '<div style="overflow-x:auto;">' +
-      '<table class="rel-hist-table"><thead><tr>' +
-      '<th>Mês</th><th>Reservas</th><th>Noites</th><th>Total de Venda</th>' +
-      (temCaptacaoHist ? '<th>Captação</th><th>Lucro</th>' : '') +
-      '</tr></thead><tbody>';
-
-    mesesKeys.forEach(function (key) {
-      var m = mesesMap[key];
-      var partes = key.split('-');
-      var nomeMes = new Date(parseInt(partes[0]), parseInt(partes[1]) - 1, 1)
-        .toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
-      nomeMes = nomeMes.charAt(0).toUpperCase() + nomeMes.slice(1);
-      var lucroClass = m.lucro >= 0 ? 'val-verde' : 'val-vermelho';
-      var captCells = temCaptacaoHist
-        ? '<td>' + (m.captacao > 0 ? formatBRL(m.captacao) : '—') + '</td>' +
-          '<td class="' + (m.captacao > 0 ? lucroClass : '') + '">' + (m.captacao > 0 ? formatBRL(m.lucro) : '—') + '</td>'
-        : '';
-      html += '<tr>' +
-        '<td class="mes-nome">' + nomeMes + '</td>' +
-        '<td>' + m.reservas + '</td>' +
-        '<td>' + m.noites + '</td>' +
-        '<td>' + formatBRL(m.venda) + '</td>' +
-        captCells +
-        '</tr>';
-    });
-
-    html += '</tbody></table></div></div>';
   }
 
   grid.innerHTML = html || '<div style="color:var(--cor-sub);font-size:0.9em;padding:10px;">Nenhum dado disponível ainda.</div>';
