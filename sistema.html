@@ -2804,7 +2804,7 @@ thead .col-sticky-right {
       <span style="margin-left:auto; display:flex; gap:8px;">
         <button class="btn btn-secondary btn-sm" onclick="exportarCSVCaptacao()">📥 Exportar CSV</button>
         <button class="btn btn-secondary btn-sm" onclick="window.print()">🖨️ Imprimir</button>
-        <button class="btn btn-secondary btn-sm" id="captacoesAvancadoBtn" onclick="toggleModoAvancadoCaptacao()" title="Alternar Modo Avançado">🔬 Modo Avançado</button>
+        <button class="btn btn-secondary btn-sm" id="captacoesAvancadoBtn" onclick="toggleModoAvancadoCaptacao()" title="Alternar Modo Avançado" aria-label="Alternar Modo Avançado">🔬 Modo Avançado</button>
         <button class="btn btn-secondary btn-sm" id="captacoesToggleBtn" onclick="toggleCaptacoes()" title="Minimizar/Expandir tabela">▼ Minimizar</button>
       </span>
     </div>
@@ -7265,7 +7265,7 @@ function atualizarDashboardCaptacao() {
   var card = document.getElementById('capDash-aberto-card');
   var icon = document.getElementById('capDash-aberto-icon');
   if (card) {
-    card.className = card.className.replace(/\b(verde|amarelo|vermelho)\b/g, '').trim();
+    card.classList.remove('verde', 'amarelo', 'vermelho');
     if (totalAberto <= 0) {
       card.classList.add('verde');
       if (icon) icon.textContent = '✅';
