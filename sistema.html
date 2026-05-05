@@ -2883,7 +2883,7 @@ thead .col-sticky-right {
       <thead>
         <tr>
           <th>#</th>
-          <th>Proprietário</th>
+          <th class="col-sticky-left">Proprietário</th>
           <th>Telefone</th>
           <th>Propriedade</th>
           <th>Período</th>
@@ -2898,7 +2898,7 @@ thead .col-sticky-right {
           <th>Pagamento</th>
           <th>Reserva</th>
           <th>Repasse</th>
-          <th>Ações</th>
+          <th class="col-sticky-right">Ações</th>
         </tr>
       </thead>
       <tbody id="capTabelaBody">
@@ -7006,7 +7006,7 @@ function renderTabelaCaptacao() {
 
     return '<tr>' +
       '<td>' + (i + 1) + '</td>' +
-      '<td><strong>' + c.proprietario + '</strong></td>' +
+      '<td class="col-sticky-left"><strong>' + c.proprietario + '</strong></td>' +
       '<td>' + telLink + '</td>' +
       '<td>' + c.nome + (c.obs ? '<br><small style="color:var(--cinza)">' + c.obs + '</small>' : '') + '</td>' +
       '<td>' + formatarData(c.dataIni) + '<br><small>até ' + formatarData(c.dataFim) + '</small></td>' +
@@ -7021,7 +7021,7 @@ function renderTabelaCaptacao() {
       '<td>' + (formaLabel[c.formaPag] || c.formaPag) + parcInfo + '</td>' +
       '<td>' + statusBadge + '</td>' +
       '<td>' + repBadge + repData + '</td>' +
-      '<td><div class="actions">' +
+      '<td class="col-sticky-right"><div class="actions">' +
         '<button class="btn btn-secondary btn-sm" onclick="editarCaptacao(\'' + c.id + '\')">✏️</button>' +
         '<button class="btn btn-success btn-sm" onclick="enviarWhatsAppCaptacao(\'' + c.id + '\')">📱</button>' +
         '<button class="btn btn-secondary btn-sm" onclick="registrarRepasse(\'' + c.id + '\')" title="' + (repSt === 'repassado' ? 'Desfazer repasse' : 'Registrar repasse') + '">💸</button>' +
