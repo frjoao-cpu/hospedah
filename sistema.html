@@ -5369,7 +5369,7 @@ function atualizarVendasAnuais() {
   /* inicializa acumuladores para o ano selecionado e para o ano anterior (YoY) */
   var totais = {}, antAno = {};
   for (var m = 1; m <= 12; m++) {
-    totais[m] = { reservas: 0, noites: 0, venda: 0, comissao: 0, captacao: 0, lucro: 0 };
+    totais[m] = { reservas: 0, noites: 0, venda: 0, comissao: 0, captacao: 0, lucro: 0, comissaoVenda: 0 };
     antAno[m] = { venda: 0 };
   }
 
@@ -5394,6 +5394,16 @@ function atualizarVendasAnuais() {
     } else if (rAno === ano - 1) {
       antAno[rMes].venda += venda;
     }
+    /* comissão sempre pela data de venda (criadoEm), independente do agrupamento */
+    var dtCriado = r.criadoEm ? r.criadoEm.slice(0, 7) : null;
+    if (dtCriado) {
+      var pCriado = dtCriado.split('-');
+      var anoCriado = parseInt(pCriado[0], 10);
+      var mesCriado = parseInt(pCriado[1], 10);
+      if (anoCriado === ano && mesCriado >= 1 && mesCriado <= 12) {
+        totais[mesCriado].comissaoVenda += parseFloat(r.comissao || 0);
+      }
+    }
   });
 
   /* flags para colunas opcionais */
@@ -5405,14 +5415,15 @@ function atualizarVendasAnuais() {
   for (var m = 1; m <= 12; m++) { if (totais[m].venda > maxVenda) maxVenda = totais[m].venda; }
 
   /* totais anuais */
-  var totAno = { reservas: 0, noites: 0, venda: 0, comissao: 0, captacao: 0, lucro: 0 };
+  var totAno = { reservas: 0, noites: 0, venda: 0, comissao: 0, captacao: 0, lucro: 0, comissaoVenda: 0 };
   for (var m = 1; m <= 12; m++) {
-    totAno.reservas  += totais[m].reservas;
-    totAno.noites    += totais[m].noites;
-    totAno.venda     += totais[m].venda;
-    totAno.comissao  += totais[m].comissao;
-    totAno.captacao  += totais[m].captacao;
-    totAno.lucro     += totais[m].lucro;
+    totAno.reservas      += totais[m].reservas;
+    totAno.noites        += totais[m].noites;
+    totAno.venda         += totais[m].venda;
+    totAno.comissao      += totais[m].comissao;
+    totAno.captacao      += totais[m].captacao;
+    totAno.lucro         += totais[m].lucro;
+    totAno.comissaoVenda += totais[m].comissaoVenda;
   }
 
   var mesAtual = new Date().getMonth() + 1;
@@ -5431,6 +5442,7 @@ function atualizarVendasAnuais() {
       '<th>% do Ano</th>' +
       (temCaptacao ? '<th>🛒 Captação</th><th>📈 Lucro</th>' : '') +
       '<th>🏷️ Comissão</th>' +
+      '<th>💰 Comissão Total mês</th>' +
       '<th>↕ vs ' + (ano - 1) + '</th>' +
       '</tr>';
   }
@@ -5479,6 +5491,7 @@ function atualizarVendasAnuais() {
       '<td><span class="va-pct">' + (t.venda > 0 ? pct + '%' : '—') + '</span></td>' +
       captCells +
       '<td class="va-comissao">' + (t.comissao > 0 ? formatBRL(t.comissao) : '<span class="va-pct">—</span>') + '</td>' +
+      '<td class="va-comissao">' + (t.comissaoVenda > 0 ? formatBRL(t.comissaoVenda) : '<span class="va-pct">—</span>') + '</td>' +
       '<td>' + yoy + '</td>' +
       '</tr>';
   }
@@ -5503,6 +5516,7 @@ function atualizarVendasAnuais() {
     '<td></td>' +
     captTotCells +
     '<td class="va-comissao">' + formatBRL(totAno.comissao) + '</td>' +
+    '<td class="va-comissao">' + formatBRL(totAno.comissaoVenda) + '</td>' +
     '<td></td>' +
     '</tr>' +
     (totAno.reservas > 0
@@ -5514,6 +5528,7 @@ function atualizarVendasAnuais() {
         '<td></td>' +
         captMedCells +
         '<td>' + formatBRL(totAno.comissao / 12) + '</td>' +
+        '<td>' + formatBRL(totAno.comissaoVenda / 12) + '</td>' +
         '<td></td>' +
         '</tr>'
       : '');
