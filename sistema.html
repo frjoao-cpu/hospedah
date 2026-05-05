@@ -6810,7 +6810,8 @@ function renderTabelaCaptacao() {
     if (fStatus  && c.statusReserva !== fStatus)  return false;
     if (fForma   && c.formaPag !== fForma)         return false;
     if (fPend === 'pendente' && c.valorAberto <= 0) return false;
-    if (fPend === 'quitado'  && c.valorAberto  > 0) return false;
+    var temTransacaoFiltro = (c.valorPeriodo > 0 || c.valorPago > 0);
+    if (fPend === 'quitado'  && (c.valorAberto > 0 || !temTransacaoFiltro)) return false;
     if (fPeriodoIni && c.dataFim   < fPeriodoIni)   return false;
     if (fPeriodoFim && c.dataIni   > fPeriodoFim)   return false;
     if (fCota    && c.cota    !== fCota)            return false;
@@ -6835,9 +6836,12 @@ function renderTabelaCaptacao() {
       ? '<span class="badge badge-sim">✅ Sim</span>'
       : '<span class="badge badge-nao">❌ Não</span>';
 
+    var temTransacao = (c.valorPeriodo > 0 || c.valorPago > 0);
     var abertoCel = c.valorAberto > 0
       ? '<span style="color:var(--amarelo);font-weight:600;">' + formatBRL(c.valorAberto) + '</span>'
-      : '<span style="color:var(--verde);font-weight:600;">Quitado</span>';
+      : (temTransacao
+          ? '<span style="color:var(--verde);font-weight:600;">Quitado</span>'
+          : '<span style="color:var(--cinza);">—</span>');
 
     var parcInfo = (c.formaPag === 'cartao' || c.formaPag === 'boleto') && c.numParcelas > 1
       ? '<br><span class="badge badge-parcelas" style="margin-top:3px;">' + c.parcelaAtual + '/' + c.numParcelas + 'x</span>'
