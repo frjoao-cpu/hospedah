@@ -1078,22 +1078,32 @@ window.addEventListener('popstate', () => {
 // ── DASHBOARD (admin / proprietario) ──
 async function carregarDashboard(email, role) {
   try {
-    let query = _sb.from('reservas_hospede').select('*').order('criado_em', { ascending: false }).limit(10);
-    const { data: reservas } = await query;
+    // Queries independentes: contagens globais reais + tabela das últimas 5 + soma de valores
+    const [
+      { count: totalPend },
+      { count: totalConf },
+      { data: recentes },
+      { data: valores }
+    ] = await Promise.all([
+      _sb.from('reservas_hospede').select('*', { count: 'exact', head: true }).eq('status', 'pendente'),
+      _sb.from('reservas_hospede').select('*', { count: 'exact', head: true }).eq('status', 'confirmada'),
+      _sb.from('reservas_hospede').select('*').order('criado_em', { ascending: false }).limit(5),
+      _sb.from('reservas_hospede').select('valor_total')
+    ]);
 
-    const todas  = reservas || [];
-    const pend   = todas.filter(r => r.status === 'pendente').length;
-    const conf   = todas.filter(r => r.status === 'confirmada').length;
-    const total  = todas.reduce((sum, r) => sum + Number(r.valor_total || 0), 0);
+    const pend  = totalPend || 0;
+    const conf  = totalConf || 0;
+    const total = (valores || []).reduce((sum, r) => sum + Number(r.valor_total || 0), 0);
+    const recList = recentes || [];
 
     document.getElementById('dashStats').innerHTML = `
-      <div class="stat-card"><div class="stat-val">${todas.length}</div><div class="stat-lbl">Reservas (últimas)</div></div>
+      <div class="stat-card"><div class="stat-val">${pend + conf}</div><div class="stat-lbl">Total (pend+conf)</div></div>
       <div class="stat-card"><div class="stat-val">${pend}</div><div class="stat-lbl">Pendentes</div></div>
       <div class="stat-card"><div class="stat-val">${conf}</div><div class="stat-lbl">Confirmadas</div></div>
       <div class="stat-card"><div class="stat-val">${fmtMoney(total)}</div><div class="stat-lbl">Volume estimado</div></div>
     `;
 
-    document.getElementById('dashRecentBody').innerHTML = todas.slice(0, 5).map(r => `
+    document.getElementById('dashRecentBody').innerHTML = recList.map(r => `
       <tr>
         <td data-label="Hóspede">${esc(r.nome_hospede)}</td>
         <td data-label="Resort">${esc(r.resort_nome || '—')}</td>
@@ -1101,7 +1111,7 @@ async function carregarDashboard(email, role) {
         <td data-label="Valor">${fmtMoney(r.valor_total)}</td>
         <td data-label="Status"><span class="status-badge s-${r.status}">${r.status}</span></td>
         <td data-label="Ações">
-          ${r.email_hospede ? `<a href="https://wa.me/55${(r.telefone||'').replace(/\D/g,'')}" target="_blank" class="btn btn-success btn-sm">📱</a>` : ''}
+          ${r.telefone ? `<a href="https://wa.me/55${(r.telefone||'').replace(/\D/g,'')}" target="_blank" class="btn btn-success btn-sm">📱</a>` : ''}
         </td>
       </tr>
     `).join('') || '<tr><td colspan="6" style="text-align:center;color:var(--cor-sub);padding:20px;">Nenhuma reserva encontrada.</td></tr>';
