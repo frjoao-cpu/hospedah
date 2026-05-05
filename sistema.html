@@ -659,9 +659,16 @@ tbody td {
   font-weight: 600;
 }
 
-.badge-pago    { background: rgba(37,211,102,0.15); color: var(--verde); }
-.badge-pendente{ background: rgba(243,156,18,0.15);  color: var(--amarelo); }
-.badge-cancelado{ background: rgba(231,76,60,0.15); color: var(--vermelho); }
+.badge-pago         { background: rgba(37,211,102,0.15); color: var(--verde); }
+.badge-pendente     { background: rgba(243,156,18,0.15);  color: var(--amarelo); }
+.badge-cancelado    { background: rgba(231,76,60,0.15);   color: var(--vermelho); }
+.badge-quitado      { background: rgba(37,211,102,0.18);  color: var(--verde); }
+.badge-pendente-dia { background: rgba(243,156,18,0.18);  color: var(--amarelo); }
+.badge-vencido      { background: rgba(231,76,60,0.18);   color: var(--vermelho); }
+
+/* Coluna extra visível apenas no Modo Avançado */
+.cap-col-avancado { display: none; }
+#tabelaCaptacoes.cap-avancado .cap-col-avancado { display: table-cell; }
 
 /* ==========================================
    SEPARADORES DE MÊS NA TABELA
@@ -2621,8 +2628,8 @@ thead .col-sticky-right {
         <div class="dash-label">Total Pago</div>
         <div class="dash-value" id="capDash-pago">R$ 0,00</div>
       </div>
-      <div class="dash-card amarelo">
-        <div class="dash-icon">⚠️</div>
+      <div class="dash-card amarelo" id="capDash-aberto-card">
+        <div class="dash-icon" id="capDash-aberto-icon">⚠️</div>
         <div class="dash-label">Valor em Aberto</div>
         <div class="dash-value" id="capDash-aberto">R$ 0,00</div>
       </div>
@@ -2718,7 +2725,7 @@ thead .col-sticky-right {
 
       <div class="field-group">
         <label>Status da Reserva</label>
-        <select id="cap_status_reserva">
+        <select id="cap_status_reserva" onchange="calcularAbertoCaptacao()">
           <option value="nao">❌ Não confirmada</option>
           <option value="sim">✅ Confirmada</option>
         </select>
@@ -2797,6 +2804,7 @@ thead .col-sticky-right {
       <span style="margin-left:auto; display:flex; gap:8px;">
         <button class="btn btn-secondary btn-sm" onclick="exportarCSVCaptacao()">📥 Exportar CSV</button>
         <button class="btn btn-secondary btn-sm" onclick="window.print()">🖨️ Imprimir</button>
+        <button class="btn btn-secondary btn-sm" id="captacoesAvancadoBtn" onclick="toggleModoAvancadoCaptacao()" title="Alternar Modo Avançado" aria-label="Alternar Modo Avançado">🔬 Modo Avançado</button>
         <button class="btn btn-secondary btn-sm" id="captacoesToggleBtn" onclick="toggleCaptacoes()" title="Minimizar/Expandir tabela">▼ Minimizar</button>
       </span>
     </div>
@@ -2832,8 +2840,11 @@ thead .col-sticky-right {
         <label>Financeiro</label>
         <select id="cf_pendente" onchange="renderTabelaCaptacao()">
           <option value="">Todos</option>
-          <option value="pendente">⏳ Com pendência</option>
-          <option value="quitado">✅ Quitados</option>
+          <option value="quitado">🟢 Quitados</option>
+          <option value="pendente-dia">🟡 Pendente — em dia</option>
+          <option value="vencido">🔴 Pendente — em atraso</option>
+          <option value="pendente">⏳ Qualquer pendência</option>
+          <option value="sem-negociacao">⚪ Sem negociação</option>
         </select>
       </div>
       <div class="field-group">
@@ -2882,6 +2893,7 @@ thead .col-sticky-right {
           <th>Valor Período</th>
           <th>Valor Pago</th>
           <th>Valor em Aberto</th>
+          <th class="cap-col-avancado">Status Fin.</th>
           <th>Dt. Pagamento</th>
           <th>Pagamento</th>
           <th>Reserva</th>
@@ -3483,7 +3495,7 @@ thead .col-sticky-right {
       </div>
       <div class="field-group">
         <label>Status da Reserva</label>
-        <select id="editCap_status_reserva">
+        <select id="editCap_status_reserva" onchange="calcEditAbertoCaptacao()">
           <option value="nao">❌ Não confirmada</option>
           <option value="sim">✅ Confirmada</option>
         </select>
@@ -6733,6 +6745,31 @@ function obterNomeCaptacao(selId, inputId) {
 ========================================== */
 var CAP_KEY  = 'hospeda_captacoes';
 var captacoes = [];
+var captacoesAvancado = false;
+
+/* Retorna o status financeiro de uma captação:
+   'sem-negociacao' | 'quitado' | 'pendente-dia' | 'vencido' */
+function statusFinanceiroCaptacao(c) {
+  if ((c.statusReserva || 'nao') !== 'sim') return 'sem-negociacao';
+  var temTransacao = (c.valorPeriodo > 0 || c.valorPago > 0);
+  if (!temTransacao) return 'sem-negociacao';
+  if ((c.valorAberto || 0) <= 0) return 'quitado';
+  if (c.dataPag) {
+    var hoje = new Date(); hoje.setHours(0, 0, 0, 0);
+    if (new Date(c.dataPag + 'T00:00:00') < hoje) return 'vencido';
+  }
+  return 'pendente-dia';
+}
+
+/* Alterna entre Modo Simples e Modo Avançado na tabela de captações */
+function toggleModoAvancadoCaptacao() {
+  captacoesAvancado = !captacoesAvancado;
+  var btn = document.getElementById('captacoesAvancadoBtn');
+  if (btn) btn.textContent = captacoesAvancado ? '🔬 Modo Simples' : '🔬 Modo Avançado';
+  var tabela = document.getElementById('tabelaCaptacoes');
+  if (tabela) tabela.classList.toggle('cap-avancado', captacoesAvancado);
+  renderTabelaCaptacao();
+}
 
 function carregarCaptacoes() {
   try {
@@ -6767,9 +6804,11 @@ function calcularDiasCaptacao() {
 }
 
 function calcularAbertoCaptacao() {
-  var periodo = parseFloat(document.getElementById('cap_valor_periodo').value) || 0;
-  var pago    = parseFloat(document.getElementById('cap_valor_pago').value) || 0;
-  document.getElementById('cap_valor_aberto').value = Math.max(0, periodo - pago).toFixed(2);
+  var statusRes = document.getElementById('cap_status_reserva').value;
+  var periodo   = parseFloat(document.getElementById('cap_valor_periodo').value) || 0;
+  var pago      = parseFloat(document.getElementById('cap_valor_pago').value)    || 0;
+  document.getElementById('cap_valor_aberto').value =
+    statusRes === 'sim' ? Math.max(0, periodo - pago).toFixed(2) : '0.00';
 }
 
 function onFormaPagCaptacao() {
@@ -6880,9 +6919,14 @@ function renderTabelaCaptacao() {
     )) return false;
     if (fStatus  && c.statusReserva !== fStatus)  return false;
     if (fForma   && c.formaPag !== fForma)         return false;
-    if (fPend === 'pendente' && c.valorAberto <= 0) return false;
-    var temTransacaoFiltro = (c.valorPeriodo > 0 || c.valorPago > 0);
-    if (fPend === 'quitado'  && (c.valorAberto > 0 || !temTransacaoFiltro)) return false;
+    if (fPend) {
+      var sf = statusFinanceiroCaptacao(c);
+      if (fPend === 'quitado'        && sf !== 'quitado')                            return false;
+      if (fPend === 'pendente-dia'   && sf !== 'pendente-dia')                       return false;
+      if (fPend === 'vencido'        && sf !== 'vencido')                            return false;
+      if (fPend === 'pendente'       && sf !== 'pendente-dia' && sf !== 'vencido')   return false;
+      if (fPend === 'sem-negociacao' && sf !== 'sem-negociacao')                     return false;
+    }
     if (fPeriodoIni && c.dataFim   < fPeriodoIni)   return false;
     if (fPeriodoFim && c.dataIni   > fPeriodoFim)   return false;
     if (fCota    && c.cota    !== fCota)            return false;
@@ -6892,7 +6936,7 @@ function renderTabelaCaptacao() {
   var tbody = document.getElementById('capTabelaBody');
   if (!lista.length) {
     tbody.innerHTML =
-      '<tr><td colspan="16"><div class="empty-state">' +
+      '<tr><td colspan="' + (captacoesAvancado ? 17 : 16) + '"><div class="empty-state">' +
       '<div class="empty-icon">🏡</div>' +
       '<div>Nenhuma captação encontrada.</div>' +
       '<div style="font-size:0.85em;margin-top:6px;color:var(--cinza)">Use o formulário acima para adicionar a primeira captação.</div>' +
@@ -6907,12 +6951,41 @@ function renderTabelaCaptacao() {
       ? '<span class="badge badge-sim">✅ Sim</span>'
       : '<span class="badge badge-nao">❌ Não</span>';
 
-    var temTransacao = (c.valorPeriodo > 0 || c.valorPago > 0);
-    var abertoCel = c.valorAberto > 0
-      ? '<span style="color:var(--amarelo);font-weight:600;">' + formatBRL(c.valorAberto) + '</span>'
-      : (temTransacao
-          ? '<span style="color:var(--verde);font-weight:600;">Quitado</span>'
-          : '<span style="color:var(--cinza);">—</span>');
+    /* ── Sinalização financeira por cores ── */
+    var statusFin = statusFinanceiroCaptacao(c);
+    var abertoCel;
+    if (statusFin === 'sem-negociacao') {
+      abertoCel = '<span style="color:var(--cinza)">—</span>';
+    } else if (statusFin === 'quitado') {
+      abertoCel = '<span class="badge badge-quitado">🟢 Quitado</span>';
+    } else if (statusFin === 'pendente-dia') {
+      abertoCel = '<span class="badge badge-pendente-dia">🟡 ' + formatBRL(c.valorAberto) + '</span>';
+    } else {
+      abertoCel = '<span class="badge badge-vencido">🔴 ' + formatBRL(c.valorAberto) + '</span>';
+    }
+
+    /* ── Coluna extra do Modo Avançado ── */
+    var avancadoCel;
+    if (statusFin === 'sem-negociacao') {
+      avancadoCel = '<td class="cap-col-avancado"><span style="color:var(--cinza);font-size:0.85em">⚪ Sem negociação</span></td>';
+    } else if (statusFin === 'quitado') {
+      avancadoCel = '<td class="cap-col-avancado"><span class="badge badge-quitado">🟢 Quitado</span></td>';
+    } else {
+      var hoje2 = new Date(); hoje2.setHours(0, 0, 0, 0);
+      var avancadoTxt;
+      if (c.dataPag) {
+        var diffDias = Math.round((new Date(c.dataPag + 'T00:00:00') - hoje2) / 86400000);
+        var tip = 'Vencimento: ' + formatarData(c.dataPag);
+        avancadoTxt = statusFin === 'vencido'
+          ? '<span class="badge badge-vencido" title="' + tip + '">🔴 ' + Math.abs(diffDias) + 'd atraso</span>'
+          : '<span class="badge badge-pendente-dia" title="' + tip + '">🟡 Vence em ' + diffDias + 'd</span>';
+      } else {
+        avancadoTxt = statusFin === 'vencido'
+          ? '<span class="badge badge-vencido">🔴 Atrasado</span>'
+          : '<span class="badge badge-pendente-dia">🟡 Pendente</span>';
+      }
+      avancadoCel = '<td class="cap-col-avancado">' + avancadoTxt + '</td>';
+    }
 
     var parcInfo = (c.formaPag === 'cartao' || c.formaPag === 'boleto') && c.numParcelas > 1
       ? '<br><span class="badge badge-parcelas" style="margin-top:3px;">' + c.parcelaAtual + '/' + c.numParcelas + 'x</span>'
@@ -6943,6 +7016,7 @@ function renderTabelaCaptacao() {
       '<td>' + formatBRL(c.valorPeriodo) + '</td>' +
       '<td style="color:var(--verde);">' + formatBRL(c.valorPago) + '</td>' +
       '<td>' + abertoCel + '</td>' +
+      avancadoCel +
       '<td>' + (c.dataPag ? formatarData(c.dataPag) : '—') + '</td>' +
       '<td>' + (formaLabel[c.formaPag] || c.formaPag) + parcInfo + '</td>' +
       '<td>' + statusBadge + '</td>' +
@@ -7030,9 +7104,11 @@ function calcEditDiasCaptacao() {
 }
 
 function calcEditAbertoCaptacao() {
-  var periodo = parseFloat(document.getElementById('editCap_valor_periodo').value) || 0;
-  var pago    = parseFloat(document.getElementById('editCap_valor_pago').value)    || 0;
-  document.getElementById('editCap_valor_aberto').value = Math.max(0, periodo - pago).toFixed(2);
+  var statusRes = document.getElementById('editCap_status_reserva').value;
+  var periodo   = parseFloat(document.getElementById('editCap_valor_periodo').value) || 0;
+  var pago      = parseFloat(document.getElementById('editCap_valor_pago').value)    || 0;
+  document.getElementById('editCap_valor_aberto').value =
+    statusRes === 'sim' ? Math.max(0, periodo - pago).toFixed(2) : '0.00';
 }
 
 function onEditFormaPagCaptacao() {
@@ -7158,13 +7234,20 @@ function atualizarDashboardCaptacao() {
   var totalAberto  = 0;
   var confirmadas  = 0;
   var comPend      = 0;
+  var temVencido   = false;
+  var hoje         = new Date(); hoje.setHours(0, 0, 0, 0);
 
   captacoes.forEach(function (c) {
     totalPeriodo += c.valorPeriodo || 0;
     totalPago    += c.valorPago    || 0;
-    totalAberto  += c.valorAberto  || 0;
-    if (c.statusReserva === 'sim') confirmadas++;
-    if (c.valorAberto > 0) comPend++;
+    if (c.statusReserva === 'sim') {
+      confirmadas++;
+      totalAberto += c.valorAberto || 0;
+      if ((c.valorAberto || 0) > 0) {
+        comPend++;
+        if (c.dataPag && new Date(c.dataPag + 'T00:00:00') < hoje) temVencido = true;
+      }
+    }
   });
 
   function _set(elId, val) {
@@ -7177,6 +7260,23 @@ function atualizarDashboardCaptacao() {
   _set('capDash-aberto',      formatBRL(totalAberto));
   _set('capDash-confirmadas', confirmadas);
   _set('capDash-pendencias',  comPend);
+
+  /* Cor dinâmica do card "Valor em Aberto" */
+  var card = document.getElementById('capDash-aberto-card');
+  var icon = document.getElementById('capDash-aberto-icon');
+  if (card) {
+    card.classList.remove('verde', 'amarelo', 'vermelho');
+    if (totalAberto <= 0) {
+      card.classList.add('verde');
+      if (icon) icon.textContent = '✅';
+    } else if (temVencido) {
+      card.classList.add('vermelho');
+      if (icon) icon.textContent = '🚨';
+    } else {
+      card.classList.add('amarelo');
+      if (icon) icon.textContent = '⚠️';
+    }
+  }
 }
 
 /* ==========================================
