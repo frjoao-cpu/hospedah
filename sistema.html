@@ -2203,6 +2203,7 @@ thead .col-sticky-right {
     <div class="btn-row">
       <button class="btn btn-primary" onclick="adicionarReserva()">➕ Adicionar à Planilha</button>
       <button class="btn btn-secondary" onclick="limparFormulario()">🗑️ Limpar</button>
+      <button class="btn btn-secondary" onclick="importarReservasSite()" title="Importa reservas feitas em reservas.html ainda não adicionadas à planilha">📥 Importar do Site</button>
     </div>
   </section>
 
@@ -4999,6 +5000,95 @@ function adicionarReserva() {
 
   // Rola para a tabela
   document.getElementById('reservas').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+/* ==========================================
+   IMPORTAR DO SITE (reservas_hospede)
+   Busca reservas feitas em reservas.html que ainda não foram
+   adicionadas à planilha financeira do sistema. Usa o campo
+   `importadoSbIds` em localStorage para evitar reimportações.
+========================================== */
+var IMPORT_IDS_KEY = 'hospedah_importados_sb';
+
+function _getImportadosIds() {
+  try {
+    return JSON.parse(localStorage.getItem(IMPORT_IDS_KEY) || '[]');
+  } catch(e) { return []; }
+}
+
+function _salvarImportadosIds(ids) {
+  localStorage.setItem(IMPORT_IDS_KEY, JSON.stringify(ids));
+}
+
+async function importarReservasSite() {
+  var btn = document.querySelector('[onclick="importarReservasSite()"]');
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ Importando...'; }
+  try {
+    var importados = _getImportadosIds();
+    var { data, error } = await _supabase
+      .from('reservas_hospede')
+      .select('id,nome_hospede,resort_nome,data_entrada,data_saida,num_hospedes,valor_total,status,telefone,criado_em')
+      .in('status', ['pendente', 'confirmada'])
+      .order('criado_em', { ascending: false })
+      .limit(200);
+
+    if (error) throw error;
+
+    var novos = (data || []).filter(function(r) { return importados.indexOf(r.id) === -1; });
+
+    if (!novos.length) {
+      mostrarToast('✅ Nenhuma reserva nova para importar.', 'success');
+      return;
+    }
+
+    var novasIds = [];
+    novos.forEach(function(r) {
+      var noites = calcularNoites(r.data_entrada, r.data_saida);
+      var total  = parseFloat(r.valor_total) || 0;
+      var valorNoite = noites > 0 && total > 0 ? parseFloat((total / noites).toFixed(2)) : 0;
+      var statusMap  = { confirmada: 'pago' };
+      var reserva = {
+        id:            gerarId(),
+        importadoSbId: r.id,
+        cliente:       r.nome_hospede || '—',
+        resort:        r.resort_nome  || 'Outro',
+        canal:         'Direta',
+        avaliacao:     null,
+        status:        statusMap[r.status] || 'pendente',
+        entrada:       r.data_entrada  || '',
+        saida:         r.data_saida    || '',
+        noites:        noites,
+        valorNoite:    valorNoite,
+        total:         total,
+        comissaoPct:   15,
+        comissao:      parseFloat((total * 0.15).toFixed(2)),
+        repasse:       parseFloat((total * 0.85).toFixed(2)),
+        valorCaptacao: 0,
+        lucro:         total,
+        dataCaptacao:  '',
+        obs:           'Importado do site HOSPEDAH',
+        criadoEm:      r.criado_em || new Date().toISOString()
+      };
+      reservas.push(reserva);
+      novasIds.push(r.id);
+    });
+
+    salvarReservas(reservas);
+    _salvarImportadosIds(importados.concat(novasIds));
+    renderTabela();
+    atualizarDashboard();
+    atualizarMensal();
+    atualizarVendasAnuais();
+    renderRelatorioDesempenho();
+    registrarAuditoria('Importação do site', novos.length + ' reserva(s) importada(s) de reservas_hospede');
+    mostrarToast('✅ ' + novos.length + ' reserva(s) importada(s) com sucesso!', 'success');
+    document.getElementById('reservas').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  } catch(e) {
+    console.error('[hospedah] Erro ao importar reservas do site:', e);
+    mostrarToast('❌ Erro ao importar reservas: ' + (e && e.message ? e.message : e), 'error');
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = '📥 Importar do Site'; }
+  }
 }
 
 /* ==========================================
