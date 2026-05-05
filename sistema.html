@@ -468,6 +468,7 @@ tbody td {
   font-size: 0.8em;
   opacity: 0.8;
 }
+tbody.mes-fechado tr:not(.mes-separador) { display: none; }
 
 .actions { display: flex; gap: 5px; flex-wrap: wrap; }
 
@@ -4345,12 +4346,6 @@ function renderTabela() {
 
     tbody.innerHTML = separador + rowsHtml;
 
-    // Collapse rows of past months right after DOM insertion
-    if (!isAberto) {
-      var rows = tbody.querySelectorAll('tr:not(.mes-separador)');
-      rows.forEach(function (row) { row.style.display = 'none'; });
-    }
-
     tabela.appendChild(tbody);
   });
 
@@ -4370,15 +4365,12 @@ function toggleGrupoMes(mes) {
   var tbody = document.querySelector('#tabelaReservas tbody[data-mes="' + mes + '"]');
   if (!tbody) return;
   var isAberto = tbody.classList.contains('mes-aberto');
-  var rows     = tbody.querySelectorAll('tr:not(.mes-separador)');
   var icon     = tbody.querySelector('.mes-sep-toggle');
 
   if (isAberto) {
-    rows.forEach(function (row) { row.style.display = 'none'; });
     tbody.classList.replace('mes-aberto', 'mes-fechado');
     if (icon) icon.textContent = '▼';
   } else {
-    rows.forEach(function (row) { row.style.display = ''; });
     tbody.classList.replace('mes-fechado', 'mes-aberto');
     if (icon) icon.textContent = '▲';
   }
@@ -4400,14 +4392,11 @@ function toggleTodosGrupos() {
   });
 
   tbodys.forEach(function (tbody) {
-    var rows = tbody.querySelectorAll('tr:not(.mes-separador)');
     var icon = tbody.querySelector('.mes-sep-toggle');
     if (algumFechado) {
-      rows.forEach(function (row) { row.style.display = ''; });
       tbody.classList.replace('mes-fechado', 'mes-aberto');
       if (icon) icon.textContent = '▲';
     } else {
-      rows.forEach(function (row) { row.style.display = 'none'; });
       tbody.classList.replace('mes-aberto', 'mes-fechado');
       if (icon) icon.textContent = '▼';
     }
