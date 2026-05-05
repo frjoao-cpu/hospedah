@@ -695,7 +695,19 @@ CREATE TRIGGER trg_ai_config_atualizado_em
   BEFORE UPDATE ON ai_config
   FOR EACH ROW EXECUTE FUNCTION set_ai_config_atualizado_em();
 
--- Valor inicial: system prompt completo (migrado do código)
+-- ⚠️  NOTA ARQUITETURAL (atualizada):
+-- A Edge Function NÃO usa mais a chave 'system_prompt' para construir o contexto da IA.
+-- Em vez disso, ela usa SEMPRE o SYSTEM_PROMPT hardcoded (que contém informações
+-- completas sobre alimentação, resort e políticas) e appenda a chave 'custom_instructions'
+-- como conteúdo suplementar.
+-- Isso elimina o conflito de armazenamento onde um 'system_prompt' desatualizado no
+-- banco suprimia informações de alimentação do contexto da IA.
+--
+-- A chave 'system_prompt' abaixo é mantida apenas para compatibilidade com instâncias
+-- existentes do banco que já a possuem. Ela NÃO é mais lida pela Edge Function.
+-- Use 'custom_instructions' (abaixo) para personalizar o comportamento da IA via sistema.html.
+
+-- Chave legada — mantida para referência, não mais usada pela Edge Function.
 INSERT INTO ai_config (chave, valor, ativo) VALUES (
   'system_prompt',
   $$Você é o Concierge IA da HOSPEDAH, uma agência de turismo especializada em resorts e hospedagens de luxo no Brasil.
@@ -817,6 +829,15 @@ Instruções de comportamento:
   true
 ) ON CONFLICT (chave) DO NOTHING;
 
+-- Nova chave: instruções personalizadas adicionais (appended ao SYSTEM_PROMPT hardcoded).
+-- Edite este valor via sistema.html → Concierge IA → Instruções Personalizadas para
+-- adicionar informações extras sem risco de sobrescrever os dados completos de resort.
+INSERT INTO ai_config (chave, valor, ativo) VALUES (
+  'custom_instructions',
+  '',
+  true
+) ON CONFLICT (chave) DO NOTHING;
+
 -- ============================================================
 -- 21. DEFINIR PAPEL DO ADMINISTRADOR  ⚠️  OBRIGATÓRIO
 -- ============================================================
@@ -850,3 +871,315 @@ Instruções de comportamento:
 --   UPDATE profiles
 --   SET role = 'proprietario'
 --   WHERE id = (SELECT id FROM auth.users WHERE email = 'proprietario@seu-dominio.com.br');
+
+-- ============================================================
+-- 25. VISITAS_SITE — contador de acessos por página
+-- ============================================================
+-- Execute este bloco no Supabase SQL Editor para criar a tabela.
+-- Depois consulte: SELECT pagina, COUNT(*) AS visitas FROM visitas_site GROUP BY pagina ORDER BY visitas DESC;
+CREATE TABLE IF NOT EXISTS visitas_site (
+  id         uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
+  pagina     text        NOT NULL,          -- ex: 'reservas', 'index', 'busca'
+  criado_em  timestamptz DEFAULT now()
+);
+
+ALTER TABLE visitas_site ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "visitas_insercao_publica" ON visitas_site;
+DROP POLICY IF EXISTS "visitas_leitura_admin"    ON visitas_site;
+
+-- Qualquer visitante pode registrar uma visita
+CREATE POLICY "visitas_insercao_publica"
+  ON visitas_site FOR INSERT WITH CHECK (true);
+
+-- Apenas administradores lêem os dados de visita
+CREATE POLICY "visitas_leitura_admin"
+  ON visitas_site FOR SELECT TO authenticated
+  USING (EXISTS (SELECT 1 FROM profiles p WHERE p.id = auth.uid() AND p.role IN ('admin', 'proprietario')));
+
+CREATE INDEX IF NOT EXISTS idx_visitas_criado_em ON visitas_site(criado_em DESC);
+CREATE INDEX IF NOT EXISTS idx_visitas_pagina    ON visitas_site(pagina);
+
+-- ============================================================
+-- 25b. VISITAS_RESUMO_DIARIO — agregação histórica de acessos
+--      Cada linha representa o total de visitas de uma página
+--      em um determinado dia. Os registros detalhados de
+--      visitas_site com mais de 30 dias são movidos para cá
+--      automaticamente pelo job pg_cron 'agregar-visitas-diarias'
+--      (ver supabase_cron.sql), mantendo a tabela visitas_site
+--      enxuta sem perder o histórico acumulado.
+-- ============================================================
+CREATE TABLE IF NOT EXISTS visitas_resumo_diario (
+  id             uuid  PRIMARY KEY DEFAULT gen_random_uuid(),
+  data           date  NOT NULL,              -- dia do acesso (sem horário)
+  pagina         text  NOT NULL,              -- ex: 'reservas', 'index', 'busca'
+  total_visitas  int   NOT NULL DEFAULT 0,    -- soma de visitas naquele dia/página
+  criado_em      timestamptz DEFAULT now(),
+  atualizado_em  timestamptz DEFAULT now(),
+  UNIQUE (data, pagina)
+);
+
+ALTER TABLE visitas_resumo_diario ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "resumo_visitas_leitura_admin" ON visitas_resumo_diario;
+
+-- Apenas administradores lêem os totais históricos
+CREATE POLICY "resumo_visitas_leitura_admin"
+  ON visitas_resumo_diario FOR SELECT TO authenticated
+  USING (EXISTS (SELECT 1 FROM profiles p WHERE p.id = auth.uid() AND p.role IN ('admin', 'proprietario')));
+
+-- Trigger para manter atualizado_em atualizado
+CREATE OR REPLACE FUNCTION set_resumo_visitas_atualizado_em()
+RETURNS trigger LANGUAGE plpgsql AS $$
+BEGIN
+  NEW.atualizado_em := now();
+  RETURN NEW;
+END;
+$$;
+
+DROP TRIGGER IF EXISTS trg_resumo_visitas_atualizado_em ON visitas_resumo_diario;
+CREATE TRIGGER trg_resumo_visitas_atualizado_em
+  BEFORE UPDATE ON visitas_resumo_diario
+  FOR EACH ROW EXECUTE FUNCTION set_resumo_visitas_atualizado_em();
+
+CREATE INDEX IF NOT EXISTS idx_resumo_visitas_data    ON visitas_resumo_diario(data DESC);
+CREATE INDEX IF NOT EXISTS idx_resumo_visitas_pagina  ON visitas_resumo_diario(pagina);
+
+-- ============================================================
+-- 26. EVENTOS — log de auditoria de negócio (event sourcing)
+--     Registra automaticamente cada nova reserva em hospede.
+--     Útil para rastreabilidade, depuração e histórico imutável.
+-- ============================================================
+CREATE TABLE IF NOT EXISTS eventos (
+  id        uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
+  tipo      text        NOT NULL,   -- ex: 'reserva_criada', 'reserva_cancelada'
+  dados     jsonb,
+  criado_em timestamptz DEFAULT now()
+);
+
+ALTER TABLE eventos ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "eventos_leitura_admin"    ON eventos;
+DROP POLICY IF EXISTS "eventos_insercao_sistema" ON eventos;
+
+-- Apenas administradores e proprietários lêem o log de eventos
+CREATE POLICY "eventos_leitura_admin"
+  ON eventos FOR SELECT TO authenticated
+  USING (is_admin_user());
+
+-- Inserções feitas via trigger (service role ignora RLS); bloqueio explícito para autenticados
+CREATE POLICY "eventos_insercao_sistema"
+  ON eventos FOR INSERT TO authenticated
+  WITH CHECK (is_admin_user());
+
+CREATE INDEX IF NOT EXISTS idx_eventos_tipo      ON eventos(tipo);
+CREATE INDEX IF NOT EXISTS idx_eventos_criado_em ON eventos(criado_em DESC);
+
+-- Trigger: registra evento ao criar reserva_hospede
+CREATE OR REPLACE FUNCTION registrar_evento_reserva()
+RETURNS TRIGGER LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
+BEGIN
+  INSERT INTO eventos (tipo, dados)
+  VALUES (
+    'reserva_criada',
+    jsonb_build_object(
+      'reserva_id',  NEW.id,
+      'resort_nome', NEW.resort_nome,
+      'valor_total', NEW.valor_total,
+      'status',      NEW.status,
+      'criado_em',   NOW()
+    )
+  );
+  RETURN NEW;
+END;
+$$;
+
+DROP TRIGGER IF EXISTS trg_eventos_reserva_criada ON reservas_hospede;
+CREATE TRIGGER trg_eventos_reserva_criada
+  AFTER INSERT ON reservas_hospede
+  FOR EACH ROW EXECUTE FUNCTION registrar_evento_reserva();
+
+-- Trigger: registra mudança de status da reserva
+CREATE OR REPLACE FUNCTION registrar_evento_status_reserva()
+RETURNS TRIGGER LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
+BEGIN
+  IF NEW.status IS DISTINCT FROM OLD.status THEN
+    INSERT INTO eventos (tipo, dados)
+    VALUES (
+      'reserva_status_alterado',
+      jsonb_build_object(
+        'reserva_id',  NEW.id,
+        'resort_nome', NEW.resort_nome,
+        'status_de',   OLD.status,
+        'status_para', NEW.status,
+        'alterado_em', NOW()
+      )
+    );
+  END IF;
+  RETURN NEW;
+END;
+$$;
+
+DROP TRIGGER IF EXISTS trg_eventos_reserva_status ON reservas_hospede;
+CREATE TRIGGER trg_eventos_reserva_status
+  AFTER UPDATE ON reservas_hospede
+  FOR EACH ROW EXECUTE FUNCTION registrar_evento_status_reserva();
+
+-- ============================================================
+-- 27. PARTICIONAMENTO MENSAL DE reservas_hospede
+--     Cria automaticamente a partição do mês seguinte.
+--     NOTA: Requer que reservas_hospede seja convertida para
+--     tabela particionada. Executar apenas em banco novo ou após
+--     migração de dados. Para bancos existentes, use apenas a
+--     função criar_particao_reservas_hospede() via cron.
+-- ============================================================
+
+-- Função: cria a partição mensal de reservas_hospede (idempotente)
+CREATE OR REPLACE FUNCTION criar_particao_reservas_hospede(data_inicio DATE)
+RETURNS void LANGUAGE plpgsql AS $$
+DECLARE
+  data_fim    DATE := data_inicio + INTERVAL '1 month';
+  nome_tabela TEXT := 'reservas_hospede_' || TO_CHAR(data_inicio, 'YYYY_MM');
+BEGIN
+  -- Só executa se reservas_hospede for particionada (relkind = 'p')
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_class
+    WHERE relname = 'reservas_hospede' AND relkind = 'p'
+  ) THEN
+    RAISE NOTICE 'reservas_hospede não é tabela particionada — criação de partição ignorada.';
+    RETURN;
+  END IF;
+
+  EXECUTE format(
+    'CREATE TABLE IF NOT EXISTS %I PARTITION OF reservas_hospede
+     FOR VALUES FROM (%L) TO (%L)',
+    nome_tabela, data_inicio, data_fim
+  );
+END;
+$$;
+
+-- Cria a partição do mês atual (no-op se a tabela não for particionada)
+SELECT criar_particao_reservas_hospede(DATE_TRUNC('month', NOW())::date);
+
+-- ============================================================
+-- 28. MATERIALIZED VIEW — dashboard_resumo
+--     Agrega reservas por dia para o painel admin.
+--     Atualizada automaticamente via cron (ver supabase_cron.sql).
+--     Atualização manual: REFRESH MATERIALIZED VIEW CONCURRENTLY dashboard_resumo;
+-- ============================================================
+CREATE MATERIALIZED VIEW IF NOT EXISTS dashboard_resumo AS
+SELECT
+  DATE_TRUNC('day', criado_em)::date AS dia,
+  COUNT(*)                           AS total_reservas,
+  SUM(valor_total)                   AS faturamento,
+  COUNT(*) FILTER (WHERE status = 'confirmada')  AS confirmadas,
+  COUNT(*) FILTER (WHERE status = 'pendente')    AS pendentes,
+  COUNT(*) FILTER (WHERE status = 'cancelada')   AS canceladas
+FROM reservas_hospede
+GROUP BY 1;
+
+-- Índice único obrigatório para REFRESH CONCURRENTLY
+CREATE UNIQUE INDEX IF NOT EXISTS idx_dashboard_resumo_dia ON dashboard_resumo(dia);
+
+-- ============================================================
+-- 29. MATERIALIZED VIEW — dashboard_resumo_global
+--     Agrega reservas em uma única linha com totais globais.
+--     Ideal para cards de contagem no painel admin/proprietário.
+--     Atualizada via cron a cada 15 min (ver supabase_cron.sql).
+--     Atualização manual: REFRESH MATERIALIZED VIEW CONCURRENTLY dashboard_resumo_global;
+-- ============================================================
+CREATE MATERIALIZED VIEW IF NOT EXISTS dashboard_resumo_global AS
+SELECT
+  1                                                        AS id,
+  COUNT(*)                                                 AS total_reservas,
+  COALESCE(SUM(valor_total), 0)                            AS faturamento,
+  COUNT(*) FILTER (WHERE status = 'confirmada')            AS confirmadas,
+  COUNT(*) FILTER (WHERE status = 'pendente')              AS pendentes,
+  COUNT(*) FILTER (WHERE status = 'cancelada')             AS canceladas,
+  COUNT(*) FILTER (WHERE status = 'concluida')             AS concluidas
+FROM reservas_hospede;
+
+-- Índice único obrigatório para REFRESH CONCURRENTLY
+CREATE UNIQUE INDEX IF NOT EXISTS idx_dashboard_resumo_global_id ON dashboard_resumo_global(id);
+
+-- ============================================================
+-- 30. COBRANÇAS — sistema de cobrança avançada e automatizada
+--     Centraliza todas as cobranças vinculadas a reservas e captações.
+--     Suporta parcelamento, PIX, lembretes automáticos e controle de
+--     inadimplência. Integrado com pg_cron (ver supabase_cron.sql) e
+--     Edge Function cobranca-automatica.
+-- ============================================================
+CREATE TABLE IF NOT EXISTS cobrancas (
+  id                  uuid          PRIMARY KEY DEFAULT gen_random_uuid(),
+  origem_tipo         text          NOT NULL CHECK (origem_tipo IN ('reserva', 'captacao')),
+  origem_id           text          NOT NULL,   -- ID local (localStorage) da reserva ou captação
+  descricao           text          NOT NULL,
+  valor_total         numeric(10,2) NOT NULL DEFAULT 0,
+  valor_pago          numeric(10,2) NOT NULL DEFAULT 0,
+  valor_aberto        numeric(10,2) GENERATED ALWAYS AS (GREATEST(0, valor_total - valor_pago)) STORED,
+  data_vencimento     date          NOT NULL,
+  status_cobranca     text          NOT NULL DEFAULT 'pendente'
+                                    CHECK (status_cobranca IN ('pendente','parcial','pago','vencido','cancelado')),
+  forma_pagamento     text          NOT NULL DEFAULT 'pix'
+                                    CHECK (forma_pagamento IN ('pix','cartao','boleto','transferencia','dinheiro')),
+  num_parcelas        int           NOT NULL DEFAULT 1,
+  parcela_atual       int           NOT NULL DEFAULT 1,
+  codigo_pix          text,         -- BR Code copia-e-cola gerado no cliente
+  chave_pix           text,         -- chave PIX configurada pelo admin
+  nome_devedor        text,         -- nome do hóspede/proprietário
+  telefone_devedor    text,         -- WhatsApp para lembrete
+  enviado_whatsapp_em timestamptz,
+  enviado_email_em    timestamptz,
+  lembrete_count      int           NOT NULL DEFAULT 0,
+  user_id             uuid          REFERENCES auth.users(id) ON DELETE CASCADE,
+  criado_em           timestamptz   DEFAULT now(),
+  atualizado_em       timestamptz   DEFAULT now()
+);
+
+ALTER TABLE cobrancas ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "cobrancas_acesso_auth" ON cobrancas;
+
+-- Apenas usuários autenticados (admin/proprietario) gerenciam cobranças
+CREATE POLICY "cobrancas_acesso_auth"
+  ON cobrancas FOR ALL TO authenticated
+  USING (auth.uid() = user_id OR is_admin_user())
+  WITH CHECK (auth.uid() = user_id OR is_admin_user());
+
+-- Trigger: atualiza atualizado_em automaticamente
+CREATE OR REPLACE FUNCTION set_cobrancas_atualizado_em()
+RETURNS TRIGGER LANGUAGE plpgsql AS $$
+BEGIN
+  NEW.atualizado_em := now();
+  RETURN NEW;
+END;
+$$;
+
+DROP TRIGGER IF EXISTS trg_cobrancas_atualizado_em ON cobrancas;
+CREATE TRIGGER trg_cobrancas_atualizado_em
+  BEFORE UPDATE ON cobrancas
+  FOR EACH ROW EXECUTE FUNCTION set_cobrancas_atualizado_em();
+
+-- Índices
+CREATE INDEX IF NOT EXISTS idx_cobrancas_user        ON cobrancas(user_id, status_cobranca);
+CREATE INDEX IF NOT EXISTS idx_cobrancas_vencimento  ON cobrancas(data_vencimento, status_cobranca);
+CREATE INDEX IF NOT EXISTS idx_cobrancas_origem      ON cobrancas(origem_tipo, origem_id);
+
+-- ============================================================
+-- FUNÇÃO MANUTENÇÃO HOSPEDAH
+--     Invocada mensalmente pelo cron (ver supabase_cron.sql).
+--     Cria partição do mês seguinte e atualiza os dashboards.
+-- ============================================================
+CREATE OR REPLACE FUNCTION manutencao_hospedah()
+RETURNS void LANGUAGE plpgsql AS $$
+BEGIN
+  -- Cria partição do próximo mês (no-op se não particionada)
+  PERFORM criar_particao_reservas_hospede(
+    DATE_TRUNC('month', NOW() + INTERVAL '1 month')::date
+  );
+
+  -- Atualiza os dashboards de forma não-bloqueante
+  REFRESH MATERIALIZED VIEW CONCURRENTLY dashboard_resumo;
+  REFRESH MATERIALIZED VIEW CONCURRENTLY dashboard_resumo_global;
+END;
+$$;

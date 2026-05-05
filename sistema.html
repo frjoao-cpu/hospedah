@@ -49,19 +49,26 @@ body {
 /* ==========================================
    HEADER
 ========================================== */
+/* ==========================================
+   HEADER — TOPBAR + NAV
+========================================== */
 .sys-header {
   background: linear-gradient(135deg, var(--azul), var(--azul2));
   border-bottom: 2px solid var(--dourado);
-  padding: 14px 20px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 10px;
   position: sticky;
   top: 0;
   z-index: 100;
-  box-shadow: var(--sombra);
+  box-shadow: 0 2px 20px rgba(0,0,0,0.4);
+}
+
+/* ── TOP BAR: logo + utilities ── */
+.sys-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 20px 8px;
+  gap: 12px;
+  border-bottom: 1px solid rgba(212,175,55,0.12);
 }
 
 .sys-logo {
@@ -71,52 +78,212 @@ body {
 }
 
 .sys-logo span {
-  font-size: 1.3em;
+  font-size: 1.25em;
   font-weight: 700;
   color: var(--dourado);
   letter-spacing: 1px;
 }
 
 .sys-logo small {
-  font-size: 0.65em;
+  font-size: 0.62em;
   color: var(--cor-sub);
   font-weight: 400;
   display: block;
-  line-height: 1;
+  line-height: 1.1;
+  margin-top: 1px;
 }
 
-.sys-nav {
+/* ── TOPBAR UTILITY LINKS ── */
+.sys-topbar-utils {
   display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
 }
 
-.sys-nav a {
+.sys-topbar-utils a,
+.sys-topbar-utils button {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
   color: var(--cor-sub);
   text-decoration: none;
-  padding: 6px 14px;
+  font-family: inherit;
+  font-size: 0.78em;
+  font-weight: 500;
+  padding: 5px 12px;
   border-radius: 20px;
-  font-size: 0.85em;
-  transition: all 0.2s;
   border: 1px solid var(--borda);
+  background: rgba(255,255,255,0.04);
+  cursor: pointer;
+  transition: all 0.18s;
+  white-space: nowrap;
 }
 
-.sys-nav a:hover, .sys-nav a.active {
-  background: var(--dourado);
-  color: var(--azul);
+.sys-topbar-utils a:hover,
+.sys-topbar-utils button:hover {
+  color: var(--dourado);
+  border-color: rgba(212,175,55,0.5);
+  background: rgba(212,175,55,0.08);
+}
+
+.sys-topbar-utils a.util-danger:hover,
+.sys-topbar-utils button.util-danger:hover {
+  color: var(--vermelho);
+  border-color: rgba(231,76,60,0.4);
+  background: rgba(231,76,60,0.08);
+}
+
+.sys-topbar-utils a.util-cobrancas {
+  color: var(--dourado);
+  border-color: rgba(212,175,55,0.45);
+  background: rgba(212,175,55,0.1);
+  font-weight: 700;
+}
+.sys-topbar-utils a.util-cobrancas:hover {
+  background: rgba(212,175,55,0.22);
   border-color: var(--dourado);
+  box-shadow: 0 0 8px rgba(212,175,55,0.25);
 }
 
 #syncStatus {
-  font-size: 0.85em;
+  font-size: 0.8em;
   cursor: default;
   white-space: nowrap;
-  opacity: 0.85;
-  padding: 4px 8px;
+  padding: 5px 10px;
   border-radius: 20px;
   border: 1px solid var(--borda);
   background: rgba(255,255,255,0.04);
   transition: all 0.3s;
+  color: var(--cor-sub);
+}
+
+/* ── NAV ROW: scrollable tab bar ── */
+.sys-nav {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 8px 12px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.sys-nav::-webkit-scrollbar { display: none; }
+
+.sys-nav a {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--cor-sub);
+  text-decoration: none;
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 0.8em;
+  font-weight: 500;
+  white-space: nowrap;
+  transition: all 0.18s;
+  border: 1px solid transparent;
+  background: transparent;
+  cursor: pointer;
+  flex-shrink: 0;
+  letter-spacing: 0.2px;
+}
+
+.sys-nav a:hover {
+  color: var(--dourado);
+  background: rgba(212,175,55,0.08);
+  border-color: rgba(212,175,55,0.25);
+}
+
+.sys-nav a.active {
+  background: var(--dourado);
+  color: var(--azul);
+  border-color: var(--dourado);
+  font-weight: 700;
+  box-shadow: 0 2px 10px rgba(212,175,55,0.3);
+}
+
+/* Group dividers */
+.nav-sep {
+  display: inline-block;
+  width: 1px;
+  height: 20px;
+  background: rgba(212,175,55,0.18);
+  margin: 0 6px;
+  flex-shrink: 0;
+  align-self: center;
+}
+
+/* Nav dropdown (Captação) */
+.nav-dropdown {
+  position: relative;
+  flex-shrink: 0;
+}
+.nav-dropdown-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--cor-sub);
+  text-decoration: none;
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 0.8em;
+  font-weight: 500;
+  white-space: nowrap;
+  transition: all 0.18s;
+  border: 1px solid transparent;
+  background: transparent;
+  cursor: pointer;
+  letter-spacing: 0.2px;
+}
+.nav-dropdown-btn:hover,
+.nav-dropdown.open .nav-dropdown-btn {
+  color: var(--dourado);
+  background: rgba(212,175,55,0.08);
+  border-color: rgba(212,175,55,0.25);
+}
+.nav-dropdown-arrow {
+  font-size: 0.75em;
+  opacity: 0.7;
+  transition: transform 0.18s;
+}
+.nav-dropdown.open .nav-dropdown-arrow {
+  transform: rotate(180deg);
+}
+.nav-dropdown-menu {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 9999;
+  background: var(--azul-claro, #1a2035);
+  border: 1px solid rgba(212,175,55,0.3);
+  border-radius: 10px;
+  padding: 6px;
+  min-width: 200px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.35);
+}
+.nav-dropdown.open .nav-dropdown-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.nav-dropdown-menu a {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 12px;
+  border-radius: 7px;
+  font-size: 0.82em;
+  font-weight: 500;
+  color: var(--cor-sub);
+  text-decoration: none;
+  white-space: nowrap;
+  transition: all 0.15s;
+}
+.nav-dropdown-menu a:hover {
+  color: var(--dourado);
+  background: rgba(212,175,55,0.1);
 }
 
 #syncWarning {
@@ -200,16 +367,78 @@ body {
 
 /* PERIOD FILTER BUTTONS */
 .dash-period-btn {
-  padding: 4px 12px; border-radius: 14px;
+  padding: 5px 13px; border-radius: 16px;
   border: 1px solid var(--borda);
   background: rgba(255,255,255,0.04); color: var(--cor-sub);
   font-size: 0.76em; font-family: inherit; cursor: pointer;
-  transition: all .15s;
+  transition: all .18s; white-space: nowrap;
 }
-.dash-period-btn:hover { border-color: var(--dourado); color: var(--dourado); }
+.dash-period-btn:hover {
+  border-color: var(--dourado); color: var(--dourado);
+  background: rgba(212,175,55,0.08);
+  transform: translateY(-1px);
+}
 .dash-period-btn.active {
-  background: rgba(212,175,55,0.15); border-color: rgba(212,175,55,0.5); color: var(--dourado); font-weight: 600;
+  background: linear-gradient(135deg, rgba(212,175,55,0.22), rgba(212,175,55,0.10));
+  border-color: rgba(212,175,55,0.6); color: var(--dourado); font-weight: 700;
+  box-shadow: 0 2px 10px rgba(212,175,55,0.18);
 }
+
+/* PERIOD COUNT BADGE */
+#dashPeriodCount {
+  font-size: 0.72em; font-weight: 600;
+  color: var(--dourado); background: rgba(212,175,55,0.12);
+  border: 1px solid rgba(212,175,55,0.25);
+  border-radius: 20px; padding: 3px 10px; white-space: nowrap;
+  transition: all .2s; display: inline-block;
+}
+
+/* DATE INPUTS inside filter bar */
+.dash-date-input {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid var(--borda);
+  border-radius: 8px;
+  color: var(--cor-texto);
+  font-family: inherit; font-size: 0.78em;
+  padding: 5px 8px;
+  transition: border-color .15s;
+  cursor: pointer;
+}
+.dash-date-input:hover, .dash-date-input:focus {
+  border-color: rgba(212,175,55,0.5);
+  outline: none;
+}
+
+/* EXPORT BUTTON */
+.dash-export-btn {
+  background: linear-gradient(135deg, rgba(212,175,55,0.15), rgba(212,175,55,0.06));
+  border: 1px solid rgba(212,175,55,0.35); color: var(--dourado);
+  border-radius: 8px; padding: 5px 12px;
+  font-size: 0.76em; cursor: pointer; font-family: inherit;
+  font-weight: 600; transition: all .18s; white-space: nowrap;
+}
+.dash-export-btn:hover {
+  background: rgba(212,175,55,0.25); border-color: var(--dourado);
+  transform: translateY(-1px); box-shadow: 0 3px 12px rgba(212,175,55,0.2);
+}
+
+/* DASHBOARD card — subtle top accent */
+.dash-card {
+  position: relative;
+  overflow: hidden;
+}
+.dash-card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, transparent, var(--borda), transparent);
+  transition: background .2s;
+}
+.dash-card:hover::before {
+  background: linear-gradient(90deg, transparent, rgba(212,175,55,0.4), transparent);
+}
+.dash-card.verde::before  { background: linear-gradient(90deg, transparent, rgba(37,211,102,0.3), transparent); }
+.dash-card.vermelho::before { background: linear-gradient(90deg, transparent, rgba(231,76,60,0.3), transparent); }
+.dash-card.amarelo::before  { background: linear-gradient(90deg, transparent, rgba(243,156,18,0.3), transparent); }
 
 /* ROLE-SPECIFIC SECTIONS */
 .sys-role-section { display: none; }
@@ -470,6 +699,96 @@ tbody td {
 }
 tbody.mes-fechado tr:not(.mes-separador) { display: none; }
 
+/* ── Sticky columns ── */
+.col-sticky-left {
+  position: sticky;
+  left: 0;
+  z-index: 2;
+  background: var(--bg2);
+}
+thead .col-sticky-left {
+  background: rgba(14,26,50,0.98);
+  z-index: 3;
+}
+.col-sticky-left::after {
+  content: '';
+  position: absolute;
+  top: 0; right: -8px; bottom: 0;
+  width: 8px;
+  background: linear-gradient(to right, rgba(0,0,0,0.18), transparent);
+  pointer-events: none;
+}
+
+.col-sticky-right {
+  position: sticky;
+  right: 0;
+  z-index: 2;
+  background: var(--bg2);
+}
+thead .col-sticky-right {
+  background: rgba(14,26,50,0.98);
+  z-index: 3;
+}
+.col-sticky-right::before {
+  content: '';
+  position: absolute;
+  top: 0; left: -8px; bottom: 0;
+  width: 8px;
+  background: linear-gradient(to left, rgba(0,0,0,0.18), transparent);
+  pointer-events: none;
+}
+
+/* ── Actions dropdown ── */
+.acoes-wrap { position: relative; display: inline-block; }
+
+.acoes-btn {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid var(--borda);
+  border-radius: 8px;
+  color: var(--cor-texto);
+  cursor: pointer;
+  font-size: 1.1em;
+  line-height: 1;
+  padding: 4px 10px;
+  transition: background 0.15s, border-color 0.15s;
+}
+.acoes-btn:hover { background: rgba(212,175,55,0.12); border-color: var(--borda-forte); }
+
+.acoes-menu {
+  display: none;
+  position: absolute;
+  right: 0;
+  top: calc(100% + 4px);
+  background: var(--azul3);
+  border: 1px solid var(--borda-forte);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--sombra);
+  min-width: 178px;
+  z-index: 500;
+  overflow: hidden;
+}
+.acoes-menu.open { display: block; }
+
+.acoes-menu button {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  padding: 9px 14px;
+  background: none;
+  border: none;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  color: var(--cor-texto);
+  font-size: 0.84em;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.13s;
+}
+.acoes-menu button:last-child { border-bottom: none; }
+.acoes-menu button:hover { background: rgba(212,175,55,0.08); }
+.acoes-menu button.danger { color: var(--vermelho); }
+.acoes-menu button.success { color: var(--verde); }
+
 .actions { display: flex; gap: 5px; flex-wrap: wrap; }
 
 .empty-state {
@@ -626,9 +945,11 @@ tbody.mes-fechado tr:not(.mes-separador) { display: none; }
    RESPONSIVO
 ========================================== */
 @media (max-width: 600px) {
-  .sys-header { padding: 10px 14px; }
-  .sys-logo span { font-size: 1.1em; }
-  .sys-nav a { padding: 5px 10px; font-size: 0.8em; }
+  .sys-topbar { padding: 10px 14px 6px; }
+  .sys-logo span { font-size: 1.05em; }
+  .sys-topbar-utils a, .sys-topbar-utils button { padding: 4px 9px; font-size: 0.74em; }
+  .sys-nav { padding: 6px 10px; }
+  .sys-nav a { padding: 5px 11px; font-size: 0.76em; }
   .calc-section, .table-wrap { padding: 16px; }
 }
 
@@ -780,6 +1101,137 @@ tbody.mes-fechado tr:not(.mes-separador) { display: none; }
 .relatorio-row .rel-val   { font-weight: 600; color: var(--cor-texto); }
 .relatorio-row .rel-val.verde { color: #25D366; }
 .relatorio-row .rel-val.vermelho { color: var(--vermelho); }
+.relatorio-card-full {
+  grid-column: 1 / -1;
+}
+.rel-hist-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.81em;
+  margin-top: 4px;
+}
+.rel-hist-table thead th {
+  color: var(--cor-sub);
+  font-weight: 600;
+  text-align: left;
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--borda);
+  white-space: nowrap;
+}
+.rel-hist-table tbody tr { border-bottom: 1px solid rgba(255,255,255,0.04); }
+.rel-hist-table tbody tr:last-child { border-bottom: none; }
+.rel-hist-table tbody td {
+  padding: 6px 8px;
+  color: var(--cor-texto);
+  white-space: nowrap;
+}
+.rel-hist-table tbody td.mes-nome { color: var(--dourado); font-weight: 600; }
+.rel-hist-table tbody td.val-verde { color: #25D366; font-weight: 600; }
+.rel-hist-table tbody td.val-vermelho { color: var(--vermelho); font-weight: 600; }
+
+/* ---- Tabela Unificada de Vendas Anuais ---- */
+.vendas-anuais-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.88em;
+}
+.vendas-anuais-table thead th {
+  color: var(--dourado);
+  font-weight: 600;
+  text-align: right;
+  padding: 10px 12px;
+  border-bottom: 2px solid var(--borda);
+  white-space: nowrap;
+  font-size: 0.82em;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+.vendas-anuais-table thead th:first-child { text-align: left; }
+.vendas-anuais-table tbody tr {
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  transition: background .15s;
+}
+.vendas-anuais-table tbody tr:hover { background: rgba(212,175,55,0.07); }
+.vendas-anuais-table tbody tr.va-vazio { opacity: 0.38; }
+.vendas-anuais-table tbody tr.va-atual {
+  background: rgba(212,175,55,0.09);
+  border-left: 3px solid var(--dourado);
+}
+.vendas-anuais-table tbody td {
+  padding: 9px 12px;
+  color: var(--cor-texto);
+  white-space: nowrap;
+  text-align: right;
+}
+.vendas-anuais-table tbody td:first-child { text-align: left; color: var(--dourado); font-weight: 600; }
+.vendas-anuais-table tfoot td {
+  padding: 10px 12px;
+  border-top: 2px solid var(--borda);
+  font-weight: 700;
+  white-space: nowrap;
+  text-align: right;
+}
+.vendas-anuais-table tfoot td:first-child { text-align: left; color: var(--dourado); }
+.vendas-anuais-table tfoot tr.va-media td { font-weight: 400; opacity: 0.65; }
+/* colapso da tabela */
+.va-table-wrap {
+  overflow: hidden;
+  max-height: 900px;
+  transition: max-height .35s ease, opacity .3s ease;
+  opacity: 1;
+}
+.va-table-wrap.va-collapsed {
+  max-height: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+.va-min-btn {
+  display: flex; align-items: center; justify-content: center;
+  width: 26px; height: 26px;
+  border-radius: 50%;
+  border: 1px solid var(--borda);
+  background: rgba(255,255,255,0.04);
+  color: var(--cor-sub);
+  cursor: pointer;
+  font-size: 0.8em;
+  line-height: 1;
+  transition: background .15s, color .15s, transform .25s;
+  flex-shrink: 0;
+}
+.va-min-btn:hover { background: rgba(212,175,55,0.12); color: var(--dourado); }
+.va-min-btn.va-collapsed { transform: rotate(180deg); }
+.va-bar-wrap { display: flex; align-items: center; gap: 7px; justify-content: flex-end; }
+.va-bar-bg {
+  width: 56px; height: 5px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 3px; overflow: hidden; flex-shrink: 0;
+}
+.va-bar-fill {
+  height: 100%; border-radius: 3px;
+  background: linear-gradient(90deg, rgba(212,175,55,0.55), var(--dourado));
+  transition: width .45s ease;
+}
+.va-badge-up   { color: #25D366; font-size: 0.78em; font-weight: 700; }
+.va-badge-down { color: var(--vermelho); font-size: 0.78em; font-weight: 700; }
+.va-badge-new  { color: #4da6ff; font-size: 0.78em; font-weight: 700; }
+.va-pct        { color: var(--cor-sub); font-size: 0.82em; }
+.va-comissao   { color: var(--verde); font-weight: 600; }
+.va-lucro-pos  { color: #25D366; font-weight: 600; }
+.va-lucro-neg  { color: var(--vermelho); font-weight: 600; }
+.va-tag-atual  { font-size: 0.68em; opacity: 0.65; font-weight: 400; margin-left: 4px; }
+.va-agrup-toggle {
+  display: flex; gap: 0;
+  border: 1px solid var(--borda);
+  border-radius: 20px; overflow: hidden;
+}
+.va-agrup-btn {
+  padding: 4px 11px; background: none; border: none;
+  color: var(--cor-sub); cursor: pointer;
+  font-size: 0.76em; font-family: inherit;
+  transition: background .15s, color .15s;
+}
+.va-agrup-btn.active { background: rgba(212,175,55,0.18); color: var(--dourado); font-weight: 600; }
+.va-agrup-btn:hover:not(.active) { background: rgba(255,255,255,0.05); color: var(--cor-texto); }
 .charts-section-3 {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -1329,6 +1781,22 @@ tbody.mes-fechado tr:not(.mes-separador) { display: none; }
   margin-top: 10px;
   gap: 10px;
 }
+.security-seal {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 7px 16px;
+  background: rgba(39, 174, 96, 0.1);
+  border: 1px solid rgba(39, 174, 96, 0.25);
+  border-radius: 8px;
+  color: #27ae60;
+  font-size: 0.72rem;
+  text-align: center;
+  margin: 8px auto 12px;
+  max-width: 480px;
+  flex-wrap: wrap;
+}
 </style>
 </head>
 
@@ -1355,8 +1823,7 @@ tbody.mes-fechado tr:not(.mes-separador) { display: none; }
       </div>
       <div id="lockError" class="lock-error">❌ Credenciais inválidas. Tente novamente.</div>
       <button class="btn btn-primary" style="width:100%; margin-top:16px;" onclick="tentarLogin()">🔓 Entrar</button>
-      <br>
-      <button class="lock-link" onclick="mostrarViewReset()">Esqueceu a senha?</button>
+
     </div>
 
     <!-- VIEW 2: Login por link mágico (OTP) -->
@@ -1410,32 +1877,58 @@ tbody.mes-fechado tr:not(.mes-separador) { display: none; }
 
 
 <header class="sys-header">
-  <div class="sys-logo">
-    <div>
-      <span>💼 HOSPEDA-SISTEMA</span>
-      <small>Gestão Financeira · HOSPEDAH</small>
+  <!-- TOP BAR: logo + utilities -->
+  <div class="sys-topbar">
+    <div class="sys-logo">
+      <div>
+        <span>💼 HOSPEDA-SISTEMA</span>
+        <small>Gestão Financeira · HOSPEDAH</small>
+      </div>
+    </div>
+    <div class="sys-topbar-utils">
+      <span id="syncStatus" title="Aguardando sincronização...">☁️</span>
+      <a href="javascript:void(0)" onclick="toggleFloatCalc()">🧮 Calculadora</a>
+      <a href="javascript:void(0)" onclick="exportarBackup()">💾 Backup</a>
+      <a href="javascript:void(0)" onclick="importarBackup()">📂 Importar</a>
+      <a href="#cobrancas" class="util-cobrancas">💰 Cobranças</a>
+      <a href="index.html">🏠 Site</a>
+      <a href="javascript:void(0)" class="util-danger" onclick="fazerLogout()">🚪 Sair</a>
     </div>
   </div>
+
+  <!-- NAV ROW: scrollable tab navigation grouped by category -->
   <nav class="sys-nav">
+    <!-- Financeiro -->
     <a href="#dashboard" class="active">📊 Dashboard</a>
+    <span class="nav-sep"></span>
+    <!-- Captação -->
+    <div class="nav-dropdown" id="navCaptacaoDropdown">
+      <button class="nav-dropdown-btn" onclick="toggleNavDropdown('navCaptacaoDropdown')" title="Captação">
+        🏡 Captação <span class="nav-dropdown-arrow">▾</span>
+      </button>
+      <div class="nav-dropdown-menu">
+        <a href="#captacao-resumo" onclick="fecharNavDropdown('navCaptacaoDropdown')">🏡 Captações — Resumo</a>
+        <a href="#captacao"        onclick="fecharNavDropdown('navCaptacaoDropdown')">➕ Nova Captação</a>
+        <a href="#captacoes"       onclick="fecharNavDropdown('navCaptacaoDropdown')">🏡 Captações Cadastradas</a>
+      </div>
+    </div>
+    <span class="nav-sep"></span>
     <a href="#nova-reserva">➕ Nova Reserva</a>
     <a href="#reservas">📋 Reservas</a>
     <a href="#mensal">📅 Mensal</a>
     <a href="#graficos">📈 Gráficos</a>
     <a href="#relatorio">🏆 Relatório</a>
-    <a href="#automacoes">🤖 Automações</a>
-    <a href="#config-ia">🧠 Concierge IA</a>
-    <a href="#captacao">🏡 Captação</a>
+    <span class="nav-sep"></span>
+    <!-- Plataforma -->
     <a href="#reservas-hospede">🛎️ Solicitações</a>
+    <a href="#visitas-site">👁️ Visitas</a>
     <a href="#moderacao-avaliacoes">⭐ Avaliações</a>
     <a href="#precos-dinamicos">💲 Preços Dinâmicos</a>
     <a href="#mensagens-hospede">💬 Mensagens</a>
-    <a href="javascript:void(0)" onclick="toggleFloatCalc()">🧮 Calculadora</a>
-    <a href="javascript:void(0)" onclick="exportarBackup()">💾 Backup</a>
-    <a href="javascript:void(0)" onclick="importarBackup()">📂 Importar</a>
-    <a href="index.html">🏠 Site</a>
-    <a href="javascript:void(0)" onclick="fazerLogout()">🚪 Sair</a>
-    <span id="syncStatus" title="Aguardando sincronização...">☁️</span>
+    <span class="nav-sep"></span>
+    <!-- Gestão -->
+    <a href="#automacoes">🤖 Automações</a>
+    <a href="#config-ia">🧠 Concierge IA</a>
   </nav>
 </header>
 <div id="syncWarning">⚠️ Dados salvos apenas localmente — sem sincronização com o servidor. Verifique se a tabela <strong>hospeda_data</strong> foi criada no Supabase e se você está logado com o mesmo e-mail em todos os dispositivos.</div>
@@ -1447,28 +1940,29 @@ tbody.mes-fechado tr:not(.mes-separador) { display: none; }
        DASHBOARD
   =========================================== -->
   <section id="dashboard">
-    <div class="section-title">📊 Resumo Geral</div>
+    <div class="section-title">
+      📊 Resumo Geral
+      <span style="margin-left:auto;">
+        <button class="btn btn-secondary btn-sm" id="dashboardToggleBtn" onclick="toggleDashboard()" title="Minimizar/Expandir seção">▼ Minimizar</button>
+      </span>
+    </div>
 
+    <div id="dashboardContent">
     <!-- FILTRO DE PERÍODO -->
-    <div id="dashPeriodFilter" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:16px;
-         padding:12px 16px;background:rgba(255,255,255,0.03);border:1px solid var(--borda);border-radius:10px;">
+    <div id="dashPeriodFilter" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:16px;
+         padding:12px 16px;background:rgba(255,255,255,0.03);border:1px solid var(--borda);border-radius:12px;">
       <span style="font-size:0.82em;color:var(--cor-sub);font-weight:600;">📅 Período:</span>
-      <button class="dash-period-btn active" data-period="all"   onclick="filtrarPeriodoDash('all')">Todos</button>
-      <button class="dash-period-btn"        data-period="month" onclick="filtrarPeriodoDash('month')">Este mês</button>
+      <button class="dash-period-btn"        data-period="all"   onclick="filtrarPeriodoDash('all')">Todos</button>
+      <button class="dash-period-btn active" data-period="month" onclick="filtrarPeriodoDash('month')">Este mês</button>
       <button class="dash-period-btn"        data-period="3m"    onclick="filtrarPeriodoDash('3m')">3 meses</button>
       <button class="dash-period-btn"        data-period="6m"    onclick="filtrarPeriodoDash('6m')">6 meses</button>
       <button class="dash-period-btn"        data-period="year"  onclick="filtrarPeriodoDash('year')">Este ano</button>
+      <span id="dashPeriodCount" title="Reservas no período selecionado">— reservas</span>
       <div style="display:flex;gap:6px;align-items:center;margin-left:auto;flex-wrap:wrap;">
-        <input type="date" id="dashPeriodDe" onchange="filtrarPeriodoDash('custom')"
-               style="background:rgba(255,255,255,0.06);border:1px solid var(--borda);border-radius:6px;
-                      color:var(--cor-texto);font-family:inherit;font-size:0.78em;padding:5px 8px;">
+        <input type="date" id="dashPeriodDe" class="dash-date-input" onchange="filtrarPeriodoDash('custom')">
         <span style="color:var(--cor-sub);font-size:0.8em;">→</span>
-        <input type="date" id="dashPeriodAte" onchange="filtrarPeriodoDash('custom')"
-               style="background:rgba(255,255,255,0.06);border:1px solid var(--borda);border-radius:6px;
-                      color:var(--cor-texto);font-family:inherit;font-size:0.78em;padding:5px 8px;">
-        <button onclick="exportarDashboard()" title="Exportar dados filtrados"
-                style="background:rgba(212,175,55,0.1);border:1px solid rgba(212,175,55,0.3);color:var(--dourado);
-                       border-radius:6px;padding:5px 10px;font-size:0.76em;cursor:pointer;font-family:inherit;">
+        <input type="date" id="dashPeriodAte" class="dash-date-input" onchange="filtrarPeriodoDash('custom')">
+        <button onclick="exportarDashboard()" title="Exportar dados filtrados" class="dash-export-btn">
           ⬇️ Exportar
         </button>
       </div>
@@ -1526,7 +2020,15 @@ tbody.mes-fechado tr:not(.mes-separador) { display: none; }
           <button class="btn btn-secondary btn-sm" onclick="salvarMeta()">✔</button>
         </div>
       </div>
+      <div class="dash-card" style="cursor:pointer;" onclick="document.querySelector('[href=\'#visitas-site\']').click()">
+        <div class="dash-icon">👁️</div>
+        <div class="dash-label">Visitas ao Site</div>
+        <div class="dash-value" id="dash-visitas-total">—</div>
+        <div style="font-size:0.7em;color:var(--cor-sub);margin-top:4px;" id="dash-visitas-hoje">Hoje: —</div>
+      </div>
     </div>
+
+    </div><!-- /dashboardContent -->
   </section>
 
   <!-- PROPRIETÁRIO VIEW: Disponibilidade + Alertas de Pendência -->
@@ -1645,7 +2147,7 @@ tbody.mes-fechado tr:not(.mes-separador) { display: none; }
 
       <div class="field-group">
         <label>Valor Total (R$)</label>
-        <input type="number" id="c_valor_total" min="0" step="0.01" placeholder="Calculado automaticamente" readonly>
+        <input type="number" id="c_valor_total" min="0" step="0.01" placeholder="Digite ou calculado automaticamente" oninput="calcValorNoitePorTotal()">
       </div>
 
       <div class="field-group">
@@ -1714,11 +2216,35 @@ tbody.mes-fechado tr:not(.mes-separador) { display: none; }
         <button class="btn btn-secondary btn-sm" id="toggleTodosBtn" onclick="toggleTodosGrupos()" title="Expandir ou recolher todos os meses" style="display:none;">⊞ Expandir todos</button>
         <button class="btn btn-secondary btn-sm" onclick="exportarCSV()">📥 Exportar CSV</button>
         <button class="btn btn-secondary btn-sm" onclick="window.print()">🖨️ Imprimir</button>
-        <button class="btn btn-secondary btn-sm" id="reservasToggleBtn" onclick="toggleReservas()" title="Minimizar/Expandir tabela">▼ Minimizar</button>
+        <button class="btn btn-secondary btn-sm" id="reservasToggleBtn" onclick="toggleReservas()" title="Minimizar/Expandir tabela">▲ Expandir</button>
       </span>
     </div>
 
-    <div id="reservasContent">
+    <div id="reservasContent" style="display:none">
+
+    <!-- Resumo de Cobranças das Reservas -->
+    <div class="dashboard-grid" style="margin-bottom:14px;" id="cobResGrid">
+      <div class="dash-card amarelo">
+        <div class="dash-icon">💳</div>
+        <div class="dash-label">A Receber (total)</div>
+        <div class="dash-value" id="cobRes-aberto">R$ 0,00</div>
+      </div>
+      <div class="dash-card vermelho">
+        <div class="dash-icon">🟠</div>
+        <div class="dash-label">Vencido</div>
+        <div class="dash-value" id="cobRes-vencido">R$ 0,00</div>
+      </div>
+      <div class="dash-card verde">
+        <div class="dash-icon">🟢</div>
+        <div class="dash-label">Pago este mês</div>
+        <div class="dash-value" id="cobRes-pago-mes">R$ 0,00</div>
+      </div>
+      <div class="dash-card">
+        <div class="dash-icon">🟡</div>
+        <div class="dash-label">Cobranças Pendentes</div>
+        <div class="dash-value" id="cobRes-pendentes">0</div>
+      </div>
+    </div>
 
     <!-- Filtros -->
     <div class="filter-bar">
@@ -1751,6 +2277,17 @@ tbody.mes-fechado tr:not(.mes-separador) { display: none; }
         </select>
       </div>
       <div class="field-group">
+        <label>Cobrança</label>
+        <select id="f_cobranca" onchange="renderTabela()">
+          <option value="">Todas</option>
+          <option value="pendente">🟡 Pendente</option>
+          <option value="vencido">🟠 Vencida</option>
+          <option value="pago">🟢 Paga</option>
+          <option value="parcial">🔵 Parcial</option>
+          <option value="sem">— Sem cobrança</option>
+        </select>
+      </div>
+      <div class="field-group">
         <label>Canal de Venda</label>
         <select id="f_canal" onchange="renderTabela()">
           <option value="">Todos</option>
@@ -1775,7 +2312,7 @@ tbody.mes-fechado tr:not(.mes-separador) { display: none; }
       <thead>
         <tr>
           <th>#</th>
-          <th>Cliente</th>
+          <th class="col-sticky-left">Cliente</th>
           <th>Canal</th>
           <th>Resort</th>
           <th>Check-in</th>
@@ -1788,12 +2325,13 @@ tbody.mes-fechado tr:not(.mes-separador) { display: none; }
           <th>Repasse</th>
           <th>Avaliação</th>
           <th>Status</th>
-          <th>Ações</th>
+          <th>Cobrança</th>
+          <th class="col-sticky-right">Ações</th>
         </tr>
       </thead>
       <tbody id="tabelaBody">
         <tr>
-          <td colspan="15">
+          <td colspan="16">
             <div class="empty-state">
               <div class="empty-icon">📋</div>
               <div>Nenhuma reserva cadastrada ainda.</div>
@@ -1818,6 +2356,35 @@ tbody.mes-fechado tr:not(.mes-separador) { display: none; }
       <div style="color: var(--cor-sub); font-size:0.9em; padding:10px;">
         Nenhum dado disponível. Adicione reservas para ver o resumo mensal.
       </div>
+    </div>
+  </section>
+
+  <!-- ==========================================
+       RESULTADOS DE VENDAS POR ANO (UNIFICADO)
+  =========================================== -->
+  <section id="vendas-anuais">
+    <div class="section-title">
+      📊 Resultados de Vendas por Ano
+      <span style="margin-left:auto;display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+        <div class="va-agrup-toggle">
+          <button class="va-agrup-btn active" id="vaAgrupEntrada" onclick="setAgrupVendas('entrada')">Por check-in</button>
+          <button class="va-agrup-btn" id="vaAgrupCriado" onclick="setAgrupVendas('criado')">Por cadastro</button>
+        </div>
+        <button class="btn btn-secondary btn-sm" onclick="mudarAnoVendas(-1)">◀</button>
+        <span id="vendas-ano-label" style="font-size:1.1em;font-weight:700;color:var(--dourado);min-width:52px;text-align:center;">2026</span>
+        <button class="btn btn-secondary btn-sm" onclick="mudarAnoVendas(1)">▶</button>
+        <button class="btn btn-secondary btn-sm" onclick="exportarVendasAnuaisCSV()" title="Exportar tabela em CSV">📥 CSV</button>
+        <button class="va-min-btn" id="vaMinBtn" onclick="toggleVendasAnuais()" title="Minimizar / Expandir tabela">▲</button>
+      </span>
+    </div>
+    <div class="va-table-wrap" id="vaTableWrap" style="overflow-x:auto;">
+      <table id="tabelaVendasAnuais" class="vendas-anuais-table">
+        <thead id="cabecalhoVendasAnuais"></thead>
+        <tbody id="corpoVendasAnuais">
+          <tr><td colspan="8" style="padding:12px 14px;color:var(--cor-sub);">Carregando…</td></tr>
+        </tbody>
+        <tfoot id="rodapeVendasAnuais"></tfoot>
+      </table>
     </div>
   </section>
 
@@ -2019,9 +2586,12 @@ tbody.mes-fechado tr:not(.mes-separador) { display: none; }
     </div>
 
     <p style="font-size:0.9em; color:var(--cor-sub); margin:0 0 16px;">
-      Configure o <strong>System Prompt</strong> e demais informações que alimentam o Concierge IA.
+      Configure <strong>Instruções Personalizadas</strong> que são injetadas no Concierge IA
+      como conteúdo adicional ao prompt base (que contém todas as informações de resorts,
+      alimentação e políticas). Use este campo para adicionar avisos temporários, promoções
+      ou regras específicas sem risco de perder as informações completas dos resorts.
       Alterações entram em vigor em até <strong>5 minutos</strong> (cache do servidor).
-      O FAQ dinâmico (aba Automações) também é injetado automaticamente como contexto adicional.
+      O FAQ dinâmico (aba Automações) também é carregado automaticamente pelo servidor.
     </p>
 
     <div id="aiConfigLista">
@@ -2064,6 +2634,16 @@ tbody.mes-fechado tr:not(.mes-separador) { display: none; }
         <div class="dash-icon">🔔</div>
         <div class="dash-label">Com Pendências</div>
         <div class="dash-value" id="capDash-pendencias">0</div>
+      </div>
+      <div class="dash-card amarelo">
+        <div class="dash-icon">⏳</div>
+        <div class="dash-label">Repasses Pendentes</div>
+        <div class="dash-value" id="capDash-repasses-pend">0</div>
+      </div>
+      <div class="dash-card vermelho">
+        <div class="dash-icon">💸</div>
+        <div class="dash-label">Valor Total a Repassar</div>
+        <div class="dash-value" id="capDash-repasses-valor">R$ 0,00</div>
       </div>
     </div>
   </section>
@@ -2301,12 +2881,13 @@ tbody.mes-fechado tr:not(.mes-separador) { display: none; }
           <th>Dt. Pagamento</th>
           <th>Pagamento</th>
           <th>Reserva</th>
+          <th>Repasse</th>
           <th>Ações</th>
         </tr>
       </thead>
       <tbody id="capTabelaBody">
         <tr>
-          <td colspan="15">
+          <td colspan="16">
             <div class="empty-state">
               <div class="empty-icon">🏡</div>
               <div>Nenhuma captação cadastrada ainda.</div>
@@ -2382,6 +2963,83 @@ tbody.mes-fechado tr:not(.mes-separador) { display: none; }
   </section>
 
   <!-- ==========================================
+       VISITAS AO SITE
+  =========================================== -->
+  <section id="visitas-site" class="table-wrap">
+    <div class="section-title">
+      👁️ Acessos ao Site
+      <span style="margin-left:auto; display:flex; gap:8px;">
+        <button class="btn btn-secondary btn-sm" onclick="carregarVisitasSite()">🔄 Atualizar</button>
+        <button class="btn btn-secondary btn-sm" id="visitasSiteToggleBtn" onclick="toggleVisitasSite()" title="Minimizar/Expandir seção" aria-label="Minimizar/Expandir seção Acessos ao Site">▲ Expandir</button>
+      </span>
+    </div>
+
+    <div id="visitasSiteContent" style="display:none;">
+
+    <!-- CARDS DE RESUMO -->
+    <div class="dashboard-grid" style="margin-bottom:16px;">
+      <div class="dash-card verde">
+        <div class="dash-icon">👁️</div>
+        <div class="dash-label">Total de Visitas</div>
+        <div class="dash-value" id="vs-total">—</div>
+      </div>
+      <div class="dash-card">
+        <div class="dash-icon">📅</div>
+        <div class="dash-label">Hoje</div>
+        <div class="dash-value" id="vs-hoje">—</div>
+      </div>
+      <div class="dash-card">
+        <div class="dash-icon">🗓️</div>
+        <div class="dash-label">Esta Semana</div>
+        <div class="dash-value" id="vs-semana">—</div>
+      </div>
+      <div class="dash-card amarelo">
+        <div class="dash-icon">📆</div>
+        <div class="dash-label">Este Mês</div>
+        <div class="dash-value" id="vs-mes">—</div>
+      </div>
+    </div>
+
+    <!-- TABELA DE ACESSOS POR PÁGINA -->
+    <div style="margin-bottom:16px;">
+      <div style="font-size:0.82em;color:var(--dourado);font-weight:600;margin-bottom:10px;">📊 Visitas por Página</div>
+      <table>
+        <thead>
+          <tr>
+            <th>Página</th>
+            <th>Total de Visitas</th>
+            <th>Hoje</th>
+            <th>Esta Semana</th>
+            <th>Este Mês</th>
+          </tr>
+        </thead>
+        <tbody id="vs-por-pagina">
+          <tr><td colspan="5"><div class="empty-state"><div class="empty-icon">👁️</div><div>Carregando…</div></div></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- TABELA DE ACESSOS RECENTES -->
+    <div>
+      <div style="font-size:0.82em;color:var(--dourado);font-weight:600;margin-bottom:10px;">🕐 Acessos Recentes (últimos 50)</div>
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Página</th>
+            <th>Data/Hora</th>
+          </tr>
+        </thead>
+        <tbody id="vs-recentes">
+          <tr><td colspan="3"><div class="empty-state"><div class="empty-icon">👁️</div><div>Carregando…</div></div></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    </div><!-- /visitasSiteContent -->
+  </section>
+
+  <!-- ==========================================
        MODERAÇÃO DE AVALIAÇÕES
   =========================================== -->
   <section id="moderacao-avaliacoes" class="table-wrap">
@@ -2442,8 +3100,14 @@ tbody.mes-fechado tr:not(.mes-separador) { display: none; }
        PREÇOS DINÂMICOS
   =========================================== -->
   <section id="precos-dinamicos" class="calc-section">
-    <div class="section-title">💲 Preços Dinâmicos — Calendário por Resort</div>
+    <div class="section-title">
+      💲 Preços Dinâmicos — Calendário por Resort
+      <span style="margin-left:auto;">
+        <button class="btn btn-secondary btn-sm" id="precosToggleBtn" onclick="togglePrecosDinamicos()" title="Minimizar/Expandir seção">▼ Minimizar</button>
+      </span>
+    </div>
 
+    <div id="precosContent">
     <!-- Step 1: Select resort -->
     <div style="display:flex; gap:12px; flex-wrap:wrap; align-items:flex-end; margin-bottom:16px;">
       <div class="field-group" style="flex:1; min-width:200px; max-width:320px;">
@@ -2571,6 +3235,7 @@ tbody.mes-fechado tr:not(.mes-separador) { display: none; }
       </div>
       <div id="pdTable" style="margin-top:12px; display:none;"></div>
     </div>
+    </div><!-- end precosContent -->
   </section>
 
   <!-- ==========================================
@@ -2878,6 +3543,115 @@ tbody.mes-fechado tr:not(.mes-separador) { display: none; }
 
 <!-- TOAST -->
 <div class="toast-container" id="toastContainer"></div>
+
+<!-- ==========================================
+     MODAL DE COBRANÇA
+=========================================== -->
+<div class="modal-overlay" id="modalCobranca">
+  <div class="modal-box" style="max-width:640px;">
+    <button class="modal-close" onclick="fecharModalCobranca()" aria-label="Fechar">✕</button>
+    <h3 id="modalCobrancaTitulo">💰 Nova Cobrança</h3>
+    <input type="hidden" id="cob_id">
+    <div class="modal-grid">
+      <div class="field-group">
+        <label>Tipo de Origem</label>
+        <select id="cob_origem_tipo">
+          <option value="reserva">📋 Reserva</option>
+          <option value="captacao">🏡 Captação</option>
+        </select>
+      </div>
+      <div class="field-group">
+        <label>Forma de Pagamento</label>
+        <select id="cob_forma_pagamento">
+          <option value="pix">⚡ Pix</option>
+          <option value="cartao">💳 Cartão</option>
+          <option value="boleto">📄 Boleto</option>
+          <option value="transferencia">🏦 Transferência</option>
+          <option value="dinheiro">💵 Dinheiro</option>
+        </select>
+      </div>
+      <div class="field-group" style="grid-column: span 2;">
+        <label>Descrição *</label>
+        <input type="text" id="cob_descricao" placeholder="Ex.: Entrada reserva João – Resort Camburi">
+      </div>
+      <div class="field-group">
+        <label>Nome do Devedor</label>
+        <input type="text" id="cob_nome_devedor" placeholder="Nome do hóspede ou proprietário">
+      </div>
+      <div class="field-group">
+        <label>WhatsApp do Devedor</label>
+        <input type="tel" id="cob_telefone_devedor" placeholder="(11) 99999-9999">
+      </div>
+      <div class="field-group">
+        <label>Valor Total (R$) *</label>
+        <input type="number" id="cob_valor_total" min="0" step="0.01" placeholder="0,00" oninput="calcCobAberto()">
+      </div>
+      <div class="field-group">
+        <label>Valor Pago (R$)</label>
+        <input type="number" id="cob_valor_pago" min="0" step="0.01" placeholder="0,00" oninput="calcCobAberto()">
+      </div>
+      <div class="field-group">
+        <label>Valor em Aberto (R$)</label>
+        <input type="number" id="cob_valor_aberto" min="0" step="0.01" readonly>
+      </div>
+      <div class="field-group">
+        <label>Data de Vencimento *</label>
+        <input type="date" id="cob_data_vencimento">
+      </div>
+      <div class="field-group">
+        <label>Parcelas</label>
+        <input type="number" id="cob_num_parcelas" min="1" max="24" value="1">
+      </div>
+      <div class="field-group">
+        <label>Parcela Atual</label>
+        <input type="number" id="cob_parcela_atual" min="1" max="24" value="1">
+      </div>
+      <div class="field-group" style="grid-column: span 2;">
+        <label>Chave PIX (para gerar código)</label>
+        <input type="text" id="cob_chave_pix" placeholder="CPF, CNPJ, e-mail, telefone ou chave aleatória">
+      </div>
+      <div class="field-group" style="grid-column: span 2;">
+        <label>Código PIX gerado (copia-e-cola)</label>
+        <div style="display:flex; gap:8px; align-items:stretch;">
+          <input type="text" id="cob_codigo_pix" readonly placeholder="Clique em ⚡ Gerar PIX para criar o código" style="flex:1; font-size:0.78em;">
+          <button class="btn btn-secondary btn-sm" onclick="gerarCodigoPix()" title="Gerar código PIX BR Code">⚡ Gerar PIX</button>
+          <button class="btn btn-secondary btn-sm" onclick="copiarCodigoPix()" title="Copiar código PIX">📋</button>
+        </div>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="salvarCobranca()">💾 Salvar Cobrança</button>
+      <button class="btn btn-secondary btn-sm" onclick="gerarCodigoPix()">⚡ Gerar PIX</button>
+      <button class="btn btn-secondary" onclick="fecharModalCobranca()">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ==========================================
+     MODAL HISTÓRICO DE COBRANÇAS
+=========================================== -->
+<div class="modal-overlay" id="modalHistoricoCobrancas">
+  <div class="modal-box" style="max-width:720px;">
+    <button class="modal-close" onclick="document.getElementById('modalHistoricoCobrancas').classList.remove('open')" aria-label="Fechar">✕</button>
+    <h3>📊 Histórico de Cobranças</h3>
+    <p id="modalHistoricoTitulo" style="font-size:0.9em; color:var(--cor-sub); margin:0 0 12px;"></p>
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Descrição</th>
+          <th>Valor</th>
+          <th>Vencimento</th>
+          <th>Status</th>
+          <th>Parcela</th>
+          <th>Lembretes</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody id="histCobBody"></tbody>
+    </table>
+  </div>
+</div>
 
 <!-- Scripts carregados aqui (final do body) para não bloquear o render -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
@@ -3431,7 +4205,7 @@ function sincronizarAutomacoes(silencioso) {
   var hoje = new Date().toISOString().slice(0, 10);
   var porResortMes = {};
   reservas.forEach(function (r) {
-    if (!r || r.status === 'cancelado' || !r.entrada || !r.saida) return;
+    if (!r || (r.status || '').toLowerCase() === 'cancelado' || !r.entrada || !r.saida) return;
     var diasAteCheckin = diffDias(hoje, r.entrada);
     var diasAteCheckout = diffDias(hoje, r.saida);
 
@@ -3767,6 +4541,21 @@ async function carregarAiConfig() {
   }
 
   _aiConfigDados = res.data;
+
+  // Garantir que a chave 'custom_instructions' exista para instâncias que
+  // não re-executaram a migração após a atualização arquitetural.
+  var hasCustomInstructions = _aiConfigDados.some(function (c) { return c.chave === 'custom_instructions'; });
+  if (!hasCustomInstructions) {
+    var upsertRes = await _supabase.from('ai_config')
+      .upsert({ chave: 'custom_instructions', valor: '', ativo: true }, { onConflict: 'chave' });
+    if (upsertRes.error) {
+      console.warn('[HOSPEDAH] Não foi possível criar custom_instructions no ai_config:', upsertRes.error.message);
+    } else {
+      var refreshed = await _supabase.from('ai_config').select('*').order('chave');
+      if (!refreshed.error && refreshed.data) _aiConfigDados = refreshed.data;
+    }
+  }
+
   renderAiConfig();
 }
 
@@ -3779,13 +4568,25 @@ function renderAiConfig() {
     return;
   }
 
-  var LABELS = { system_prompt: '📋 System Prompt — instruções principais da IA' };
-  container.innerHTML = _aiConfigDados.map(function (c) {
+  var LABELS = {
+    'system_prompt': '📋 System Prompt (legado — não é mais usado pela Edge Function; use Instruções Personalizadas)',
+    'custom_instructions': '✏️ Instruções Personalizadas — conteúdo extra injetado no Concierge IA (appended ao base hardcoded)'
+  };
+  // Ordenar: custom_instructions primeiro (principal), depois outros
+  var ordered = _aiConfigDados.slice().sort(function(a, b) {
+    if (a.chave === 'custom_instructions') return -1;
+    if (b.chave === 'custom_instructions') return 1;
+    return a.chave.localeCompare(b.chave);
+  });
+  container.innerHTML = ordered.map(function (c) {
     var label = LABELS[c.chave] || ('⚙️ ' + escapeHtml(c.chave));
     var ativoChecked = c.ativo ? 'checked' : '';
     var atualizadoEm = c.atualizado_em ? new Date(c.atualizado_em).toLocaleString('pt-BR') : '—';
     var valorEsc = escapeHtml(c.valor || '');
-    return '<div class="ai-config-card" id="ai-config-card-' + escapeHtml(c.chave) + '">' +
+    var isLegacy = c.chave === 'system_prompt';
+    var cardStyle = isLegacy ? 'opacity:0.6;' : '';
+    var rowsCount = c.chave === 'custom_instructions' ? 8 : 6;
+    return '<div class="ai-config-card" id="ai-config-card-' + escapeHtml(c.chave) + '" style="' + cardStyle + '">' +
       '<div class="ai-config-card-header">' +
         '<strong>' + label + '</strong>' +
         '<label style="display:flex;align-items:center;gap:4px;font-size:0.88em;margin-left:auto;">' +
@@ -3793,10 +4594,10 @@ function renderAiConfig() {
         '</label>' +
         '<span style="font-size:0.8em;color:var(--cor-sub);">Atualizado: ' + atualizadoEm + '</span>' +
       '</div>' +
-      '<textarea id="ai_config_valor_' + escapeHtml(c.chave) + '" rows="18">' + valorEsc + '</textarea>' +
+      '<textarea id="ai_config_valor_' + escapeHtml(c.chave) + '" rows="' + rowsCount + '" placeholder="' + (c.chave === 'custom_instructions' ? 'Ex.: Promoção de julho: 10% off no Hot Beach. Pacote família disponível até 15/07.' : '') + '">' + valorEsc + '</textarea>' +
       '<div class="ai-config-card-footer">' +
         '<span style="font-size:0.8em;color:var(--cor-sub);">Alterações entram em vigor em até 5 min (cache do servidor).</span>' +
-        '<button class="btn btn-primary btn-sm" onclick="salvarAiConfig(\'' + escapeHtml(c.chave) + '\')">💾 Salvar</button>' +
+        (isLegacy ? '' : '<button class="btn btn-primary btn-sm" onclick="salvarAiConfig(\'' + escapeHtml(c.chave) + '\')">💾 Salvar</button>') +
       '</div>' +
     '</div>';
   }).join('');
@@ -3878,10 +4679,11 @@ function limparAuditoria() {
 }
 
 function limparMensagens() {
-  if (!confirm('Deseja limpar a lista de mensagens da tela? (Os dados permanecem no servidor — clique em Atualizar para recarregar)')) return;
+  if (!confirm('Deseja ocultar as mensagens recebidas? Elas não aparecerão novamente. Novas mensagens continuarão sendo exibidas.')) return;
+  localStorage.setItem('msgClearedAt', new Date().toISOString());
   var body = document.getElementById('msgBody');
   if (body) body.innerHTML = '<tr><td colspan="6"><div class="empty-state"><div class="empty-icon">💬</div><div>Nenhuma mensagem ainda.</div></div></td></tr>';
-  mostrarToast('✅ Mensagens limpas da tela.', 'success');
+  mostrarToast('✅ Mensagens ocultadas.', 'success');
 }
 
 function atualizarDashAutomacoes() {
@@ -3961,7 +4763,7 @@ function mostrarToast(msg, tipo) {
 /* ==========================================
    CALCULADORA — FORMULÁRIO PRINCIPAL
 ========================================== */
-function calcularFormulario() {
+function calcularFormulario(skipTotal) {
   var entrada   = document.getElementById('c_entrada').value;
   var saida     = document.getElementById('c_saida').value;
   var valorNoite = parseFloat(document.getElementById('c_valor_noite').value) || 0;
@@ -3971,13 +4773,26 @@ function calcularFormulario() {
 
   var noites     = calcularNoites(entrada, saida);
   var total      = noites * valorNoite;
-  var comissao   = total * (comPct / 100);
+
+  // Quando Valor Captado é informado, calcula a comissão automaticamente
+  var comissao;
+  if (valorCaptacao > 0 && total > 0) {
+    comissao = total - valorCaptacao;
+    comPct = (comissao / total) * 100;
+    document.getElementById('c_comissao_pct').value = comPct.toFixed(2);
+  } else {
+    comissao = total * (comPct / 100);
+  }
+
   var repasse    = total - comissao;
   var lucro      = valorCaptacao > 0 ? total - valorCaptacao : null;
 
   // Preenche campos readonly
   document.getElementById('c_noites').value      = noites > 0 ? noites : '';
-  document.getElementById('c_valor_total').value = total > 0  ? total.toFixed(2) : '';
+  var totalEl = document.getElementById('c_valor_total');
+  if (!skipTotal) {
+    totalEl.value = total > 0 ? total.toFixed(2) : '';
+  }
   document.getElementById('c_comissao_val').value = comissao > 0 ? comissao.toFixed(2) : '';
 
   // Atualiza card de resultado
@@ -4003,6 +4818,20 @@ function calcularFormulario() {
     el.addEventListener('change', calcularFormulario);
   }
 });
+
+// Calcula Valor por Noite automaticamente quando o usuário digita o Valor Total
+function calcValorNoitePorTotal() {
+  var noites    = parseInt(document.getElementById('c_noites').value)       || 0;
+  var totalEl   = document.getElementById('c_valor_total');
+  var total     = parseFloat(totalEl.value) || 0;
+  if (noites > 0 && total > 0) {
+    var noiteEl = document.getElementById('c_valor_noite');
+    noiteEl.value = (total / noites).toFixed(2);
+    noiteEl.dataset.autofilled = '0';
+    document.getElementById('c_preco_hint').style.display = 'none';
+    calcularFormulario(true);
+  }
+}
 
 // Cache de regras de preço dinâmico para o resort selecionado no formulário de nova reserva
 var _precosFormCache = { resort: '', regras: [], promise: null };
@@ -4162,6 +4991,7 @@ function adicionarReserva() {
   renderTabela();
   atualizarDashboard();
   atualizarMensal();
+  atualizarVendasAnuais();
   renderRelatorioDesempenho();
   sincronizarAutomacoes();
   registrarAuditoria('Reserva criada', cliente + ' • ' + resort + ' • ' + formatarData(entrada));
@@ -4208,6 +5038,7 @@ function limparFiltros() {
   document.getElementById('f_status').value = '';
   document.getElementById('f_canal').value  = '';
   document.getElementById('f_mes').value    = '';
+  var fc = document.getElementById('f_cobranca'); if (fc) fc.value = '';
   renderTabela();
 }
 
@@ -4217,6 +5048,7 @@ function getReservasFiltradas() {
   var status = document.getElementById('f_status').value  || '';
   var canal  = document.getElementById('f_canal').value   || '';
   var mes    = document.getElementById('f_mes').value     || '';
+  var cobFilt = (document.getElementById('f_cobranca') || {value:''}).value;
 
   return reservas.filter(function (r) {
     if (busca  && !r.cliente.toLowerCase().includes(busca) && !r.resort.toLowerCase().includes(busca)) return false;
@@ -4227,8 +5059,38 @@ function getReservasFiltradas() {
       var mesEntrada = r.entrada ? r.entrada.slice(0, 7) : '';
       if (mesEntrada !== mes) return false;
     }
+    if (cobFilt) {
+      var cobList = (typeof cobrancas !== 'undefined' ? cobrancas : []).filter(function(c){ return c.origemId === r.id && c.origemTipo === 'reserva'; });
+      if (cobFilt === 'sem') {
+        if (cobList.length > 0) return false;
+      } else {
+        if (!cobList.length) return false;
+        var ordem = { vencido:4, parcial:3, pendente:2, pago:1, cancelado:0 };
+        var pior = cobList.reduce(function(acc, c) {
+          var st = (typeof _cobStatusFromData === 'function') ? _cobStatusFromData(c) : c.statusCobranca;
+          var stAcc = (typeof _cobStatusFromData === 'function') ? _cobStatusFromData(acc) : acc.statusCobranca;
+          return (ordem[st]||0) > (ordem[stAcc]||0) ? c : acc;
+        });
+        var stPior = (typeof _cobStatusFromData === 'function') ? _cobStatusFromData(pior) : pior.statusCobranca;
+        if (stPior !== cobFilt) return false;
+      }
+    }
     return true;
   });
+}
+
+/* Helper: retorna o badge de cobrança da reserva (usa o status da cobrança mais recente) */
+function _renderCobBadge(resId) {
+  if (typeof cobrancas === 'undefined') return '<span style="color:var(--cinza);font-size:0.8em;">—</span>';
+  var lista = cobrancas.filter(function(c){ return c.origemId === resId && c.origemTipo === 'reserva'; });
+  if (!lista.length) return '<span style="color:var(--cinza);font-size:0.8em;">—</span>';
+  /* pior status tem prioridade (vencido > parcial > pendente > pago) */
+  var ordem = { vencido:4, parcial:3, pendente:2, pago:1, cancelado:0 };
+  var pior = lista.reduce(function(acc, c) {
+    var st = _cobStatusFromData(c);
+    return (ordem[st] || 0) > (ordem[_cobStatusFromData(acc)] || 0) ? c : acc;
+  });
+  return _cobStatusBadge(_cobStatusFromData(pior));
 }
 
 /* ==========================================
@@ -4247,7 +5109,7 @@ function _buildRow(r, i) {
 
   return '<tr>' +
     '<td>' + (i + 1) + '</td>' +
-    '<td><strong>' + r.cliente + '</strong>' + (r.obs ? '<br><small style="color:var(--cor-sub);">' + r.obs + '</small>' : '') + '</td>' +
+    '<td class="col-sticky-left"><strong>' + r.cliente + '</strong>' + (r.obs ? '<br><small style="color:var(--cor-sub);">' + r.obs + '</small>' : '') + '</td>' +
     '<td><small>' + canal + '</small></td>' +
     '<td>' + r.resort + '</td>' +
     '<td>' + formatarData(r.entrada) + '</td>' +
@@ -4260,13 +5122,21 @@ function _buildRow(r, i) {
     '<td style="color:#4da6ff;">' + formatBRL(r.repasse) + '</td>' +
     '<td>' + avalHtml + '</td>' +
     '<td><span class="badge ' + badgeClass + '">' + badgeText + '</span></td>' +
-    '<td><div class="actions">' +
-      '<button class="btn btn-secondary btn-sm" onclick="abrirEdicao(\'' + r.id + '\')" title="Editar">✏️</button>' +
-      (r.status !== 'pago' ? '<button class="btn btn-success btn-sm" onclick="marcarPago(\'' + r.id + '\')" title="Marcar como pago">✅</button>' : '') +
-      '<button class="btn btn-secondary btn-sm" onclick="enviarWhatsApp(\'' + r.id + '\')" title="WhatsApp">💬</button>' +
-      '<button class="btn btn-secondary btn-sm" onclick="gerarVoucher(\'' + r.id + '\')" title="Voucher PDF">📄</button>' +
-      '<button class="btn btn-danger btn-sm" onclick="excluirReserva(\'' + r.id + '\')" title="Excluir">🗑️</button>' +
-    '</div></td>' +
+    '<td>' + _renderCobBadge(r.id) + '</td>' +
+    '<td class="col-sticky-right">' +
+      '<div class="acoes-wrap">' +
+        '<button class="acoes-btn" onclick="toggleAcoesDropdown(event,\'' + r.id + '\')" title="Ações">⋮</button>' +
+        '<div class="acoes-menu" id="acoes-' + r.id + '">' +
+          '<button onclick="fecharAcoesDropdowns();abrirEdicao(\'' + r.id + '\')">✏️ Editar</button>' +
+          (r.status !== 'pago' ? '<button class="success" onclick="fecharAcoesDropdowns();marcarPago(\'' + r.id + '\')">✅ Marcar como pago</button>' : '') +
+          '<button onclick="fecharAcoesDropdowns();enviarWhatsApp(\'' + r.id + '\')">💬 WhatsApp</button>' +
+          '<button onclick="fecharAcoesDropdowns();abrirCobrancaReserva(\'' + r.id + '\')">💰 Gerar Cobrança</button>' +
+          '<button onclick="fecharAcoesDropdowns();abrirHistoricoCobrancas(\'' + r.id + '\',\'reserva\',\'' + r.cliente + ' – ' + r.resort + '\')">📊 Histórico</button>' +
+          '<button onclick="fecharAcoesDropdowns();gerarVoucher(\'' + r.id + '\')">📄 Voucher PDF</button>' +
+          '<button class="danger" onclick="fecharAcoesDropdowns();excluirReserva(\'' + r.id + '\')">🗑️ Excluir</button>' +
+        '</div>' +
+      '</div>' +
+    '</td>' +
     '</tr>';
 }
 
@@ -4284,7 +5154,7 @@ function renderTabela() {
     var emptyTbody = document.createElement('tbody');
     emptyTbody.id = 'tabelaBody';
     emptyTbody.innerHTML =
-      '<tr><td colspan="15"><div class="empty-state">' +
+      '<tr><td colspan="16"><div class="empty-state">' +
       '<div class="empty-icon">📋</div>' +
       '<div>' + (reservas.length === 0 ? 'Nenhuma reserva cadastrada ainda.' : 'Nenhuma reserva corresponde aos filtros.') + '</div>' +
       '</div></td></tr>';
@@ -4336,7 +5206,7 @@ function renderTabela() {
 
     var separador =
       '<tr class="mes-separador" onclick="toggleGrupoMes(\'' + mes + '\')">' +
-      '<td colspan="15">📅 <strong>' + nomeDoMes(mes) + '</strong>' +
+      '<td colspan="16">📅 <strong>' + nomeDoMes(mes) + '</strong>' +
       '<span class="mes-sep-resumo">' + resumo + '</span>' +
       '<span class="mes-sep-toggle">' + (isAberto ? '▲' : '▼') + '</span>' +
       '</td></tr>';
@@ -4408,6 +5278,33 @@ function toggleTodosGrupos() {
 /* ==========================================
    AÇÕES NA TABELA
 ========================================== */
+function fecharAcoesDropdowns() {
+  document.querySelectorAll('.acoes-menu.open').forEach(function (m) { m.classList.remove('open'); });
+}
+
+function toggleAcoesDropdown(e, id) {
+  e.stopPropagation();
+  var menu = document.getElementById('acoes-' + id);
+  var isOpen = menu.classList.contains('open');
+  fecharAcoesDropdowns();
+  if (!isOpen) {
+    menu.classList.add('open');
+    /* Flip upward if button is in the lower portion of the viewport */
+    var btnRect = e.currentTarget.getBoundingClientRect();
+    var menuHeight = menu.offsetHeight || 240; /* estimated height if not yet rendered */
+    if (btnRect.bottom + menuHeight > window.innerHeight) {
+      menu.style.top = 'auto';
+      menu.style.bottom = 'calc(100% + 4px)';
+    } else {
+      menu.style.top = 'calc(100% + 4px)';
+      menu.style.bottom = 'auto';
+    }
+  }
+}
+
+document.addEventListener('click', fecharAcoesDropdowns);
+
+
 function marcarPago(id) {
   var r = reservas.find(function (x) { return x.id === id; });
   if (!r) return;
@@ -4416,6 +5313,7 @@ function marcarPago(id) {
   renderTabela();
   atualizarDashboard();
   atualizarMensal();
+  atualizarVendasAnuais();
   renderRelatorioDesempenho();
   registrarAuditoria('Reserva marcada como paga', r.cliente + ' • ' + r.resort);
   mostrarToast('✅ Reserva marcada como paga!', 'success');
@@ -4429,6 +5327,7 @@ function excluirReserva(id) {
   renderTabela();
   atualizarDashboard();
   atualizarMensal();
+  atualizarVendasAnuais();
   renderRelatorioDesempenho();
   sincronizarAutomacoes();
   if (alvo) registrarAuditoria('Reserva excluída', alvo.cliente + ' • ' + alvo.resort);
@@ -4558,6 +5457,7 @@ function salvarEdicao() {
   renderTabela();
   atualizarDashboard();
   atualizarMensal();
+  atualizarVendasAnuais();
   renderRelatorioDesempenho();
   sincronizarAutomacoes();
   registrarAuditoria('Reserva atualizada', cliente + ' • ' + resort);
@@ -4578,7 +5478,15 @@ document.getElementById('editModal').addEventListener('click', function (e) {
    DASHBOARD
 ========================================== */
 function atualizarDashboard() {
-  var total      = reservas.length;
+  /* Usa o período ativo para filtrar as reservas. _dashPeriod é declarado
+     mais abaixo no mesmo bloco <script>; a atribuição `var _dashPeriod` é
+     hoisted, mas o valor 'all' só é atribuído quando o script executa essa
+     linha — all atualizarDashboard calls are async, so _dashPeriod is always
+     set by then. _getFilteredReservas is a function declaration and is hoisted. */
+  var periodo = (typeof _dashPeriod !== 'undefined') ? _dashPeriod : 'all';
+  var lista   = _getFilteredReservas(periodo);
+
+  var total      = lista.length;
   var receita    = 0;
   var comissao   = 0;
   var pendente   = 0;
@@ -4588,41 +5496,60 @@ function atualizarDashboard() {
   var somaAval   = 0;
   var countAval  = 0;
 
-  /* Receita do mês atual para a meta */
-  var mesAtual = new Date().toISOString().slice(0, 7);
-  var receitaMes = 0;
-
-  reservas.forEach(function (r) {
-    if (r.status === 'cancelado') { canceladas++; return; }
-    receita  += r.total    || 0;
-    comissao += r.comissao || 0;
-    noites   += r.noites   || 0;
-    lucroTotal += (r.valorCaptacao > 0) ? (r.total - r.valorCaptacao) : 0;
+  lista.forEach(function (r) {
+    if ((r.status || '').toLowerCase() === 'cancelado') { canceladas++; return; }
+    receita    += parseFloat(r.total    || 0);
+    comissao   += parseFloat(r.comissao || 0);
+    noites     += parseInt(r.noites     || 0, 10);
+    lucroTotal += parseFloat(r.lucro    || 0);
     if (r.avaliacao !== null && r.avaliacao !== undefined && !isNaN(r.avaliacao)) {
-      somaAval += r.avaliacao;
+      somaAval += parseFloat(r.avaliacao);
       countAval++;
     }
-    if (r.status === 'pendente') pendente += r.total || 0;
-    if (r.entrada && r.entrada.slice(0, 7) === mesAtual) receitaMes += r.total || 0;
+    if ((r.status || '').toLowerCase() === 'pendente') pendente += parseFloat(r.total || 0);
   });
 
-  document.getElementById('dash-total').textContent     = total;
-  document.getElementById('dash-receita').textContent   = formatBRL(receita);
-  document.getElementById('dash-comissao').textContent  = formatBRL(comissao);
-  document.getElementById('dash-pendente').textContent  = formatBRL(pendente);
-  document.getElementById('dash-noites').textContent    = noites;
+  document.getElementById('dash-total').textContent      = total;
+  document.getElementById('dash-receita').textContent    = formatBRL(receita);
+  document.getElementById('dash-comissao').textContent   = formatBRL(comissao);
+  document.getElementById('dash-pendente').textContent   = formatBRL(pendente);
+  document.getElementById('dash-noites').textContent     = noites;
   document.getElementById('dash-canceladas').textContent = canceladas;
-  document.getElementById('dash-lucro').textContent     = formatBRL(lucroTotal);
-  document.getElementById('dash-avaliacao').textContent = countAval > 0 ? (somaAval / countAval).toFixed(1) + ' ⭐' : '—';
+  document.getElementById('dash-lucro').textContent      = formatBRL(lucroTotal);
+  document.getElementById('dash-avaliacao').textContent  = countAval > 0 ? (somaAval / countAval).toFixed(1) + ' ⭐' : '—';
 
-  /* Meta mensal */
+  /* Badge de contagem do período */
+  var countEl = document.getElementById('dashPeriodCount');
+  if (countEl) {
+    var naoCancel = lista.filter(function(r) { return (r.status || '').toLowerCase() !== 'cancelado'; }).length;
+    countEl.textContent = naoCancel + (naoCancel === 1 ? ' reserva' : ' reservas');
+  }
+
+  /* Meta: para período específico usa receita filtrada; para "todos" usa o mês atual */
+  var metaBase;
+  if (!periodo || periodo === 'all') {
+    var mesAtual = _mesKey(new Date());
+    metaBase = 0;
+    lista.forEach(function(r) {
+      if ((r.status || '').toLowerCase() !== 'cancelado' &&
+          r.entrada && r.entrada.slice(0, 7) === mesAtual) {
+        metaBase += parseFloat(r.total || 0);
+      }
+    });
+  } else {
+    metaBase = receita;
+  }
+
   var meta = parseFloat(localStorage.getItem('hospeda_meta')) || CONFIG.metaPadrao;
-  var pct  = meta > 0 ? Math.min(100, Math.round((receitaMes / meta) * 100)) : 0;
+  var pct  = meta > 0 ? Math.min(100, Math.round((metaBase / meta) * 100)) : 0;
   document.getElementById('dash-meta-pct').textContent = pct + '%';
   var barEl = document.getElementById('dash-meta-bar');
-  barEl.style.width = pct + '%';
-  if (pct >= 100) barEl.classList.add('completa');
-  else barEl.classList.remove('completa');
+  if (barEl) {
+    barEl.style.width = pct + '%';
+    if (pct >= 100) barEl.classList.add('completa');
+    else barEl.classList.remove('completa');
+  }
+
 }
 
 /* ==========================================
@@ -4632,18 +5559,18 @@ function atualizarMensal() {
   var meses = {};
 
   reservas.forEach(function (r) {
-    if (r.status === 'cancelado') return;
+    if ((r.status || '').toLowerCase() === 'cancelado') return;
     var mes = r.entrada ? r.entrada.slice(0, 7) : 'desconhecido';
     if (!meses[mes]) {
       meses[mes] = { reservas: 0, receita: 0, comissao: 0, repasse: 0, noites: 0, captacao: 0, lucro: 0 };
     }
     meses[mes].reservas++;
-    meses[mes].receita   += r.total    || 0;
-    meses[mes].comissao  += r.comissao || 0;
-    meses[mes].repasse   += r.repasse  || 0;
-    meses[mes].noites    += r.noites   || 0;
-    meses[mes].captacao  += r.valorCaptacao || 0;
-    meses[mes].lucro     += (r.valorCaptacao > 0) ? (r.total - r.valorCaptacao) : 0;
+    meses[mes].receita   += parseFloat(r.total    || 0);
+    meses[mes].comissao  += parseFloat(r.comissao || 0);
+    meses[mes].repasse   += parseFloat(r.repasse  || 0);
+    meses[mes].noites    += parseInt(r.noites     || 0, 10);
+    meses[mes].captacao  += parseFloat(r.valorCaptacao || 0);
+    meses[mes].lucro     += (r.valorCaptacao > 0) ? (parseFloat(r.total || 0) - parseFloat(r.valorCaptacao || 0)) : 0;
   });
 
   var chaves = Object.keys(meses).sort().reverse();
@@ -4651,6 +5578,7 @@ function atualizarMensal() {
 
   if (chaves.length === 0) {
     grid.innerHTML = '<div style="color: var(--cor-sub); font-size:0.9em; padding:10px;">Nenhum dado disponível. Adicione reservas para ver o resumo mensal.</div>';
+    renderGraficos();
     return;
   }
 
@@ -4681,8 +5609,279 @@ function atualizarMensal() {
 }
 
 /* ==========================================
-   EXPORTAR CSV
+   RESULTADOS DE VENDAS POR ANO (UNIFICADO)
 ========================================== */
+var _anoVendasAtual = new Date().getFullYear();
+var _agrupVendas    = 'entrada'; /* 'entrada' = por check-in | 'criado' = por cadastro */
+
+var _NOMES_MESES = [
+  'Janeiro','Fevereiro','Março','Abril','Maio','Junho',
+  'Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'
+];
+
+function mudarAnoVendas(delta) {
+  _anoVendasAtual += delta;
+  atualizarVendasAnuais();
+}
+
+function setAgrupVendas(modo) {
+  _agrupVendas = modo;
+  var btnE = document.getElementById('vaAgrupEntrada');
+  var btnC = document.getElementById('vaAgrupCriado');
+  if (btnE) btnE.classList.toggle('active', modo === 'entrada');
+  if (btnC) btnC.classList.toggle('active', modo === 'criado');
+  atualizarVendasAnuais();
+}
+
+function toggleVendasAnuais() {
+  var wrap = document.getElementById('vaTableWrap');
+  var btn  = document.getElementById('vaMinBtn');
+  if (!wrap || !btn) return;
+  var collapsed = wrap.classList.toggle('va-collapsed');
+  btn.classList.toggle('va-collapsed', collapsed);
+  btn.title = collapsed ? 'Expandir tabela' : 'Minimizar tabela';
+}
+
+function atualizarVendasAnuais() {
+  var ano   = _anoVendasAtual;
+  var label = document.getElementById('vendas-ano-label');
+  if (label) label.textContent = String(ano);
+
+  var campoData = _agrupVendas === 'criado' ? 'criadoEm' : 'entrada';
+
+  /* inicializa acumuladores para o ano selecionado e para o ano anterior (YoY) */
+  var totais = {}, antAno = {};
+  for (var m = 1; m <= 12; m++) {
+    totais[m] = { reservas: 0, noites: 0, venda: 0, comissao: 0, captacao: 0, lucro: 0, comissaoVenda: 0 };
+    antAno[m] = { venda: 0 };
+  }
+
+  reservas.forEach(function (r) {
+    if ((r.status || '').toLowerCase() === 'cancelado') return;
+    var dt = r[campoData] ? r[campoData].slice(0, 7) : null;
+    if (!dt) return;
+    var partes = dt.split('-');
+    var rAno   = parseInt(partes[0], 10);
+    var rMes   = parseInt(partes[1], 10);
+    if (rMes < 1 || rMes > 12) return;
+    var venda = parseFloat(r.total         || 0);
+    var cap   = parseFloat(r.valorCaptacao || 0);
+    if (rAno === ano) {
+      var t = totais[rMes];
+      t.reservas++;
+      t.noites   += parseInt(r.noites    || 0, 10);
+      t.venda    += venda;
+      t.comissao += parseFloat(r.comissao || 0);
+      t.captacao += cap;
+      t.lucro    += cap > 0 ? venda - cap : 0;
+    } else if (rAno === ano - 1) {
+      antAno[rMes].venda += venda;
+    }
+    /* comissão sempre pela data de venda (criadoEm), independente do agrupamento */
+    var dtCriado = r.criadoEm ? r.criadoEm.slice(0, 7) : null;
+    if (dtCriado) {
+      var pCriado = dtCriado.split('-');
+      var anoCriado = parseInt(pCriado[0], 10);
+      var mesCriado = parseInt(pCriado[1], 10);
+      if (anoCriado === ano && mesCriado >= 1 && mesCriado <= 12) {
+        totais[mesCriado].comissaoVenda += parseFloat(r.comissao || 0);
+      }
+    }
+  });
+
+  /* flags para colunas opcionais */
+  var temCaptacao = false;
+  for (var m = 1; m <= 12; m++) { if (totais[m].captacao > 0) { temCaptacao = true; break; } }
+
+  /* máximo de venda mensal → barra de desempenho relativa */
+  var maxVenda = 0;
+  for (var m = 1; m <= 12; m++) { if (totais[m].venda > maxVenda) maxVenda = totais[m].venda; }
+
+  /* totais anuais */
+  var totAno = { reservas: 0, noites: 0, venda: 0, comissao: 0, captacao: 0, lucro: 0, comissaoVenda: 0 };
+  for (var m = 1; m <= 12; m++) {
+    totAno.reservas      += totais[m].reservas;
+    totAno.noites        += totais[m].noites;
+    totAno.venda         += totais[m].venda;
+    totAno.comissao      += totais[m].comissao;
+    totAno.captacao      += totais[m].captacao;
+    totAno.lucro         += totais[m].lucro;
+    totAno.comissaoVenda += totais[m].comissaoVenda;
+  }
+
+  var mesAtual = new Date().getMonth() + 1;
+  var anoAtual = new Date().getFullYear();
+  var numCols  = 6 + (temCaptacao ? 2 : 0); /* para colspan em linha vazia */
+
+  /* ---- cabeçalho dinâmico ---- */
+  var cabEl = document.getElementById('cabecalhoVendasAnuais');
+  if (cabEl) {
+    cabEl.innerHTML =
+      '<tr>' +
+      '<th style="text-align:left;">Mês</th>' +
+      '<th>Reservas</th>' +
+      '<th>🌙 Noites</th>' +
+      '<th style="min-width:160px;">💵 Venda Total</th>' +
+      '<th>% do Ano</th>' +
+      (temCaptacao ? '<th>🛒 Captação</th><th>📈 Lucro</th>' : '') +
+      '<th>🏷️ Comissão</th>' +
+      '<th>💰 Comissão Total mês</th>' +
+      '<th>↕ vs ' + (ano - 1) + '</th>' +
+      '</tr>';
+  }
+
+  var corpo  = document.getElementById('corpoVendasAnuais');
+  var rodape = document.getElementById('rodapeVendasAnuais');
+  if (!corpo) return;
+
+  var html = '';
+  for (var i = 1; i <= 12; i++) {
+    var t   = totais[i];
+    var ant = antAno[i];
+    var vazio  = t.reservas === 0;
+    var atual  = (i === mesAtual && ano === anoAtual);
+    var pct    = totAno.venda > 0 ? ((t.venda / totAno.venda) * 100).toFixed(1) : '0.0';
+    var barPct = maxVenda > 0 ? Math.round((t.venda / maxVenda) * 100) : 0;
+
+    /* YoY badge */
+    var yoy = '—';
+    if (!vazio && ant.venda > 0) {
+      var delta = ((t.venda - ant.venda) / ant.venda * 100);
+      var sinal = delta >= 0 ? '↑' : '↓';
+      var cls   = delta >= 0 ? 'va-badge-up' : 'va-badge-down';
+      yoy = '<span class="' + cls + '">' + sinal + ' ' + Math.abs(delta).toFixed(0) + '%</span>';
+    } else if (!vazio && ant.venda === 0) {
+      yoy = '<span class="va-badge-new">✦ Novo</span>';
+    }
+
+    var lucroClass = t.lucro >= 0 ? 'va-lucro-pos' : 'va-lucro-neg';
+    var captCells  = temCaptacao
+      ? '<td>' + (t.captacao > 0 ? formatBRL(t.captacao) : '<span class="va-pct">—</span>') + '</td>' +
+        '<td class="' + (t.captacao > 0 ? lucroClass : '') + '">' + (t.captacao > 0 ? formatBRL(t.lucro) : '<span class="va-pct">—</span>') + '</td>'
+      : '';
+
+    html +=
+      '<tr class="' + (atual ? 'va-atual' : '') + (vazio ? ' va-vazio' : '') + '">' +
+      '<td>' + _NOMES_MESES[i - 1] + (atual ? '<span class="va-tag-atual">◀ atual</span>' : '') + '</td>' +
+      '<td>' + (t.reservas > 0 ? t.reservas : '<span class="va-pct">—</span>') + '</td>' +
+      '<td>' + (t.noites   > 0 ? t.noites   : '<span class="va-pct">—</span>') + '</td>' +
+      '<td>' +
+        '<div class="va-bar-wrap">' +
+          '<div class="va-bar-bg"><div class="va-bar-fill" style="width:' + barPct + '%"></div></div>' +
+          formatBRL(t.venda) +
+        '</div>' +
+      '</td>' +
+      '<td><span class="va-pct">' + (t.venda > 0 ? pct + '%' : '—') + '</span></td>' +
+      captCells +
+      '<td class="va-comissao">' + (t.comissao > 0 ? formatBRL(t.comissao) : '<span class="va-pct">—</span>') + '</td>' +
+      '<td class="va-comissao">' + (t.comissaoVenda > 0 ? formatBRL(t.comissaoVenda) : '<span class="va-pct">—</span>') + '</td>' +
+      '<td>' + yoy + '</td>' +
+      '</tr>';
+  }
+  corpo.innerHTML = html;
+
+  /* ---- rodapé: total + média mensal ---- */
+  var captTotCells = temCaptacao
+    ? '<td style="color:var(--dourado);">' + formatBRL(totAno.captacao) + '</td>' +
+      '<td class="va-lucro-' + (totAno.lucro >= 0 ? 'pos' : 'neg') + '">' + formatBRL(totAno.lucro) + '</td>'
+    : '';
+  var captMedCells = temCaptacao
+    ? '<td>' + formatBRL(totAno.captacao / 12) + '</td>' +
+      '<td>' + formatBRL(totAno.lucro    / 12) + '</td>'
+    : '';
+
+  rodape.innerHTML =
+    '<tr>' +
+    '<td>Total ' + ano + '</td>' +
+    '<td>' + (totAno.reservas > 0 ? totAno.reservas : '—') + '</td>' +
+    '<td>' + (totAno.noites   > 0 ? totAno.noites   : '—') + '</td>' +
+    '<td style="color:var(--dourado);">' + formatBRL(totAno.venda) + '</td>' +
+    '<td></td>' +
+    captTotCells +
+    '<td class="va-comissao">' + formatBRL(totAno.comissao) + '</td>' +
+    '<td class="va-comissao">' + formatBRL(totAno.comissaoVenda) + '</td>' +
+    '<td></td>' +
+    '</tr>' +
+    (totAno.reservas > 0
+      ? '<tr class="va-media">' +
+        '<td>Média mensal</td>' +
+        '<td>' + (totAno.reservas / 12).toFixed(1) + '</td>' +
+        '<td>' + (totAno.noites   / 12).toFixed(1) + '</td>' +
+        '<td>' + formatBRL(totAno.venda    / 12) + '</td>' +
+        '<td></td>' +
+        captMedCells +
+        '<td>' + formatBRL(totAno.comissao / 12) + '</td>' +
+        '<td>' + formatBRL(totAno.comissaoVenda / 12) + '</td>' +
+        '<td></td>' +
+        '</tr>'
+      : '');
+}
+
+/* ==========================================
+   EXPORTAR CSV — VENDAS ANUAIS
+========================================== */
+function exportarVendasAnuaisCSV() {
+  var ano       = _anoVendasAtual;
+  var campoData = _agrupVendas === 'criado' ? 'criadoEm' : 'entrada';
+
+  var totais = {};
+  for (var m = 1; m <= 12; m++) {
+    totais[m] = { reservas: 0, noites: 0, venda: 0, comissao: 0, captacao: 0, lucro: 0 };
+  }
+  reservas.forEach(function (r) {
+    if ((r.status || '').toLowerCase() === 'cancelado') return;
+    var dt = r[campoData] ? r[campoData].slice(0, 7) : null;
+    if (!dt) return;
+    var partes = dt.split('-');
+    if (parseInt(partes[0], 10) !== ano) return;
+    var mes   = parseInt(partes[1], 10);
+    if (mes < 1 || mes > 12) return;
+    var venda = parseFloat(r.total || 0);
+    var cap   = parseFloat(r.valorCaptacao || 0);
+    var t     = totais[mes];
+    t.reservas++;
+    t.noites   += parseInt(r.noites || 0, 10);
+    t.venda    += venda;
+    t.comissao += parseFloat(r.comissao || 0);
+    t.captacao += cap;
+    t.lucro    += cap > 0 ? venda - cap : 0;
+  });
+
+  var temCaptacao = false;
+  for (var m = 1; m <= 12; m++) { if (totais[m].captacao > 0) { temCaptacao = true; break; } }
+
+  var agrupLabel = _agrupVendas === 'criado' ? 'Por Cadastro' : 'Por Check-in';
+  var cols = ['Mês', 'Reservas', 'Noites', 'Venda Total (R$)', '% do Ano'];
+  if (temCaptacao) cols.push('Captação (R$)', 'Lucro (R$)');
+  cols.push('Comissão (R$)');
+
+  var totalVenda = 0;
+  for (var m = 1; m <= 12; m++) totalVenda += totais[m].venda;
+
+  var fmtN = function (v) { return v.toFixed(2).replace('.', ','); };
+  var linhas = [];
+  for (var i = 1; i <= 12; i++) {
+    var t   = totais[i];
+    var pct = totalVenda > 0 ? ((t.venda / totalVenda) * 100).toFixed(1) : '0,0';
+    var row = [_NOMES_MESES[i - 1], t.reservas, t.noites, fmtN(t.venda), pct + '%'];
+    if (temCaptacao) row.push(fmtN(t.captacao), fmtN(t.lucro));
+    row.push(fmtN(t.comissao));
+    linhas.push(row.join(';'));
+  }
+
+  var csv  = '\uFEFF' + 'Resultados de Vendas ' + ano + ' — ' + agrupLabel + '\n' +
+             cols.join(';') + '\n' + linhas.join('\n');
+  var blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  var url  = URL.createObjectURL(blob);
+  var a    = document.createElement('a');
+  a.href     = url;
+  a.download = 'vendas-' + ano + '-' + (_agrupVendas === 'criado' ? 'cadastro' : 'checkin') + '.csv';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  mostrarToast('📥 CSV exportado com sucesso!', 'success');
+}
 function exportarCSV() {
   var lista = getReservasFiltradas();
   if (lista.length === 0) {
@@ -4754,6 +5953,12 @@ var _chartStatus  = null;
 var _chartCanal   = null;
 var _chartLucro12 = null;
 
+/* Retorna a chave "AAAA-MM" para um objeto Date usando horário local,
+   evitando o deslocamento UTC que toISOString() introduz em fusos UTC+. */
+function _mesKey(d) {
+  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+}
+
 function renderGraficos() {
   if (typeof Chart === 'undefined') return;
   renderGraficoReceita();
@@ -4768,13 +5973,13 @@ function renderGraficoReceita() {
 
   for (var i = 5; i >= 0; i--) {
     var d   = new Date(hoje.getFullYear(), hoje.getMonth() - i, 1);
-    var key = d.toISOString().slice(0, 7);
+    var key = _mesKey(d);
     labels.push(d.toLocaleDateString('pt-BR', { month: 'short', year: '2-digit' }));
     var rec = 0, com = 0;
     reservas.forEach(function (r) {
-      if (r.status !== 'cancelado' && r.entrada && r.entrada.slice(0, 7) === key) {
-        rec += r.total    || 0;
-        com += r.comissao || 0;
+      if ((r.status || '').toLowerCase() !== 'cancelado' && r.entrada && r.entrada.slice(0, 7) === key) {
+        rec += parseFloat(r.total    || 0);
+        com += parseFloat(r.comissao || 0);
       }
     });
     dadosReceita.push(rec);
@@ -4816,8 +6021,9 @@ function renderGraficoReceita() {
 function renderGraficoStatus() {
   var pago = 0, pendente = 0, cancelado = 0;
   reservas.forEach(function (r) {
-    if (r.status === 'pago')      pago++;
-    else if (r.status === 'cancelado') cancelado++;
+    var st = (r.status || '').toLowerCase();
+    if (st === 'pago')      pago++;
+    else if (st === 'cancelado') cancelado++;
     else pendente++;
   });
 
@@ -4846,7 +6052,7 @@ function renderGraficoStatus() {
 function renderGraficoCanal() {
   var canais = {};
   reservas.forEach(function (r) {
-    if (r.status === 'cancelado') return;
+    if ((r.status || '').toLowerCase() === 'cancelado') return;
     var c = r.canal || 'Direta';
     canais[c] = (canais[c] || 0) + 1;
   });
@@ -4884,13 +6090,13 @@ function renderGraficoLucro12() {
 
   for (var i = 11; i >= 0; i--) {
     var d   = new Date(hoje.getFullYear(), hoje.getMonth() - i, 1);
-    var key = d.toISOString().slice(0, 7);
+    var key = _mesKey(d);
     labels.push(d.toLocaleDateString('pt-BR', { month: 'short', year: '2-digit' }));
     var rec = 0, cap = 0;
     reservas.forEach(function (r) {
-      if (r.status !== 'cancelado' && r.entrada && r.entrada.slice(0, 7) === key) {
-        rec += r.total || 0;
-        cap += r.valorCaptacao || 0;
+      if ((r.status || '').toLowerCase() !== 'cancelado' && r.entrada && r.entrada.slice(0, 7) === key) {
+        rec += parseFloat(r.total || 0);
+        cap += parseFloat(r.valorCaptacao || 0);
       }
     });
     dadosReceita.push(rec);
@@ -4948,21 +6154,21 @@ function renderRelatorioDesempenho() {
   var reservasComCaptacao = 0;
 
   reservas.forEach(function (r) {
-    if (r.status === 'cancelado') return;
+    if ((r.status || '').toLowerCase() === 'cancelado') return;
     reservasAtivas++;
     var c = r.canal || 'Direta';
     if (!canais[c]) canais[c] = { count: 0, receita: 0, avaliacao: 0, countAval: 0 };
     canais[c].count++;
-    canais[c].receita += r.total || 0;
+    canais[c].receita += parseFloat(r.total || 0);
     if (r.avaliacao !== null && r.avaliacao !== undefined && !isNaN(r.avaliacao)) {
-      canais[c].avaliacao  += r.avaliacao;
+      canais[c].avaliacao  += parseFloat(r.avaliacao);
       canais[c].countAval++;
-      somaAval += r.avaliacao;
+      somaAval += parseFloat(r.avaliacao);
       countAval++;
     }
-    totalVenda    += r.total || 0;
-    totalCaptacao += r.valorCaptacao || 0;
-    lucroTotal    += r.valorCaptacao > 0 ? (r.total - r.valorCaptacao) : 0;
+    totalVenda    += parseFloat(r.total || 0);
+    totalCaptacao += parseFloat(r.valorCaptacao || 0);
+    lucroTotal    += r.valorCaptacao > 0 ? (parseFloat(r.total || 0) - parseFloat(r.valorCaptacao || 0)) : 0;
     if ((r.valorCaptacao || 0) > 0) reservasComCaptacao++;
   });
 
@@ -5082,13 +6288,13 @@ function gerarInsightsIA() {
   var lucro12 = [];
   for (var i = 11; i >= 0; i--) {
     var d = new Date(hoje.getFullYear(), hoje.getMonth() - i, 1);
-    var key = d.toISOString().slice(0, 7);
+    var key = _mesKey(d);
     var mes = d.toLocaleDateString('pt-BR', { month: 'short', year: '2-digit' });
     var rec = 0, cap = 0;
     reservas.forEach(function (r) {
-      if (r.status !== 'cancelado' && r.entrada && r.entrada.slice(0, 7) === key) {
-        rec += r.total || 0;
-        cap += r.valorCaptacao || 0;
+      if ((r.status || '').toLowerCase() !== 'cancelado' && r.entrada && r.entrada.slice(0, 7) === key) {
+        rec += parseFloat(r.total || 0);
+        cap += parseFloat(r.valorCaptacao || 0);
       }
     });
     lucro12.push({ mes: mes, lucro: rec - cap });
@@ -5344,6 +6550,7 @@ function importarBackup() {
         renderTabela();
         atualizarDashboard();
         atualizarMensal();
+        atualizarVendasAnuais();
         renderGraficos();
         renderRelatorioDesempenho();
         renderTabelaAutomacoes();
@@ -5524,7 +6731,7 @@ function renderTabelaCaptacao() {
   var tbody = document.getElementById('capTabelaBody');
   if (!lista.length) {
     tbody.innerHTML =
-      '<tr><td colspan="15"><div class="empty-state">' +
+      '<tr><td colspan="16"><div class="empty-state">' +
       '<div class="empty-icon">🏡</div>' +
       '<div>Nenhuma captação encontrada.</div>' +
       '<div style="font-size:0.85em;margin-top:6px;color:var(--cinza)">Use o formulário acima para adicionar a primeira captação.</div>' +
@@ -5551,6 +6758,15 @@ function renderTabelaCaptacao() {
       ? '<a href="https://wa.me/55' + c.telefone.replace(/\D/g,'') + '" target="_blank" style="color:var(--verde);">📱 ' + c.telefone + '</a>'
       : '—';
 
+    /* Repasse badge */
+    var repSt = c.repasseStatus || 'pendente';
+    var repBadge = repSt === 'repassado'
+      ? '<span class="badge badge-pago">✅ Repassado</span>'
+      : repSt === 'atrasado'
+        ? '<span class="badge badge-cancelado">⚠️ Atrasado</span>'
+        : '<span class="badge badge-pendente">⏳ Pendente</span>';
+    var repData = (repSt === 'repassado' && c.repasseData) ? '<br><small style="color:var(--cinza);">' + formatarData(c.repasseData) + '</small>' : '';
+
     return '<tr>' +
       '<td>' + (i + 1) + '</td>' +
       '<td><strong>' + c.proprietario + '</strong></td>' +
@@ -5566,11 +6782,13 @@ function renderTabelaCaptacao() {
       '<td>' + (c.dataPag ? formatarData(c.dataPag) : '—') + '</td>' +
       '<td>' + (formaLabel[c.formaPag] || c.formaPag) + parcInfo + '</td>' +
       '<td>' + statusBadge + '</td>' +
-      '<td class="actions">' +
+      '<td>' + repBadge + repData + '</td>' +
+      '<td><div class="actions">' +
         '<button class="btn btn-secondary btn-sm" onclick="editarCaptacao(\'' + c.id + '\')">✏️</button>' +
         '<button class="btn btn-success btn-sm" onclick="enviarWhatsAppCaptacao(\'' + c.id + '\')">📱</button>' +
+        '<button class="btn btn-secondary btn-sm" onclick="registrarRepasse(\'' + c.id + '\')" title="' + (repSt === 'repassado' ? 'Desfazer repasse' : 'Registrar repasse') + '">💸</button>' +
         '<button class="btn btn-danger btn-sm" onclick="excluirCaptacao(\'' + c.id + '\')">🗑️</button>' +
-      '</td>' +
+      '</div></td>' +
       '</tr>';
   }).join('');
 }
@@ -6060,11 +7278,12 @@ async function inicializarSistema() {
   /* Acesso validado: oculta o overlay de login e inicializa o sistema */
   document.getElementById('lockOverlay').classList.remove('show');
 
-  sincronizarDoSupabase().catch(function(e) {
+  return sincronizarDoSupabase().catch(function(e) {
     console.warn('Falha ao sincronizar dados do servidor, usando cache local:', e);
   }).then(function() {
     reservas = carregarReservas();
     captacoes = carregarCaptacoes();
+    cobrancas = carregarCobrancas();
     automacoes = carregarListaStorage(AUTO_KEY);
     onboardingFluxos = carregarListaStorage(ONB_KEY);
     manutencoes = carregarListaStorage(MAINT_KEY);
@@ -6073,6 +7292,7 @@ async function inicializarSistema() {
     renderTabela();
     atualizarDashboard();
     atualizarMensal();
+    atualizarVendasAnuais();
     renderGraficos();
     renderRelatorioDesempenho();
     renderTabelaCaptacao();
@@ -6083,6 +7303,10 @@ async function inicializarSistema() {
     renderTabelaFAQ();
     renderAuditoria();
     atualizarDashAutomacoes();
+    renderTabelaCobrancas();
+    atualizarDashCobrancas();
+    verificarCobrancasVencidas();
+    verificarRepassesAtrasados();
     var metaSalva = parseFloat(localStorage.getItem('hospeda_meta')) || CONFIG.metaPadrao;
     document.getElementById('inputMeta').value = metaSalva;
     sincronizarAutomacoes(true);
@@ -7060,6 +8284,15 @@ function pdToggleTable() {
   btn.textContent = collapsed ? '▼ Minimizar' : '▲ Expandir';
 }
 
+function toggleDashboard() {
+  var content = document.getElementById('dashboardContent');
+  var btn = document.getElementById('dashboardToggleBtn');
+  if (!content || !btn) return;
+  var collapsed = content.style.display === 'none';
+  content.style.display = collapsed ? '' : 'none';
+  btn.textContent = collapsed ? '▼ Minimizar' : '▲ Expandir';
+}
+
 function toggleReservas() {
   var content = document.getElementById('reservasContent');
   var btn = document.getElementById('reservasToggleBtn');
@@ -7076,6 +8309,58 @@ function toggleCaptacoes() {
   var collapsed = content.style.display === 'none';
   content.style.display = collapsed ? '' : 'none';
   btn.textContent = collapsed ? '▼ Minimizar' : '▲ Expandir';
+}
+
+function toggleVisitasSite() {
+  var content = document.getElementById('visitasSiteContent');
+  var btn = document.getElementById('visitasSiteToggleBtn');
+  if (!content || !btn) return;
+  var collapsed = content.style.display === 'none';
+  content.style.display = collapsed ? '' : 'none';
+  btn.textContent = collapsed ? '▼ Minimizar' : '▲ Expandir';
+}
+
+function togglePrecosDinamicos() {
+  var content = document.getElementById('precosContent');
+  var btn = document.getElementById('precosToggleBtn');
+  if (!content || !btn) return;
+  var collapsed = content.style.display === 'none';
+  content.style.display = collapsed ? '' : 'none';
+  btn.textContent = collapsed ? '▼ Minimizar' : '▲ Expandir';
+}
+
+function toggleCobrancas() {
+  var content = document.getElementById('cobrancasContent');
+  var btn = document.getElementById('cobrancasToggleBtn');
+  if (!content || !btn) return;
+  var collapsed = content.style.display === 'none';
+  content.style.display = collapsed ? '' : 'none';
+  btn.textContent = collapsed ? '▼ Minimizar' : '▲ Expandir';
+}
+
+function toggleNavDropdown(id) {
+  var el = document.getElementById(id);
+  if (!el) return;
+  var isOpen = el.classList.contains('open');
+  // Close any open dropdowns first
+  document.querySelectorAll('.nav-dropdown.open').forEach(function(dd) {
+    dd.classList.remove('open');
+  });
+  if (!isOpen) {
+    var btn = el.querySelector('.nav-dropdown-btn');
+    var menu = el.querySelector('.nav-dropdown-menu');
+    if (btn && menu) {
+      var rect = btn.getBoundingClientRect();
+      menu.style.top  = (rect.bottom + 6) + 'px';
+      menu.style.left = rect.left + 'px';
+    }
+    el.classList.add('open');
+  }
+}
+
+function fecharNavDropdown(id) {
+  var el = document.getElementById(id);
+  if (el) el.classList.remove('open');
 }
 
 async function deletarPrecoDinamico(id) {
@@ -7103,7 +8388,11 @@ async function carregarMensagens() {
       .limit(50);
     if (error) throw error;
 
-    var lista = data || [];
+    var clearedAt = localStorage.getItem('msgClearedAt');
+    var lista = (data || []).filter(function(r) {
+      if (!clearedAt) return true;
+      return r.criado_em && new Date(r.criado_em) > new Date(clearedAt);
+    });
     var body  = document.getElementById('msgBody');
 
     if (lista.length === 0) {
@@ -7153,6 +8442,129 @@ function toastSistema(msg, tipo) {
 }
 
 // ──────────────────────────────────────────────────────────
+// VISITAS AO SITE — Acompanhamento de Acessos
+// Camada 1: visitas_site        — detalhe dos últimos 30 dias
+// Camada 2: visitas_resumo_diario — totais históricos agregados
+// O job pg_cron 'agregar-visitas-diarias' move automaticamente
+// os registros com >30 dias para o resumo diário todo dia 03:00 UTC.
+// ──────────────────────────────────────────────────────────
+async function carregarVisitasSite() {
+  try {
+    // Buscar registros detalhados (≤30 dias) e resumo histórico em paralelo
+    var [recenteRes, resumoRes] = await Promise.all([
+      _supabase
+        .from('visitas_site')
+        .select('pagina, criado_em')
+        .order('criado_em', { ascending: false })
+        .limit(500),
+      _supabase
+        .from('visitas_resumo_diario')
+        .select('data, pagina, total_visitas')
+    ]);
+
+    if (recenteRes.error) throw recenteRes.error;
+    // Ignorar erro de visitas_resumo_diario caso a tabela ainda não exista
+    var lista   = recenteRes.data || [];
+    var resumo  = (resumoRes.error ? [] : resumoRes.data) || [];
+
+    // Calcular limites de tempo
+    var agora        = new Date();
+    var inicioHoje   = new Date(agora.getFullYear(), agora.getMonth(), agora.getDate());
+    var inicioSemana = new Date(inicioHoje);
+    inicioSemana.setDate(inicioHoje.getDate() - inicioHoje.getDay());
+    var inicioMes    = new Date(agora.getFullYear(), agora.getMonth(), 1);
+
+    // Métricas dos registros detalhados recentes
+    var totalRecente  = lista.length;
+    var hoje          = lista.filter(function(r){ return r.criado_em && new Date(r.criado_em) >= inicioHoje; }).length;
+    var semana        = lista.filter(function(r){ return r.criado_em && new Date(r.criado_em) >= inicioSemana; }).length;
+    var mes           = lista.filter(function(r){ return r.criado_em && new Date(r.criado_em) >= inicioMes; }).length;
+
+    // Total acumulado = registros recentes + totais históricos já agregados
+    var totalHistorico = resumo.reduce(function(acc, r){ return acc + (r.total_visitas || 0); }, 0);
+    var total = totalRecente + totalHistorico;
+
+    // Atualizar cards de resumo na seção dedicada
+    document.getElementById('vs-total').textContent  = total;
+    document.getElementById('vs-hoje').textContent   = hoje;
+    document.getElementById('vs-semana').textContent = semana;
+    document.getElementById('vs-mes').textContent    = mes;
+
+    // Atualizar card do dashboard principal
+    var dashTotal = document.getElementById('dash-visitas-total');
+    var dashHoje  = document.getElementById('dash-visitas-hoje');
+    if (dashTotal) dashTotal.textContent = total;
+    if (dashHoje)  dashHoje.textContent  = 'Hoje: ' + hoje;
+
+    // ── Tabela por página — combina recentes + histórico agregado ──
+    var porPagina = {};
+
+    // Primeiro acumular os totais históricos do resumo diário
+    resumo.forEach(function(r) {
+      var pg = r.pagina || '(desconhecida)';
+      if (!porPagina[pg]) porPagina[pg] = { total: 0, hoje: 0, semana: 0, mes: 0 };
+      porPagina[pg].total += (r.total_visitas || 0);
+    });
+
+    // Depois sobrepor com os registros detalhados recentes
+    lista.forEach(function(r) {
+      var pg = r.pagina || '(desconhecida)';
+      if (!porPagina[pg]) porPagina[pg] = { total: 0, hoje: 0, semana: 0, mes: 0 };
+      porPagina[pg].total++;
+      var dt = r.criado_em ? new Date(r.criado_em) : null;
+      if (dt) {
+        if (dt >= inicioHoje)   porPagina[pg].hoje++;
+        if (dt >= inicioSemana) porPagina[pg].semana++;
+        if (dt >= inicioMes)    porPagina[pg].mes++;
+      }
+    });
+
+    var paginaBody  = document.getElementById('vs-por-pagina');
+    var paginaNomes = Object.keys(porPagina).sort(function(a, b){ return porPagina[b].total - porPagina[a].total; });
+    if (paginaNomes.length === 0) {
+      paginaBody.innerHTML = '<tr><td colspan="5"><div class="empty-state"><div class="empty-icon">👁️</div><div>Nenhuma visita registrada ainda.</div><div style="font-size:0.82em;color:var(--cinza);margin-top:4px;">Execute o SQL da tabela <strong>visitas_site</strong> no Supabase.</div></div></td></tr>';
+    } else {
+      paginaBody.innerHTML = paginaNomes.map(function(pg) {
+        var s = porPagina[pg];
+        return '<tr>'
+          + '<td><strong>' + esc(pg) + '</strong></td>'
+          + '<td style="color:var(--dourado);font-weight:700;">' + s.total + '</td>'
+          + '<td>' + s.hoje + '</td>'
+          + '<td>' + s.semana + '</td>'
+          + '<td>' + s.mes + '</td>'
+          + '</tr>';
+      }).join('');
+    }
+
+    // ── Tabela de acessos recentes (50 mais recentes com horário detalhado) ──
+    // Sempre exibe registros detalhados pois visitas_site retém os últimos 30 dias
+    var recentesBody = document.getElementById('vs-recentes');
+    var recentes = lista.slice(0, 50);
+    if (recentes.length === 0) {
+      recentesBody.innerHTML = '<tr><td colspan="3"><div class="empty-state"><div class="empty-icon">🕐</div><div>Sem registros de acesso ainda.</div></div></td></tr>';
+    } else {
+      recentesBody.innerHTML = recentes.map(function(r, i) {
+        var dtHr = r.criado_em ? new Date(r.criado_em).toLocaleString('pt-BR') : '—';
+        return '<tr>'
+          + '<td>' + (i + 1) + '</td>'
+          + '<td><strong>' + esc(r.pagina || '(desconhecida)') + '</strong></td>'
+          + '<td style="font-size:0.85em;color:var(--cor-sub);">' + dtHr + '</td>'
+          + '</tr>';
+      }).join('');
+    }
+  } catch(e) {
+    var isNotFound = e && (String(e.message || '').toLowerCase().includes('does not exist') || (e.code && e.code === '42P01'));
+    var msg = isNotFound
+      ? 'Tabela <strong>visitas_site</strong> não encontrada. Execute o SQL da migração para ativá-la.'
+      : 'Erro ao carregar visitas: ' + esc(String(e.message || e));
+    var paginaBody   = document.getElementById('vs-por-pagina');
+    var recentesBody = document.getElementById('vs-recentes');
+    if (paginaBody)   paginaBody.innerHTML   = '<tr><td colspan="5"><div class="empty-state"><div class="empty-icon">⚠️</div><div>' + msg + '</div></div></td></tr>';
+    if (recentesBody) recentesBody.innerHTML = '<tr><td colspan="3"><div class="empty-state"><div class="empty-icon">⚠️</div><div>' + msg + '</div></div></td></tr>';
+  }
+}
+
+// ──────────────────────────────────────────────────────────
 // CARREGAR TUDO AO INICIALIZAR
 // ──────────────────────────────────────────────────────────
 var _plataformaCarregada = false;
@@ -7165,6 +8577,7 @@ function carregarFuncoesPlataforma() {
     carregarAvaliacoesMod();
     carregarTabelaPrecosDinamicos();
     carregarMensagens();
+    carregarVisitasSite();
   }, 2000);
 }
 
@@ -7238,12 +8651,76 @@ document.addEventListener('DOMContentLoaded', function() {
       if (btn.getAttribute('data-action') === 'excluir') excluirFAQ(id);
     });
   }
+
+  // Fechar dropdowns de nav ao clicar fora
+  document.addEventListener('click', function(e) {
+    document.querySelectorAll('.nav-dropdown.open').forEach(function(dd) {
+      if (!dd.contains(e.target)) dd.classList.remove('open');
+    });
+  });
 });
 
 // ============================================================
 // FILTRO DE PERÍODO DO DASHBOARD
 // ============================================================
-var _dashPeriod = 'all';
+var _dashPeriod = 'month';
+
+/* ── Helper: converte um campo de data (ISO ou DD/MM/YYYY) para Date ── */
+function _parseDateField(raw) {
+  if (!raw) return null;
+  var isoMatch = raw.match(/^(\d{4}-\d{2}-\d{2})/);
+  if (isoMatch) return new Date(isoMatch[1] + 'T00:00:00');
+  var parts = raw.match(/^(\d{2})\/(\d{2})\/(\d{4})/);
+  if (parts) return new Date(parts[3] + '-' + parts[2] + '-' + parts[1] + 'T00:00:00');
+  return null;
+}
+
+/* ── Helper: calcula o intervalo [de, ate] para um período nomeado ── */
+function _computarIntervalo(period) {
+  var now = new Date();
+  var de  = null;
+  var ate = null;
+
+  if (period === 'month') {
+    de  = new Date(now.getFullYear(), now.getMonth(), 1);
+    ate = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
+  } else if (period === '3m') {
+    de  = new Date(now); de.setMonth(de.getMonth() - 3); de.setHours(0, 0, 0, 0);
+    ate = new Date(now); ate.setHours(23, 59, 59, 999);
+  } else if (period === '6m') {
+    de  = new Date(now); de.setMonth(de.getMonth() - 6); de.setHours(0, 0, 0, 0);
+    ate = new Date(now); ate.setHours(23, 59, 59, 999);
+  } else if (period === 'year') {
+    de  = new Date(now.getFullYear(), 0, 1);
+    ate = new Date(now.getFullYear(), 11, 31, 23, 59, 59, 999);
+  } else if (period === 'custom') {
+    var deVal  = document.getElementById('dashPeriodDe').value;
+    var ateVal = document.getElementById('dashPeriodAte').value;
+    de  = deVal  ? new Date(deVal  + 'T00:00:00') : null;
+    ate = ateVal ? new Date(ateVal + 'T23:59:59') : null;
+  }
+  /* period === 'all' → de = ate = null */
+  return { de: de, ate: ate };
+}
+
+/* ── Helper: retorna o array de reservas filtrado pelo período ativo ── */
+function _getFilteredReservas(period) {
+  var todas = (typeof reservas !== 'undefined' ? reservas : []);
+  if (period === 'all') return todas;
+
+  var intervalo = _computarIntervalo(period);
+  var de  = intervalo.de;
+  var ate = intervalo.ate;
+
+  return todas.filter(function(r) {
+    /* Usa o campo `entrada` como referência canônica; aceita formatos ISO e DD/MM/YYYY */
+    var ts = _parseDateField(r.entrada || '');
+    if (!ts || isNaN(ts.getTime())) return false;
+    if (de  && ts < de)  return false;
+    if (ate && ts > ate) return false;
+    return true;
+  });
+}
 
 function filtrarPeriodoDash(period) {
   _dashPeriod = period;
@@ -7252,102 +8729,40 @@ function filtrarPeriodoDash(period) {
   document.querySelectorAll('.dash-period-btn').forEach(function(btn) {
     btn.classList.toggle('active', btn.dataset.period === period && period !== 'custom');
   });
-  if (period === 'custom') {
-    document.querySelectorAll('.dash-period-btn').forEach(function(b) { b.classList.remove('active'); });
+
+  /* Sincronizar campos de data para períodos nomeados */
+  if (period !== 'custom') {
+    var intervalo = _computarIntervalo(period);
+    var deEl  = document.getElementById('dashPeriodDe');
+    var ateEl = document.getElementById('dashPeriodAte');
+    if (deEl)  deEl.value  = intervalo.de  ? intervalo.de.toISOString().slice(0, 10)  : '';
+    if (ateEl) ateEl.value = intervalo.ate ? intervalo.ate.toISOString().slice(0, 10) : '';
   }
 
-  /* Calcular intervalo */
-  var now   = new Date();
-  var de    = null;
-  var ate   = null;
-
-  if (period === 'month') {
-    de = new Date(now.getFullYear(), now.getMonth(), 1);
-    ate = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-  } else if (period === '3m') {
-    de = new Date(now); de.setMonth(de.getMonth() - 3);
-  } else if (period === '6m') {
-    de = new Date(now); de.setMonth(de.getMonth() - 6);
-  } else if (period === 'year') {
-    de = new Date(now.getFullYear(), 0, 1);
-  } else if (period === 'custom') {
-    var deVal  = document.getElementById('dashPeriodDe').value;
-    var ateVal = document.getElementById('dashPeriodAte').value;
-    de  = deVal  ? new Date(deVal)  : null;
-    ate = ateVal ? new Date(ateVal) : null;
-  }
-
-  /* Filtrar array global de reservas */
-  var filtradas = (typeof reservas !== 'undefined' ? reservas : []).filter(function(r) {
-    var rawDate = r.dataEntrada || r.data_entrada || r.criado_em || '';
-    if (!rawDate) return period === 'all';
-    /* Suporta ISO (2025-04-21, 2025-04-21T...) e DD/MM/YYYY */
-    var ts;
-    if (/^\d{4}-\d{2}-\d{2}/.test(rawDate)) {
-      ts = new Date(rawDate);
-    } else {
-      var parts = rawDate.match(/^(\d{2})\/(\d{2})\/(\d{4})/);
-      ts = parts ? new Date(parts[3] + '-' + parts[2] + '-' + parts[1]) : null;
-    }
-    if (!ts || isNaN(ts.getTime())) return period === 'all';
-    if (de  && ts < de)  return false;
-    if (ate && ts > ate) return false;
-    return true;
-  });
-
-  _recalcularDashboard(filtradas);
+  atualizarDashboard();
 }
 
-function _recalcularDashboard(lista) {
-  var total     = lista.length;
-  var receita   = lista.reduce(function(s, r) { return s + parseFloat(r.valorTotal || r.valor_total || 0); }, 0);
-  var comissao  = lista.reduce(function(s, r) { return s + parseFloat(r.comissao    || r.valor_comissao || 0); }, 0);
-  var pendente  = lista.filter(function(r) { return (r.status||'').toLowerCase() === 'pendente'; })
-                       .reduce(function(s, r) { return s + parseFloat(r.valorTotal || r.valor_total || 0); }, 0);
-  var noites    = lista.reduce(function(s, r) { return s + parseInt(r.totalNoites || r.noites || 0, 10); }, 0);
-  var canceladas = lista.filter(function(r) { return (r.status||'').toLowerCase() === 'cancelada'; }).length;
-  var lucro     = receita - comissao;
-  var fmt       = function(v) { return 'R$ ' + v.toLocaleString('pt-BR', { minimumFractionDigits: 2 }); };
-
-  var set = function(id, val) { var el = document.getElementById(id); if (el) el.textContent = val; };
-  set('dash-total',     total);
-  set('dash-receita',   fmt(receita));
-  set('dash-comissao',  fmt(comissao));
-  set('dash-pendente',  fmt(pendente));
-  set('dash-noites',    noites);
-  set('dash-canceladas', canceladas);
-  set('dash-lucro',     fmt(lucro));
-
-  /* Meta progress */
-  var metaSalva = parseFloat(localStorage.getItem('hospeda_meta')) || 0;
-  if (metaSalva > 0) {
-    var pct = Math.min(100, Math.round((receita / metaSalva) * 100));
-    set('dash-meta-pct', pct + '%');
-    var bar = document.getElementById('dash-meta-bar');
-    if (bar) bar.style.width = pct + '%';
-  }
-}
 
 // ============================================================
 // EXPORTAR DADOS DO DASHBOARD (CSV)
 // ============================================================
 function exportarDashboard() {
-  var lista = (typeof reservas !== 'undefined' ? reservas : []);
-  if (!lista.length) { alert('Nenhum dado para exportar.'); return; }
+  var lista = _getFilteredReservas(_dashPeriod);
+  if (!lista.length) { alert('Nenhum dado para exportar no período selecionado.'); return; }
 
-  var cols = ['Resort', 'Hóspede', 'Email', 'Tel', 'Entrada', 'Saída', 'Noites', 'Hóspedes', 'Valor', 'Status'];
+  var cols = ['Resort', 'Hóspede', 'Canal', 'Entrada', 'Saída', 'Noites', 'Valor Total', 'Comissão', 'Lucro', 'Status'];
   var rows = lista.map(function(r) {
     return [
-      r.resort || r.resort_nome || '',
-      r.nomeHospede || r.nome_hospede || '',
-      r.emailHospede || r.email_hospede || '',
-      r.telefoneHospede || r.telefone || '',
-      r.dataEntrada || r.data_entrada || '',
-      r.dataSaida || r.data_saida || '',
-      r.totalNoites || r.noites || '',
-      r.numHospedes || r.num_hospedes || '',
-      r.valorTotal || r.valor_total || '',
-      r.status || ''
+      r.resort    || '',
+      r.cliente   || '',
+      r.canal     || '',
+      r.entrada   || '',
+      r.saida     || '',
+      r.noites    || '',
+      r.total     || '',
+      r.comissao  || '',
+      r.lucro     || '',
+      r.status    || ''
     ].map(function(v) { return '"' + String(v).replace(/"/g, '""') + '"'; }).join(',');
   });
 
@@ -7356,7 +8771,7 @@ function exportarDashboard() {
   var url  = URL.createObjectURL(blob);
   var a    = document.createElement('a');
   a.href   = url;
-  a.download = 'hospedah_reservas_' + new Date().toISOString().slice(0,10) + '.csv';
+  a.download = 'hospedah_reservas_' + new Date().toISOString().slice(0, 10) + '.csv';
   a.click();
   URL.revokeObjectURL(url);
 }
@@ -7391,19 +8806,20 @@ function _aplicarViewRole(role) {
 
 async function _carregarViewProprietario() {
   try {
-    var { data } = await _supabase
-      .from('reservas_hospede')
-      .select('status')
-      .order('criado_em', { ascending: false })
-      .limit(100);
+    var { data: resumo } = await _supabase
+      .from('dashboard_resumo_global')
+      .select('total_reservas,confirmadas,pendentes,canceladas,concluidas')
+      .single();
 
-    var lista      = data || [];
-    var pendentes  = lista.filter(function(r) { return r.status === 'pendente'; }).length;
-    var confirmadas = lista.filter(function(r) { return r.status === 'confirmada'; }).length;
-    var total      = lista.length;
+    var g           = resumo || {};
+    var total       = Number(g.total_reservas || 0);
+    var confirmadas = Number(g.confirmadas    || 0);
+    var pendentes   = Number(g.pendentes      || 0);
+    // outros = canceladas + concluidas (não confirmadas nem pendentes)
+    var outros      = Number(g.canceladas || 0) + Number(g.concluidas || 0);
 
     var set = function(id, val) { var el = document.getElementById(id); if (el) el.textContent = val; };
-    set('prop-disp-total',    total - confirmadas - pendentes);
+    set('prop-disp-total',    outros);
     set('prop-disp-ocupadas', confirmadas);
     set('prop-disp-pendentes', pendentes);
 
@@ -7437,18 +8853,572 @@ async function _carregarViewProprietario() {
   }
 }
 
-/* Integrar período ao atualizarDashboard após cada renderização */
-var _origAtualizarDash = atualizarDashboard;
-atualizarDashboard = function() {
-  _origAtualizarDash.apply(this, arguments);
-  /* Re-aplicar filtro atual se não for "all" */
-  if (_dashPeriod !== 'all') {
-    setTimeout(function() { filtrarPeriodoDash(_dashPeriod); }, 50);
-  }
-};
-</script>
 
-<!-- PWA -->
+/* ==========================================
+   SISTEMA DE COBRANÇAS
+   Storage key: hospeda_cobrancas
+   Data model: { id, origemTipo, origemId, descricao, valorTotal, valorPago,
+                 dataVencimento, statusCobranca, formaPagamento, numParcelas,
+                 parcelaAtual, codigoPix, chavePix, nomeDevedor, telefoneDevedor,
+                 lembreteCount, enviadoWhatsappEm, criadoEm }
+========================================== */
+
+var COB_KEY  = 'hospeda_cobrancas';
+var cobrancas = [];
+
+function carregarCobrancas() {
+  try {
+    var d = localStorage.getItem(COB_KEY);
+    return d ? JSON.parse(d) : [];
+  } catch (e) { return []; }
+}
+
+function salvarCobrancasStorage(lista) {
+  localStorage.setItem(COB_KEY, JSON.stringify(lista));
+}
+
+/* ── UTILITÁRIOS COBRANÇA ── */
+function _cobStatusBadge(status) {
+  var map = {
+    pendente:  '<span class="badge badge-pendente">🟡 Pendente</span>',
+    vencido:   '<span class="badge badge-cancelado">🟠 Vencida</span>',
+    pago:      '<span class="badge badge-pago">🟢 Pago</span>',
+    parcial:   '<span class="badge" style="background:rgba(77,166,255,0.15);color:#4da6ff;border-color:rgba(77,166,255,0.35);">🔵 Parcial</span>',
+    cancelado: '<span class="badge" style="background:rgba(100,100,100,0.15);color:#888;border-color:rgba(100,100,100,0.3);">⚫ Cancelada</span>'
+  };
+  return map[status] || '<span class="badge">' + (status || '—') + '</span>';
+}
+
+function _cobStatusFromData(c) {
+  if (c.statusCobranca === 'cancelado' || c.statusCobranca === 'pago') return c.statusCobranca;
+  var hoje = new Date(); hoje.setHours(0,0,0,0);
+  if (c.dataVencimento) {
+    var venc = new Date(c.dataVencimento + 'T00:00:00');
+    if (venc < hoje && c.statusCobranca !== 'pago') return 'vencido';
+  }
+  var pago = parseFloat(c.valorPago) || 0;
+  var total = parseFloat(c.valorTotal) || 0;
+  if (pago >= total && total > 0) return 'pago';
+  if (pago > 0 && pago < total) return 'parcial';
+  return c.statusCobranca || 'pendente';
+}
+
+/* ── STORAGE + DASHBOARD COBRANÇAS ── */
+function atualizarDashCobrancas() {
+  var hoje = new Date(); hoje.setHours(0,0,0,0);
+  var mesAtual = hoje.getFullYear() + '-' + String(hoje.getMonth() + 1).padStart(2, '0');
+  var totalAberto = 0, vencidas = 0, pagasMes = 0, inadimplentes = 0;
+
+  cobrancas.forEach(function (c) {
+    var st = _cobStatusFromData(c);
+    var aberto = Math.max(0, (parseFloat(c.valorTotal) || 0) - (parseFloat(c.valorPago) || 0));
+    if (st !== 'pago' && st !== 'cancelado') totalAberto += aberto;
+    if (st === 'vencido') vencidas++;
+    if (st === 'pago' && c.criadoEm && c.criadoEm.slice(0, 7) === mesAtual) {
+      pagasMes += parseFloat(c.valorTotal) || 0;
+    }
+    if ((c.lembreteCount || 0) >= 3 && st !== 'pago' && st !== 'cancelado') inadimplentes++;
+  });
+
+  function _s(id, v) { var el = document.getElementById(id); if (el) el.textContent = v; }
+  _s('cob-total-aberto', formatBRL(totalAberto));
+  _s('cob-vencidas', vencidas);
+  _s('cob-pagas-mes', formatBRL(pagasMes));
+  _s('cob-inadimplentes', inadimplentes);
+
+  /* Summary cards na seção reservas */
+  var aReceber = 0, vencidoVal = 0, pagoMesVal = 0, pendentesN = 0;
+  cobrancas.filter(function(c){ return c.origemTipo === 'reserva'; }).forEach(function(c) {
+    var st = _cobStatusFromData(c);
+    var aberto = Math.max(0, (parseFloat(c.valorTotal)||0) - (parseFloat(c.valorPago)||0));
+    if (st !== 'pago' && st !== 'cancelado') aReceber += aberto;
+    if (st === 'vencido') vencidoVal += aberto;
+    if (st === 'pago' && c.criadoEm && c.criadoEm.slice(0, 7) === mesAtual) pagoMesVal += parseFloat(c.valorTotal)||0;
+    if (st === 'pendente') pendentesN++;
+  });
+  _s('cobRes-aberto', formatBRL(aReceber));
+  _s('cobRes-vencido', formatBRL(vencidoVal));
+  _s('cobRes-pago-mes', formatBRL(pagoMesVal));
+  _s('cobRes-pendentes', pendentesN);
+
+  /* Summary cards repasses captação */
+  var repPend = 0, repValor = 0;
+  (typeof captacoes !== 'undefined' ? captacoes : []).forEach(function(c) {
+    if (!c.repasseStatus || c.repasseStatus === 'pendente' || c.repasseStatus === 'atrasado') {
+      repPend++;
+      repValor += parseFloat(c.valorPeriodo) || 0;
+    }
+  });
+  _s('capDash-repasses-pend', repPend);
+  _s('capDash-repasses-valor', formatBRL(repValor));
+}
+
+/* ── RENDER TABELA COBRANÇAS ── */
+function renderTabelaCobrancas() {
+  var bEl = document.getElementById('cobf_busca');
+  var busca     = bEl ? (bEl.value || '').toLowerCase() : '';
+  var fTipo     = (document.getElementById('cobf_tipo')     || {value:''}).value;
+  var fStatus   = (document.getElementById('cobf_status')   || {value:''}).value;
+  var fVencIni  = (document.getElementById('cobf_venc_ini') || {value:''}).value;
+  var fVencFim  = (document.getElementById('cobf_venc_fim') || {value:''}).value;
+
+  var lista = cobrancas.filter(function (c) {
+    var stComp = _cobStatusFromData(c);
+    if (busca && !(
+      (c.descricao || '').toLowerCase().includes(busca) ||
+      (c.nomeDevedor || '').toLowerCase().includes(busca)
+    )) return false;
+    if (fTipo   && c.origemTipo !== fTipo)    return false;
+    if (fStatus && stComp !== fStatus)        return false;
+    if (fVencIni && c.dataVencimento < fVencIni) return false;
+    if (fVencFim && c.dataVencimento > fVencFim) return false;
+    return true;
+  });
+
+  var tbody = document.getElementById('cobTabelaBody');
+  if (!tbody) return;
+  if (!lista.length) {
+    tbody.innerHTML =
+      '<tr><td colspan="13"><div class="empty-state">' +
+      '<div class="empty-icon">💰</div>' +
+      '<div>Nenhuma cobrança encontrada.</div>' +
+      '</div></td></tr>';
+    var btnLote = document.getElementById('btnLoteCobranca');
+    if (btnLote) btnLote.style.display = 'none';
+    return;
+  }
+
+  var formaLabel = { pix:'⚡ Pix', cartao:'💳 Cartão', boleto:'📄 Boleto', transferencia:'🏦 Transf.', dinheiro:'💵 Dinheiro' };
+
+  tbody.innerHTML = lista.map(function (c, i) {
+    var st = _cobStatusFromData(c);
+    var aberto = Math.max(0, (parseFloat(c.valorTotal)||0) - (parseFloat(c.valorPago)||0));
+    var inadBadge = (c.lembreteCount || 0) >= 3 && st !== 'pago' && st !== 'cancelado'
+      ? ' <span title="Inadimplente" style="color:var(--amarelo)">⚠️</span>' : '';
+    var tipoLabel = c.origemTipo === 'reserva'
+      ? '<span class="badge" style="background:rgba(212,175,55,0.12);color:var(--dourado);border-color:rgba(212,175,55,0.3);">📋 Reserva</span>'
+      : '<span class="badge" style="background:rgba(37,211,102,0.12);color:var(--verde);border-color:rgba(37,211,102,0.3);">🏡 Captação</span>';
+
+    return '<tr>' +
+      '<td><input type="checkbox" class="cob-check" data-id="' + c.id + '" onchange="_onCobCheck()"></td>' +
+      '<td>' + (i + 1) + '</td>' +
+      '<td>' + tipoLabel + '</td>' +
+      '<td style="max-width:200px; white-space:normal;">' + escapeHtml(c.descricao || '—') + inadBadge + '</td>' +
+      '<td>' + escapeHtml(c.nomeDevedor || '—') + '</td>' +
+      '<td style="color:var(--dourado);font-weight:600;">' + formatBRL(c.valorTotal) + '</td>' +
+      '<td style="color:var(--verde);">' + formatBRL(c.valorPago) + '</td>' +
+      '<td style="color:' + (aberto > 0 ? 'var(--amarelo)' : 'var(--verde)') + ';font-weight:600;">' + (aberto > 0 ? formatBRL(aberto) : 'Quitado') + '</td>' +
+      '<td>' + (c.dataVencimento ? formatarData(c.dataVencimento) : '—') + '</td>' +
+      '<td>' + _cobStatusBadge(st) + '</td>' +
+      '<td>' + (formaLabel[c.formaPagamento] || c.formaPagamento || '—') +
+        (c.numParcelas > 1 ? '<br><small class="badge">' + (c.parcelaAtual||1) + '/' + c.numParcelas + 'x</small>' : '') + '</td>' +
+      '<td style="text-align:center;">' + (c.lembreteCount || 0) + '</td>' +
+      '<td><div class="actions">' +
+        '<button class="btn btn-secondary btn-sm" onclick="editarCobranca(\'' + c.id + '\')" title="Editar">✏️</button>' +
+        (st !== 'pago' && st !== 'cancelado' ? '<button class="btn btn-success btn-sm" onclick="marcarCobrancaPaga(\'' + c.id + '\')" title="Marcar como pago">✅</button>' : '') +
+        (c.telefoneDevedor ? '<button class="btn btn-secondary btn-sm" onclick="dispararLembreteCobranca(\'' + c.id + '\')" title="Lembrete WhatsApp">📱</button>' : '') +
+        '<button class="btn btn-danger btn-sm" onclick="excluirCobranca(\'' + c.id + '\')" title="Excluir">🗑️</button>' +
+      '</div></td>' +
+      '</tr>';
+  }).join('');
+}
+
+function _onCobCheck() {
+  var any = document.querySelectorAll('.cob-check:checked').length > 0;
+  var btn = document.getElementById('btnLoteCobranca');
+  if (btn) btn.style.display = any ? '' : 'none';
+}
+
+function toggleCheckAllCobrancas(checked) {
+  document.querySelectorAll('.cob-check').forEach(function(cb){ cb.checked = checked; });
+  _onCobCheck();
+}
+
+function limparFiltrosCobrancas() {
+  ['cobf_busca','cobf_venc_ini','cobf_venc_fim'].forEach(function(id){
+    var el = document.getElementById(id); if (el) el.value = '';
+  });
+  var t = document.getElementById('cobf_tipo'); if (t) t.value = '';
+  var s = document.getElementById('cobf_status'); if (s) s.value = '';
+  renderTabelaCobrancas();
+}
+
+/* ── MODAL COBRANÇA ── */
+function abrirModalCobranca(origemId, origemTipo, dadosPrefill) {
+  var mc = document.getElementById('modalCobranca');
+  if (!mc) return;
+  document.getElementById('cob_id').value = '';
+  document.getElementById('cob_origem_tipo').value = origemTipo || 'reserva';
+  document.getElementById('cob_descricao').value = (dadosPrefill && dadosPrefill.descricao) || '';
+  document.getElementById('cob_nome_devedor').value = (dadosPrefill && dadosPrefill.nome) || '';
+  document.getElementById('cob_telefone_devedor').value = (dadosPrefill && dadosPrefill.telefone) || '';
+  document.getElementById('cob_valor_total').value = (dadosPrefill && dadosPrefill.valorTotal) || '';
+  document.getElementById('cob_valor_pago').value = '0';
+  document.getElementById('cob_valor_aberto').value = (dadosPrefill && dadosPrefill.valorTotal) || '';
+  document.getElementById('cob_data_vencimento').value = '';
+  document.getElementById('cob_num_parcelas').value = '1';
+  document.getElementById('cob_parcela_atual').value = '1';
+  document.getElementById('cob_forma_pagamento').value = 'pix';
+  document.getElementById('cob_chave_pix').value = '';
+  document.getElementById('cob_codigo_pix').value = '';
+  document.getElementById('modalCobrancaTitulo').textContent = '💰 Nova Cobrança';
+  mc.dataset.origemId = origemId || '';
+  mc.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function editarCobranca(id) {
+  var c = cobrancas.find(function(x){ return x.id === id; });
+  if (!c) return;
+  var mc = document.getElementById('modalCobranca');
+  if (!mc) return;
+  document.getElementById('cob_id').value = c.id;
+  document.getElementById('cob_origem_tipo').value = c.origemTipo || 'reserva';
+  document.getElementById('cob_descricao').value = c.descricao || '';
+  document.getElementById('cob_nome_devedor').value = c.nomeDevedor || '';
+  document.getElementById('cob_telefone_devedor').value = c.telefoneDevedor || '';
+  document.getElementById('cob_valor_total').value = c.valorTotal || '';
+  document.getElementById('cob_valor_pago').value = c.valorPago || '0';
+  document.getElementById('cob_valor_aberto').value = Math.max(0, (parseFloat(c.valorTotal)||0) - (parseFloat(c.valorPago)||0)).toFixed(2);
+  document.getElementById('cob_data_vencimento').value = c.dataVencimento || '';
+  document.getElementById('cob_num_parcelas').value = c.numParcelas || '1';
+  document.getElementById('cob_parcela_atual').value = c.parcelaAtual || '1';
+  document.getElementById('cob_forma_pagamento').value = c.formaPagamento || 'pix';
+  document.getElementById('cob_chave_pix').value = c.chavePix || '';
+  document.getElementById('cob_codigo_pix').value = c.codigoPix || '';
+  document.getElementById('modalCobrancaTitulo').textContent = '✏️ Editar Cobrança';
+  mc.dataset.origemId = c.origemId || '';
+  mc.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function fecharModalCobranca() {
+  var mc = document.getElementById('modalCobranca');
+  if (mc) mc.classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function calcCobAberto() {
+  var total = parseFloat(document.getElementById('cob_valor_total').value) || 0;
+  var pago  = parseFloat(document.getElementById('cob_valor_pago').value)  || 0;
+  document.getElementById('cob_valor_aberto').value = Math.max(0, total - pago).toFixed(2);
+}
+
+function salvarCobranca() {
+  var mc        = document.getElementById('modalCobranca');
+  var idExist   = document.getElementById('cob_id').value;
+  var origemId  = mc ? (mc.dataset.origemId || '') : '';
+  var origemTipo = document.getElementById('cob_origem_tipo').value;
+  var descricao = document.getElementById('cob_descricao').value.trim();
+  var nomeDevedor = document.getElementById('cob_nome_devedor').value.trim();
+  var telefone  = document.getElementById('cob_telefone_devedor').value.trim();
+  var valorTotal = parseFloat(document.getElementById('cob_valor_total').value) || 0;
+  var valorPago  = parseFloat(document.getElementById('cob_valor_pago').value)  || 0;
+  var dataVenc  = document.getElementById('cob_data_vencimento').value;
+  var forma     = document.getElementById('cob_forma_pagamento').value;
+  var parcelas  = parseInt(document.getElementById('cob_num_parcelas').value) || 1;
+  var parcelaAt = parseInt(document.getElementById('cob_parcela_atual').value) || 1;
+  var chavePix  = document.getElementById('cob_chave_pix').value.trim();
+  var codigoPix = document.getElementById('cob_codigo_pix').value.trim();
+
+  if (!descricao)  { mostrarToast('⚠️ Informe a descrição.', 'error'); return; }
+  if (!dataVenc)   { mostrarToast('⚠️ Informe a data de vencimento.', 'error'); return; }
+  if (valorTotal <= 0) { mostrarToast('⚠️ Informe o valor total.', 'error'); return; }
+
+  var status = valorPago >= valorTotal && valorTotal > 0 ? 'pago'
+    : valorPago > 0 ? 'parcial'
+    : 'pendente';
+
+  if (idExist) {
+    var idx = cobrancas.findIndex(function(x){ return x.id === idExist; });
+    if (idx === -1) { mostrarToast('Cobrança não encontrada.', 'error'); return; }
+    cobrancas[idx] = Object.assign({}, cobrancas[idx], {
+      origemId: origemId, origemTipo: origemTipo,
+      descricao: descricao, nomeDevedor: nomeDevedor, telefoneDevedor: telefone,
+      valorTotal: parseFloat(valorTotal.toFixed(2)), valorPago: parseFloat(valorPago.toFixed(2)),
+      dataVencimento: dataVenc, statusCobranca: status,
+      formaPagamento: forma, numParcelas: parcelas, parcelaAtual: parcelaAt,
+      chavePix: chavePix, codigoPix: codigoPix
+    });
+    mostrarToast('✅ Cobrança atualizada!', 'success');
+  } else {
+    cobrancas.push({
+      id:            gerarId(),
+      origemId:      origemId, origemTipo: origemTipo,
+      descricao:     descricao, nomeDevedor: nomeDevedor, telefoneDevedor: telefone,
+      valorTotal:    parseFloat(valorTotal.toFixed(2)), valorPago: parseFloat(valorPago.toFixed(2)),
+      dataVencimento: dataVenc, statusCobranca: status,
+      formaPagamento: forma, numParcelas: parcelas, parcelaAtual: parcelaAt,
+      chavePix:      chavePix, codigoPix: codigoPix,
+      lembreteCount: 0,
+      criadoEm:      new Date().toISOString()
+    });
+    registrarAuditoria('Cobrança criada', descricao);
+    mostrarToast('✅ Cobrança adicionada!', 'success');
+  }
+
+  salvarCobrancasStorage(cobrancas);
+  fecharModalCobranca();
+  renderTabelaCobrancas();
+  renderTabela();
+  atualizarDashCobrancas();
+}
+
+function marcarCobrancaPaga(id) {
+  var c = cobrancas.find(function(x){ return x.id === id; });
+  if (!c) return;
+  c.valorPago = c.valorTotal;
+  c.statusCobranca = 'pago';
+  salvarCobrancasStorage(cobrancas);
+  renderTabelaCobrancas();
+  renderTabela();
+  atualizarDashCobrancas();
+  registrarAuditoria('Cobrança paga', c.descricao);
+  mostrarToast('✅ Cobrança marcada como paga!', 'success');
+}
+
+function excluirCobranca(id) {
+  if (!confirm('Excluir esta cobrança? Esta ação não pode ser desfeita.')) return;
+  var alvo = cobrancas.find(function(x){ return x.id === id; });
+  cobrancas = cobrancas.filter(function(x){ return x.id !== id; });
+  salvarCobrancasStorage(cobrancas);
+  renderTabelaCobrancas();
+  renderTabela();
+  atualizarDashCobrancas();
+  if (alvo) registrarAuditoria('Cobrança excluída', alvo.descricao);
+  mostrarToast('🗑️ Cobrança excluída.', '');
+}
+
+function dispararLembreteCobranca(id) {
+  var c = cobrancas.find(function(x){ return x.id === id; });
+  if (!c) return;
+  var tel = c.telefoneDevedor ? c.telefoneDevedor.replace(/\D/g,'') : '';
+  var vencStr = c.dataVencimento ? formatarData(c.dataVencimento) : '—';
+  var aberto = Math.max(0, (parseFloat(c.valorTotal)||0) - (parseFloat(c.valorPago)||0));
+  var msg =
+    '💰 *HOSPEDAH — Lembrete de Cobrança*\n\n' +
+    'Olá, ' + (c.nomeDevedor || 'Cliente') + '!\n\n' +
+    '📋 *' + (c.descricao || '') + '*\n' +
+    '💵 Valor em aberto: *' + formatBRL(aberto) + '*\n' +
+    '📅 Vencimento: *' + vencStr + '*\n' +
+    (c.codigoPix ? '\n⚡ *Código PIX (copia-e-cola):*\n' + c.codigoPix + '\n' : '') +
+    '\nEm caso de dúvidas, entre em contato.\n🔗 https://hospedah.tur.br';
+
+  var base = tel ? 'https://wa.me/55' + tel : 'https://api.whatsapp.com/send';
+  window.open(base + '?text=' + encodeURIComponent(msg), '_blank');
+
+  c.lembreteCount = (c.lembreteCount || 0) + 1;
+  c.enviadoWhatsappEm = new Date().toISOString();
+  salvarCobrancasStorage(cobrancas);
+  renderTabelaCobrancas();
+  atualizarDashCobrancas();
+}
+
+function dispararLoteLembretes() {
+  var selecionados = [];
+  document.querySelectorAll('.cob-check:checked').forEach(function(cb){
+    selecionados.push(cb.dataset.id);
+  });
+  if (!selecionados.length) { mostrarToast('Selecione cobranças para disparar lembretes.', 'error'); return; }
+  selecionados.forEach(function(id){ dispararLembreteCobranca(id); });
+  mostrarToast('📣 Lembretes enviados para ' + selecionados.length + ' cobranças.', 'success');
+}
+
+/* ── BOTÃO "💰 COBRAR" NA TABELA DE RESERVAS ── */
+function abrirCobrancaReserva(resId) {
+  var r = reservas.find(function(x){ return x.id === resId; });
+  if (!r) return;
+  abrirModalCobranca(resId, 'reserva', {
+    descricao:  'Reserva ' + r.cliente + ' – ' + r.resort,
+    nome:       r.cliente,
+    telefone:   '',
+    valorTotal: r.total
+  });
+}
+
+/* ── HISTÓRICO DE COBRANÇAS POR ORIGEM ── */
+function abrirHistoricoCobrancas(origemId, origemTipo, label) {
+  var lista = cobrancas.filter(function(c){ return c.origemId === origemId && c.origemTipo === origemTipo; });
+  var tbody = document.getElementById('histCobBody');
+  var titulo = document.getElementById('modalHistoricoTitulo');
+  if (!tbody) return;
+  if (titulo) titulo.textContent = label || '';
+
+  if (!lista.length) {
+    tbody.innerHTML = '<tr><td colspan="8"><div class="empty-state"><div class="empty-icon">📊</div><div>Nenhuma cobrança para este registro.</div></div></td></tr>';
+  } else {
+    tbody.innerHTML = lista.map(function(c, i) {
+      var st = _cobStatusFromData(c);
+      return '<tr>' +
+        '<td>' + (i+1) + '</td>' +
+        '<td style="max-width:180px;white-space:normal;">' + escapeHtml(c.descricao||'—') + '</td>' +
+        '<td>' + formatBRL(c.valorTotal) + '</td>' +
+        '<td>' + (c.dataVencimento ? formatarData(c.dataVencimento) : '—') + '</td>' +
+        '<td>' + _cobStatusBadge(st) + '</td>' +
+        '<td style="text-align:center;">' + (c.numParcelas > 1 ? (c.parcelaAtual||1) + '/' + c.numParcelas : '—') + '</td>' +
+        '<td style="text-align:center;">' + (c.lembreteCount || 0) + '</td>' +
+        '<td><div class="actions">' +
+          (st !== 'pago' && st !== 'cancelado' ? '<button class="btn btn-success btn-sm" onclick="marcarCobrancaPaga(\'' + c.id + '\')">✅</button>' : '') +
+          '<button class="btn btn-danger btn-sm" onclick="excluirCobranca(\'' + c.id + '\')">🗑️</button>' +
+        '</div></td></tr>';
+    }).join('');
+  }
+  document.getElementById('modalHistoricoCobrancas').classList.add('open');
+}
+
+/* ── GERAÇÃO DE CÓDIGO PIX BR CODE (client-side, padrão BACEN) ── */
+function _pixCRC16(payload) {
+  var crc = 0xFFFF;
+  for (var i = 0; i < payload.length; i++) {
+    crc ^= payload.charCodeAt(i) << 8;
+    for (var j = 0; j < 8; j++) {
+      crc = (crc & 0x8000) ? ((crc << 1) ^ 0x1021) : (crc << 1);
+      crc &= 0xFFFF; /* keep within 16-bit range */
+    }
+  }
+  return (crc & 0xFFFF).toString(16).toUpperCase().padStart(4, '0');
+}
+
+function _pixTLV(id, value) {
+  return id + String(value.length).padStart(2, '0') + value;
+}
+
+function gerarCodigoPix() {
+  var chave     = (document.getElementById('cob_chave_pix').value || '').trim();
+  var valorStr  = (document.getElementById('cob_valor_total').value || '0');
+  var descricao = (document.getElementById('cob_descricao').value || '').slice(0, 25).trim() || 'HOSPEDAH';
+  var valor     = parseFloat(valorStr);
+
+  if (!chave) { mostrarToast('⚠️ Informe a Chave PIX antes de gerar o código.', 'error'); return; }
+
+  var merchantAccountInfo =
+    _pixTLV('00', 'BR.GOV.BCB.PIX') +
+    _pixTLV('01', chave);
+
+  var merchantAccountInfoField = _pixTLV('26', merchantAccountInfo);
+
+  var txAmountField = (!isNaN(valor) && valor > 0) ? _pixTLV('54', valor.toFixed(2)) : '';
+
+  var payload =
+    _pixTLV('00', '01') +
+    merchantAccountInfoField +
+    _pixTLV('52', '0000') +
+    _pixTLV('53', '986') +
+    txAmountField +
+    _pixTLV('58', 'BR') +
+    _pixTLV('59', 'HOSPEDAH') +
+    _pixTLV('60', 'SAO PAULO') +
+    _pixTLV('62', _pixTLV('05', descricao.replace(/[^A-Za-z0-9]/g, '').slice(0, 25) || 'HOSPEDAH')) +
+    '6304';
+
+  var crc = _pixCRC16(payload);
+  document.getElementById('cob_codigo_pix').value = payload + crc;
+  mostrarToast('⚡ Código PIX gerado com sucesso!', 'success');
+}
+
+function copiarCodigoPix() {
+  var el = document.getElementById('cob_codigo_pix');
+  if (!el || !el.value) { mostrarToast('Gere o código PIX primeiro.', 'error'); return; }
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(el.value).then(function(){
+      mostrarToast('📋 Código PIX copiado!', 'success');
+    }).catch(function(){
+      /* fallback para navegadores antigos (deprecated, mas necessário para IE/Safari legado) */
+      el.select(); document.execCommand('copy');
+      mostrarToast('📋 Código PIX copiado!', 'success');
+    });
+  } else {
+    /* fallback para navegadores sem suporte à Clipboard API */
+    el.select(); document.execCommand('copy');
+    mostrarToast('📋 Código PIX copiado!', 'success');
+  }
+}
+
+/* ── EXPORTAR CSV COBRANÇAS ── */
+function exportarCSVCobrancas() {
+  if (!cobrancas.length) { mostrarToast('Nenhuma cobrança para exportar.', 'error'); return; }
+  var cols = ['Tipo','Descrição','Devedor','Telefone','Valor Total','Valor Pago',
+              'Valor Aberto','Vencimento','Status','Forma Pagamento',
+              'Parcelas','Parcela Atual','Lembretes','Criado Em'];
+  var rows = cobrancas.map(function(c) {
+    var aberto = Math.max(0, (parseFloat(c.valorTotal)||0) - (parseFloat(c.valorPago)||0));
+    return [
+      c.origemTipo||'', c.descricao||'', c.nomeDevedor||'', c.telefoneDevedor||'',
+      c.valorTotal||0, c.valorPago||0, aberto.toFixed(2),
+      c.dataVencimento||'', _cobStatusFromData(c), c.formaPagamento||'',
+      c.numParcelas||1, c.parcelaAtual||1, c.lembreteCount||0,
+      c.criadoEm ? c.criadoEm.slice(0,10) : ''
+    ].map(function(v){ return '"' + String(v == null ? '' : v).replace(/"/g,'""') + '"'; }).join(',');
+  });
+  var csv  = '\uFEFF' + cols.join(',') + '\n' + rows.join('\n');
+  var blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  var url  = URL.createObjectURL(blob);
+  var a    = document.createElement('a');
+  a.href = url; a.download = 'cobrancas-' + new Date().toISOString().slice(0,10) + '.csv';
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a); URL.revokeObjectURL(url);
+  mostrarToast('📥 CSV de cobranças exportado!', 'success');
+}
+
+/* ── REGISTRAR REPASSE PROPRIETÁRIO (Captações) ── */
+function registrarRepasse(capId) {
+  var c = (typeof captacoes !== 'undefined' ? captacoes : []).find(function(x){ return x.id === capId; });
+  if (!c) return;
+  var novaStatus = c.repasseStatus === 'repassado' ? 'pendente' : 'repassado';
+  c.repasseStatus = novaStatus;
+  c.repasseData   = novaStatus === 'repassado' ? new Date().toISOString().slice(0,10) : null;
+  if (typeof salvarCaptacoes === 'function') salvarCaptacoes(captacoes);
+  if (typeof renderTabelaCaptacao === 'function') renderTabelaCaptacao();
+  if (typeof atualizarDashboardCaptacao === 'function') atualizarDashboardCaptacao();
+  atualizarDashCobrancas();
+  if (typeof registrarAuditoria === 'function') registrarAuditoria('Repasse ' + novaStatus, c.proprietario + ' • ' + c.nome);
+  mostrarToast(novaStatus === 'repassado' ? '✅ Repasse registrado!' : '⏳ Repasse marcado como pendente.', 'success');
+}
+
+/* ── AUTO-EXPIRAR COBRANÇAS VENCIDAS (client-side) ── */
+function verificarCobrancasVencidas() {
+  var hoje = new Date(); hoje.setHours(0,0,0,0);
+  var alterou = false;
+  cobrancas.forEach(function(c) {
+    if (c.statusCobranca === 'pago' || c.statusCobranca === 'cancelado' || c.statusCobranca === 'vencido') return;
+    if (!c.dataVencimento) return;
+    var venc = new Date(c.dataVencimento + 'T00:00:00');
+    if (venc < hoje) { c.statusCobranca = 'vencido'; alterou = true; }
+  });
+  if (alterou) {
+    salvarCobrancasStorage(cobrancas);
+    renderTabelaCobrancas();
+    renderTabela();
+    atualizarDashCobrancas();
+  }
+}
+
+/* ── ALERTA DE REPASSE ATRASADO (7 dias após checkout sem repasse) ── */
+function verificarRepassesAtrasados() {
+  var hoje = new Date(); hoje.setHours(0,0,0,0);
+  var alterou = false;
+  (typeof captacoes !== 'undefined' ? captacoes : []).forEach(function(c) {
+    if (c.repasseStatus === 'repassado') return;
+    if (!c.dataFim) return;
+    var fim = new Date(c.dataFim + 'T00:00:00');
+    var dias = Math.round((hoje - fim) / 86400000);
+    if (dias > 7 && c.repasseStatus !== 'atrasado') {
+      c.repasseStatus = 'atrasado';
+      alterou = true;
+    }
+  });
+  if (alterou && typeof salvarCaptacoes === 'function') salvarCaptacoes(captacoes);
+}
+
+/* Fechar modais de cobrança ao clicar fora */
+(function() {
+  var mc = document.getElementById('modalCobranca');
+  if (mc) mc.addEventListener('click', function(e){ if (e.target === this) fecharModalCobranca(); });
+  var mh = document.getElementById('modalHistoricoCobrancas');
+  if (mh) mh.addEventListener('click', function(e){ if (e.target === this) this.classList.remove('open'); });
+})();
+
+</script>
 <script>
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', function () {
@@ -7456,6 +9426,120 @@ if ('serviceWorker' in navigator) {
   });
 }
 </script>
+
+<!-- SECURITY SEAL -->
+<div class="security-seal" aria-label="Site seguro">🔒 <strong>Site Seguro</strong> &nbsp;·&nbsp; SSL Criptografado &nbsp;·&nbsp; 🛡️ Dados Protegidos</div>
+
+  <!-- ==========================================
+       COBRANÇAS — PAINEL UNIFICADO
+  =========================================== -->
+  <section id="cobrancas" class="table-wrap">
+    <div class="section-title">
+      💰 Cobranças
+      <span style="margin-left:auto; display:flex; gap:8px;">
+        <button class="btn btn-secondary btn-sm" onclick="exportarCSVCobrancas()">📥 Exportar CSV</button>
+        <button class="btn btn-primary btn-sm" onclick="abrirModalCobranca(null,'reserva')">➕ Nova Cobrança</button>
+        <button class="btn btn-secondary btn-sm" id="cobrancasToggleBtn" onclick="toggleCobrancas()" title="Minimizar/Expandir seção">▼ Minimizar</button>
+      </span>
+    </div>
+
+    <div id="cobrancasContent">
+    <div class="dashboard-grid" style="margin-bottom:14px;">
+      <div class="dash-card amarelo">
+        <div class="dash-icon">💳</div>
+        <div class="dash-label">Total em Aberto</div>
+        <div class="dash-value" id="cob-total-aberto">R$ 0,00</div>
+      </div>
+      <div class="dash-card vermelho">
+        <div class="dash-icon">🟠</div>
+        <div class="dash-label">Vencidas</div>
+        <div class="dash-value" id="cob-vencidas">0</div>
+      </div>
+      <div class="dash-card verde">
+        <div class="dash-icon">✅</div>
+        <div class="dash-label">Pagas este mês</div>
+        <div class="dash-value" id="cob-pagas-mes">R$ 0,00</div>
+      </div>
+      <div class="dash-card">
+        <div class="dash-icon">⚠️</div>
+        <div class="dash-label">Inadimplentes (3+ lembretes)</div>
+        <div class="dash-value" id="cob-inadimplentes">0</div>
+      </div>
+    </div>
+
+    <!-- Filtros -->
+    <div class="filter-bar">
+      <div class="field-group">
+        <label>🔍 Buscar</label>
+        <input type="text" id="cobf_busca" placeholder="Descrição ou devedor..." oninput="renderTabelaCobrancas()">
+      </div>
+      <div class="field-group">
+        <label>Tipo</label>
+        <select id="cobf_tipo" onchange="renderTabelaCobrancas()">
+          <option value="">Todos</option>
+          <option value="reserva">📋 Reserva</option>
+          <option value="captacao">🏡 Captação</option>
+        </select>
+      </div>
+      <div class="field-group">
+        <label>Status</label>
+        <select id="cobf_status" onchange="renderTabelaCobrancas()">
+          <option value="">Todos</option>
+          <option value="pendente">🟡 Pendente</option>
+          <option value="vencido">🟠 Vencida</option>
+          <option value="parcial">🔵 Parcial</option>
+          <option value="pago">🟢 Paga</option>
+          <option value="cancelado">⚫ Cancelada</option>
+        </select>
+      </div>
+      <div class="field-group">
+        <label>Vencimento — De</label>
+        <input type="date" id="cobf_venc_ini" onchange="renderTabelaCobrancas()">
+      </div>
+      <div class="field-group">
+        <label>Vencimento — Até</label>
+        <input type="date" id="cobf_venc_fim" onchange="renderTabelaCobrancas()">
+      </div>
+      <div class="field-group" style="justify-content:flex-end; padding-top:18px; gap:6px; display:flex; flex-direction:row; align-items:flex-end;">
+        <button class="btn btn-secondary btn-sm" onclick="limparFiltrosCobrancas()">✕ Limpar</button>
+        <button class="btn btn-danger btn-sm" id="btnLoteCobranca" onclick="dispararLoteLembretes()" style="display:none;">📣 Lembrar Selecionadas</button>
+      </div>
+    </div>
+
+    <table id="tabelaCobrancas">
+      <thead>
+        <tr>
+          <th><input type="checkbox" id="cobCheckAll" onchange="toggleCheckAllCobrancas(this.checked)" title="Selecionar todas"></th>
+          <th>#</th>
+          <th>Tipo</th>
+          <th>Descrição</th>
+          <th>Devedor</th>
+          <th>Valor Total</th>
+          <th>Pago</th>
+          <th>Em Aberto</th>
+          <th>Vencimento</th>
+          <th>Status</th>
+          <th>Pagamento</th>
+          <th>Lembretes</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody id="cobTabelaBody">
+        <tr>
+          <td colspan="13">
+            <div class="empty-state">
+              <div class="empty-icon">💰</div>
+              <div>Nenhuma cobrança cadastrada ainda.</div>
+              <div style="font-size:0.85em; margin-top:6px; color:var(--cinza)">
+                Use o botão "➕ Nova Cobrança" ou clique em "💰 Cobrar" na planilha de reservas.
+              </div>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    </div><!-- end cobrancasContent -->
+  </section>
 
 </main>
 </body>

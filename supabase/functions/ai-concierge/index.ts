@@ -24,13 +24,37 @@ import { serve }        from 'https://deno.land/std@0.224.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 const GEMINI_API_KEY = Deno.env.get('GEMINI_API_KEY') ?? '';
-const GEMINI_MODEL = 'gemini-2.5-flash';
+// Model can be overridden via GEMINI_MODEL env variable (Supabase Dashboard → Settings → Edge Functions → Secrets).
+// Default: gemini-2.5-flash. Supports any model available in the Gemini v1beta API.
+const GEMINI_MODEL = Deno.env.get('GEMINI_MODEL') || 'gemini-2.5-flash';
+// Fallback model used when the primary model fails after all retries (rate-limit, availability issues).
+// Can be overridden via GEMINI_FALLBACK_MODEL env variable. Set to empty string to disable fallback.
+const GEMINI_FALLBACK_MODEL = Deno.env.get('GEMINI_FALLBACK_MODEL') ?? 'gemini-2.0-flash';
 const GEMINI_URL =
   `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`;
 const GEMINI_STREAM_URL =
   `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:streamGenerateContent`;
-// Timeout for individual Gemini API requests (ms)
-const GEMINI_REQUEST_TIMEOUT_MS = 25000;
+// Timeout for individual Gemini API requests (ms).
+// With GEMINI_MAX_RETRIES=1 (2 attempts total), worst-case primary = 12s + 1.5s + 12s = 25.5s,
+// leaving room for a fallback model call within the 45s client-side AbortController timeout.
+const GEMINI_REQUEST_TIMEOUT_MS = 12000;
+// Models that support thinkingConfig. Maintained as an explicit set to avoid
+// false positives from prefix matching (e.g. a future gemini-2.5-lite variant
+// that may not support thinking). Add new thinking-capable models here as needed.
+const THINKING_CAPABLE_MODELS = new Set([
+  'gemini-2.5-flash',
+  'gemini-2.5-pro',
+  'gemini-2.5-flash-8b',
+  'gemini-3.0-flash',
+  'gemini-3.0-pro',
+]);
+
+function modelSupportsThinking(model: string): boolean {
+  return THINKING_CAPABLE_MODELS.has(model) ||
+    model.startsWith('gemini-2.5-') || model.startsWith('gemini-3.');
+}
+
+const SUPPORTS_THINKING = modelSupportsThinking(GEMINI_MODEL);
 
 const CORS_HEADERS: Record<string, string> = {
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
@@ -48,13 +72,14 @@ function getCorsHeaders(origin: string | null): Record<string, string> {
   return { ...CORS_HEADERS, 'Access-Control-Allow-Origin': allowed, 'Vary': 'Origin' };
 }
 
-// Calls the Gemini REST API with automatic retry on HTTP 429 (rate-limit) and 5xx errors.
-// Attempts: 1 original + up to GEMINI_MAX_RETRIES retries.
-// Wait before retry i (1-based): GEMINI_RETRY_BASE_MS * i  (1.5 s, 3 s, …)
-const GEMINI_MAX_RETRIES  = 2;
-const GEMINI_RETRY_BASE_MS = 1500;
+
 // HTTP status codes that are worth retrying
 const GEMINI_RETRYABLE_STATUSES = new Set([429, 500, 502, 503, 504]);
+// Calls the Gemini REST API with automatic retry on HTTP 429 (rate-limit) and 5xx errors.
+// Attempts: 1 original + up to GEMINI_MAX_RETRIES retries.
+// Wait before retry i (1-based): GEMINI_RETRY_BASE_MS * i  (1.5 s, …)
+const GEMINI_MAX_RETRIES  = 1;
+const GEMINI_RETRY_BASE_MS = 1500;
 
 async function fetchGeminiWithRetry(url: string, bodyStr: string): Promise<Response> {
   let lastResponse: Response | null = null;
@@ -215,35 +240,90 @@ Instruções de comportamento:
 - Nunca invente preços, datas de disponibilidade ou políticas não mencionadas acima.
 - Não discuta tópicos fora de turismo, hospedagem e serviços da HOSPEDAH.`;
 
-// ── ai_config cache ──────────────────────────────────────────
-// Caches the 'system_prompt' row from ai_config for 5 minutes so that
-// the DB is not queried on every single AI request.
+// ── ai_config + FAQ cache ─────────────────────────────────────
+// Caches ai_config rows and DB FAQ for 5 minutes to avoid querying on
+// every single AI request.
+//
+// Architecture:
+//   SYSTEM_PROMPT (hardcoded) — always the authoritative base.
+//     Contains complete resort info including food/dining policies.
+//   ai_config.custom_instructions — admin-managed ADDENDUM appended on top.
+//     Use this via sistema.html to add notes without risking data loss.
+//   faq table — Q&A pairs loaded server-side, always appended.
+//     Synced from painel.html / sistema.html.
+//
+// NOTE: the legacy ai_config key 'system_prompt' is intentionally ignored
+// here. Because it REPLACES the entire prompt, an outdated value stored
+// there would remove all food/dining information from the AI's context —
+// causing the "alimentação de outra parte" conflict. Custom overrides
+// should use 'custom_instructions' instead.
 const SUPABASE_URL         = Deno.env.get('SUPABASE_URL')             ?? '';
 const SUPABASE_SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '';
 const CONFIG_CACHE_TTL_MS  = 5 * 60 * 1000; // 5 minutes
 
-interface ConfigCache { value: string; fetchedAt: number; }
-let _systemPromptCache: ConfigCache | null = null;
+interface ConfigCache { systemPrompt: string; faqExtras: string; fetchedAt: number; }
+let _configCache: ConfigCache | null = null;
 
-async function getSystemPrompt(): Promise<string> {
-  const now = Date.now();
-  if (_systemPromptCache && now - _systemPromptCache.fetchedAt < CONFIG_CACHE_TTL_MS) {
-    return _systemPromptCache.value;
+/** Strips HTML tags from a string for safe plain-text injection into the AI prompt. */
+function stripHtml(html: string): string {
+  return html.replace(/<[^>]*>/g, ' ').replace(/\s{2,}/g, ' ').trim();
+}
+
+/** Loads active FAQ entries from the DB and formats them for injection into the AI prompt. */
+async function fetchFaqFromDb(sbClient: ReturnType<typeof createClient>): Promise<string> {
+  try {
+    const { data, error } = await sbClient
+      .from('faq')
+      .select('label, resposta')
+      .eq('ativo', true)
+      .order('ordem', { ascending: true });
+    if (error || !data?.length) return '';
+    return (data as Array<{ label: string; resposta: string }>)
+      .map((f) => `Pergunta: ${f.label}\nResposta: ${stripHtml(f.resposta)}`)
+      .join('\n\n');
+  } catch {
+    return '';
   }
-  if (!SUPABASE_URL || !SUPABASE_SERVICE_KEY) return SYSTEM_PROMPT;
+}
+
+/**
+ * Returns the final system prompt and server-side FAQ extras.
+ * Always starts from the hardcoded SYSTEM_PROMPT (complete resort knowledge)
+ * and appends 'custom_instructions' from ai_config if present.
+ * Also loads FAQ from the 'faq' table server-side for consistent, conflict-free context.
+ */
+async function getConfig(): Promise<{ systemPrompt: string; faqExtras: string }> {
+  const now = Date.now();
+  if (_configCache && now - _configCache.fetchedAt < CONFIG_CACHE_TTL_MS) {
+    return { systemPrompt: _configCache.systemPrompt, faqExtras: _configCache.faqExtras };
+  }
+  if (!SUPABASE_URL || !SUPABASE_SERVICE_KEY) {
+    return { systemPrompt: SYSTEM_PROMPT, faqExtras: '' };
+  }
   try {
     const sb = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY, { auth: { persistSession: false } });
-    const { data, error } = await sb
-      .from('ai_config')
-      .select('valor')
-      .eq('chave', 'system_prompt')
-      .eq('ativo', true)
-      .maybeSingle();
-    if (error || !data?.valor?.trim()) return SYSTEM_PROMPT;
-    _systemPromptCache = { value: data.valor, fetchedAt: now };
-    return data.valor;
+
+    // Fetch custom_instructions and FAQ in parallel to minimise latency.
+    const [customInstructionsRes, faqExtras] = await Promise.all([
+      sb.from('ai_config')
+        .select('chave, valor')
+        .eq('ativo', true)
+        .eq('chave', 'custom_instructions')
+        .maybeSingle(),
+      fetchFaqFromDb(sb),
+    ]);
+
+    // Build final system prompt: hardcoded base + optional custom addendum.
+    let systemPrompt = SYSTEM_PROMPT;
+    const customInstructions = customInstructionsRes.data?.valor?.trim();
+    if (!customInstructionsRes.error && customInstructions) {
+      systemPrompt = `${SYSTEM_PROMPT}\n\n---\nInstruções personalizadas da equipe HOSPEDAH:\n${customInstructions}`;
+    }
+
+    _configCache = { systemPrompt, faqExtras, fetchedAt: now };
+    return { systemPrompt, faqExtras };
   } catch {
-    return SYSTEM_PROMPT;
+    return { systemPrompt: SYSTEM_PROMPT, faqExtras: '' };
   }
 }
 
@@ -364,13 +444,19 @@ serve(async (req: Request): Promise<Response> => {
     }
   }
 
-  const systemText = leadLines.length > 0
-    ? `${await getSystemPrompt()}\n\n---\nContexto da conversa atual:\n${leadLines.join('\n')}`
-    : await getSystemPrompt();
+  // Load system prompt and server-side FAQ in one DB round-trip (cached 5 min).
+  const { systemPrompt, faqExtras: serverFaqExtras } = await getConfig();
 
-  const faqExtras = ctx.faq_extras && ctx.faq_extras.trim();
-  const finalSystemText = faqExtras
-    ? `${systemText}\n\n---\nInformações adicionais registradas pela equipe HOSPEDAH:\n${faqExtras}`
+  const systemText = leadLines.length > 0
+    ? `${systemPrompt}\n\n---\nContexto da conversa atual:\n${leadLines.join('\n')}`
+    : systemPrompt;
+
+  // Server-side FAQ (from 'faq' table) is authoritative; client-sent faq_extras
+  // (ctx.faq_extras) is appended as supplementary in case the client has extra context.
+  const clientFaqExtras = ctx.faq_extras && ctx.faq_extras.trim();
+  const allFaqExtras = [serverFaqExtras, clientFaqExtras].filter(Boolean).join('\n\n');
+  const finalSystemText = allFaqExtras
+    ? `${systemText}\n\n---\nInformações adicionais registradas pela equipe HOSPEDAH:\n${allFaqExtras}`
     : systemText;
 
   // Clamp temperature to [0, 1]; default 0.7
@@ -378,21 +464,32 @@ serve(async (req: Request): Promise<Response> => {
     ? Math.max(0, Math.min(1, ctx.temperature))
     : 0.7;
 
+  function buildGenerationConfig(supportsThinking: boolean, temp: number): Record<string, unknown> {
+    return {
+      temperature: temp,
+      maxOutputTokens: 8192,
+      // Disable thinking for supported models. Setting thinkingBudget to 0 turns off
+      // the thinking phase entirely, reducing latency and token cost for chat use cases.
+      // Only valid for thinking-capable models (gemini-2.5+). Non-thinking models (e.g.
+      // gemini-2.0-flash) must omit this field, otherwise the API returns 400.
+      ...(supportsThinking ? { thinkingConfig: { thinkingBudget: 0 } } : {}),
+    };
+  }
+
+  const safetySettings = [
+    { category: 'HARM_CATEGORY_HARASSMENT',        threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
+    { category: 'HARM_CATEGORY_HATE_SPEECH',       threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
+    { category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
+    { category: 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
+  ];
+
   const geminiPayload = {
     system_instruction: {
       parts: [{ text: finalSystemText }],
     },
     contents,
-    generationConfig: {
-      temperature,
-      maxOutputTokens: 8192,
-    },
-    safetySettings: [
-      { category: 'HARM_CATEGORY_HARASSMENT',        threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
-      { category: 'HARM_CATEGORY_HATE_SPEECH',       threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
-      { category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
-      { category: 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
-    ],
+    generationConfig: buildGenerationConfig(SUPPORTS_THINKING, temperature),
+    safetySettings,
   };
 
   // ── STREAMING path ──────────────────────────────────────────
@@ -406,7 +503,7 @@ serve(async (req: Request): Promise<Response> => {
     } catch (err) {
       console.error('[ai-concierge] Erro ao chamar Gemini streaming:', err);
       return new Response(
-        JSON.stringify({ error: 'Falha de comunicação com a IA. Tente novamente.' }),
+        JSON.stringify({ error: 'Falha de comunicação com a IA. Tente novamente.', model: GEMINI_MODEL }),
         { status: 502, headers: { ...corsH, 'Content-Type': 'application/json' } },
       );
     }
@@ -414,8 +511,13 @@ serve(async (req: Request): Promise<Response> => {
     if (!streamRes.ok) {
       const errBody = await streamRes.text();
       console.error('[ai-concierge] Gemini streaming erro:', streamRes.status, errBody);
+      let geminiError = 'Serviço de IA indisponível. Tente mais tarde.';
+      try {
+        const parsed = JSON.parse(errBody);
+        if (parsed?.error?.message) geminiError = parsed.error.message;
+      } catch { /* ignore parse error */ }
       return new Response(
-        JSON.stringify({ error: 'Serviço de IA indisponível. Tente mais tarde.' }),
+        JSON.stringify({ error: geminiError, geminiStatus: streamRes.status, model: GEMINI_MODEL }),
         { status: 502, headers: { ...corsH, 'Content-Type': 'application/json' } },
       );
     }
@@ -432,57 +534,88 @@ serve(async (req: Request): Promise<Response> => {
   }
 
   // ── NON-STREAMING (default) path ────────────────────────────
-  let geminiRes: Response;
+  // Helper: call a specific Gemini model and return the response text or throw on failure.
+  async function callGeminiModel(modelName: string, payload: Record<string, unknown>): Promise<string> {
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${effectiveKey}`;
+    const res = await fetchGeminiWithRetry(url, JSON.stringify(payload));
+    if (!res.ok) {
+      const errBody = await res.text();
+      let msg = `HTTP ${res.status}`;
+      try {
+        const p = JSON.parse(errBody);
+        if (p?.error?.message) msg = p.error.message;
+      } catch { /* ignore parse error */ }
+      const e = new Error(msg) as Error & { status: number };
+      e.status = res.status;
+      throw e;
+    }
+    const data = await res.json();
+    if (!data?.candidates?.length) {
+      const blockReason = data?.promptFeedback?.blockReason ?? 'unknown';
+      throw new Error(`no_candidates:${blockReason}`);
+    }
+    const cand = data.candidates[0];
+    const parts: Array<{ text?: string; thought?: boolean }> = cand?.content?.parts ?? [];
+    const responsePart = parts.find((p) => p.text && p.text.trim() && !p.thought);
+    const text = responsePart?.text?.trim() ?? '';
+    if (!text) {
+      const finishReason = cand?.finishReason ?? 'unknown';
+      throw new Error(`empty_response:${finishReason}`);
+    }
+    return text;
+  }
+
+  let resposta = '';
+  let usedModel = GEMINI_MODEL;
+  // Returns a 502 Response based on the error message from a failed Gemini call.
+  function geminiErrorResponse(err: unknown, model: string): Response {
+    const msg = err instanceof Error ? err.message : String(err);
+    if (msg.startsWith('no_candidates:')) {
+      return new Response(
+        JSON.stringify({ error: 'A IA não pôde processar a pergunta devido a restrições de segurança. Tente reformulá-la de outra forma.' }),
+        { status: 502, headers: { ...corsH, 'Content-Type': 'application/json' } },
+      );
+    }
+    if (msg.startsWith('empty_response:')) {
+      return new Response(
+        JSON.stringify({ error: 'A IA não conseguiu gerar uma resposta adequada. Tente reformular sua pergunta.' }),
+        { status: 502, headers: { ...corsH, 'Content-Type': 'application/json' } },
+      );
+    }
+    return new Response(
+      JSON.stringify({ error: 'Serviço de IA temporariamente indisponível. Tente novamente.', model }),
+      { status: 502, headers: { ...corsH, 'Content-Type': 'application/json' } },
+    );
+  }
+
   try {
-    geminiRes = await fetchGeminiWithRetry(
-      `${GEMINI_URL}?key=${effectiveKey}`,
-      JSON.stringify(geminiPayload),
-    );
-  } catch (err) {
-    console.error('[ai-concierge] Erro ao chamar Gemini:', err);
-    return new Response(
-      JSON.stringify({ error: 'Falha de comunicação com a IA. Tente novamente.' }),
-      { status: 502, headers: { ...corsH, 'Content-Type': 'application/json' } },
-    );
-  }
-
-  if (!geminiRes.ok) {
-    const errBody = await geminiRes.text();
-    console.error('[ai-concierge] Gemini retornou erro:', geminiRes.status, errBody);
-    return new Response(
-      JSON.stringify({ error: 'Serviço de IA indisponível. Tente mais tarde.' }),
-      { status: 502, headers: { ...corsH, 'Content-Type': 'application/json' } },
-    );
-  }
-
-  const geminiData = await geminiRes.json();
-
-  // Log diagnostic info when candidates are missing (e.g. safety block)
-  if (!geminiData?.candidates?.length) {
-    const blockReason = geminiData?.promptFeedback?.blockReason ?? 'unknown';
-    console.error('[ai-concierge] Gemini retornou sem candidatos. blockReason:', blockReason);
-    return new Response(
-      JSON.stringify({ error: 'A IA não pôde processar a pergunta devido a restrições de segurança. Tente reformulá-la de outra forma.' }),
-      { status: 502, headers: { ...corsH, 'Content-Type': 'application/json' } },
-    );
-  }
-
-  const candidate = geminiData.candidates[0];
-  const parts: Array<{ text?: string; thought?: boolean }> = candidate?.content?.parts ?? [];
-  const responsePart = parts.find((p) => p.text && p.text.trim() && !p.thought);
-  const resposta: string = responsePart?.text?.trim() ?? '';
-
-  if (!resposta) {
-    const finishReason = candidate?.finishReason ?? 'unknown';
-    console.error('[ai-concierge] Resposta vazia. finishReason:', finishReason, 'parts count:', parts.length);
-    return new Response(
-      JSON.stringify({ error: 'A IA não conseguiu gerar uma resposta adequada. Tente reformular sua pergunta.' }),
-      { status: 502, headers: { ...corsH, 'Content-Type': 'application/json' } },
-    );
+    resposta = await callGeminiModel(GEMINI_MODEL, geminiPayload);
+  } catch (primaryErr) {
+    console.warn('[ai-concierge] Primary model failed:', primaryErr instanceof Error ? primaryErr.message : primaryErr);
+    // Attempt fallback model if configured and different from primary
+    if (GEMINI_FALLBACK_MODEL && GEMINI_FALLBACK_MODEL !== GEMINI_MODEL) {
+      usedModel = GEMINI_FALLBACK_MODEL;
+      const fallbackSupportsThinking = modelSupportsThinking(GEMINI_FALLBACK_MODEL);
+      const fallbackPayload = {
+        ...geminiPayload,
+        generationConfig: buildGenerationConfig(fallbackSupportsThinking, temperature),
+      };
+      try {
+        resposta = await callGeminiModel(GEMINI_FALLBACK_MODEL, fallbackPayload);
+        console.log('[ai-concierge] Fallback model succeeded:', GEMINI_FALLBACK_MODEL);
+      } catch (fallbackErr) {
+        console.error('[ai-concierge] Both models failed. Primary:', primaryErr, '| Fallback:', fallbackErr);
+        return geminiErrorResponse(primaryErr, usedModel);
+      }
+    } else {
+      // No fallback configured — surface the primary error
+      console.error('[ai-concierge] Primary model failed (no fallback):', primaryErr);
+      return geminiErrorResponse(primaryErr, usedModel);
+    }
   }
 
   return new Response(
-    JSON.stringify({ resposta }),
+    JSON.stringify({ resposta, model: usedModel }),
     { status: 200, headers: { ...corsH, 'Content-Type': 'application/json' } },
   );
 });

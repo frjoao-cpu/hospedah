@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; object-src 'none'; base-uri 'self';">
+<title>Política de Privacidade | HOSPEDAH</title>
+<meta name="description" content="Política de Privacidade e Termos de Uso da HOSPEDAH. Saiba como tratamos seus dados pessoais conforme a LGPD.">
+<link rel="canonical" href="https://hospedah.tur.br/privacidade.html">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#D4AF37">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap"></noscript>
+<link rel="stylesheet" href="/assets/mobile-first.css">
+<style>
+:root {
+  --dourado: #D4AF37;
+  --dourado-hover: #f0c93a;
+  --azul: #0B1C3D;
+  --azul2: #142850;
+  --verde: #25D366;
+  --bg: #0d1b2e;
+  --bg2: #10233c;
+  --cor-texto: #e8eaf0;
+  --cor-sub: #aab4c4;
+  --borda: rgba(212,175,55,0.15);
+  --radius: 12px;
+  --sombra: 0 4px 24px rgba(0,0,0,0.3);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Poppins', sans-serif;
+  background: var(--bg);
+  color: var(--cor-texto);
+  min-height: 100vh;
+}
+
+/* SKIP LINK */
+.skip-link {
+  position: absolute;
+  top: -999px;
+  left: -999px;
+  background: var(--dourado);
+  color: var(--azul);
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 0.9em;
+  z-index: 10000;
+  text-decoration: none;
+}
+.skip-link:focus { top: 12px; left: 12px; }
+
+/* HEADER */
+.header {
+  background: linear-gradient(135deg, var(--azul), var(--azul2));
+  border-bottom: 2px solid var(--dourado);
+  padding: 16px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: var(--sombra);
+}
+
+.logo {
+  color: var(--dourado);
+  font-weight: 700;
+  font-size: 1.2em;
+  text-decoration: none;
+  letter-spacing: 1px;
+}
+
+.nav-links { display: flex; gap: 10px; flex-wrap: wrap; }
+
+.nav-links a {
+  color: var(--cor-sub);
+  text-decoration: none;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 0.85em;
+  border: 1px solid var(--borda);
+  transition: all 0.2s;
+}
+
+.nav-links a:hover, .nav-links a.active {
+  background: var(--dourado);
+  color: var(--azul);
+  border-color: var(--dourado);
+}
+
+/* BREADCRUMB */
+.breadcrumb {
+  max-width: 860px;
+  margin: 16px auto 0;
+  padding: 0 24px;
+  font-size: 0.78em;
+  color: var(--cor-sub);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.breadcrumb a {
+  color: var(--cor-sub);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.breadcrumb a:hover { color: var(--dourado); }
+
+.breadcrumb .sep { opacity: 0.4; }
+.breadcrumb .current { color: var(--dourado); font-weight: 500; }
+
+/* CONTEÚDO */
+.content-wrap {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 32px 24px 80px;
+}
+
+.page-title {
+  font-size: 1.8em;
+  font-weight: 700;
+  color: var(--dourado);
+  margin-bottom: 8px;
+  margin-top: 20px;
+}
+
+.page-subtitle {
+  color: var(--cor-sub);
+  font-size: 0.9em;
+  margin-bottom: 32px;
+  line-height: 1.6;
+}
+
+.section-block {
+  background: var(--bg2);
+  border: 1px solid var(--borda);
+  border-radius: var(--radius);
+  padding: 24px 26px;
+  margin-bottom: 18px;
+  position: relative;
+  overflow: hidden;
+}
+
+.section-block::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--dourado), transparent);
+}
+
+.section-block h2 {
+  color: var(--dourado);
+  font-size: 1em;
+  font-weight: 700;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.section-block p,
+.section-block li {
+  color: var(--cor-sub);
+  font-size: 0.88em;
+  line-height: 1.8;
+}
+
+.section-block ul {
+  padding-left: 20px;
+  margin-top: 6px;
+}
+
+.section-block li { margin-bottom: 5px; }
+
+.highlight {
+  color: var(--cor-texto);
+  font-weight: 600;
+}
+
+.update-badge {
+  display: inline-block;
+  background: rgba(212,175,55,0.1);
+  border: 1px solid rgba(212,175,55,0.25);
+  border-radius: 20px;
+  padding: 4px 14px;
+  font-size: 0.75em;
+  color: var(--dourado);
+  margin-bottom: 24px;
+}
+
+.contact-box {
+  background: rgba(37,211,102,0.05);
+  border: 1px solid rgba(37,211,102,0.2);
+  border-radius: var(--radius);
+  padding: 20px 24px;
+  margin-top: 28px;
+}
+
+.contact-box h3 {
+  color: var(--verde);
+  font-size: 0.95em;
+  margin-bottom: 8px;
+}
+
+.contact-box p {
+  color: var(--cor-sub);
+  font-size: 0.86em;
+  line-height: 1.7;
+}
+
+.contact-box a {
+  color: var(--verde);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.contact-box a:hover { text-decoration: underline; }
+
+/* FOOTER */
+footer {
+  background: var(--azul);
+  text-align: center;
+  padding: 24px 20px;
+  font-size: 0.82em;
+  color: var(--cor-sub);
+  border-top: 1px solid var(--borda);
+}
+
+footer a {
+  color: var(--dourado);
+  text-decoration: none;
+}
+
+footer a:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+
+<a class="skip-link" href="#main-content">Ir para o conteúdo principal</a>
+
+<header class="header">
+  <a href="index.html" class="logo">🏨 HOSPEDAH</a>
+  <nav class="nav-links" aria-label="Menu principal">
+    <a href="index.html">🏠 Início</a>
+    <a href="busca.html">🔍 Buscar</a>
+    <a href="reservas.html">📅 Reservar</a>
+    <a href="avaliacoes.html">⭐ Avaliações</a>
+    <a href="chat.html">🤖 Chat IA</a>
+  </nav>
+</header>
+
+<nav class="breadcrumb" aria-label="Navegação estrutural">
+  <a href="index.html">🏠 Início</a>
+  <span class="sep" aria-hidden="true">›</span>
+  <span class="current" aria-current="page">Política de Privacidade</span>
+</nav>
+
+<main id="main-content" class="content-wrap">
+
+  <h1 class="page-title">🔒 Política de Privacidade &amp; Termos de Uso</h1>
+  <p class="page-subtitle">Transparência total sobre como coletamos, usamos e protegemos seus dados pessoais, em conformidade com a <strong class="highlight">Lei Geral de Proteção de Dados (LGPD — Lei nº 13.709/2018)</strong>.</p>
+
+  <div class="update-badge">📅 Última atualização: maio de 2026</div>
+
+  <!-- 1. IDENTIFICAÇÃO -->
+  <div class="section-block">
+    <h2>1. 👤 Identificação do Controlador</h2>
+    <p>
+      A <span class="highlight">HOSPEDAH</span> é uma plataforma de intermediação de reservas em resorts e hospedagens, operada por Flávio e Juliana, com atendimento via WhatsApp.
+      Para fins desta Política, o <strong class="highlight">Controlador</strong> dos dados pessoais é a própria equipe HOSPEDAH, podendo ser contatada pelo e-mail informado ao final deste documento.
+    </p>
+  </div>
+
+  <!-- 2. DADOS COLETADOS -->
+  <div class="section-block">
+    <h2>2. 📋 Dados Pessoais Coletados</h2>
+    <p>Podemos coletar as seguintes categorias de dados:</p>
+    <ul>
+      <li><span class="highlight">Dados de identificação:</span> nome completo, e-mail, número de telefone/WhatsApp.</li>
+      <li><span class="highlight">Dados de reserva:</span> datas de check-in/check-out, número de hóspedes, preferências de acomodação.</li>
+      <li><span class="highlight">Dados de navegação:</span> endereço IP, tipo de dispositivo, páginas visitadas, tempo na página (via Google Analytics, Microsoft Clarity e Meta Pixel — somente com seu consentimento).</li>
+      <li><span class="highlight">Dados de comunicação:</span> mensagens enviadas por formulários ou WhatsApp.</li>
+      <li><span class="highlight">Dados de avaliação:</span> texto de avaliações e fotos enviadas voluntariamente.</li>
+      <li><span class="highlight">Dados de indicação:</span> código de referral gerado para o programa de indicações.</li>
+    </ul>
+  </div>
+
+  <!-- 3. FINALIDADE -->
+  <div class="section-block">
+    <h2>3. 🎯 Finalidade do Tratamento</h2>
+    <p>Seus dados são utilizados para:</p>
+    <ul>
+      <li>Processar e confirmar solicitações de reserva;</li>
+      <li>Entrar em contato para retorno sobre orçamentos e disponibilidade;</li>
+      <li>Enviar notificações de promoções e novos resorts (com consentimento via OneSignal);</li>
+      <li>Melhorar a experiência do site mediante análise de uso (Analytics, Clarity);</li>
+      <li>Exibir anúncios relevantes nas redes sociais (Meta Pixel — somente com consentimento);</li>
+      <li>Cumprir obrigações legais.</li>
+    </ul>
+  </div>
+
+  <!-- 4. BASE LEGAL -->
+  <div class="section-block">
+    <h2>4. ⚖️ Base Legal (LGPD)</h2>
+    <p>O tratamento de seus dados é fundamentado nas seguintes bases legais:</p>
+    <ul>
+      <li><span class="highlight">Consentimento</span> — coleta de cookies analíticos, rastreadores e notificações push;</li>
+      <li><span class="highlight">Execução de contrato</span> — processamento necessário para realizar a reserva solicitada;</li>
+      <li><span class="highlight">Legítimo interesse</span> — segurança do site e prevenção de fraudes;</li>
+      <li><span class="highlight">Obrigação legal</span> — cumprimento de legislação aplicável.</li>
+    </ul>
+  </div>
+
+  <!-- 5. COOKIES -->
+  <div class="section-block">
+    <h2>5. 🍪 Cookies e Tecnologias de Rastreamento</h2>
+    <p>Utilizamos os seguintes tipos de cookies e tecnologias, ativados <span class="highlight">somente após seu consentimento</span> explícito no banner LGPD:</p>
+    <ul>
+      <li><span class="highlight">Google Tag Manager / Google Analytics</span> — análise de audiência e comportamento de navegação.</li>
+      <li><span class="highlight">Microsoft Clarity</span> — mapas de calor e gravação de sessões (dados anonimizados).</li>
+      <li><span class="highlight">Meta Pixel (Facebook)</span> — medição de conversões e exibição de anúncios relevantes.</li>
+      <li><span class="highlight">OneSignal</span> — notificações push sobre promoções e novos resorts.</li>
+    </ul>
+    <p style="margin-top:10px;">Você pode revogar o consentimento a qualquer momento limpando os cookies do navegador ou recusando no banner. Sem o consentimento, nenhum rastreador é ativado.</p>
+  </div>
+
+  <!-- 6. COMPARTILHAMENTO -->
+  <div class="section-block">
+    <h2>6. 🤝 Compartilhamento de Dados</h2>
+    <p>Não vendemos seus dados pessoais. Podemos compartilhá-los apenas com:</p>
+    <ul>
+      <li><span class="highlight">Parceiros de hospedagem (resorts)</span> — para viabilizar a reserva contratada;</li>
+      <li><span class="highlight">Provedores de serviço</span> — Supabase (banco de dados), Google, Meta, Microsoft e OneSignal, nos limites necessários à prestação de seus respectivos serviços;</li>
+      <li><span class="highlight">Autoridades públicas</span> — quando exigido por lei ou ordem judicial.</li>
+    </ul>
+  </div>
+
+  <!-- 7. RETENÇÃO -->
+  <div class="section-block">
+    <h2>7. 🗂️ Prazo de Retenção</h2>
+    <p>Os dados de reserva e contato são mantidos pelo período necessário à prestação dos serviços e pelo prazo mínimo exigido pela legislação (geralmente 5 anos para registros comerciais). Dados de navegação via Analytics são retidos pelo prazo padrão de cada plataforma (tipicamente 26 meses).</p>
+  </div>
+
+  <!-- 8. SEUS DIREITOS -->
+  <div class="section-block">
+    <h2>8. 🛡️ Seus Direitos como Titular</h2>
+    <p>Conforme a LGPD, você tem direito a:</p>
+    <ul>
+      <li>Confirmar a existência de tratamento e acessar seus dados;</li>
+      <li>Corrigir dados incompletos, inexatos ou desatualizados;</li>
+      <li>Solicitar a anonimização, bloqueio ou exclusão de dados desnecessários;</li>
+      <li>Solicitar a portabilidade dos dados;</li>
+      <li>Revogar o consentimento a qualquer momento;</li>
+      <li>Obter informações sobre entidades com as quais seus dados foram compartilhados;</li>
+      <li>Opor-se ao tratamento em desacordo com a lei.</li>
+    </ul>
+    <p style="margin-top:10px;">Para exercer qualquer desses direitos, entre em contato pelos canais listados ao final desta página.</p>
+  </div>
+
+  <!-- 9. SEGURANÇA -->
+  <div class="section-block">
+    <h2>9. 🔐 Segurança dos Dados</h2>
+    <p>Adotamos medidas técnicas e organizacionais para proteger seus dados pessoais, incluindo:</p>
+    <ul>
+      <li>Transmissão criptografada via HTTPS/TLS;</li>
+      <li>Content Security Policy (CSP) em todas as páginas;</li>
+      <li>Armazenamento em banco de dados com acesso restrito (Supabase);</li>
+      <li>Chaves de API sensíveis protegidas em Edge Functions (servidor), nunca expostas no navegador.</li>
+    </ul>
+  </div>
+
+  <!-- 10. MENORES -->
+  <div class="section-block">
+    <h2>10. 👶 Menores de Idade</h2>
+    <p>Nossos serviços são destinados a adultos. Não coletamos intencionalmente dados de menores de 18 anos sem o consentimento dos responsáveis legais. Se você acreditar que coletamos dados de um menor, entre em contato para exclusão imediata.</p>
+  </div>
+
+  <!-- 11. TERMOS DE USO -->
+  <div class="section-block">
+    <h2>11. 📜 Termos de Uso</h2>
+    <p>Ao utilizar o site HOSPEDAH, você concorda que:</p>
+    <ul>
+      <li>As informações de preços e disponibilidade são estimadas e sujeitas a confirmação pela equipe;</li>
+      <li>A reserva só é considerada confirmada após o contato e confirmação expressa da equipe HOSPEDAH;</li>
+      <li>O uso do Chat IA é apenas informativo; respostas não constituem garantia de reserva;</li>
+      <li>Conteúdo falso, ofensivo ou fraudulento enviado por formulários pode implicar responsabilidade civil e criminal;</li>
+      <li>O site pode ser alterado, suspenso ou descontinuado sem aviso prévio.</li>
+    </ul>
+  </div>
+
+  <!-- 12. ALTERAÇÕES -->
+  <div class="section-block">
+    <h2>12. 🔄 Alterações desta Política</h2>
+    <p>Esta Política pode ser atualizada periodicamente. A data de "Última atualização" no topo indica a versão vigente. O uso continuado do site após alterações implica aceitação da nova versão.</p>
+  </div>
+
+  <!-- CONTATO -->
+  <div class="contact-box">
+    <h3>📬 Contato para Questões de Privacidade (DPO)</h3>
+    <p>
+      Para exercer seus direitos, tirar dúvidas ou reportar problemas relacionados a dados pessoais, entre em contato:<br><br>
+      📱 WhatsApp Flávio: <a href="https://wa.me/5517982006382" target="_blank" rel="noopener">(17) 98200-6382</a><br>
+      📱 WhatsApp Juliana: <a href="https://wa.me/5517992068296" target="_blank" rel="noopener">(17) 99206-8296</a><br>
+      📸 Instagram: <a href="https://www.instagram.com/julianasilvaoliveira.joao" target="_blank" rel="noopener">@julianasilvaoliveira.joao</a>
+    </p>
+  </div>
+
+</main>
+
+<footer>
+  &copy; 2026 <strong>HOSPEDAH</strong> — Todos os direitos reservados.
+  <br><small>
+    <a href="index.html">Início</a> &nbsp;|&nbsp;
+    <a href="busca.html">Buscar</a> &nbsp;|&nbsp;
+    <a href="privacidade.html">Privacidade</a>
+  </small>
+</footer>
+
+</body>
+</html>

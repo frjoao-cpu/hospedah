@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://i.imgur.com; object-src 'none'; base-uri 'self';">
+<title>Página não encontrada | HOSPEDAH</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#D4AF37">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap"></noscript>
+<link rel="stylesheet" href="/assets/mobile-first.css">
+<style>
+:root {
+  --dourado: #D4AF37;
+  --dourado-hover: #f0c93a;
+  --azul: #0B1C3D;
+  --azul2: #142850;
+  --bg: #0d1b2e;
+  --bg2: #10233c;
+  --cor-texto: #e8eaf0;
+  --cor-sub: #aab4c4;
+  --borda: rgba(212,175,55,0.15);
+  --radius: 12px;
+  --sombra: 0 4px 24px rgba(0,0,0,0.3);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Poppins', sans-serif;
+  background: var(--bg);
+  color: var(--cor-texto);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  text-align: center;
+  background-image:
+    radial-gradient(ellipse 700px 500px at 20% 20%, rgba(212,175,55,0.04) 0%, transparent 65%),
+    radial-gradient(ellipse 600px 400px at 80% 80%, rgba(20,40,90,0.5) 0%, transparent 65%);
+}
+
+.skip-link {
+  position: absolute;
+  top: -999px;
+  left: -999px;
+  background: var(--dourado);
+  color: var(--azul);
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 0.9em;
+  z-index: 10000;
+  text-decoration: none;
+}
+.skip-link:focus {
+  top: 12px;
+  left: 12px;
+}
+
+.err-icon {
+  font-size: 5em;
+  margin-bottom: 12px;
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-12px); }
+}
+
+.err-code {
+  font-size: 7em;
+  font-weight: 700;
+  color: var(--dourado);
+  line-height: 1;
+  text-shadow: 0 0 40px rgba(212,175,55,0.3);
+  margin-bottom: 8px;
+}
+
+.err-title {
+  font-size: 1.4em;
+  font-weight: 600;
+  color: var(--cor-texto);
+  margin-bottom: 10px;
+}
+
+.err-desc {
+  color: var(--cor-sub);
+  font-size: 0.95em;
+  max-width: 440px;
+  line-height: 1.7;
+  margin-bottom: 36px;
+}
+
+.err-divider {
+  width: 56px;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--dourado), transparent);
+  border-radius: 2px;
+  margin: 0 auto 32px;
+}
+
+.err-links {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-bottom: 32px;
+}
+
+.btn-home {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(135deg, #f5d060, var(--dourado), #b8961e);
+  color: var(--azul);
+  padding: 13px 28px;
+  border-radius: 10px;
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 0.95em;
+  box-shadow: 0 4px 18px rgba(212,175,55,0.3);
+  transition: all 0.22s;
+}
+
+.btn-home:hover {
+  box-shadow: 0 6px 28px rgba(212,175,55,0.45);
+  transform: translateY(-2px);
+}
+
+.btn-outline {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255,255,255,0.04);
+  color: var(--cor-sub);
+  padding: 12px 22px;
+  border-radius: 10px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.92em;
+  border: 1px solid var(--borda);
+  transition: all 0.22s;
+}
+
+.btn-outline:hover {
+  border-color: var(--dourado);
+  color: var(--dourado);
+  background: rgba(212,175,55,0.05);
+  transform: translateY(-2px);
+}
+
+.quick-links {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+  font-size: 0.82em;
+  color: var(--cor-sub);
+}
+
+.quick-links a {
+  color: var(--cor-sub);
+  text-decoration: none;
+  padding: 5px 12px;
+  border-radius: 16px;
+  border: 1px solid var(--borda);
+  transition: all 0.2s;
+}
+
+.quick-links a:hover {
+  color: var(--dourado);
+  border-color: var(--dourado);
+  background: rgba(212,175,55,0.06);
+}
+</style>
+</head>
+<body>
+
+<a class="skip-link" href="#main-content">Ir para o conteúdo principal</a>
+
+<main id="main-content">
+  <div class="err-icon" aria-hidden="true">🏝️</div>
+  <div class="err-code" aria-label="Erro 404">404</div>
+  <h1 class="err-title">Página não encontrada</h1>
+  <p class="err-desc">Parece que você se perdeu no caminho para o resort! A página que você procura não existe ou foi movida.</p>
+  <div class="err-divider" aria-hidden="true"></div>
+
+  <div class="err-links">
+    <a href="/" class="btn-home">🏠 Voltar ao Início</a>
+    <a href="/busca.html" class="btn-outline">🔍 Buscar Acomodações</a>
+    <a href="/reservas.html" class="btn-outline">📅 Fazer Reserva</a>
+  </div>
+
+  <nav class="quick-links" aria-label="Links rápidos">
+    <a href="/#galeria">🖼️ Galeria</a>
+    <a href="/avaliacoes.html">⭐ Avaliações</a>
+    <a href="/chat.html">🤖 Chat IA</a>
+    <a href="https://wa.me/5517982006382" target="_blank" rel="noopener">💬 WhatsApp</a>
+    <a href="/referral.html">🎁 Indicar &amp; Ganhar</a>
+  </nav>
+</main>
+
+</body>
+</html>

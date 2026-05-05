@@ -199,6 +199,9 @@ if (localStorage.getItem('hospedah_consent') === 'accepted') { initTracking(); }
 </head>
 <body>
 
+<!-- Skip to main content (acessibilidade) -->
+<a class="skip-link" href="#sobre">Ir para o conteúdo principal</a>
+
 <!-- ==========================================
      EXIT-INTENT POPUP
 =========================================== -->
@@ -248,7 +251,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <div id="cookie-banner" role="dialog" aria-live="polite" aria-label="Aviso de cookies">
   <p>
     🍪 Usamos cookies e tecnologias de rastreamento (Google Tag Manager, Microsoft Clarity, Meta Pixel e notificações push via OneSignal) para melhorar sua experiência e exibir anúncios relevantes.
-    Ao clicar em <strong>Aceitar</strong>, você concorda com nossa política de privacidade e uso de dados, nos termos da <strong>LGPD</strong>.
+    Ao clicar em <strong>Aceitar</strong>, você concorda com nossa <a href="privacidade.html" style="color:var(--dourado,#D4AF37);text-decoration:underline;">política de privacidade</a> e uso de dados, nos termos da <strong>LGPD</strong>.
   </p>
   <div class="cookie-btns">
     <button class="btn-cookie-accept" id="btnCookieAccept" type="button">✓ Aceitar</button>
@@ -270,7 +273,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <li><a href="avaliacoes.html">⭐ Avaliações</a></li>
     <li><a href="#orcamento">Orçamento</a></li>
     <li><a href="#faq">FAQ</a></li>
-    <li><a href="#multi">💎 Gestão | Multipropriedades</a></li>
+    <li><a href="#multi" style="display:flex;flex-direction:column;line-height:1.2;">💎 Gestão | Multipropriedades<small style="color:#D4AF37;font-size:.68em;font-weight:400;letter-spacing:.02em;">Anuncie seu espaço</small></a></li>
     <li><a href="#contato">Contato</a></li>
     <li><a href="chat.html">🤖 Chat IA</a></li>
     <li><a href="referral.html">🎁 Indicar</a></li>
@@ -297,7 +300,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   <a href="chat.html"    onclick="closeDrawer()">🤖 Chat IA</a>
   <a href="#orcamento"   onclick="closeDrawer()">💰 Orçamento</a>
   <a href="#faq"        onclick="closeDrawer()">❓ FAQ</a>
-  <a href="#multi"       onclick="closeDrawer()">💎 Gestão | Multipropriedades</a>
+  <a href="#multi"       onclick="closeDrawer()" style="display:flex;flex-direction:column;line-height:1.3;">💎 Gestão | Multipropriedades<small style="color:#D4AF37;font-size:.68em;font-weight:400;letter-spacing:.02em;">Anuncie seu espaço</small></a>
   <a href="#contato"     onclick="closeDrawer()">📬 Contato</a>
   <a href="referral.html" onclick="closeDrawer()">🎁 Indicar &amp; Ganhar</a>
   <a href="#" onclick="compartilharSite(); closeDrawer(); return false;">📤 Compartilhar site</a>
@@ -391,6 +394,18 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <button class="hero-dot"></button>
   </div>
 </section>
+
+<!-- ==========================================
+     FAIXA DE URGÊNCIA / OFERTAS
+=========================================== -->
+<div class="urgencia-strip" aria-label="Ofertas por tempo limitado">
+  <div class="urgencia-strip-inner">
+    <div class="urgencia-item"><span class="ui-icon">🔥</span> Ofertas disponíveis hoje</div>
+    <div class="urgencia-item"><span class="ui-icon">⚡</span> Descontos por tempo limitado</div>
+    <div class="urgencia-item"><span class="ui-icon">💰</span> Preços exclusivos para reservas diretas</div>
+    <div class="urgencia-item"><span class="ui-icon">⏳</span> Garanta antes que acabe</div>
+  </div>
+</div>
 
 <!-- TOPO INFOS -->
 <div class="topo-infos" id="sobre">
@@ -491,6 +506,66 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       <button class="btn-painel" onclick="buscar()">🔍 Buscar opções</button>
       <div id="resultado"></div>
     </div>
+  </div>
+</section>
+
+<!-- ==========================================
+     ✨ STORIES / DESTAQUES DOS RESORTS
+=========================================== -->
+<section class="stories-section" id="stories" aria-labelledby="stories-titulo">
+  <div class="stories-header">
+    <h2 class="section-title" id="stories-titulo">✨ Destaques dos Resorts</h2>
+    <p class="stories-sub">Toque para conhecer cada destino</p>
+  </div>
+  <div class="stories-rail" role="list" aria-label="Destaques dos resorts">
+    <a class="story-item" href="resorts/hotbeach.html" role="listitem" aria-label="Hot Beach Suites — Olímpia SP">
+      <div class="story-ring">
+        <img src="https://i.imgur.com/AmFSwwd.jpeg" alt="Hot Beach Suites" loading="lazy" decoding="async" width="80" height="80">
+      </div>
+      <span class="story-label">Hot Beach</span>
+    </a>
+    <a class="story-item" href="resorts/saopedro.html" role="listitem" aria-label="São Pedro Thermas — SP">
+      <div class="story-ring">
+        <img src="https://i.imgur.com/pyEKOtQ.jpeg" alt="São Pedro Thermas" loading="lazy" decoding="async" width="80" height="80">
+      </div>
+      <span class="story-label">São Pedro</span>
+    </a>
+    <a class="story-item" href="resorts/olimpia.html" role="listitem" aria-label="Olimpia Park Resort — SP">
+      <div class="story-ring">
+        <img src="https://i.imgur.com/AseZPzL.jpeg" alt="Olimpia Park Resort" loading="lazy" decoding="async" width="80" height="80">
+      </div>
+      <span class="story-label">Olimpia Park</span>
+    </a>
+    <a class="story-item" href="resorts/solar.html" role="listitem" aria-label="Solar das Águas — SP">
+      <div class="story-ring">
+        <img src="https://i.imgur.com/S4tSUzG.jpeg" alt="Solar das Águas" loading="lazy" decoding="async" width="80" height="80">
+      </div>
+      <span class="story-label">Solar das Águas</span>
+    </a>
+    <a class="story-item" href="resorts/wyndham.html" role="listitem" aria-label="Wyndham Royal Resort — SP">
+      <div class="story-ring">
+        <img src="https://i.imgur.com/iDMQ2XA.jpeg" alt="Wyndham Royal Resort" loading="lazy" decoding="async" width="80" height="80">
+      </div>
+      <span class="story-label">Wyndham</span>
+    </a>
+    <a class="story-item" href="resorts/juquehy.html" role="listitem" aria-label="Praia de Juquehy — SP">
+      <div class="story-ring">
+        <img src="https://i.imgur.com/SxlktwS.jpeg" alt="Praia de Juquehy" loading="lazy" decoding="async" width="80" height="80">
+      </div>
+      <span class="story-label">Juquehy</span>
+    </a>
+    <a class="story-item" href="resorts/ipioca.html" role="listitem" aria-label="Ipioca Beach Resort — AL">
+      <div class="story-ring">
+        <img src="https://i.imgur.com/o4Esa54.jpg" alt="Ipioca Beach Resort" loading="lazy" decoding="async" width="80" height="80">
+      </div>
+      <span class="story-label">Ipioca Beach</span>
+    </a>
+    <a class="story-item" href="resorts/portoi2.html" role="listitem" aria-label="Porto 2 Life — SP">
+      <div class="story-ring">
+        <img src="https://i.imgur.com/x23SHdy.jpeg" alt="Porto 2 Life" loading="lazy" decoding="async" width="80" height="80">
+      </div>
+      <span class="story-label">Porto 2 Life</span>
+    </a>
   </div>
 </section>
 
@@ -661,6 +736,33 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </div>
 
 <!-- ==========================================
+     DESEJO EMOCIONAL
+=========================================== -->
+<section class="emocional-section" aria-labelledby="emocional-titulo">
+  <h2 id="emocional-titulo">🏝️ Transforme sua viagem em memória</h2>
+  <p class="emocional-sub">Momentos incríveis começam com a escolha certa. Você merece isso.</p>
+  <div class="emocional-grid">
+    <div class="emocional-card">
+      <span class="ec-icon">😌</span>
+      <p>Relaxe, economize e aproveite mais</p>
+    </div>
+    <div class="emocional-card">
+      <span class="ec-icon">✨</span>
+      <p>A viagem perfeita começa com a decisão certa — e você está aqui</p>
+    </div>
+    <div class="emocional-card">
+      <span class="ec-icon">🌟</span>
+      <p>Transforme sua viagem em uma experiência inesquecível</p>
+    </div>
+    <div class="emocional-card">
+      <span class="ec-icon">🛌</span>
+      <p>O descanso que você merece está aqui</p>
+    </div>
+  </div>
+  <a href="#orcamento" class="emocional-cta">✈️ Quero minha experiência exclusiva</a>
+</section>
+
+<!-- ==========================================
      DEPOIMENTOS
 =========================================== -->
 <section class="depoimentos-section" id="depoimentos" aria-labelledby="depo-titulo">
@@ -718,6 +820,60 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </section>
 
 <!-- ==========================================
+     COMO FUNCIONA — 3 PASSOS
+=========================================== -->
+<section class="como-section" aria-labelledby="como-titulo">
+  <h2 id="como-titulo">🧠 Reserve em 3 passos simples</h2>
+  <p class="como-sub">Rápido, seguro e sem burocracia — do início ao fim.</p>
+  <div class="como-steps">
+    <div class="como-step">
+      <div class="como-step-num">1</div>
+      <div class="como-step-icon">🏖️</div>
+      <h3>Escolha seu destino</h3>
+      <p>Explore nossos resorts e encontre o que combina com você</p>
+    </div>
+    <div class="como-step">
+      <div class="como-step-num">2</div>
+      <div class="como-step-icon">💬</div>
+      <h3>Fale com nosso atendimento</h3>
+      <p>Nossa equipe responde rápido e com condições exclusivas</p>
+    </div>
+    <div class="como-step">
+      <div class="como-step-num">3</div>
+      <div class="como-step-icon">✅</div>
+      <h3>Garanta sua reserva com desconto</h3>
+      <p>Confirme em minutos e já planeje sua viagem dos sonhos</p>
+    </div>
+  </div>
+  <a href="https://wa.me/5517982006382?text=Ol%C3%A1%21+Quero+fazer+minha+reserva+com+desconto%21" class="como-cta" target="_blank" rel="noopener">💬 Iniciar minha reserva agora</a>
+</section>
+
+<!-- ==========================================
+     PROVA SOCIAL — NÚMEROS
+=========================================== -->
+<section class="provasocial-section" aria-labelledby="ps-titulo">
+  <h2 id="ps-titulo">💬 Clientes satisfeitos em todo o Brasil</h2>
+  <div class="provasocial-grid">
+    <div class="ps-card">
+      <span class="ps-num">2.000+</span>
+      <div class="ps-label">clientes já reservaram com a gente</div>
+    </div>
+    <div class="ps-card">
+      <span class="ps-num">⚡ Rápido</span>
+      <div class="ps-label">Atendimento rápido e confiável</div>
+    </div>
+    <div class="ps-card">
+      <span class="ps-num">100%</span>
+      <div class="ps-label">Reservas seguras e sem burocracia</div>
+    </div>
+    <div class="ps-card">
+      <span class="ps-num">⭐ 5.0</span>
+      <div class="ps-label">Centenas de viagens realizadas com sucesso</div>
+    </div>
+  </div>
+</section>
+
+<!-- ==========================================
      ORÇAMENTO
 =========================================== -->
 <section class="section-form" id="orcamento" aria-labelledby="titulo-orc">
@@ -753,6 +909,41 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       <p style="color:var(--cor-sub,#aab4c4);font-size:.9em;margin-bottom:16px;">Nossa equipe responderá via WhatsApp em breve. Salve a proposta para consultar offline:</p>
       <button onclick="gerarPropostaPDF()" style="padding:10px 22px;background:var(--dourado,#D4AF37);color:#0B1C3D;border:none;border-radius:8px;font-weight:700;cursor:pointer;font-size:.92em;margin-bottom:16px;">📄 Baixar Proposta em PDF</button>
       <div id="orc_referral" style="margin-top:8px;padding:12px;background:rgba(212,175,55,0.08);border:1px solid rgba(212,175,55,0.2);border-radius:10px;font-size:.83em;color:var(--cor-sub,#aab4c4);"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ==========================================
+     DIFERENCIAIS
+=========================================== -->
+<section class="diferenciais-section" aria-labelledby="dif-titulo">
+  <div class="section-wrap" style="padding-top:0;">
+    <h2 id="dif-titulo">🚀 Por que escolher a HOSPEDAH?</h2>
+    <p class="dif-sub">Você fala direto com quem resolve. Simples assim.</p>
+    <div class="dif-grid">
+      <div class="dif-card">
+        <span class="dif-icon">🤝</span>
+        <h3>Atendimento humano</h3>
+        <p>Uma equipe real que entende sua viagem e cuida de cada detalhe com atenção</p>
+      </div>
+      <div class="dif-card">
+        <span class="dif-icon">🏷️</span>
+        <h3>Melhores preços</h3>
+        <p>Ofertas selecionadas com os melhores preços do mercado</p>
+      </div>
+      <div class="dif-card">
+        <span class="dif-icon">⚡</span>
+        <h3>Reserva rápida</h3>
+        <p>Reservas rápidas, seguras e sem burocracia — do orçamento à confirmação</p>
+      </div>
+      <div class="dif-card">
+        <span class="dif-icon">🎯</span>
+        <h3>Direto com quem resolve</h3>
+        <p>Sem espera e sem burocracia — atendimento direto e pessoal</p>
+      </div>
+    </div>
+    <div class="dif-cta-wrap">
+      <a href="#orcamento" class="dif-cta">💰 Solicitar meu orçamento exclusivo</a>
     </div>
   </div>
 </section>
@@ -814,6 +1005,58 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
          class="btn-insta" target="_blank" rel="noopener">📸 Instagram</a>
       <a href="https://wa.me/5517982006382" class="btn-wpp" target="_blank" rel="noopener">💬 Flávio</a>
       <a href="https://wa.me/5517992068296" class="btn-wpp" target="_blank" rel="noopener">💬 Juliana</a>
+    </div>
+  </div>
+</section>
+
+<!-- ==========================================
+     💰 CALCULADORA DE ECONOMIA
+=========================================== -->
+<section class="section-form" id="calculadora" aria-labelledby="titulo-calc">
+  <div class="section-wrap" style="padding-top:0;">
+    <h2 class="section-title" id="titulo-calc">💰 Calculadora de Economia</h2>
+    <p style="text-align:center;opacity:.75;font-size:.9em;margin-bottom:28px;max-width:600px;margin-left:auto;margin-right:auto;">
+      Veja quanto você pode economizar reservando com a HOSPEDAH em vez de direto no resort.
+    </p>
+    <div class="calc-wrap">
+      <div class="calc-box">
+        <div class="calc-field-group">
+          <label for="calc_resort">🏨 Resort</label>
+          <select id="calc_resort" onchange="calcularEconomia()">
+            <option value="470">Hot Beach Suites (R$ 470/noite)</option>
+            <option value="540">São Pedro Thermas (R$ 540/noite)</option>
+            <option value="320">Olimpia Park Resort (R$ 320/noite)</option>
+            <option value="480">Solar das Águas (R$ 480/noite)</option>
+            <option value="600">Wyndham Royal Resort (R$ 600/noite)</option>
+            <option value="380">Praia de Juquehy (R$ 380/noite)</option>
+          </select>
+        </div>
+        <div class="calc-field-group">
+          <label for="calc_noites">🌙 Número de noites</label>
+          <input type="number" id="calc_noites" value="3" min="1" max="30" oninput="calcularEconomia()">
+        </div>
+        <div class="calc-field-group">
+          <label for="calc_pessoas">👥 Número de pessoas</label>
+          <input type="number" id="calc_pessoas" value="2" min="1" max="12" oninput="calcularEconomia()">
+        </div>
+      </div>
+      <div class="calc-result" id="calcResult" aria-live="polite">
+        <div class="calc-row">
+          <span class="calc-label">💳 Preço direto no resort</span>
+          <span class="calc-value" id="calcDireto">R$ 1.410,00</span>
+        </div>
+        <div class="calc-row highlight-row">
+          <span class="calc-label">✅ Preço HOSPEDAH</span>
+          <span class="calc-value verde" id="calcHospedah">R$ 1.269,00</span>
+        </div>
+        <div class="calc-divider"></div>
+        <div class="calc-row total-row">
+          <span class="calc-label">🎉 Sua economia estimada</span>
+          <span class="calc-value dourado" id="calcEconomia">R$ 141,00</span>
+        </div>
+        <div class="calc-disclaimer">* Estimativa com 10% de desconto médio negociado pela HOSPEDAH. O valor real é confirmado no orçamento.</div>
+        <a href="#orcamento" class="calc-cta-btn">📩 Solicitar orçamento agora →</a>
+      </div>
     </div>
   </div>
 </section>
@@ -881,8 +1124,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   &copy; 2026 <strong>HOSPEDAH</strong> — Todos os direitos reservados.
   <br><small>
     <a href="https://wa.me/5517982006382" target="_blank" rel="noopener">WhatsApp Flávio</a> &nbsp;|&nbsp;
-    <a href="https://wa.me/5517992068296" target="_blank" rel="noopener">WhatsApp Juliana</a>
+    <a href="https://wa.me/5517992068296" target="_blank" rel="noopener">WhatsApp Juliana</a> &nbsp;|&nbsp;
+    <a href="privacidade.html">Política de Privacidade</a>
   </small>
+  <div class="security-seal" aria-label="Site seguro">🔒 <strong>Site Seguro</strong> &nbsp;·&nbsp; SSL Criptografado &nbsp;·&nbsp; 🛡️ Dados Protegidos</div>
 </footer>
 
 <!-- ✅ BOTÃO WHATSAPP FLUTUANTE INTELIGENTE -->
@@ -913,6 +1158,28 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 =========================================== -->
 <script>
 'use strict';
+
+/* =====================
+   💰 CALCULADORA DE ECONOMIA
+===================== */
+var ECONOMIA_DESCONTO = 0.10; // desconto médio estimado negociado pela HOSPEDAH
+
+function calcularEconomia() {
+  var precoNoite = parseFloat(document.getElementById('calc_resort').value) || 470;
+  var noites     = parseInt(document.getElementById('calc_noites').value, 10) || 3;
+  var pessoas    = parseInt(document.getElementById('calc_pessoas').value, 10) || 2;
+  if (noites < 1) noites = 1;
+  if (noites > 30) noites = 30;
+  var totalHospedah = precoNoite * noites;
+  var totalDireto   = totalHospedah * 1.30;
+  var economia      = totalDireto - totalHospedah;
+  var fmt = function(v) { return 'R$ ' + v.toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.'); };
+  document.getElementById('calcDireto').textContent   = fmt(totalDireto);
+  document.getElementById('calcHospedah').textContent = fmt(totalHospedah);
+  document.getElementById('calcEconomia').textContent = fmt(economia);
+}
+// Inicializa ao carregar
+document.addEventListener('DOMContentLoaded', calcularEconomia);
 
 /* =====================
    TEMA
@@ -2586,21 +2853,51 @@ function gerarPropostaPDF() {
     return msg;
   }
 
-  /* Chama a IA Gemini diretamente */
+  /* Chama a IA Gemini — usa streaming quando disponível para respostas em tempo real */
   function hcChamarIA(userMsg) {
     if (!window.HOSPEDAH_AI) return Promise.resolve(null);
     hcMensagens.push({ role: 'user', content: userMsg, ts: new Date().toISOString() });
     if (hcMensagens.length > 20) { hcMensagens = hcMensagens.slice(-20); }
     var userMsgIdx = hcMensagens.length - 1;
+    var intencao = { pagina_origem: 'index', perfil_tipo: hcPerfil.tipo, perfil_orcamento: hcPerfil.orcamento, perfil_parque: hcPerfil.parque };
+    if (window.HOSPEDAH_AI.chamarStream) {
+      return new Promise(function (resolve) {
+        hcRemoveTyping();
+        var div = document.createElement('div');
+        div.className = 'hc-msg hc-bot';
+        hcMsgs.appendChild(div);
+        hcMsgs.scrollTop = hcMsgs.scrollHeight;
+        window.HOSPEDAH_AI.chamarStream(
+          { nome: hcNome, assunto: hcAssunto },
+          hcMensagens,
+          intencao,
+          0.7,
+          '',
+          function (chunk, accumulated) {
+            div.innerHTML = window.HOSPEDAH_AI.renderMarkdown(accumulated);
+            hcMsgs.scrollTop = hcMsgs.scrollHeight;
+          },
+          function (finalText) {
+            if (!finalText) {
+              if (div.parentNode) div.parentNode.removeChild(div);
+              hcMensagens.splice(userMsgIdx, 1);
+              resolve(null);
+            } else {
+              hcMensagens.push({ role: 'assistant', content: finalText, ts: new Date().toISOString() });
+              resolve('STREAMED');
+            }
+          }
+        );
+      });
+    }
     return window.HOSPEDAH_AI.chamar(
       { nome: hcNome, assunto: hcAssunto },
       hcMensagens,
-      { pagina_origem: 'index', perfil_tipo: hcPerfil.tipo, perfil_orcamento: hcPerfil.orcamento, perfil_parque: hcPerfil.parque },
+      intencao,
       0.7
     ).then(function (resp) {
       if (resp) {
-        var entry = { role: 'assistant', content: resp, ts: new Date().toISOString() };
-        hcMensagens.push(entry);
+        hcMensagens.push({ role: 'assistant', content: resp, ts: new Date().toISOString() });
       } else {
         hcMensagens.splice(userMsgIdx, 1); // descarta a mensagem do usuário em caso de falha para não poluir o histórico
       }
@@ -2610,7 +2907,9 @@ function gerarPropostaPDF() {
 
   function hcHandleResp(resp) {
     hcRemoveTyping();
-    if (resp) {
+    if (resp === 'STREAMED') {
+      /* mensagem já renderizada durante streaming — nada a fazer */
+    } else if (resp) {
       hcAddMsg(resp, 'bot');
     } else {
       hcAddMsg('Desculpe, não consegui responder agora. Fale pelo WhatsApp 📱 (17) 98200-6382', 'bot');
