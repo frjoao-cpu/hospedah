@@ -7836,7 +7836,7 @@ function pdOnResortChange() {
   var dormEl = document.getElementById('pd_dormitorios');
   if (dormEl) dormEl.value = '1';
   pdCal.resort = resort;
-  pdCal.dormitorios = 1;
+  pdCal.dormitorios = PD_RESORTS_COM_DORMITORIOS.includes(resort) ? 1 : null;
   pdCal.rangeStart = null;
   pdCal.rangeEnd   = null;
   pdCal.hoverDate  = null;
@@ -7887,7 +7887,9 @@ async function pdLoadAndRender() {
       .eq('resort_nome', pdCal.resort)
       .gte('data_fim', rangeFrom)
       .lte('data_inicio', rangeTo);
-    pdQ = pdQ.eq('num_dormitorios', pdCal.dormitorios);
+    pdQ = pdCal.dormitorios !== null
+      ? pdQ.eq('num_dormitorios', pdCal.dormitorios)
+      : pdQ.is('num_dormitorios', null);
     var { data: pdData } = await pdQ;
 
     // Load blocked dates
@@ -8507,8 +8509,14 @@ async function carregarTabelaPrecosDinamicos() {
   var resort = document.getElementById('pd_resort').value;
   try {
     var q = _supabase.from('precos_dinamicos').select('*').order('data_inicio');
-    if (resort) q = q.eq('resort_nome', resort);
-    if (pdCal.dormitorios) q = q.eq('num_dormitorios', pdCal.dormitorios);
+    if (resort) {
+      q = q.eq('resort_nome', resort);
+      if (pdCal.dormitorios !== null) {
+        q = q.eq('num_dormitorios', pdCal.dormitorios);
+      } else {
+        q = q.is('num_dormitorios', null);
+      }
+    }
     var { data, error } = await q;
     if (error) throw error;
 
