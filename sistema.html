@@ -663,6 +663,96 @@ tbody td {
 .badge-pendente{ background: rgba(243,156,18,0.15);  color: var(--amarelo); }
 .badge-cancelado{ background: rgba(231,76,60,0.15); color: var(--vermelho); }
 
+/* ── Sticky columns ── */
+.col-sticky-left {
+  position: sticky;
+  left: 0;
+  z-index: 2;
+  background: var(--bg2);
+}
+thead .col-sticky-left {
+  background: rgba(14,26,50,0.98);
+  z-index: 3;
+}
+.col-sticky-left::after {
+  content: '';
+  position: absolute;
+  top: 0; right: -8px; bottom: 0;
+  width: 8px;
+  background: linear-gradient(to right, rgba(0,0,0,0.18), transparent);
+  pointer-events: none;
+}
+
+.col-sticky-right {
+  position: sticky;
+  right: 0;
+  z-index: 2;
+  background: var(--bg2);
+}
+thead .col-sticky-right {
+  background: rgba(14,26,50,0.98);
+  z-index: 3;
+}
+.col-sticky-right::before {
+  content: '';
+  position: absolute;
+  top: 0; left: -8px; bottom: 0;
+  width: 8px;
+  background: linear-gradient(to left, rgba(0,0,0,0.18), transparent);
+  pointer-events: none;
+}
+
+/* ── Actions dropdown ── */
+.acoes-wrap { position: relative; display: inline-block; }
+
+.acoes-btn {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid var(--borda);
+  border-radius: 8px;
+  color: var(--cor-texto);
+  cursor: pointer;
+  font-size: 1.1em;
+  line-height: 1;
+  padding: 4px 10px;
+  transition: background 0.15s, border-color 0.15s;
+}
+.acoes-btn:hover { background: rgba(212,175,55,0.12); border-color: var(--borda-forte); }
+
+.acoes-menu {
+  display: none;
+  position: absolute;
+  right: 0;
+  top: calc(100% + 4px);
+  background: var(--azul3);
+  border: 1px solid var(--borda-forte);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--sombra);
+  min-width: 178px;
+  z-index: 500;
+  overflow: hidden;
+}
+.acoes-menu.open { display: block; }
+
+.acoes-menu button {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  padding: 9px 14px;
+  background: none;
+  border: none;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  color: var(--cor-texto);
+  font-size: 0.84em;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.13s;
+}
+.acoes-menu button:last-child { border-bottom: none; }
+.acoes-menu button:hover { background: rgba(212,175,55,0.08); }
+.acoes-menu button.danger { color: var(--vermelho); }
+.acoes-menu button.success { color: var(--verde); }
+
 .actions { display: flex; gap: 5px; flex-wrap: wrap; }
 
 .empty-state {
@@ -2185,7 +2275,7 @@ tbody td {
       <thead>
         <tr>
           <th>#</th>
-          <th>Cliente</th>
+          <th class="col-sticky-left">Cliente</th>
           <th>Canal</th>
           <th>Resort</th>
           <th>Check-in</th>
@@ -2199,7 +2289,7 @@ tbody td {
           <th>Avaliação</th>
           <th>Status</th>
           <th>Cobrança</th>
-          <th>Ações</th>
+          <th class="col-sticky-right">Ações</th>
         </tr>
       </thead>
       <tbody id="tabelaBody">
@@ -4990,7 +5080,7 @@ function renderTabela() {
     html +=
       '<tr>' +
       '<td>' + (i + 1) + '</td>' +
-      '<td><strong>' + r.cliente + '</strong>' + (r.obs ? '<br><small style="color:var(--cor-sub);">' + r.obs + '</small>' : '') + '</td>' +
+      '<td class="col-sticky-left"><strong>' + r.cliente + '</strong>' + (r.obs ? '<br><small style="color:var(--cor-sub);">' + r.obs + '</small>' : '') + '</td>' +
       '<td><small>' + canal + '</small></td>' +
       '<td>' + r.resort + '</td>' +
       '<td>' + formatarData(r.entrada) + '</td>' +
@@ -5004,15 +5094,20 @@ function renderTabela() {
       '<td>' + avalHtml + '</td>' +
       '<td><span class="badge ' + badgeClass + '">' + badgeText + '</span></td>' +
       '<td>' + _renderCobBadge(r.id) + '</td>' +
-      '<td><div class="actions">' +
-        '<button class="btn btn-secondary btn-sm" onclick="abrirEdicao(\'' + r.id + '\')" title="Editar">✏️</button>' +
-        (r.status !== 'pago' ? '<button class="btn btn-success btn-sm" onclick="marcarPago(\'' + r.id + '\')" title="Marcar como pago">✅</button>' : '') +
-        '<button class="btn btn-secondary btn-sm" onclick="enviarWhatsApp(\'' + r.id + '\')" title="WhatsApp">💬</button>' +
-        '<button class="btn btn-secondary btn-sm" onclick="abrirCobrancaReserva(\'' + r.id + '\')" title="Gerar Cobrança">💰</button>' +
-        '<button class="btn btn-secondary btn-sm" onclick="abrirHistoricoCobrancas(\'' + r.id + '\',\'reserva\',\'' + r.cliente + ' – ' + r.resort + '\')" title="Histórico de Cobranças">📊</button>' +
-        '<button class="btn btn-secondary btn-sm" onclick="gerarVoucher(\'' + r.id + '\')" title="Voucher PDF">📄</button>' +
-        '<button class="btn btn-danger btn-sm" onclick="excluirReserva(\'' + r.id + '\')" title="Excluir">🗑️</button>' +
-      '</div></td>' +
+      '<td class="col-sticky-right">' +
+        '<div class="acoes-wrap">' +
+          '<button class="acoes-btn" onclick="toggleAcoesDropdown(event,\'' + r.id + '\')" title="Ações">⋮</button>' +
+          '<div class="acoes-menu" id="acoes-' + r.id + '">' +
+            '<button onclick="fecharAcoesDropdowns();abrirEdicao(\'' + r.id + '\')">✏️ Editar</button>' +
+            (r.status !== 'pago' ? '<button class="success" onclick="fecharAcoesDropdowns();marcarPago(\'' + r.id + '\')">✅ Marcar como pago</button>' : '') +
+            '<button onclick="fecharAcoesDropdowns();enviarWhatsApp(\'' + r.id + '\')">💬 WhatsApp</button>' +
+            '<button onclick="fecharAcoesDropdowns();abrirCobrancaReserva(\'' + r.id + '\')">💰 Gerar Cobrança</button>' +
+            '<button onclick="fecharAcoesDropdowns();abrirHistoricoCobrancas(\'' + r.id + '\',\'reserva\',\'' + r.cliente + ' – ' + r.resort + '\')">📊 Histórico</button>' +
+            '<button onclick="fecharAcoesDropdowns();gerarVoucher(\'' + r.id + '\')">📄 Voucher PDF</button>' +
+            '<button class="danger" onclick="fecharAcoesDropdowns();excluirReserva(\'' + r.id + '\')">🗑️ Excluir</button>' +
+          '</div>' +
+        '</div>' +
+      '</td>' +
       '</tr>';
   });
 
@@ -5022,6 +5117,33 @@ function renderTabela() {
 /* ==========================================
    AÇÕES NA TABELA
 ========================================== */
+function fecharAcoesDropdowns() {
+  document.querySelectorAll('.acoes-menu.open').forEach(function (m) { m.classList.remove('open'); });
+}
+
+function toggleAcoesDropdown(e, id) {
+  e.stopPropagation();
+  var menu = document.getElementById('acoes-' + id);
+  var isOpen = menu.classList.contains('open');
+  fecharAcoesDropdowns();
+  if (!isOpen) {
+    menu.classList.add('open');
+    /* Flip upward if button is in the lower portion of the viewport */
+    var btnRect = e.currentTarget.getBoundingClientRect();
+    var menuHeight = menu.offsetHeight || 240; /* estimated height if not yet rendered */
+    if (btnRect.bottom + menuHeight > window.innerHeight) {
+      menu.style.top = 'auto';
+      menu.style.bottom = 'calc(100% + 4px)';
+    } else {
+      menu.style.top = 'calc(100% + 4px)';
+      menu.style.bottom = 'auto';
+    }
+  }
+}
+
+document.addEventListener('click', fecharAcoesDropdowns);
+
+
 function marcarPago(id) {
   var r = reservas.find(function (x) { return x.id === id; });
   if (!r) return;
