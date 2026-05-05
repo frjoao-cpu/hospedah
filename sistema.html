@@ -434,6 +434,41 @@ tbody td {
 .badge-pendente{ background: rgba(243,156,18,0.15);  color: var(--amarelo); }
 .badge-cancelado{ background: rgba(231,76,60,0.15); color: var(--vermelho); }
 
+/* ==========================================
+   SEPARADORES DE MÊS NA TABELA
+========================================== */
+.mes-separador {
+  background: rgba(212,175,55,0.07);
+  cursor: pointer;
+  user-select: none;
+}
+.mes-separador:hover { background: rgba(212,175,55,0.13); }
+.mes-separador td {
+  padding: 9px 14px !important;
+  border-top: 1px solid var(--borda);
+  border-bottom: 1px solid var(--borda);
+  position: relative;
+}
+.mes-separador strong {
+  color: var(--dourado);
+  font-size: 0.9em;
+  letter-spacing: 0.3px;
+}
+.mes-sep-resumo {
+  color: var(--cor-sub);
+  font-size: 0.8em;
+  margin-left: 10px;
+}
+.mes-sep-toggle {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--dourado);
+  font-size: 0.8em;
+  opacity: 0.8;
+}
+
 .actions { display: flex; gap: 5px; flex-wrap: wrap; }
 
 .empty-state {
@@ -1675,6 +1710,7 @@ tbody td {
     <div class="section-title">
       📋 Planilha de Reservas
       <span style="margin-left:auto; display:flex; gap:8px;">
+        <button class="btn btn-secondary btn-sm" id="toggleTodosBtn" onclick="toggleTodosGrupos()" title="Expandir ou recolher todos os meses" style="display:none;">⊞ Expandir todos</button>
         <button class="btn btn-secondary btn-sm" onclick="exportarCSV()">📥 Exportar CSV</button>
         <button class="btn btn-secondary btn-sm" onclick="window.print()">🖨️ Imprimir</button>
         <button class="btn btn-secondary btn-sm" id="reservasToggleBtn" onclick="toggleReservas()" title="Minimizar/Expandir tabela">▼ Minimizar</button>
@@ -3893,6 +3929,13 @@ function formatarData(val) {
   return parts[2] + '/' + parts[1] + '/' + parts[0];
 }
 
+function nomeDoMes(key) {
+  var partes = key.split('-');
+  var d = new Date(parseInt(partes[0]), parseInt(partes[1]) - 1, 1);
+  var nome = d.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+  return nome.charAt(0).toUpperCase() + nome.slice(1);
+}
+
 function gerarId() {
   return Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
 }
@@ -4190,58 +4233,187 @@ function getReservasFiltradas() {
 /* ==========================================
    RENDERIZAR TABELA
 ========================================== */
+function _buildRow(r, i) {
+  var badgeClass = r.status === 'pago' ? 'badge-pago' : r.status === 'cancelado' ? 'badge-cancelado' : 'badge-pendente';
+  var badgeText  = r.status === 'pago' ? '✅ Pago' : r.status === 'cancelado' ? '❌ Cancelado' : '⏳ Pendente';
+  var canal      = r.canal || 'Direta';
+  var lucro      = (r.valorCaptacao > 0) ? (r.total - r.valorCaptacao) : null;
+  var lucroHtml  = lucro !== null
+    ? '<span style="color:' + (lucro >= 0 ? '#25D366' : 'var(--vermelho)') + ';font-weight:600;">' + formatBRL(lucro) + '</span>'
+    : '<span style="color:var(--cinza);">—</span>';
+  var captacaoHtml = r.valorCaptacao > 0 ? formatBRL(r.valorCaptacao) : '<span style="color:var(--cinza);">—</span>';
+  var avalHtml = formatarEstrelas(r.avaliacao);
+
+  return '<tr>' +
+    '<td>' + (i + 1) + '</td>' +
+    '<td><strong>' + r.cliente + '</strong>' + (r.obs ? '<br><small style="color:var(--cor-sub);">' + r.obs + '</small>' : '') + '</td>' +
+    '<td><small>' + canal + '</small></td>' +
+    '<td>' + r.resort + '</td>' +
+    '<td>' + formatarData(r.entrada) + '</td>' +
+    '<td>' + formatarData(r.saida) + '</td>' +
+    '<td style="text-align:center;">' + r.noites + '</td>' +
+    '<td>' + captacaoHtml + '</td>' +
+    '<td style="color:var(--dourado);font-weight:600;">' + formatBRL(r.total) + '</td>' +
+    '<td>' + lucroHtml + '</td>' +
+    '<td>' + formatBRL(r.comissao) + ' <small style="color:var(--cor-sub);">(' + r.comissaoPct + '%)</small></td>' +
+    '<td style="color:#4da6ff;">' + formatBRL(r.repasse) + '</td>' +
+    '<td>' + avalHtml + '</td>' +
+    '<td><span class="badge ' + badgeClass + '">' + badgeText + '</span></td>' +
+    '<td><div class="actions">' +
+      '<button class="btn btn-secondary btn-sm" onclick="abrirEdicao(\'' + r.id + '\')" title="Editar">✏️</button>' +
+      (r.status !== 'pago' ? '<button class="btn btn-success btn-sm" onclick="marcarPago(\'' + r.id + '\')" title="Marcar como pago">✅</button>' : '') +
+      '<button class="btn btn-secondary btn-sm" onclick="enviarWhatsApp(\'' + r.id + '\')" title="WhatsApp">💬</button>' +
+      '<button class="btn btn-secondary btn-sm" onclick="gerarVoucher(\'' + r.id + '\')" title="Voucher PDF">📄</button>' +
+      '<button class="btn btn-danger btn-sm" onclick="excluirReserva(\'' + r.id + '\')" title="Excluir">🗑️</button>' +
+    '</div></td>' +
+    '</tr>';
+}
+
 function renderTabela() {
-  var tbody = document.getElementById('tabelaBody');
-  var lista = getReservasFiltradas();
+  var tabela   = document.getElementById('tabelaReservas');
+  var lista    = getReservasFiltradas();
+  var mesFiltro = document.getElementById('f_mes').value || '';
+  var toggleBtn = document.getElementById('toggleTodosBtn');
+
+  // Remove all existing tbodys
+  var tbodys = tabela.querySelectorAll('tbody');
+  tbodys.forEach(function (tb) { tb.parentNode.removeChild(tb); });
 
   if (lista.length === 0) {
-    tbody.innerHTML =
+    var emptyTbody = document.createElement('tbody');
+    emptyTbody.id = 'tabelaBody';
+    emptyTbody.innerHTML =
       '<tr><td colspan="15"><div class="empty-state">' +
       '<div class="empty-icon">📋</div>' +
       '<div>' + (reservas.length === 0 ? 'Nenhuma reserva cadastrada ainda.' : 'Nenhuma reserva corresponde aos filtros.') + '</div>' +
       '</div></td></tr>';
+    tabela.appendChild(emptyTbody);
+    if (toggleBtn) toggleBtn.style.display = 'none';
     return;
   }
 
-  var html = '';
-  lista.forEach(function (r, i) {
-    var badgeClass = r.status === 'pago' ? 'badge-pago' : r.status === 'cancelado' ? 'badge-cancelado' : 'badge-pendente';
-    var badgeText  = r.status === 'pago' ? '✅ Pago' : r.status === 'cancelado' ? '❌ Cancelado' : '⏳ Pendente';
-    var canal      = r.canal || 'Direta';
-    var lucro      = (r.valorCaptacao > 0) ? (r.total - r.valorCaptacao) : null;
-    var lucroHtml  = lucro !== null
-      ? '<span style="color:' + (lucro >= 0 ? '#25D366' : 'var(--vermelho)') + ';font-weight:600;">' + formatBRL(lucro) + '</span>'
-      : '<span style="color:var(--cinza);">—</span>';
-    var captacaoHtml = r.valorCaptacao > 0 ? formatBRL(r.valorCaptacao) : '<span style="color:var(--cinza);">—</span>';
-    var avalHtml = formatarEstrelas(r.avaliacao);
+  // When a specific month filter is active, render flat (no group headers)
+  if (mesFiltro) {
+    var flatTbody = document.createElement('tbody');
+    flatTbody.id = 'tabelaBody';
+    var flatHtml = '';
+    lista.forEach(function (r, i) { flatHtml += _buildRow(r, i); });
+    flatTbody.innerHTML = flatHtml;
+    tabela.appendChild(flatTbody);
+    if (toggleBtn) toggleBtn.style.display = 'none';
+    return;
+  }
 
-    html +=
-      '<tr>' +
-      '<td>' + (i + 1) + '</td>' +
-      '<td><strong>' + r.cliente + '</strong>' + (r.obs ? '<br><small style="color:var(--cor-sub);">' + r.obs + '</small>' : '') + '</td>' +
-      '<td><small>' + canal + '</small></td>' +
-      '<td>' + r.resort + '</td>' +
-      '<td>' + formatarData(r.entrada) + '</td>' +
-      '<td>' + formatarData(r.saida) + '</td>' +
-      '<td style="text-align:center;">' + r.noites + '</td>' +
-      '<td>' + captacaoHtml + '</td>' +
-      '<td style="color:var(--dourado);font-weight:600;">' + formatBRL(r.total) + '</td>' +
-      '<td>' + lucroHtml + '</td>' +
-      '<td>' + formatBRL(r.comissao) + ' <small style="color:var(--cor-sub);">(' + r.comissaoPct + '%)</small></td>' +
-      '<td style="color:#4da6ff;">' + formatBRL(r.repasse) + '</td>' +
-      '<td>' + avalHtml + '</td>' +
-      '<td><span class="badge ' + badgeClass + '">' + badgeText + '</span></td>' +
-      '<td><div class="actions">' +
-        '<button class="btn btn-secondary btn-sm" onclick="abrirEdicao(\'' + r.id + '\')" title="Editar">✏️</button>' +
-        (r.status !== 'pago' ? '<button class="btn btn-success btn-sm" onclick="marcarPago(\'' + r.id + '\')" title="Marcar como pago">✅</button>' : '') +
-        '<button class="btn btn-secondary btn-sm" onclick="enviarWhatsApp(\'' + r.id + '\')" title="WhatsApp">💬</button>' +
-        '<button class="btn btn-secondary btn-sm" onclick="gerarVoucher(\'' + r.id + '\')" title="Voucher PDF">📄</button>' +
-        '<button class="btn btn-danger btn-sm" onclick="excluirReserva(\'' + r.id + '\')" title="Excluir">🗑️</button>' +
-      '</div></td>' +
-      '</tr>';
+  // Group by month (YYYY-MM from r.entrada)
+  var grupos = {};
+  lista.forEach(function (r) {
+    var key = r.entrada ? r.entrada.slice(0, 7) : '0000-00';
+    if (!grupos[key]) grupos[key] = [];
+    grupos[key].push(r);
   });
 
-  tbody.innerHTML = html;
+  var mesAtual = new Date().toISOString().slice(0, 7);
+  var chaves   = Object.keys(grupos).sort().reverse();
+
+  chaves.forEach(function (mes) {
+    var grupo    = grupos[mes];
+    var isAberto = mes >= mesAtual; // current & future months open by default
+
+    // Build month totals for the header summary
+    var totalReceita = 0, totalLucro = 0, temCaptacao = false;
+    grupo.forEach(function (r) {
+      totalReceita += r.total || 0;
+      if (r.valorCaptacao > 0) { temCaptacao = true; totalLucro += (r.total - r.valorCaptacao); }
+    });
+    var qtd    = grupo.length;
+    var resumo = qtd + ' reserva' + (qtd > 1 ? 's' : '') + ' &nbsp;•&nbsp; ' + formatBRL(totalReceita) +
+                 (temCaptacao ? ' &nbsp;•&nbsp; 📈 ' + formatBRL(totalLucro) : '');
+
+    var tbody = document.createElement('tbody');
+    tbody.className = 'mes-grupo ' + (isAberto ? 'mes-aberto' : 'mes-fechado');
+    tbody.dataset.mes = mes;
+
+    var separador =
+      '<tr class="mes-separador" onclick="toggleGrupoMes(\'' + mes + '\')">' +
+      '<td colspan="15">📅 <strong>' + nomeDoMes(mes) + '</strong>' +
+      '<span class="mes-sep-resumo">' + resumo + '</span>' +
+      '<span class="mes-sep-toggle">' + (isAberto ? '▲' : '▼') + '</span>' +
+      '</td></tr>';
+
+    var rowsHtml = '';
+    grupo.forEach(function (r, i) { rowsHtml += _buildRow(r, i); });
+
+    tbody.innerHTML = separador + rowsHtml;
+
+    // Collapse rows of past months right after DOM insertion
+    if (!isAberto) {
+      var rows = tbody.querySelectorAll('tr:not(.mes-separador)');
+      rows.forEach(function (row) { row.style.display = 'none'; });
+    }
+
+    tabela.appendChild(tbody);
+  });
+
+  // Show "expand/collapse all" button only when grouping is active
+  if (toggleBtn) {
+    toggleBtn.style.display = '';
+    // Label reflects current state: if any group is closed, offer "expand all"
+    var algumFechado = chaves.some(function (m) { return m < mesAtual; });
+    toggleBtn.textContent = algumFechado ? '⊞ Expandir todos' : '⊟ Recolher todos';
+  }
+}
+
+/* ==========================================
+   TOGGLE GRUPOS DE MÊS
+========================================== */
+function toggleGrupoMes(mes) {
+  var tbody = document.querySelector('#tabelaReservas tbody[data-mes="' + mes + '"]');
+  if (!tbody) return;
+  var isAberto = tbody.classList.contains('mes-aberto');
+  var rows     = tbody.querySelectorAll('tr:not(.mes-separador)');
+  var icon     = tbody.querySelector('.mes-sep-toggle');
+
+  if (isAberto) {
+    rows.forEach(function (row) { row.style.display = 'none'; });
+    tbody.classList.replace('mes-aberto', 'mes-fechado');
+    if (icon) icon.textContent = '▼';
+  } else {
+    rows.forEach(function (row) { row.style.display = ''; });
+    tbody.classList.replace('mes-fechado', 'mes-aberto');
+    if (icon) icon.textContent = '▲';
+  }
+
+  // Update "expand/collapse all" button label
+  var btn      = document.getElementById('toggleTodosBtn');
+  var tbodys   = document.querySelectorAll('#tabelaReservas tbody.mes-grupo');
+  var algumFechado = Array.prototype.some.call(tbodys, function (tb) {
+    return tb.classList.contains('mes-fechado');
+  });
+  if (btn) btn.textContent = algumFechado ? '⊞ Expandir todos' : '⊟ Recolher todos';
+}
+
+function toggleTodosGrupos() {
+  var tbodys = document.querySelectorAll('#tabelaReservas tbody.mes-grupo');
+  var btn    = document.getElementById('toggleTodosBtn');
+  var algumFechado = Array.prototype.some.call(tbodys, function (tb) {
+    return tb.classList.contains('mes-fechado');
+  });
+
+  tbodys.forEach(function (tbody) {
+    var rows = tbody.querySelectorAll('tr:not(.mes-separador)');
+    var icon = tbody.querySelector('.mes-sep-toggle');
+    if (algumFechado) {
+      rows.forEach(function (row) { row.style.display = ''; });
+      tbody.classList.replace('mes-fechado', 'mes-aberto');
+      if (icon) icon.textContent = '▲';
+    } else {
+      rows.forEach(function (row) { row.style.display = 'none'; });
+      tbody.classList.replace('mes-aberto', 'mes-fechado');
+      if (icon) icon.textContent = '▼';
+    }
+  });
+
+  if (btn) btn.textContent = algumFechado ? '⊟ Recolher todos' : '⊞ Expandir todos';
 }
 
 /* ==========================================
