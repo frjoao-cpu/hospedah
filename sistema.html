@@ -8097,7 +8097,7 @@ function pdShowEntryPanel() {
   if (!ini || !fim) return;
   var d1 = new Date(ini + 'T00:00:00');
   var d2 = new Date(fim + 'T00:00:00');
-  var noites = Math.round((d2 - d1) / 86400000);
+  var noites = Math.round((d2 - d1) / 86400000) + 1;
   var fmtOpts = { day:'2-digit', month:'2-digit' };
   var panel = document.getElementById('pdEntryPanel');
   var title = document.getElementById('pdEntryTitle');
@@ -8358,7 +8358,7 @@ function pdUpdatePeriodInfo() {
   if (ini && fim) {
     var d1 = new Date(ini + 'T00:00:00');
     var d2 = new Date(fim + 'T00:00:00');
-    var noites = Math.round((d2 - d1) / 86400000);
+    var noites = Math.round((d2 - d1) / 86400000) + 1;
     noites = noites > 0 ? noites : 1;
     infoEl.textContent = noites + (noites === 1 ? ' noite selecionada' : ' noites selecionadas');
     infoEl.className = 'pd-period-info has-nights';
@@ -8415,7 +8415,7 @@ function calcMultiplicador() {
   if (ini && fim) {
     var d1 = new Date(ini + 'T00:00:00');
     var d2 = new Date(fim + 'T00:00:00');
-    noites = Math.max(1, Math.round((d2 - d1) / 86400000));
+    noites = Math.max(1, Math.round((d2 - d1) / 86400000) + 1);
   }
 
   if (multEl) {
