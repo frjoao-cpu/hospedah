@@ -1730,7 +1730,6 @@ html[data-theme="light"] .parcela-card-desc  { color: #8B6914; }
   font-size: .95em;
   font-weight: 800;
 }
-.orc-step-dot.done .orc-step-num-inner { display: none; }
 .orc-step-label {
   font-size: .68em;
   color: var(--cor-sub, #aab4c4);
@@ -1776,6 +1775,7 @@ html[data-theme="light"] .parcela-card-desc  { color: #8B6914; }
 .orc-panel-title {
   font-size: 1.15em;
   font-weight: 700;
+  color: var(--dourado, #D4AF37);
   background: linear-gradient(90deg, var(--dourado, #D4AF37) 0%, #f5d97a 60%, var(--dourado, #D4AF37) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -1947,6 +1947,7 @@ html[data-theme="light"] .orc-field:focus {
   box-shadow: 0 0 0 3px rgba(139,105,20,0.10);
 }
 html[data-theme="light"] .orc-panel-title {
+  color: #8B6914;
   background: linear-gradient(90deg, #8B6914 0%, #c9a22e 60%, #8B6914 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
