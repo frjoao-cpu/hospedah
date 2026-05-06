@@ -16,7 +16,7 @@
   },
   "overrides": [
     {
-      "files": ["scripts/**/*.js"],
+      "files": ["scripts/generate-resorts.js"],
       "env": {
         "node": true,
         "browser": false
