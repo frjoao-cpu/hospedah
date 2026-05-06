@@ -2034,15 +2034,27 @@ function orcNextStep(current) {
     var noites   = calcNights('orc_entrada', 'orc_saida');
     var sumEl    = document.getElementById('orcSummary');
     if (sumEl) {
-      sumEl.innerHTML =
-        '<div class="orc-summary-row"><span>🏖️ Resort</span><strong>' + resort  + '</strong></div>' +
-        '<div class="orc-summary-row"><span>📅 Check-in</span><strong>' + entrada + '</strong></div>' +
-        '<div class="orc-summary-row"><span>📅 Check-out</span><strong>' + saida   + '</strong></div>' +
-        '<div class="orc-summary-row"><span>🌙 Noites</span><strong>' + noites  + '</strong></div>' +
-        '<div class="orc-summary-row"><span>👥 Pessoas</span><strong>' + pessoas + '</strong></div>' +
-        '<div class="orc-summary-row"><span>👤 Nome</span><strong>' + nome    + '</strong></div>' +
-        '<div class="orc-summary-row"><span>📱 WhatsApp</span><strong>' + wpp     + '</strong></div>' +
-        (email ? '<div class="orc-summary-row"><span>📧 E-mail</span><strong>' + email + '</strong></div>' : '');
+      // Escape values via textContent assignment to avoid XSS
+      function row(icon, label, val) {
+        var d = document.createElement('div');
+        d.className = 'orc-summary-row';
+        var s = document.createElement('span');
+        s.textContent = icon + ' ' + label;
+        var strong = document.createElement('strong');
+        strong.textContent = val;
+        d.appendChild(s);
+        d.appendChild(strong);
+        return d;
+      }
+      sumEl.textContent = '';
+      sumEl.appendChild(row('🏖️', 'Resort',    resort));
+      sumEl.appendChild(row('📅', 'Check-in',  entrada));
+      sumEl.appendChild(row('📅', 'Check-out', saida));
+      sumEl.appendChild(row('🌙', 'Noites',    noites));
+      sumEl.appendChild(row('👥', 'Pessoas',   pessoas));
+      sumEl.appendChild(row('👤', 'Nome',      nome));
+      sumEl.appendChild(row('📱', 'WhatsApp',  wpp));
+      if (email) sumEl.appendChild(row('📧', 'E-mail', email));
     }
     if (window.dataLayer) dataLayer.push({ event: 'wizard_step', etapa: 3 });
   }
@@ -2069,9 +2081,6 @@ function orcGoToPanel(step) {
 ===================== */
 function agendarNurturingEmail(dados) {
   if (!dados.email) return;
-  var sb = window._sb || (typeof supabase !== 'undefined' && supabase.createClient
-    ? null : null); // _sb é criado no bloco Supabase
-  // Usa a instância global _sb criada no início do script
   var client = window._sb;
   if (!client) return;
   client.from('email_nurturing_queue').insert([{
@@ -2082,7 +2091,9 @@ function agendarNurturingEmail(dados) {
     sequencia:   'orcamento',
     status:      'pendente',
     proxima_em:  new Date(Date.now() + 3600 * 1000).toISOString(), // 1h depois
-  }]).catch(function() {});
+  }]).catch(function(err) {
+    console.warn('[HOSPEDAH] Falha ao agendar nurturing:', err);
+  });
 }
 
 /* =====================

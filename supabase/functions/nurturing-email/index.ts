@@ -165,6 +165,7 @@ interface NurturingRecord {
   data_entrada: string | null;
   sequencia: string;
   etapa: number;
+  tentativas: number;
 }
 
 function formatDate(iso: string): string {
@@ -269,7 +270,7 @@ serve(async (): Promise<Response> => {
     if (!resendRes.ok) {
       const err = await resendRes.text();
       await sb.from('email_nurturing_queue')
-        .update({ status: 'erro', ultimo_erro: err, tentativas: (rec as any).tentativas + 1 })
+        .update({ status: 'erro', ultimo_erro: err, tentativas: rec.tentativas + 1 })
         .eq('id', rec.id);
       resultados.push(`${rec.email}: ERRO — ${err}`);
       continue;

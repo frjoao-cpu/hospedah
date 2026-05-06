@@ -8,6 +8,10 @@
 /* ============================================================
    PREMIUM DESIGN SYSTEM — HOSPEDAH RESERVAS
    ============================================================ */
+/* Sobrescreve propositalmente os tokens de mobile-first.css:
+   a página de reservas usa um azul mais escuro (#080f1d vs #0B1C3D)
+   e backgrounds mais escuros (#060d1a) para uma atmosfera premium
+   que reforça a confiança na etapa de conversão.          */
 :root {
   --dourado: #D4AF37;
   --dourado2: #F5D060;
