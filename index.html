@@ -1158,31 +1158,36 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   <div class="security-seal" aria-label="Site seguro">🔒 <strong>Site Seguro</strong> &nbsp;·&nbsp; SSL Criptografado &nbsp;·&nbsp; 🛡️ Dados Protegidos</div>
 </footer>
 
-<!-- ✅ BOTÃO WHATSAPP FLUTUANTE INTELIGENTE -->
-<div class="wpp-float" id="wppFloat" aria-live="polite">
-  <div class="wpp-bubble" id="wppBubble">
-    <strong>💬 Olá! Posso ajudar?</strong><br>
-    Fale agora com um especialista em hospedagens!
-    <a href="https://wa.me/5517982006382?text=Ol%C3%A1%21+Vi+o+site+da+HOSPEDAH+e+quero+saber+mais+sobre+os+resorts%21"
-       target="_blank" rel="noopener" onclick="trackWpp()">
-      Iniciar conversa →
-    </a>
-  </div>
-  <button class="wpp-float-btn" id="wppFloatBtn"
-          aria-label="Abrir WhatsApp"
-          onclick="toggleWppBubble()">
-    💬
-  </button>
-</div>
+<!-- ✅ BOTÕES FLUTUANTES (Chat IA + WhatsApp) -->
+<div id="floating-actions">
 
-<!-- ✅ BOTÃO CHAT IA FLUTUANTE -->
-<div class="chat-float" id="chatFloat">
-  <div class="chat-float-bubble" id="chatFloatBubble">
-    <strong>🤖 Chat IA</strong><br>
-    Tire dúvidas sobre os resorts na hora!
-    <a href="chat.html">Abrir chat →</a>
+  <!-- Chat IA -->
+  <div class="chat-float" id="chatFloat">
+    <div class="chat-float-bubble" id="chatFloatBubble">
+      <strong>🤖 Chat IA</strong><br>
+      Tire dúvidas sobre os resorts na hora!
+      <a href="chat.html">Abrir chat →</a>
+    </div>
+    <a class="chat-float-btn" href="chat.html" aria-label="Abrir Chat IA" id="chatFloatBtn">🤖</a>
   </div>
-  <a class="chat-float-btn" href="chat.html" aria-label="Abrir Chat IA" id="chatFloatBtn">🤖</a>
+
+  <!-- WhatsApp -->
+  <div class="wpp-float" id="wppFloat" aria-live="polite">
+    <div class="wpp-bubble" id="wppBubble">
+      <strong>💬 Olá! Posso ajudar?</strong><br>
+      Fale agora com um especialista em hospedagens!
+      <a href="https://wa.me/5517982006382?text=Ol%C3%A1%21+Vi+o+site+da+HOSPEDAH+e+quero+saber+mais+sobre+os+resorts%21"
+         target="_blank" rel="noopener" onclick="trackWpp()">
+        Iniciar conversa →
+      </a>
+    </div>
+    <button class="wpp-float-btn" id="wppFloatBtn"
+            aria-label="Abrir WhatsApp"
+            onclick="toggleWppBubble()">
+      💬
+    </button>
+  </div>
+
 </div>
 
 <!-- ✅ BOTÃO FLUTUANTE DE COMPARTILHAMENTO (apenas mobile) -->
