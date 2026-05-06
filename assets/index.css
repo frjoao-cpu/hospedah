@@ -1461,22 +1461,45 @@ html[data-theme="light"] .urgencia-strip { background: linear-gradient(90deg,#b8
 .parcela-strip {
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
+  align-items: stretch;
   justify-content: center;
-  gap: 10px;
+  gap: 0;
   margin: -8px auto 20px;
-  padding: 12px 18px;
+  padding: 14px 18px;
   background: rgba(212,175,55,.1);
   border: 1px solid rgba(212,175,55,.28);
   border-radius: 12px;
   font-size: .88em;
-  max-width: 560px;
+  max-width: 640px;
 }
-.parcela-item { color: #e8eaf0; }
-.parcela-item strong { color: var(--dourado); }
-.parcela-sep { color: rgba(212,175,55,.45); font-weight: 700; }
+.parcela-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  flex: 1;
+  min-width: 160px;
+  padding: 6px 14px;
+  text-align: center;
+}
+.parcela-card-title { color: #e8eaf0; font-weight: 600; }
+.parcela-card-title strong { color: var(--dourado); }
+.parcela-card-title em { font-style: normal; color: var(--dourado); }
+.parcela-card-disclaimer {
+  color: var(--dourado);
+  font-size: .72em;
+  opacity: .85;
+}
+.parcela-card-desc { color: rgba(232,234,240,.65); font-size: .8em; }
+.parcela-sep-v {
+  width: 1px;
+  background: rgba(212,175,55,.3);
+  align-self: stretch;
+  margin: 4px 0;
+}
 html[data-theme="light"] .parcela-strip { background: rgba(212,175,55,.12); }
-html[data-theme="light"] .parcela-item  { color: #333; }
+html[data-theme="light"] .parcela-card-title { color: #333; }
+html[data-theme="light"] .parcela-card-desc  { color: #555; }
 
 /* ── #9 Reservas por resort ── */
 .resort-reservas-badge {
@@ -1630,5 +1653,7 @@ html[data-theme="light"] .parcela-item  { color: #333; }
   .promo-flash-inner { gap: 6px 10px; padding-right: 40px; }
   .promo-flash-text  { font-size: .78em; }
   .parcela-strip     { flex-direction: column; gap: 4px; }
-  .parcela-sep       { display: none; }
+  .parcela-sep-v     { display: none; }
+  .parcela-card      { width: 100%; border-bottom: 1px solid rgba(212,175,55,.2); padding-bottom: 10px; }
+  .parcela-card:last-child { border-bottom: none; }
 }
