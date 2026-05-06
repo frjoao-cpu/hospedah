@@ -20,816 +20,7 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <!-- Flatpickr CSS (só estilo, não bloqueia render) -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-<style>
-:root {
-  --dourado: #D4AF37;
-  --dourado-hover: #f0c93a;
-  --azul: #0B1C3D;
-  --azul2: #142850;
-  --verde: #25D366;
-  --vermelho: #e74c3c;
-  --amarelo: #f39c12;
-  --bg: #0d1b2e;
-  --bg2: #10233c;
-  --cor-texto: #e8eaf0;
-  --cor-sub: #aab4c4;
-  --borda: rgba(212,175,55,0.15);
-  --radius: 12px;
-  --sombra: 0 4px 24px rgba(0,0,0,0.3);
-}
-
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-body {
-  font-family: 'Poppins', sans-serif;
-  background: var(--bg);
-  color: var(--cor-texto);
-  min-height: 100vh;
-}
-
-/* HEADER */
-.header {
-  background: linear-gradient(135deg, var(--azul), var(--azul2));
-  border-bottom: 2px solid var(--dourado);
-  padding: 16px 24px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  flex-wrap: wrap;
-  position: sticky;
-  top: 0;
-  z-index: 1000;
-  box-shadow: var(--sombra);
-}
-
-.logo {
-  color: var(--dourado);
-  font-weight: 700;
-  font-size: 1.2em;
-  text-decoration: none;
-}
-
-.nav-links {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-
-.nav-links a {
-  color: var(--cor-sub);
-  text-decoration: none;
-  padding: 6px 14px;
-  border-radius: 20px;
-  font-size: 0.85em;
-  border: 1px solid var(--borda);
-  transition: all 0.2s;
-}
-
-.nav-links a:hover, .nav-links a.active {
-  background: var(--dourado);
-  color: var(--azul);
-  border-color: var(--dourado);
-}
-
-/* FILTROS BARRA */
-.filter-bar {
-  background: var(--azul2);
-  border-bottom: 1px solid var(--borda);
-  padding: 16px 24px;
-}
-
-.filter-grid {
-  max-width: 1300px;
-  margin: 0 auto;
-  display: grid;
-  grid-template-columns: 1.5fr 1fr 1fr 0.8fr auto;
-  gap: 10px;
-  align-items: flex-end;
-}
-
-@media (max-width: 900px) {
-  .filter-grid { grid-template-columns: 1fr 1fr; }
-}
-@media (max-width: 500px) {
-  .filter-grid { grid-template-columns: 1fr; }
-}
-
-.field-group {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.field-group label {
-  font-size: 0.72em;
-  color: var(--cor-sub);
-  text-transform: uppercase;
-  letter-spacing: 0.4px;
-  font-weight: 500;
-}
-
-.field-group input,
-.field-group select {
-  background: rgba(255,255,255,0.06);
-  border: 1px solid rgba(212,175,55,0.2);
-  border-radius: 8px;
-  color: var(--cor-texto);
-  font-family: inherit;
-  font-size: 0.88em;
-  padding: 9px 12px;
-  transition: border-color 0.2s;
-}
-
-.field-group input:focus,
-.field-group select:focus {
-  outline: none;
-  border-color: var(--dourado);
-}
-
-.field-group select option { background: var(--azul2); }
-
-.btn-buscar {
-  background: var(--dourado);
-  color: var(--azul);
-  border: none;
-  border-radius: 8px;
-  padding: 10px 22px;
-  font-family: inherit;
-  font-size: 0.9em;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.2s;
-  white-space: nowrap;
-}
-
-.btn-buscar:hover { background: var(--dourado-hover); }
-
-/* AVANÇADO */
-.filtros-avancados {
-  max-width: 1300px;
-  margin: 10px auto 0;
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-  align-items: center;
-}
-
-.filtros-avancados summary {
-  color: var(--cor-sub);
-  font-size: 0.82em;
-  cursor: pointer;
-  padding: 4px 10px;
-  border-radius: 20px;
-  border: 1px solid var(--borda);
-  list-style: none;
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-}
-
-.filtros-avancados summary:hover { border-color: var(--dourado); color: var(--dourado); }
-
-details.adv-filters {
-  width: 100%;
-}
-
-details.adv-filters[open] > summary { color: var(--dourado); border-color: var(--dourado); }
-
-.adv-grid {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-  margin-top: 10px;
-}
-
-/* TOGGLE VIEW */
-.view-toggle {
-  display: flex;
-  gap: 8px;
-  margin: 0 24px 0 auto;
-}
-
-.view-btn {
-  background: rgba(255,255,255,0.05);
-  border: 1px solid var(--borda);
-  border-radius: 8px;
-  padding: 7px 14px;
-  color: var(--cor-sub);
-  font-family: inherit;
-  font-size: 0.82em;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.view-btn.active {
-  background: var(--dourado);
-  color: var(--azul);
-  border-color: var(--dourado);
-}
-
-/* LAYOUT PRINCIPAL */
-.main-layout {
-  max-width: 1300px;
-  margin: 0 auto;
-  padding: 20px 16px 60px;
-  display: grid;
-  grid-template-columns: 380px 1fr;
-  gap: 20px;
-}
-
-@media (max-width: 900px) {
-  .main-layout { grid-template-columns: 1fr; }
-}
-
-/* LISTA DE CARDS */
-.results-header {
-  font-size: 0.9em;
-  color: var(--cor-sub);
-  margin-bottom: 14px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.results-header strong { color: var(--dourado); }
-
-.cards-list {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  max-height: calc(100vh - 240px);
-  overflow-y: auto;
-  padding-right: 4px;
-}
-
-.cards-list::-webkit-scrollbar { width: 4px; }
-.cards-list::-webkit-scrollbar-track { background: transparent; }
-.cards-list::-webkit-scrollbar-thumb { background: var(--borda); border-radius: 2px; }
-
-.resort-card {
-  background: var(--bg2);
-  border: 1px solid var(--borda);
-  border-radius: var(--radius);
-  padding: 16px;
-  cursor: pointer;
-  transition: all 0.2s;
-  display: grid;
-  grid-template-columns: 90px 1fr;
-  gap: 14px;
-}
-
-.resort-card:hover, .resort-card.highlight {
-  border-color: rgba(212,175,55,0.5);
-  background: rgba(212,175,55,0.04);
-  box-shadow: 0 4px 16px rgba(0,0,0,0.3);
-}
-
-.resort-card-img {
-  width: 90px;
-  height: 72px;
-  border-radius: 8px;
-  object-fit: cover;
-  background: rgba(255,255,255,0.05);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 2em;
-}
-
-.resort-card-body { overflow: hidden; }
-
-.resort-card-name {
-  font-size: 0.92em;
-  font-weight: 600;
-  color: var(--cor-texto);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  margin-bottom: 4px;
-}
-
-.resort-card-city {
-  font-size: 0.75em;
-  color: var(--cor-sub);
-  margin-bottom: 6px;
-}
-
-.resort-card-tags {
-  display: flex;
-  gap: 5px;
-  flex-wrap: wrap;
-  margin-bottom: 8px;
-}
-
-.tag {
-  display: inline-block;
-  padding: 2px 7px;
-  border-radius: 10px;
-  font-size: 0.68em;
-  font-weight: 600;
-  background: rgba(212,175,55,0.1);
-  color: var(--dourado);
-  border: 1px solid rgba(212,175,55,0.2);
-}
-
-.resort-card-footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.resort-card-price {
-  font-size: 0.9em;
-  font-weight: 700;
-  color: var(--dourado);
-}
-
-.resort-card-price small {
-  font-size: 0.7em;
-  font-weight: 400;
-  color: var(--cor-sub);
-}
-
-.stars {
-  color: var(--dourado);
-  font-size: 0.82em;
-  letter-spacing: 1px;
-}
-
-.btn-reservar-sm {
-  background: var(--dourado);
-  color: var(--azul);
-  border: none;
-  border-radius: 6px;
-  padding: 5px 12px;
-  font-family: inherit;
-  font-size: 0.75em;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-
-.btn-reservar-sm:hover { background: var(--dourado-hover); }
-
-/* MAPA */
-.map-container {
-  position: sticky;
-  top: 80px;
-  height: calc(100vh - 100px);
-  border-radius: var(--radius);
-  overflow: hidden;
-  border: 1px solid var(--borda);
-}
-
-#map {
-  width: 100%;
-  height: 100%;
-  background: var(--azul2);
-}
-
-/* Customizar popup do Leaflet */
-.leaflet-popup-content-wrapper {
-  background: var(--azul2) !important;
-  border: 1px solid var(--borda) !important;
-  border-radius: var(--radius) !important;
-  box-shadow: var(--sombra) !important;
-  color: var(--cor-texto) !important;
-  font-family: 'Poppins', sans-serif !important;
-}
-
-.leaflet-popup-tip-container .leaflet-popup-tip {
-  background: var(--azul2) !important;
-}
-
-.popup-nome { font-weight: 600; font-size: 0.92em; color: var(--dourado); margin-bottom: 4px; }
-.popup-cidade { font-size: 0.78em; color: var(--cor-sub); margin-bottom: 6px; }
-.popup-preco { font-size: 0.85em; font-weight: 700; color: var(--dourado); margin-bottom: 8px; }
-.popup-btn {
-  display: block;
-  background: var(--dourado);
-  color: var(--azul);
-  padding: 6px 12px;
-  border-radius: 6px;
-  text-decoration: none;
-  font-size: 0.78em;
-  font-weight: 600;
-  text-align: center;
-}
-
-/* CHECKBOX comodidades */
-.amenity-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  padding: 5px 10px;
-  border: 1px solid var(--borda);
-  border-radius: 20px;
-  font-size: 0.78em;
-  cursor: pointer;
-  transition: all 0.2s;
-  background: rgba(255,255,255,0.03);
-  color: var(--cor-sub);
-  user-select: none;
-}
-
-.amenity-chip.on {
-  background: rgba(212,175,55,0.1);
-  border-color: var(--dourado);
-  color: var(--dourado);
-}
-
-/* EMPTY STATE */
-.empty-state {
-  text-align: center;
-  padding: 48px 20px;
-  color: var(--cor-sub);
-}
-
-.empty-state .empty-icon { font-size: 2.5em; margin-bottom: 10px; }
-
-.empty-state .active-filters-hint {
-  margin-top: 12px;
-  font-size: 0.8em;
-  color: var(--cor-sub);
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  justify-content: center;
-}
-
-.empty-state .active-filters-hint .hint-chip {
-  background: rgba(212,175,55,0.1);
-  border: 1px solid rgba(212,175,55,0.25);
-  border-radius: 12px;
-  padding: 3px 9px;
-  color: var(--dourado);
-  font-size: 0.9em;
-}
-
-/* AUTOCOMPLETE */
-.autocomplete-wrapper { position: relative; }
-
-.autocomplete-list {
-  position: absolute;
-  top: calc(100% + 4px);
-  left: 0;
-  right: 0;
-  background: var(--azul2);
-  border: 1px solid rgba(212,175,55,0.3);
-  border-radius: 8px;
-  z-index: 2000;
-  max-height: 200px;
-  overflow-y: auto;
-  box-shadow: var(--sombra);
-}
-
-.autocomplete-list li {
-  list-style: none;
-  padding: 8px 12px;
-  cursor: pointer;
-  font-size: 0.85em;
-  color: var(--cor-texto);
-  border-bottom: 1px solid var(--borda);
-  transition: background 0.15s;
-}
-
-.autocomplete-list li:last-child { border-bottom: none; }
-.autocomplete-list li:hover, .autocomplete-list li[aria-selected="true"] {
-  background: rgba(212,175,55,0.12);
-  color: var(--dourado);
-}
-
-/* SKELETON LOADING */
-@keyframes shimmer {
-  0%   { background-position: -400px 0; }
-  100% { background-position: 400px 0; }
-}
-
-.skeleton-card {
-  background: var(--bg2);
-  border: 1px solid var(--borda);
-  border-radius: var(--radius);
-  padding: 16px;
-  display: grid;
-  grid-template-columns: 90px 1fr;
-  gap: 14px;
-}
-
-.skeleton-block {
-  border-radius: 6px;
-  background: linear-gradient(90deg, rgba(255,255,255,0.04) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.04) 75%);
-  background-size: 400px 100%;
-  animation: shimmer 1.4s infinite linear;
-}
-
-/* SORT + CLEAR BAR */
-.results-header .header-right {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.sort-select {
-  background: rgba(255,255,255,0.06);
-  border: 1px solid rgba(212,175,55,0.2);
-  border-radius: 8px;
-  color: var(--cor-texto);
-  font-family: inherit;
-  font-size: 0.8em;
-  padding: 5px 10px;
-  cursor: pointer;
-}
-
-.sort-select:focus { outline: none; border-color: var(--dourado); }
-.sort-select option { background: var(--azul2); }
-
-.btn-limpar {
-  background: transparent;
-  border: 1px solid rgba(212,175,55,0.25);
-  border-radius: 8px;
-  color: var(--cor-sub);
-  font-family: inherit;
-  font-size: 0.78em;
-  padding: 5px 10px;
-  cursor: pointer;
-  transition: all 0.2s;
-  white-space: nowrap;
-}
-
-.btn-limpar:hover {
-  border-color: var(--dourado);
-  color: var(--dourado);
-}
-
-/* ADV FILTER BADGE */
-.adv-badge {
-  display: inline-block;
-  background: var(--dourado);
-  color: var(--azul);
-  border-radius: 10px;
-  font-size: 0.75em;
-  font-weight: 700;
-  padding: 0 6px;
-  margin-left: 4px;
-  min-width: 18px;
-  text-align: center;
-  line-height: 18px;
-  vertical-align: middle;
-}
-
-/* SOCIAL PROOF TOASTS (busca) */
-#sp-container-busca {
-  position: fixed; bottom: 70px; left: 12px; z-index: 9000;
-  display: flex; flex-direction: column; gap: 10px; pointer-events: none;
-}
-@keyframes spSlideIn { from { transform: translateX(-110%); opacity:0; } to { transform: translateX(0); opacity:1; } }
-@keyframes spFadeOut { from { opacity:1; } to { opacity:0; transform: translateX(-110%); } }
-
-/* SKIP LINK */
-.skip-link {
-  position: absolute;
-  top: -999px;
-  left: -999px;
-  background: var(--dourado);
-  color: var(--azul);
-  padding: 10px 18px;
-  border-radius: 8px;
-  font-weight: 700;
-  font-size: 0.9em;
-  z-index: 10000;
-  text-decoration: none;
-}
-.skip-link:focus { top: 12px; left: 12px; }
-
-/* BREADCRUMB */
-.breadcrumb-bar {
-  background: var(--azul2);
-  border-bottom: 1px solid var(--borda);
-  padding: 9px 24px;
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  font-size: 0.78em;
-  color: var(--cor-sub);
-  flex-wrap: wrap;
-}
-.breadcrumb-bar a { color: var(--cor-sub); text-decoration: none; transition: color 0.2s; }
-.breadcrumb-bar a:hover { color: var(--dourado); }
-.breadcrumb-bar [aria-current="page"] { color: var(--dourado); font-weight: 500; }
-
-/* COMPARADOR */
-.compare-btn {
-  background: transparent;
-  border: 1px solid var(--borda);
-  border-radius: 6px;
-  padding: 4px 9px;
-  font-family: inherit;
-  font-size: 0.72em;
-  color: var(--cor-sub);
-  cursor: pointer;
-  transition: all 0.2s;
-  white-space: nowrap;
-}
-.compare-btn:hover,
-.compare-btn.added {
-  border-color: var(--dourado);
-  color: var(--dourado);
-  background: rgba(212,175,55,0.08);
-}
-
-.comparator-bar {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  z-index: 4000;
-  background: linear-gradient(135deg, var(--azul), var(--azul2));
-  border-top: 2px solid var(--dourado);
-  padding: 12px 20px;
-  display: none;
-  align-items: center;
-  gap: 14px;
-  flex-wrap: wrap;
-  box-shadow: 0 -4px 24px rgba(0,0,0,0.5);
-}
-.comparator-bar.visible { display: flex; }
-
-.comparator-items {
-  display: flex;
-  gap: 10px;
-  flex: 1;
-  flex-wrap: wrap;
-}
-
-.comparator-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: rgba(212,175,55,0.1);
-  border: 1px solid rgba(212,175,55,0.35);
-  border-radius: 20px;
-  padding: 5px 12px;
-  font-size: 0.8em;
-  color: var(--cor-texto);
-}
-
-.comparator-chip button {
-  background: none;
-  border: none;
-  color: var(--cor-sub);
-  cursor: pointer;
-  font-size: 0.9em;
-  padding: 0;
-  line-height: 1;
-  transition: color 0.2s;
-}
-.comparator-chip button:hover { color: var(--vermelho); }
-
-.btn-comparar {
-  background: var(--dourado);
-  color: var(--azul);
-  border: none;
-  border-radius: 8px;
-  padding: 9px 18px;
-  font-family: inherit;
-  font-size: 0.88em;
-  font-weight: 700;
-  cursor: pointer;
-  transition: background 0.2s;
-  white-space: nowrap;
-}
-.btn-comparar:hover { background: var(--dourado-hover); }
-
-.btn-comparar:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.comparator-hint {
-  font-size: 0.8em;
-  color: var(--cor-sub);
-  white-space: nowrap;
-}
-
-/* MODAL COMPARADOR */
-.compare-modal-overlay {
-  display: none;
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.85);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
-  z-index: 5000;
-  align-items: flex-start;
-  justify-content: center;
-  overflow-y: auto;
-  padding: 20px;
-}
-.compare-modal-overlay.open { display: flex; }
-
-.compare-modal-box {
-  background: linear-gradient(160deg, #0d1e38, #071120);
-  border: 1px solid rgba(212,175,55,0.3);
-  border-radius: 18px;
-  width: 100%;
-  max-width: 900px;
-  margin: auto;
-  overflow: hidden;
-  box-shadow: 0 24px 80px rgba(0,0,0,0.7);
-  position: relative;
-}
-
-.compare-modal-header {
-  background: linear-gradient(135deg, rgba(212,175,55,0.18), rgba(212,175,55,0.06));
-  border-bottom: 1px solid rgba(212,175,55,0.2);
-  padding: 18px 24px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.compare-modal-header h2 {
-  color: var(--dourado);
-  font-size: 1em;
-  font-weight: 700;
-  letter-spacing: 0.5px;
-}
-
-.compare-modal-close {
-  background: rgba(255,255,255,0.05);
-  border: 1px solid var(--borda);
-  border-radius: 8px;
-  color: var(--cor-sub);
-  padding: 6px 12px;
-  cursor: pointer;
-  font-family: inherit;
-  font-size: 0.85em;
-  transition: all 0.2s;
-}
-.compare-modal-close:hover { border-color: var(--vermelho); color: var(--vermelho); }
-
-.compare-table-wrap { overflow-x: auto; padding: 20px; }
-
-.compare-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.84em;
-}
-
-.compare-table th {
-  text-align: center;
-  padding: 14px 16px;
-  border-bottom: 2px solid rgba(212,175,55,0.25);
-  color: var(--dourado);
-  font-weight: 700;
-  font-size: 0.9em;
-  background: rgba(212,175,55,0.04);
-  min-width: 150px;
-}
-
-.compare-table th:first-child {
-  text-align: left;
-  min-width: 120px;
-  color: var(--cor-sub);
-  font-size: 0.78em;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.compare-table td {
-  text-align: center;
-  padding: 11px 16px;
-  border-bottom: 1px solid rgba(255,255,255,0.04);
-  color: var(--cor-texto);
-  vertical-align: middle;
-}
-
-.compare-table td:first-child {
-  text-align: left;
-  color: var(--cor-sub);
-  font-size: 0.82em;
-}
-
-.compare-table tr:hover td { background: rgba(212,175,55,0.03); }
-
-.compare-check { color: #4ade80; font-size: 1.1em; }
-.compare-x     { color: rgba(255,255,255,0.2); font-size: 1.1em; }
-.compare-price { color: var(--dourado); font-weight: 700; }
-
-.compare-table .btn-reservar-compare {
-  display: inline-block;
-  background: var(--dourado);
-  color: var(--azul);
-  padding: 7px 14px;
-  border-radius: 8px;
-  text-decoration: none;
-  font-size: 0.82em;
-  font-weight: 700;
-  transition: background 0.2s;
-}
-.compare-table .btn-reservar-compare:hover { background: var(--dourado-hover); }
-</style>
+<link rel="stylesheet" href="/assets/busca.css">
 </head>
 <body>
 
@@ -1378,22 +569,25 @@ function renderCards(lista) {
     return `
     <div class="resort-card" id="card_${safeId}" data-resort-id="${safeId}">
       <div class="resort-card-img">
-        <img src="${r.img}" alt="${r.nome}" loading="lazy" width="90" height="72"
+        <img src="${r.img}" alt="${r.nome}" loading="lazy" decoding="async" width="90" height="72"
              style="width:90px;height:72px;border-radius:8px;object-fit:cover;"
              onerror="this.style.display='none'; this.nextSibling.style.display='flex'">
         <div style="display:none; align-items:center; justify-content:center; font-size:2em; width:90px; height:72px;">${r.icon}</div>
       </div>
       <div class="resort-card-body">
-        <div class="resort-card-name">${r.nome}</div>
+        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+          <div class="resort-card-name" style="margin-bottom:0;">${r.nome}</div>
+          <span class="card-score-badge" title="Nota dos hóspedes">⭐ ${r.nota}</span>
+        </div>
         <div class="resort-card-city">📍 ${r.cidade}</div>
         <div class="resort-card-tags">
           ${r.comodidades.slice(0, 3).map(t => `<span class="tag">${t}</span>`).join('')}
           ${r.comodidades.length > 3 ? `<span class="tag">+${r.comodidades.length - 3}</span>` : ''}
         </div>
+        <div class="resort-card-cancel-notice">⚠️ Consulte as regras de cancelamento antes de reservar</div>
         <div class="resort-card-footer">
           <div>
             ${precoLabel}
-            <div>${renderStars(r.nota)}</div>
           </div>
           <div style="display:flex;flex-direction:column;gap:5px;align-items:flex-end;">
             <a href="${reservasUrl}" class="reservar-link">
@@ -1412,8 +606,14 @@ function renderCards(lista) {
   el.querySelectorAll('.resort-card').forEach(card => {
     const id = decodeURIComponent(card.dataset.resortId || '');
     card.addEventListener('click', e => {
-      if (e.target.closest('.reservar-link')) return; // let link bubble
+      if (e.target.closest('.reservar-link')) {
+        // GTM — clique no botão Reservar
+        if (window.dataLayer) dataLayer.push({ event: 'card_reservar_click', resort: id });
+        return; // let link bubble
+      }
       if (e.target.closest('.compare-btn')) return;   // handled by toggleComparar
+      // GTM — abriu mapa do card
+      if (window.dataLayer) dataLayer.push({ event: 'card_mapa_click', resort: id });
       abrirNoMapa(id);
     });
     card.addEventListener('mouseenter', () => pulseMarker(id));
@@ -1427,6 +627,24 @@ function renderCards(lista) {
     }
   });
 }
+
+// GTM — scroll depth tracking (25/50/75/90%)
+(function initScrollDepth() {
+  const milestones = [25, 50, 75, 90];
+  const fired = new Set();
+  window.addEventListener('scroll', function () {
+    if (!window.dataLayer) return;
+    const scrolled  = window.scrollY + window.innerHeight;
+    const total     = document.documentElement.scrollHeight;
+    const pct       = Math.round((scrolled / total) * 100);
+    milestones.forEach(function (m) {
+      if (pct >= m && !fired.has(m)) {
+        fired.add(m);
+        dataLayer.push({ event: 'scroll_depth', pagina: 'busca', porcentagem: m });
+      }
+    });
+  }, { passive: true });
+})();
 
 function abrirNoMapa(id) {
   const m = markers[id];
@@ -1566,6 +784,21 @@ function filtrar() {
   updateAdvBadge();
   updateLimparBtn();
   syncUrl();
+
+  // GTM — filtro aplicado
+  if (window.dataLayer) {
+    dataLayer.push({
+      event:        'filtro_aplicado',
+      destino:      destino || null,
+      tipo_resort:  tipo    || null,
+      nota_min:     notaMin || null,
+      hospedes:     hospedes || null,
+      preco_min:    precoMin || null,
+      preco_max:    precoMax === Infinity ? null : precoMax,
+      comodidades:  amenitiesSel.size ? [...amenitiesSel].join(',') : null,
+      resultados:   resultados.length,
+    });
+  }
 }
 
 function limparFiltros() {
@@ -1780,7 +1013,23 @@ window.fpSaida = flatpickr('#f_saida', {
 // INIT
 // ============================================================
 renderAmenitiesChips();
-initMap();
+
+// Lazy-init do mapa via IntersectionObserver (não carrega até estar visível)
+(function lazyInitMap() {
+  var mapEl = document.getElementById('map');
+  if (!mapEl) {
+    console.warn('[HOSPEDAH] #map não encontrado, inicializando mapa diretamente.');
+    initMap();
+    return;
+  }
+  var observer = new IntersectionObserver(function (entries, obs) {
+    if (entries[0].isIntersecting) {
+      obs.disconnect();
+      initMap();
+    }
+  }, { rootMargin: '200px' });
+  observer.observe(mapEl);
+})();
 
 // Carregar preços dinâmicos do Supabase, depois aplicar params da URL e filtrar
 carregarPrecosDinamicos().then(() => {

@@ -1188,3 +1188,67 @@ BEGIN
   REFRESH MATERIALIZED VIEW CONCURRENTLY dashboard_resumo_global;
 END;
 $$;
+
+-- ============================================================
+-- E-MAIL NURTURING — sequência automática pós-captura
+--
+-- Fluxo:
+--   1. Cliente envia orçamento → JS insere registro com status 'pendente'
+--   2. Cron (supabase_cron.sql) chama Edge Function a cada hora
+--   3. Edge Function processa pendentes: envia e-mail via Resend e
+--      agenda próxima mensagem da sequência
+--
+-- Sequências disponíveis:
+--   orcamento  → D+0 boas-vindas, D+1 destaques, D+3 oferta, D+7 urgência
+--   reserva    → D+0 confirmação, D-1 check-in, D+1 pós-estadia, D+7 avaliação
+-- ============================================================
+CREATE TABLE IF NOT EXISTS email_nurturing_queue (
+  id            uuid          PRIMARY KEY DEFAULT gen_random_uuid(),
+  email         text          NOT NULL,
+  nome          text          NOT NULL DEFAULT '',
+  resort        text,
+  data_entrada  date,
+  sequencia     text          NOT NULL DEFAULT 'orcamento',
+  -- 'orcamento' | 'reserva'
+  etapa         int           NOT NULL DEFAULT 1,
+  -- posição atual na sequência (1, 2, 3 …)
+  status        text          NOT NULL DEFAULT 'pendente'
+                              CHECK (status IN ('pendente','enviado','erro','cancelado')),
+  proxima_em    timestamptz   NOT NULL DEFAULT now(),
+  tentativas    int           NOT NULL DEFAULT 0,
+  ultimo_erro   text,
+  criado_em     timestamptz   DEFAULT now(),
+  atualizado_em timestamptz   DEFAULT now()
+);
+
+ALTER TABLE email_nurturing_queue ENABLE ROW LEVEL SECURITY;
+
+-- Apenas autenticados gerenciam a fila (JS público só insere via RLS abaixo)
+DROP POLICY IF EXISTS "nurturing_insert_public"  ON email_nurturing_queue;
+DROP POLICY IF EXISTS "nurturing_acesso_auth"    ON email_nurturing_queue;
+
+CREATE POLICY "nurturing_insert_public"
+  ON email_nurturing_queue FOR INSERT
+  WITH CHECK (true);  -- qualquer origem pode enfileirar (lead público)
+
+CREATE POLICY "nurturing_acesso_auth"
+  ON email_nurturing_queue FOR ALL TO authenticated
+  USING (true) WITH CHECK (true);
+
+-- Trigger de atualizado_em
+CREATE OR REPLACE FUNCTION set_nurturing_atualizado_em()
+RETURNS TRIGGER LANGUAGE plpgsql AS $$
+BEGIN
+  NEW.atualizado_em := now();
+  RETURN NEW;
+END;
+$$;
+
+DROP TRIGGER IF EXISTS trg_nurturing_atualizado_em ON email_nurturing_queue;
+CREATE TRIGGER trg_nurturing_atualizado_em
+  BEFORE UPDATE ON email_nurturing_queue
+  FOR EACH ROW EXECUTE FUNCTION set_nurturing_atualizado_em();
+
+-- Índices
+CREATE INDEX IF NOT EXISTS idx_nurturing_status    ON email_nurturing_queue(status, proxima_em);
+CREATE INDEX IF NOT EXISTS idx_nurturing_email     ON email_nurturing_queue(email);
