@@ -266,18 +266,12 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   <a href="#topo" class="logo-txt" aria-label="HOSPEDAH início">HOSPEDAH</a>
 
   <ul class="nav-links" role="list">
-    <li><a href="#topo">Início</a></li>
+    <li><a href="#topo">🏠 Início</a></li>
     <li><a href="busca.html">🔍 Buscar</a></li>
     <li><a href="reservas.html">📅 Reservar</a></li>
-    <li><a href="#galeria">Galeria</a></li>
     <li><a href="avaliacoes.html">⭐ Avaliações</a></li>
-    <li><a href="#orcamento">Orçamento</a></li>
-    <li><a href="#faq">FAQ</a></li>
-    <li><a href="#multi" style="display:flex;flex-direction:column;line-height:1.2;">💎 Gestão | Multipropriedades<small style="color:#D4AF37;font-size:.68em;font-weight:400;letter-spacing:.02em;">Anuncie seu espaço</small></a></li>
-    <li><a href="#contato">Contato</a></li>
+    <li><a href="#orcamento">💰 Orçamento</a></li>
     <li><a href="chat.html">🤖 Chat IA</a></li>
-    <li><a href="referral.html">🎁 Indicar</a></li>
-
   </ul>
 
   <div class="nav-right">
@@ -291,18 +285,17 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <!-- Gaveta lateral -->
 <div class="nav-overlay" id="navOverlay"></div>
 <nav class="nav-drawer" id="navDrawer" aria-label="Menu mobile">
-  <a href="#topo"        onclick="closeDrawer()">🏠 Início</a>
-  <a href="busca.html"   onclick="closeDrawer()">🔍 Buscar Acomodações</a>
-  <a href="reservas.html" onclick="closeDrawer()">📅 Fazer Reserva</a>
-  <a href="#pre-reserva" onclick="closeDrawer()">🔎 Pré-Reserva</a>
-  <a href="#galeria"     onclick="closeDrawer()">🖼️ Galeria</a>
+  <a href="#topo"           onclick="closeDrawer()">🏠 Início</a>
+  <a href="busca.html"      onclick="closeDrawer()">🔍 Buscar Acomodações</a>
+  <a href="reservas.html"   onclick="closeDrawer()">📅 Fazer Reserva</a>
   <a href="avaliacoes.html" onclick="closeDrawer()">⭐ Avaliações</a>
-  <a href="chat.html"    onclick="closeDrawer()">🤖 Chat IA</a>
-  <a href="#orcamento"   onclick="closeDrawer()">💰 Orçamento</a>
-  <a href="#faq"        onclick="closeDrawer()">❓ FAQ</a>
-  <a href="#multi"       onclick="closeDrawer()" style="display:flex;flex-direction:column;line-height:1.3;">💎 Gestão | Multipropriedades<small style="color:#D4AF37;font-size:.68em;font-weight:400;letter-spacing:.02em;">Anuncie seu espaço</small></a>
-  <a href="#contato"     onclick="closeDrawer()">📬 Contato</a>
-  <a href="referral.html" onclick="closeDrawer()">🎁 Indicar &amp; Ganhar</a>
+  <a href="#orcamento"      onclick="closeDrawer()">💰 Orçamento</a>
+  <a href="chat.html"       onclick="closeDrawer()">🤖 Chat IA</a>
+  <a href="referral.html"   onclick="closeDrawer()">🎁 Indicar &amp; Ganhar</a>
+  <a href="#galeria"        onclick="closeDrawer()">🖼️ Galeria</a>
+  <a href="#faq"            onclick="closeDrawer()">❓ FAQ</a>
+  <a href="#multi"          onclick="closeDrawer()">💎 Multipropriedades</a>
+  <a href="#contato"        onclick="closeDrawer()">📬 Contato</a>
   <a href="#" onclick="compartilharSite(); closeDrawer(); return false;">📤 Compartilhar site</a>
 
   <hr style="border-color:rgba(255,255,255,0.1);margin:8px 0;">
@@ -917,28 +910,80 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <span class="parcela-card-desc">Opção prática e segura</span>
       </div>
     </div>
-    <form class="form-std" id="formOrcamento" onsubmit="enviarOrcamento(event)" novalidate>
-      <input type="text"   id="orc_nome"    placeholder="Seu nome completo"         required autocomplete="name">
-      <input type="tel"    id="orc_wpp"     placeholder="Seu WhatsApp (com DDD)"    required autocomplete="tel">
-      <input type="email"  id="orc_email"   placeholder="Seu e-mail (para receber confirmação)" autocomplete="email">
-      <select id="orc_resort" required>
-        <option value="">Selecione o resort desejado</option>
-        <option>Hot Beach Suites</option>
-        <option>São Pedro Thermas</option>
-        <option>Olimpia Park</option>
-        <option>Solar das Águas</option>
-        <option>Wyndham Royal</option>
-        <option>Praia de Juquehy</option>
-      </select>
-      <input type="number" id="orc_pessoas" placeholder="Nº de pessoas"             required min="1">
-      <label>Data de entrada</label>
-      <input type="date"   id="orc_entrada" required>
-      <label>Data de saída</label>
-      <input type="date"   id="orc_saida"   required>
-      <div id="orc_nights_display"></div>
-      <textarea id="orc_obs" placeholder="Observações ou dúvidas (opcional)"></textarea>
-      <button type="submit">📩 Enviar orçamento via WhatsApp</button>
-    </form>
+
+    <!-- WIZARD DE ORÇAMENTO — 3 ETAPAS -->
+    <div class="orc-wizard" id="orcWizard" aria-label="Formulário de orçamento em etapas">
+
+      <!-- Indicador de etapas -->
+      <div class="orc-steps-indicator" aria-label="Progresso do formulário">
+        <div class="orc-step-dot active" id="dot1" aria-label="Etapa 1 de 3: Destino e datas">
+          <span class="orc-step-num">1</span>
+          <span class="orc-step-label">Destino &amp; Datas</span>
+        </div>
+        <div class="orc-step-line"></div>
+        <div class="orc-step-dot" id="dot2" aria-label="Etapa 2 de 3: Seus dados">
+          <span class="orc-step-num">2</span>
+          <span class="orc-step-label">Seus Dados</span>
+        </div>
+        <div class="orc-step-line"></div>
+        <div class="orc-step-dot" id="dot3" aria-label="Etapa 3 de 3: Confirmação">
+          <span class="orc-step-num">3</span>
+          <span class="orc-step-label">Confirmação</span>
+        </div>
+      </div>
+
+      <!-- Etapa 1: Destino e datas -->
+      <div class="orc-panel active" id="orcPanel1" role="group" aria-labelledby="orc-step1-title">
+        <h3 class="orc-panel-title" id="orc-step1-title">🏖️ Qual resort e quando?</h3>
+        <select id="orc_resort" class="orc-field" required aria-label="Resort desejado">
+          <option value="">Selecione o resort desejado</option>
+          <option>Hot Beach Suites</option>
+          <option>São Pedro Thermas</option>
+          <option>Olimpia Park</option>
+          <option>Solar das Águas</option>
+          <option>Wyndham Royal</option>
+          <option>Praia de Juquehy</option>
+        </select>
+        <div class="orc-date-row">
+          <div class="orc-date-field">
+            <label for="orc_entrada">📅 Check-in</label>
+            <input type="date" id="orc_entrada" class="orc-field" required aria-label="Data de entrada">
+          </div>
+          <div class="orc-date-field">
+            <label for="orc_saida">📅 Check-out</label>
+            <input type="date" id="orc_saida" class="orc-field" required aria-label="Data de saída">
+          </div>
+        </div>
+        <div id="orc_nights_display" class="orc-nights" aria-live="polite"></div>
+        <input type="number" id="orc_pessoas" class="orc-field" placeholder="Nº de pessoas" required min="1" max="20" aria-label="Número de pessoas">
+        <button type="button" class="orc-btn-next" onclick="orcNextStep(1)">Próximo →</button>
+      </div>
+
+      <!-- Etapa 2: Dados pessoais -->
+      <div class="orc-panel" id="orcPanel2" role="group" aria-labelledby="orc-step2-title">
+        <h3 class="orc-panel-title" id="orc-step2-title">👤 Quem vai se hospedar?</h3>
+        <input type="text"  id="orc_nome"  class="orc-field" placeholder="Seu nome completo" required autocomplete="name" aria-label="Nome completo">
+        <input type="tel"   id="orc_wpp"   class="orc-field" placeholder="WhatsApp (com DDD)" required autocomplete="tel" aria-label="WhatsApp">
+        <input type="email" id="orc_email" class="orc-field" placeholder="E-mail (para receber sua proposta)" autocomplete="email" aria-label="E-mail">
+        <textarea id="orc_obs" class="orc-field" placeholder="Observações ou pedidos especiais (opcional)" rows="3" aria-label="Observações"></textarea>
+        <div class="orc-btn-row">
+          <button type="button" class="orc-btn-back" onclick="orcPrevStep(2)">← Voltar</button>
+          <button type="button" class="orc-btn-next" onclick="orcNextStep(2)">Próximo →</button>
+        </div>
+      </div>
+
+      <!-- Etapa 3: Confirmação -->
+      <div class="orc-panel" id="orcPanel3" role="group" aria-labelledby="orc-step3-title">
+        <h3 class="orc-panel-title" id="orc-step3-title">✅ Confirme seu orçamento</h3>
+        <div class="orc-summary" id="orcSummary" aria-label="Resumo do orçamento"></div>
+        <div class="orc-btn-row">
+          <button type="button" class="orc-btn-back" onclick="orcPrevStep(3)">← Corrigir</button>
+          <button type="button" class="orc-btn-submit" id="btnEnviarOrc" onclick="enviarOrcamento(event)">📩 Enviar via WhatsApp</button>
+        </div>
+      </div>
+
+    </div>
+    <!-- /WIZARD -->
 
     <!-- Painel de sucesso pós-orçamento -->
     <div id="orc_success" style="display:none;margin-top:24px;padding:24px;background:rgba(37,211,102,0.07);border:1px solid rgba(37,211,102,0.25);border-radius:14px;text-align:center;">
@@ -1659,7 +1704,7 @@ function consultar(nome, preco) {
    ORÇAMENTO
 ===================== */
 function enviarOrcamento(e) {
-  e.preventDefault();
+  if (e && e.preventDefault) e.preventDefault();
   var nome    = document.getElementById('orc_nome').value.trim();
   var wpp     = document.getElementById('orc_wpp').value.trim();
   var email   = document.getElementById('orc_email').value.trim();
@@ -1691,6 +1736,9 @@ function enviarOrcamento(e) {
   salvarLeadSupabase({ nome: nome, wpp: wpp, email: email, resort: resort,
     pessoas: pessoas, entrada: entrada, saida: saida, obs: obs });
 
+  /* Nurturing — registrar sequência de e-mail pós-captura */
+  if (email) agendarNurturingEmail({ nome: nome, email: email, resort: resort, entrada: entrada });
+
   var msg = encodeURIComponent(
     '🏨 *Solicitação de Orçamento — HOSPEDAH*\n\n' +
     '👤 Nome: '     + nome    + '\n' +
@@ -1708,9 +1756,10 @@ function enviarOrcamento(e) {
   /* Guardar dados para PDF e referral antes de resetar o form */
   window._orcDados = { nome: nome, wpp: wpp, email: email, resort: resort,
     pessoas: pessoas, entrada: entrada, saida: saida, obs: obs };
-  e.target.reset();
 
-  /* Mostrar painel de sucesso com PDF e link de indicação */
+  /* Ocultar wizard e mostrar painel de sucesso */
+  var wizard = document.getElementById('orcWizard');
+  if (wizard) wizard.style.display = 'none';
   mostrarPainelSucesso();
 }
 
@@ -1882,6 +1931,26 @@ window.addEventListener('scroll', function () {
 }, { passive: true });
 
 /* =====================
+   GTM — Scroll Depth (home)
+===================== */
+(function () {
+  var milestones = [25, 50, 75, 90];
+  var fired = {};
+  window.addEventListener('scroll', function () {
+    if (!window.dataLayer) return;
+    var scrolled = window.scrollY + window.innerHeight;
+    var total    = document.documentElement.scrollHeight;
+    var pct      = Math.round((scrolled / total) * 100);
+    milestones.forEach(function (m) {
+      if (pct >= m && !fired[m]) {
+        fired[m] = true;
+        dataLayer.push({ event: 'scroll_depth', pagina: 'home', porcentagem: m });
+      }
+    });
+  }, { passive: true });
+})();
+
+/* =====================
    INICIA
 ===================== */
 
@@ -1935,6 +2004,86 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   });
 });
+
+/* =====================
+   WIZARD DE ORÇAMENTO
+===================== */
+function orcNextStep(current) {
+  if (current === 1) {
+    var resort  = (document.getElementById('orc_resort') || {}).value;
+    var entrada = (document.getElementById('orc_entrada') || {}).value;
+    var saida   = (document.getElementById('orc_saida') || {}).value;
+    var pessoas = (document.getElementById('orc_pessoas') || {}).value;
+    if (!resort)  { alert('Selecione o resort desejado.'); return; }
+    if (!entrada) { alert('Informe a data de check-in.');  return; }
+    if (!saida)   { alert('Informe a data de check-out.'); return; }
+    if (new Date(saida) <= new Date(entrada)) { alert('Check-out deve ser após check-in.'); return; }
+    if (!pessoas || parseInt(pessoas) < 1) { alert('Informe o número de pessoas.'); return; }
+    if (window.dataLayer) dataLayer.push({ event: 'wizard_step', etapa: 2, resort: resort });
+  } else if (current === 2) {
+    var nome = (document.getElementById('orc_nome') || {}).value.trim();
+    var wpp  = (document.getElementById('orc_wpp')  || {}).value.trim();
+    if (!nome) { alert('Informe seu nome completo.'); return; }
+    if (!wpp)  { alert('Informe seu WhatsApp.'); return; }
+    // Build summary for step 3
+    var resort   = (document.getElementById('orc_resort') || {}).value;
+    var entrada  = (document.getElementById('orc_entrada') || {}).value;
+    var saida    = (document.getElementById('orc_saida') || {}).value;
+    var pessoas  = (document.getElementById('orc_pessoas') || {}).value;
+    var email    = (document.getElementById('orc_email') || {}).value.trim();
+    var noites   = calcNights('orc_entrada', 'orc_saida');
+    var sumEl    = document.getElementById('orcSummary');
+    if (sumEl) {
+      sumEl.innerHTML =
+        '<div class="orc-summary-row"><span>🏖️ Resort</span><strong>' + resort  + '</strong></div>' +
+        '<div class="orc-summary-row"><span>📅 Check-in</span><strong>' + entrada + '</strong></div>' +
+        '<div class="orc-summary-row"><span>📅 Check-out</span><strong>' + saida   + '</strong></div>' +
+        '<div class="orc-summary-row"><span>🌙 Noites</span><strong>' + noites  + '</strong></div>' +
+        '<div class="orc-summary-row"><span>👥 Pessoas</span><strong>' + pessoas + '</strong></div>' +
+        '<div class="orc-summary-row"><span>👤 Nome</span><strong>' + nome    + '</strong></div>' +
+        '<div class="orc-summary-row"><span>📱 WhatsApp</span><strong>' + wpp     + '</strong></div>' +
+        (email ? '<div class="orc-summary-row"><span>📧 E-mail</span><strong>' + email + '</strong></div>' : '');
+    }
+    if (window.dataLayer) dataLayer.push({ event: 'wizard_step', etapa: 3 });
+  }
+  orcGoToPanel(current + 1);
+}
+
+function orcPrevStep(current) {
+  orcGoToPanel(current - 1);
+}
+
+function orcGoToPanel(step) {
+  [1, 2, 3].forEach(function (n) {
+    var panel = document.getElementById('orcPanel' + n);
+    var dot   = document.getElementById('dot' + n);
+    if (panel) panel.classList.toggle('active', n === step);
+    if (dot)   dot.classList.toggle('active', n <= step);
+  });
+  var wizard = document.getElementById('orcWizard');
+  if (wizard) wizard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+/* =====================
+   NURTURING — agendar e-mail pós-captura
+===================== */
+function agendarNurturingEmail(dados) {
+  if (!dados.email) return;
+  var sb = window._sb || (typeof supabase !== 'undefined' && supabase.createClient
+    ? null : null); // _sb é criado no bloco Supabase
+  // Usa a instância global _sb criada no início do script
+  var client = window._sb;
+  if (!client) return;
+  client.from('email_nurturing_queue').insert([{
+    email:       dados.email,
+    nome:        dados.nome   || '',
+    resort:      dados.resort || '',
+    data_entrada: dados.entrada || null,
+    sequencia:   'orcamento',
+    status:      'pendente',
+    proxima_em:  new Date(Date.now() + 3600 * 1000).toISOString(), // 1h depois
+  }]).catch(function() {});
+}
 
 /* =====================
    FAQ ACCORDION
@@ -2250,6 +2399,7 @@ if ('serviceWorker' in navigator) {
   var SUPABASE_URL = 'https://ydrmjoppjxtmnwtvtinb.supabase.co';
   var SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlkcm1qb3Bwanh0bW53dHZ0aW5iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYyNzA3MzksImV4cCI6MjA5MTg0NjczOX0.Gp4ed332v62sC5e5GXXbPqOIBNpS4EzMCFawnBJE_Cw';
   var sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  window._sb = sb; // expõe globalmente para agendarNurturingEmail e outros módulos
 
   /* ── 1. AggregateRating dinâmico no Schema.org ── */
   function atualizarAggregateRating() {

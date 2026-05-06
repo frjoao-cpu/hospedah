@@ -304,3 +304,21 @@ SELECT cron.schedule(
     WHERE criado_em < now() - INTERVAL '30 days';
     $$
 );
+
+-- ============================================================
+-- CRON: Processar fila de nurturing por e-mail (a cada hora)
+-- ============================================================
+SELECT cron.schedule(
+  'hospedah-nurturing-email',
+  '0 * * * *',   -- toda hora, no minuto 0
+  $$
+  SELECT net.http_post(
+    url     := current_setting('app.supabase_url') || '/functions/v1/nurturing-email',
+    headers := jsonb_build_object(
+      'Content-Type',  'application/json',
+      'Authorization', 'Bearer ' || current_setting('app.anon_key')
+    ),
+    body    := '{}'::jsonb
+  );
+  $$
+);

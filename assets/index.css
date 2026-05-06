@@ -1657,3 +1657,186 @@ html[data-theme="light"] .parcela-card-desc  { color: var(--dourado); }
   .parcela-card      { width: 100%; border-bottom: 1px solid rgba(212,175,55,.2); padding-bottom: 10px; }
   .parcela-card:last-child { border-bottom: none; }
 }
+
+/* ============================================================
+   WIZARD DE ORÇAMENTO — 3 ETAPAS
+   ============================================================ */
+.orc-wizard {
+  max-width: 560px;
+  margin: 0 auto;
+}
+
+/* Indicador de etapas */
+.orc-steps-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  margin-bottom: 28px;
+}
+.orc-step-dot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+.orc-step-num {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--borda, rgba(212,175,55,0.15));
+  color: var(--cor-sub, #aab4c4);
+  font-weight: 700;
+  font-size: .88em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--borda, rgba(212,175,55,0.15));
+  transition: background .3s, color .3s, border-color .3s;
+}
+.orc-step-dot.active .orc-step-num {
+  background: var(--dourado, #D4AF37);
+  color: var(--azul, #0B1C3D);
+  border-color: var(--dourado, #D4AF37);
+}
+.orc-step-label {
+  font-size: .68em;
+  color: var(--cor-sub, #aab4c4);
+  white-space: nowrap;
+}
+.orc-step-dot.active .orc-step-label {
+  color: var(--dourado, #D4AF37);
+  font-weight: 600;
+}
+.orc-step-line {
+  flex: 1;
+  height: 2px;
+  background: var(--borda, rgba(212,175,55,0.15));
+  min-width: 32px;
+  margin: 0 8px;
+  margin-bottom: 20px;
+}
+
+/* Painéis das etapas */
+.orc-panel {
+  display: none;
+  flex-direction: column;
+  gap: 12px;
+  animation: fadeIn .25s ease;
+}
+.orc-panel.active { display: flex; }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.orc-panel-title {
+  font-size: 1.05em;
+  font-weight: 700;
+  color: var(--cor-texto, #e8eaf0);
+  margin-bottom: 4px;
+}
+
+.orc-field {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid var(--borda, rgba(212,175,55,0.15));
+  border-radius: 10px;
+  background: rgba(255,255,255,0.04);
+  color: var(--cor-texto, #e8eaf0);
+  font-size: .92em;
+  font-family: inherit;
+  transition: border-color .2s;
+}
+.orc-field:focus {
+  outline: none;
+  border-color: var(--dourado, #D4AF37);
+}
+.orc-field option {
+  background: var(--azul2, #142850);
+}
+
+.orc-date-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.orc-date-field label {
+  display: block;
+  font-size: .75em;
+  color: var(--cor-sub, #aab4c4);
+  margin-bottom: 4px;
+}
+.orc-nights {
+  text-align: center;
+  font-size: .84em;
+}
+
+.orc-btn-next,
+.orc-btn-submit {
+  padding: 13px 28px;
+  background: var(--dourado, #D4AF37);
+  color: var(--azul, #0B1C3D);
+  border: none;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: .95em;
+  cursor: pointer;
+  width: 100%;
+  transition: background .2s;
+}
+.orc-btn-next:hover,
+.orc-btn-submit:hover {
+  background: var(--dourado-hover, #f0c93a);
+}
+.orc-btn-back {
+  padding: 12px 20px;
+  background: transparent;
+  color: var(--cor-sub, #aab4c4);
+  border: 1px solid var(--borda, rgba(212,175,55,0.15));
+  border-radius: 10px;
+  font-size: .88em;
+  cursor: pointer;
+  transition: border-color .2s, color .2s;
+}
+.orc-btn-back:hover {
+  border-color: var(--dourado, #D4AF37);
+  color: var(--dourado, #D4AF37);
+}
+.orc-btn-row {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 10px;
+}
+
+/* Sumário da Etapa 3 */
+.orc-summary {
+  background: rgba(212,175,55,0.05);
+  border: 1px solid var(--borda, rgba(212,175,55,0.15));
+  border-radius: 12px;
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.orc-summary-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: .88em;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  padding-bottom: 6px;
+}
+.orc-summary-row:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+.orc-summary-row span { color: var(--cor-sub, #aab4c4); }
+.orc-summary-row strong { color: var(--cor-texto, #e8eaf0); text-align: right; }
+
+@media (max-width: 479px) {
+  .orc-date-row { grid-template-columns: 1fr; }
+  .orc-step-label { display: none; }
+}
