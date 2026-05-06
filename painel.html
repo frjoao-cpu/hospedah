@@ -991,16 +991,18 @@ function construirNav(role) {
     { id: 'faq',            icon: '❓', label: 'Editor FAQ',       roles: ['admin'] },
     { id: 'usuarios',       icon: '👥', label: 'Usuários',         roles: ['admin'] },
     { id: 'ajuda',          icon: '🚀', label: 'Ajuda & Deploy',   roles: ['admin'] },
+    { id: 'jornal',         icon: '📰', label: 'Jornal HOSPEDAH',  roles: ['hospede','admin','proprietario'], href: 'jornal.html' },
   ];
 
   const links = allLinks.filter(l => l.roles.includes(role));
   const nav   = document.getElementById('sidebarNav');
 
-  nav.innerHTML = links.map(l => `
-    <a href="#${l.id}" id="nav-${l.id}" onclick="navegarPara('${l.id}'); return false;">
-      <span>${l.icon}</span> ${l.label}
-    </a>
-  `).join('');
+  nav.innerHTML = links.map(l => {
+    if (l.href) {
+      return `<a href="${l.href}" id="nav-${l.id}" target="_blank" rel="noopener"><span>${l.icon}</span> ${l.label}</a>`;
+    }
+    return `<a href="#${l.id}" id="nav-${l.id}" onclick="navegarPara('${l.id}'); return false;"><span>${l.icon}</span> ${l.label}</a>`;
+  }).join('');
 }
 
 // ── CONSTRUIR BOTTOM NAV ──
