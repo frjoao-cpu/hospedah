@@ -1478,7 +1478,7 @@ html[data-theme="light"] .parcela-item  { color: #333; }
   position: fixed;
   bottom: 100px;   /* fica acima do botão do WhatsApp (bottom 28px + 58px = 86px) */
   right: 24px;
-  z-index: 999;
+  z-index: 9995;   /* acima do .wpp-float (9990) */
   display: flex;
   flex-direction: column;
   align-items: flex-end;
