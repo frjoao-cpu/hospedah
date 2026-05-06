@@ -901,11 +901,21 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   <div class="section-wrap" style="padding-top:0;">
     <h2 class="section-title" id="titulo-orc">💰 Solicite um Orçamento</h2>
     <div class="parcela-strip" aria-label="Formas de pagamento">
-      <span class="parcela-item">✅ Pix com desconto</span>
-      <span class="parcela-sep">·</span>
-      <span class="parcela-item">💳 Em até <strong>10x</strong> no cartão</span>
-      <span class="parcela-sep">·</span>
-      <span class="parcela-item">🏦 Transferência bancária</span>
+      <div class="parcela-card">
+        <span class="parcela-card-title">💳 Cartão de crédito em até <strong>12x</strong></span>
+        <span class="parcela-card-disclaimer">Parcelamento sujeito a condições da operadora</span>
+        <span class="parcela-card-desc">Parcele e viaje sem pesar no bolso</span>
+      </div>
+      <div class="parcela-sep-v"></div>
+      <div class="parcela-card">
+        <span class="parcela-card-title">⚡ PIX <em>(aprovação imediata)</em></span>
+        <span class="parcela-card-desc">Reservou, confirmou — simples assim</span>
+      </div>
+      <div class="parcela-sep-v"></div>
+      <div class="parcela-card">
+        <span class="parcela-card-title">🏦 Transferência bancária</span>
+        <span class="parcela-card-desc">Opção prática e segura</span>
+      </div>
     </div>
     <form class="form-std" id="formOrcamento" onsubmit="enviarOrcamento(event)" novalidate>
       <input type="text"   id="orc_nome"    placeholder="Seu nome completo"         required autocomplete="name">
