@@ -893,6 +893,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <section class="section-form" id="orcamento" aria-labelledby="titulo-orc">
   <div class="section-wrap" style="padding-top:0;">
     <h2 class="section-title" id="titulo-orc">💰 Solicite um Orçamento</h2>
+    <p class="orc-section-sub">Atendimento personalizado · Proposta em até 2 horas · 100% pelo WhatsApp</p>
     <div class="parcela-strip" aria-label="Formas de pagamento">
       <div class="parcela-card">
         <span class="parcela-card-title">💳 Cartão de crédito em até <strong>12x</strong></span>
@@ -935,15 +936,18 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       <!-- Etapa 1: Destino e datas -->
       <div class="orc-panel active" id="orcPanel1" role="group" aria-labelledby="orc-step1-title">
         <h3 class="orc-panel-title" id="orc-step1-title">🏖️ Qual resort e quando?</h3>
-        <select id="orc_resort" class="orc-field" required aria-label="Resort desejado">
-          <option value="">Selecione o resort desejado</option>
-          <option>Hot Beach Suites</option>
-          <option>São Pedro Thermas</option>
-          <option>Olimpia Park</option>
-          <option>Solar das Águas</option>
-          <option>Wyndham Royal</option>
-          <option>Praia de Juquehy</option>
-        </select>
+        <div class="orc-field-group">
+          <label class="orc-label" for="orc_resort">🏨 Destino</label>
+          <select id="orc_resort" class="orc-field" required aria-label="Resort desejado">
+            <option value="">Selecione o resort desejado</option>
+            <option>Hot Beach Suites</option>
+            <option>São Pedro Thermas</option>
+            <option>Olimpia Park</option>
+            <option>Solar das Águas</option>
+            <option>Wyndham Royal</option>
+            <option>Praia de Juquehy</option>
+          </select>
+        </div>
         <div class="orc-date-row">
           <div class="orc-date-field">
             <label for="orc_entrada">📅 Check-in</label>
@@ -955,7 +959,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           </div>
         </div>
         <div id="orc_nights_display" class="orc-nights" aria-live="polite"></div>
-        <input type="number" id="orc_pessoas" class="orc-field" placeholder="Nº de pessoas" required min="1" max="20" aria-label="Número de pessoas">
+        <div class="orc-field-group">
+          <label class="orc-label" for="orc_pessoas">👥 Número de Hóspedes</label>
+          <input type="number" id="orc_pessoas" class="orc-field" placeholder="Ex: 2" required min="1" max="20" aria-label="Número de pessoas">
+        </div>
         <button type="button" class="orc-btn-next" onclick="orcNextStep(1)">Próximo →</button>
       </div>
 
@@ -2070,7 +2077,15 @@ function orcGoToPanel(step) {
     var panel = document.getElementById('orcPanel' + n);
     var dot   = document.getElementById('dot' + n);
     if (panel) panel.classList.toggle('active', n === step);
-    if (dot)   dot.classList.toggle('active', n <= step);
+    if (dot) {
+      dot.classList.toggle('active', n === step);
+      dot.classList.toggle('done', n < step);
+    }
+  });
+  /* marca as linhas entre steps como concluídas */
+  var lines = document.querySelectorAll('#orcWizard .orc-step-line');
+  lines.forEach(function (line, idx) {
+    line.classList.toggle('done', idx + 1 < step);
   });
   var wizard = document.getElementById('orcWizard');
   if (wizard) wizard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });

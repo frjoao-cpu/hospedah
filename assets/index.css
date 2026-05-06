@@ -713,6 +713,14 @@ html[data-theme="light"] .panel-box textarea { background: #fafaf6; color: #222;
   text-align: center;
   transition: background .3s, color .3s;
 }
+.orc-section-sub {
+  font-size: .85em;
+  color: var(--cor-sub, #aab4c4);
+  margin: -8px auto 20px;
+  letter-spacing: .02em;
+  max-width: 480px;
+}
+html[data-theme="light"] .orc-section-sub { color: #666; }
 .form-std {
   max-width: 580px; margin: 0 auto;
   display: flex; flex-direction: column; gap: 11px;
@@ -1464,13 +1472,14 @@ html[data-theme="light"] .urgencia-strip { background: linear-gradient(90deg,#b8
   align-items: stretch;
   justify-content: center;
   gap: 0;
-  margin: -8px auto 20px;
-  padding: 14px 18px;
-  background: rgba(212,175,55,.1);
-  border: 1px solid rgba(212,175,55,.28);
-  border-radius: 12px;
+  margin: 0 auto 24px;
+  padding: 16px 18px;
+  background: linear-gradient(135deg, rgba(212,175,55,.13) 0%, rgba(212,175,55,.06) 100%);
+  border: 1px solid rgba(212,175,55,.32);
+  border-radius: 14px;
   font-size: .88em;
-  max-width: 640px;
+  max-width: 580px;
+  box-shadow: 0 2px 16px rgba(212,175,55,0.06);
 }
 .parcela-card {
   display: flex;
@@ -1478,28 +1487,29 @@ html[data-theme="light"] .urgencia-strip { background: linear-gradient(90deg,#b8
   align-items: center;
   gap: 3px;
   flex: 1;
-  min-width: 160px;
+  min-width: 140px;
   padding: 6px 14px;
   text-align: center;
 }
-.parcela-card-title { color: #e8eaf0; font-weight: 600; }
+.parcela-card-title { color: #e8eaf0; font-weight: 700; line-height: 1.3; }
 .parcela-card-title strong { color: var(--dourado); }
 .parcela-card-title em { font-style: normal; color: var(--dourado); }
 .parcela-card-disclaimer {
-  color: var(--dourado);
+  color: rgba(212,175,55,.75);
   font-size: .72em;
-  opacity: .85;
 }
-.parcela-card-desc { color: var(--dourado); font-size: .8em; }
+.parcela-card-desc { color: rgba(212,175,55,.85); font-size: .8em; }
 .parcela-sep-v {
   width: 1px;
-  background: rgba(212,175,55,.3);
+  background: rgba(212,175,55,.28);
   align-self: stretch;
   margin: 4px 0;
 }
-html[data-theme="light"] .parcela-strip { background: rgba(212,175,55,.12); }
+html[data-theme="light"] .parcela-strip {
+  background: linear-gradient(135deg, rgba(212,175,55,.15) 0%, rgba(212,175,55,.07) 100%);
+}
 html[data-theme="light"] .parcela-card-title { color: #333; }
-html[data-theme="light"] .parcela-card-desc  { color: var(--dourado); }
+html[data-theme="light"] .parcela-card-desc  { color: #8B6914; }
 
 /* ── #9 Reservas por resort ── */
 .resort-reservas-badge {
@@ -1661,9 +1671,16 @@ html[data-theme="light"] .parcela-card-desc  { color: var(--dourado); }
 /* ============================================================
    WIZARD DE ORÇAMENTO — 3 ETAPAS
    ============================================================ */
+/* ── Wizard de Orçamento — visual premium ── */
 .orc-wizard {
-  max-width: 560px;
+  max-width: 580px;
   margin: 0 auto;
+  background: linear-gradient(160deg, rgba(20,40,80,0.72) 0%, rgba(11,28,61,0.82) 100%);
+  border: 1px solid rgba(212,175,55,0.28);
+  border-radius: 20px;
+  padding: 32px 28px 28px;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.35), 0 0 0 1px rgba(212,175,55,0.08) inset;
+  backdrop-filter: blur(12px);
 }
 
 /* Indicador de etapas */
@@ -1672,86 +1689,134 @@ html[data-theme="light"] .parcela-card-desc  { color: var(--dourado); }
   align-items: center;
   justify-content: center;
   gap: 0;
-  margin-bottom: 28px;
+  margin-bottom: 32px;
 }
 .orc-step-dot {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
+  cursor: default;
 }
 .orc-step-num {
-  width: 34px;
-  height: 34px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
-  background: var(--borda, rgba(212,175,55,0.15));
+  background: rgba(212,175,55,0.10);
   color: var(--cor-sub, #aab4c4);
   font-weight: 700;
-  font-size: .88em;
+  font-size: .9em;
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 2px solid var(--borda, rgba(212,175,55,0.15));
-  transition: background .3s, color .3s, border-color .3s;
+  border: 2px solid rgba(212,175,55,0.20);
+  transition: background .35s, color .35s, border-color .35s, box-shadow .35s;
+  position: relative;
 }
 .orc-step-dot.active .orc-step-num {
   background: var(--dourado, #D4AF37);
   color: var(--azul, #0B1C3D);
   border-color: var(--dourado, #D4AF37);
+  box-shadow: 0 0 0 5px rgba(212,175,55,0.18), 0 4px 18px rgba(212,175,55,0.35);
+}
+.orc-step-dot.done .orc-step-num {
+  background: rgba(212,175,55,0.22);
+  color: var(--dourado, #D4AF37);
+  border-color: var(--dourado, #D4AF37);
+}
+.orc-step-dot.done .orc-step-num::after {
+  content: '✓';
+  position: absolute;
+  font-size: .95em;
+  font-weight: 800;
 }
 .orc-step-label {
   font-size: .68em;
   color: var(--cor-sub, #aab4c4);
   white-space: nowrap;
+  letter-spacing: .02em;
+  transition: color .3s;
 }
 .orc-step-dot.active .orc-step-label {
   color: var(--dourado, #D4AF37);
-  font-weight: 600;
+  font-weight: 700;
+}
+.orc-step-dot.done .orc-step-label {
+  color: rgba(212,175,55,0.65);
 }
 .orc-step-line {
   flex: 1;
   height: 2px;
-  background: var(--borda, rgba(212,175,55,0.15));
-  min-width: 32px;
-  margin: 0 8px;
-  margin-bottom: 20px;
+  background: rgba(212,175,55,0.15);
+  min-width: 36px;
+  margin: 0 10px;
+  margin-bottom: 22px;
+  border-radius: 2px;
+  transition: background .4s;
+}
+.orc-step-line.done {
+  background: rgba(212,175,55,0.5);
 }
 
 /* Painéis das etapas */
 .orc-panel {
   display: none;
   flex-direction: column;
-  gap: 12px;
-  animation: fadeIn .25s ease;
+  gap: 14px;
+  animation: orcFadeUp .3s ease;
 }
 .orc-panel.active { display: flex; }
 
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(8px); }
+@keyframes orcFadeUp {
+  from { opacity: 0; transform: translateY(10px); }
   to   { opacity: 1; transform: translateY(0); }
 }
 
 .orc-panel-title {
-  font-size: 1.05em;
+  font-size: 1.15em;
   font-weight: 700;
-  color: var(--cor-texto, #e8eaf0);
-  margin-bottom: 4px;
+  color: var(--dourado, #D4AF37);
+  background: linear-gradient(90deg, var(--dourado, #D4AF37) 0%, #f5d97a 60%, var(--dourado, #D4AF37) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 2px;
+  letter-spacing: .01em;
+}
+
+/* Campo com label flutuante */
+.orc-label {
+  display: block;
+  font-size: .72em;
+  font-weight: 600;
+  color: var(--dourado, #D4AF37);
+  opacity: .85;
+  margin-bottom: 5px;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+.orc-field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
 }
 
 .orc-field {
   width: 100%;
-  padding: 12px 14px;
-  border: 1px solid var(--borda, rgba(212,175,55,0.15));
-  border-radius: 10px;
-  background: rgba(255,255,255,0.04);
+  padding: 13px 16px;
+  border: 1.5px solid rgba(212,175,55,0.22);
+  border-radius: 12px;
+  background: rgba(255,255,255,0.05);
   color: var(--cor-texto, #e8eaf0);
-  font-size: .92em;
+  font-size: .93em;
   font-family: inherit;
-  transition: border-color .2s;
+  transition: border-color .2s, box-shadow .2s, background .2s;
 }
 .orc-field:focus {
   outline: none;
   border-color: var(--dourado, #D4AF37);
+  background: rgba(212,175,55,0.05);
+  box-shadow: 0 0 0 3px rgba(212,175,55,0.12);
 }
 .orc-field option {
   background: var(--azul2, #142850);
@@ -1760,49 +1825,78 @@ html[data-theme="light"] .parcela-card-desc  { color: var(--dourado); }
 .orc-date-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 10px;
+  gap: 12px;
 }
 .orc-date-field label {
   display: block;
-  font-size: .75em;
-  color: var(--cor-sub, #aab4c4);
-  margin-bottom: 4px;
+  font-size: .72em;
+  font-weight: 600;
+  color: var(--dourado, #D4AF37);
+  opacity: .85;
+  margin-bottom: 5px;
+  letter-spacing: .04em;
+  text-transform: uppercase;
 }
 .orc-nights {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  align-self: center;
   text-align: center;
-  font-size: .84em;
+  font-size: .83em;
+  font-weight: 600;
+  color: var(--dourado, #D4AF37);
+  background: rgba(212,175,55,0.10);
+  border: 1px solid rgba(212,175,55,0.25);
+  border-radius: 30px;
+  padding: 5px 14px;
+  min-height: 32px;
+  transition: opacity .2s;
+}
+.orc-nights:empty {
+  display: none;
 }
 
 .orc-btn-next,
 .orc-btn-submit {
-  padding: 13px 28px;
-  background: var(--dourado, #D4AF37);
+  padding: 14px 28px;
+  background: linear-gradient(135deg, #c9a22e 0%, var(--dourado, #D4AF37) 50%, #e8c84a 100%);
   color: var(--azul, #0B1C3D);
   border: none;
-  border-radius: 10px;
-  font-weight: 700;
-  font-size: .95em;
+  border-radius: 12px;
+  font-weight: 800;
+  font-size: .97em;
   cursor: pointer;
   width: 100%;
-  transition: background .2s;
+  letter-spacing: .03em;
+  box-shadow: 0 4px 20px rgba(212,175,55,0.28);
+  transition: background .2s, transform .15s, box-shadow .2s;
 }
 .orc-btn-next:hover,
 .orc-btn-submit:hover {
-  background: var(--dourado-hover, #f0c93a);
+  background: linear-gradient(135deg, #d4b030 0%, var(--dourado-hover, #f0c93a) 50%, #f5e070 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 28px rgba(212,175,55,0.42);
+}
+.orc-btn-next:active,
+.orc-btn-submit:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 10px rgba(212,175,55,0.2);
 }
 .orc-btn-back {
-  padding: 12px 20px;
+  padding: 13px 20px;
   background: transparent;
   color: var(--cor-sub, #aab4c4);
-  border: 1px solid var(--borda, rgba(212,175,55,0.15));
-  border-radius: 10px;
+  border: 1.5px solid rgba(212,175,55,0.20);
+  border-radius: 12px;
   font-size: .88em;
   cursor: pointer;
-  transition: border-color .2s, color .2s;
+  transition: border-color .2s, color .2s, background .2s;
 }
 .orc-btn-back:hover {
   border-color: var(--dourado, #D4AF37);
   color: var(--dourado, #D4AF37);
+  background: rgba(212,175,55,0.06);
 }
 .orc-btn-row {
   display: grid;
@@ -1812,13 +1906,13 @@ html[data-theme="light"] .parcela-card-desc  { color: var(--dourado); }
 
 /* Sumário da Etapa 3 */
 .orc-summary {
-  background: rgba(212,175,55,0.05);
-  border: 1px solid var(--borda, rgba(212,175,55,0.15));
-  border-radius: 12px;
-  padding: 16px 18px;
+  background: rgba(212,175,55,0.06);
+  border: 1.5px solid rgba(212,175,55,0.22);
+  border-radius: 14px;
+  padding: 18px 20px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
   margin-bottom: 8px;
 }
 .orc-summary-row {
@@ -1826,8 +1920,8 @@ html[data-theme="light"] .parcela-card-desc  { color: var(--dourado); }
   justify-content: space-between;
   align-items: center;
   font-size: .88em;
-  border-bottom: 1px solid rgba(255,255,255,0.04);
-  padding-bottom: 6px;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  padding-bottom: 8px;
 }
 .orc-summary-row:last-child {
   border-bottom: none;
@@ -1836,7 +1930,53 @@ html[data-theme="light"] .parcela-card-desc  { color: var(--dourado); }
 .orc-summary-row span { color: var(--cor-sub, #aab4c4); }
 .orc-summary-row strong { color: var(--cor-texto, #e8eaf0); text-align: right; }
 
+/* Tema claro — wizard */
+html[data-theme="light"] .orc-wizard {
+  background: rgba(255,255,255,0.92);
+  border-color: rgba(212,175,55,0.35);
+  box-shadow: 0 8px 40px rgba(11,28,61,0.12), 0 0 0 1px rgba(212,175,55,0.08) inset;
+}
+html[data-theme="light"] .orc-field {
+  background: #fafaf6;
+  color: #1a1a1a;
+  border-color: rgba(139,105,20,0.25);
+}
+html[data-theme="light"] .orc-field:focus {
+  background: #fffdf0;
+  border-color: #8B6914;
+  box-shadow: 0 0 0 3px rgba(139,105,20,0.10);
+}
+html[data-theme="light"] .orc-panel-title {
+  color: #8B6914;
+  background: linear-gradient(90deg, #8B6914 0%, #c9a22e 60%, #8B6914 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+html[data-theme="light"] .orc-label,
+html[data-theme="light"] .orc-date-field label {
+  color: #8B6914;
+}
+html[data-theme="light"] .orc-nights {
+  color: #8B6914;
+  background: rgba(139,105,20,0.08);
+  border-color: rgba(139,105,20,0.25);
+}
+html[data-theme="light"] .orc-step-dot.active .orc-step-num {
+  box-shadow: 0 0 0 5px rgba(212,175,55,0.15), 0 4px 18px rgba(212,175,55,0.28);
+}
+html[data-theme="light"] .orc-summary {
+  background: rgba(212,175,55,0.07);
+  border-color: rgba(139,105,20,0.25);
+}
+html[data-theme="light"] .orc-summary-row span { color: #666; }
+html[data-theme="light"] .orc-summary-row strong { color: #1a1a1a; }
+
+@media (max-width: 600px) {
+  .orc-wizard { padding: 22px 16px 20px; border-radius: 16px; }
+}
 @media (max-width: 479px) {
   .orc-date-row { grid-template-columns: 1fr; }
   .orc-step-label { display: none; }
+  .orc-step-num { width: 34px; height: 34px; }
 }
