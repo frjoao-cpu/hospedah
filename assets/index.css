@@ -1434,3 +1434,192 @@ html[data-theme="light"] .urgencia-strip { background: linear-gradient(90deg,#b8
   .emocional-grid { grid-template-columns: 1fr; }
   .dif-grid        { grid-template-columns: 1fr; }
 }
+
+/* ==========================================
+   SPRINT 1 — NOVOS ELEMENTOS DE CONVERSÃO
+========================================== */
+
+/* ── #5 Parcela visível antes do formulário ── */
+.parcela-strip {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin: -8px auto 20px;
+  padding: 12px 18px;
+  background: rgba(212,175,55,.1);
+  border: 1px solid rgba(212,175,55,.28);
+  border-radius: 12px;
+  font-size: .88em;
+  max-width: 560px;
+}
+.parcela-item { color: #e8eaf0; }
+.parcela-item strong { color: var(--dourado); }
+.parcela-sep { color: rgba(212,175,55,.45); font-weight: 700; }
+html[data-theme="light"] .parcela-strip { background: rgba(212,175,55,.12); }
+html[data-theme="light"] .parcela-item  { color: #333; }
+
+/* ── #9 Reservas por resort ── */
+.resort-reservas-badge {
+  display: inline-block;
+  margin: 4px 0 10px;
+  padding: 5px 14px;
+  background: rgba(255,80,0,.12);
+  border: 1px solid rgba(255,120,0,.3);
+  border-radius: 30px;
+  font-size: .82em;
+  color: #f97316;
+}
+.resort-reservas-badge strong { color: #fb923c; }
+
+/* ── #17 Chat IA flutuante ── */
+.chat-float {
+  position: fixed;
+  bottom: 100px;   /* fica acima do botão do WhatsApp (bottom 28px + 58px = 86px) */
+  right: 24px;
+  z-index: 999;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+}
+.chat-float-btn {
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #0B1C3D, #1a3668);
+  border: 2px solid var(--dourado);
+  color: #fff;
+  font-size: 1.5em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  box-shadow: 0 4px 18px rgba(0,0,0,.35);
+  transition: transform .2s, box-shadow .2s;
+  cursor: pointer;
+}
+.chat-float-btn:hover { transform: scale(1.08); box-shadow: 0 6px 22px rgba(212,175,55,.4); }
+.chat-float-bubble {
+  background: #0B1C3D;
+  border: 1px solid rgba(212,175,55,.45);
+  border-radius: 14px 14px 0 14px;
+  padding: 12px 16px;
+  max-width: 220px;
+  font-size: .82em;
+  line-height: 1.45;
+  color: #e8eaf0;
+  box-shadow: 0 4px 18px rgba(0,0,0,.3);
+  opacity: 0;
+  transform: translateY(10px) scale(.95);
+  pointer-events: none;
+  transition: opacity .3s, transform .3s;
+}
+.chat-float-bubble.show {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  pointer-events: auto;
+}
+.chat-float-bubble strong { color: var(--dourado); display: block; margin-bottom: 4px; }
+.chat-float-bubble a {
+  display: inline-block;
+  margin-top: 8px;
+  padding: 5px 14px;
+  background: var(--dourado);
+  color: #0B1C3D;
+  border-radius: 20px;
+  font-weight: 700;
+  font-size: .85em;
+  text-decoration: none;
+  transition: background .18s;
+}
+.chat-float-bubble a:hover { background: var(--dourado-hover); }
+
+/* Ajuste para não sobrepor bottom-nav no mobile */
+@media (max-width: 767px) {
+  .chat-float { bottom: 120px; right: 16px; }
+}
+
+/* ── #19 Promoção relâmpago ── */
+.promo-flash {
+  display: none;
+  position: sticky;
+  top: 64px;    /* abaixo da navbar */
+  z-index: 900;
+  background: linear-gradient(90deg, #7c1a00, #b84000, #D4AF37, #b84000, #7c1a00);
+  background-size: 300% 100%;
+  animation: promoShimmer 5s linear infinite;
+  color: #fff;
+  padding: 0;
+}
+.promo-flash.visible { display: block; }
+.promo-flash-inner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 10px 18px;
+  padding: 9px 48px 9px 16px;
+  max-width: 1100px;
+  margin: 0 auto;
+  position: relative;
+}
+.promo-flash-badge {
+  background: rgba(0,0,0,.35);
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-weight: 700;
+  font-size: .78em;
+  letter-spacing: .04em;
+  white-space: nowrap;
+}
+.promo-flash-text { font-size: .88em; }
+.promo-flash-text strong { color: #ffe066; }
+.promo-flash-timer {
+  font-size: .85em;
+  white-space: nowrap;
+}
+.promo-flash-timer strong {
+  font-family: monospace;
+  font-size: 1.05em;
+  color: #ffe066;
+}
+.promo-flash-cta {
+  background: #fff;
+  color: #7c1a00;
+  font-weight: 700;
+  font-size: .82em;
+  padding: 5px 16px;
+  border-radius: 20px;
+  text-decoration: none;
+  transition: background .18s;
+  white-space: nowrap;
+}
+.promo-flash-cta:hover { background: #ffe066; }
+.promo-flash-close {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: rgba(255,255,255,.8);
+  font-size: 1.1em;
+  cursor: pointer;
+  padding: 4px 6px;
+  line-height: 1;
+}
+.promo-flash-close:hover { color: #fff; }
+
+@keyframes promoShimmer {
+  0%   { background-position: 0% 50%; }
+  100% { background-position: 100% 50%; }
+}
+
+@media (max-width: 479px) {
+  .promo-flash-inner { gap: 6px 10px; padding-right: 40px; }
+  .promo-flash-text  { font-size: .78em; }
+  .parcela-strip     { flex-direction: column; gap: 4px; }
+  .parcela-sep       { display: none; }
+}
