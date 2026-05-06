@@ -205,7 +205,6 @@ const RESORTS = [
     preco: 470,
     nota: 4.8,
     capacidade: 4,
-    cancelamento_gratuito: true,
     comodidades: ['Parque aquático', 'Restaurante', 'Wi-Fi', 'Estacionamento'],
     icon: '🌊',
     lat: -20.7279,
@@ -221,7 +220,6 @@ const RESORTS = [
     preco: 540,
     nota: 4.6,
     capacidade: 4,
-    cancelamento_gratuito: true,
     comodidades: ['Termas', 'SPA', 'Café da manhã', 'Wi-Fi', 'Piscina'],
     icon: '♨️',
     lat: -22.5523,
@@ -237,7 +235,6 @@ const RESORTS = [
     preco: 320,
     nota: 4.7,
     capacidade: 6,
-    cancelamento_gratuito: false,
     comodidades: ['Parque aquático', 'Restaurante', 'Wi-Fi', 'Piscina', 'Bar'],
     icon: '🎢',
     lat: -20.7296,
@@ -253,7 +250,6 @@ const RESORTS = [
     preco: 286,
     nota: 4.5,
     capacidade: 4,
-    cancelamento_gratuito: true,
     comodidades: ['Piscina', 'Wi-Fi', 'Café da manhã', 'Churrasqueira'],
     icon: '☀️',
     lat: -20.7240,
@@ -269,7 +265,6 @@ const RESORTS = [
     preco: 320,
     nota: 4.9,
     capacidade: 6,
-    cancelamento_gratuito: true,
     comodidades: ['SPA', 'Restaurante 5★', 'Wi-Fi', 'Academia', 'Concierge'],
     icon: '👑',
     lat: -20.7310,
@@ -285,7 +280,6 @@ const RESORTS = [
     preco: 840,
     nota: 4.7,
     capacidade: 6,
-    cancelamento_gratuito: false,
     comodidades: ['Praia privativa', 'Piscina', 'Wi-Fi', 'Restaurante', 'Esportes aquáticos'],
     icon: '🏖️',
     lat: -23.7832,
@@ -589,8 +583,8 @@ function renderCards(lista) {
         <div class="resort-card-tags">
           ${r.comodidades.slice(0, 3).map(t => `<span class="tag">${t}</span>`).join('')}
           ${r.comodidades.length > 3 ? `<span class="tag">+${r.comodidades.length - 3}</span>` : ''}
-          ${r.cancelamento_gratuito ? `<span class="tag tag-cancel" title="Cancelamento gratuito disponível">✅ Cancelamento grátis</span>` : ''}
         </div>
+        <div class="resort-card-cancel-notice">⚠️ Consulte as regras de cancelamento antes de reservar</div>
         <div class="resort-card-footer">
           <div>
             ${precoLabel}
