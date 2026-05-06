@@ -1490,7 +1490,7 @@ html[data-theme="light"] .urgencia-strip { background: linear-gradient(90deg,#b8
   font-size: .72em;
   opacity: .85;
 }
-.parcela-card-desc { color: rgba(232,234,240,.65); font-size: .8em; }
+.parcela-card-desc { color: var(--dourado); font-size: .8em; }
 .parcela-sep-v {
   width: 1px;
   background: rgba(212,175,55,.3);
@@ -1499,7 +1499,7 @@ html[data-theme="light"] .urgencia-strip { background: linear-gradient(90deg,#b8
 }
 html[data-theme="light"] .parcela-strip { background: rgba(212,175,55,.12); }
 html[data-theme="light"] .parcela-card-title { color: #333; }
-html[data-theme="light"] .parcela-card-desc  { color: #555; }
+html[data-theme="light"] .parcela-card-desc  { color: var(--dourado); }
 
 /* ── #9 Reservas por resort ── */
 .resort-reservas-badge {
