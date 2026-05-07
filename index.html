@@ -1429,19 +1429,11 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     var waWin = window.open(waURL, '_blank');
 
     msg.style.color = '#27ae60';
-    msg.textContent = waWin
-      ? '✅ Conclua o envio no WhatsApp que foi aberto!'
-      : '✅ Clique aqui para enviar pelo WhatsApp →';
+    msg.textContent = '✅ Redirecionando para o WhatsApp...';
 
     if (!waWin) {
-      /* Pop-up bloqueado — exibir link clicável como alternativa */
-      var link = document.createElement('a');
-      link.href = waURL;
-      link.target = '_blank';
-      link.rel = 'noopener';
-      link.style.cssText = 'display:block;margin-top:8px;color:#25D366;font-weight:700;';
-      link.textContent = '💬 Enviar orçamento no WhatsApp';
-      msg.appendChild(link);
+      /* Pop-up bloqueado — navegar na aba atual para garantir a abertura */
+      window.location.href = waURL;
     }
 
     /* Enviar dados para a planilha em segundo plano (não bloqueia o WhatsApp) */
@@ -1893,11 +1885,14 @@ function enviarCadastroEmp(e) {
     '👤 *Responsável:* ' + contato + '\n' +
     '📱 *WhatsApp:* ' + whatsapp;
   var msgEl = document.getElementById('msgCadastro');
+  var waCadUrl = 'https://wa.me/5517982006382?text=' + encodeURIComponent(msg);
   msgEl.style.cssText = 'margin-top:10px;color:#25D366;font-size:13px;';
   msgEl.textContent = '✅ Redirecionando para o WhatsApp...';
-  setTimeout(function () {
-    window.open('https://wa.me/5517982006382?text=' + encodeURIComponent(msg), '_blank');
-  }, 800);
+  /* Abre na mesma chamada do clique — setTimeout bloqueia o popup no navegador */
+  var waCadWin = window.open(waCadUrl, '_blank');
+  if (!waCadWin) {
+    window.location.href = waCadUrl;
+  }
 }
 
 function buscar() {
@@ -1927,9 +1922,12 @@ function buscar() {
     (obs ? '📝 Observações: ' + obs + '\n' : '') +
     getUtmSuffix()
   );
-  setTimeout(function () {
-    window.open('https://wa.me/5517982006382?text=' + msg, '_blank');
-  }, 800);
+  var waBuscarUrl = 'https://wa.me/5517982006382?text=' + msg;
+  /* Abre na mesma chamada do clique — setTimeout bloqueia o popup no navegador */
+  var waBuscarWin = window.open(waBuscarUrl, '_blank');
+  if (!waBuscarWin) {
+    window.location.href = waBuscarUrl;
+  }
 }
 function consultar(nome, preco) {
   var cliente = document.getElementById('clienteNome').value.trim();
@@ -1956,7 +1954,9 @@ function consultar(nome, preco) {
     '💰 Valor base: R$ ' + Number(preco).toLocaleString('pt-BR') + '\n' +
     getUtmSuffix()
   );
-  window.open('https://wa.me/5517982006382?text=' + msg, '_blank');
+  var waConsultUrl = 'https://wa.me/5517982006382?text=' + msg;
+  var waConsultWin = window.open(waConsultUrl, '_blank');
+  if (!waConsultWin) { window.location.href = waConsultUrl; }
 }
 
 /* =====================
@@ -2037,20 +2037,20 @@ function enviarOrcamento(e) {
     getUtmSuffix()
   );
   var waUrl = 'https://wa.me/5517982006382?text=' + msg;
-  var waWin = window.open(waUrl, '_blank');
 
   /* Guardar dados para PDF e referral antes de resetar o form */
   window._orcDados = { nome: nome, wpp: wpp, email: email, resort: resort,
     pessoas: pessoas, entrada: entrada, saida: saida, obs: obs };
 
-  /* Ocultar wizard e mostrar painel de sucesso apenas se o WhatsApp abriu */
+  /* Ocultar wizard e mostrar painel de sucesso */
   var wizard = document.getElementById('orcWizard');
-  if (waWin) {
-    if (wizard) wizard.style.display = 'none';
-    mostrarPainelSucesso();
-  } else {
-    /* Popup bloqueado — exibir aviso com link clicável */
-    mostrarFallbackWhatsApp(waUrl);
+  if (wizard) wizard.style.display = 'none';
+  mostrarPainelSucesso();
+
+  /* Abrir WhatsApp — tenta nova aba; se bloqueado pelo navegador, navega na aba atual */
+  var waWin = window.open(waUrl, '_blank');
+  if (!waWin) {
+    window.location.href = waUrl;
   }
 }
 
@@ -2183,7 +2183,9 @@ function enviarCadastro(e) {
     '💰 Valor: R$ '         + Number(valor).toLocaleString('pt-BR') + '\n' +
     getUtmSuffix()
   );
-  window.open('https://wa.me/5517982006382?text=' + msg, '_blank');
+  var waMultiUrl = 'https://wa.me/5517982006382?text=' + msg;
+  var waMultiWin = window.open(waMultiUrl, '_blank');
+  if (!waMultiWin) { window.location.href = waMultiUrl; }
   e.target.reset();
 }
 
@@ -2206,7 +2208,9 @@ function enviarContato(e) {
     '💬 Mensagem: ' + msg2 + '\n' +
     getUtmSuffix()
   );
-  window.open('https://wa.me/5517982006382?text=' + msg, '_blank');
+  var waContUrl = 'https://wa.me/5517982006382?text=' + msg;
+  var waContWin = window.open(waContUrl, '_blank');
+  if (!waContWin) { window.location.href = waContUrl; }
   e.target.reset();
 }
 
@@ -2510,11 +2514,10 @@ function exitIntentSubmit(e) {
     body: JSON.stringify({ tipo: 'exit_intent', email: email, utm: getUtmStr() })
   }).catch(function () {});
   /* Redireciona para WhatsApp após capturar o e-mail */
-  window.open(
-    'https://wa.me/5517982006382?text=' +
-    encodeURIComponent('Olá! Tenho interesse nas ofertas exclusivas da HOSPEDAH. Meu e-mail: ' + email),
-    '_blank'
-  );
+  var waExitUrl = 'https://wa.me/5517982006382?text=' +
+    encodeURIComponent('Olá! Tenho interesse nas ofertas exclusivas da HOSPEDAH. Meu e-mail: ' + email);
+  var waExitWin = window.open(waExitUrl, '_blank');
+  if (!waExitWin) { window.location.href = waExitUrl; }
   document.getElementById('exit-overlay').classList.remove('visible');
   document.body.style.overflow = '';
   sessionStorage.setItem('hospedah_exit_dismissed', '1');
