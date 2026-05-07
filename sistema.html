@@ -1227,14 +1227,29 @@ thead .col-sticky-right {
    RESPONSIVO
 ========================================== */
 @media (max-width: 600px) {
-  .sys-topbar { padding: 10px 14px 6px; }
+  /* Topbar: logo na primeira linha, botões na segunda linha com scroll horizontal */
+  .sys-topbar { flex-wrap: wrap; padding: 10px 14px 0; gap: 6px 12px; }
   .sys-logo span { font-size: 1.05em; }
-  .sys-topbar-utils a, .sys-topbar-utils button { padding: 4px 9px; font-size: 0.74em; }
+  .sys-topbar-utils {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding-bottom: 8px;
+    gap: 4px;
+    flex-shrink: 1;
+  }
+  .sys-topbar-utils::-webkit-scrollbar { display: none; }
+  .sys-topbar-utils a, .sys-topbar-utils button { padding: 4px 9px; font-size: 0.74em; flex-shrink: 0; }
   .sys-nav { padding: 6px 10px; gap: 1px; }
   .sys-nav a { padding: 5px 11px; font-size: 0.72em; }
   .nav-dropdown-btn { padding: 5px 11px; font-size: 0.72em; }
   .nav-group-label { font-size: 0.52em; padding: 0 3px 0 8px; }
   .calc-section, .table-wrap { padding: 16px; }
+}
+
+@media (max-width: 400px) {
+  .lock-box { padding: 28px 18px; }
 }
 
 /* ==========================================
@@ -4148,9 +4163,21 @@ function tentarLogin() {
   var btn = document.querySelector('#lockViewLogin .btn-primary');
   if (btn) { btn.disabled = true; btn.textContent = '⏳ Entrando...'; }
 
+  /* Limite de 30 s: se o processo de login travar (rede lenta/indisponível),
+     o botão é reativado e o usuário recebe feedback para tentar novamente. */
+  var loginTimer = setTimeout(function() {
+    if (btn && btn.disabled) {
+      btn.disabled = false;
+      btn.textContent = '🔓 Entrar';
+      err.textContent = '❌ Tempo esgotado. Verifique sua conexão com a internet e tente novamente.';
+      err.style.display = 'block';
+    }
+  }, 30000);
+
   _supabase.auth.signInWithPassword({ email: email, password: senha })
     .then(function(result) {
       if (result.error) {
+        clearTimeout(loginTimer);
         if (btn) { btn.disabled = false; btn.textContent = '🔓 Entrar'; }
         _loginAttempts++;
         sessionStorage.setItem('_loginAttempts', _loginAttempts);
@@ -4181,16 +4208,20 @@ function tentarLogin() {
         _loginAttempts = 0;
         sessionStorage.removeItem('_loginAttempts');
         sessionStorage.removeItem('_loginBlockedUntil');
-        /* O overlay é ocultado apenas após validarAcessoPainelHospedah() confirmar permissão */
-        inicializarSistema().catch(function(e) {
-          console.warn('Erro ao inicializar sistema:', e);
-          if (btn) { btn.disabled = false; btn.textContent = '🔓 Entrar'; }
-          err.textContent = '❌ Erro ao inicializar o sistema. Tente novamente.';
-          err.style.display = 'block';
-        });
+        /* O overlay é ocultado apenas após validarAcessoPainelHospedah() confirmar permissão.
+           O timer é cancelado ao resolver (sucesso ou erro) via finally. */
+        inicializarSistema()
+          .catch(function(e) {
+            console.warn('Erro ao inicializar sistema:', e);
+            if (btn) { btn.disabled = false; btn.textContent = '🔓 Entrar'; }
+            err.textContent = '❌ Erro ao inicializar o sistema. Tente novamente.';
+            err.style.display = 'block';
+          })
+          .finally(function() { clearTimeout(loginTimer); });
       }
     })
     .catch(function(e) {
+      clearTimeout(loginTimer);
       console.warn('Erro ao autenticar com Supabase:', e);
       if (btn) { btn.disabled = false; btn.textContent = '🔓 Entrar'; }
       err.textContent = '❌ Erro de conexão. Verifique sua internet e tente novamente.';
