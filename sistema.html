@@ -158,17 +158,14 @@ body {
   color: var(--cor-sub);
 }
 
-/* ── NAV ROW: scrollable tab bar ── */
+/* ── NAV ROW: wrapping tab bar ── */
 .sys-nav {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 2px;
   padding: 8px 12px;
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;
 }
-.sys-nav::-webkit-scrollbar { display: none; }
 
 .sys-nav a {
   display: inline-flex;
@@ -1195,8 +1192,9 @@ thead .col-sticky-right {
   .sys-topbar { padding: 10px 14px 6px; }
   .sys-logo span { font-size: 1.05em; }
   .sys-topbar-utils a, .sys-topbar-utils button { padding: 4px 9px; font-size: 0.74em; }
-  .sys-nav { padding: 6px 10px; }
-  .sys-nav a { padding: 5px 11px; font-size: 0.76em; }
+  .sys-nav { padding: 6px 10px; row-gap: 4px; }
+  .sys-nav a { padding: 5px 9px; font-size: 0.72em; }
+  .nav-dropdown-btn { padding: 5px 9px; font-size: 0.72em; }
   .calc-section, .table-wrap { padding: 16px; }
 }
 
