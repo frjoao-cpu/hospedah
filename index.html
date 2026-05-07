@@ -1233,6 +1233,223 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   </div>
 </section>
 
+<!-- =========================================================
+     HOSPEDAH - Bloco Orçamento Rápido
+     ========================================================= -->
+<section id="orcamento-hospedah">
+<style>
+  #orcamento-hospedah {
+    max-width: 860px;
+    margin: 36px auto;
+    padding: 28px 24px;
+    border: 1px solid #e0e0e0;
+    border-radius: 16px;
+    background: #ffffff;
+    box-shadow: 0 4px 24px rgba(0,0,0,.07);
+  }
+  #orcamento-hospedah * { box-sizing: border-box; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; }
+  #orcamento-hospedah h2 { margin: 0 0 6px; font-size: 24px; color: #1a1a1a; }
+  #orcamento-hospedah .sub { margin: 0 0 20px; color: #666; font-size: 15px; }
+  #orcamento-hospedah .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+  }
+  #orcamento-hospedah label { display: block; font-size: 13px; font-weight: 600; color: #333; margin-bottom: 4px; }
+  #orcamento-hospedah input,
+  #orcamento-hospedah select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 15px;
+    background: #fafafa;
+    transition: border .2s;
+  }
+  #orcamento-hospedah input:focus,
+  #orcamento-hospedah select:focus { border-color: #0077cc; outline: none; background: #fff; }
+  #orcamento-hospedah .hp { display: none; }
+  #orcamento-hospedah button {
+    margin-top: 18px;
+    width: 100%;
+    padding: 14px;
+    background: #25D366;
+    color: #fff;
+    font-size: 17px;
+    font-weight: 700;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background .2s;
+  }
+  #orcamento-hospedah button:hover { background: #1ebe5d; }
+  #orcamento-hospedah #hosp-msg { margin-top: 12px; font-size: 14px; text-align: center; color: #555; min-height: 20px; }
+</style>
+
+<h2>🏖️ Peça seu orçamento grátis</h2>
+<p class="sub">Preencha abaixo e receba as melhores opções no WhatsApp em minutos.</p>
+
+<form id="hosp-form" novalidate>
+  <div class="hp" aria-hidden="true">
+    <label>Não preencha</label>
+    <input type="text" name="website" id="hosp-hp" tabindex="-1" autocomplete="off">
+  </div>
+  <div class="grid">
+    <div>
+      <label for="hosp-nome">Seu nome *</label>
+      <input type="text" id="hosp-nome" placeholder="Ex: Maria Silva" required>
+    </div>
+    <div>
+      <label for="hosp-tel">WhatsApp *</label>
+      <input type="tel" id="hosp-tel" placeholder="(17) 99999-9999" required>
+    </div>
+    <div>
+      <label for="hosp-resort">Resort desejado *</label>
+      <select id="hosp-resort" required>
+        <option value="">— Escolha —</option>
+        <option>Hot Beach Suites</option>
+        <option>São Pedro Thermas</option>
+        <option>Solar das Águas</option>
+        <option>Wyndham Olimpia</option>
+        <option>Olimpia Park Resort</option>
+        <option>Praia de Juqueí</option>
+        <option>Outro / Não sei ainda</option>
+      </select>
+    </div>
+    <div>
+      <label for="hosp-checkin">Check-in (previsto)</label>
+      <input type="date" id="hosp-checkin">
+    </div>
+    <div>
+      <label for="hosp-checkout">Check-out (previsto)</label>
+      <input type="date" id="hosp-checkout">
+    </div>
+    <div>
+      <label for="hosp-adultos">Adultos</label>
+      <select id="hosp-adultos">
+        <option value="1">1</option>
+        <option value="2" selected>2</option>
+        <option value="3">3</option>
+        <option value="4">4</option>
+        <option value="5+">5+</option>
+      </select>
+    </div>
+    <div>
+      <label for="hosp-criancas">Crianças</label>
+      <select id="hosp-criancas">
+        <option value="0" selected>0</option>
+        <option value="1">1</option>
+        <option value="2">2</option>
+        <option value="3">3</option>
+        <option value="4+">4+</option>
+      </select>
+    </div>
+  </div>
+  <button type="submit">💬 Quero meu orçamento no WhatsApp</button>
+  <div id="hosp-msg"></div>
+</form>
+</section>
+
+<script>
+(function () {
+  var WHATSAPP = '5517982006382';
+  var WEBHOOK  = 'https://script.google.com/macros/s/AKfycbyGf6dtX3ZZOSnulnmDcPDAqZG_8gpEql5u6iiMVBto8yJcSdihSbBjU-COELb26INq/exec';
+
+  function getUTM(param) {
+    return new URLSearchParams(window.location.search).get(param) || '';
+  }
+
+  function fmtData(v) {
+    if (!v) return '—';
+    var p = v.split('-');
+    return p[2] + '/' + p[1] + '/' + p[0];
+  }
+
+  function hoje() {
+    var d = new Date();
+    return d.getFullYear() + '-'
+      + String(d.getMonth()+1).padStart(2,'0') + '-'
+      + String(d.getDate()).padStart(2,'0');
+  }
+
+  document.getElementById('hosp-form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    if (document.getElementById('hosp-hp').value) return;
+
+    var nome     = document.getElementById('hosp-nome').value.trim();
+    var tel      = document.getElementById('hosp-tel').value.trim();
+    var resort   = document.getElementById('hosp-resort').value;
+    var checkin  = document.getElementById('hosp-checkin').value;
+    var checkout = document.getElementById('hosp-checkout').value;
+    var adultos  = document.getElementById('hosp-adultos').value;
+    var criancas = document.getElementById('hosp-criancas').value;
+    var msg      = document.getElementById('hosp-msg');
+
+    if (!nome || !tel || !resort) {
+      msg.style.color = '#c0392b';
+      msg.textContent = '⚠️ Preencha nome, WhatsApp e resort.';
+      return;
+    }
+
+    msg.style.color = '#555';
+    msg.textContent = '⏳ Enviando...';
+
+    var payload = {
+      data_lead    : hoje(),
+      nome         : nome,
+      telefone     : tel,
+      resort       : resort,
+      checkin      : checkin  || '—',
+      checkout     : checkout || '—',
+      adultos      : adultos,
+      criancas     : criancas,
+      utm_source   : getUTM('utm_source'),
+      utm_medium   : getUTM('utm_medium'),
+      utm_campaign : getUTM('utm_campaign'),
+      pagina       : window.location.href
+    };
+
+    var waMSG = [
+      '🏖️ *Novo Orçamento - Hospedah*',
+      '',
+      '👤 Nome: '        + nome,
+      '📱 WhatsApp: '    + tel,
+      '🏨 Resort: '      + resort,
+      '📅 Check-in: '    + fmtData(checkin),
+      '📅 Check-out: '   + fmtData(checkout),
+      '👨‍👩‍👧 Adultos: '  + adultos + ' | Crianças: ' + criancas,
+      '',
+      '🔗 ' + window.location.href
+    ].join('\n');
+
+    var waURL = 'https://wa.me/' + WHATSAPP + '?text=' + encodeURIComponent(waMSG);
+
+    fetch(WEBHOOK, {
+      method : 'POST',
+      mode   : 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body   : JSON.stringify(payload)
+    })
+    .then(function () {
+      msg.style.color = '#27ae60';
+      msg.textContent = '✅ Lead salvo! Abrindo WhatsApp...';
+      setTimeout(function () { window.open(waURL, '_blank'); }, 600);
+    })
+    .catch(function () {
+      msg.style.color = '#e67e22';
+      msg.textContent = '⚠️ Planilha indisponível, mas abrindo WhatsApp...';
+      setTimeout(function () { window.open(waURL, '_blank'); }, 600);
+    });
+
+    setTimeout(function () {
+      document.getElementById('hosp-form').reset();
+      msg.textContent = '';
+    }, 5000);
+  });
+})();
+</script>
+<!-- FIM HOSPEDAH -->
+
 <!-- FOOTER -->
 <footer>
   &copy; 2026 <strong>HOSPEDAH</strong> — Todos os direitos reservados.
