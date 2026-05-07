@@ -351,6 +351,21 @@ body {
   align-items: center;
   gap: 8px;
 }
+.btn-section-toggle {
+  margin-left: auto;
+  background: none;
+  border: 1px solid var(--borda);
+  border-radius: 4px;
+  color: var(--dourado);
+  cursor: pointer;
+  font-size: 0.8em;
+  line-height: 1;
+  padding: 2px 7px;
+  transition: background 0.15s;
+}
+.btn-section-toggle:hover {
+  background: var(--borda);
+}
 
 /* ==========================================
    DASHBOARD CARDS
@@ -10223,6 +10238,21 @@ function verificarRepassesAtrasados() {
   });
 })();
 
+function toggleCalendario() {
+  const content = document.getElementById('calendarioContent');
+  const btn = document.getElementById('calendarioToggleBtn');
+  const isHidden = content.style.display === 'none' || getComputedStyle(content).display === 'none';
+  if (isHidden) {
+    content.style.display = '';
+    btn.textContent = '▲';
+    btn.title = 'Minimizar';
+  } else {
+    content.style.display = 'none';
+    btn.textContent = '▼';
+    btn.title = 'Expandir';
+  }
+}
+
 </script>
 <script>
 if ('serviceWorker' in navigator) {
@@ -10351,33 +10381,36 @@ if ('serviceWorker' in navigator) {
   <section id="calendario" class="table-wrap">
     <div class="section-title">
       📅 Calendário Anual de Feriados
+      <button class="btn-section-toggle" id="calendarioToggleBtn" onclick="toggleCalendario()" title="Expandir">▼</button>
     </div>
 
-    <div class="cal-header">
-      <div class="cal-year-selector">
-        <button onclick="calNavYear(-1)" title="Ano anterior">◀</button>
-        <span class="cal-year-display" id="calYearDisplay">2025</span>
-        <button onclick="calNavYear(+1)" title="Próximo ano">▶</button>
+    <div id="calendarioContent" style="display:none;">
+      <div class="cal-header">
+        <div class="cal-year-selector">
+          <button onclick="calNavYear(-1)" title="Ano anterior">◀</button>
+          <span class="cal-year-display" id="calYearDisplay">2025</span>
+          <button onclick="calNavYear(+1)" title="Próximo ano">▶</button>
+        </div>
+        <div class="cal-legend">
+          <div class="cal-legend-item"><span class="cal-legend-dot nacional"></span> Nacional</div>
+          <div class="cal-legend-item"><span class="cal-legend-dot estadual"></span> Estadual/Municipal</div>
+          <div class="cal-legend-item"><span class="cal-legend-dot facultativo"></span> Facultativo</div>
+          <div class="cal-legend-item"><span class="cal-legend-dot today"></span> Hoje</div>
+        </div>
       </div>
-      <div class="cal-legend">
-        <div class="cal-legend-item"><span class="cal-legend-dot nacional"></span> Nacional</div>
-        <div class="cal-legend-item"><span class="cal-legend-dot estadual"></span> Estadual/Municipal</div>
-        <div class="cal-legend-item"><span class="cal-legend-dot facultativo"></span> Facultativo</div>
-        <div class="cal-legend-item"><span class="cal-legend-dot today"></span> Hoje</div>
-      </div>
-    </div>
 
-    <div class="cal-grid" id="calGrid"></div>
+      <div class="cal-grid" id="calGrid"></div>
 
-    <div class="cal-holiday-list">
-      <div class="cal-holiday-list-title">📋 Lista de Feriados — <span id="calHolidayYear">2025</span></div>
-      <div class="table-wrap" style="padding:0; border:none;">
-        <table class="cal-holiday-table">
-          <thead>
-            <tr><th>Data</th><th>Dia</th><th>Feriado</th><th>Tipo</th></tr>
-          </thead>
-          <tbody id="calHolidayBody"></tbody>
-        </table>
+      <div class="cal-holiday-list">
+        <div class="cal-holiday-list-title">📋 Lista de Feriados — <span id="calHolidayYear">2025</span></div>
+        <div class="table-wrap" style="padding:0; border:none;">
+          <table class="cal-holiday-table">
+            <thead>
+              <tr><th>Data</th><th>Dia</th><th>Feriado</th><th>Tipo</th></tr>
+            </thead>
+            <tbody id="calHolidayBody"></tbody>
+          </table>
+        </div>
       </div>
     </div>
   </section>
