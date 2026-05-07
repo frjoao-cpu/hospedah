@@ -1444,6 +1444,18 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       body   : JSON.stringify(payload)
     }).catch(function (err) { console.warn('[HOSPEDAH] Falha no webhook da planilha:', err); });
 
+    /* Notificar admin automaticamente via Z-API */
+    notificarAdminOrcamento({
+      nome_hospede:  nome,
+      email_hospede: '',
+      telefone:      tel,
+      resort_nome:   resort,
+      data_entrada:  checkin  || null,
+      data_saida:    checkout || null,
+      num_hospedes:  (parseInt(adultos, 10) || 0) + (parseInt(criancas, 10) || 0) || 1,
+      mensagem:      null
+    });
+
     setTimeout(function () {
       document.getElementById('hosp-form').reset();
       msg.textContent = '';
@@ -1962,6 +1974,29 @@ function consultar(nome, preco) {
 /* =====================
    ORÇAMENTO
 ===================== */
+
+/**
+ * Notifica o admin via Z-API (Supabase Edge Function notificacao-reserva).
+ * Chamada em segundo plano — não bloqueia o fluxo do usuário.
+ * @param {{ nome_hospede:string, email_hospede:string, telefone:string,
+ *           resort_nome:string, data_entrada:string|null, data_saida:string|null,
+ *           num_hospedes:number, mensagem:string|null }} record
+ */
+function notificarAdminOrcamento(record) {
+  var SB_URL = 'https://ydrmjoppjxtmnwtvtinb.supabase.co';
+  var SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlkcm1qb3Bwanh0bW53dHZ0aW5iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYyNzA3MzksImV4cCI6MjA5MTg0NjczOX0.Gp4ed332v62sC5e5GXXbPqOIBNpS4EzMCFawnBJE_Cw';
+  record.id = Date.now().toString(36) + Math.random().toString(36).slice(2);
+  fetch(SB_URL + '/functions/v1/notificacao-reserva', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + SB_KEY,
+      'apikey': SB_KEY
+    },
+    body: JSON.stringify({ record: record })
+  }).catch(function (err) { console.warn('[HOSPEDAH] Falha ao notificar admin:', err); });
+}
+
 function enviarOrcamento(e) {
   if (e && e.preventDefault) e.preventDefault();
   var nome    = document.getElementById('orc_nome').value.trim();
@@ -2020,6 +2055,18 @@ function enviarOrcamento(e) {
       console.warn('[HOSPEDAH] Falha ao salvar lead:', err);
     });
   }());
+
+  /* Notificar admin automaticamente via Z-API — independente de o usuário enviar pelo WhatsApp */
+  notificarAdminOrcamento({
+    nome_hospede:  nome,
+    email_hospede: email || '',
+    telefone:      wpp,
+    resort_nome:   resort,
+    data_entrada:  entrada,
+    data_saida:    saida,
+    num_hospedes:  parseInt(pessoas, 10) || 1,
+    mensagem:      obs || null
+  });
 
   /* Nurturing — registrar sequência de e-mail pós-captura */
   if (email) agendarNurturingEmail({ nome: nome, email: email, resort: resort, entrada: entrada });
