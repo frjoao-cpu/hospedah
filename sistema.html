@@ -3975,10 +3975,12 @@ var _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 
 /* Segurança de rota (front-end):
    sistema.html é restrito para admin/proprietario.
-   Sem sessão/role válida, redireciona para a página de login (painel.html). */
+   loginPath aponta para a própria página pois sistema.html possui overlay de
+   login próprio — evita redirecionamento para painel.html que derrubaria o
+   formulário enquanto signInWithPassword ainda está em andamento. */
 window.HospedahAuthGuard.enforceProtectedRoute({
   client: _supabase,
-  loginPath: 'painel.html',
+  loginPath: 'sistema.html',
   allowedRoles: ['admin', 'proprietario']
 });
 
@@ -4180,7 +4182,12 @@ function tentarLogin() {
         sessionStorage.removeItem('_loginAttempts');
         sessionStorage.removeItem('_loginBlockedUntil');
         /* O overlay é ocultado apenas após validarAcessoPainelHospedah() confirmar permissão */
-        inicializarSistema();
+        inicializarSistema().catch(function(e) {
+          console.warn('Erro ao inicializar sistema:', e);
+          if (btn) { btn.disabled = false; btn.textContent = '🔓 Entrar'; }
+          err.textContent = '❌ Erro ao inicializar o sistema. Tente novamente.';
+          err.style.display = 'block';
+        });
       }
     })
     .catch(function(e) {
@@ -4276,7 +4283,12 @@ function definirNovaSenha() {
            o acesso via validarAcessoPainelHospedah(). Isso evita que a tela pisque
            caso a validação falhe e o overlay precise ser exibido novamente. */
         _aguardandoNovaSenha = false;
-        inicializarSistema();
+        inicializarSistema().catch(function(e) {
+          console.warn('Erro ao inicializar sistema após nova senha:', e);
+          if (btn) { btn.disabled = false; btn.textContent = '✅ Salvar nova senha'; }
+          err.textContent = '❌ Erro ao inicializar o sistema. Tente novamente.';
+          err.style.display = 'block';
+        });
       }
     })
     .catch(function(e) {
