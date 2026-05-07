@@ -1967,22 +1967,48 @@ function enviarOrcamento(e) {
   if (typeof fbq === 'function') fbq('track', 'Lead', { content_name: resort });
   if (window.dataLayer) dataLayer.push({ event: 'orcamento_enviado', resort: resort });
 
-  /* Formspree — captura lead para e-mail marketing */
-  if (email) {
-    fetch('https://formspree.io/f/xeepnbkk', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-      body: JSON.stringify({
-        tipo: 'orcamento', nome: nome, whatsapp: wpp, email: email,
-        resort: resort, pessoas: pessoas, entrada: entrada, saida: saida,
-        obs: obs, utm: getUtmStr()
-      })
-    }).catch(function() {});
-  }
+  /* Formspree — notifica a equipe por e-mail a cada orçamento recebido */
+  fetch('https://formspree.io/f/xeepnbkk', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+    body: JSON.stringify({
+      tipo: 'orcamento', nome: nome, whatsapp: wpp, email: email,
+      resort: resort, pessoas: pessoas, entrada: entrada, saida: saida,
+      obs: obs, utm: getUtmStr()
+    })
+  }).catch(function() {});
 
   /* Salvar lead no Supabase para CRM e retargeting */
   salvarLeadSupabase({ nome: nome, wpp: wpp, email: email, resort: resort,
     pessoas: pessoas, entrada: entrada, saida: saida, obs: obs });
+
+  /* Registrar na tabela leads para o painel administrativo */
+  (function () {
+    var client = window._sb;
+    if (!client) return;
+    var utm = getUtmStr() || '';
+    var utmParts = {};
+    utm.split('&').forEach(function (p) {
+      var kv = p.split('=');
+      if (kv.length === 2) utmParts[kv[0]] = kv[1];
+    });
+    client.from('leads').insert([{
+      nome:         nome,
+      whatsapp:     wpp,
+      email:        email || null,
+      resort_nome:  resort,
+      num_pessoas:  parseInt(pessoas, 10) || null,
+      data_entrada: entrada || null,
+      data_saida:   saida   || null,
+      observacoes:  obs     || null,
+      origem:       'orcamento',
+      utm_source:   utmParts.utm_source   || null,
+      utm_medium:   utmParts.utm_medium   || null,
+      utm_campaign: utmParts.utm_campaign || null,
+    }]).catch(function (err) {
+      console.warn('[HOSPEDAH] Falha ao salvar lead:', err);
+    });
+  }());
 
   /* Nurturing — registrar sequência de e-mail pós-captura */
   if (email) agendarNurturingEmail({ nome: nome, email: email, resort: resort, entrada: entrada });
