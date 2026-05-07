@@ -19,6 +19,12 @@
 
 import { serve } from 'https://deno.land/std@0.224.0/http/server.ts';
 
+const corsHeaders = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+};
+
 interface Reserva {
     id: string;
     nome_hospede: string;
@@ -32,30 +38,40 @@ interface Reserva {
 }
 
 serve(async (req: Request): Promise<Response> => {
+    // Handle CORS preflight so the browser-side notificarAdminOrcamento() fetch succeeds
+    if (req.method === 'OPTIONS') {
+        return new Response('ok', { status: 200, headers: corsHeaders });
+    }
+
     if (req.method !== 'POST') {
-        return new Response('Método não permitido', { status: 405 });
+        return new Response('Método não permitido', { status: 405, headers: corsHeaders });
     }
 
     let payload: { record?: Reserva; type?: string };
     try {
         payload = await req.json();
     } catch {
-        return new Response('Payload inválido', { status: 400 });
+        return new Response('Payload inválido', { status: 400, headers: corsHeaders });
     }
 
     // Aceita tanto webhooks do Supabase quanto chamadas diretas com { record: ... }
     const record = payload?.record;
     if (!record) {
-        return new Response('record ausente no payload', { status: 400 });
+        return new Response('record ausente no payload', { status: 400, headers: corsHeaders });
     }
 
-    const zapiId    = Deno.env.get('ZAPI_INSTANCE_ID');
-    const zapiToken = Deno.env.get('ZAPI_TOKEN');
+    const zapiId          = Deno.env.get('ZAPI_INSTANCE_ID');
+    const zapiToken       = Deno.env.get('ZAPI_TOKEN');
+    const zapiClientToken = Deno.env.get('ZAPI_CLIENT_TOKEN'); // optional security token
     const adminPhone = Deno.env.get('WHATSAPP_ADMIN_NUMBER') ?? '5517982006382';
     const resendKey  = Deno.env.get('RESEND_API_KEY');
     const resendFrom = Deno.env.get('RESEND_FROM') ?? 'HOSPEDAH <noreply@hospedah.tur.br>';
 
     const results: string[] = [];
+
+    // Headers reutilizados em todas as chamadas Z-API
+    const zapiHeaders: Record<string, string> = { 'Content-Type': 'application/json' };
+    if (zapiClientToken) zapiHeaders['Client-Token'] = zapiClientToken;
 
     // ── 1. WhatsApp para o admin via Z-API ──────────────────
     if (zapiId && zapiToken) {
@@ -78,7 +94,7 @@ serve(async (req: Request): Promise<Response> => {
             `https://api.z-api.io/instances/${zapiId}/token/${zapiToken}/send-text`,
             {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: zapiHeaders,
                 body: JSON.stringify({ phone: adminPhone, message: msgAdmin }),
             },
         );
@@ -107,7 +123,7 @@ serve(async (req: Request): Promise<Response> => {
             `https://api.z-api.io/instances/${zapiId}/token/${zapiToken}/send-text`,
             {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: zapiHeaders,
                 body: JSON.stringify({ phone: foneCompleto, message: msgHospede }),
             },
         );
@@ -177,6 +193,6 @@ serve(async (req: Request): Promise<Response> => {
 
     return new Response(
         JSON.stringify({ ok: true, resultados: results }),
-        { headers: { 'Content-Type': 'application/json' } },
+        { headers: { 'Content-Type': 'application/json', ...corsHeaders } },
     );
 });

@@ -998,8 +998,11 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <!-- Painel de sucesso pós-orçamento -->
     <div id="orc_success" style="display:none;margin-top:24px;padding:24px;background:rgba(37,211,102,0.07);border:1px solid rgba(37,211,102,0.25);border-radius:14px;text-align:center;">
       <div style="font-size:2em;margin-bottom:8px;">✅</div>
-      <h3 style="color:#25D366;margin-bottom:8px;">Orçamento enviado com sucesso!</h3>
-      <p style="color:var(--cor-sub,#aab4c4);font-size:.9em;margin-bottom:16px;">Nossa equipe responderá via WhatsApp em breve. Salve a proposta para consultar offline:</p>
+      <h3 style="color:#25D366;margin-bottom:8px;">Solicitação registrada!</h3>
+      <p style="color:var(--cor-sub,#aab4c4);font-size:.9em;margin-bottom:16px;">Clique no botão abaixo para enviar o orçamento pelo WhatsApp e nossa equipe responderá em breve:</p>
+      <a id="orc_wpp_btn" href="#" target="_blank" rel="noopener noreferrer" style="display:inline-block;padding:12px 28px;background:#25D366;color:#fff;border-radius:8px;font-weight:700;font-size:1em;text-decoration:none;margin-bottom:12px;">📲 Enviar pelo WhatsApp</a>
+      <div id="orc_confirm_msg" style="display:none;margin-bottom:12px;padding:10px 18px;background:rgba(37,211,102,0.15);border:1px solid rgba(37,211,102,0.4);border-radius:8px;color:#25D366;font-weight:700;font-size:.95em;">✅ Mensagem enviada com sucesso!</div>
+      <br>
       <button onclick="gerarPropostaPDF()" style="padding:10px 22px;background:var(--dourado,#D4AF37);color:#0B1C3D;border:none;border-radius:8px;font-weight:700;cursor:pointer;font-size:.92em;margin-bottom:16px;">📄 Baixar Proposta em PDF</button>
       <div id="orc_referral" style="margin-top:8px;padding:12px;background:rgba(212,175,55,0.08);border:1px solid rgba(212,175,55,0.2);border-radius:10px;font-size:.83em;color:var(--cor-sub,#aab4c4);"></div>
     </div>
@@ -2089,15 +2092,20 @@ function enviarOrcamento(e) {
   window._orcDados = { nome: nome, wpp: wpp, email: email, resort: resort,
     pessoas: pessoas, entrada: entrada, saida: saida, obs: obs };
 
-  /* Ocultar wizard e mostrar painel de sucesso */
+  /* Ocultar wizard e mostrar painel de sucesso com link WhatsApp */
   var wizard = document.getElementById('orcWizard');
   if (wizard) wizard.style.display = 'none';
-  mostrarPainelSucesso();
+  mostrarPainelSucesso(waUrl);
 
-  /* Abrir WhatsApp — tenta nova aba; se bloqueado pelo navegador, navega na aba atual */
+  /* Abrir WhatsApp em nova aba — se bloqueado pelo navegador, o botão no painel serve de fallback */
   var waWin = window.open(waUrl, '_blank');
   if (!waWin) {
-    window.location.href = waUrl;
+    /* Pop-up bloqueado: o botão "📲 Enviar pelo WhatsApp" no painel de sucesso garante o envio */
+    var btn = document.getElementById('orc_wpp_btn');
+    if (btn) {
+      btn.style.animation = 'pulse 1s infinite';
+      btn.textContent = '📲 Clique aqui para enviar pelo WhatsApp';
+    }
   }
 }
 
@@ -2139,9 +2147,37 @@ function mostrarFallbackWhatsApp(waUrl) {
   painel.scrollIntoView({ behavior: 'smooth', block: 'center' });
 }
 
-function mostrarPainelSucesso() {
+function mostrarPainelSucesso(waUrl) {
   var painel = document.getElementById('orc_success');
   if (!painel) return;
+
+  /* Atualizar href do botão WhatsApp com a URL real do orçamento */
+  var wppBtn = document.getElementById('orc_wpp_btn');
+  if (wppBtn && waUrl) {
+    wppBtn.href = waUrl;
+
+    /* Mostrar confirmação quando o usuário voltar ao site após abrir o WhatsApp */
+    var wppButtonClicked = false;
+    function showConfirm() {
+      if (!wppButtonClicked) return;
+      var confirmEl = document.getElementById('orc_confirm_msg');
+      if (confirmEl) confirmEl.style.display = 'block';
+      wppBtn.textContent = '📲 Reenviar pelo WhatsApp';
+      wppBtn.style.background = '#128c5e';
+      /* Removes the listeners after showing the confirmation */
+      document.removeEventListener('visibilitychange', onVisible);
+      window.removeEventListener('focus', onFocus);
+    }
+    function onVisible() { if (!document.hidden) showConfirm(); }
+    function onFocus() { showConfirm(); }
+
+    wppBtn.addEventListener('click', function () {
+      wppButtonClicked = true;
+      document.addEventListener('visibilitychange', onVisible);
+      window.addEventListener('focus', onFocus);
+    }, { once: true });
+  }
+
   painel.style.display = 'block';
   painel.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
