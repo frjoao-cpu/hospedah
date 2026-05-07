@@ -2025,16 +2025,60 @@ function enviarOrcamento(e) {
     (obs ? '📝 Obs: ' + obs + '\n' : '') +
     getUtmSuffix()
   );
-  window.open('https://wa.me/5517982006382?text=' + msg, '_blank');
+  var waUrl = 'https://wa.me/5517982006382?text=' + msg;
+  var waWin = window.open(waUrl, '_blank');
 
   /* Guardar dados para PDF e referral antes de resetar o form */
   window._orcDados = { nome: nome, wpp: wpp, email: email, resort: resort,
     pessoas: pessoas, entrada: entrada, saida: saida, obs: obs };
 
-  /* Ocultar wizard e mostrar painel de sucesso */
+  /* Ocultar wizard e mostrar painel de sucesso apenas se o WhatsApp abriu */
   var wizard = document.getElementById('orcWizard');
+  if (waWin) {
+    if (wizard) wizard.style.display = 'none';
+    mostrarPainelSucesso();
+  } else {
+    /* Popup bloqueado — exibir aviso com link clicável */
+    mostrarFallbackWhatsApp(waUrl);
+  }
+}
+
+function mostrarFallbackWhatsApp(waUrl) {
+  var wizard = document.getElementById('orcWizard');
+  var painel = document.getElementById('orc_success');
+
+  /* Ocultar wizard mesmo no fallback para não duplicar a UI */
   if (wizard) wizard.style.display = 'none';
-  mostrarPainelSucesso();
+
+  if (!painel) return;
+
+  painel.innerHTML = '';
+  painel.style.display = 'block';
+
+  var icon = document.createElement('div');
+  icon.style.cssText = 'font-size:2em;margin-bottom:8px;';
+  icon.textContent = '⚠️';
+  painel.appendChild(icon);
+
+  var title = document.createElement('h3');
+  title.style.cssText = 'color:#e6a817;margin-bottom:8px;';
+  title.textContent = 'Seu navegador bloqueou a abertura do WhatsApp';
+  painel.appendChild(title);
+
+  var desc = document.createElement('p');
+  desc.style.cssText = 'color:var(--cor-sub,#aab4c4);font-size:.9em;margin-bottom:16px;';
+  desc.textContent = 'Clique no botão abaixo para enviar seu orçamento diretamente pelo WhatsApp:';
+  painel.appendChild(desc);
+
+  var btn = document.createElement('a');
+  btn.href = waUrl;
+  btn.target = '_blank';
+  btn.rel = 'noopener noreferrer';
+  btn.style.cssText = 'display:inline-block;padding:12px 28px;background:#25D366;color:#fff;border-radius:8px;font-weight:700;font-size:1em;text-decoration:none;margin-bottom:8px;';
+  btn.textContent = '📲 Abrir WhatsApp';
+  painel.appendChild(btn);
+
+  painel.scrollIntoView({ behavior: 'smooth', block: 'center' });
 }
 
 function mostrarPainelSucesso() {
