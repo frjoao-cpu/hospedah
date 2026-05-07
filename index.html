@@ -1994,8 +1994,8 @@ function enviarOrcamento(e) {
     (email ? '📧 E-mail: ' + email + '\n' : '') +
     '🏖️ Resort: '   + resort  + '\n' +
     '👥 Pessoas: '  + pessoas + '\n' +
-    '📅 Entrada: '  + entrada + '\n' +
-    '📅 Saída: '    + saida   + '\n' +
+    '📅 Entrada: '  + fmtDataOrc(entrada) + '\n' +
+    '📅 Saída: '    + fmtDataOrc(saida)   + '\n' +
     (obs ? '📝 Obs: ' + obs + '\n' : '') +
     getUtmSuffix()
   );
@@ -2224,6 +2224,13 @@ window.addEventListener('scroll', function () {
 /* =====================
    CALCULADORA DE NOITES
 ===================== */
+/* Formata data ISO (YYYY-MM-DD) para o padrão brasileiro DD/MM/AAAA */
+function fmtDataOrc(v) {
+  if (!v) return '—';
+  var p = v.split('-');
+  return p[2] + '/' + p[1] + '/' + p[0];
+}
+
 function calcNights(startId, endId) {
   var s = document.getElementById(startId).value;
   var e = document.getElementById(endId).value;
@@ -2296,8 +2303,8 @@ function orcNextStep(current) {
       }
       sumEl.textContent = '';
       sumEl.appendChild(row('🏖️', 'Resort',    resort));
-      sumEl.appendChild(row('📅', 'Check-in',  entrada));
-      sumEl.appendChild(row('📅', 'Check-out', saida));
+      sumEl.appendChild(row('📅', 'Check-in',  fmtDataOrc(entrada)));
+      sumEl.appendChild(row('📅', 'Check-out', fmtDataOrc(saida)));
       sumEl.appendChild(row('🌙', 'Noites',    noites));
       sumEl.appendChild(row('👥', 'Pessoas',   pessoas));
       sumEl.appendChild(row('👤', 'Nome',      nome));
