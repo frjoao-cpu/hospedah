@@ -1968,7 +1968,7 @@ function enviarOrcamento(e) {
   if (window.dataLayer) dataLayer.push({ event: 'orcamento_enviado', resort: resort });
 
   /* Formspree — notifica a equipe por e-mail a cada orçamento recebido */
-  fetch('https://formspree.io/f/xeepnbkk', {
+  fetch('https://formspree.io/f/mzdoavpo', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
     body: JSON.stringify({
@@ -2104,7 +2104,7 @@ function enviarCadastro(e) {
   if (window.dataLayer) dataLayer.push({ event: 'cadastro_multipropriedade' });
 
   /* Formspree — notifica equipe e alimenta CRM */
-  fetch('https://formspree.io/f/xeepnbkk', {
+  fetch('https://formspree.io/f/mzdoavpo', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
     body: JSON.stringify({
@@ -2449,7 +2449,7 @@ function exitIntentSubmit(e) {
   if (!email) return;
   if (typeof fbq === 'function') fbq('track', 'Lead', { content_name: 'exit_intent' });
   if (window.dataLayer) dataLayer.push({ event: 'exit_intent_lead', email: email });
-  fetch('https://formspree.io/f/xeepnbkk', {
+  fetch('https://formspree.io/f/mzdoavpo', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
     body: JSON.stringify({ tipo: 'exit_intent', email: email, utm: getUtmStr() })
