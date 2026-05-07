@@ -158,74 +158,83 @@ body {
   color: var(--cor-sub);
 }
 
-/* ── NAV ROW: wrapping tab bar ── */
+/* ── NAV ROW: single-line horizontal scrollable tab bar ── */
 .sys-nav {
   display: flex;
   align-items: center;
-  flex-wrap: wrap;
-  gap: 4px;
-  padding: 10px 16px;
-  background: rgba(0,0,0,0.18);
-  border-top: 1px solid rgba(255,255,255,0.04);
+  flex-wrap: nowrap;
+  gap: 2px;
+  padding: 7px 14px;
+  background: linear-gradient(180deg, rgba(6,14,32,0.52) 0%, rgba(10,20,42,0.36) 100%);
+  border-top: 1px solid rgba(212,175,55,0.07);
+  overflow-x: auto;
+  overflow-y: visible;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(212,175,55,0.22) transparent;
+  -webkit-overflow-scrolling: touch;
+}
+
+.sys-nav::-webkit-scrollbar { height: 2px; }
+.sys-nav::-webkit-scrollbar-track { background: transparent; }
+.sys-nav::-webkit-scrollbar-thumb { background: rgba(212,175,55,0.22); border-radius: 2px; }
+
+/* Category group labels */
+.nav-group-label {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.57em;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: rgba(212,175,55,0.35);
+  padding: 0 4px 0 10px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  user-select: none;
 }
 
 .sys-nav a {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
   color: var(--cor-sub);
   text-decoration: none;
-  padding: 7px 15px;
-  border-radius: 10px;
-  font-size: 0.8em;
+  padding: 6px 13px;
+  border-radius: 20px;
+  font-size: 0.79em;
   font-weight: 500;
   white-space: nowrap;
-  transition: background 0.22s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.22s cubic-bezier(0.4, 0, 0.2, 1), color 0.22s cubic-bezier(0.4, 0, 0.2, 1), transform 0.22s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.22s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.sys-nav a::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(135deg, rgba(212,175,55,0.14), transparent 60%);
-  opacity: 0;
-  transition: opacity 0.22s;
-  border-radius: inherit;
-  pointer-events: none;
+  flex-shrink: 0;
+  position: relative;
+  border: 1px solid transparent;
+  background: transparent;
+  transition: background 0.18s ease, border-color 0.18s ease, color 0.18s ease, transform 0.16s ease, box-shadow 0.18s ease;
+  letter-spacing: 0.1px;
 }
 
 .sys-nav a:hover {
-  color: var(--dourado);
-  background: rgba(212,175,55,0.1);
-  border-color: rgba(212,175,55,0.38);
+  color: var(--dourado-hover);
+  background: rgba(212,175,55,0.09);
+  border-color: rgba(212,175,55,0.3);
   transform: translateY(-1px);
-  box-shadow: 0 4px 14px rgba(212,175,55,0.18);
-}
-
-.sys-nav a:hover::before {
-  opacity: 1;
+  box-shadow: 0 3px 10px rgba(212,175,55,0.14);
 }
 
 .sys-nav a.active {
-  background: linear-gradient(135deg, var(--dourado) 0%, #e8c440 100%);
-  color: var(--azul);
-  border-color: transparent;
-  font-weight: 700;
-  box-shadow: 0 4px 18px rgba(212,175,55,0.5), inset 0 1px 0 rgba(255,255,255,0.25);
-  letter-spacing: 0.4px;
+  background: linear-gradient(135deg, rgba(212,175,55,0.2) 0%, rgba(212,175,55,0.1) 100%);
+  color: var(--dourado);
+  border-color: rgba(212,175,55,0.45);
+  font-weight: 600;
+  box-shadow: 0 2px 12px rgba(212,175,55,0.2), inset 0 1px 0 rgba(255,255,255,0.07);
   transform: translateY(-1px);
-}
-
-.sys-nav a.active::before {
-  display: none;
 }
 
 /* Group dividers */
 .nav-sep {
   display: inline-block;
   width: 1px;
-  height: 22px;
-  background: linear-gradient(to bottom, transparent, rgba(212,175,55,0.32), transparent);
+  height: 18px;
+  background: linear-gradient(to bottom, transparent, rgba(212,175,55,0.22), transparent);
   margin: 0 8px;
   flex-shrink: 0;
   align-self: center;
@@ -239,28 +248,34 @@ body {
 .nav-dropdown-btn {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
   color: var(--cor-sub);
-  text-decoration: none;
-  padding: 7px 15px;
-  border-radius: 10px;
-  font-size: 0.8em;
+  font-family: inherit;
+  padding: 6px 13px;
+  border-radius: 20px;
+  font-size: 0.79em;
   font-weight: 500;
   white-space: nowrap;
-  transition: background 0.22s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.22s cubic-bezier(0.4, 0, 0.2, 1), color 0.22s cubic-bezier(0.4, 0, 0.2, 1), transform 0.22s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+  flex-shrink: 0;
+  border: 1px solid transparent;
+  background: transparent;
+  cursor: pointer;
+  transition: background 0.18s ease, border-color 0.18s ease, color 0.18s ease, transform 0.16s ease, box-shadow 0.18s ease;
+  letter-spacing: 0.1px;
 }
 .nav-dropdown-btn:hover,
 .nav-dropdown.open .nav-dropdown-btn {
-  color: var(--dourado);
-  background: rgba(212,175,55,0.1);
-  border-color: rgba(212,175,55,0.38);
+  color: var(--dourado-hover);
+  background: rgba(212,175,55,0.09);
+  border-color: rgba(212,175,55,0.3);
   transform: translateY(-1px);
-  box-shadow: 0 4px 14px rgba(212,175,55,0.18);
+  box-shadow: 0 3px 10px rgba(212,175,55,0.14);
 }
 .nav-dropdown-arrow {
-  font-size: 0.75em;
-  opacity: 0.8;
-  transition: transform 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+  font-size: 0.72em;
+  opacity: 0.7;
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  display: inline-block;
 }
 .nav-dropdown.open .nav-dropdown-arrow {
   transform: rotate(180deg);
@@ -271,37 +286,37 @@ body {
   top: 0;
   left: 0;
   z-index: 9999;
-  background: linear-gradient(145deg, #1c2641, #131d34);
-  border: 1px solid rgba(212,175,55,0.38);
-  border-radius: 12px;
+  background: linear-gradient(145deg, #1b2540, #121b32);
+  border: 1px solid rgba(212,175,55,0.35);
+  border-radius: 14px;
   padding: 8px;
-  min-width: 215px;
-  box-shadow: 0 14px 36px rgba(0,0,0,0.55), inset 0 0 0 1px rgba(255,255,255,0.04);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  min-width: 220px;
+  box-shadow: 0 16px 40px rgba(0,0,0,0.6), inset 0 0 0 1px rgba(255,255,255,0.04);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
 }
 .nav-dropdown.open .nav-dropdown-menu {
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 2px;
 }
 .nav-dropdown-menu a {
   display: flex;
   align-items: center;
   gap: 8px;
   padding: 9px 14px;
-  border-radius: 9px;
+  border-radius: 10px;
   font-size: 0.82em;
   font-weight: 500;
   color: var(--cor-sub);
   text-decoration: none;
   white-space: nowrap;
-  transition: background 0.18s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.18s cubic-bezier(0.4, 0, 0.2, 1), color 0.18s cubic-bezier(0.4, 0, 0.2, 1), padding-left 0.18s cubic-bezier(0.4, 0, 0.2, 1);
   border: 1px solid transparent;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease, padding-left 0.15s ease;
 }
 .nav-dropdown-menu a:hover {
   color: var(--dourado);
-  background: rgba(212,175,55,0.12);
+  background: rgba(212,175,55,0.1);
   border-color: rgba(212,175,55,0.22);
   padding-left: 18px;
 }
@@ -1215,9 +1230,10 @@ thead .col-sticky-right {
   .sys-topbar { padding: 10px 14px 6px; }
   .sys-logo span { font-size: 1.05em; }
   .sys-topbar-utils a, .sys-topbar-utils button { padding: 4px 9px; font-size: 0.74em; }
-  .sys-nav { padding: 7px 10px; row-gap: 4px; }
-  .sys-nav a { padding: 6px 10px; font-size: 0.72em; }
-  .nav-dropdown-btn { padding: 6px 10px; font-size: 0.72em; }
+  .sys-nav { padding: 6px 10px; gap: 1px; }
+  .sys-nav a { padding: 5px 11px; font-size: 0.72em; }
+  .nav-dropdown-btn { padding: 5px 11px; font-size: 0.72em; }
+  .nav-group-label { font-size: 0.52em; padding: 0 3px 0 8px; }
   .calc-section, .table-wrap { padding: 16px; }
 }
 
@@ -2170,6 +2186,7 @@ thead .col-sticky-right {
     <a href="#dashboard" class="active">📊 Dashboard</a>
     <span class="nav-sep"></span>
     <!-- Captação -->
+    <span class="nav-group-label">Captação</span>
     <div class="nav-dropdown" id="navCaptacaoDropdown">
       <button class="nav-dropdown-btn" onclick="toggleNavDropdown('navCaptacaoDropdown')" title="Captação">
         🏡 Captação <span class="nav-dropdown-arrow">▾</span>
@@ -2181,6 +2198,8 @@ thead .col-sticky-right {
       </div>
     </div>
     <span class="nav-sep"></span>
+    <!-- Reservas -->
+    <span class="nav-group-label">Reservas</span>
     <a href="#nova-reserva">➕ Nova Reserva</a>
     <a href="#reservas">📋 Reservas</a>
     <a href="#mensal">📅 Mensal</a>
@@ -2188,6 +2207,7 @@ thead .col-sticky-right {
     <a href="#relatorio">🏆 Relatório</a>
     <span class="nav-sep"></span>
     <!-- Plataforma -->
+    <span class="nav-group-label">Plataforma</span>
     <a href="#reservas-hospede">🛎️ Solicitações</a>
     <a href="#visitas-site">👁️ Visitas</a>
     <a href="#moderacao-avaliacoes">⭐ Avaliações</a>
@@ -2195,6 +2215,7 @@ thead .col-sticky-right {
     <a href="#mensagens-hospede">💬 Mensagens</a>
     <span class="nav-sep"></span>
     <!-- Gestão -->
+    <span class="nav-group-label">Gestão</span>
     <a href="#automacoes">🤖 Automações</a>
     <a href="#config-ia">🧠 Concierge IA</a>
     <span class="nav-sep"></span>
