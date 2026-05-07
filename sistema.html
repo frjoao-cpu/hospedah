@@ -939,6 +939,246 @@ thead .col-sticky-right {
 }
 
 /* ==========================================
+   CALENDÁRIO ANUAL DE FERIADOS
+========================================== */
+.cal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.cal-year-selector {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.cal-year-selector button {
+  background: rgba(212,175,55,0.12);
+  border: 1px solid rgba(212,175,55,0.3);
+  color: var(--dourado);
+  border-radius: 8px;
+  padding: 5px 12px;
+  font-size: 0.9em;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: inherit;
+}
+
+.cal-year-selector button:hover {
+  background: rgba(212,175,55,0.25);
+}
+
+.cal-year-display {
+  font-size: 1.2em;
+  font-weight: 700;
+  color: var(--dourado);
+  min-width: 60px;
+  text-align: center;
+}
+
+.cal-legend {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  align-items: center;
+  font-size: 0.8em;
+  color: var(--cor-sub);
+}
+
+.cal-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.cal-legend-dot {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.cal-legend-dot.nacional  { background: #e74c3c; }
+.cal-legend-dot.estadual  { background: #f39c12; }
+.cal-legend-dot.facultativo { background: #8e44ad; }
+.cal-legend-dot.today     { background: var(--dourado); }
+
+.cal-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+.cal-month {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--borda);
+  border-radius: 12px;
+  padding: 12px;
+}
+
+.cal-month-title {
+  font-size: 0.88em;
+  font-weight: 700;
+  color: var(--dourado);
+  text-align: center;
+  margin-bottom: 8px;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+}
+
+.cal-days-header {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+  margin-bottom: 4px;
+}
+
+.cal-days-header span {
+  font-size: 0.7em;
+  font-weight: 600;
+  color: var(--cor-sub);
+  text-align: center;
+  padding: 3px 0;
+}
+
+.cal-days-header span:first-child { color: #e74c3c; }
+.cal-days-header span:last-child  { color: #aab4c4; }
+
+.cal-days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+}
+
+.cal-day {
+  font-size: 0.75em;
+  text-align: center;
+  padding: 4px 0;
+  border-radius: 6px;
+  cursor: default;
+  transition: background 0.12s;
+  position: relative;
+}
+
+.cal-day.empty { background: transparent; }
+
+.cal-day.dom   { color: rgba(231,76,60,0.6); }
+.cal-day.sab   { color: rgba(170,180,196,0.6); }
+
+.cal-day.today {
+  background: var(--dourado) !important;
+  color: var(--azul) !important;
+  font-weight: 800;
+  border-radius: 50%;
+}
+
+.cal-day.feriado-nacional {
+  background: rgba(231,76,60,0.18);
+  color: #f1948a;
+  font-weight: 700;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.cal-day.feriado-estadual {
+  background: rgba(243,156,18,0.18);
+  color: #f5cba7;
+  font-weight: 700;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.cal-day.feriado-facultativo {
+  background: rgba(142,68,173,0.18);
+  color: #c39bd3;
+  font-weight: 700;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.cal-day[data-tip]:hover::after {
+  content: attr(data-tip);
+  position: fixed;
+  background: #1a2035;
+  color: var(--cor-texto);
+  border: 1px solid rgba(212,175,55,0.35);
+  border-radius: 7px;
+  padding: 5px 10px;
+  font-size: 0.78em;
+  white-space: pre-wrap;
+  max-width: 200px;
+  z-index: 9999;
+  pointer-events: none;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  /* position managed by JS */
+  transform: translate(-50%, -110%);
+  left: 50%;
+  top: 0;
+}
+
+.cal-holiday-list {
+  margin-top: 24px;
+}
+
+.cal-holiday-list-title {
+  font-size: 0.9em;
+  font-weight: 700;
+  color: var(--dourado);
+  margin-bottom: 12px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--borda);
+}
+
+.cal-holiday-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82em;
+}
+
+.cal-holiday-table thead th {
+  background: rgba(212,175,55,0.07);
+  color: var(--dourado);
+  font-weight: 600;
+  padding: 8px 10px;
+  text-align: left;
+  border-bottom: 1px solid var(--borda);
+}
+
+.cal-holiday-table tbody tr {
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  transition: background 0.12s;
+}
+
+.cal-holiday-table tbody tr:hover { background: rgba(212,175,55,0.05); }
+
+.cal-holiday-table tbody td {
+  padding: 7px 10px;
+  color: var(--cor-texto);
+  vertical-align: middle;
+}
+
+.cal-holiday-table .badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-size: 0.8em;
+  font-weight: 600;
+}
+
+.cal-holiday-table .badge.nacional    { background: rgba(231,76,60,0.2);  color: #f1948a; }
+.cal-holiday-table .badge.estadual    { background: rgba(243,156,18,0.2); color: #f5cba7; }
+.cal-holiday-table .badge.facultativo { background: rgba(142,68,173,0.2); color: #c39bd3; }
+
+@media (max-width: 600px) {
+  .cal-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+  .cal-month { padding: 8px; }
+}
+
+/* ==========================================
    PRINT
 ========================================== */
 @media print {
@@ -1936,6 +2176,9 @@ thead .col-sticky-right {
     <!-- Gestão -->
     <a href="#automacoes">🤖 Automações</a>
     <a href="#config-ia">🧠 Concierge IA</a>
+    <span class="nav-sep"></span>
+    <!-- Calendário -->
+    <a href="#calendario" aria-label="Calendário Anual de Feriados">📅 Calendário</a>
   </nav>
 </header>
 <div id="syncWarning">⚠️ Dados salvos apenas localmente — sem sincronização com o servidor. Verifique se a tabela <strong>hospeda_data</strong> foi criada no Supabase e se você está logado com o mesmo e-mail em todos os dispositivos.</div>
@@ -9683,6 +9926,218 @@ function verificarRepassesAtrasados() {
   if (mh) mh.addEventListener('click', function(e){ if (e.target === this) this.classList.remove('open'); });
 })();
 
+/* ==========================================
+   CALENDÁRIO ANUAL DE FERIADOS
+========================================== */
+(function() {
+  var calCurrentYear = new Date().getFullYear();
+
+  /* Feriados nacionais fixos (dia, mês) */
+  var FERIADOS_NACIONAIS_FIXOS = [
+    { m:1,  d:1,  nome:'Confraternização Universal',      tipo:'nacional' },
+    { m:4,  d:21, nome:'Tiradentes',                      tipo:'nacional' },
+    { m:5,  d:1,  nome:'Dia do Trabalho',                 tipo:'nacional' },
+    { m:9,  d:7,  nome:'Independência do Brasil',         tipo:'nacional' },
+    { m:10, d:12, nome:'Nossa Sra. Aparecida',            tipo:'nacional' },
+    { m:11, d:2,  nome:'Finados',                         tipo:'nacional' },
+    { m:11, d:15, nome:'Proclamação da República',        tipo:'nacional' },
+    { m:11, d:20, nome:'Consciência Negra',               tipo:'nacional' },
+    { m:12, d:25, nome:'Natal',                           tipo:'nacional' },
+  ];
+
+  /* Feriados facultativos/religiosos fixos */
+  var FERIADOS_FACULTATIVOS_FIXOS = [
+    { m:1,  d:6,  nome:'Dia dos Reis (facultativo)',      tipo:'facultativo' },
+    { m:10, d:31, nome:'Véspera de Finados (facultativo)',tipo:'facultativo' },
+    { m:12, d:8,  nome:'Imaculada Conceição (facultativo)',tipo:'facultativo' },
+    { m:12, d:24, nome:'Véspera de Natal (facultativo)',  tipo:'facultativo' },
+    { m:12, d:31, nome:'Véspera de Ano Novo (facultativo)',tipo:'facultativo' },
+  ];
+
+  /* Páscoa — algoritmo de Meeus/Jones/Butcher
+     Ref: https://en.wikipedia.org/wiki/Date_of_Easter#Anonymous_Gregorian_algorithm */
+  function calcEaster(y) {
+    var a = y % 19, b = Math.floor(y/100), c = y % 100;
+    var d = Math.floor(b/4), e = b % 4;
+    var f = Math.floor((b+8)/25), g = Math.floor((b-f+1)/3);
+    var h = (19*a + b - d - g + 15) % 30;
+    var i = Math.floor(c/4), k = c % 4;
+    var l = (32 + 2*e + 2*i - h - k) % 7;
+    var m = Math.floor((a + 11*h + 22*l) / 451);
+    var month = Math.floor((h + l - 7*m + 114) / 31);
+    var day   = ((h + l - 7*m + 114) % 31) + 1;
+    return { m: month, d: day };
+  }
+
+  /* Calcular todos os feriados do ano (fixos + móveis) */
+  function getHolidaysForYear(y) {
+    var holidays = [];
+
+    FERIADOS_NACIONAIS_FIXOS.forEach(function(f) { holidays.push({ m:f.m, d:f.d, nome:f.nome, tipo:f.tipo }); });
+    FERIADOS_FACULTATIVOS_FIXOS.forEach(function(f) { holidays.push({ m:f.m, d:f.d, nome:f.nome, tipo:f.tipo }); });
+
+    /* Feriados móveis baseados na Páscoa */
+    var easter = calcEaster(y);
+    var easterDate = new Date(y, easter.m - 1, easter.d);
+
+    function addDays(dt, n) { var d = new Date(dt); d.setDate(d.getDate() + n); return d; }
+    function toMD(dt) { return { m: dt.getMonth()+1, d: dt.getDate() }; }
+
+    var sexta = addDays(easterDate, -2);
+    var carnavalSeg = addDays(easterDate, -48);
+    var carnavalTer = addDays(easterDate, -47);
+    var quartaCinzas = addDays(easterDate, -46);
+    var corpusChristi = addDays(easterDate, 60);
+
+    var mvs = toMD(sexta);       holidays.push({ m:mvs.m, d:mvs.d, nome:'Sexta-feira Santa (Paixão de Cristo)', tipo:'nacional' });
+    holidays.push({ m:easter.m, d:easter.d, nome:'Páscoa', tipo:'nacional' });
+    var mvc = toMD(carnavalSeg); holidays.push({ m:mvc.m, d:mvc.d, nome:'Carnaval (segunda)', tipo:'facultativo' });
+    var mvt = toMD(carnavalTer); holidays.push({ m:mvt.m, d:mvt.d, nome:'Carnaval (terça-feira)', tipo:'facultativo' });
+    var mvq = toMD(quartaCinzas); holidays.push({ m:mvq.m, d:mvq.d, nome:'Quarta-feira de Cinzas (facultativo)', tipo:'facultativo' });
+    var mvcc = toMD(corpusChristi); holidays.push({ m:mvcc.m, d:mvcc.d, nome:'Corpus Christi (facultativo)', tipo:'facultativo' });
+
+    /* Normaliza e ordena */
+    holidays.forEach(function(h) {
+      h.date = new Date(y, h.m - 1, h.d);
+    });
+    holidays.sort(function(a,b){ return a.date - b.date; });
+    return holidays;
+  }
+
+  /* Chave de acesso rápido para lookup */
+  function buildHolidayMap(holidays) {
+    var map = {};
+    holidays.forEach(function(h) {
+      var key = h.m + '-' + h.d;
+      if (!map[key]) map[key] = [];
+      map[key].push(h);
+    });
+    return map;
+  }
+
+  var MONTHS_PT = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho',
+                   'Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+  var DAYS_PT   = ['D','S','T','Q','Q','S','S'];
+  var TIPO_LABEL = { nacional: 'Nacional', estadual: 'Estadual/Municipal', facultativo: 'Facultativo' };
+
+  function renderCalendar(y) {
+    calCurrentYear = y;
+    document.getElementById('calYearDisplay').textContent  = y;
+    document.getElementById('calHolidayYear').textContent  = y;
+
+    var holidays = getHolidaysForYear(y);
+    var hmap     = buildHolidayMap(holidays);
+
+    var today = new Date();
+    var todayY = today.getFullYear();
+    var todayM = today.getMonth() + 1;
+    var todayD = today.getDate();
+
+    var grid = document.getElementById('calGrid');
+    grid.innerHTML = '';
+
+    for (var mo = 1; mo <= 12; mo++) {
+      var monthEl = document.createElement('div');
+      monthEl.className = 'cal-month';
+
+      /* Month title */
+      var titleEl = document.createElement('div');
+      titleEl.className = 'cal-month-title';
+      titleEl.textContent = MONTHS_PT[mo - 1];
+      monthEl.appendChild(titleEl);
+
+      /* Day-of-week header */
+      var hdrEl = document.createElement('div');
+      hdrEl.className = 'cal-days-header';
+      DAYS_PT.forEach(function(dl) {
+        var s = document.createElement('span');
+        s.textContent = dl;
+        hdrEl.appendChild(s);
+      });
+      monthEl.appendChild(hdrEl);
+
+      /* Days grid */
+      var daysEl = document.createElement('div');
+      daysEl.className = 'cal-days';
+
+      var firstDay = new Date(y, mo - 1, 1).getDay(); /* 0=Sun */
+      var daysInMonth = new Date(y, mo, 0).getDate();
+
+      /* Empty cells before first day */
+      for (var blank = 0; blank < firstDay; blank++) {
+        var be = document.createElement('div');
+        be.className = 'cal-day empty';
+        daysEl.appendChild(be);
+      }
+
+      for (var day = 1; day <= daysInMonth; day++) {
+        var dt   = new Date(y, mo - 1, day);
+        var dow  = dt.getDay();
+        var key  = mo + '-' + day;
+        var hols = hmap[key] || [];
+
+        var de = document.createElement('div');
+        de.className = 'cal-day';
+        de.textContent = day;
+
+        /* Day-of-week coloring */
+        if (dow === 0) de.classList.add('dom');
+        else if (dow === 6) de.classList.add('sab');
+
+        /* Today highlight */
+        if (y === todayY && mo === todayM && day === todayD) {
+          de.classList.add('today');
+        }
+
+        /* Holiday classes (stacked on top of today if applicable) */
+        if (hols.length) {
+          var tipos = hols.map(function(h){ return h.tipo; });
+          var cls = tipos.indexOf('nacional') >= 0 ? 'feriado-nacional'
+                  : tipos.indexOf('estadual') >= 0 ? 'feriado-estadual'
+                  : 'feriado-facultativo';
+          de.classList.add(cls);
+          de.setAttribute('data-tip', hols.map(function(h){ return h.nome; }).join('\n'));
+          de.setAttribute('title', hols.map(function(h){ return h.nome; }).join(' | '));
+        }
+
+        daysEl.appendChild(de);
+      }
+
+      monthEl.appendChild(daysEl);
+      grid.appendChild(monthEl);
+    }
+
+    /* Render holiday list */
+    var tbody = document.getElementById('calHolidayBody');
+    tbody.innerHTML = '';
+    if (!holidays.length) {
+      tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--cor-sub);padding:16px;">Nenhum feriado encontrado.</td></tr>';
+      return;
+    }
+
+    var diasSemana = ['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'];
+
+    holidays.forEach(function(h) {
+      var tr = document.createElement('tr');
+      var dateStr = (h.d < 10 ? '0' + h.d : h.d) + '/' + (h.m < 10 ? '0' + h.m : h.m) + '/' + y;
+      var dow     = diasSemana[h.date.getDay()];
+      tr.innerHTML =
+        '<td style="color:var(--dourado);font-weight:600;">' + dateStr + '</td>' +
+        '<td style="color:var(--cor-sub);">' + dow + '</td>' +
+        '<td>' + h.nome + '</td>' +
+        '<td><span class="badge ' + h.tipo + '">' + (TIPO_LABEL[h.tipo] || h.tipo) + '</span></td>';
+      tbody.appendChild(tr);
+    });
+  }
+
+  window.calNavYear = function(delta) { renderCalendar(calCurrentYear + delta); };
+
+  /* Init on DOM ready */
+  document.addEventListener('DOMContentLoaded', function() {
+    renderCalendar(new Date().getFullYear());
+  });
+})();
+
 </script>
 <script>
 if ('serviceWorker' in navigator) {
@@ -9804,6 +10259,42 @@ if ('serviceWorker' in navigator) {
       </tbody>
     </table>
     </div><!-- end cobrancasContent -->
+  </section>
+  <!-- ==========================================
+       CALENDÁRIO ANUAL DE FERIADOS
+  =========================================== -->
+  <section id="calendario" class="table-wrap">
+    <div class="section-title">
+      📅 Calendário Anual de Feriados
+    </div>
+
+    <div class="cal-header">
+      <div class="cal-year-selector">
+        <button onclick="calNavYear(-1)" title="Ano anterior">◀</button>
+        <span class="cal-year-display" id="calYearDisplay">2025</span>
+        <button onclick="calNavYear(+1)" title="Próximo ano">▶</button>
+      </div>
+      <div class="cal-legend">
+        <div class="cal-legend-item"><span class="cal-legend-dot nacional"></span> Nacional</div>
+        <div class="cal-legend-item"><span class="cal-legend-dot estadual"></span> Estadual/Municipal</div>
+        <div class="cal-legend-item"><span class="cal-legend-dot facultativo"></span> Facultativo</div>
+        <div class="cal-legend-item"><span class="cal-legend-dot today"></span> Hoje</div>
+      </div>
+    </div>
+
+    <div class="cal-grid" id="calGrid"></div>
+
+    <div class="cal-holiday-list">
+      <div class="cal-holiday-list-title">📋 Lista de Feriados — <span id="calHolidayYear">2025</span></div>
+      <div class="table-wrap" style="padding:0; border:none;">
+        <table class="cal-holiday-table">
+          <thead>
+            <tr><th>Data</th><th>Dia</th><th>Feriado</th><th>Tipo</th></tr>
+          </thead>
+          <tbody id="calHolidayBody"></tbody>
+        </table>
+      </div>
+    </div>
   </section>
 
 </main>
