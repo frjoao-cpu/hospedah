@@ -1424,22 +1424,33 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
     var waURL = 'https://wa.me/' + WHATSAPP + '?text=' + encodeURIComponent(waMSG);
 
+    /* Abrir WhatsApp de forma síncrona (resposta direta ao clique do usuário)
+       para evitar que o bloqueador de pop-ups do navegador impeça a abertura. */
+    var waWin = window.open(waURL, '_blank');
+
+    msg.style.color = '#27ae60';
+    msg.textContent = waWin
+      ? '✅ Conclua o envio no WhatsApp que foi aberto!'
+      : '✅ Clique aqui para enviar pelo WhatsApp →';
+
+    if (!waWin) {
+      /* Pop-up bloqueado — exibir link clicável como alternativa */
+      var link = document.createElement('a');
+      link.href = waURL;
+      link.target = '_blank';
+      link.rel = 'noopener';
+      link.style.cssText = 'display:block;margin-top:8px;color:#25D366;font-weight:700;';
+      link.textContent = '💬 Enviar orçamento no WhatsApp';
+      msg.appendChild(link);
+    }
+
+    /* Enviar dados para a planilha em segundo plano (não bloqueia o WhatsApp) */
     fetch(WEBHOOK, {
       method : 'POST',
       mode   : 'no-cors',
       headers: { 'Content-Type': 'application/json' },
       body   : JSON.stringify(payload)
-    })
-    .then(function () {
-      msg.style.color = '#27ae60';
-      msg.textContent = '✅ Lead salvo! Abrindo WhatsApp...';
-      setTimeout(function () { window.open(waURL, '_blank'); }, 600);
-    })
-    .catch(function () {
-      msg.style.color = '#e67e22';
-      msg.textContent = '⚠️ Planilha indisponível, mas abrindo WhatsApp...';
-      setTimeout(function () { window.open(waURL, '_blank'); }, 600);
-    });
+    }).catch(function (err) { console.warn('[HOSPEDAH] Falha no webhook da planilha:', err); });
 
     setTimeout(function () {
       document.getElementById('hosp-form').reset();
