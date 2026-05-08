@@ -10,7 +10,7 @@
 // ============================================================
 /* global window, fetch */
 (function () {
-  var EDGE_FN_URL = (window.HOSPEDAH_SB_URL || 'https://ydrmjoppjxtmnwtvtinb.supabase.co') + '/functions/v1/ai-concierge';
+  var EDGE_FN_URL = window.HOSPEDAH_SB_URL + '/functions/v1/ai-concierge';
   // Chave anon pública centralizada em assets/supabase-config.js.
   // Segurança garantida pelo RLS do Supabase, não pela ocultação da chave.
   var SUPABASE_ANON_KEY = window.HOSPEDAH_SB_ANON;
