@@ -92,7 +92,7 @@ function searchWeatherByCity(city) {
             fetchWeather(data.coord.lat, data.coord.lon);
         })
         .catch(error => {
-            alert('Erro: ' + error.message);
+            showToast('Erro: ' + error.message, 'error');
         });
 }
 
@@ -332,8 +332,9 @@ function trackAbandonedProposal(data) {
  * @param {Object} data  Dados da sessão a salvar
  */
 function salvarAbandonoSupabase(data) {
-    var SB_URL = 'https://ydrmjoppjxtmnwtvtinb.supabase.co';
-    var SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlkcm1qb3Bwanh0bW53dHZ0aW5iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYyNzA3MzksImV4cCI6MjA5MTg0NjczOX0.Gp4ed332v62sC5e5GXXbPqOIBNpS4EzMCFawnBJE_Cw';
+    /* Centralizado em assets/supabase-config.js — evita duplicação */
+    var SB_URL = window.HOSPEDAH_SB_URL;
+    var SB_KEY = window.HOSPEDAH_SB_ANON;
 
     var sid = sessionStorage.getItem('hospedah_session_id');
     if (!sid) {

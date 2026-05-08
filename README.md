@@ -1,141 +1,105 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>HOSPEDAH</title>
-<style>
-body {
-    font-family: Arial, sans-serif;
-    background: #fff;
-    color: #111;
-    margin: 0;
-    padding: 40px;
-}
-.container {
-    max-width: 800px;
-    margin: auto;
-}
-h1 {
-    font-size: 40px;
-    margin-bottom: 5px;
-}
-h2 {
-    margin-top: 40px;
-}
-input {
-    width: 100%;
-    padding: 12px;
-    margin: 10px 0;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    box-sizing: border-box;
-}
-button {
-    padding: 12px 20px;
-    background: black;
-    color: white;
-    border: none;
-    cursor: pointer;
-    border-radius: 4px;
-    transition: background 0.3s;
-}
-button:hover {
-    background: #444;
-}
-.card {
-    margin-top: 30px;
-    padding: 20px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-.error {
-    color: red;
-    font-size: 14px;
-    margin-top: 5px;
-}
-</style>
-</head>
-<body>
-<div class="container">
-<h1>HOSPEDAH</h1>
-<p>Sua experiência começa aqui.</p>
-<h2>Monte sua proposta</h2>
-<input id="nome" placeholder="Nome do cliente" required>
-<div id="nomeError" class="error"></div>
-<input id="destino" placeholder="Destino" required>
-<div id="destinoError" class="error"></div>
-<input id="data" placeholder="Data da viagem" type="date" required>
-<div id="dataError" class="error"></div>
-<input id="pessoas" placeholder="Quantidade de pessoas" type="number" min="1" required>
-<div id="pessoasError" class="error"></div>
-<button onclick="gerar()">Gerar proposta</button>
-<div id="resultado"></div>
-</div>
-<script>
-function gerar() {
-    // Clear previous errors
-    document.getElementById("nomeError").innerText = "";
-    document.getElementById("destinoError").innerText = "";
-    document.getElementById("dataError").innerText = "";
-    document.getElementById("pessoasError").innerText = "";
-    let nome = document.getElementById("nome").value.trim();
-    let destino = document.getElementById("destino").value.trim();
-    let data = document.getElementById("data").value;
-    let pessoas = document.getElementById("pessoas").value;
-    let hasErrors = false;
-    if (!nome) {
-        document.getElementById("nomeError").innerText = "Nome do cliente é obrigatório.";
-        hasErrors = true;
-    }
-    if (!destino) {
-        document.getElementById("destinoError").innerText = "Destino é obrigatório.";
-        hasErrors = true;
-    }
-    if (!data) {
-        document.getElementById("dataError").innerText = "Data da viagem é obrigatória.";
-        hasErrors = true;
-    }
-    if (!pessoas || pessoas < 1) {
-        document.getElementById("pessoasError").innerText = "Quantidade de pessoas deve ser pelo menos 1.";
-        hasErrors = true;
-    }
-    if (hasErrors) return;
-    // Format date
-    let formattedData = new Date(data).toLocaleDateString('pt-BR');
-    document.getElementById("resultado").innerHTML = `
-    <div class="card">
-        <h2>Proposta para ${nome}</h2>
-        <p><strong>Destino:</strong> ${destino}</p>
-        <p><strong>Data:</strong> ${formattedData}</p>
-        <p><strong>Pessoas:</strong> ${pessoas}</p>
-        <h3>Inclui:</h3>
-        <ul>
-            <li>Planejamento completo</li>
-            <li>Hospedagem selecionada</li>
-            <li>Suporte durante a viagem</li>
-        </ul>
-        <h3>Experiência HOSPEDAH</h3>
-        <p>Conforto, organização e tranquilidade em cada etapa da sua viagem.</p>
-        <a href="https://wa.me/5517982006382" target="_blank">
-            <button>Falar com especialista</button>
-        </a>
-    </div>
-    `;
-}
-</script>
-</body>
-</html>
+# HOSPEDAH — Resorts e Experiências Exclusivas
 
-## Análise do layout atual (ramo de hospedagem) e sugestões premium
+Site oficial da **HOSPEDAH**, agência especializada em hospedagem em resorts e experiências exclusivas.  
+🌐 **https://hospedah.tur.br**
+
+---
+
+## Estrutura do projeto
+
+```
+hospedah/
+├── index.html              # Homepage principal
+├── busca.html              # Busca de acomodações
+├── reservas.html           # Fluxo de reserva
+├── avaliacoes.html         # Avaliações dos hóspedes
+├── chat.html               # Chat com Concierge IA
+├── cadastro.html           # Cadastro de imóveis
+├── referral.html           # Programa de indicações
+├── jornal.html             # Blog / Jornal HOSPEDAH
+├── painel.html             # Painel administrativo (não indexado)
+├── sistema.html            # Sistema interno (não indexado)
+├── resorts/                # Páginas individuais de cada resort
+│   ├── hotbeach.html       # Hot Beach Suites — Olímpia/SP
+│   ├── saopedro.html       # São Pedro Thermas — São Pedro/SP
+│   ├── olimpia.html        # Olimpia Park Resort — Olímpia/SP
+│   ├── solar.html          # Solar das Águas — Olímpia/SP
+│   ├── wyndham.html        # Wyndham Royal Resort — Olímpia/SP
+│   ├── juquehy.html        # Praia de Juquehy — São Sebastião/SP
+│   ├── ipioca.html         # Ipioca Beach Resort — Maceió/AL
+│   └── portoi2.html        # Porto 2 Life
+├── assets/
+│   ├── mobile-first.css    # Tokens de design + estilos base (importar primeiro)
+│   ├── index.css           # Estilos específicos da homepage
+│   ├── style.css           # Componentes compartilhados (galeria, whatsapp, etc.)
+│   ├── busca.css           # Estilos da página de busca
+│   ├── reservas.css        # Estilos do fluxo de reserva
+│   ├── tracking.js         # Inicialização GTM / Clarity / Meta Pixel / OneSignal
+│   ├── supabase-config.js  # Config pública do Supabase (URL + anon key)
+│   ├── ai-concierge.js     # Cliente do Concierge IA (via Edge Function)
+│   ├── ai-config.js        # Placeholder de configuração da IA (chave no servidor)
+│   └── auth-guard.js       # Guard de autenticação para páginas protegidas
+├── scripts/
+│   ├── navbar.js           # Navbar/footer compartilhados (injetados via JS)
+│   └── generate-resorts.js # Gerador de páginas de resort a partir de data.json
+├── supabase/
+│   └── functions/          # Supabase Edge Functions (backend serverless)
+├── sw.js                   # Service Worker (PWA)
+├── manifest.json           # Web App Manifest (PWA)
+├── sitemap.xml             # Sitemap para indexação
+└── robots.txt              # Diretivas para crawlers
+```
+
+## Stack técnica
+
+| Camada | Tecnologia |
+|--------|-----------|
+| Frontend | HTML5, CSS3, JavaScript (Vanilla) |
+| Backend | Supabase (PostgreSQL + Edge Functions) |
+| IA | Google Gemini via Supabase Edge Function |
+| Clima | OpenWeatherMap via Supabase Edge Function |
+| Analytics | Google Tag Manager, Microsoft Clarity, Meta Pixel |
+| Push | OneSignal |
+| Deploy | GitHub Pages (CI/CD via GitHub Actions) |
+| PWA | Service Worker + Web App Manifest |
+
+## Convenções de CSS
+
+A ordem correta de importação em **todas as páginas** é:
+
+1. `/assets/mobile-first.css` — tokens de design (cores, espaçamentos, motion)
+2. `/assets/style.css` — componentes compartilhados
+3. CSS específico da página (arquivo próprio ou `<style>` inline)
+
+## Segurança
+
+- A **anon key do Supabase** é uma chave pública por design; a segurança dos dados é garantida pelas políticas de **Row Level Security (RLS)** no banco.
+- A **chave Gemini** e a **chave OpenWeatherMap** ficam **exclusivamente no servidor** (Supabase Edge Functions), nunca expostas ao browser.
+- O rastreamento (GTM, Clarity, Meta Pixel, OneSignal) só é inicializado **após consentimento LGPD** explícito do usuário.
+
+## CI/CD
+
+O pipeline de CI (`.github/workflows/ci.yml`) executa automaticamente:
+
+1. **htmlhint** — validação de HTML
+2. **ESLint** — validação de JavaScript
+3. **Stylelint** — validação de CSS
+4. **Lychee** — verificação de links quebrados
+5. **Lighthouse CI** — auditoria de performance, acessibilidade, SEO e boas práticas
+6. **TruffleHog** — varredura de segredos expostos
+7. **Deploy** no GitHub Pages (somente na `main`)
+8. **Deploy das Edge Functions** no Supabase (somente na `main`)
+9. **Smoke tests** nas páginas críticas após o deploy
+
+---
+
+## Análise do layout e sugestões premium
 
 ### Diagnóstico prático encontrado no código/layout
 - **Homepage robusta, porém monolítica**: o `index.html` concentra grande volume de CSS inline e scripts na mesma página (navbar, hero, galeria, FAQ, formulários), o que dificulta evolução visual com consistência.
 - **Base mobile-first já existe** em `assets/mobile-first.css`, mas parte importante do visual continua acoplada ao `index.html`, criando duplicidade de regras e manutenção mais lenta.
 - **Branding já tem direção premium** (paleta azul+dourado, hero com carrossel, glassmorphism leve), mas ainda falta um **design system formal** (tokens, escala tipográfica, espaçamentos, estados).
 - **Automação/marketing parcialmente implantados** (LGPD, tracking condicional, WhatsApp, PWA), com oportunidades de elevar maturidade em CRM, funil e personalização.
-- **Ponto técnico crítico**: `script.js` expõe `API_KEY` no front-end; isso pode gerar uso indevido, consumo de cota por terceiros e indisponibilidade. Priorizar rotação imediata da chave e migração de integrações sensíveis para backend/serverless.
 
 ### Melhorias de interface para padrão profissional e sofisticado
 1. **Design System unificado**
@@ -145,8 +109,8 @@ function gerar() {
 
 2. **Estrutura visual premium (web + mobile)**
    - Hero com proposta de valor mais objetiva e CTA principal único acima da dobra.
-   - Cards de resorts com: selo (“mais reservado”), score, benefícios, política de cancelamento resumida e preço inicial.
-   - Navegação mobile com “quick actions” (Reservar, Favoritos, Atendimento, Perfil) e desktop com menu orientado por jornada.
+   - Cards de resorts com: selo ("mais reservado"), score, benefícios, política de cancelamento resumida e preço inicial.
+   - Navegação mobile com "quick actions" (Reservar, Favoritos, Atendimento, Perfil) e desktop com menu orientado por jornada.
 
 3. **Microinterações e animações modernas**
    - Transições curtas (120–240ms), feedback tátil/visual em botões, skeleton loading, animação de sucesso em envio de formulário.

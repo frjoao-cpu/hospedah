@@ -10,10 +10,10 @@
 // ============================================================
 /* global window, fetch */
 (function () {
-  var EDGE_FN_URL = 'https://ydrmjoppjxtmnwtvtinb.supabase.co/functions/v1/ai-concierge';
-  // Chave anon pública do projeto Supabase — necessária no header
-  // para que o gateway do Supabase aceite chamadas à Edge Function.
-  var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlkcm1qb3Bwanh0bW53dHZ0aW5iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYyNzA3MzksImV4cCI6MjA5MTg0NjczOX0.Gp4ed332v62sC5e5GXXbPqOIBNpS4EzMCFawnBJE_Cw';
+  var EDGE_FN_URL = window.HOSPEDAH_SB_URL + '/functions/v1/ai-concierge';
+  // Chave anon pública centralizada em assets/supabase-config.js.
+  // Segurança garantida pelo RLS do Supabase, não pela ocultação da chave.
+  var SUPABASE_ANON_KEY = window.HOSPEDAH_SB_ANON;
   var DEFAULT_TEMPERATURE = 0.7;
   var FALLBACK_COUNTER = 0;
 
