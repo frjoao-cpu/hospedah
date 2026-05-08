@@ -2116,7 +2116,7 @@ function enviarOrcamento(e) {
       var utmParts = {};
       utm.split('&').forEach(function (p) {
         var kv = p.split('=');
-        if (kv.length === 2) utmParts[kv[0]] = decodeURIComponent(kv[1] || '');
+        if (kv.length === 2) utmParts[kv[0]] = kv[1];
       });
       client.from('leads').insert([{
         nome:         nome,
