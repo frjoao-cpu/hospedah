@@ -1440,24 +1440,48 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     }
 
     /* Enviar dados para a planilha em segundo plano (não bloqueia o WhatsApp) */
-    fetch(WEBHOOK, {
-      method : 'POST',
-      mode   : 'no-cors',
-      headers: { 'Content-Type': 'application/json' },
-      body   : JSON.stringify(payload)
-    }).catch(function (err) { console.warn('[HOSPEDAH] Falha no webhook da planilha:', err); });
+    try {
+      fetch(WEBHOOK, {
+        method : 'POST',
+        mode   : 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body   : JSON.stringify(payload)
+      }).catch(function (err) { console.warn('[HOSPEDAH] Falha no webhook da planilha:', err); });
+    } catch (_) {}
+
+    /* Salvar lead na tabela leads do Supabase */
+    try {
+      var sbClient = window._sb;
+      if (sbClient) {
+        var totalHospedes = (parseInt(adultos, 10) || 0) + (parseInt(criancas, 10) || 0) || 1;
+        sbClient.from('leads').insert([{
+          nome:         nome,
+          whatsapp:     tel,
+          resort_nome:  resort,
+          num_pessoas:  totalHospedes,
+          data_entrada: checkin  || null,
+          data_saida:   checkout || null,
+          origem:       'orcamento_rapido',
+          utm_source:   getUTM('utm_source')   || null,
+          utm_medium:   getUTM('utm_medium')   || null,
+          utm_campaign: getUTM('utm_campaign') || null
+        }]).catch(function (err) { console.warn('[HOSPEDAH] Falha ao salvar lead rápido:', err); });
+      }
+    } catch (_) {}
 
     /* Notificar admin automaticamente via Z-API */
-    notificarAdminOrcamento({
-      nome_hospede:  nome,
-      email_hospede: '',
-      telefone:      tel,
-      resort_nome:   resort,
-      data_entrada:  checkin  || null,
-      data_saida:    checkout || null,
-      num_hospedes:  (parseInt(adultos, 10) || 0) + (parseInt(criancas, 10) || 0) || 1,
-      mensagem:      null
-    });
+    try {
+      notificarAdminOrcamento({
+        nome_hospede:  nome,
+        email_hospede: '',
+        telefone:      tel,
+        resort_nome:   resort,
+        data_entrada:  checkin  || null,
+        data_saida:    checkout || null,
+        num_hospedes:  (parseInt(adultos, 10) || 0) + (parseInt(criancas, 10) || 0) || 1,
+        mensagem:      null
+      });
+    } catch (_) {}
 
     setTimeout(function () {
       document.getElementById('hosp-form').reset();
@@ -1986,22 +2010,28 @@ function consultar(nome, preco) {
  *           num_hospedes:number, mensagem:string|null }} record
  */
 function notificarAdminOrcamento(record) {
-  var SB_URL = 'https://ydrmjoppjxtmnwtvtinb.supabase.co';
-  var SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlkcm1qb3Bwanh0bW53dHZ0aW5iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYyNzA3MzksImV4cCI6MjA5MTg0NjczOX0.Gp4ed332v62sC5e5GXXbPqOIBNpS4EzMCFawnBJE_Cw';
-  record.id = Date.now().toString(36) + Math.random().toString(36).slice(2);
-  fetch(SB_URL + '/functions/v1/notificacao-reserva', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer ' + SB_KEY,
-      'apikey': SB_KEY
-    },
-    body: JSON.stringify({ record: record })
-  }).catch(function (err) { console.warn('[HOSPEDAH] Falha ao notificar admin:', err); });
+  try {
+    var SB_URL = 'https://ydrmjoppjxtmnwtvtinb.supabase.co';
+    var SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlkcm1qb3Bwanh0bW53dHZ0aW5iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYyNzA3MzksImV4cCI6MjA5MTg0NjczOX0.Gp4ed332v62sC5e5GXXbPqOIBNpS4EzMCFawnBJE_Cw';
+    var payload = Object.assign({}, record, {
+      id: Date.now().toString(36) + Math.random().toString(36).slice(2)
+    });
+    fetch(SB_URL + '/functions/v1/notificacao-reserva', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + SB_KEY,
+        'apikey': SB_KEY
+      },
+      body: JSON.stringify({ record: payload })
+    }).catch(function (err) { console.warn('[HOSPEDAH] Falha ao notificar admin:', err); });
+  } catch (err) { console.warn('[HOSPEDAH] notificarAdminOrcamento erro:', err); }
 }
 
 function enviarOrcamento(e) {
   if (e && e.preventDefault) e.preventDefault();
+
+  /* ── 1. Coletar dados ── */
   var nome    = document.getElementById('orc_nome').value.trim();
   var wpp     = document.getElementById('orc_wpp').value.trim();
   var email   = document.getElementById('orc_email').value.trim();
@@ -2010,71 +2040,13 @@ function enviarOrcamento(e) {
   var entrada = document.getElementById('orc_entrada').value;
   var saida   = document.getElementById('orc_saida').value;
   var obs     = document.getElementById('orc_obs').value.trim();
+
   if (!nome || !wpp || !resort || !pessoas || !entrada || !saida) {
     alert('Preencha todos os campos obrigatórios.'); return;
   }
-  if (typeof fbq === 'function') fbq('track', 'Lead', { content_name: resort });
-  if (window.dataLayer) dataLayer.push({ event: 'orcamento_enviado', resort: resort });
 
-  /* Formspree — notifica a equipe por e-mail a cada orçamento recebido */
-  fetch('https://formspree.io/f/mzdoavpo', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-    body: JSON.stringify({
-      tipo: 'orcamento', nome: nome, whatsapp: wpp, email: email,
-      resort: resort, pessoas: pessoas, entrada: entrada, saida: saida,
-      obs: obs, utm: getUtmStr()
-    })
-  }).catch(function() {});
-
-  /* Salvar lead no Supabase para CRM e retargeting */
-  salvarLeadSupabase({ nome: nome, wpp: wpp, email: email, resort: resort,
-    pessoas: pessoas, entrada: entrada, saida: saida, obs: obs });
-
-  /* Registrar na tabela leads para o painel administrativo */
-  (function () {
-    var client = window._sb;
-    if (!client) return;
-    var utm = getUtmStr() || '';
-    var utmParts = {};
-    utm.split('&').forEach(function (p) {
-      var kv = p.split('=');
-      if (kv.length === 2) utmParts[kv[0]] = kv[1];
-    });
-    client.from('leads').insert([{
-      nome:         nome,
-      whatsapp:     wpp,
-      email:        email || null,
-      resort_nome:  resort,
-      num_pessoas:  parseInt(pessoas, 10) || null,
-      data_entrada: entrada || null,
-      data_saida:   saida   || null,
-      observacoes:  obs     || null,
-      origem:       'orcamento',
-      utm_source:   utmParts.utm_source   || null,
-      utm_medium:   utmParts.utm_medium   || null,
-      utm_campaign: utmParts.utm_campaign || null,
-    }]).catch(function (err) {
-      console.warn('[HOSPEDAH] Falha ao salvar lead:', err);
-    });
-  }());
-
-  /* Notificar admin automaticamente via Z-API — independente de o usuário enviar pelo WhatsApp */
-  notificarAdminOrcamento({
-    nome_hospede:  nome,
-    email_hospede: email || '',
-    telefone:      wpp,
-    resort_nome:   resort,
-    data_entrada:  entrada,
-    data_saida:    saida,
-    num_hospedes:  parseInt(pessoas, 10) || 1,
-    mensagem:      obs || null
-  });
-
-  /* Nurturing — registrar sequência de e-mail pós-captura */
-  if (email) agendarNurturingEmail({ nome: nome, email: email, resort: resort, entrada: entrada });
-
-  var msg = encodeURIComponent(
+  /* ── 2. Construir URL do WhatsApp PRIMEIRO — nada pode bloquear isso ── */
+  var waMsg = encodeURIComponent(
     '🏨 *Solicitação de Orçamento — HOSPEDAH*\n\n' +
     '👤 Nome: '     + nome    + '\n' +
     '📞 WhatsApp: ' + wpp     + '\n' +
@@ -2086,27 +2058,103 @@ function enviarOrcamento(e) {
     (obs ? '📝 Obs: ' + obs + '\n' : '') +
     getUtmSuffix()
   );
-  var waUrl = 'https://wa.me/5517982006382?text=' + msg;
+  var waUrl = 'https://wa.me/5517982006382?text=' + waMsg;
 
-  /* Guardar dados para PDF e referral antes de resetar o form */
+  /* ── 3. Guardar dados para PDF / referral ── */
   window._orcDados = { nome: nome, wpp: wpp, email: email, resort: resort,
     pessoas: pessoas, entrada: entrada, saida: saida, obs: obs };
 
-  /* Ocultar wizard e mostrar painel de sucesso com link WhatsApp */
+  /* ── 4. Exibir painel de sucesso e abrir WhatsApp ── */
   var wizard = document.getElementById('orcWizard');
   if (wizard) wizard.style.display = 'none';
   mostrarPainelSucesso(waUrl);
 
-  /* Abrir WhatsApp em nova aba — se bloqueado pelo navegador, o botão no painel serve de fallback */
   var waWin = window.open(waUrl, '_blank');
   if (!waWin) {
-    /* Pop-up bloqueado: o botão "📲 Enviar pelo WhatsApp" no painel de sucesso garante o envio */
+    /* Pop-up bloqueado: o botão no painel de sucesso garante o envio */
     var btn = document.getElementById('orc_wpp_btn');
     if (btn) {
       btn.style.animation = 'pulse 1s infinite';
       btn.textContent = '📲 Clique aqui para enviar pelo WhatsApp';
     }
   }
+
+  /* ── 5. Operações secundárias — cada uma isolada em try/catch ── */
+
+  /* Analytics */
+  try {
+    if (typeof fbq === 'function') fbq('track', 'Lead', { content_name: resort });
+    if (window.dataLayer) window.dataLayer.push({ event: 'orcamento_enviado', resort: resort });
+  } catch (_) {}
+
+  /* Formspree — notifica a equipe por e-mail */
+  try {
+    fetch('https://formspree.io/f/mzdoavpo', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify({
+        tipo: 'orcamento', nome: nome, whatsapp: wpp, email: email,
+        resort: resort, pessoas: pessoas, entrada: entrada, saida: saida,
+        obs: obs, utm: getUtmStr()
+      })
+    }).catch(function () {});
+  } catch (_) {}
+
+  /* Salvar lead no abandono_reserva (CRM / retargeting) */
+  try {
+    if (typeof salvarLeadSupabase === 'function') {
+      salvarLeadSupabase({ nome: nome, wpp: wpp, email: email, resort: resort,
+        pessoas: pessoas, entrada: entrada, saida: saida, obs: obs });
+    }
+  } catch (_) {}
+
+  /* Registrar na tabela leads para o painel administrativo */
+  try {
+    var client = window._sb;
+    if (client) {
+      var utm = getUtmStr() || '';
+      var utmParts = {};
+      utm.split('&').forEach(function (p) {
+        var kv = p.split('=');
+        if (kv.length === 2) utmParts[kv[0]] = decodeURIComponent(kv[1] || '');
+      });
+      client.from('leads').insert([{
+        nome:         nome,
+        whatsapp:     wpp,
+        email:        email   || null,
+        resort_nome:  resort,
+        num_pessoas:  parseInt(pessoas, 10) || null,
+        data_entrada: entrada || null,
+        data_saida:   saida   || null,
+        observacoes:  obs     || null,
+        origem:       'orcamento',
+        utm_source:   utmParts.utm_source   || null,
+        utm_medium:   utmParts.utm_medium   || null,
+        utm_campaign: utmParts.utm_campaign || null
+      }]).catch(function (err) {
+        console.warn('[HOSPEDAH] Falha ao salvar lead:', err);
+      });
+    }
+  } catch (_) {}
+
+  /* Notificar admin via Z-API / Edge Function */
+  try {
+    notificarAdminOrcamento({
+      nome_hospede:  nome,
+      email_hospede: email || '',
+      telefone:      wpp,
+      resort_nome:   resort,
+      data_entrada:  entrada,
+      data_saida:    saida,
+      num_hospedes:  parseInt(pessoas, 10) || 1,
+      mensagem:      obs || null
+    });
+  } catch (_) {}
+
+  /* Nurturing — sequência de e-mail pós-captura */
+  try {
+    if (email) agendarNurturingEmail({ nome: nome, email: email, resort: resort, entrada: entrada });
+  } catch (_) {}
 }
 
 function mostrarFallbackWhatsApp(waUrl) {
