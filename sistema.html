@@ -5224,7 +5224,11 @@ function adicionarLinhaParcelaForm(prefix, mes, valor) {
   var idx  = builder.querySelectorAll('.parcela-row').length;
   var row  = document.createElement('div');
   row.className = 'parcela-row';
-  var defaultMes = mes || _mesKey(new Date(new Date().getFullYear(), new Date().getMonth() + 1, 1));
+  /* _mesKey handles month overflow correctly (e.g., Dec+1 = Jan next year) */
+  var _nextMonth = new Date();
+  _nextMonth.setDate(1);
+  _nextMonth.setMonth(_nextMonth.getMonth() + 1);
+  var defaultMes = mes || _mesKey(_nextMonth);
   row.innerHTML =
     '<span class="parcela-label">Mês</span>' +
     '<input type="month" class="parcela-mes" value="' + escapeHtml(defaultMes) + '" oninput="_atualizarTotalParcelas(\'' + prefix + '\')">' +
@@ -6333,6 +6337,7 @@ function atualizarMensal() {
     meses[mes].lucro            += (r.valorCaptacao > 0) ? (parseFloat(r.total || 0) - parseFloat(r.valorCaptacao || 0)) : 0;
     /* Acumula previsões de parcelas futuras por mês de recebimento */
     (r.parcelasComissao || []).forEach(function (p) {
+      /* "YYYY-MM" lexicographic comparison is correct across year boundaries */
       if (!p.mes || p.mes <= mes) return; /* apenas meses futuros em relação à venda */
       if (!meses[mes].parcelasFuturas[p.mes]) meses[mes].parcelasFuturas[p.mes] = 0;
       meses[mes].parcelasFuturas[p.mes] += parseFloat(p.valor) || 0;
@@ -6437,6 +6442,7 @@ function atualizarPrevisaoRecebimentos() {
   var hoje = _mesKey(new Date());
   chaves.forEach(function (key) {
     var m = meses[key];
+    /* "YYYY-MM" lexicographic comparison is reliable across year/month boundaries */
     var isPast    = key < hoje;
     var isPresent = key === hoje;
     var borderColor = isPast ? 'rgba(231,76,60,0.3)' : isPresent ? 'rgba(212,175,55,0.4)' : 'rgba(77,166,255,0.2)';
@@ -6610,7 +6616,7 @@ function atualizarVendasAnuais() {
   for (var i = 1; i <= 12; i++) {
     var t   = totais[i];
     var ant = antAno[i];
-    var vazio  = t.reservas === 0 && t.parcelasReceber === 0;
+    var vazio  = t.reservas === 0 && (t.parcelasReceber || 0) === 0;
     var atual  = (i === mesAtual && ano === anoAtual);
     var pct    = totAno.venda > 0 ? ((t.venda / totAno.venda) * 100).toFixed(1) : '0.0';
     var barPct = maxVenda > 0 ? Math.round((t.venda / maxVenda) * 100) : 0;
@@ -6632,7 +6638,7 @@ function atualizarVendasAnuais() {
         '<td class="' + (t.captacao > 0 ? lucroClass : '') + '">' + (t.captacao > 0 ? formatBRL(t.lucro) : '<span class="va-pct">—</span>') + '</td>'
       : '';
     var parcelasCell = temParcelas
-      ? '<td class="va-previsao">' + (t.parcelasReceber > 0 ? formatBRL(t.parcelasReceber) : '<span class="va-pct">—</span>') + '</td>'
+      ? '<td class="va-previsao">' + ((t.parcelasReceber || 0) > 0 ? formatBRL(t.parcelasReceber) : '<span class="va-pct">—</span>') + '</td>'
       : '';
 
     html +=
