@@ -1307,15 +1307,19 @@ SELECT
   DATE_TRUNC('month', COALESCE(data_venda, criado_em))::date       AS mes,
   COUNT(*) FILTER (WHERE status NOT IN ('cancelada', 'cancelado')) AS total_vendas,
   COALESCE(
-    SUM(valor_total)   FILTER (WHERE status NOT IN ('cancelada', 'cancelado')), 0
+    SUM(valor_total)    FILTER (WHERE status NOT IN ('cancelada', 'cancelado')), 0
   )                                                                  AS vendas_realizadas,
   COALESCE(
     SUM(comissao_valor) FILTER (WHERE status NOT IN ('cancelada', 'cancelado')), 0
   )                                                                  AS comissao_gerada,
-  COALESCE(SUM(valor_comissao_recebida), 0)                         AS comissao_recebida,
+  COALESCE(
+    SUM(valor_comissao_recebida) FILTER (WHERE status NOT IN ('cancelada', 'cancelado')), 0
+  )                                                                  AS comissao_recebida,
   COALESCE(
     SUM(comissao_valor) FILTER (WHERE status NOT IN ('cancelada', 'cancelado')), 0
-  ) - COALESCE(SUM(valor_comissao_recebida), 0)                     AS comissao_pendente
+  ) - COALESCE(
+    SUM(valor_comissao_recebida) FILTER (WHERE status NOT IN ('cancelada', 'cancelado')), 0
+  )                                                                  AS comissao_pendente
 FROM reservas_hospede
 GROUP BY 1
 ORDER BY 1 DESC;

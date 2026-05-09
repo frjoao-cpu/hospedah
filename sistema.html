@@ -5888,16 +5888,12 @@ function calcEditLucro() {
 function calcEditStatusComissao() {
   var comissaoTotal    = parseFloat(document.getElementById('edit_comissao_val').value) || 0;
   var comissaoRecebida = parseFloat(document.getElementById('edit_comissao_recebida').value) || 0;
-  var dataReceb        = document.getElementById('edit_data_recebimento_comissao').value;
   var statusEl         = document.getElementById('edit_status_comissao');
   if (!statusEl) return;
   if (comissaoRecebida <= 0) {
     statusEl.value = 'pendente';
   } else if (comissaoTotal > 0 && comissaoRecebida >= comissaoTotal) {
     statusEl.value = 'recebida';
-    if (dataReceb === '') {
-      document.getElementById('edit_data_recebimento_comissao').value = new Date().toISOString().slice(0, 10);
-    }
   } else {
     statusEl.value = 'parcial';
   }
