@@ -2634,14 +2634,16 @@ thead .col-sticky-right {
         <label>Mês</label>
         <input type="month" id="f_mes" oninput="renderTabela()">
       </div>
-      <div class="field-group" style="justify-content:flex-end; padding-top:18px;">
+      <div class="field-group" style="justify-content:flex-end; padding-top:18px; gap:6px; display:flex; flex-direction:row; align-items:flex-end;">
         <button class="btn btn-secondary btn-sm" onclick="limparFiltros()">✕ Limpar filtros</button>
+        <button class="btn btn-secondary btn-sm" id="btnLoteComissao" onclick="marcarComissaoRecebidaLote()" style="display:none;">✅ Marcar Comissões como Recebidas</button>
       </div>
     </div>
 
     <table id="tabelaReservas">
       <thead>
         <tr>
+          <th><input type="checkbox" id="resCheckAll" onchange="toggleCheckAllReservas(this.checked)" title="Selecionar todas"></th>
           <th>#</th>
           <th class="col-sticky-left">Cliente</th>
           <th>Canal</th>
@@ -2662,7 +2664,7 @@ thead .col-sticky-right {
       </thead>
       <tbody id="tabelaBody">
         <tr>
-          <td colspan="16">
+          <td colspan="17">
             <div class="empty-state">
               <div class="empty-icon">📋</div>
               <div>Nenhuma reserva cadastrada ainda.</div>
@@ -5603,6 +5605,7 @@ function _buildRow(r, i) {
   }
 
   return '<tr>' +
+    '<td style="text-align:center;"><input type="checkbox" class="res-check" data-id="' + r.id + '" onchange="_onResCheck()"></td>' +
     '<td>' + (i + 1) + '</td>' +
     '<td class="col-sticky-left"><strong>' + r.cliente + '</strong>' + (r.obs ? '<br><small style="color:var(--cor-sub);">' + r.obs + '</small>' : '') + '</td>' +
     '<td><small>' + canal + '</small></td>' +
@@ -5649,7 +5652,7 @@ function renderTabela() {
     var emptyTbody = document.createElement('tbody');
     emptyTbody.id = 'tabelaBody';
     emptyTbody.innerHTML =
-      '<tr><td colspan="16"><div class="empty-state">' +
+      '<tr><td colspan="17"><div class="empty-state">' +
       '<div class="empty-icon">📋</div>' +
       '<div>' + (reservas.length === 0 ? 'Nenhuma reserva cadastrada ainda.' : 'Nenhuma reserva corresponde aos filtros.') + '</div>' +
       '</div></td></tr>';
@@ -5701,7 +5704,7 @@ function renderTabela() {
 
     var separador =
       '<tr class="mes-separador" onclick="toggleGrupoMes(\'' + mes + '\')">' +
-      '<td colspan="16">📅 <strong>' + nomeDoMes(mes) + '</strong>' +
+      '<td colspan="17">📅 <strong>' + nomeDoMes(mes) + '</strong>' +
       '<span class="mes-sep-resumo">' + resumo + '</span>' +
       '<span class="mes-sep-toggle">' + (isAberto ? '▲' : '▼') + '</span>' +
       '</td></tr>';
@@ -5812,6 +5815,50 @@ function marcarPago(id) {
   renderRelatorioDesempenho();
   registrarAuditoria('Reserva marcada como paga', r.cliente + ' • ' + r.resort);
   mostrarToast('✅ Reserva marcada como paga!', 'success');
+}
+
+/* ==========================================
+   AÇÕES EM LOTE — COMISSÃO
+========================================== */
+function _onResCheck() {
+  var any = document.querySelectorAll('.res-check:checked').length > 0;
+  var btn = document.getElementById('btnLoteComissao');
+  if (btn) btn.style.display = any ? '' : 'none';
+  var allCbs = document.querySelectorAll('.res-check');
+  var allChecked = allCbs.length > 0 &&
+    document.querySelectorAll('.res-check:checked').length === allCbs.length;
+  var checkAll = document.getElementById('resCheckAll');
+  if (checkAll) checkAll.checked = allChecked;
+}
+
+function toggleCheckAllReservas(checked) {
+  document.querySelectorAll('.res-check').forEach(function (cb) { cb.checked = checked; });
+  _onResCheck();
+}
+
+function marcarComissaoRecebidaLote() {
+  var ids = [];
+  document.querySelectorAll('.res-check:checked').forEach(function (cb) {
+    ids.push(cb.dataset.id);
+  });
+  if (ids.length === 0) return;
+  if (!confirm('Marcar a comissão de ' + ids.length + ' reserva(s) como recebida?')) return;
+  var hoje = new Date().toISOString().slice(0, 10);
+  ids.forEach(function (id) {
+    var r = reservas.find(function (x) { return x.id === id; });
+    if (!r) return;
+    r.statusComissao = 'recebida';
+    r.comissaoRecebida = r.comissao;
+    r.dataRecebimentoComissao = r.dataRecebimentoComissao || hoje;
+  });
+  salvarReservas(reservas);
+  renderTabela();
+  atualizarDashboard();
+  atualizarMensal();
+  atualizarVendasAnuais();
+  renderRelatorioDesempenho();
+  registrarAuditoria('Comissão marcada como recebida em lote', ids.length + ' reserva(s)');
+  mostrarToast('✅ ' + ids.length + ' comissão(ões) marcada(s) como recebida!', 'success');
 }
 
 function excluirReserva(id) {
