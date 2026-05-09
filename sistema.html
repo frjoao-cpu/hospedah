@@ -1533,6 +1533,67 @@ thead .col-sticky-right {
 .va-lucro-pos  { color: #25D366; font-weight: 600; }
 .va-lucro-neg  { color: var(--vermelho); font-weight: 600; }
 .va-tag-atual  { font-size: 0.68em; opacity: 0.65; font-weight: 400; margin-left: 4px; }
+.va-previsao   { color: #4da6ff; font-weight: 600; }
+
+/* ==========================================
+   PARCELAS DE COMISSÃO (PREVISÃO FUTURA)
+========================================== */
+.parcelas-builder { display: flex; flex-direction: column; gap: 6px; margin-top: 6px; }
+.parcela-row {
+  display: flex; align-items: center; gap: 6px;
+}
+.parcela-row input[type="month"],
+.parcela-row input[type="number"] {
+  flex: 1; padding: 6px 8px; border-radius: 6px;
+  background: var(--bg); border: 1px solid var(--borda);
+  color: var(--cor-texto); font-size: 0.85em; font-family: inherit;
+}
+.parcela-row input[type="number"] { max-width: 120px; }
+.parcela-row .parcela-label { font-size: 0.75em; color: var(--cor-sub); white-space: nowrap; }
+.parcela-remove {
+  background: rgba(231,76,60,0.15); border: none; border-radius: 4px;
+  color: var(--vermelho); cursor: pointer; padding: 4px 7px; font-size: 0.85em;
+  line-height: 1;
+}
+.parcela-remove:hover { background: rgba(231,76,60,0.3); }
+.parcelas-add-btn {
+  background: rgba(212,175,55,0.1); border: 1px dashed rgba(212,175,55,0.4);
+  color: var(--dourado); cursor: pointer; border-radius: 6px;
+  padding: 5px 10px; font-size: 0.8em; font-family: inherit;
+  align-self: flex-start; margin-top: 4px;
+}
+.parcelas-add-btn:hover { background: rgba(212,175,55,0.2); }
+.parcelas-total { font-size: 0.78em; color: var(--cor-sub); margin-top: 4px; }
+.parcelas-total .pct-ok   { color: var(--verde); }
+.parcelas-total .pct-over { color: var(--vermelho); }
+
+/* ==========================================
+   PREVISÃO DE RECEBIMENTOS
+========================================== */
+.previsao-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 14px;
+  margin-bottom: 32px;
+}
+.previsao-card {
+  background: var(--bg2);
+  border: 1px solid rgba(77,166,255,0.2);
+  border-radius: var(--radius);
+  padding: 16px;
+}
+.previsao-card .pv-title {
+  font-size: 0.82em; font-weight: 600; color: #4da6ff;
+  margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.5px;
+}
+.previsao-card .pv-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 4px 0; border-bottom: 1px solid rgba(255,255,255,0.04);
+  font-size: 0.82em;
+}
+.previsao-card .pv-row:last-child { border-bottom: none; }
+.previsao-card .pv-row span:last-child { color: #4da6ff; font-weight: 600; }
+.previsao-card .pv-row.pv-total span:last-child { color: var(--dourado); font-weight: 700; }
 .va-agrup-toggle {
   display: flex; gap: 0;
   border: 1px solid var(--borda);
@@ -2234,6 +2295,7 @@ thead .col-sticky-right {
     <a href="#nova-reserva">➕ Nova Reserva</a>
     <a href="#reservas">📋 Reservas</a>
     <a href="#mensal">📅 Mensal</a>
+    <a href="#previsao-recebimentos">📆 Previsão</a>
     <a href="#graficos">📈 Gráficos</a>
     <a href="#relatorio">🏆 Relatório</a>
     <span class="nav-sep"></span>
@@ -2500,9 +2562,11 @@ thead .col-sticky-right {
         <input type="number" id="c_valor_captacao" min="0" step="0.01" placeholder="Ex.: 300,00" oninput="calcularFormulario()">
       </div>
 
-      <div class="field-group">
-        <label>Data Prevista da Comissão</label>
-        <input type="date" id="c_data_prevista_comissao" title="Data esperada para recebimento da comissão (ex.: D+30 após check-out)">
+      <div class="field-group" style="grid-column: span 2;">
+        <label>📅 Previsão de Recebimento da Comissão <small style="color:var(--cor-sub);font-weight:400;">(parcelas futuras)</small></label>
+        <div class="parcelas-builder" id="c_parcelasBuilder"></div>
+        <button type="button" class="parcelas-add-btn" onclick="adicionarLinhaParcelaForm('c')">+ Adicionar parcela</button>
+        <div class="parcelas-total" id="c_parcelasTotalHint"></div>
       </div>
     </div>
 
@@ -2688,6 +2752,20 @@ thead .col-sticky-right {
     <div class="monthly-grid" id="monthlyGrid">
       <div style="color: var(--cor-sub); font-size:0.9em; padding:10px;">
         Nenhum dado disponível. Adicione reservas para ver o resumo mensal.
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================
+       PREVISÃO DE RECEBIMENTOS DE COMISSÃO
+  =========================================== -->
+  <section id="previsao-recebimentos">
+    <div class="section-title">📆 Previsão de Recebimentos de Comissão
+      <span style="margin-left:auto;font-size:0.75em;color:var(--cor-sub);font-weight:400;">Por mês de recebimento previsto</span>
+    </div>
+    <div class="previsao-grid" id="previsaoGrid">
+      <div style="color: var(--cor-sub); font-size:0.9em; padding:10px;">
+        Nenhuma previsão cadastrada. Adicione parcelas de comissão nas reservas.
       </div>
     </div>
   </section>
@@ -3739,9 +3817,11 @@ thead .col-sticky-right {
         <label>Lucro (R$)</label>
         <input type="number" id="edit_lucro" min="0" step="0.01" readonly>
       </div>
-      <div class="field-group">
-        <label>Data Prevista da Comissão</label>
-        <input type="date" id="edit_data_prevista_comissao" title="Data esperada para recebimento da comissão">
+      <div class="field-group" style="grid-column: span 2;">
+        <label>📅 Previsão de Recebimento da Comissão <small style="color:var(--cor-sub);font-weight:400;">(parcelas futuras)</small></label>
+        <div class="parcelas-builder" id="edit_parcelasBuilder"></div>
+        <button type="button" class="parcelas-add-btn" onclick="adicionarLinhaParcelaForm('edit')">+ Adicionar parcela</button>
+        <div class="parcelas-total" id="edit_parcelasTotalHint"></div>
       </div>
       <div class="field-group">
         <label>Comissão Recebida (R$)</label>
@@ -5133,6 +5213,99 @@ function _comissaoPendente(comissaoGerada, comissaoRecebida) {
   return Math.max(0, (parseFloat(comissaoGerada) || 0) - (parseFloat(comissaoRecebida) || 0));
 }
 
+/* ==========================================
+   PARCELAS DE COMISSÃO — HELPERS DE FORMULÁRIO
+========================================== */
+
+/* Adiciona uma linha de parcela ao builder. prefix = 'c' (criar) ou 'edit' */
+function adicionarLinhaParcelaForm(prefix, mes, valor) {
+  var builder = document.getElementById(prefix + '_parcelasBuilder');
+  if (!builder) return;
+  var idx  = builder.querySelectorAll('.parcela-row').length;
+  var row  = document.createElement('div');
+  row.className = 'parcela-row';
+  /* _mesKey handles month overflow correctly (e.g., Dec+1 = Jan next year) */
+  var _nextMonth = new Date();
+  _nextMonth.setDate(1);
+  _nextMonth.setMonth(_nextMonth.getMonth() + 1);
+  var defaultMes = mes || _mesKey(_nextMonth);
+  row.innerHTML =
+    '<span class="parcela-label">Mês</span>' +
+    '<input type="month" class="parcela-mes" value="' + escapeHtml(defaultMes) + '" oninput="_atualizarTotalParcelas(\'' + prefix + '\')">' +
+    '<span class="parcela-label">Valor&nbsp;(R$)</span>' +
+    '<input type="number" class="parcela-valor" min="0" step="0.01" placeholder="0,00" value="' + (valor || '') + '" oninput="_atualizarTotalParcelas(\'' + prefix + '\')">' +
+    '<button type="button" class="parcela-remove" onclick="_removerLinhaParcelaForm(this, \'' + prefix + '\')">✕</button>';
+  builder.appendChild(row);
+  _atualizarTotalParcelas(prefix);
+}
+
+function _removerLinhaParcelaForm(btn, prefix) {
+  btn.closest('.parcela-row').remove();
+  _atualizarTotalParcelas(prefix);
+}
+
+/* Atualiza o hint de total de parcelas vs comissão total */
+function _atualizarTotalParcelas(prefix) {
+  var hint = document.getElementById(prefix + '_parcelasTotalHint');
+  if (!hint) return;
+  var total = _getTotalParcelas(prefix);
+  /* Tenta ler o valor total de comissão do formulário correspondente */
+  var comissaoEl = document.getElementById(prefix === 'c' ? 'res-comissao' : 'edit_comissao_val');
+  var comissaoTotal = comissaoEl
+    ? (prefix === 'c'
+        ? parseFloat((comissaoEl.textContent || '').replace(/[^\d,.-]/g,'').replace(',','.')) || 0
+        : parseFloat(comissaoEl.value) || 0)
+    : 0;
+  if (total <= 0) { hint.textContent = ''; return; }
+  var txt = 'Total previsto em parcelas: ' + formatBRL(total);
+  if (comissaoTotal > 0) {
+    var diff = comissaoTotal - total;
+    if (Math.abs(diff) < 0.01) {
+      txt += ' <span class="pct-ok">✔ 100% distribuído</span>';
+    } else if (diff > 0) {
+      txt += ' <span class="pct-over" style="color:var(--amarelo);">⚠ faltam ' + formatBRL(diff) + '</span>';
+    } else {
+      txt += ' <span class="pct-over">⚠ excede em ' + formatBRL(-diff) + '</span>';
+    }
+  }
+  hint.innerHTML = txt;
+}
+
+/* Retorna a soma dos valores de parcela do builder */
+function _getTotalParcelas(prefix) {
+  var builder = document.getElementById(prefix + '_parcelasBuilder');
+  if (!builder) return 0;
+  var total = 0;
+  builder.querySelectorAll('.parcela-valor').forEach(function (el) {
+    total += parseFloat(el.value) || 0;
+  });
+  return total;
+}
+
+/* Lê as parcelas do builder e retorna array [{mes, valor}] */
+function _getParcelasFromForm(prefix) {
+  var builder = document.getElementById(prefix + '_parcelasBuilder');
+  if (!builder) return [];
+  var rows = builder.querySelectorAll('.parcela-row');
+  var result = [];
+  rows.forEach(function (row) {
+    var mes   = (row.querySelector('.parcela-mes')   || {}).value || '';
+    var valor = parseFloat((row.querySelector('.parcela-valor') || {}).value) || 0;
+    if (mes && valor > 0) result.push({ mes: mes, valor: valor, recebido: 0, status: 'pendente' });
+  });
+  return result;
+}
+
+/* Preenche o builder com um array de parcelas [{mes, valor, recebido, status}] */
+function _renderParcelasForm(prefix, parcelas) {
+  var builder = document.getElementById(prefix + '_parcelasBuilder');
+  if (!builder) return;
+  builder.innerHTML = '';
+  (parcelas || []).forEach(function (p) {
+    adicionarLinhaParcelaForm(prefix, p.mes, p.valor);
+  });
+}
+
 var _ESCAPE_HTML_RE = /[&<>"']/g;
 var _ESCAPE_HTML_MAP = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
 function escapeHtml(str) {
@@ -5373,7 +5546,7 @@ function adicionarReserva() {
     dataCaptacao:  dataCaptacao,
     obs:           obs,
     criadoEm:      new Date().toISOString(),
-    dataPrevistaComissao:     document.getElementById('c_data_prevista_comissao').value,
+    parcelasComissao:         _getParcelasFromForm('c'),
     dataRecebimentoComissao:  '',
     comissaoRecebida:         0,
     statusComissao:           'pendente'
@@ -5385,6 +5558,7 @@ function adicionarReserva() {
   renderTabela();
   atualizarDashboard();
   atualizarMensal();
+  atualizarPrevisaoRecebimentos();
   atualizarVendasAnuais();
   renderRelatorioDesempenho();
   sincronizarAutomacoes();
@@ -5463,7 +5637,15 @@ async function importarReservasSite() {
         dataCaptacao:  '',
         obs:           'Importado do site HOSPEDAH',
         criadoEm:      r.criado_em || new Date().toISOString(),
-        dataPrevistaComissao:    r.data_prevista_comissao    || '',
+        /* Converte data_prevista_comissao legada para array de parcelas */
+        parcelasComissao: (function() {
+          var comissaoRecebida = parseFloat(r.valor_comissao_recebida) || 0;
+          var pendente = _comissaoPendente(comissao, comissaoRecebida);
+          if (r.data_prevista_comissao && pendente > 0) {
+            return [{ mes: r.data_prevista_comissao.slice(0, 7), valor: pendente, recebido: 0, status: 'pendente' }];
+          }
+          return [];
+        }()),
         dataRecebimentoComissao: r.data_recebimento_comissao || '',
         comissaoRecebida:        parseFloat(r.valor_comissao_recebida) || 0,
         statusComissao:          r.status_comissao || 'pendente'
@@ -5478,6 +5660,7 @@ async function importarReservasSite() {
     atualizarDashboard();
     atualizarMensal();
     atualizarVendasAnuais();
+    atualizarPrevisaoRecebimentos();
     renderRelatorioDesempenho();
     registrarAuditoria('Importação do site', novos.length + ' reserva(s) importada(s) de reservas_hospede');
     mostrarToast('✅ ' + novos.length + ' reserva(s) importada(s) com sucesso!', 'success');
@@ -5495,17 +5678,21 @@ async function importarReservasSite() {
 ========================================== */
 function limparFormulario() {
   ['c_cliente','c_resort','c_status','c_entrada','c_saida',
-   'c_valor_noite','c_obs','c_data_captacao','c_valor_captacao',
-   'c_data_prevista_comissao'].forEach(function (id) {
+   'c_valor_noite','c_obs','c_data_captacao','c_valor_captacao'].forEach(function (id) {
     var el = document.getElementById(id);
     if (!el) return;
     if (el.tagName === 'SELECT') el.selectedIndex = 0;
     else el.value = '';
   });
+  /* Limpa o builder de parcelas */
+  var builder = document.getElementById('c_parcelasBuilder');
+  if (builder) builder.innerHTML = '';
+  var hint = document.getElementById('c_parcelasTotalHint');
+  if (hint) hint.innerHTML = '';
   var noiteEl = document.getElementById('c_valor_noite');
   if (noiteEl) noiteEl.dataset.autofilled = '0';
-  var hint = document.getElementById('c_preco_hint');
-  if (hint) hint.style.display = 'none';
+  var precoHint = document.getElementById('c_preco_hint');
+  if (precoHint) precoHint.style.display = 'none';
   document.getElementById('c_canal').selectedIndex = 0;
   document.getElementById('c_avaliacao').value = '';
   document.getElementById('c_comissao_pct').value = '15';
@@ -5811,6 +5998,7 @@ function marcarPago(id) {
   renderTabela();
   atualizarDashboard();
   atualizarMensal();
+  atualizarPrevisaoRecebimentos();
   atualizarVendasAnuais();
   renderRelatorioDesempenho();
   registrarAuditoria('Reserva marcada como paga', r.cliente + ' • ' + r.resort);
@@ -5855,6 +6043,7 @@ function marcarComissaoRecebidaLote() {
   renderTabela();
   atualizarDashboard();
   atualizarMensal();
+  atualizarPrevisaoRecebimentos();
   atualizarVendasAnuais();
   renderRelatorioDesempenho();
   registrarAuditoria('Comissão marcada como recebida em lote', ids.length + ' reserva(s)');
@@ -5869,6 +6058,7 @@ function excluirReserva(id) {
   renderTabela();
   atualizarDashboard();
   atualizarMensal();
+  atualizarPrevisaoRecebimentos();
   atualizarVendasAnuais();
   renderRelatorioDesempenho();
   sincronizarAutomacoes();
@@ -5900,7 +6090,11 @@ function abrirEdicao(id) {
   document.getElementById('edit_data_captacao').value  = r.dataCaptacao || '';
   document.getElementById('edit_valor_captacao').value = r.valorCaptacao > 0 ? r.valorCaptacao : '';
   document.getElementById('edit_lucro').value        = r.valorCaptacao > 0 ? (r.total - r.valorCaptacao).toFixed(2) : '';
-  document.getElementById('edit_data_prevista_comissao').value    = r.dataPrevistaComissao || '';
+  /* Parcelas de comissão: suporte a formato legado (dataPrevistaComissao) e novo (parcelasComissao) */
+  var parcelas = r.parcelasComissao && r.parcelasComissao.length > 0
+    ? r.parcelasComissao
+    : (r.dataPrevistaComissao ? [{ mes: r.dataPrevistaComissao.slice(0, 7), valor: _comissaoPendente(r.comissao, r.comissaoRecebida) }] : []);
+  _renderParcelasForm('edit', parcelas);
   document.getElementById('edit_comissao_recebida').value         = r.comissaoRecebida > 0 ? r.comissaoRecebida : '';
   document.getElementById('edit_data_recebimento_comissao').value = r.dataRecebimentoComissao || '';
   document.getElementById('edit_status_comissao').value           = r.statusComissao || 'pendente';
@@ -6010,7 +6204,7 @@ function salvarEdicao() {
     lucro:         parseFloat((total - valorCaptacao).toFixed(2)),
     dataCaptacao:  dataCaptacao,
     obs:           obs,
-    dataPrevistaComissao:    document.getElementById('edit_data_prevista_comissao').value,
+    parcelasComissao:        _getParcelasFromForm('edit'),
     comissaoRecebida:        parseFloat(document.getElementById('edit_comissao_recebida').value) || 0,
     dataRecebimentoComissao: document.getElementById('edit_data_recebimento_comissao').value,
     statusComissao:          document.getElementById('edit_status_comissao').value || 'pendente'
@@ -6022,6 +6216,7 @@ function salvarEdicao() {
   atualizarDashboard();
   atualizarMensal();
   atualizarVendasAnuais();
+  atualizarPrevisaoRecebimentos();
   renderRelatorioDesempenho();
   sincronizarAutomacoes();
   registrarAuditoria('Reserva atualizada', cliente + ' • ' + resort);
@@ -6127,9 +6322,10 @@ function atualizarMensal() {
 
   reservas.forEach(function (r) {
     if ((r.status || '').toLowerCase() === 'cancelado') return;
-    var mes = r.entrada ? r.entrada.slice(0, 7) : 'desconhecido';
+    /* Agrupa pelo mês de venda (criadoEm), não pelo check-in */
+    var mes = r.criadoEm ? r.criadoEm.slice(0, 7) : (r.entrada ? r.entrada.slice(0, 7) : 'desconhecido');
     if (!meses[mes]) {
-      meses[mes] = { reservas: 0, receita: 0, comissao: 0, comissaoRecebida: 0, repasse: 0, noites: 0, captacao: 0, lucro: 0 };
+      meses[mes] = { reservas: 0, receita: 0, comissao: 0, comissaoRecebida: 0, repasse: 0, noites: 0, captacao: 0, lucro: 0, parcelasFuturas: {} };
     }
     meses[mes].reservas++;
     meses[mes].receita          += parseFloat(r.total    || 0);
@@ -6139,6 +6335,13 @@ function atualizarMensal() {
     meses[mes].noites           += parseInt(r.noites     || 0, 10);
     meses[mes].captacao         += parseFloat(r.valorCaptacao || 0);
     meses[mes].lucro            += (r.valorCaptacao > 0) ? (parseFloat(r.total || 0) - parseFloat(r.valorCaptacao || 0)) : 0;
+    /* Acumula previsões de parcelas futuras por mês de recebimento */
+    (r.parcelasComissao || []).forEach(function (p) {
+      /* "YYYY-MM" lexicographic comparison is correct across year boundaries */
+      if (!p.mes || p.mes <= mes) return; /* apenas meses futuros em relação à venda */
+      if (!meses[mes].parcelasFuturas[p.mes]) meses[mes].parcelasFuturas[p.mes] = 0;
+      meses[mes].parcelasFuturas[p.mes] += parseFloat(p.valor) || 0;
+    });
   });
 
   var chaves = Object.keys(meses).sort().reverse();
@@ -6160,23 +6363,114 @@ function atualizarMensal() {
     var lucroColor = m.lucro >= 0 ? '#25D366' : 'var(--vermelho)';
     var comissaoPendente = _comissaoPendente(m.comissao, m.comissaoRecebida);
 
+    /* Linhas de parcelas futuras por mês */
+    var parcelasFuturasHtml = '';
+    var mesFuturos = Object.keys(m.parcelasFuturas).sort();
+    mesFuturos.forEach(function (mf) {
+      parcelasFuturasHtml +=
+        '<div class="month-row"><span style="color:#4da6ff;">📆 Previsão ' + nomeDoMes(mf) + '</span>' +
+        '<span style="color:#4da6ff;">' + formatBRL(m.parcelasFuturas[mf]) + '</span></div>';
+    });
+
     html +=
       '<div class="month-card">' +
       '<div class="month-name">📅 ' + nomeMes.charAt(0).toUpperCase() + nomeMes.slice(1) + '</div>' +
       '<div class="month-row"><span>Reservas</span><span>' + m.reservas + '</span></div>' +
       '<div class="month-row"><span>🌙 Noites</span><span>' + m.noites + '</span></div>' +
-      '<div class="month-row"><span>💰 Receita (Venda)</span><span>' + formatBRL(m.receita) + '</span></div>' +
+      '<div class="month-row"><span>💰 Venda do Mês</span><span>' + formatBRL(m.receita) + '</span></div>' +
       (m.captacao > 0 ? '<div class="month-row"><span>🛒 Captação</span><span>' + formatBRL(m.captacao) + '</span></div>' : '') +
       (m.captacao > 0 ? '<div class="month-row lucro"><span>📈 Lucro</span><span style="color:' + lucroColor + ';font-weight:700;">' + formatBRL(m.lucro) + '</span></div>' : '') +
-      '<div class="month-row lucro"><span>🏷️ Comissão Gerada</span><span>' + formatBRL(m.comissao) + '</span></div>' +
+      '<div class="month-row lucro"><span>🏷️ Comissão do Mês</span><span>' + formatBRL(m.comissao) + '</span></div>' +
       '<div class="month-row"><span style="color:#25D366;">✅ Comissão Recebida</span><span style="color:#25D366;">' + formatBRL(m.comissaoRecebida) + '</span></div>' +
       (comissaoPendente > 0 ? '<div class="month-row"><span style="color:#fbbf24;">⏳ Comissão Pendente</span><span style="color:#fbbf24;">' + formatBRL(comissaoPendente) + '</span></div>' : '') +
+      parcelasFuturasHtml +
       '<div class="month-row"><span>📤 Repasse</span><span>' + formatBRL(m.repasse) + '</span></div>' +
       '</div>';
   });
 
   grid.innerHTML = html;
   renderGraficos();
+}
+
+/* ==========================================
+   PREVISÃO DE RECEBIMENTOS DE COMISSÃO
+========================================== */
+function atualizarPrevisaoRecebimentos() {
+  /* Agrupa todas as parcelas de comissão (de qualquer reserva) por mês de recebimento */
+  var grid = document.getElementById('previsaoGrid');
+  if (!grid) return;
+
+  /* map: mes -> { total, parcelas: [{clienteResort, valor, status}] } */
+  var meses = {};
+
+  reservas.forEach(function (r) {
+    if ((r.status || '').toLowerCase() === 'cancelado') return;
+    var label = (r.cliente || '—') + ' / ' + (r.resort || '—');
+    var mesVenda = r.criadoEm ? r.criadoEm.slice(0, 7) : null;
+
+    (r.parcelasComissao || []).forEach(function (p) {
+      if (!p.mes || parseFloat(p.valor) <= 0) return;
+      if (!meses[p.mes]) meses[p.mes] = { total: 0, parcelas: [] };
+      meses[p.mes].total += parseFloat(p.valor);
+      meses[p.mes].parcelas.push({
+        label:     label,
+        valor:     parseFloat(p.valor),
+        mesVenda:  mesVenda,
+        status:    p.status || 'pendente'
+      });
+    });
+
+    /* Suporte legado: dataPrevistaComissao sem parcelasComissao */
+    if ((!r.parcelasComissao || r.parcelasComissao.length === 0) && r.dataPrevistaComissao) {
+      var mes = r.dataPrevistaComissao.slice(0, 7);
+      var pendente = _comissaoPendente(r.comissao, r.comissaoRecebida);
+      if (pendente > 0) {
+        if (!meses[mes]) meses[mes] = { total: 0, parcelas: [] };
+        meses[mes].total += pendente;
+        meses[mes].parcelas.push({ label: label, valor: pendente, mesVenda: mesVenda, status: r.statusComissao || 'pendente' });
+      }
+    }
+  });
+
+  var chaves = Object.keys(meses).sort();
+  if (chaves.length === 0) {
+    grid.innerHTML = '<div style="color: var(--cor-sub); font-size:0.9em; padding:10px;">Nenhuma previsão cadastrada. Adicione parcelas de comissão nas reservas.</div>';
+    return;
+  }
+
+  var html = '';
+  var hoje = _mesKey(new Date());
+  chaves.forEach(function (key) {
+    var m = meses[key];
+    /* "YYYY-MM" lexicographic comparison is reliable across year/month boundaries */
+    var isPast    = key < hoje;
+    var isPresent = key === hoje;
+    var borderColor = isPast ? 'rgba(231,76,60,0.3)' : isPresent ? 'rgba(212,175,55,0.4)' : 'rgba(77,166,255,0.2)';
+    var titleColor  = isPast ? 'var(--vermelho)' : isPresent ? 'var(--dourado)' : '#4da6ff';
+    var icon        = isPast ? '🔴' : isPresent ? '🟡' : '📆';
+
+    html += '<div class="previsao-card" style="border-color:' + borderColor + ';">' +
+      '<div class="pv-title" style="color:' + titleColor + ';">' + icon + ' ' + nomeDoMes(key) + '</div>';
+
+    m.parcelas.forEach(function (p) {
+      var statusIcon = p.status === 'recebida' ? '✅' : p.status === 'parcial' ? '🔶' : '⏳';
+      var origemTxt  = p.mesVenda ? ' <small style="color:var(--cor-sub);">(venda: ' + nomeDoMes(p.mesVenda) + ')</small>' : '';
+      html +=
+        '<div class="pv-row">' +
+        '<span>' + statusIcon + ' ' + escapeHtml(p.label) + origemTxt + '</span>' +
+        '<span>' + formatBRL(p.valor) + '</span>' +
+        '</div>';
+    });
+
+    html +=
+      '<div class="pv-row pv-total" style="margin-top:6px;border-top:1px solid rgba(255,255,255,0.08);padding-top:6px;">' +
+      '<span style="font-weight:600;">Total previsto</span>' +
+      '<span>' + formatBRL(m.total) + '</span>' +
+      '</div>' +
+      '</div>';
+  });
+
+  grid.innerHTML = html;
 }
 
 /* ==========================================
@@ -6223,7 +6517,7 @@ function atualizarVendasAnuais() {
   /* inicializa acumuladores para o ano selecionado e para o ano anterior (YoY) */
   var totais = {}, antAno = {};
   for (var m = 1; m <= 12; m++) {
-    totais[m] = { reservas: 0, noites: 0, venda: 0, comissao: 0, captacao: 0, lucro: 0, comissaoVenda: 0 };
+    totais[m] = { reservas: 0, noites: 0, venda: 0, comissao: 0, captacao: 0, lucro: 0, comissaoVenda: 0, parcelasReceber: 0 };
     antAno[m] = { venda: 0 };
   }
 
@@ -6258,11 +6552,23 @@ function atualizarVendasAnuais() {
         totais[mesCriado].comissaoVenda += parseFloat(r.comissao || 0);
       }
     }
+    /* Acumula parcelas previstas para cada mês de recebimento */
+    (r.parcelasComissao || []).forEach(function (p) {
+      if (!p.mes) return;
+      var pParts = p.mes.split('-');
+      var pAno = parseInt(pParts[0], 10);
+      var pMes = parseInt(pParts[1], 10);
+      if (pAno === ano && pMes >= 1 && pMes <= 12) {
+        totais[pMes].parcelasReceber += parseFloat(p.valor) || 0;
+      }
+    });
   });
 
   /* flags para colunas opcionais */
   var temCaptacao = false;
   for (var m = 1; m <= 12; m++) { if (totais[m].captacao > 0) { temCaptacao = true; break; } }
+  var temParcelas = false;
+  for (var m = 1; m <= 12; m++) { if (totais[m].parcelasReceber > 0) { temParcelas = true; break; } }
 
   /* máximo de venda mensal → barra de desempenho relativa */
   var maxVenda = 0;
@@ -6282,7 +6588,7 @@ function atualizarVendasAnuais() {
 
   var mesAtual = new Date().getMonth() + 1;
   var anoAtual = new Date().getFullYear();
-  var numCols  = 6 + (temCaptacao ? 2 : 0); /* para colspan em linha vazia */
+  var numCols  = 6 + (temCaptacao ? 2 : 0) + (temParcelas ? 1 : 0); /* para colspan em linha vazia */
 
   /* ---- cabeçalho dinâmico ---- */
   var cabEl = document.getElementById('cabecalhoVendasAnuais');
@@ -6297,6 +6603,7 @@ function atualizarVendasAnuais() {
       (temCaptacao ? '<th>🛒 Captação</th><th>📈 Lucro</th>' : '') +
       '<th>🏷️ Comissão</th>' +
       '<th>💰 Comissão Total mês</th>' +
+      (temParcelas ? '<th style="color:#4da6ff;">📆 Rec. Previsto</th>' : '') +
       '<th>↕ vs ' + (ano - 1) + '</th>' +
       '</tr>';
   }
@@ -6309,7 +6616,7 @@ function atualizarVendasAnuais() {
   for (var i = 1; i <= 12; i++) {
     var t   = totais[i];
     var ant = antAno[i];
-    var vazio  = t.reservas === 0;
+    var vazio  = t.reservas === 0 && (t.parcelasReceber || 0) === 0;
     var atual  = (i === mesAtual && ano === anoAtual);
     var pct    = totAno.venda > 0 ? ((t.venda / totAno.venda) * 100).toFixed(1) : '0.0';
     var barPct = maxVenda > 0 ? Math.round((t.venda / maxVenda) * 100) : 0;
@@ -6330,6 +6637,9 @@ function atualizarVendasAnuais() {
       ? '<td>' + (t.captacao > 0 ? formatBRL(t.captacao) : '<span class="va-pct">—</span>') + '</td>' +
         '<td class="' + (t.captacao > 0 ? lucroClass : '') + '">' + (t.captacao > 0 ? formatBRL(t.lucro) : '<span class="va-pct">—</span>') + '</td>'
       : '';
+    var parcelasCell = temParcelas
+      ? '<td class="va-previsao">' + ((t.parcelasReceber || 0) > 0 ? formatBRL(t.parcelasReceber) : '<span class="va-pct">—</span>') + '</td>'
+      : '';
 
     html +=
       '<tr class="' + (atual ? 'va-atual' : '') + (vazio ? ' va-vazio' : '') + '">' +
@@ -6346,12 +6656,16 @@ function atualizarVendasAnuais() {
       captCells +
       '<td class="va-comissao">' + (t.comissao > 0 ? formatBRL(t.comissao) : '<span class="va-pct">—</span>') + '</td>' +
       '<td class="va-comissao">' + (t.comissaoVenda > 0 ? formatBRL(t.comissaoVenda) : '<span class="va-pct">—</span>') + '</td>' +
+      parcelasCell +
       '<td>' + yoy + '</td>' +
       '</tr>';
   }
   corpo.innerHTML = html;
 
   /* ---- rodapé: total + média mensal ---- */
+  var totParcelasAno = 0;
+  for (var m = 1; m <= 12; m++) totParcelasAno += totais[m].parcelasReceber;
+
   var captTotCells = temCaptacao
     ? '<td style="color:var(--dourado);">' + formatBRL(totAno.captacao) + '</td>' +
       '<td class="va-lucro-' + (totAno.lucro >= 0 ? 'pos' : 'neg') + '">' + formatBRL(totAno.lucro) + '</td>'
@@ -6360,6 +6674,8 @@ function atualizarVendasAnuais() {
     ? '<td>' + formatBRL(totAno.captacao / 12) + '</td>' +
       '<td>' + formatBRL(totAno.lucro    / 12) + '</td>'
     : '';
+  var parcelasTotCell = temParcelas ? '<td class="va-previsao">' + formatBRL(totParcelasAno) + '</td>' : '';
+  var parcelasMedCell = temParcelas ? '<td class="va-previsao">' + formatBRL(totParcelasAno / 12) + '</td>' : '';
 
   rodape.innerHTML =
     '<tr>' +
@@ -6371,6 +6687,7 @@ function atualizarVendasAnuais() {
     captTotCells +
     '<td class="va-comissao">' + formatBRL(totAno.comissao) + '</td>' +
     '<td class="va-comissao">' + formatBRL(totAno.comissaoVenda) + '</td>' +
+    parcelasTotCell +
     '<td></td>' +
     '</tr>' +
     (totAno.reservas > 0
@@ -6383,6 +6700,7 @@ function atualizarVendasAnuais() {
         captMedCells +
         '<td>' + formatBRL(totAno.comissao / 12) + '</td>' +
         '<td>' + formatBRL(totAno.comissaoVenda / 12) + '</td>' +
+        parcelasMedCell +
         '<td></td>' +
         '</tr>'
       : '');
@@ -7145,6 +7463,7 @@ function importarBackup() {
         renderTabela();
         atualizarDashboard();
         atualizarMensal();
+        atualizarPrevisaoRecebimentos();
         atualizarVendasAnuais();
         renderGraficos();
         renderRelatorioDesempenho();
@@ -8054,6 +8373,7 @@ async function inicializarSistema() {
     renderTabela();
     atualizarDashboard();
     atualizarMensal();
+    atualizarPrevisaoRecebimentos();
     atualizarVendasAnuais();
     renderGraficos();
     renderRelatorioDesempenho();
