@@ -2636,7 +2636,7 @@ thead .col-sticky-right {
       </div>
       <div class="field-group" style="justify-content:flex-end; padding-top:18px; gap:6px; display:flex; flex-direction:row; align-items:flex-end;">
         <button class="btn btn-secondary btn-sm" onclick="limparFiltros()">✕ Limpar filtros</button>
-        <button class="btn btn-secondary btn-sm" id="btnLoteComissao" onclick="marcarComissaoRecebidaLote()" style="display:none;">✅ Marcar Comissão como Recebida</button>
+        <button class="btn btn-secondary btn-sm" id="btnLoteComissao" onclick="marcarComissaoRecebidaLote()" style="display:none;">✅ Marcar Comissões como Recebidas</button>
       </div>
     </div>
 
@@ -5848,7 +5848,7 @@ function marcarComissaoRecebidaLote() {
     var r = reservas.find(function (x) { return x.id === id; });
     if (!r) return;
     r.statusComissao = 'recebida';
-    r.comissaoRecebida = r.comissao || r.comissaoRecebida || 0;
+    r.comissaoRecebida = r.comissao;
     r.dataRecebimentoComissao = r.dataRecebimentoComissao || hoje;
   });
   salvarReservas(reservas);
