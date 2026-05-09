@@ -5948,7 +5948,7 @@ function atualizarDashboard() {
       somaAval += parseFloat(r.avaliacao);
       countAval++;
     }
-    if ((r.status || '').toLowerCase() === 'pendente') pendente += parseFloat(r.total || 0);
+    if (['pendente', 'confirmada'].includes((r.status || '').toLowerCase())) pendente += parseFloat(r.comissao || 0);
   });
 
   document.getElementById('dash-total').textContent      = total;
