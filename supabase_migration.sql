@@ -1270,7 +1270,7 @@ ALTER TABLE reservas_hospede
 
 -- Data em que a venda foi fechada (≠ criado_em, que é a criação do registro)
 ALTER TABLE reservas_hospede
-  ADD COLUMN IF NOT EXISTS data_venda date;
+  ADD COLUMN IF NOT EXISTS data_venda date DEFAULT CURRENT_DATE;
 
 -- Preenche data_venda com criado_em para registros já existentes
 UPDATE reservas_hospede

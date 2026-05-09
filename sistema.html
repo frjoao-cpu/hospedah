@@ -5126,6 +5126,11 @@ function gerarId() {
   return Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
 }
 
+/* Retorna a comissão ainda não recebida, nunca negativa */
+function _comissaoPendente(comissaoGerada, comissaoRecebida) {
+  return Math.max(0, (parseFloat(comissaoGerada) || 0) - (parseFloat(comissaoRecebida) || 0));
+}
+
 var _ESCAPE_HTML_RE = /[&<>"']/g;
 var _ESCAPE_HTML_MAP = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
 function escapeHtml(str) {
@@ -5901,7 +5906,7 @@ function calcEditStatusComissao() {
   if (!statusEl) return;
   if (comissaoRecebida <= 0) {
     statusEl.value = 'pendente';
-  } else if (comissaoTotal > 0 && comissaoRecebida >= comissaoTotal) {
+  } else if (comissaoTotal <= 0 || comissaoRecebida >= comissaoTotal) {
     statusEl.value = 'recebida';
   } else {
     statusEl.value = 'parcial';
@@ -6021,7 +6026,7 @@ function atualizarDashboard() {
     }
   });
 
-  var pendente = Math.max(0, comissao - comissaoRecebida);
+  var pendente = _comissaoPendente(comissao, comissaoRecebida);
 
   document.getElementById('dash-total').textContent      = total;
   document.getElementById('dash-receita').textContent    = formatBRL(receita);
@@ -6106,7 +6111,7 @@ function atualizarMensal() {
       .toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
 
     var lucroColor = m.lucro >= 0 ? '#25D366' : 'var(--vermelho)';
-    var comissaoPendente = Math.max(0, m.comissao - m.comissaoRecebida);
+    var comissaoPendente = _comissaoPendente(m.comissao, m.comissaoRecebida);
 
     html +=
       '<div class="month-card">' +
@@ -6417,7 +6422,7 @@ function exportarCSV() {
   var linhas = lista.map(function (r, i) {
     var lucro = r.valorCaptacao > 0 ? (r.total - r.valorCaptacao).toFixed(2).replace('.', ',') : '';
     var comissaoRecebida = (parseFloat(r.comissaoRecebida) || 0).toFixed(2).replace('.', ',');
-    var comissaoPendente = Math.max(0, (r.comissao || 0) - (parseFloat(r.comissaoRecebida) || 0)).toFixed(2).replace('.', ',');
+    var comissaoPendente = _comissaoPendente(r.comissao, r.comissaoRecebida).toFixed(2).replace('.', ',');
     return [
       i + 1,
       '"' + (r.cliente || '').replace(/"/g, '""') + '"',
@@ -6725,7 +6730,7 @@ function renderRelatorioDesempenho() {
     '</div>';
 
   /* ---- BLOCO 1b: Comissões (3 categorias) ---- */
-  var totalComissaoPendente = Math.max(0, totalComissaoGerada - totalComissaoRecebida);
+  var totalComissaoPendente = _comissaoPendente(totalComissaoGerada, totalComissaoRecebida);
   var pctRecebida = totalComissaoGerada > 0 ? ((totalComissaoRecebida / totalComissaoGerada) * 100).toFixed(0) : 0;
   html += '<div class="relatorio-card">' +
     '<div class="relatorio-card-title">🏷️ Comissões</div>' +
