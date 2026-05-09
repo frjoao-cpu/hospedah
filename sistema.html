@@ -2295,17 +2295,22 @@ thead .col-sticky-right {
       </div>
       <div class="dash-card verde">
         <div class="dash-icon">💰</div>
-        <div class="dash-label">Receita Total</div>
+        <div class="dash-label">Vendido no Período</div>
         <div class="dash-value" id="dash-receita">R$ 0,00</div>
       </div>
       <div class="dash-card">
         <div class="dash-icon">🏷️</div>
-        <div class="dash-label">Comissão Total</div>
+        <div class="dash-label">Comissão Gerada</div>
         <div class="dash-value" id="dash-comissao">R$ 0,00</div>
+      </div>
+      <div class="dash-card verde">
+        <div class="dash-icon">✅</div>
+        <div class="dash-label">Comissão Recebida</div>
+        <div class="dash-value" id="dash-comissao-recebida">R$ 0,00</div>
       </div>
       <div class="dash-card amarelo">
         <div class="dash-icon">⏳</div>
-        <div class="dash-label">Pendente</div>
+        <div class="dash-label">Comissão Pendente</div>
         <div class="dash-value" id="dash-pendente">R$ 0,00</div>
       </div>
       <div class="dash-card">
@@ -2493,6 +2498,11 @@ thead .col-sticky-right {
       <div class="field-group">
         <label>Valor Captado (R$) — Custo de Compra</label>
         <input type="number" id="c_valor_captacao" min="0" step="0.01" placeholder="Ex.: 300,00" oninput="calcularFormulario()">
+      </div>
+
+      <div class="field-group">
+        <label>Data Prevista da Comissão</label>
+        <input type="date" id="c_data_prevista_comissao" title="Data esperada para recebimento da comissão (ex.: D+30 após check-out)">
       </div>
     </div>
 
@@ -3726,6 +3736,26 @@ thead .col-sticky-right {
       <div class="field-group">
         <label>Lucro (R$)</label>
         <input type="number" id="edit_lucro" min="0" step="0.01" readonly>
+      </div>
+      <div class="field-group">
+        <label>Data Prevista da Comissão</label>
+        <input type="date" id="edit_data_prevista_comissao" title="Data esperada para recebimento da comissão">
+      </div>
+      <div class="field-group">
+        <label>Comissão Recebida (R$)</label>
+        <input type="number" id="edit_comissao_recebida" min="0" step="0.01" placeholder="0,00" oninput="calcEditStatusComissao()">
+      </div>
+      <div class="field-group">
+        <label>Data de Recebimento da Comissão</label>
+        <input type="date" id="edit_data_recebimento_comissao" oninput="calcEditStatusComissao()">
+      </div>
+      <div class="field-group">
+        <label>Status da Comissão</label>
+        <select id="edit_status_comissao">
+          <option value="pendente">⏳ Pendente</option>
+          <option value="parcial">🔶 Parcial</option>
+          <option value="recebida">✅ Recebida</option>
+        </select>
       </div>
     </div>
     <div class="btn-row">
@@ -5096,6 +5126,11 @@ function gerarId() {
   return Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
 }
 
+/* Retorna a comissão ainda não recebida, nunca negativa */
+function _comissaoPendente(comissaoGerada, comissaoRecebida) {
+  return Math.max(0, (parseFloat(comissaoGerada) || 0) - (parseFloat(comissaoRecebida) || 0));
+}
+
 var _ESCAPE_HTML_RE = /[&<>"']/g;
 var _ESCAPE_HTML_MAP = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
 function escapeHtml(str) {
@@ -5335,7 +5370,11 @@ function adicionarReserva() {
     lucro:         parseFloat((total - valorCaptacao).toFixed(2)),
     dataCaptacao:  dataCaptacao,
     obs:           obs,
-    criadoEm:      new Date().toISOString()
+    criadoEm:      new Date().toISOString(),
+    dataPrevistaComissao:     document.getElementById('c_data_prevista_comissao').value,
+    dataRecebimentoComissao:  '',
+    comissaoRecebida:         0,
+    statusComissao:           'pendente'
   };
 
   reservas.push(reserva);
@@ -5379,7 +5418,7 @@ async function importarReservasSite() {
     var importados = _getImportadosIds();
     var { data, error } = await _supabase
       .from('reservas_hospede')
-      .select('id,nome_hospede,resort_nome,data_entrada,data_saida,num_hospedes,valor_total,status,telefone,criado_em')
+      .select('id,nome_hospede,resort_nome,data_entrada,data_saida,num_hospedes,valor_total,status,telefone,criado_em,comissao_pct,comissao_valor,data_prevista_comissao,data_recebimento_comissao,valor_comissao_recebida,status_comissao')
       .in('status', ['pendente', 'confirmada'])
       .order('criado_em', { ascending: false })
       .limit(200);
@@ -5399,6 +5438,8 @@ async function importarReservasSite() {
       var total  = parseFloat(r.valor_total) || 0;
       var valorNoite = noites > 0 && total > 0 ? parseFloat((total / noites).toFixed(2)) : 0;
       var statusMap  = { confirmada: 'pago' };
+      var comPct     = parseFloat(r.comissao_pct) || 15;
+      var comissao   = parseFloat(r.comissao_valor) || parseFloat((total * (comPct / 100)).toFixed(2));
       var reserva = {
         id:            gerarId(),
         importadoSbId: r.id,
@@ -5412,14 +5453,18 @@ async function importarReservasSite() {
         noites:        noites,
         valorNoite:    valorNoite,
         total:         total,
-        comissaoPct:   15,
-        comissao:      parseFloat((total * 0.15).toFixed(2)),
-        repasse:       parseFloat((total * 0.85).toFixed(2)),
+        comissaoPct:   comPct,
+        comissao:      comissao,
+        repasse:       parseFloat((total - comissao).toFixed(2)),
         valorCaptacao: 0,
         lucro:         total,
         dataCaptacao:  '',
         obs:           'Importado do site HOSPEDAH',
-        criadoEm:      r.criado_em || new Date().toISOString()
+        criadoEm:      r.criado_em || new Date().toISOString(),
+        dataPrevistaComissao:    r.data_prevista_comissao    || '',
+        dataRecebimentoComissao: r.data_recebimento_comissao || '',
+        comissaoRecebida:        parseFloat(r.valor_comissao_recebida) || 0,
+        statusComissao:          r.status_comissao || 'pendente'
       };
       reservas.push(reserva);
       novasIds.push(r.id);
@@ -5448,7 +5493,8 @@ async function importarReservasSite() {
 ========================================== */
 function limparFormulario() {
   ['c_cliente','c_resort','c_status','c_entrada','c_saida',
-   'c_valor_noite','c_obs','c_data_captacao','c_valor_captacao'].forEach(function (id) {
+   'c_valor_noite','c_obs','c_data_captacao','c_valor_captacao',
+   'c_data_prevista_comissao'].forEach(function (id) {
     var el = document.getElementById(id);
     if (!el) return;
     if (el.tagName === 'SELECT') el.selectedIndex = 0;
@@ -5549,6 +5595,13 @@ function _buildRow(r, i) {
   var captacaoHtml = r.valorCaptacao > 0 ? formatBRL(r.valorCaptacao) : '<span style="color:var(--cinza);">—</span>';
   var avalHtml = formatarEstrelas(r.avaliacao);
 
+  var comissaoRecebidaHtml = '';
+  if ((r.statusComissao || 'pendente') === 'recebida') {
+    comissaoRecebidaHtml = ' <span title="Comissão recebida" style="color:#25D366;font-size:0.8em;">✅</span>';
+  } else if (r.statusComissao === 'parcial') {
+    comissaoRecebidaHtml = ' <span title="Comissão parcialmente recebida: ' + formatBRL(r.comissaoRecebida || 0) + '" style="color:#f39c12;font-size:0.8em;">🔶</span>';
+  }
+
   return '<tr>' +
     '<td>' + (i + 1) + '</td>' +
     '<td class="col-sticky-left"><strong>' + r.cliente + '</strong>' + (r.obs ? '<br><small style="color:var(--cor-sub);">' + r.obs + '</small>' : '') + '</td>' +
@@ -5560,7 +5613,7 @@ function _buildRow(r, i) {
     '<td>' + captacaoHtml + '</td>' +
     '<td style="color:var(--dourado);font-weight:600;">' + formatBRL(r.total) + '</td>' +
     '<td>' + lucroHtml + '</td>' +
-    '<td>' + formatBRL(r.comissao) + ' <small style="color:var(--cor-sub);">(' + r.comissaoPct + '%)</small></td>' +
+    '<td>' + formatBRL(r.comissao) + ' <small style="color:var(--cor-sub);">(' + r.comissaoPct + '%)</small>' + comissaoRecebidaHtml + '</td>' +
     '<td style="color:#4da6ff;">' + formatBRL(r.repasse) + '</td>' +
     '<td>' + avalHtml + '</td>' +
     '<td><span class="badge ' + badgeClass + '">' + badgeText + '</span></td>' +
@@ -5800,6 +5853,10 @@ function abrirEdicao(id) {
   document.getElementById('edit_data_captacao').value  = r.dataCaptacao || '';
   document.getElementById('edit_valor_captacao').value = r.valorCaptacao > 0 ? r.valorCaptacao : '';
   document.getElementById('edit_lucro').value        = r.valorCaptacao > 0 ? (r.total - r.valorCaptacao).toFixed(2) : '';
+  document.getElementById('edit_data_prevista_comissao').value    = r.dataPrevistaComissao || '';
+  document.getElementById('edit_comissao_recebida').value         = r.comissaoRecebida > 0 ? r.comissaoRecebida : '';
+  document.getElementById('edit_data_recebimento_comissao').value = r.dataRecebimentoComissao || '';
+  document.getElementById('edit_status_comissao').value           = r.statusComissao || 'pendente';
 
   document.getElementById('editModal').classList.add('open');
   document.body.style.overflow = 'hidden';
@@ -5840,6 +5897,20 @@ function calcEditLucro() {
   var total        = parseFloat(document.getElementById('edit_valor_total').value) || 0;
   var valorCaptado = parseFloat(document.getElementById('edit_valor_captacao').value) || 0;
   document.getElementById('edit_lucro').value = valorCaptado > 0 && total > 0 ? (total - valorCaptado).toFixed(2) : '';
+}
+
+function calcEditStatusComissao() {
+  var comissaoTotal    = parseFloat(document.getElementById('edit_comissao_val').value) || 0;
+  var comissaoRecebida = parseFloat(document.getElementById('edit_comissao_recebida').value) || 0;
+  var statusEl         = document.getElementById('edit_status_comissao');
+  if (!statusEl) return;
+  if (comissaoRecebida <= 0) {
+    statusEl.value = 'pendente';
+  } else if (comissaoTotal <= 0 || comissaoRecebida >= comissaoTotal) {
+    statusEl.value = 'recebida';
+  } else {
+    statusEl.value = 'parcial';
+  }
 }
 
 function salvarEdicao() {
@@ -5891,7 +5962,11 @@ function salvarEdicao() {
     valorCaptacao: parseFloat(valorCaptacao.toFixed(2)),
     lucro:         parseFloat((total - valorCaptacao).toFixed(2)),
     dataCaptacao:  dataCaptacao,
-    obs:           obs
+    obs:           obs,
+    dataPrevistaComissao:    document.getElementById('edit_data_prevista_comissao').value,
+    comissaoRecebida:        parseFloat(document.getElementById('edit_comissao_recebida').value) || 0,
+    dataRecebimentoComissao: document.getElementById('edit_data_recebimento_comissao').value,
+    statusComissao:          document.getElementById('edit_status_comissao').value || 'pendente'
   });
 
   salvarReservas(reservas);
@@ -5931,7 +6006,7 @@ function atualizarDashboard() {
   var total      = lista.length;
   var receita    = 0;
   var comissao   = 0;
-  var pendente   = 0;
+  var comissaoRecebida = 0;
   var canceladas = 0;
   var noites     = 0;
   var lucroTotal = 0;
@@ -5942,18 +6017,21 @@ function atualizarDashboard() {
     if ((r.status || '').toLowerCase() === 'cancelado') { canceladas++; return; }
     receita    += parseFloat(r.total    || 0);
     comissao   += parseFloat(r.comissao || 0);
+    comissaoRecebida += parseFloat(r.comissaoRecebida || 0);
     noites     += parseInt(r.noites     || 0, 10);
     lucroTotal += parseFloat(r.lucro    || 0);
     if (r.avaliacao !== null && r.avaliacao !== undefined && !isNaN(r.avaliacao)) {
       somaAval += parseFloat(r.avaliacao);
       countAval++;
     }
-    if (['pendente', 'confirmada'].includes((r.status || '').toLowerCase())) pendente += parseFloat(r.comissao || 0);
   });
+
+  var pendente = _comissaoPendente(comissao, comissaoRecebida);
 
   document.getElementById('dash-total').textContent      = total;
   document.getElementById('dash-receita').textContent    = formatBRL(receita);
   document.getElementById('dash-comissao').textContent   = formatBRL(comissao);
+  document.getElementById('dash-comissao-recebida').textContent = formatBRL(comissaoRecebida);
   document.getElementById('dash-pendente').textContent   = formatBRL(pendente);
   document.getElementById('dash-noites').textContent     = noites;
   document.getElementById('dash-canceladas').textContent = canceladas;
@@ -6004,15 +6082,16 @@ function atualizarMensal() {
     if ((r.status || '').toLowerCase() === 'cancelado') return;
     var mes = r.entrada ? r.entrada.slice(0, 7) : 'desconhecido';
     if (!meses[mes]) {
-      meses[mes] = { reservas: 0, receita: 0, comissao: 0, repasse: 0, noites: 0, captacao: 0, lucro: 0 };
+      meses[mes] = { reservas: 0, receita: 0, comissao: 0, comissaoRecebida: 0, repasse: 0, noites: 0, captacao: 0, lucro: 0 };
     }
     meses[mes].reservas++;
-    meses[mes].receita   += parseFloat(r.total    || 0);
-    meses[mes].comissao  += parseFloat(r.comissao || 0);
-    meses[mes].repasse   += parseFloat(r.repasse  || 0);
-    meses[mes].noites    += parseInt(r.noites     || 0, 10);
-    meses[mes].captacao  += parseFloat(r.valorCaptacao || 0);
-    meses[mes].lucro     += (r.valorCaptacao > 0) ? (parseFloat(r.total || 0) - parseFloat(r.valorCaptacao || 0)) : 0;
+    meses[mes].receita          += parseFloat(r.total    || 0);
+    meses[mes].comissao         += parseFloat(r.comissao || 0);
+    meses[mes].comissaoRecebida += parseFloat(r.comissaoRecebida || 0);
+    meses[mes].repasse          += parseFloat(r.repasse  || 0);
+    meses[mes].noites           += parseInt(r.noites     || 0, 10);
+    meses[mes].captacao         += parseFloat(r.valorCaptacao || 0);
+    meses[mes].lucro            += (r.valorCaptacao > 0) ? (parseFloat(r.total || 0) - parseFloat(r.valorCaptacao || 0)) : 0;
   });
 
   var chaves = Object.keys(meses).sort().reverse();
@@ -6032,6 +6111,7 @@ function atualizarMensal() {
       .toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
 
     var lucroColor = m.lucro >= 0 ? '#25D366' : 'var(--vermelho)';
+    var comissaoPendente = _comissaoPendente(m.comissao, m.comissaoRecebida);
 
     html +=
       '<div class="month-card">' +
@@ -6041,7 +6121,9 @@ function atualizarMensal() {
       '<div class="month-row"><span>💰 Receita (Venda)</span><span>' + formatBRL(m.receita) + '</span></div>' +
       (m.captacao > 0 ? '<div class="month-row"><span>🛒 Captação</span><span>' + formatBRL(m.captacao) + '</span></div>' : '') +
       (m.captacao > 0 ? '<div class="month-row lucro"><span>📈 Lucro</span><span style="color:' + lucroColor + ';font-weight:700;">' + formatBRL(m.lucro) + '</span></div>' : '') +
-      '<div class="month-row lucro"><span>🏷️ Comissão</span><span>' + formatBRL(m.comissao) + '</span></div>' +
+      '<div class="month-row lucro"><span>🏷️ Comissão Gerada</span><span>' + formatBRL(m.comissao) + '</span></div>' +
+      '<div class="month-row"><span style="color:#25D366;">✅ Comissão Recebida</span><span style="color:#25D366;">' + formatBRL(m.comissaoRecebida) + '</span></div>' +
+      (comissaoPendente > 0 ? '<div class="month-row"><span style="color:#fbbf24;">⏳ Comissão Pendente</span><span style="color:#fbbf24;">' + formatBRL(comissaoPendente) + '</span></div>' : '') +
       '<div class="month-row"><span>📤 Repasse</span><span>' + formatBRL(m.repasse) + '</span></div>' +
       '</div>';
   });
@@ -6332,10 +6414,15 @@ function exportarCSV() {
   }
 
   var cabecalho = ['#', 'Cliente', 'Canal', 'Resort', 'Check-in', 'Check-out', 'Noites',
-                   'Captacao R$', 'Valor/Noite', 'Total', 'Lucro R$', 'Comissao%', 'Comissao R$', 'Repasse', 'Status', 'Avaliacao', 'Obs'];
+                   'Captacao R$', 'Valor/Noite', 'Total', 'Lucro R$', 'Comissao%', 'Comissao Gerada R$',
+                   'Comissao Recebida R$', 'Comissao Pendente R$', 'Status Comissao',
+                   'Data Prevista Comissao', 'Data Recebimento Comissao',
+                   'Repasse', 'Status', 'Avaliacao', 'Obs'];
 
   var linhas = lista.map(function (r, i) {
     var lucro = r.valorCaptacao > 0 ? (r.total - r.valorCaptacao).toFixed(2).replace('.', ',') : '';
+    var comissaoRecebida = (parseFloat(r.comissaoRecebida) || 0).toFixed(2).replace('.', ',');
+    var comissaoPendente = _comissaoPendente(r.comissao, r.comissaoRecebida).toFixed(2).replace('.', ',');
     return [
       i + 1,
       '"' + (r.cliente || '').replace(/"/g, '""') + '"',
@@ -6350,6 +6437,11 @@ function exportarCSV() {
       lucro,
       r.comissaoPct,
       r.comissao.toFixed(2).replace('.', ','),
+      comissaoRecebida,
+      comissaoPendente,
+      r.statusComissao || 'pendente',
+      r.dataPrevistaComissao    || '',
+      r.dataRecebimentoComissao || '',
       r.repasse.toFixed(2).replace('.', ','),
       r.status,
       r.avaliacao !== null && r.avaliacao !== undefined ? r.avaliacao : '',
@@ -6589,9 +6681,11 @@ function renderRelatorioDesempenho() {
   var canais    = {};
   var somaAval  = 0;
   var countAval = 0;
-  var totalVenda    = 0;
-  var totalCaptacao = 0;
-  var lucroTotal    = 0;
+  var totalVenda          = 0;
+  var totalCaptacao       = 0;
+  var lucroTotal          = 0;
+  var totalComissaoGerada = 0;
+  var totalComissaoRecebida = 0;
   var reservasAtivas = 0;
   var reservasComCaptacao = 0;
 
@@ -6608,8 +6702,10 @@ function renderRelatorioDesempenho() {
       somaAval += parseFloat(r.avaliacao);
       countAval++;
     }
-    totalVenda    += parseFloat(r.total || 0);
-    totalCaptacao += parseFloat(r.valorCaptacao || 0);
+    totalVenda            += parseFloat(r.total || 0);
+    totalCaptacao         += parseFloat(r.valorCaptacao || 0);
+    totalComissaoGerada   += parseFloat(r.comissao || 0);
+    totalComissaoRecebida += parseFloat(r.comissaoRecebida || 0);
     lucroTotal    += r.valorCaptacao > 0 ? (parseFloat(r.total || 0) - parseFloat(r.valorCaptacao || 0)) : 0;
     if ((r.valorCaptacao || 0) > 0) reservasComCaptacao++;
   });
@@ -6631,6 +6727,16 @@ function renderRelatorioDesempenho() {
     '<div class="relatorio-row"><span class="rel-label">Reservas com Captação</span><span class="rel-val">' + reservasComCaptacao + '</span></div>' +
     (rentabilidadeCaptacao !== null ? '<div class="relatorio-row"><span class="rel-label">Rentabilidade sobre Captação</span><span class="rel-val ' + (rentabilidadeCaptacao >= 0 ? 'verde' : 'vermelho') + '">' + rentabilidadeCaptacao.toFixed(1) + '%</span></div>' : '') +
     '<div class="relatorio-row"><span class="rel-label">Avaliação Média</span><span class="rel-val">' + (avalMedia ? avalMedia + ' ⭐ (' + countAval + ' avaliações)' : '—') + '</span></div>' +
+    '</div>';
+
+  /* ---- BLOCO 1b: Comissões (3 categorias) ---- */
+  var totalComissaoPendente = _comissaoPendente(totalComissaoGerada, totalComissaoRecebida);
+  var pctRecebida = totalComissaoGerada > 0 ? ((totalComissaoRecebida / totalComissaoGerada) * 100).toFixed(0) : 0;
+  html += '<div class="relatorio-card">' +
+    '<div class="relatorio-card-title">🏷️ Comissões</div>' +
+    '<div class="relatorio-row"><span class="rel-label">Comissão Gerada</span><span class="rel-val">' + formatBRL(totalComissaoGerada) + '</span></div>' +
+    '<div class="relatorio-row"><span class="rel-label verde">✅ Comissão Recebida</span><span class="rel-val verde">' + formatBRL(totalComissaoRecebida) + ' <small>(' + pctRecebida + '%)</small></span></div>' +
+    '<div class="relatorio-row"><span class="rel-label" style="color:#fbbf24;">⏳ Comissão Pendente</span><span class="rel-val" style="color:#fbbf24;">' + formatBRL(totalComissaoPendente) + '</span></div>' +
     '</div>';
 
   /* ---- BLOCO 2: Canais de Venda ---- */
