@@ -1338,3 +1338,104 @@ CREATE INDEX IF NOT EXISTS idx_reservas_hd_status_comissao
 CREATE INDEX IF NOT EXISTS idx_reservas_hd_data_recebimento
   ON reservas_hospede(data_recebimento_comissao)
   WHERE data_recebimento_comissao IS NOT NULL;
+
+-- ============================================================
+-- 35. TABELA DE PARCELAS DE COMISSÃO — comissao_parcelas
+--     Permite registrar múltiplas previsões de recebimento
+--     de comissão por reserva (ex.: uma parcela em Maio e
+--     outra em Agosto para uma venda fechada em Abril).
+--
+--     Cada linha representa uma parcela com:
+--       • reserva_id     — UUID da reserva em reservas_hospede
+--       • mes_referencia — primeiro dia do mês de recebimento
+--       • valor_previsto — valor esperado desta parcela
+--       • valor_recebido — quanto foi efetivamente recebido
+--       • status         — pendente | parcial | recebida
+-- ============================================================
+CREATE TABLE IF NOT EXISTS comissao_parcelas (
+  id              uuid          PRIMARY KEY DEFAULT gen_random_uuid(),
+  reserva_id      uuid          NOT NULL REFERENCES reservas_hospede(id) ON DELETE CASCADE,
+  mes_referencia  date          NOT NULL,   -- armazenado como 1º dia do mês (ex: 2025-05-01)
+  valor_previsto  numeric(10,2) NOT NULL DEFAULT 0 CHECK (valor_previsto >= 0),
+  valor_recebido  numeric(10,2) NOT NULL DEFAULT 0 CHECK (valor_recebido >= 0),
+  status          text          NOT NULL DEFAULT 'pendente'
+                    CHECK (status IN ('pendente', 'parcial', 'recebida')),
+  criado_em       timestamptz   DEFAULT now(),
+  atualizado_em   timestamptz   DEFAULT now()
+);
+
+ALTER TABLE comissao_parcelas ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "comissao_parcelas_leitura" ON comissao_parcelas;
+CREATE POLICY "comissao_parcelas_leitura"
+  ON comissao_parcelas FOR SELECT TO authenticated USING (true);
+
+DROP POLICY IF EXISTS "comissao_parcelas_escrita" ON comissao_parcelas;
+CREATE POLICY "comissao_parcelas_escrita"
+  ON comissao_parcelas FOR ALL TO authenticated USING (true) WITH CHECK (true);
+
+-- Índices para performance
+CREATE INDEX IF NOT EXISTS idx_comissao_parcelas_reserva
+  ON comissao_parcelas(reserva_id);
+
+CREATE INDEX IF NOT EXISTS idx_comissao_parcelas_mes
+  ON comissao_parcelas(mes_referencia);
+
+CREATE INDEX IF NOT EXISTS idx_comissao_parcelas_status
+  ON comissao_parcelas(status)
+  WHERE status <> 'recebida';
+
+-- ============================================================
+-- 36. VIEW — vw_previsao_recebimentos
+--     Exibe, por mês de recebimento, o total previsto de
+--     comissões a receber (de qualquer venda de qualquer mês).
+--
+--       • mes_recebimento — mês em que se espera o pagamento
+--       • mes_venda       — mês em que a venda foi realizada
+--       • total_previsto  — soma de valor_previsto no mês
+--       • total_recebido  — soma de valor_recebido no mês
+--       • total_pendente  — previsto - recebido
+-- ============================================================
+CREATE OR REPLACE VIEW vw_previsao_recebimentos AS
+SELECT
+  DATE_TRUNC('month', cp.mes_referencia)::date                        AS mes_recebimento,
+  DATE_TRUNC('month', COALESCE(rh.data_venda, rh.criado_em))::date    AS mes_venda,
+  COUNT(*)                                                             AS num_parcelas,
+  COALESCE(SUM(cp.valor_previsto), 0)                                  AS total_previsto,
+  COALESCE(SUM(cp.valor_recebido), 0)                                  AS total_recebido,
+  COALESCE(SUM(cp.valor_previsto), 0) - COALESCE(SUM(cp.valor_recebido), 0)
+                                                                       AS total_pendente
+FROM comissao_parcelas cp
+JOIN reservas_hospede rh ON rh.id = cp.reserva_id
+WHERE rh.status NOT IN ('cancelada', 'cancelado')
+GROUP BY 1, 2
+ORDER BY 1, 2;
+
+GRANT SELECT ON vw_previsao_recebimentos TO authenticated;
+
+-- ============================================================
+-- 37. VIEW — vw_financeiro_mensal_completo
+--     Extensão da vw_financeiro_mensal adicionando a coluna
+--     total_parcelas_a_receber: soma de parcelas de comissao
+--     previstas para CHEGAREM neste mês (vindas de qualquer
+--     venda anterior).
+-- ============================================================
+CREATE OR REPLACE VIEW vw_financeiro_mensal_completo AS
+SELECT
+  vm.*,
+  COALESCE(pr.total_previsto, 0) AS total_parcelas_previstas,
+  COALESCE(pr.total_recebido, 0) AS total_parcelas_recebidas,
+  COALESCE(pr.total_pendente, 0) AS total_parcelas_pendentes
+FROM vw_financeiro_mensal vm
+LEFT JOIN (
+  SELECT
+    mes_recebimento,
+    SUM(total_previsto) AS total_previsto,
+    SUM(total_recebido) AS total_recebido,
+    SUM(total_pendente) AS total_pendente
+  FROM vw_previsao_recebimentos
+  GROUP BY 1
+) pr ON pr.mes_recebimento = vm.mes
+ORDER BY vm.mes DESC;
+
+GRANT SELECT ON vw_financeiro_mensal_completo TO authenticated;
