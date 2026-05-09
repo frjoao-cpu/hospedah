@@ -2295,17 +2295,22 @@ thead .col-sticky-right {
       </div>
       <div class="dash-card verde">
         <div class="dash-icon">💰</div>
-        <div class="dash-label">Receita Total</div>
+        <div class="dash-label">Vendido no Período</div>
         <div class="dash-value" id="dash-receita">R$ 0,00</div>
       </div>
       <div class="dash-card">
         <div class="dash-icon">🏷️</div>
-        <div class="dash-label">Comissão Total</div>
+        <div class="dash-label">Comissão Gerada</div>
         <div class="dash-value" id="dash-comissao">R$ 0,00</div>
+      </div>
+      <div class="dash-card verde">
+        <div class="dash-icon">✅</div>
+        <div class="dash-label">Comissão Recebida</div>
+        <div class="dash-value" id="dash-comissao-recebida">R$ 0,00</div>
       </div>
       <div class="dash-card amarelo">
         <div class="dash-icon">⏳</div>
-        <div class="dash-label">Pendente</div>
+        <div class="dash-label">Comissão Pendente</div>
         <div class="dash-value" id="dash-pendente">R$ 0,00</div>
       </div>
       <div class="dash-card">
@@ -2493,6 +2498,11 @@ thead .col-sticky-right {
       <div class="field-group">
         <label>Valor Captado (R$) — Custo de Compra</label>
         <input type="number" id="c_valor_captacao" min="0" step="0.01" placeholder="Ex.: 300,00" oninput="calcularFormulario()">
+      </div>
+
+      <div class="field-group">
+        <label>Data Prevista da Comissão</label>
+        <input type="date" id="c_data_prevista_comissao" title="Data esperada para recebimento da comissão (ex.: D+30 após check-out)">
       </div>
     </div>
 
@@ -3726,6 +3736,26 @@ thead .col-sticky-right {
       <div class="field-group">
         <label>Lucro (R$)</label>
         <input type="number" id="edit_lucro" min="0" step="0.01" readonly>
+      </div>
+      <div class="field-group">
+        <label>Data Prevista da Comissão</label>
+        <input type="date" id="edit_data_prevista_comissao" title="Data esperada para recebimento da comissão">
+      </div>
+      <div class="field-group">
+        <label>Comissão Recebida (R$)</label>
+        <input type="number" id="edit_comissao_recebida" min="0" step="0.01" placeholder="0,00" oninput="calcEditStatusComissao()">
+      </div>
+      <div class="field-group">
+        <label>Data de Recebimento da Comissão</label>
+        <input type="date" id="edit_data_recebimento_comissao" oninput="calcEditStatusComissao()">
+      </div>
+      <div class="field-group">
+        <label>Status da Comissão</label>
+        <select id="edit_status_comissao">
+          <option value="pendente">⏳ Pendente</option>
+          <option value="parcial">🔶 Parcial</option>
+          <option value="recebida">✅ Recebida</option>
+        </select>
       </div>
     </div>
     <div class="btn-row">
@@ -5335,7 +5365,11 @@ function adicionarReserva() {
     lucro:         parseFloat((total - valorCaptacao).toFixed(2)),
     dataCaptacao:  dataCaptacao,
     obs:           obs,
-    criadoEm:      new Date().toISOString()
+    criadoEm:      new Date().toISOString(),
+    dataPrevistaComissao:     document.getElementById('c_data_prevista_comissao').value,
+    dataRecebimentoComissao:  '',
+    comissaoRecebida:         0,
+    statusComissao:           'pendente'
   };
 
   reservas.push(reserva);
@@ -5419,7 +5453,11 @@ async function importarReservasSite() {
         lucro:         total,
         dataCaptacao:  '',
         obs:           'Importado do site HOSPEDAH',
-        criadoEm:      r.criado_em || new Date().toISOString()
+        criadoEm:      r.criado_em || new Date().toISOString(),
+        dataPrevistaComissao:    '',
+        dataRecebimentoComissao: '',
+        comissaoRecebida:        0,
+        statusComissao:          'pendente'
       };
       reservas.push(reserva);
       novasIds.push(r.id);
@@ -5448,7 +5486,8 @@ async function importarReservasSite() {
 ========================================== */
 function limparFormulario() {
   ['c_cliente','c_resort','c_status','c_entrada','c_saida',
-   'c_valor_noite','c_obs','c_data_captacao','c_valor_captacao'].forEach(function (id) {
+   'c_valor_noite','c_obs','c_data_captacao','c_valor_captacao',
+   'c_data_prevista_comissao'].forEach(function (id) {
     var el = document.getElementById(id);
     if (!el) return;
     if (el.tagName === 'SELECT') el.selectedIndex = 0;
@@ -5800,6 +5839,10 @@ function abrirEdicao(id) {
   document.getElementById('edit_data_captacao').value  = r.dataCaptacao || '';
   document.getElementById('edit_valor_captacao').value = r.valorCaptacao > 0 ? r.valorCaptacao : '';
   document.getElementById('edit_lucro').value        = r.valorCaptacao > 0 ? (r.total - r.valorCaptacao).toFixed(2) : '';
+  document.getElementById('edit_data_prevista_comissao').value    = r.dataPrevistaComissao || '';
+  document.getElementById('edit_comissao_recebida').value         = r.comissaoRecebida > 0 ? r.comissaoRecebida : '';
+  document.getElementById('edit_data_recebimento_comissao').value = r.dataRecebimentoComissao || '';
+  document.getElementById('edit_status_comissao').value           = r.statusComissao || 'pendente';
 
   document.getElementById('editModal').classList.add('open');
   document.body.style.overflow = 'hidden';
@@ -5840,6 +5883,24 @@ function calcEditLucro() {
   var total        = parseFloat(document.getElementById('edit_valor_total').value) || 0;
   var valorCaptado = parseFloat(document.getElementById('edit_valor_captacao').value) || 0;
   document.getElementById('edit_lucro').value = valorCaptado > 0 && total > 0 ? (total - valorCaptado).toFixed(2) : '';
+}
+
+function calcEditStatusComissao() {
+  var comissaoTotal    = parseFloat(document.getElementById('edit_comissao_val').value) || 0;
+  var comissaoRecebida = parseFloat(document.getElementById('edit_comissao_recebida').value) || 0;
+  var dataReceb        = document.getElementById('edit_data_recebimento_comissao').value;
+  var statusEl         = document.getElementById('edit_status_comissao');
+  if (!statusEl) return;
+  if (comissaoRecebida <= 0) {
+    statusEl.value = 'pendente';
+  } else if (comissaoTotal > 0 && comissaoRecebida >= comissaoTotal) {
+    statusEl.value = 'recebida';
+    if (dataReceb === '') {
+      document.getElementById('edit_data_recebimento_comissao').value = new Date().toISOString().slice(0, 10);
+    }
+  } else {
+    statusEl.value = 'parcial';
+  }
 }
 
 function salvarEdicao() {
@@ -5891,7 +5952,11 @@ function salvarEdicao() {
     valorCaptacao: parseFloat(valorCaptacao.toFixed(2)),
     lucro:         parseFloat((total - valorCaptacao).toFixed(2)),
     dataCaptacao:  dataCaptacao,
-    obs:           obs
+    obs:           obs,
+    dataPrevistaComissao:    document.getElementById('edit_data_prevista_comissao').value,
+    comissaoRecebida:        parseFloat(document.getElementById('edit_comissao_recebida').value) || 0,
+    dataRecebimentoComissao: document.getElementById('edit_data_recebimento_comissao').value,
+    statusComissao:          document.getElementById('edit_status_comissao').value || 'pendente'
   });
 
   salvarReservas(reservas);
@@ -5931,7 +5996,7 @@ function atualizarDashboard() {
   var total      = lista.length;
   var receita    = 0;
   var comissao   = 0;
-  var pendente   = 0;
+  var comissaoRecebida = 0;
   var canceladas = 0;
   var noites     = 0;
   var lucroTotal = 0;
@@ -5942,18 +6007,21 @@ function atualizarDashboard() {
     if ((r.status || '').toLowerCase() === 'cancelado') { canceladas++; return; }
     receita    += parseFloat(r.total    || 0);
     comissao   += parseFloat(r.comissao || 0);
+    comissaoRecebida += parseFloat(r.comissaoRecebida || 0);
     noites     += parseInt(r.noites     || 0, 10);
     lucroTotal += parseFloat(r.lucro    || 0);
     if (r.avaliacao !== null && r.avaliacao !== undefined && !isNaN(r.avaliacao)) {
       somaAval += parseFloat(r.avaliacao);
       countAval++;
     }
-    if (['pendente', 'confirmada'].includes((r.status || '').toLowerCase())) pendente += parseFloat(r.comissao || 0);
   });
+
+  var pendente = Math.max(0, comissao - comissaoRecebida);
 
   document.getElementById('dash-total').textContent      = total;
   document.getElementById('dash-receita').textContent    = formatBRL(receita);
   document.getElementById('dash-comissao').textContent   = formatBRL(comissao);
+  document.getElementById('dash-comissao-recebida').textContent = formatBRL(comissaoRecebida);
   document.getElementById('dash-pendente').textContent   = formatBRL(pendente);
   document.getElementById('dash-noites').textContent     = noites;
   document.getElementById('dash-canceladas').textContent = canceladas;

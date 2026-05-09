@@ -1252,3 +1252,85 @@ CREATE TRIGGER trg_nurturing_atualizado_em
 -- Índices
 CREATE INDEX IF NOT EXISTS idx_nurturing_status    ON email_nurturing_queue(status, proxima_em);
 CREATE INDEX IF NOT EXISTS idx_nurturing_email     ON email_nurturing_queue(email);
+
+-- ============================================================
+-- 32. CAMPOS FINANCEIROS — reservas_hospede
+--     Acrescenta rastreamento completo das 3 categorias:
+--     vendas realizadas, comissão gerada e comissão recebida.
+--     Usa ADD COLUMN IF NOT EXISTS — nenhum dado existente
+--     é alterado ou perdido.
+-- ============================================================
+
+-- Percentual e valor da comissão gerada na venda
+ALTER TABLE reservas_hospede
+  ADD COLUMN IF NOT EXISTS comissao_pct   numeric(5,2)  DEFAULT 15;
+
+ALTER TABLE reservas_hospede
+  ADD COLUMN IF NOT EXISTS comissao_valor numeric(10,2) DEFAULT 0;
+
+-- Data em que a venda foi fechada (≠ criado_em, que é a criação do registro)
+ALTER TABLE reservas_hospede
+  ADD COLUMN IF NOT EXISTS data_venda date;
+
+-- Preenche data_venda com criado_em para registros já existentes
+UPDATE reservas_hospede
+   SET data_venda = criado_em::date
+ WHERE data_venda IS NULL;
+
+-- Data prevista para recebimento da comissão (ex.: D+30 após check-out)
+ALTER TABLE reservas_hospede
+  ADD COLUMN IF NOT EXISTS data_prevista_comissao date;
+
+-- Data real em que a comissão foi recebida (NULL = ainda não recebida)
+ALTER TABLE reservas_hospede
+  ADD COLUMN IF NOT EXISTS data_recebimento_comissao date;
+
+-- Valor que efetivamente entrou na conta (pode ser parcial)
+ALTER TABLE reservas_hospede
+  ADD COLUMN IF NOT EXISTS valor_comissao_recebida numeric(10,2) DEFAULT 0;
+
+-- Status do ciclo de recebimento da comissão
+ALTER TABLE reservas_hospede
+  ADD COLUMN IF NOT EXISTS status_comissao text NOT NULL DEFAULT 'pendente'
+    CHECK (status_comissao IN ('pendente', 'parcial', 'recebida'));
+
+-- ============================================================
+-- 33. VIEW — vw_financeiro_mensal
+--     Exibe as 3 categorias por mês de venda:
+--       • vendas_realizadas  — valor bruto das reservas fechadas
+--       • comissao_gerada    — comissão calculada sobre as vendas
+--       • comissao_recebida  — comissão efetivamente recebida
+--       • comissao_pendente  — gerada - recebida (a receber)
+-- ============================================================
+CREATE OR REPLACE VIEW vw_financeiro_mensal AS
+SELECT
+  DATE_TRUNC('month', COALESCE(data_venda, criado_em))::date       AS mes,
+  COUNT(*) FILTER (WHERE status NOT IN ('cancelada', 'cancelado')) AS total_vendas,
+  COALESCE(
+    SUM(valor_total)   FILTER (WHERE status NOT IN ('cancelada', 'cancelado')), 0
+  )                                                                  AS vendas_realizadas,
+  COALESCE(
+    SUM(comissao_valor) FILTER (WHERE status NOT IN ('cancelada', 'cancelado')), 0
+  )                                                                  AS comissao_gerada,
+  COALESCE(SUM(valor_comissao_recebida), 0)                         AS comissao_recebida,
+  COALESCE(
+    SUM(comissao_valor) FILTER (WHERE status NOT IN ('cancelada', 'cancelado')), 0
+  ) - COALESCE(SUM(valor_comissao_recebida), 0)                     AS comissao_pendente
+FROM reservas_hospede
+GROUP BY 1
+ORDER BY 1 DESC;
+
+GRANT SELECT ON vw_financeiro_mensal TO authenticated;
+
+-- ============================================================
+-- 34. ÍNDICES ADICIONAIS — performance nas consultas financeiras
+-- ============================================================
+CREATE INDEX IF NOT EXISTS idx_reservas_hd_data_venda
+  ON reservas_hospede(data_venda);
+
+CREATE INDEX IF NOT EXISTS idx_reservas_hd_status_comissao
+  ON reservas_hospede(status_comissao);
+
+CREATE INDEX IF NOT EXISTS idx_reservas_hd_data_recebimento
+  ON reservas_hospede(data_recebimento_comissao)
+  WHERE data_recebimento_comissao IS NOT NULL;
