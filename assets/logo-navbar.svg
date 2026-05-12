@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="40" viewBox="0 0 200 40" preserveAspectRatio="xMidYMid meet" role="img" aria-labelledby="navbarLogoTitle navbarLogoDesc">
+  <title id="navbarLogoTitle">HOSPEDAH</title>
+  <desc id="navbarLogoDesc">Logo horizontal da HOSPEDAH com globo e texto dourado.</desc>
+  <defs>
+    <linearGradient id="goldMetalNav" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#B8860B"/>
+      <stop offset="45%" stop-color="#F2D06B"/>
+      <stop offset="100%" stop-color="#D4AF37"/>
+    </linearGradient>
+    <linearGradient id="navyDepthNav" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1A2F5E"/>
+      <stop offset="100%" stop-color="#0B1C3D"/>
+    </linearGradient>
+    <filter id="softShadowNav" x="-40%" y="-40%" width="180%" height="200%">
+      <feDropShadow dx="0" dy="1.5" stdDeviation="1.5" flood-color="#091429" flood-opacity="0.38"/>
+    </filter>
+  </defs>
+
+  <g transform="translate(2 2)" filter="url(#softShadowNav)">
+    <circle cx="18" cy="18" r="14" fill="url(#navyDepthNav)" stroke="url(#goldMetalNav)" stroke-width="1.2"/>
+    <ellipse cx="18" cy="18" rx="9" ry="14" fill="none" stroke="url(#goldMetalNav)" stroke-width="0.7" opacity="0.6"/>
+    <ellipse cx="18" cy="18" rx="14" ry="5" fill="none" stroke="url(#goldMetalNav)" stroke-width="0.7" opacity="0.6"/>
+    <path d="M11 16l4-3 5 1 2 4-4 3-4-1z" fill="#EAC763"/>
+    <path d="M15 25h8v-5h-8zm1.8-5h4.4v-2.2h-4.4zm-2.6 5h1.6v-4h-1.6zm9.6 0h1.6v-4h-1.6z" fill="url(#goldMetalNav)"/>
+  </g>
+
+  <text x="40" y="27" fill="url(#goldMetalNav)" font-family="Georgia, 'Times New Roman', serif" font-size="24" font-weight="700" letter-spacing="1">HOSPEDAH</text>
+</svg>
