@@ -14,7 +14,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="HOSPEDAH">
-<link rel="apple-touch-icon" href="https://i.imgur.com/ITjjQaf.jpeg">
+<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png" sizes="180x180">
 
 <!-- Open Graph — compartilhamento no WhatsApp, Facebook, Instagram -->
 <meta property="og:type"        content="website">
@@ -60,7 +60,7 @@
   "@type": "TravelAgency",
   "name": "HOSPEDAH",
   "url": "https://hospedah.tur.br",
-  "logo": "https://i.imgur.com/ITjjQaf.jpeg",
+  "logo": "https://hospedah.tur.br/assets/logo.svg",
   "description": "Hospede-se com qualidade nos melhores resorts e tenha experiências exclusivas. Orçamento premium, atendimento digital e profissionais à disposição.",
   "address": {
     "@type": "PostalAddress",
@@ -297,16 +297,19 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
   <div class="hero-content">
     <!-- ✅ Logo central com overlay premium -->
-    <img
-      src="https://i.imgur.com/ITjjQaf.jpeg"
-      alt="HOSPEDAH"
-      class="hero-logo"
-      loading="eager"
-      fetchpriority="high"
-      decoding="auto"
-      width="320"
-      height="120"
-    >
+    <picture>
+      <source srcset="/assets/logo.svg" type="image/svg+xml">
+      <img
+        src="https://i.imgur.com/ITjjQaf.jpeg"
+        alt="HOSPEDAH — Resorts e Experiências Exclusivas"
+        class="hero-logo"
+        loading="eager"
+        fetchpriority="high"
+        decoding="auto"
+        width="320"
+        height="120"
+      >
+    </picture>
     <p class="hero-tagline">Resorts & Experiências Exclusivas</p>
     <span class="hero-badge">✦ Atendimento Premium ✦</span>
 

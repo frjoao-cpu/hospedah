@@ -259,7 +259,9 @@ html[data-theme="light"] footer                 { background: #e8e4d8; color: #4
 
 /* ✅ Logo central com overlay premium */
 .hero-logo {
-  max-width: 320px; width: 80vw;
+  width: 100%;
+  max-width: 320px;
+  height: auto;
   margin-bottom: 10px;
   filter: drop-shadow(0 4px 18px rgba(0,0,0,0.5));
   animation: logoPop .9s cubic-bezier(.4,0,.2,1) both;
