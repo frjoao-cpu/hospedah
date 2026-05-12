@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="580" height="160" viewBox="0 0 580 160" preserveAspectRatio="xMidYMid meet" role="img" aria-labelledby="logoTitle logoDesc">
   <title id="logoTitle">HOSPEDAH — Resorts e Experiências Exclusivas</title>
-  <desc id="logoDesc">Logo com H dourado, globo azul com continentes dourados, resort interno, nome HOSPEDAH em dourado e tagline.</desc>
+  <desc id="logoDesc">Logo com H dourado com serifas, globo azul com continentes dourados, resort interno, nome HOSPEDAH em dourado e tagline.</desc>
   <defs>
     <linearGradient id="goldMetal" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#B8860B"/>
@@ -20,20 +20,17 @@
       <stop offset="0%" stop-color="#F7DF8A"/>
       <stop offset="100%" stop-color="#D4AF37"/>
     </linearGradient>
-    <!-- Continent fill: richer gold with depth variation -->
     <linearGradient id="goldContinent" x1="5%" y1="0%" x2="95%" y2="100%">
       <stop offset="0%" stop-color="#EDD060"/>
       <stop offset="50%" stop-color="#D4AF37"/>
       <stop offset="100%" stop-color="#A07820"/>
     </linearGradient>
-    <!-- 3D sphere: radial gradient gives volume/depth (replaces flat linear) -->
     <radialGradient id="navyDepth" cx="36%" cy="28%" r="72%" gradientUnits="objectBoundingBox">
       <stop offset="0%" stop-color="#2A4FA8"/>
       <stop offset="30%" stop-color="#163580"/>
       <stop offset="65%" stop-color="#0E2150"/>
       <stop offset="100%" stop-color="#040C1A"/>
     </radialGradient>
-    <!-- Specular highlight: glass-like sheen on upper-left of sphere -->
     <radialGradient id="sphereGlow" cx="33%" cy="22%" r="40%" gradientUnits="objectBoundingBox">
       <stop offset="0%" stop-color="#6888E0" stop-opacity="0.65"/>
       <stop offset="55%" stop-color="#3058B8" stop-opacity="0.12"/>
@@ -45,121 +42,125 @@
     <filter id="textShadow" x="-5%" y="-20%" width="120%" height="160%">
       <feDropShadow dx="0" dy="3" stdDeviation="3.5" flood-color="#000000" flood-opacity="0.50"/>
     </filter>
-    <!-- Clip to the globe circle (local coords of the globe group: center 42,38 r=36) -->
+    <!-- Globe clip: centre (112,76) r=62 -->
     <clipPath id="globeClip">
-      <circle cx="42" cy="38" r="36"/>
+      <circle cx="112" cy="76" r="62"/>
     </clipPath>
   </defs>
 
-  <!-- H legs rendered FIRST (behind globe) -->
+  <!-- H rendered FIRST (behind globe) -->
   <g filter="url(#softShadow)">
-    <path d="M24 22h16v94H24z" fill="url(#goldMetal)"/>
-    <path d="M80 22h16v94H80z" fill="url(#goldMetal)"/>
-    <!-- Subtle edge highlights -->
-    <path d="M24 22h16v6H24zm0 88h16v6H24zm56-88h16v6H80zm0 88h16v6H80z" fill="#FFF1B0" opacity="0.45"/>
+    <!-- Left vertical leg -->
+    <rect x="7" y="10" width="15" height="132" fill="url(#goldMetal)"/>
+    <!-- Right vertical leg -->
+    <rect x="65" y="10" width="15" height="132" fill="url(#goldMetal)"/>
+    <!-- Crossbar (centre y=76, height=12 — aligns with globe equator) -->
+    <rect x="7" y="70" width="73" height="12" fill="url(#goldMetal)"/>
+    <!-- Top serifs -->
+    <rect x="2" y="10" width="25" height="5"  fill="url(#goldMetal)"/>
+    <rect x="60" y="10" width="25" height="5" fill="url(#goldMetal)"/>
+    <!-- Bottom serifs -->
+    <rect x="2" y="137" width="25" height="5"  fill="url(#goldMetal)"/>
+    <rect x="60" y="137" width="25" height="5" fill="url(#goldMetal)"/>
+    <!-- Edge highlights -->
+    <rect x="7"  y="10" width="15" height="5" fill="#FFF1B0" opacity="0.40"/>
+    <rect x="65" y="10" width="15" height="5" fill="#FFF1B0" opacity="0.40"/>
   </g>
 
-  <!-- Globe rendered SECOND (in front of H legs) — centered at absolute (60,69) via translate(18,31) -->
-  <g transform="translate(18 31)" filter="url(#softShadow)">
-    <!-- Base sphere with 3D radial depth gradient -->
-    <circle cx="42" cy="38" r="36" fill="url(#navyDepth)"/>
+  <!-- Globe rendered SECOND (in front of H) — centre (112,76) r=62 -->
+  <g filter="url(#softShadow)">
+    <!-- 3D sphere base -->
+    <circle cx="112" cy="76" r="62" fill="url(#navyDepth)"/>
 
-    <!-- Latitude / longitude grid (clipped to sphere) -->
+    <!-- Latitude/longitude grid -->
     <g clip-path="url(#globeClip)" stroke="url(#goldMetal)" fill="none">
-      <!-- Longitude ellipses (vertical) -->
-      <ellipse cx="42" cy="38" rx="9"  ry="36" stroke-width="0.55" opacity="0.38"/>
-      <ellipse cx="42" cy="38" rx="20" ry="36" stroke-width="0.55" opacity="0.38"/>
-      <ellipse cx="42" cy="38" rx="30" ry="36" stroke-width="0.55" opacity="0.35"/>
-      <!-- Latitude ellipses (horizontal) -->
-      <ellipse cx="42" cy="38" rx="36" ry="9"  stroke-width="0.55" opacity="0.38"/>
-      <ellipse cx="42" cy="38" rx="34" ry="19" stroke-width="0.55" opacity="0.38"/>
-      <ellipse cx="42" cy="38" rx="28" ry="29" stroke-width="0.55" opacity="0.35"/>
+      <ellipse cx="112" cy="76" rx="15" ry="62" stroke-width="0.6" opacity="0.35"/>
+      <ellipse cx="112" cy="76" rx="34" ry="62" stroke-width="0.6" opacity="0.35"/>
+      <ellipse cx="112" cy="76" rx="52" ry="62" stroke-width="0.6" opacity="0.30"/>
+      <ellipse cx="112" cy="76" rx="62" ry="15" stroke-width="0.6" opacity="0.35"/>
+      <ellipse cx="112" cy="76" rx="59" ry="31" stroke-width="0.6" opacity="0.35"/>
+      <ellipse cx="112" cy="76" rx="50" ry="48" stroke-width="0.6" opacity="0.30"/>
     </g>
 
-    <!-- Equator as bold H-crossbar band -->
-    <line x1="6" y1="38" x2="78" y2="38" stroke="url(#goldMetal)" stroke-width="6.5" opacity="1" clip-path="url(#globeClip)"/>
+    <!-- Equator band (y=76, matches H crossbar) -->
+    <line x1="50" y1="76" x2="174" y2="76" stroke="url(#goldMetal)" stroke-width="12" clip-path="url(#globeClip)"/>
 
-    <!-- Continents — improved shapes showing Western Hemisphere facing viewer -->
+    <!-- Continents -->
     <g clip-path="url(#globeClip)" fill="url(#goldContinent)">
       <!-- North America -->
-      <path d="M18 8 L24 6 L30 8 L34 12 L35 18 L34 24 L31 28 L27 30 L22 30 L17 27 L14 22 L14 16 L16 10 Z"/>
-      <!-- Florida peninsula -->
-      <path d="M28 30 L30 33 L29 37 L27 38 L26 35 L27 31 Z"/>
+      <path d="M70 24 L82 20 L94 24 L100 34 L102 46 L100 58 L94 64 L85 67 L76 66 L69 59 L66 48 L68 35 Z"/>
+      <!-- Florida -->
+      <path d="M88 67 L92 76 L90 82 L87 82 L86 75 L87 67 Z"/>
       <!-- South America -->
-      <path d="M25 40 L30 38 L35 41 L37 47 L36 55 L33 62 L28 65 L23 63 L20 57 L20 48 Z"/>
-      <!-- Caribbean hint -->
-      <path d="M30 35 L33 34 L34 36 L31 37 Z" opacity="0.65"/>
+      <path d="M78 87 L89 82 L99 87 L102 100 L101 116 L95 127 L86 130 L78 126 L75 114 L74 100 Z"/>
+      <!-- Caribbean -->
+      <path d="M92 76 L98 73 L100 78 L94 80 Z" opacity="0.65"/>
       <!-- Europe -->
-      <path d="M50 12 L57 10 L62 13 L62 18 L58 21 L53 20 L50 17 Z"/>
+      <path d="M124 24 L136 20 L145 26 L146 37 L139 43 L130 42 L123 36 Z"/>
       <!-- Africa -->
-      <path d="M51 26 L59 24 L64 28 L66 37 L65 46 L61 53 L56 57 L51 55 L47 50 L46 40 L48 31 Z"/>
+      <path d="M125 50 L138 46 L147 53 L150 70 L148 86 L141 98 L132 103 L123 99 L117 90 L115 75 L118 59 Z"/>
       <!-- Madagascar -->
-      <path d="M67 43 L69 41 L71 45 L69 51 L67 51 L66 47 Z" opacity="0.75"/>
+      <path d="M150 72 L154 67 L157 74 L155 85 L152 85 L149 78 Z" opacity="0.75"/>
     </g>
 
-    <!-- Resort building — detailed classical facade centred on equator -->
+    <!-- Resort building — classical facade centred on equator -->
     <g clip-path="url(#globeClip)" fill="url(#goldMetal)">
-      <!-- Platform base -->
-      <rect x="17" y="52" width="50" height="2.5" rx="0.4"/>
+      <!-- Platform at equator -->
+      <rect x="80" y="73" width="64" height="5" rx="0.5"/>
       <!-- Left wing -->
-      <rect x="20" y="40" width="9" height="13"/>
-      <!-- Left wing windows -->
-      <rect x="21.5" y="41.5" width="2.5" height="3.5" fill="#060E20" rx="0.4"/>
-      <rect x="25.5" y="41.5" width="2.5" height="3.5" fill="#060E20" rx="0.4"/>
+      <rect x="82" y="58" width="12" height="16"/>
+      <rect x="83.5" y="60"  width="3.5" height="5" fill="#060E20" rx="0.4"/>
+      <rect x="89"   y="60"  width="3.5" height="5" fill="#060E20" rx="0.4"/>
       <!-- Right wing -->
-      <rect x="55" y="40" width="9" height="13"/>
-      <!-- Right wing windows -->
-      <rect x="56.5" y="41.5" width="2.5" height="3.5" fill="#060E20" rx="0.4"/>
-      <rect x="60.5" y="41.5" width="2.5" height="3.5" fill="#060E20" rx="0.4"/>
+      <rect x="130" y="58" width="12" height="16"/>
+      <rect x="131.5" y="60" width="3.5" height="5" fill="#060E20" rx="0.4"/>
+      <rect x="137"   y="60" width="3.5" height="5" fill="#060E20" rx="0.4"/>
       <!-- Main facade -->
-      <rect x="28" y="27" width="28" height="25"/>
-      <!-- Upper-floor windows (5 windows, y=29–34) -->
-      <rect x="31.5" y="29" width="3.5" height="5" fill="#060E20" rx="0.4"/>
-      <rect x="36.5" y="29" width="3.5" height="5" fill="#060E20" rx="0.4"/>
-      <rect x="41"   y="29" width="3"   height="5" fill="#060E20" rx="0.4"/>
-      <rect x="45"   y="29" width="3.5" height="5" fill="#060E20" rx="0.4"/>
-      <rect x="50"   y="29" width="3.5" height="5" fill="#060E20" rx="0.4"/>
-      <!-- Mid-facade cornice line -->
-      <rect x="28" y="36" width="28" height="1.2" fill="#FFF1B0" opacity="0.35"/>
-      <!-- Ground-floor arched openings (4 arches, y=43.5–52)
-           Each arch: M x1 52 L x1 45.5 A 2.5 2.5 0 0 0 x2 45.5 L x2 52 Z -->
-      <path d="M30.5 52 L30.5 45.5 A2.5 2.5 0 0 0 35.5 45.5 L35.5 52 Z" fill="#060E20"/>
-      <path d="M36.5 52 L36.5 45.5 A2.5 2.5 0 0 0 41.5 45.5 L41.5 52 Z" fill="#060E20"/>
-      <path d="M42.5 52 L42.5 45.5 A2.5 2.5 0 0 0 47.5 45.5 L47.5 52 Z" fill="#060E20"/>
-      <path d="M48.5 52 L48.5 45.5 A2.5 2.5 0 0 0 53.5 45.5 L53.5 52 Z" fill="#060E20"/>
+      <rect x="93" y="40" width="38" height="34"/>
+      <!-- Upper-floor windows (5) -->
+      <rect x="95.5" y="43" width="5" height="7" fill="#060E20" rx="0.4"/>
+      <rect x="103"  y="43" width="5" height="7" fill="#060E20" rx="0.4"/>
+      <rect x="110.5" y="43" width="4" height="7" fill="#060E20" rx="0.4"/>
+      <rect x="117"  y="43" width="5" height="7" fill="#060E20" rx="0.4"/>
+      <rect x="124"  y="43" width="5" height="7" fill="#060E20" rx="0.4"/>
+      <!-- Mid cornice -->
+      <rect x="93" y="54" width="38" height="1.5" fill="#FFF1B0" opacity="0.35"/>
+      <!-- Ground-floor arched openings (4) -->
+      <path d="M95.5 74 L95.5 62 A3.5 3.5 0 0 1 102.5 62 L102.5 74 Z" fill="#060E20"/>
+      <path d="M104.5 74 L104.5 62 A3.5 3.5 0 0 1 111.5 62 L111.5 74 Z" fill="#060E20"/>
+      <path d="M113.5 74 L113.5 62 A3.5 3.5 0 0 1 120.5 62 L120.5 74 Z" fill="#060E20"/>
+      <path d="M122.5 74 L122.5 62 A3.5 3.5 0 0 1 129.5 62 L129.5 74 Z" fill="#060E20"/>
       <!-- Ground-floor string course -->
-      <rect x="28" y="43" width="28" height="1" fill="#FFF1B0" opacity="0.30"/>
-      <!-- Pilaster edge hints -->
-      <rect x="29.5" y="27" width="1.2" height="25" fill="#FFF1B0" opacity="0.20"/>
-      <rect x="53.3" y="27" width="1.2" height="25" fill="#FFF1B0" opacity="0.20"/>
+      <rect x="93" y="60.5" width="38" height="1.5" fill="#FFF1B0" opacity="0.30"/>
+      <!-- Pilaster edges -->
+      <rect x="94.5" y="40" width="1.5" height="34" fill="#FFF1B0" opacity="0.20"/>
+      <rect x="129"  y="40" width="1.5" height="34" fill="#FFF1B0" opacity="0.20"/>
       <!-- Central tower -->
-      <rect x="35" y="18" width="14" height="10"/>
+      <rect x="102" y="25" width="20" height="16"/>
       <!-- Tower cornice -->
-      <rect x="35" y="18" width="14" height="1.2" fill="#FFF1B0" opacity="0.45"/>
+      <rect x="102" y="25" width="20" height="2" fill="#FFF1B0" opacity="0.45"/>
       <!-- Tower windows -->
-      <rect x="37.5" y="20" width="3.5" height="5" fill="#060E20" rx="0.5"/>
-      <rect x="43"   y="20" width="3.5" height="5" fill="#060E20" rx="0.5"/>
-      <!-- Pediment (triangular roof) -->
-      <polygon points="33,18 51,18 42,10"/>
-      <!-- Pediment cornice outline -->
-      <polyline points="33,18 42,10 51,18" fill="none" stroke="#FFF1B0" stroke-width="0.7" opacity="0.50"/>
+      <rect x="104"  y="28" width="5" height="8" fill="#060E20" rx="0.5"/>
+      <rect x="115"  y="28" width="5" height="8" fill="#060E20" rx="0.5"/>
+      <!-- Pediment -->
+      <polygon points="98,25 126,25 112,14"/>
+      <polyline points="98,25 112,14 126,25" fill="none" stroke="#FFF1B0" stroke-width="0.9" opacity="0.50"/>
     </g>
 
-    <!-- Specular highlight — gives sphere a glass/polished look -->
-    <circle cx="42" cy="38" r="36" fill="url(#sphereGlow)"/>
-
-    <!-- Globe border ring drawn last -->
-    <circle cx="42" cy="38" r="36" fill="none" stroke="url(#goldMetal)" stroke-width="2.5"/>
+    <!-- Specular highlight -->
+    <circle cx="112" cy="76" r="62" fill="url(#sphereGlow)"/>
+    <!-- Globe border ring -->
+    <circle cx="112" cy="76" r="62" fill="none" stroke="url(#goldMetal)" stroke-width="3"/>
   </g>
 
-  <!-- HOSPEDAH — font-size 52, viewBox 580 wide so final H is never clipped -->
-  <text x="150" y="74" fill="url(#goldText)" font-family="Georgia, 'Times New Roman', serif" font-size="52" font-weight="700" letter-spacing="2" filter="url(#textShadow)" paint-order="stroke fill" stroke="#5a3a00" stroke-width="0.6" stroke-linejoin="round">HOSPEDAH</text>
+  <!-- HOSPEDAH text (shifted right to clear the larger icon) -->
+  <text x="190" y="75" fill="url(#goldText)" font-family="Georgia, 'Times New Roman', serif" font-size="52" font-weight="700" letter-spacing="2" filter="url(#textShadow)" paint-order="stroke fill" stroke="#5a3a00" stroke-width="0.6" stroke-linejoin="round">HOSPEDAH</text>
 
-  <!-- Tagline — centred under HOSPEDAH text (~x=305) with symmetric dashes -->
+  <!-- Tagline — centred under HOSPEDAH with symmetric dashes -->
   <g fill="url(#goldMetal)" font-family="Georgia, 'Times New Roman', serif" font-size="17" font-style="italic" text-anchor="middle">
-    <text x="305" y="108">Sua experiência começa aqui.</text>
-    <text x="158" y="108">—</text>
-    <text x="452" y="108">—</text>
+    <text x="345" y="110">Sua experiência começa aqui.</text>
+    <text x="198" y="110">—</text>
+    <text x="492" y="110">—</text>
   </g>
 
 </svg>
