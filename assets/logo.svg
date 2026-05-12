@@ -20,11 +20,25 @@
       <stop offset="0%" stop-color="#F7DF8A"/>
       <stop offset="100%" stop-color="#D4AF37"/>
     </linearGradient>
-    <linearGradient id="navyDepth" x1="20%" y1="10%" x2="80%" y2="90%">
-      <stop offset="0%" stop-color="#1E3870"/>
-      <stop offset="55%" stop-color="#0E2150"/>
-      <stop offset="100%" stop-color="#071020"/>
+    <!-- Continent fill: richer gold with depth variation -->
+    <linearGradient id="goldContinent" x1="5%" y1="0%" x2="95%" y2="100%">
+      <stop offset="0%" stop-color="#EDD060"/>
+      <stop offset="50%" stop-color="#D4AF37"/>
+      <stop offset="100%" stop-color="#A07820"/>
     </linearGradient>
+    <!-- 3D sphere: radial gradient gives volume/depth (replaces flat linear) -->
+    <radialGradient id="navyDepth" cx="36%" cy="28%" r="72%" gradientUnits="objectBoundingBox">
+      <stop offset="0%" stop-color="#2A4FA8"/>
+      <stop offset="30%" stop-color="#163580"/>
+      <stop offset="65%" stop-color="#0E2150"/>
+      <stop offset="100%" stop-color="#040C1A"/>
+    </radialGradient>
+    <!-- Specular highlight: glass-like sheen on upper-left of sphere -->
+    <radialGradient id="sphereGlow" cx="33%" cy="22%" r="40%" gradientUnits="objectBoundingBox">
+      <stop offset="0%" stop-color="#6888E0" stop-opacity="0.65"/>
+      <stop offset="55%" stop-color="#3058B8" stop-opacity="0.12"/>
+      <stop offset="100%" stop-color="#1E3870" stop-opacity="0"/>
+    </radialGradient>
     <filter id="softShadow" x="-30%" y="-30%" width="160%" height="180%">
       <feDropShadow dx="0" dy="2" stdDeviation="2.4" flood-color="#091429" flood-opacity="0.38"/>
     </filter>
@@ -47,64 +61,92 @@
 
   <!-- Globe rendered SECOND (in front of H legs) — centered at absolute (60,69) via translate(18,31) -->
   <g transform="translate(18 31)" filter="url(#softShadow)">
-    <!-- Base sphere with richer depth gradient -->
+    <!-- Base sphere with 3D radial depth gradient -->
     <circle cx="42" cy="38" r="36" fill="url(#navyDepth)"/>
 
-    <!-- Latitude / longitude grid -->
-    <g stroke="url(#goldMetal)" fill="none">
-      <!-- Tropic of Cancer / Capricorn -->
-      <line x1="11" y1="27" x2="73" y2="27" stroke-width="0.65" opacity="0.45"/>
-      <line x1="11" y1="49" x2="73" y2="49" stroke-width="0.65" opacity="0.45"/>
-      <!-- Arctic / Antarctic circles -->
-      <line x1="22" y1="16" x2="62" y2="16" stroke-width="0.55" opacity="0.35"/>
-      <line x1="22" y1="60" x2="62" y2="60" stroke-width="0.55" opacity="0.35"/>
-      <!-- Longitude ellipses -->
-      <ellipse cx="42" cy="38" rx="32" ry="10" stroke-width="0.65" opacity="0.4"/>
-      <ellipse cx="42" cy="38" rx="32" ry="22" stroke-width="0.65" opacity="0.4"/>
-      <ellipse cx="42" cy="38" rx="18" ry="36" stroke-width="0.65" opacity="0.45"/>
-      <!-- Central meridian -->
-      <line x1="42" y1="2" x2="42" y2="74" stroke-width="0.65" opacity="0.45"/>
+    <!-- Latitude / longitude grid (clipped to sphere) -->
+    <g clip-path="url(#globeClip)" stroke="url(#goldMetal)" fill="none">
+      <!-- Longitude ellipses (vertical) -->
+      <ellipse cx="42" cy="38" rx="9"  ry="36" stroke-width="0.55" opacity="0.38"/>
+      <ellipse cx="42" cy="38" rx="20" ry="36" stroke-width="0.55" opacity="0.38"/>
+      <ellipse cx="42" cy="38" rx="30" ry="36" stroke-width="0.55" opacity="0.35"/>
+      <!-- Latitude ellipses (horizontal) -->
+      <ellipse cx="42" cy="38" rx="36" ry="9"  stroke-width="0.55" opacity="0.38"/>
+      <ellipse cx="42" cy="38" rx="34" ry="19" stroke-width="0.55" opacity="0.38"/>
+      <ellipse cx="42" cy="38" rx="28" ry="29" stroke-width="0.55" opacity="0.35"/>
     </g>
 
-    <!-- Equator as bold H-crossbar band (drawn over grid, under continents) -->
+    <!-- Equator as bold H-crossbar band -->
     <line x1="6" y1="38" x2="78" y2="38" stroke="url(#goldMetal)" stroke-width="6.5" opacity="1" clip-path="url(#globeClip)"/>
 
-    <!-- Continents (gold) — more realistic positioning -->
-    <g fill="url(#goldSoft)">
+    <!-- Continents — improved shapes showing Western Hemisphere facing viewer -->
+    <g clip-path="url(#globeClip)" fill="url(#goldContinent)">
       <!-- North America -->
-      <path d="M20 18l5-3 8 1 3 6 1 8-4 5-8 2-5-3-1-8z"/>
+      <path d="M18 8 L24 6 L30 8 L34 12 L35 18 L34 24 L31 28 L27 30 L22 30 L17 27 L14 22 L14 16 L16 10 Z"/>
+      <!-- Florida peninsula -->
+      <path d="M28 30 L30 33 L29 37 L27 38 L26 35 L27 31 Z"/>
       <!-- South America -->
-      <path d="M27 37l4-1 6 3 2 8-3 9-6 4-5-1-2-6 4-11z"/>
+      <path d="M25 40 L30 38 L35 41 L37 47 L36 55 L33 62 L28 65 L23 63 L20 57 L20 48 Z"/>
+      <!-- Caribbean hint -->
+      <path d="M30 35 L33 34 L34 36 L31 37 Z" opacity="0.65"/>
       <!-- Europe -->
-      <path d="M47 17l5-2 4 3-1 6-5 2-5-1 2-5z"/>
+      <path d="M50 12 L57 10 L62 13 L62 18 L58 21 L53 20 L50 17 Z"/>
       <!-- Africa -->
-      <path d="M47 29l6 0 5 5 2 8-4 9-6 2-4-4-1-10z"/>
-      <!-- Asia (main body) -->
-      <path d="M58 14l9-2 5 3-1 7-7 3-6-1-1-6z"/>
-      <!-- SE Asia hint -->
-      <path d="M64 28l5-1 3 4 0 4-3 3-4-1-1-5z"/>
+      <path d="M51 26 L59 24 L64 28 L66 37 L65 46 L61 53 L56 57 L51 55 L47 50 L46 40 L48 31 Z"/>
+      <!-- Madagascar -->
+      <path d="M67 43 L69 41 L71 45 L69 51 L67 51 L66 47 Z" opacity="0.75"/>
     </g>
 
-    <!-- Hotel / resort building silhouette in globe centre -->
-    <g fill="url(#goldMetal)">
-      <!-- Side wings (below crossbar) -->
-      <rect x="22" y="41" width="8" height="11"/>
-      <rect x="54" y="41" width="8" height="11"/>
-      <!-- Main facade (straddles crossbar) -->
-      <rect x="27" y="39" width="30" height="13"/>
-      <!-- Central tower (rises above crossbar) -->
-      <rect x="35" y="29" width="14" height="11"/>
-      <!-- Pediment / triangular roof -->
-      <polygon points="34,29 50,29 42,22"/>
-      <!-- Main facade windows (navy) -->
-      <rect x="29" y="41" width="4" height="6" fill="#091429" rx="0.5"/>
-      <rect x="35" y="41" width="4" height="6" fill="#091429" rx="0.5"/>
-      <rect x="41" y="41" width="4" height="6" fill="#091429" rx="0.5"/>
-      <rect x="47" y="41" width="4" height="6" fill="#091429" rx="0.5"/>
-      <!-- Tower windows (navy) -->
-      <rect x="37" y="31" width="3" height="4" fill="#091429" rx="0.5"/>
-      <rect x="44" y="31" width="3" height="4" fill="#091429" rx="0.5"/>
+    <!-- Resort building — detailed classical facade centred on equator -->
+    <g clip-path="url(#globeClip)" fill="url(#goldMetal)">
+      <!-- Platform base -->
+      <rect x="17" y="52" width="50" height="2.5" rx="0.4"/>
+      <!-- Left wing -->
+      <rect x="20" y="40" width="9" height="13"/>
+      <!-- Left wing windows -->
+      <rect x="21.5" y="41.5" width="2.5" height="3.5" fill="#060E20" rx="0.4"/>
+      <rect x="25.5" y="41.5" width="2.5" height="3.5" fill="#060E20" rx="0.4"/>
+      <!-- Right wing -->
+      <rect x="55" y="40" width="9" height="13"/>
+      <!-- Right wing windows -->
+      <rect x="56.5" y="41.5" width="2.5" height="3.5" fill="#060E20" rx="0.4"/>
+      <rect x="60.5" y="41.5" width="2.5" height="3.5" fill="#060E20" rx="0.4"/>
+      <!-- Main facade -->
+      <rect x="28" y="27" width="28" height="25"/>
+      <!-- Upper-floor windows (5 windows, y=29–34) -->
+      <rect x="31.5" y="29" width="3.5" height="5" fill="#060E20" rx="0.4"/>
+      <rect x="36.5" y="29" width="3.5" height="5" fill="#060E20" rx="0.4"/>
+      <rect x="41"   y="29" width="3"   height="5" fill="#060E20" rx="0.4"/>
+      <rect x="45"   y="29" width="3.5" height="5" fill="#060E20" rx="0.4"/>
+      <rect x="50"   y="29" width="3.5" height="5" fill="#060E20" rx="0.4"/>
+      <!-- Mid-facade cornice line -->
+      <rect x="28" y="36" width="28" height="1.2" fill="#FFF1B0" opacity="0.35"/>
+      <!-- Ground-floor arched openings (4 arches, y=43.5–52)
+           Each arch: M x1 52 L x1 45.5 A 2.5 2.5 0 0 0 x2 45.5 L x2 52 Z -->
+      <path d="M30.5 52 L30.5 45.5 A2.5 2.5 0 0 0 35.5 45.5 L35.5 52 Z" fill="#060E20"/>
+      <path d="M36.5 52 L36.5 45.5 A2.5 2.5 0 0 0 41.5 45.5 L41.5 52 Z" fill="#060E20"/>
+      <path d="M42.5 52 L42.5 45.5 A2.5 2.5 0 0 0 47.5 45.5 L47.5 52 Z" fill="#060E20"/>
+      <path d="M48.5 52 L48.5 45.5 A2.5 2.5 0 0 0 53.5 45.5 L53.5 52 Z" fill="#060E20"/>
+      <!-- Ground-floor string course -->
+      <rect x="28" y="43" width="28" height="1" fill="#FFF1B0" opacity="0.30"/>
+      <!-- Pilaster edge hints -->
+      <rect x="29.5" y="27" width="1.2" height="25" fill="#FFF1B0" opacity="0.20"/>
+      <rect x="53.3" y="27" width="1.2" height="25" fill="#FFF1B0" opacity="0.20"/>
+      <!-- Central tower -->
+      <rect x="35" y="18" width="14" height="10"/>
+      <!-- Tower cornice -->
+      <rect x="35" y="18" width="14" height="1.2" fill="#FFF1B0" opacity="0.45"/>
+      <!-- Tower windows -->
+      <rect x="37.5" y="20" width="3.5" height="5" fill="#060E20" rx="0.5"/>
+      <rect x="43"   y="20" width="3.5" height="5" fill="#060E20" rx="0.5"/>
+      <!-- Pediment (triangular roof) -->
+      <polygon points="33,18 51,18 42,10"/>
+      <!-- Pediment cornice outline -->
+      <polyline points="33,18 42,10 51,18" fill="none" stroke="#FFF1B0" stroke-width="0.7" opacity="0.50"/>
     </g>
+
+    <!-- Specular highlight — gives sphere a glass/polished look -->
+    <circle cx="42" cy="38" r="36" fill="url(#sphereGlow)"/>
 
     <!-- Globe border ring drawn last -->
     <circle cx="42" cy="38" r="36" fill="none" stroke="url(#goldMetal)" stroke-width="2.5"/>
