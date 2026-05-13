@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png" sizes="180x180">
-<link rel="icon" type="image/svg+xml" href="/assets/logo-favicon.svg">
+  <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png" sizes="180x180">
+  <link rel="icon" type="image/svg+xml" href="/assets/logo-favicon.svg">
   <title>Portal do Hóspede | HOSPEDAH</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap">
   <link rel="stylesheet" href="/assets/mobile-first.css">
   <link rel="stylesheet" href="/assets/style.css">
   <link rel="stylesheet" href="/assets/portal.css">
@@ -16,9 +16,13 @@
 <body data-portal-page="auth">
   <main class="portal-auth-wrap">
     <section class="portal-card glass" aria-label="Autenticação do hóspede">
-      <a class="portal-brand" href="/index.html">HOSPEDAH</a>
+
+      <div class="portal-logo-wrap">
+        <img src="https://i.imgur.com/fVKGOSt.png" alt="HOSPEDAH">
+      </div>
+
       <h1 class="portal-title">Portal do Hóspede</h1>
-      <p class="portal-subtitle">Gerencie suas reservas, vouchers e benefícios premium.</p>
+      <p class="portal-subtitle">Gerencie reservas, vouchers e benefícios premium.</p>
 
       <div class="portal-tabs" role="tablist" aria-label="Entrar ou criar conta">
         <button class="portal-tab active" id="tab-login" type="button" data-tab="login" role="tab" aria-selected="true">Entrar</button>
@@ -29,29 +33,36 @@
 
       <form id="loginForm" class="portal-form" novalidate>
         <label for="loginEmail">E-mail</label>
-        <input type="email" id="loginEmail" autocomplete="email" required>
+        <input type="email" id="loginEmail" autocomplete="email" placeholder="seu@email.com" required>
 
         <label for="loginPassword">Senha</label>
-        <input type="password" id="loginPassword" minlength="6" autocomplete="current-password" required>
+        <input type="password" id="loginPassword" minlength="6" autocomplete="current-password" placeholder="••••••••" required>
 
-        <button type="submit" class="portal-btn portal-btn-primary">Entrar</button>
+        <button type="submit" class="portal-btn portal-btn-primary">Entrar na minha conta</button>
       </form>
 
       <form id="signupForm" class="portal-form hidden" novalidate>
         <label for="signupName">Nome completo</label>
-        <input type="text" id="signupName" autocomplete="name" required>
+        <input type="text" id="signupName" autocomplete="name" placeholder="Seu nome" required>
 
         <label for="signupEmail">E-mail</label>
-        <input type="email" id="signupEmail" autocomplete="email" required>
+        <input type="email" id="signupEmail" autocomplete="email" placeholder="seu@email.com" required>
 
-        <label for="signupPassword">Senha</label>
-        <input type="password" id="signupPassword" minlength="6" autocomplete="new-password" required>
+        <label for="signupPassword">Senha (mín. 6 caracteres)</label>
+        <input type="password" id="signupPassword" minlength="6" autocomplete="new-password" placeholder="••••••••" required>
 
-        <button type="submit" class="portal-btn portal-btn-primary">Criar conta</button>
+        <button type="submit" class="portal-btn portal-btn-primary">Criar minha conta</button>
       </form>
 
+      <div class="portal-divider">ou continue com</div>
+
       <button type="button" id="btnGoogleAuth" class="portal-btn portal-btn-google">Entrar com Google</button>
+
       <a href="/portal/reset-password.html" class="portal-link">Esqueci minha senha</a>
+
+      <div class="security-seal portal-security-seal">
+        🔒 Conexão segura · Criptografia SSL · Dados protegidos pela LGPD
+      </div>
     </section>
   </main>
 

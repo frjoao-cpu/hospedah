@@ -132,7 +132,7 @@ html[data-theme="light"] footer                 { background: #e8e4d8; color: #4
   text-decoration: none; white-space: nowrap; flex-shrink: 0;
 }
 .navbar .logo-txt img {
-  height: 52px;
+  height: 62px;
   width: auto;
   display: block;
 }
@@ -280,7 +280,7 @@ html[data-theme="light"] footer                 { background: #e8e4d8; color: #4
 /* ✅ Logo central com overlay premium */
 .hero-logo {
   width: 100%;
-  max-width: 420px;
+  max-width: 580px;
   height: auto;
   display: block;
   margin: 0 auto 24px;
@@ -388,17 +388,19 @@ html[data-theme="light"] footer                 { background: #e8e4d8; color: #4
 .hero-dots {
   position: absolute; bottom: 22px; left: 50%;
   transform: translateX(-50%);
-  display: flex; gap: 8px; z-index: 3;
+  display: flex; gap: 7px; z-index: 3;
 }
 .hero-dot {
-  width: 9px; height: 9px; border-radius: 50%;
+  width: 8px; height: 8px; border-radius: 50%;
+  /* override mobile-first.css min-height/min-width on all buttons */
+  min-height: unset; min-width: unset;
   background: rgba(255,255,255,0.4);
-  cursor: pointer; border: none;
+  cursor: pointer; border: none; padding: 0;
   transition: background .2s, transform .2s;
 }
 .hero-dot.active {
   background: var(--dourado);
-  transform: scale(1.35);
+  transform: scale(1.4);
 }
 
 /* Setas hero */
@@ -1052,10 +1054,10 @@ html[data-theme="light"] .faq-btn { color: var(--azul); }
 }
 #exit-popup .ep-skip:hover { color:rgba(255,255,255,.75); }
 
-/* --- FOMO WIDGET (visitantes ao vivo + timer) --- */
+/* FOMO bar — positioned below navbar (--navbar-h = 64px + 8px gap) */
 #fomo-bar {
-  position:fixed; bottom:90px; left:50%; transform:translateX(-50%);
-  z-index:900; display:flex; gap:12px; flex-wrap:wrap; justify-content:center;
+  position:fixed; top:calc(var(--navbar-h, 64px) + 8px); right:24px;
+  z-index:900; display:flex; gap:12px; flex-wrap:wrap; justify-content:flex-end;
   pointer-events:none;
 }
 .fomo-pill {
@@ -2048,6 +2050,6 @@ html[data-theme="light"] .orc-summary-row strong { color: #1a1a1a; }
 }
 
 @media (max-width: 480px) {
-  .hero-logo { max-width: 280px; }
-  .navbar .logo-txt img { height: 44px; }
+  .hero-logo { max-width: 320px; }
+  .navbar .logo-txt img { height: 50px; }
 }
