@@ -132,7 +132,7 @@ html[data-theme="light"] footer                 { background: #e8e4d8; color: #4
   text-decoration: none; white-space: nowrap; flex-shrink: 0;
 }
 .navbar .logo-txt img {
-  height: 80px;
+  height: 110px;
   width: auto;
   display: block;
 }
@@ -280,7 +280,7 @@ html[data-theme="light"] footer                 { background: #e8e4d8; color: #4
 /* ✅ Logo central com overlay premium */
 .hero-logo {
   width: 100%;
-  max-width: 720px;
+  max-width: 900px;
   height: auto;
   display: block;
   margin: 0 auto 24px;
@@ -2049,6 +2049,6 @@ html[data-theme="light"] .orc-summary-row strong { color: #1a1a1a; }
 }
 
 @media (max-width: 480px) {
-  .hero-logo { max-width: 460px; }
-  .navbar .logo-txt img { height: 65px; }
+  .hero-logo { max-width: 580px; }
+  .navbar .logo-txt img { height: 88px; }
 }
