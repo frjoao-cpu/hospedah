@@ -101,7 +101,7 @@
   function renderVoucherCard(voucher) {
     var img = getResortImage(voucher.resort);
     return '<article class="voucher-card">' +
-      '<img class="voucher-banner" src="' + img + '" alt="' + (voucher.resort || 'Resort') + '" loading="lazy">' +
+      '<img class="voucher-banner" src="' + img + '" alt="' + (voucher.resort || 'Resort') + '">' +
       '<div class="voucher-body">' +
       '<h3>🎫 ' + voucher.title + '</h3>' +
       '<span class="voucher-code">' + voucher.code + '</span>' +
@@ -306,13 +306,22 @@
       googleBtn.addEventListener('click', async function () {
         googleBtn.disabled = true;
         googleBtn.textContent = 'Conectando…';
-        var oauthRes = await client.auth.signInWithOAuth({
-          provider: 'google',
-          options: { redirectTo: window.location.origin + '/portal/dashboard.html' }
-        });
-        if (oauthRes.error) {
-          var errMsg = oauthRes.error.message || '';
-          if (errMsg.toLowerCase().indexOf('provider') !== -1 || errMsg.toLowerCase().indexOf('not enabled') !== -1) {
+        try {
+          var oauthRes = await client.auth.signInWithOAuth({
+            provider: 'google',
+            options: { redirectTo: window.location.origin + '/portal/dashboard.html' }
+          });
+          if (oauthRes.error) {
+            throw oauthRes.error;
+          }
+        } catch (oauthErr) {
+          var errMsg = (oauthErr && (oauthErr.message || oauthErr.msg)) || String(oauthErr);
+          if (
+            errMsg.toLowerCase().indexOf('provider') !== -1 ||
+            errMsg.toLowerCase().indexOf('not enabled') !== -1 ||
+            errMsg.toLowerCase().indexOf('unsupported') !== -1 ||
+            (oauthErr && (oauthErr.status === 400 || oauthErr.code === 400))
+          ) {
             errMsg = 'Login com Google temporariamente indisponível. Use e-mail e senha.';
           }
           setMessage(message, errMsg, 'error');
