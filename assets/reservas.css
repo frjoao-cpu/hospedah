@@ -93,6 +93,11 @@ body {
   text-shadow: 0 0 20px rgba(212,175,55,0.3);
 }
 
+.logo img {
+  height: 44px;
+  width: auto;
+}
+
 .nav-links { display: flex; gap: 8px; flex-wrap: wrap; }
 
 .nav-links a {
