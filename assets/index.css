@@ -132,7 +132,7 @@ html[data-theme="light"] footer                 { background: #e8e4d8; color: #4
   text-decoration: none; white-space: nowrap; flex-shrink: 0;
 }
 .navbar .logo-txt img {
-  height: 62px;
+  height: 72px;
   width: auto;
   display: block;
 }
@@ -280,7 +280,7 @@ html[data-theme="light"] footer                 { background: #e8e4d8; color: #4
 /* ✅ Logo central com overlay premium */
 .hero-logo {
   width: 100%;
-  max-width: 580px;
+  max-width: 660px;
   height: auto;
   display: block;
   margin: 0 auto 24px;
@@ -391,7 +391,7 @@ html[data-theme="light"] footer                 { background: #e8e4d8; color: #4
   display: flex; gap: 7px; z-index: 3;
 }
 .hero-dot {
-  width: 8px; height: 8px; border-radius: 50%;
+  width: 6px; height: 6px; border-radius: 50%;
   /* override mobile-first.css min-height/min-width on all buttons */
   min-height: unset; min-width: unset;
   background: rgba(255,255,255,0.4);
@@ -1054,9 +1054,9 @@ html[data-theme="light"] .faq-btn { color: var(--azul); }
 }
 #exit-popup .ep-skip:hover { color:rgba(255,255,255,.75); }
 
-/* FOMO bar — positioned below navbar (--navbar-h = 64px + 8px gap) */
+/* FOMO bar — positioned at bottom-right to avoid overlapping the hero search */
 #fomo-bar {
-  position:fixed; top:calc(var(--navbar-h, 64px) + 8px); right:24px;
+  position:fixed; bottom:76px; right:24px;
   z-index:900; display:flex; gap:12px; flex-wrap:wrap; justify-content:flex-end;
   pointer-events:none;
 }
@@ -2050,6 +2050,6 @@ html[data-theme="light"] .orc-summary-row strong { color: #1a1a1a; }
 }
 
 @media (max-width: 480px) {
-  .hero-logo { max-width: 320px; }
-  .navbar .logo-txt img { height: 50px; }
+  .hero-logo { max-width: 360px; }
+  .navbar .logo-txt img { height: 56px; }
 }
