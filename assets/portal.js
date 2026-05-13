@@ -2,6 +2,16 @@
 
 (function () {
   var PATHNAME = window.location.pathname || '';
+  var MIN_PASSWORD_STRENGTH_SCORE = 3;
+  var MAX_LOYALTY_PROGRESS_POINTS = 4000;
+  var QR_MATRIX_SIZE = 21;
+  var QR_CELL_SIZE = 6;
+  var QR_HASH_MULTIPLIER_X = 7;
+  var QR_HASH_MULTIPLIER_Y = 11;
+  var QR_DRAW_MOD = 3;
+  var BRONZE_MAX_POINTS = 500;
+  var PRATA_MAX_POINTS = 1500;
+  var OURO_MAX_POINTS = 3000;
   var IS_DASHBOARD = /\/portal\/dashboard\.html$/.test(PATHNAME);
   var IS_LOGIN = /\/portal\/(index\.html)?$/.test(PATHNAME) || /\/portal\/$/.test(PATHNAME);
   var IS_RESET = /\/portal\/reset-password\.html$/.test(PATHNAME);
@@ -228,8 +238,8 @@
   }
 
   function createSimpleQrSvg(content) {
-    var size = 21;
-    var cell = 6;
+    var size = QR_MATRIX_SIZE;
+    var cell = QR_CELL_SIZE;
     var svg = '<svg viewBox="0 0 ' + (size * cell) + ' ' + (size * cell) + '" xmlns="http://www.w3.org/2000/svg">';
     svg += '<rect width="100%" height="100%" fill="#ffffff"/>';
 
@@ -237,7 +247,7 @@
       for (var x = 0; x < size; x += 1) {
         var seed = content.charCodeAt((x * y + x + y) % content.length);
         var isFinder = (x < 6 && y < 6) || (x > 14 && y < 6) || (x < 6 && y > 14);
-        var shouldDraw = isFinder || ((seed + x * 7 + y * 11) % 3 === 0);
+        var shouldDraw = isFinder || ((seed + x * QR_HASH_MULTIPLIER_X + y * QR_HASH_MULTIPLIER_Y) % QR_DRAW_MOD === 0);
         if (shouldDraw) {
           svg += '<rect x="' + (x * cell) + '" y="' + (y * cell) + '" width="' + cell + '" height="' + cell + '" fill="#111827"/>';
         }
@@ -370,8 +380,8 @@
           return;
         }
 
-        if (password.length < 6) {
-          showToast('Senha inválida.', 'error');
+        if (password.length < 8) {
+          showToast('A senha deve ter ao menos 8 caracteres.', 'error');
           return;
         }
 
@@ -415,7 +425,7 @@
           showToast('Informe WhatsApp com DDD.', 'error');
           return;
         }
-        if (passwordStrength(password) < 3) {
+        if (passwordStrength(password) < MIN_PASSWORD_STRENGTH_SCORE) {
           showToast('Crie uma senha mais forte para segurança da conta.', 'error');
           return;
         }
@@ -562,9 +572,9 @@
   }
 
   function getLevelByPoints(points) {
-    if (points >= 3001) return 'Diamante';
-    if (points >= 1501) return 'Ouro';
-    if (points >= 501) return 'Prata';
+    if (points > OURO_MAX_POINTS) return 'Diamante';
+    if (points > PRATA_MAX_POINTS) return 'Ouro';
+    if (points > BRONZE_MAX_POINTS) return 'Prata';
     return 'Bronze';
   }
 
@@ -642,7 +652,7 @@
         '<p>Valor: ' + formatMoney(item.valor || 0) + '</p>' +
         '<div class="portal-inline-actions">' +
           '<button class="portal-btn portal-btn-secondary" data-action="details" data-reserva="' + item.id + '">Ver detalhes</button>' +
-          '<button class="portal-btn portal-btn-secondary" data-action="cancel" data-reserva="' + item.id + '">Cancelar</button>' +
+          '<button class="portal-btn portal-btn-secondary" data-action="cancel" data-reserva="' + item.id + '" data-status="' + escapeHtml(item.status || '') + '">Cancelar</button>' +
           '<a class="portal-btn portal-btn-secondary" target="_blank" rel="noopener" href="https://wa.me/5517982006382?text=' + encodeURIComponent('Olá, preciso de suporte para a reserva ' + item.id) + '">WhatsApp</a>' +
         '</div>';
       list.appendChild(card);
@@ -667,10 +677,29 @@
       }
 
       if (action === 'cancel') {
+        var currentStatus = normalizeStatus(target.getAttribute('data-status'));
+        if (currentStatus === 'concluido' || currentStatus === 'finalizado' || currentStatus === 'cancelado') {
+          showToast('Esta reserva não pode mais ser cancelada.', 'error');
+          return;
+        }
+
         var confirmed = window.confirm('Deseja realmente solicitar o cancelamento desta reserva?');
         if (!confirmed) return;
 
         withLoading(target, true);
+        var statusCheck = await sb.from('reservas').select('status').eq('id', reservaId).eq('user_id', userId).maybeSingle();
+        if (statusCheck.error || !statusCheck.data) {
+          withLoading(target, false);
+          showToast('Não foi possível validar esta reserva para cancelamento.', 'error');
+          return;
+        }
+        var latestStatus = normalizeStatus(statusCheck.data.status);
+        if (latestStatus === 'concluido' || latestStatus === 'finalizado' || latestStatus === 'cancelado') {
+          withLoading(target, false);
+          showToast('Esta reserva não pode mais ser cancelada.', 'error');
+          return;
+        }
+
         var response = await sb.from('reservas').update({ status: 'cancelado' }).eq('id', reservaId).eq('user_id', userId);
         withLoading(target, false);
 
@@ -747,6 +776,10 @@
 
       var submitReservaId = target.getAttribute('data-submit-rating');
       if (!submitReservaId) return;
+      if (target.getAttribute('data-rated') === 'true') {
+        showToast('Você já enviou uma avaliação para esta estadia.');
+        return;
+      }
 
       var rating = ratings[submitReservaId] || 0;
       var commentField = document.getElementById('comment-' + submitReservaId);
@@ -773,6 +806,9 @@
 
       showToast('Avaliação enviada com sucesso. Obrigado!');
       if (commentField) commentField.value = '';
+      target.setAttribute('data-rated', 'true');
+      target.textContent = 'Avaliação enviada';
+      target.disabled = true;
     });
   }
 
@@ -786,7 +822,7 @@
     var pointsText = document.getElementById('fidelityPoints');
     var historyList = document.getElementById('fidelityHistory');
 
-    if (progressBar) progressBar.style.width = Math.min(100, (points / 4000) * 100) + '%';
+    if (progressBar) progressBar.style.width = Math.min(100, (points / MAX_LOYALTY_PROGRESS_POINTS) * 100) + '%';
     if (currentLevel) currentLevel.textContent = getLevelBadge(level);
     if (benefits) benefits.textContent = getLevelBenefits(level);
     if (pointsText) pointsText.textContent = points + ' pontos acumulados';
@@ -848,12 +884,11 @@
         if (!raw) return;
 
         var data = JSON.parse(decodeURIComponent(raw));
-        var printWindow = window.open('', '_blank', 'width=700,height=760');
+        var printWindow = window.open('', '_blank', 'noopener,noreferrer,width=700,height=760');
         if (!printWindow) {
           showToast('Permita pop-ups para imprimir seu voucher.', 'error');
           return;
         }
-
         var html =
           '<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><title>Voucher</title>' +
           '<style>body{font-family:Poppins,sans-serif;padding:20px;} .card{border:1px solid #d4af37;border-radius:12px;padding:18px;} h1{margin-top:0;} </style>' +
@@ -965,7 +1000,7 @@
         var confirmNewPassword = document.getElementById('confirmNewPassword').value || '';
         var btn = document.getElementById('savePasswordBtn');
 
-        if (passwordStrength(newPassword) < 3) {
+        if (passwordStrength(newPassword) < MIN_PASSWORD_STRENGTH_SCORE) {
           showToast('Use uma senha mais forte para atualizar.', 'error');
           return;
         }
@@ -1006,7 +1041,7 @@
         if (request.error) {
           showToast('Solicitação registrada parcialmente. Contate o suporte via WhatsApp para concluir.', 'error');
         } else {
-          showToast('Solicitação de exclusão registrada. Nossa equipe entrará em contato.');
+          showToast('Solicitação de exclusão registrada para análise manual da equipe HOSPEDAH.');
         }
       });
     }
@@ -1132,7 +1167,7 @@
       var confirmPassword = document.getElementById('resetConfirmPassword').value || '';
       var button = document.getElementById('resetPasswordBtn');
 
-      if (passwordStrength(newPassword) < 3) {
+      if (passwordStrength(newPassword) < MIN_PASSWORD_STRENGTH_SCORE) {
         showToast('Use uma senha mais forte para concluir.', 'error');
         return;
       }
