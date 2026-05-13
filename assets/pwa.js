@@ -28,12 +28,22 @@
       }, 30000);
     });
 
-    installBtn.addEventListener('click', async function () {
+    installBtn.addEventListener('click', function () {
       if (!deferredPrompt) return;
-      deferredPrompt.prompt();
-      await deferredPrompt.userChoice;
-      deferredPrompt = null;
-      banner.classList.remove('show');
+      Promise.resolve()
+        .then(function () {
+          deferredPrompt.prompt();
+        })
+        .then(function () {
+          return deferredPrompt.userChoice;
+        })
+        .catch(function (err) {
+          console.warn('Falha ao abrir prompt de instalação:', err);
+        })
+        .finally(function () {
+          deferredPrompt = null;
+          banner.classList.remove('show');
+        });
     });
   }
 

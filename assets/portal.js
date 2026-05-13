@@ -21,6 +21,12 @@
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
   }
 
+  function findFirstMessageElement() {
+    return document.getElementById('portalAuthMessage') ||
+      document.getElementById('portalResetMessage') ||
+      document.getElementById('portalConfigMessage');
+  }
+
   function makeQrSvg(code) {
     var bits = Array.from(code).map(function (c) { return c.charCodeAt(0); });
     var size = 17;
@@ -226,6 +232,7 @@
     }
 
     var updatePasswordForm = document.getElementById('updatePasswordForm');
+    var configMessage = document.getElementById('portalConfigMessage');
     if (updatePasswordForm) {
       updatePasswordForm.addEventListener('submit', async function (event) {
         event.preventDefault();
@@ -233,10 +240,10 @@
         if (!password || password.length < 6) return;
         var response = await client.auth.updateUser({ password: password });
         if (response.error) {
-          alert('Não foi possível atualizar a senha: ' + response.error.message);
+          setMessage(configMessage, 'Não foi possível atualizar a senha: ' + response.error.message, 'error');
           return;
         }
-        alert('Senha atualizada com sucesso.');
+        setMessage(configMessage, 'Senha atualizada com sucesso.', 'success');
         updatePasswordForm.reset();
       });
     }
@@ -279,7 +286,8 @@
     try {
       client = getClient();
     } catch (err) {
-      alert(err.message);
+      setMessage(findFirstMessageElement(), err.message, 'error');
+      console.error(err);
       return;
     }
 
@@ -299,7 +307,7 @@
 
   document.addEventListener('DOMContentLoaded', function () {
     init().catch(function () {
-      alert('Não foi possível inicializar o portal.');
+      setMessage(findFirstMessageElement(), 'Não foi possível inicializar o portal.', 'error');
     });
   });
 })();

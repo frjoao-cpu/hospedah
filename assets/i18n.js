@@ -20,7 +20,7 @@
 
   async function getMessages(lang) {
     if (loadedMessages[lang]) return loadedMessages[lang];
-    var response = await fetch('/assets/i18n/' + lang + '.json', { cache: 'no-cache' });
+    var response = await fetch('/assets/i18n/' + lang + '.json', { cache: 'default' });
     if (!response.ok) {
       if (lang !== defaultLang) return getMessages(defaultLang);
       throw new Error('Falha ao carregar tradução');

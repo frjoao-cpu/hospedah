@@ -6,9 +6,16 @@
   }
 
   var client;
+  var CRM_FETCH_LIMIT = 100;
   var crmData = [];
   var bookingsChart;
   var leadSourceChart;
+  var BOOKED_STATUSES = ['booked', 'reservado'];
+  var FALLBACK_LEADS = [
+    { name: 'Maria Souza', email: 'maria@example.com', phone: '(17) 99999-0001', source: 'WhatsApp', status: 'reservado', created_at: new Date().toISOString(), revenue: 5400 },
+    { name: 'Pedro Lima', email: 'pedro@example.com', phone: '(11) 98888-0002', source: 'Site', status: 'novo', created_at: new Date().toISOString(), revenue: 0 },
+    { name: 'Carla Nunes', email: 'carla@example.com', phone: '(21) 97777-0003', source: 'Instagram', status: 'negociação', created_at: new Date().toISOString(), revenue: 0 }
+  ];
 
   function money(value) {
     return (value || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
@@ -40,7 +47,7 @@
       var now = new Date();
       return date.toDateString() === now.toDateString();
     }).length;
-    var bookings = rows.filter(function (lead) { return lead.status === 'booked'; }).length;
+    var bookings = rows.filter(function (lead) { return BOOKED_STATUSES.indexOf(lead.status) !== -1; }).length;
     var conversion = rows.length ? (bookings / rows.length) * 100 : 0;
     var revenue = rows.reduce(function (total, lead) {
       return total + Number(lead.revenue || 0);
@@ -60,7 +67,7 @@
     rows.forEach(function (row) {
       var date = new Date(row.created_at || Date.now());
       var month = date.toLocaleString('pt-BR', { month: 'short' });
-      monthMap[month] = (monthMap[month] || 0) + (row.status === 'booked' ? 1 : 0);
+      monthMap[month] = (monthMap[month] || 0) + (BOOKED_STATUSES.indexOf(row.status) !== -1 ? 1 : 0);
       var source = row.source || 'Direto';
       sourceMap[source] = (sourceMap[source] || 0) + 1;
     });
@@ -126,18 +133,14 @@
   async function loadLeads() {
     var rows = [];
     try {
-      var response = await client.from('leads').select('name,email,phone,source,status,created_at,revenue').order('created_at', { ascending: false }).limit(200);
+      var response = await client.from('leads').select('name,email,phone,source,status,created_at,revenue').order('created_at', { ascending: false }).limit(CRM_FETCH_LIMIT);
       if (!response.error && response.data) rows = response.data;
     } catch (err) {
       rows = [];
     }
 
     if (!rows.length) {
-      rows = [
-        { name: 'Maria Souza', email: 'maria@email.com', phone: '(17) 99999-0001', source: 'WhatsApp', status: 'booked', created_at: new Date().toISOString(), revenue: 5400 },
-        { name: 'Pedro Lima', email: 'pedro@email.com', phone: '(11) 98888-0002', source: 'Site', status: 'novo', created_at: new Date().toISOString(), revenue: 0 },
-        { name: 'Carla Nunes', email: 'carla@email.com', phone: '(21) 97777-0003', source: 'Instagram', status: 'negociação', created_at: new Date().toISOString(), revenue: 0 }
-      ];
+      rows = FALLBACK_LEADS;
     }
 
     crmData = rows;
@@ -175,7 +178,6 @@
       if (roleResponse.error) return user;
       var role = roleResponse.data && roleResponse.data.role;
       if (role && role !== 'admin') {
-        alert('Acesso permitido apenas para administradores.');
         window.location.replace('/portal/dashboard.html');
         return null;
       }
