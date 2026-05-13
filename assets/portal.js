@@ -306,7 +306,7 @@
       googleBtn.addEventListener('click', async function () {
         googleBtn.disabled = true;
         googleBtn.textContent = 'Conectando…';
-        var googleNote = document.getElementById('googleAuthNote');
+        var googleAuthNoteElement = document.getElementById('googleAuthNote');
         try {
           var oauthRes = await client.auth.signInWithOAuth({
             provider: 'google',
@@ -316,7 +316,7 @@
             throw oauthRes.error;
           }
           /* Success: hide the config note */
-          if (googleNote) googleNote.style.display = 'none';
+          if (googleAuthNoteElement) googleAuthNoteElement.style.display = 'none';
         } catch (oauthErr) {
           var rawErrMsg = '';
           if (oauthErr) {
@@ -330,8 +330,8 @@
             lc.indexOf('unsupported') !== -1 ||
             (oauthErr && (oauthErr.status === 400 || oauthErr.code === 400));
           if (isProviderDisabled) {
-            errMsg = '⚠️ Login com Google indisponível. Ative o provider Google no painel Supabase (Authentication → Providers). Use e-mail e senha por enquanto.';
-            if (googleNote) googleNote.textContent = 'Para ativar: painel Supabase → Authentication → Providers → Google';
+            errMsg = '⚠️ Login com Google indisponível. Use e-mail e senha.';
+            if (googleAuthNoteElement) googleAuthNoteElement.textContent = 'Para ativar: Supabase → Authentication → Providers → Google';
           }
           setMessage(message, errMsg, 'error');
           googleBtn.disabled = false;

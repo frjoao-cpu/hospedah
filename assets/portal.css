@@ -11,6 +11,8 @@
   --portal-green: #22c55e;
   --portal-radius: 16px;
   --portal-radius-sm: 10px;
+  --portal-disabled-opacity: 0.45;
+  --portal-disabled-grayscale: 0.6;
 }
 
 body {
@@ -275,10 +277,10 @@ body {
 }
 .portal-btn-google:hover { background: #f5f5f5; }
 .portal-btn-google:disabled {
-  opacity: .45;
+  opacity: var(--portal-disabled-opacity);
   cursor: not-allowed;
   transform: none;
-  filter: grayscale(.6);
+  filter: grayscale(var(--portal-disabled-grayscale));
 }
 .portal-google-note {
   font-size: 0.75rem;
