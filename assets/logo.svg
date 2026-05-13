@@ -25,6 +25,13 @@
       <stop offset="72%" stop-color="#D4AF37"/>
       <stop offset="100%" stop-color="#F5E27A"/>
     </linearGradient>
+    <linearGradient id="ringH" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#F5E27A" stop-opacity="0.3"/>
+      <stop offset="30%" stop-color="#D4AF37"/>
+      <stop offset="50%" stop-color="#F5E27A"/>
+      <stop offset="70%" stop-color="#D4AF37"/>
+      <stop offset="100%" stop-color="#F5E27A" stop-opacity="0.3"/>
+    </linearGradient>
     <filter id="shadow" x="-30%" y="-30%" width="180%" height="180%">
       <feDropShadow dx="2" dy="4" stdDeviation="3" flood-color="#00000066"/>
     </filter>
@@ -69,6 +76,7 @@
       <path fill="#D4AF37" fill-opacity="0.7" d="M162 67 L172 66 L180 72 L183 83 L180 96 L172 104 L164 102 L159 90 L158 79 Z"/>
     </g>
 
+    <!-- Resort building inside globe -->
     <g clip-path="url(#globeClip)" fill="#F5E27A">
       <path d="M133 97 H167 L163 110 H137 Z"/>
       <rect x="137" y="82" width="26" height="15"/>
@@ -84,15 +92,17 @@
 
     <circle cx="150" cy="86" r="55" fill="none" stroke="url(#goldRing)" stroke-width="3"/>
     <circle cx="150" cy="86" r="53" fill="none" stroke="url(#goldGlobe)" stroke-width="1" opacity="0.8"/>
+
+    <!-- Equatorial orbital ring -->
+    <ellipse cx="150" cy="86" rx="63" ry="10" fill="none" stroke="url(#ringH)" stroke-width="5" opacity="0.9"/>
+    <ellipse cx="150" cy="86" rx="63" ry="10" fill="none" stroke="#F5E27A" stroke-width="1.5" opacity="0.5"/>
   </g>
 
   <text x="230" y="96" font-family="Georgia, 'Times New Roman', serif" font-weight="700" font-size="52" letter-spacing="8" fill="url(#goldH)" filter="url(#textShadow)">HOSPEDAH</text>
 
   <g font-family="Georgia, 'Times New Roman', serif" fill="#D4AF37" text-anchor="middle">
-    <line x1="258" y1="136" x2="298" y2="136" stroke="url(#goldH)" stroke-width="1.5"/>
-    <line x1="454" y1="136" x2="494" y2="136" stroke="url(#goldH)" stroke-width="1.5"/>
-    <text x="376" y="141" font-style="italic" font-size="16" letter-spacing="2">Sua experiência começa aqui.</text>
-    <text x="252" y="141" font-size="14" fill="#D4AF37">✦</text>
-    <text x="500" y="141" font-size="14" fill="#D4AF37">✦</text>
+    <text x="376" y="141" font-style="italic" font-size="16" letter-spacing="2">Sua experiência começa aqui</text>
+    <text x="248" y="141" font-size="18" fill="url(#goldH)">→</text>
+    <text x="504" y="141" font-size="18" fill="url(#goldH)">←</text>
   </g>
 </svg>
