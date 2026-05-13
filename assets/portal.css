@@ -65,13 +65,13 @@ body {
 /* ── LOGO on auth page ── */
 .portal-logo-wrap {
   text-align: center;
-  margin-bottom: 4px;
+  margin-bottom: 0;
 }
 .portal-logo-wrap img {
   height: 260px;
   width: auto;
   max-width: 100%;
-  margin-bottom: -12px;
+  margin-bottom: -24px;
   filter: drop-shadow(0 4px 16px rgba(212,175,55,0.4));
 }
 
@@ -88,7 +88,7 @@ body {
 
 .portal-title,
 .portal-title-sm {
-  margin: 8px 0 4px;
+  margin: 0 0 4px;
   color: #fff;
   font-weight: 700;
   text-align: center;
