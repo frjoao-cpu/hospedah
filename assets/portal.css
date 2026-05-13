@@ -1,0 +1,247 @@
+:root {
+  --portal-gold: #D4AF37;
+  --portal-navy: #0B1C3D;
+  --portal-border: rgba(255, 255, 255, 0.2);
+  --portal-text: #f5f7fb;
+}
+
+body {
+  margin: 0;
+  font-family: 'Poppins', sans-serif;
+  background: radial-gradient(circle at top, #1b3568, #0B1C3D 45%, #09172f);
+  color: var(--portal-text);
+  min-height: 100vh;
+}
+
+.glass {
+  background: rgba(12, 29, 61, 0.65);
+  border: 1px solid var(--portal-border);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
+  border-radius: 20px;
+}
+
+.portal-auth-wrap {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+}
+
+.portal-card {
+  width: min(100%, 460px);
+  padding: 28px;
+}
+
+.portal-brand {
+  color: var(--portal-gold);
+  text-decoration: none;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.portal-title,
+.portal-title-sm {
+  margin: 10px 0 6px;
+  color: var(--portal-gold);
+}
+
+.portal-subtitle,
+.portal-user {
+  margin: 0 0 18px;
+  color: rgba(245, 247, 251, 0.8);
+  font-size: 0.93rem;
+}
+
+.portal-message {
+  min-height: 20px;
+  margin-bottom: 12px;
+  font-size: 0.9rem;
+}
+
+.portal-message.success {
+  color: #7dffb2;
+}
+
+.portal-message.error {
+  color: #ff8787;
+}
+
+.portal-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  margin-bottom: 16px;
+  gap: 8px;
+}
+
+.portal-tab {
+  border: 1px solid var(--portal-border);
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  color: #fff;
+  font: inherit;
+  padding: 10px;
+  cursor: pointer;
+}
+
+.portal-tab.active {
+  background: var(--portal-gold);
+  color: var(--portal-navy);
+  font-weight: 600;
+}
+
+.portal-form {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.portal-form label {
+  font-size: 0.9rem;
+}
+
+.portal-form input {
+  border-radius: 12px;
+  border: 1px solid var(--portal-border);
+  background: rgba(255, 255, 255, 0.1);
+  padding: 11px 12px;
+  color: #fff;
+  font: inherit;
+}
+
+.portal-form input:focus {
+  outline: 1px solid var(--portal-gold);
+}
+
+.portal-btn {
+  border: 0;
+  border-radius: 12px;
+  padding: 11px 14px;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 600;
+}
+
+.portal-btn-primary {
+  background: var(--portal-gold);
+  color: var(--portal-navy);
+}
+
+.portal-btn-secondary {
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  border: 1px solid var(--portal-border);
+}
+
+.portal-btn-google {
+  width: 100%;
+  margin-bottom: 10px;
+  background: #fff;
+  color: #202124;
+}
+
+.portal-link {
+  color: var(--portal-gold);
+  font-size: 0.9rem;
+}
+
+.portal-layout {
+  display: grid;
+  gap: 20px;
+  grid-template-columns: 280px 1fr;
+  min-height: 100vh;
+  padding: 24px;
+}
+
+.portal-sidebar {
+  padding: 20px;
+}
+
+.portal-nav {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.portal-nav-link {
+  border-radius: 12px;
+  border: 1px solid var(--portal-border);
+  background: rgba(255, 255, 255, 0.06);
+  padding: 11px 12px;
+  color: #fff;
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+}
+
+.portal-nav-link.active {
+  background: rgba(212, 175, 55, 0.2);
+  border-color: var(--portal-gold);
+}
+
+.portal-content {
+  display: grid;
+  gap: 16px;
+}
+
+.portal-panel {
+  padding: 20px;
+}
+
+.portal-grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.portal-item {
+  border: 1px solid var(--portal-border);
+  border-radius: 14px;
+  padding: 14px;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.portal-item h3 {
+  margin: 0 0 8px;
+  color: var(--portal-gold);
+  font-size: 1rem;
+}
+
+.portal-item p {
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.tier-track {
+  display: grid;
+  gap: 10px;
+}
+
+.tier-step {
+  border-radius: 12px;
+  border: 1px solid var(--portal-border);
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.tier-step.active {
+  border-color: var(--portal-gold);
+  background: rgba(212, 175, 55, 0.12);
+}
+
+.qr-box svg {
+  width: 100%;
+  max-width: 150px;
+  height: auto;
+  display: block;
+}
+
+.hidden {
+  display: none;
+}
+
+@media (max-width: 920px) {
+  .portal-layout {
+    grid-template-columns: 1fr;
+  }
+}

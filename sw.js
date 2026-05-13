@@ -1,20 +1,9 @@
-/* ============================================================
-   HOSPEDAH — Service Worker
-   Estratégia:
-     • Cache-First com revalidação background (SWR) para fontes e CSS.
-     • Network-First para HTML/navegação.
-     • Cache-First para imagens Imgur.
-   ============================================================ */
 'use strict';
 
-/* OneSignal Web Push — importa o SW do SDK para compatibilidade */
+var STATIC_CACHE = 'hospedah-static-v5';
+var PAGE_CACHE = 'hospedah-pages-v5';
+var OFFLINE_URL = '/offline.html';
 
-importScripts('https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.sw.js');
-var CACHE_NAME = 'hospedah-v4';
-var ASSETS_CACHE = 'hospedah-assets-v4';
-var FONT_CACHE = 'hospedah-fonts-v4';
-
-/* Recursos essenciais para funcionar offline */
 var PRECACHE_URLS = [
   '/',
   '/index.html',
@@ -22,9 +11,11 @@ var PRECACHE_URLS = [
   '/reservas.html',
   '/chat.html',
   '/avaliacoes.html',
-  '/cadastro.html',
-  '/painel.html',
-  '/sistema.html',
+  '/jornal.html',
+  '/portal/index.html',
+  '/portal/dashboard.html',
+  '/portal/reset-password.html',
+  '/admin/index.html',
   '/resorts/hotbeach.html',
   '/resorts/saopedro.html',
   '/resorts/olimpia.html',
@@ -34,16 +25,18 @@ var PRECACHE_URLS = [
   '/resorts/ipioca.html',
   '/resorts/portoi2.html',
   '/assets/mobile-first.css',
-  '/assets/index.css',
   '/assets/style.css',
-  '/manifest.json',
-  'https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap'
+  '/assets/index.css',
+  '/assets/portal.css',
+  '/assets/admin.css',
+  '/assets/pwa.js',
+  '/offline.html',
+  '/manifest.json'
 ];
 
-/* ── Install: pré-cacheia os essenciais ── */
 self.addEventListener('install', function (event) {
   event.waitUntil(
-    caches.open(CACHE_NAME).then(function (cache) {
+    caches.open(STATIC_CACHE).then(function (cache) {
       return cache.addAll(PRECACHE_URLS);
     }).then(function () {
       return self.skipWaiting();
@@ -51,138 +44,78 @@ self.addEventListener('install', function (event) {
   );
 });
 
-/* ── Activate: remove caches antigos ── */
 self.addEventListener('activate', function (event) {
-  var validCaches = [CACHE_NAME, ASSETS_CACHE, FONT_CACHE];
   event.waitUntil(
     caches.keys().then(function (keys) {
-      return Promise.all(
-        keys.filter(function (key) {
-          return validCaches.indexOf(key) === -1;
-        }).map(function (key) {
+      return Promise.all(keys.map(function (key) {
+        if (key !== STATIC_CACHE && key !== PAGE_CACHE) {
           return caches.delete(key);
-        })
-      );
+        }
+        return Promise.resolve();
+      }));
     }).then(function () {
       return self.clients.claim();
     })
   );
 });
 
-/* ── Fetch: estratégia híbrida ── */
+function isAsset(pathname) {
+  return /\.(?:css|js|png|jpg|jpeg|svg|webp|woff2?)$/i.test(pathname);
+}
+
 self.addEventListener('fetch', function (event) {
   var req = event.request;
-  var url = new URL(req.url);
-
-  /* Ignora requisições não-GET e extensões externas que não cachear */
   if (req.method !== 'GET') return;
-  if (url.origin !== self.location.origin &&
-      url.hostname !== 'fonts.googleapis.com' &&
-      url.hostname !== 'fonts.gstatic.com' &&
-      url.hostname !== 'i.imgur.com') return;
 
-  /* Imagens Imgur: Cache-First com fallback de rede */
-  if (url.hostname === 'i.imgur.com') {
-    event.respondWith(
-      caches.open(ASSETS_CACHE).then(function (cache) {
-        return cache.match(req).then(function (cached) {
-          if (cached) return cached;
-          return fetch(req).then(function (response) {
-            if (response && response.status === 200) {
-              cache.put(req, response.clone());
-            }
-            return response;
-          });
-        });
-      })
-    );
-    return;
-  }
+  var url = new URL(req.url);
+  if (url.origin !== self.location.origin) return;
 
-  /* Google Fonts: Stale-While-Revalidate — serve do cache imediatamente
-     e atualiza em background para garantir versões recentes */
-  if (url.hostname === 'fonts.googleapis.com' ||
-      url.hostname === 'fonts.gstatic.com') {
-    event.respondWith(
-      caches.open(FONT_CACHE).then(function (cache) {
-        return cache.match(req).then(function (cached) {
-          var fetchPromise = fetch(req).then(function (response) {
-            if (response && response.status === 200) {
-              cache.put(req, response.clone());
-            }
-            return response;
-          }).catch(function () { return cached; });
-          /* Stale-While-Revalidate: serve do cache imediatamente E atualiza em background */
-          if (cached) { fetchPromise.catch(function () {}); return cached; }
-          return fetchPromise;
-        });
-      })
-    );
-    return;
-  }
-
-  /* ai-config.js / ai-concierge.js: sempre da rede — ai-config.js contém a chave de API injetada
-     pelo CI; ai-concierge.js contém o sistema de IA que é atualizado frequentemente.
-     Nenhum deles deve ser servido de um cache antigo. */
-  if (url.pathname === '/assets/ai-config.js' ||
-      url.pathname === '/assets/ai-concierge.js') {
-    event.respondWith(
-      fetch(req).catch(function () {
-        return caches.match(req);
-      })
-    );
-    return;
-  }
-
-  /* CSS e JS locais: Stale-While-Revalidate — performance + frescor */
-  if (url.origin === self.location.origin &&
-      (url.pathname.endsWith('.css') || url.pathname.endsWith('.js'))) {
-    event.respondWith(
-      caches.open(CACHE_NAME).then(function (cache) {
-        return cache.match(req).then(function (cached) {
-          var fetchPromise = fetch(req).then(function (response) {
-            if (response && response.status === 200) {
-              cache.put(req, response.clone());
-            }
-            return response;
-          }).catch(function () { return cached; });
-          /* Stale-While-Revalidate: serve do cache imediatamente E atualiza em background */
-          if (cached) { fetchPromise.catch(function () {}); return cached; }
-          return fetchPromise;
-        });
-      })
-    );
-    return;
-  }
-
-  /* HTML (navegação): Network-First com fallback para cache */
   if (req.mode === 'navigate') {
     event.respondWith(
       fetch(req).then(function (response) {
         if (response && response.status === 200) {
-          caches.open(CACHE_NAME).then(function (cache) {
-            cache.put(req, response.clone());
+          var clone = response.clone();
+          caches.open(PAGE_CACHE).then(function (cache) {
+            cache.put(req, clone);
           });
         }
         return response;
       }).catch(function () {
-        return caches.match('/index.html');
+        return caches.match(req).then(function (cached) {
+          return cached || caches.match(OFFLINE_URL);
+        });
       })
     );
     return;
   }
 
-  /* Outros recursos: Cache-First */
+  if (isAsset(url.pathname)) {
+    event.respondWith(
+      caches.match(req).then(function (cached) {
+        if (cached) return cached;
+        return fetch(req).then(function (response) {
+          if (response && response.status === 200) {
+            var clone = response.clone();
+            caches.open(STATIC_CACHE).then(function (cache) {
+              cache.put(req, clone);
+            });
+          }
+          return response;
+        });
+      })
+    );
+    return;
+  }
+
   event.respondWith(
-    caches.match(req).then(function (cached) {
-      return cached || fetch(req).then(function (response) {
-        if (response && response.status === 200) {
-          caches.open(CACHE_NAME).then(function (cache) {
-            cache.put(req, response.clone());
-          });
-        }
-        return response;
-      });
+    fetch(req).catch(function () {
+      return caches.match(req);
     })
   );
+});
+
+self.addEventListener('sync', function (event) {
+  if (event.tag === 'hospedah-sync') {
+    event.waitUntil(Promise.resolve());
+  }
 });

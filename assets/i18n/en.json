@@ -1,0 +1,31 @@
+{
+  "nav": {
+    "home": "🏠 Home",
+    "search": "🔍 Search",
+    "reserve": "📅 Book",
+    "reviews": "⭐ Reviews",
+    "budget": "💰 Quote",
+    "account": "👤 My Account",
+    "chat": "🤖 AI Chat",
+    "referral": "🎁 Refer",
+    "news": "📰 News"
+  },
+  "hero": {
+    "tagline": "Resorts & Exclusive Experiences",
+    "badge": "✦ Premium Service ✦",
+    "searchTitle": "🔍 Find your ideal stay",
+    "searchButton": "🔍 Search"
+  },
+  "sections": {
+    "gallery": "🏝️ Resort Gallery",
+    "budget": "💰 Request a Quote",
+    "faq": "❓ Frequently Asked Questions",
+    "contact": "📬 Contact"
+  },
+  "pwa": {
+    "installTitle": "Install the HOSPEDAH app",
+    "installDesc": "Quick access to guest portal, bookings, and exclusive offers.",
+    "installButton": "Install",
+    "dismissButton": "Not now"
+  }
+}

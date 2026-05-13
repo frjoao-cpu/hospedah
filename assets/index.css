@@ -154,6 +154,25 @@ html[data-theme="light"] footer                 { background: #e8e4d8; color: #4
 .nav-right {
   display: flex; align-items: center; gap: 10px;
 }
+.lang-switcher {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.09);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+.lang-btn {
+  border: none;
+  background: transparent;
+  border-radius: 999px;
+  padding: 4px 7px;
+  cursor: pointer;
+  line-height: 1;
+}
+.lang-btn.active {
+  background: var(--dourado);
+}
 .btn-tema {
   background: var(--azul2); color: var(--dourado);
   border: none; border-radius: 22px;
@@ -865,6 +884,50 @@ footer a { color: var(--dourado); text-decoration: none; }
 #cookie-banner.visible { display: flex; }
 #cookie-banner p { margin: 0; font-size: 13px; line-height: 1.55; max-width: 680px; }
 #cookie-banner p a { color: var(--dourado); text-decoration: underline; }
+.pwa-install-banner {
+  position: fixed;
+  right: 16px;
+  bottom: 18px;
+  z-index: 1300;
+  width: min(92vw, 420px);
+  border-radius: 14px;
+  background: rgba(11, 28, 61, 0.95);
+  border: 1px solid rgba(212, 175, 55, 0.45);
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.4);
+  padding: 12px;
+  display: none;
+}
+.pwa-install-banner.show {
+  display: block;
+}
+.pwa-install-content strong {
+  color: var(--dourado);
+  font-size: 0.95rem;
+}
+.pwa-install-content p {
+  margin: 6px 0 10px;
+  font-size: 0.85rem;
+}
+.pwa-install-actions {
+  display: flex;
+  gap: 8px;
+}
+.pwa-install-actions button {
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 600;
+  padding: 8px 10px;
+}
+.pwa-install-actions #pwaInstallBtn {
+  background: var(--dourado);
+  color: var(--azul);
+}
+.pwa-install-actions .secondary {
+  background: rgba(255, 255, 255, 0.14);
+  color: #fff;
+}
 .cookie-btns { display: flex; gap: 10px; flex-shrink: 0; }
 .btn-cookie-accept {
   background: var(--dourado); color: var(--azul);
