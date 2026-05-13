@@ -144,8 +144,9 @@ function shouldHandleAsStatic(url) {
 self.addEventListener('fetch', function (event) {
   var request = event.request;
   var url = new URL(request.url);
+  var isBudgetEndpoint = /\/api\/orcamentos|\/budget/i.test(url.pathname);
 
-  if (request.method === 'POST' && request.headers.get('X-Hospedah-Queue') === 'budget') {
+  if (request.method === 'POST' && (request.headers.get('X-Hospedah-Queue') === 'budget' || isBudgetEndpoint)) {
     event.respondWith(fetch(request.clone()).catch(function () {
       return request.clone().text().then(function (body) {
         return saveRequestToQueue({

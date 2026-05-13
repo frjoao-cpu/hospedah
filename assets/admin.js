@@ -5,6 +5,8 @@
   var SB_URL = window.HOSPEDAH_SB_URL || 'https://ydrmjoppjxtmnwtvtinb.supabase.co';
   var SB_KEY = window.HOSPEDAH_SB_ANON || '';
   var sb = (window.supabase && SB_KEY) ? window.supabase.createClient(SB_URL, SB_KEY) : null;
+  var NOTIFICATION_SOUND_DURATION = 0.3;
+  var REPORT_LIMIT = 500;
 
   var state = {
     leads: [],
@@ -75,9 +77,9 @@
       osc.frequency.value = 880;
       gain.gain.setValueAtTime(0.001, audioCtx.currentTime);
       gain.gain.exponentialRampToValueAtTime(0.18, audioCtx.currentTime + 0.02);
-      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3);
+      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + NOTIFICATION_SOUND_DURATION);
       osc.start();
-      osc.stop(audioCtx.currentTime + 0.3);
+      osc.stop(audioCtx.currentTime + NOTIFICATION_SOUND_DURATION);
     } catch (err) {
       console.warn('Falha ao tocar notificação:', err);
     }
@@ -95,21 +97,26 @@
   async function validateAdminAccess() {
     if (!sb) {
       showToast('Supabase não configurado. Carregando modo visual.');
-      return;
+      return true;
     }
 
     try {
       var auth = await sb.auth.getUser();
       if (!auth || !auth.data || !auth.data.user) {
         showToast('Faça login para acessar o painel admin.');
-        return;
+        window.location.href = '/';
+        return false;
       }
       var roleRes = await sb.from('perfis').select('role').eq('id', auth.data.user.id).maybeSingle();
       if (!roleRes.error && roleRes.data && roleRes.data.role !== 'admin') {
         showToast('Acesso restrito: role admin obrigatória.');
+        window.location.href = '/';
+        return false;
       }
+      return true;
     } catch (err) {
       console.warn('Não foi possível validar role admin:', err);
+      return true;
     }
   }
 
@@ -126,7 +133,7 @@
         .from('abandono_reserva')
         .select('id, nome, whatsapp, resort_nome, data_entrada, data_saida, status, criado_em')
         .order('criado_em', { ascending: false })
-        .limit(500);
+        .limit(REPORT_LIMIT);
 
       if (res.error) throw res.error;
 
@@ -166,7 +173,7 @@
         .from('reservas')
         .select('id, nome, resort, checkin, checkout, status')
         .order('checkin', { ascending: false })
-        .limit(500);
+        .limit(REPORT_LIMIT);
 
       if (reservasRes.error) throw reservasRes.error;
 
@@ -634,7 +641,8 @@
 
   async function init() {
     bindEvents();
-    await validateAdminAccess();
+    var authorized = await validateAdminAccess();
+    if (!authorized) return;
     await Promise.all([loadLeads(), loadReservas()]);
     subscribeRealtimeLeads();
   }

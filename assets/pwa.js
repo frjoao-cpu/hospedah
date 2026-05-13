@@ -8,6 +8,8 @@
   var DISMISSED_KEY = 'hospedah_pwa_banner_dismissed';
   var VISITS_KEY = 'hospedah_pwa_visits';
   var BUDGET_QUEUE_KEY = 'hospedah_offline_budget_queue';
+  var BANNER_DELAY_RETURNING_USER = 500;
+  var BANNER_DELAY_FIRST_VISIT = 30000;
 
   function shouldShowBanner() {
     if (!banner) return false;
@@ -41,8 +43,8 @@
     var visits = Number(localStorage.getItem(VISITS_KEY) || '0') + 1;
     localStorage.setItem(VISITS_KEY, String(visits));
 
-    if (visits >= 2) setTimeout(showBanner, 500);
-    else setTimeout(showBanner, 30000);
+    if (visits >= 2) setTimeout(showBanner, BANNER_DELAY_RETURNING_USER);
+    else setTimeout(showBanner, BANNER_DELAY_FIRST_VISIT);
 
     window.addEventListener('beforeinstallprompt', function (event) {
       event.preventDefault();
