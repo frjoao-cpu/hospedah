@@ -131,11 +131,10 @@ html[data-theme="light"] footer                 { background: #e8e4d8; color: #4
   display: flex; align-items: center;
   text-decoration: none; white-space: nowrap; flex-shrink: 0;
 }
-.navbar .logo-txt .logo-img {
-  height: 32px; width: auto; display: block;
-}
-@media (max-width: 480px) {
-  .navbar .logo-txt .logo-img { height: 28px; }
+.navbar .logo-txt img {
+  height: 36px;
+  width: auto;
+  display: block;
 }
 .nav-links {
   display: flex; align-items: center; gap: 6px;
@@ -261,9 +260,11 @@ html[data-theme="light"] footer                 { background: #e8e4d8; color: #4
 
 /* ✅ Logo central com overlay premium */
 .hero-logo {
-  max-width: 320px; width: 80vw;
+  width: 100%;
+  max-width: 320px;
   height: auto;
-  margin-bottom: 10px;
+  display: block;
+  margin: 0 auto 12px;
   filter: drop-shadow(0 4px 18px rgba(0,0,0,0.5));
   animation: logoPop .9s cubic-bezier(.4,0,.2,1) both;
 }
@@ -1982,4 +1983,9 @@ html[data-theme="light"] .orc-summary-row strong { color: #1a1a1a; }
   .orc-date-row { grid-template-columns: 1fr; }
   .orc-step-label { display: none; }
   .orc-step-num { width: 34px; height: 34px; }
+}
+
+@media (max-width: 480px) {
+  .hero-logo { max-width: 220px; }
+  .navbar .logo-txt img { height: 28px; }
 }
