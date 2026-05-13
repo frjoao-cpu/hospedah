@@ -2,27 +2,47 @@
   'use strict';
 
   /* ── Resort cover images (mapped from data.json ogImage values) ── */
+  var DEFAULT_RESORT_IMAGE = 'https://i.imgur.com/AmFSwwd.jpeg';
   var RESORT_IMAGES = {
     'hot beach':    'https://i.imgur.com/AmFSwwd.jpeg',
     'hotbeach':     'https://i.imgur.com/AmFSwwd.jpeg',
     'são pedro':    'https://i.imgur.com/pyEKOtQ.jpeg',
+    'sao pedro':    'https://i.imgur.com/pyEKOtQ.jpeg',
     'saopedro':     'https://i.imgur.com/pyEKOtQ.jpeg',
+    'thermas':      'https://i.imgur.com/pyEKOtQ.jpeg',
     'olimpia':      'https://i.imgur.com/AseZPzL.jpeg',
+    'olímpia':      'https://i.imgur.com/AseZPzL.jpeg',
     'wyndham':      'https://i.imgur.com/iDMQ2XA.jpeg',
     'solar':        'https://i.imgur.com/S4tSUzG.jpeg',
+    'águas':        'https://i.imgur.com/S4tSUzG.jpeg',
+    'aguas':        'https://i.imgur.com/S4tSUzG.jpeg',
     'juquehy':      'https://i.imgur.com/SxlktwS.jpeg',
     'ipioca':       'https://i.imgur.com/o4Esa54.jpg',
     'porto':        'https://i.imgur.com/x23SHdy.jpeg',
-    'default':      'https://i.imgur.com/AmFSwwd.jpeg'
+    'porto 2':      'https://i.imgur.com/x23SHdy.jpeg',
+    'portoi2':      'https://i.imgur.com/x23SHdy.jpeg',
+    'default':      DEFAULT_RESORT_IMAGE
   };
 
   function getResortImage(name) {
     if (!name) return RESORT_IMAGES['default'];
-    var lower = name.toLowerCase();
+    var lower = String(name).toLowerCase().trim();
     for (var key in RESORT_IMAGES) {
-      if (lower.indexOf(key) !== -1) return RESORT_IMAGES[key];
+      if (key !== 'default' && lower.indexOf(key) !== -1) return RESORT_IMAGES[key];
     }
     return RESORT_IMAGES['default'];
+  }
+
+  function escapeAttr(value) {
+    return String(value == null ? '' : value)
+      .replace(/&/g, '&amp;')
+      .replace(/"/g, '&quot;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+  }
+
+  function imgFallbackAttr() {
+    return ' onerror="this.onerror=null;this.src=\'' + DEFAULT_RESORT_IMAGE + '\';"';
   }
 
   function getClient() {
@@ -88,24 +108,26 @@
     var img = getResortImage(row.resort);
     var statusClass = (row.status || '').toLowerCase().replace(/[^a-z]/g, '');
     var badgeClass = statusClass === 'confirmada' ? 'confirmada' : 'prereserva';
+    var resortName = escapeAttr(row.resort || 'Resort');
     return '<article class="portal-item">' +
-      '<img class="portal-item-thumb" src="' + img + '" alt="' + (row.resort || 'Resort') + '" loading="lazy">' +
+      '<img class="portal-item-thumb" src="' + img + '" alt="' + resortName + '" loading="lazy"' + imgFallbackAttr() + '>' +
       '<div class="portal-item-body">' +
-      '<h3>' + (row.resort || 'Resort') + '</h3>' +
-      '<p>📅 Check-in: <strong>' + (row.checkin || '—') + '</strong></p>' +
-      '<p>📅 Check-out: <strong>' + (row.checkout || '—') + '</strong></p>' +
-      '<span class="portal-status-badge ' + badgeClass + '">' + (row.status || 'Pendente') + '</span>' +
+      '<h3>' + resortName + '</h3>' +
+      '<p>📅 Check-in: <strong>' + escapeAttr(row.checkin || '—') + '</strong></p>' +
+      '<p>📅 Check-out: <strong>' + escapeAttr(row.checkout || '—') + '</strong></p>' +
+      '<span class="portal-status-badge ' + badgeClass + '">' + escapeAttr(row.status || 'Pendente') + '</span>' +
       '</div></article>';
   }
 
   function renderVoucherCard(voucher) {
     var img = getResortImage(voucher.resort);
+    var resortName = escapeAttr(voucher.resort || 'Resort');
     return '<article class="voucher-card">' +
-      '<img class="voucher-banner" src="' + img + '" alt="' + (voucher.resort || 'Resort') + '">' +
+      '<img class="voucher-banner" src="' + img + '" alt="' + resortName + '" loading="lazy"' + imgFallbackAttr() + '>' +
       '<div class="voucher-body">' +
-      '<h3>🎫 ' + voucher.title + '</h3>' +
-      '<span class="voucher-code">' + voucher.code + '</span>' +
-      '<div class="qr-box">' + makeQrSvg(voucher.code) + '</div>' +
+      '<h3>🎫 ' + escapeAttr(voucher.title || '') + '</h3>' +
+      '<span class="voucher-code">' + escapeAttr(voucher.code || '') + '</span>' +
+      '<div class="qr-box">' + makeQrSvg(voucher.code || '') + '</div>' +
       '</div></article>';
   }
 

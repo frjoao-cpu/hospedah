@@ -132,7 +132,7 @@ html[data-theme="light"] footer                 { background: #e8e4d8; color: #4
   text-decoration: none; white-space: nowrap; flex-shrink: 0;
 }
 .navbar .logo-txt img {
-  height: 72px;
+  height: 96px;
   width: auto;
   display: block;
 }
@@ -280,10 +280,10 @@ html[data-theme="light"] footer                 { background: #e8e4d8; color: #4
 /* ✅ Logo central com overlay premium */
 .hero-logo {
   width: 100%;
-  max-width: 660px;
+  max-width: 880px;
   height: auto;
   display: block;
-  margin: 0 auto 24px;
+  margin: 0 auto 28px;
   filter: drop-shadow(0 6px 28px rgba(0,0,0,0.65)) drop-shadow(0 2px 8px rgba(212,175,55,0.25));
   animation: logoPop .9s cubic-bezier(.4,0,.2,1) both;
 }
@@ -388,10 +388,10 @@ html[data-theme="light"] footer                 { background: #e8e4d8; color: #4
 .hero-dots {
   position: absolute; bottom: 22px; left: 50%;
   transform: translateX(-50%);
-  display: flex; gap: 7px; z-index: 3;
+  display: flex; gap: 5px; z-index: 3;
 }
 .hero-dot {
-  width: 6px; height: 6px; border-radius: 50%;
+  width: 5px; height: 5px; border-radius: 50%;
   /* override mobile-first.css min-height/min-width on all buttons */
   min-height: unset; min-width: unset;
   background: rgba(255,255,255,0.4);
@@ -400,7 +400,7 @@ html[data-theme="light"] footer                 { background: #e8e4d8; color: #4
 }
 .hero-dot.active {
   background: var(--dourado);
-  transform: scale(1.4);
+  transform: scale(1.25);
 }
 
 /* Setas hero */
@@ -1054,22 +1054,22 @@ html[data-theme="light"] .faq-btn { color: var(--azul); }
 }
 #exit-popup .ep-skip:hover { color:rgba(255,255,255,.75); }
 
-/* FOMO bar — positioned at bottom-right to avoid overlapping the hero search */
+/* FOMO bar — repositioned to top-right under navbar so it never overlaps the hero search card */
 #fomo-bar {
-  position:fixed; bottom:76px; right:24px;
+  position:fixed; top:108px; right:16px;
   z-index:900; display:flex; gap:12px; flex-wrap:wrap; justify-content:flex-end;
   pointer-events:none;
 }
 .fomo-pill {
-  background:rgba(11,28,61,.97); color:#fff;
-  border:1px solid rgba(212,175,55,.75); border-radius:30px;
-  padding:8px 20px; font-size:.85em; font-weight:600;
-  display:flex; align-items:center; gap:8px;
-  box-shadow:0 4px 20px rgba(0,0,0,.5); white-space:nowrap;
+  background:rgba(11,28,61,.92); color:#fff;
+  border:1px solid rgba(212,175,55,.65); border-radius:30px;
+  padding:6px 14px; font-size:.78em; font-weight:600;
+  display:flex; align-items:center; gap:7px;
+  box-shadow:0 4px 16px rgba(0,0,0,.45); white-space:nowrap;
   pointer-events:auto;
 }
 .fomo-dot {
-  width:9px; height:9px; border-radius:50%; background:#25D366;
+  width:8px; height:8px; border-radius:50%; background:#25D366;
   box-shadow:0 0 0 0 rgba(37,211,102,.6);
   animation:pulse-dot 1.6s infinite;
 }
@@ -2050,6 +2050,8 @@ html[data-theme="light"] .orc-summary-row strong { color: #1a1a1a; }
 }
 
 @media (max-width: 480px) {
-  .hero-logo { max-width: 360px; }
-  .navbar .logo-txt img { height: 56px; }
+  .hero-logo { max-width: 480px; }
+  .navbar .logo-txt img { height: 72px; }
+  #fomo-bar { top: 84px; right: 8px; }
+  .fomo-pill { padding: 5px 11px; font-size: .72em; }
 }
