@@ -43,13 +43,13 @@
   <!-- South America (scale 12/55=0.218, offset to cx=18,cy=16) -->
   <g clip-path="url(#clipFav)">
     <path fill="#D4AF37" fill-opacity="0.82" d="M9.2 8.2 L10.8 6.9 L12.9 7.1 L14.6 8.5 L15.0 9.4 L14.6 10.7 L13.7 11.5 L13.5 12.8 L12.9 14.1 L12.2 15.9 L11.7 18.0 L11.1 20.7 L10.4 22.4 L9.5 22.6 L8.9 21.3 L9.1 19.3 L9.8 17.4 L9.3 15.5 L8.7 13.5 L8.5 11.4 L8.9 9.4 Z"/>
-    <path fill="#D4AF37" fill-opacity="0.65" d="M8.0 8.0 L9.3 7.2 L10.1 7.5 L10.1 8.7 L8.9 9.1 L7.8 8.7 Z"/>
+    <path fill="#D4AF37" fill-opacity="0.68" d="M8.0 8.0 L9.3 7.2 L10.1 7.5 L10.1 8.7 L8.9 9.1 L7.8 8.7 Z"/>
   </g>
 
   <!-- Africa (scale 12/55=0.218) -->
   <g clip-path="url(#clipFav)">
     <path fill="#D4AF37" fill-opacity="0.80" d="M18.7 5.9 L21.1 5.1 L22.9 6.0 L24.0 7.7 L24.4 9.5 L24.0 11.5 L23.8 13.5 L23.1 15.5 L22.1 17.7 L20.8 19.9 L19.9 21.0 L18.7 20.6 L18.0 18.7 L18.0 16.6 L17.4 14.6 L17.3 12.5 L17.8 10.0 L17.5 7.8 Z"/>
-    <path fill="#D4AF37" fill-opacity="0.70" d="M23.7 12.8 L25.4 11.9 L26.2 12.8 L24.8 14.0 L23.7 14.0 Z"/>
+    <path fill="#D4AF37" fill-opacity="0.72" d="M23.7 12.8 L25.4 11.9 L26.2 12.8 L24.8 14.0 L23.7 14.0 Z"/>
   </g>
 
   <!-- Building (simplified for small size) -->
