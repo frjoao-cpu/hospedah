@@ -35,12 +35,13 @@
     });
 
     if (installButton) {
-      installButton.addEventListener('click', async function () {
+      installButton.addEventListener('click', function () {
         if (!deferredPrompt) return;
         deferredPrompt.prompt();
-        await deferredPrompt.userChoice;
-        deferredPrompt = null;
-        hideBanner();
+        deferredPrompt.userChoice.then(function () {
+          deferredPrompt = null;
+          hideBanner();
+        });
       });
     }
 

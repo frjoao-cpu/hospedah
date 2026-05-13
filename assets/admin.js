@@ -21,6 +21,10 @@
     if (el) el.textContent = String(value);
   }
 
+  function formatDate(value) {
+    return new Date(value || Date.now()).toLocaleDateString('pt-BR');
+  }
+
   function getLast7Days() {
     var labels = [];
     var today = new Date();
@@ -159,7 +163,7 @@
         '<td>' + (row.email || '-') + '</td>' +
         '<td>' + (row.telefone || '-') + '</td>' +
         '<td>' + (row.status || '-') + '</td>' +
-        '<td>' + new Date(row.created_at || Date.now()).toLocaleDateString('pt-BR') + '</td>' +
+        '<td>' + formatDate(row.created_at) + '</td>' +
       '</tr>';
     }).join('');
   }

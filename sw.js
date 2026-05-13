@@ -109,7 +109,18 @@ self.addEventListener('fetch', function (event) {
         return response;
       }).catch(function () {
         return caches.match(req).then(function (cachedPage) {
-          return cachedPage || caches.match('/offline.html');
+          if (cachedPage) return cachedPage;
+          return caches.match('/offline.html').then(function (offlinePage) {
+            if (offlinePage) return offlinePage;
+            return caches.match('/index.html').then(function (homePage) {
+              if (homePage) return homePage;
+              return new Response('Offline', {
+                status: 503,
+                statusText: 'Service Unavailable',
+                headers: { 'Content-Type': 'text/plain; charset=utf-8' }
+              });
+            });
+          });
         });
       })
     );
