@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="pt-br" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard do Hóspede | HOSPEDAH</title>
+  <meta name="description" content="Gerencie reservas, histórico, fidelidade e vouchers no portal do hóspede HOSPEDAH.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"></noscript>
+  <link rel="stylesheet" href="/assets/mobile-first.css">
+  <link rel="stylesheet" href="/assets/style.css">
+  <link rel="stylesheet" href="/assets/portal.css">
+</head>
+<body class="portal-body" data-portal-page="dashboard">
+  <button class="portal-menu-toggle" id="portalMenuToggle" type="button" aria-expanded="false" aria-controls="portalSidebar">☰ Menu</button>
+  <div class="portal-layout">
+    <aside class="portal-sidebar" id="portalSidebar" aria-label="Menu do hóspede">
+      <a href="/" class="portal-brand portal-brand-sidebar" aria-label="Voltar para HOSPEDAH">
+        <img src="/assets/logo-navbar.svg" alt="HOSPEDAH" width="160" height="32">
+      </a>
+      <nav>
+        <button class="portal-side-link is-active" data-section-target="inicio" type="button">Início</button>
+        <button class="portal-side-link" data-section-target="reservas" type="button">Reservas</button>
+        <button class="portal-side-link" data-section-target="historico" type="button">Histórico</button>
+        <button class="portal-side-link" data-section-target="fidelidade" type="button">Fidelidade</button>
+        <button class="portal-side-link" data-section-target="vouchers" type="button">Vouchers</button>
+        <button class="portal-side-link" data-section-target="configuracoes" type="button">Configurações</button>
+      </nav>
+      <button id="logoutButton" class="portal-btn portal-btn-outline" type="button">Sair</button>
+    </aside>
+
+    <main class="portal-content" id="portalContent">
+      <section id="section-inicio" class="portal-section is-active" aria-labelledby="inicio-title">
+        <h1 id="inicio-title">Olá, <span id="guestName">Hóspede</span> 👋</h1>
+        <p class="portal-section-sub">Acompanhe suas reservas e benefícios em tempo real.</p>
+        <div class="portal-cards-grid">
+          <article class="portal-card"><h2>Reservas ativas</h2><strong id="summaryReservas">0</strong></article>
+          <article class="portal-card"><h2>Próxima estadia</h2><strong id="summaryProximaEstadia">—</strong></article>
+          <article class="portal-card"><h2>Pontos</h2><strong id="summaryPontos">0</strong></article>
+          <article class="portal-card"><h2>Nível</h2><strong id="summaryNivel">Bronze</strong></article>
+        </div>
+      </section>
+
+      <section id="section-reservas" class="portal-section" aria-labelledby="reservas-title" hidden>
+        <h2 id="reservas-title">Reservas ativas</h2>
+        <div id="reservasList" class="portal-reservas-list"></div>
+      </section>
+
+      <section id="section-historico" class="portal-section" aria-labelledby="historico-title" hidden>
+        <h2 id="historico-title">Histórico de reservas</h2>
+        <div class="portal-table-wrap">
+          <table class="portal-table">
+            <thead>
+              <tr><th>Resort</th><th>Check-in</th><th>Check-out</th><th>Status</th><th>Valor</th></tr>
+            </thead>
+            <tbody id="historicoBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="section-fidelidade" class="portal-section" aria-labelledby="fidelidade-title" hidden>
+        <h2 id="fidelidade-title">Programa Fidelidade</h2>
+        <p id="fidelidadeResumo" class="portal-section-sub">Seu progresso está sendo atualizado.</p>
+        <div class="portal-loyalty-track">
+          <div id="fidelidadeProgress" class="portal-loyalty-progress"></div>
+        </div>
+        <div class="portal-levels-grid">
+          <article class="portal-card"><h3>🥉 Bronze</h3><p>Check-in prioritário.</p></article>
+          <article class="portal-card"><h3>🥈 Prata</h3><p>Upgrade sujeito à disponibilidade.</p></article>
+          <article class="portal-card"><h3>🥇 Ouro</h3><p>Benefícios exclusivos em reservas.</p></article>
+          <article class="portal-card"><h3>💎 Diamante</h3><p>Atendimento concierge dedicado.</p></article>
+        </div>
+      </section>
+
+      <section id="section-vouchers" class="portal-section" aria-labelledby="vouchers-title" hidden>
+        <h2 id="vouchers-title">Vouchers digitais</h2>
+        <button id="createVoucherButton" class="portal-btn portal-btn-primary" type="button">Gerar voucher</button>
+        <div id="vouchersGrid" class="portal-vouchers-grid"></div>
+      </section>
+
+      <section id="section-configuracoes" class="portal-section" aria-labelledby="config-title" hidden>
+        <h2 id="config-title">Configurações</h2>
+        <div class="portal-cards-grid portal-cards-grid-config">
+          <article class="portal-card">
+            <h3>Perfil</h3>
+            <form id="profileForm" class="portal-form-stack">
+              <label for="profileName">Nome</label>
+              <input id="profileName" type="text" required>
+              <label for="profileWhatsapp">WhatsApp</label>
+              <input id="profileWhatsapp" type="tel">
+              <button class="portal-btn portal-btn-primary" type="submit">Salvar perfil</button>
+            </form>
+          </article>
+          <article class="portal-card">
+            <h3>Alterar senha</h3>
+            <form id="passwordForm" class="portal-form-stack">
+              <label for="newPassword">Nova senha</label>
+              <input id="newPassword" type="password" minlength="8" required>
+              <label for="confirmNewPassword">Confirmar senha</label>
+              <input id="confirmNewPassword" type="password" minlength="8" required>
+              <button class="portal-btn portal-btn-primary" type="submit">Atualizar senha</button>
+            </form>
+          </article>
+          <article class="portal-card">
+            <h3>Preferências</h3>
+            <form id="preferencesForm" class="portal-form-stack">
+              <label class="portal-checkbox"><input id="prefEmail" type="checkbox"> <span>Notificações por e-mail</span></label>
+              <label class="portal-checkbox"><input id="prefWhatsapp" type="checkbox"> <span>Notificações por WhatsApp</span></label>
+              <button class="portal-btn portal-btn-primary" type="submit">Salvar preferências</button>
+            </form>
+          </article>
+        </div>
+        <p class="portal-feedback" id="settingsFeedback" role="status" aria-live="polite"></p>
+      </section>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="/assets/supabase-config.js"></script>
+  <script src="/assets/portal.js"></script>
+</body>
+</html>

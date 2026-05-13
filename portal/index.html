@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="pt-br" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Portal do Hóspede | HOSPEDAH</title>
+  <meta name="description" content="Acesse o portal do hóspede HOSPEDAH para gerenciar reservas, fidelidade e vouchers.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"></noscript>
+  <link rel="stylesheet" href="/assets/mobile-first.css">
+  <link rel="stylesheet" href="/assets/style.css">
+  <link rel="stylesheet" href="/assets/portal.css">
+</head>
+<body class="portal-body" data-portal-page="auth">
+  <nav class="portal-navbar" aria-label="Navegação principal do portal">
+    <a href="/" class="portal-brand" aria-label="Voltar para HOSPEDAH">
+      <img src="/assets/logo-navbar.svg" alt="HOSPEDAH" width="160" height="32">
+    </a>
+    <ul class="portal-nav-links" role="list">
+      <li><a href="/">🏠 Início</a></li>
+      <li><a href="/reservas.html">📅 Reservar</a></li>
+      <li><a href="/portal/" aria-current="page">👤 Minha Conta</a></li>
+    </ul>
+  </nav>
+
+  <main class="portal-auth-wrapper" id="portal-main">
+    <section class="portal-auth-card" aria-labelledby="portal-auth-title">
+      <h1 id="portal-auth-title">Portal do Hóspede</h1>
+      <p class="portal-auth-subtitle">Acesse sua área premium com segurança.</p>
+
+      <div class="portal-tabs" role="tablist" aria-label="Autenticação">
+        <button class="portal-tab is-active" type="button" role="tab" id="tab-login" aria-selected="true" aria-controls="panel-login">Entrar</button>
+        <button class="portal-tab" type="button" role="tab" id="tab-signup" aria-selected="false" aria-controls="panel-signup">Criar conta</button>
+      </div>
+
+      <section id="panel-login" class="portal-tab-panel is-active" role="tabpanel" aria-labelledby="tab-login">
+        <form id="loginForm" novalidate>
+          <label for="loginEmail">E-mail</label>
+          <input id="loginEmail" name="email" type="email" autocomplete="email" required>
+
+          <label for="loginPassword">Senha</label>
+          <input id="loginPassword" name="password" type="password" autocomplete="current-password" required>
+
+          <div class="portal-form-actions">
+            <button id="loginButton" class="portal-btn portal-btn-primary" type="submit">
+              <span class="btn-label">Entrar</span>
+              <span class="btn-spinner" aria-hidden="true"></span>
+            </button>
+            <button id="googleLoginButton" class="portal-btn portal-btn-google" type="button">Entrar com Google</button>
+          </div>
+
+          <button class="portal-link-button" id="forgotPasswordButton" type="button">Esqueci minha senha</button>
+          <p class="portal-feedback" id="loginFeedback" role="status" aria-live="polite"></p>
+        </form>
+      </section>
+
+      <section id="panel-signup" class="portal-tab-panel" role="tabpanel" aria-labelledby="tab-signup" hidden>
+        <form id="signupForm" novalidate>
+          <label for="signupName">Nome completo</label>
+          <input id="signupName" name="name" type="text" autocomplete="name" required>
+
+          <label for="signupEmail">E-mail</label>
+          <input id="signupEmail" name="email" type="email" autocomplete="email" required>
+          <small id="signupEmailHint" class="portal-hint"></small>
+
+          <label for="signupWhatsapp">WhatsApp</label>
+          <input id="signupWhatsapp" name="whatsapp" type="tel" autocomplete="tel" placeholder="(17) 98200-6382" required>
+
+          <label for="signupPassword">Senha</label>
+          <input id="signupPassword" name="password" type="password" autocomplete="new-password" minlength="8" required>
+          <div class="portal-strength" aria-live="polite">
+            <div id="passwordStrengthBar" class="portal-strength-bar"></div>
+          </div>
+          <small id="passwordStrengthText" class="portal-hint">Use ao menos 8 caracteres com letras, números e símbolo.</small>
+
+          <label for="signupPasswordConfirm">Confirmar senha</label>
+          <input id="signupPasswordConfirm" name="passwordConfirm" type="password" autocomplete="new-password" minlength="8" required>
+
+          <label class="portal-checkbox">
+            <input id="signupTerms" name="terms" type="checkbox" required>
+            <span>Concordo com os termos e política de privacidade</span>
+          </label>
+
+          <button id="signupButton" class="portal-btn portal-btn-primary" type="submit">Criar conta</button>
+          <p class="portal-feedback" id="signupFeedback" role="status" aria-live="polite"></p>
+        </form>
+      </section>
+    </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="/assets/supabase-config.js"></script>
+  <script src="/assets/portal.js"></script>
+</body>
+</html>
