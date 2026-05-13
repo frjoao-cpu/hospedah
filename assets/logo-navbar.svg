@@ -61,10 +61,12 @@
     <rect x="2"   y="2.5" width="4" height="35" fill="url(#goldMetalNav)"/>
     <rect x="17"  y="2.5" width="4" height="35" fill="url(#goldMetalNav)"/>
     <rect x="2"   y="17"  width="19" height="6"  fill="url(#goldMetalNav)"/>
-    <rect x="0.5" y="2.5" width="7"  height="1.5" fill="url(#goldMetalNav)"/>
-    <rect x="15.5" y="2.5" width="7" height="1.5" fill="url(#goldMetalNav)"/>
-    <rect x="0.5" y="36"  width="7"  height="1.5" fill="url(#goldMetalNav)"/>
-    <rect x="15.5" y="36" width="7"  height="1.5" fill="url(#goldMetalNav)"/>
+    <!-- Top serifs — tapered bracket shape -->
+    <polygon points="0.5,2.5 7.5,2.5 6,5.5 3,5.5" fill="url(#goldMetalNav)"/>
+    <polygon points="15.5,2.5 22.5,2.5 21,5.5 18,5.5" fill="url(#goldMetalNav)"/>
+    <!-- Bottom serifs — tapered bracket shape -->
+    <polygon points="0.5,37.5 7.5,37.5 6,34.5 3,34.5" fill="url(#goldMetalNav)"/>
+    <polygon points="15.5,37.5 22.5,37.5 21,34.5 18,34.5" fill="url(#goldMetalNav)"/>
     <rect x="2"   y="2.5" width="4"  height="2"   fill="#FFF1B0" opacity="0.40"/>
     <rect x="17"  y="2.5" width="4"  height="2"   fill="#FFF1B0" opacity="0.40"/>
   </g>
