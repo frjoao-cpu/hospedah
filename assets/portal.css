@@ -65,11 +65,12 @@ body {
 /* ── LOGO on auth page ── */
 .portal-logo-wrap {
   text-align: center;
-  margin-bottom: 8px;
+  margin-bottom: 12px;
 }
 .portal-logo-wrap img {
-  height: 64px;
+  height: 96px;
   width: auto;
+  max-width: 100%;
   filter: drop-shadow(0 4px 16px rgba(212,175,55,0.4));
 }
 
@@ -544,9 +545,10 @@ body {
 }
 .voucher-banner {
   width: 100%;
-  height: 120px;
+  height: 160px;
   object-fit: cover;
   display: block;
+  background: linear-gradient(135deg, var(--portal-navy) 0%, var(--portal-navy2) 100%);
 }
 .voucher-body {
   padding: 16px;
