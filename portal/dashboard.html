@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://ydrmjoppjxtmnwtvtinb.supabase.co; img-src 'self' data:; object-src 'none'; base-uri 'self'; frame-ancestors 'self';">
+  <title>Dashboard do Hóspede | HOSPEDAH</title>
+  <meta name="description" content="Acompanhe reservas, pontos de fidelidade, histórico e vouchers no Dashboard HOSPEDAH.">
+  <meta name="theme-color" content="#0B1C3D">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap">
+  <link rel="stylesheet" href="../assets/mobile-first.css">
+  <link rel="stylesheet" href="../assets/style.css">
+  <link rel="stylesheet" href="../assets/portal.css">
+</head>
+<body class="portal-body portal-dashboard-page">
+  <a class="skip-link" href="#portalMainContent">Ir para o conteúdo principal</a>
+
+  <button class="portal-hamburger" id="portalHamburger" aria-label="Abrir menu lateral" aria-expanded="false">☰</button>
+  <div class="portal-drawer-overlay" id="portalDrawerOverlay" hidden></div>
+
+  <div class="portal-layout">
+    <aside class="portal-sidebar" id="portalSidebar" aria-label="Menu do hóspede">
+      <div class="portal-user-card">
+        <div class="portal-avatar" id="userAvatar" aria-hidden="true">H</div>
+        <div>
+          <p class="portal-user-name" id="userName">Hóspede</p>
+          <p class="portal-user-email" id="userEmail">carregando...</p>
+        </div>
+      </div>
+
+      <nav class="portal-menu" aria-label="Seções do dashboard">
+        <button class="portal-menu-item is-active" data-section="inicio">Início</button>
+        <button class="portal-menu-item" data-section="reservas">Minhas Reservas</button>
+        <button class="portal-menu-item" data-section="historico">Histórico</button>
+        <button class="portal-menu-item" data-section="fidelidade">Programa de Fidelidade</button>
+        <button class="portal-menu-item" data-section="vouchers">Vouchers</button>
+        <button class="portal-menu-item" data-section="configuracoes">Configurações</button>
+        <button class="portal-menu-item portal-menu-logout" id="logoutBtn">Sair</button>
+      </nav>
+    </aside>
+
+    <main class="portal-main" id="portalMainContent" role="main">
+      <section class="portal-section is-active" id="section-inicio">
+        <header class="portal-section-header">
+          <h1 id="welcomeTitle">Olá! Bem-vindo de volta ��</h1>
+          <p>Confira rapidamente seu status na HOSPEDAH.</p>
+        </header>
+        <div class="portal-summary-grid">
+          <article class="portal-summary-card">
+            <h2>Total de reservas</h2>
+            <p id="summaryTotalReservas">0</p>
+          </article>
+          <article class="portal-summary-card">
+            <h2>Próxima estadia</h2>
+            <p id="summaryProximaEstadia">Sem reservas ativas</p>
+          </article>
+          <article class="portal-summary-card">
+            <h2>Pontos acumulados</h2>
+            <p id="summaryPontos">0 pts</p>
+          </article>
+          <article class="portal-summary-card">
+            <h2>Nível de fidelidade</h2>
+            <p id="summaryNivel">Bronze</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="portal-section" id="section-reservas" hidden>
+        <header class="portal-section-header">
+          <h2>Minhas Reservas</h2>
+          <p>Reservas ativas e ações rápidas.</p>
+        </header>
+        <div id="activeReservationsList" class="portal-reservas-list"></div>
+        <div id="activeReservationsEmpty" class="portal-empty-state" hidden>
+          <p>Você ainda não possui reservas ativas.</p>
+          <a class="portal-btn portal-btn-primary" href="../reservas.html">Fazer orçamento agora</a>
+        </div>
+      </section>
+
+      <section class="portal-section" id="section-historico" hidden>
+        <header class="portal-section-header">
+          <h2>Histórico</h2>
+          <p>Avalie suas estadias passadas.</p>
+        </header>
+        <div id="historyList" class="portal-history-list"></div>
+        <div id="historyEmpty" class="portal-empty-state" hidden>
+          <p>Seu histórico ficará disponível após a primeira estadia concluída.</p>
+        </div>
+      </section>
+
+      <section class="portal-section" id="section-fidelidade" hidden>
+        <header class="portal-section-header">
+          <h2>Programa de Fidelidade</h2>
+          <p>Evolua de Bronze até Diamante e desbloqueie benefícios.</p>
+        </header>
+
+        <div class="portal-level-track" aria-label="Progressão de fidelidade">
+          <div class="portal-level-progress" id="fidelityProgress"></div>
+          <div class="portal-level-markers">
+            <span>Bronze<br>0-500</span>
+            <span>Prata<br>501-1500</span>
+            <span>Ouro<br>1501-3000</span>
+            <span>Diamante<br>3001+</span>
+          </div>
+        </div>
+
+        <article class="portal-fidelity-card">
+          <h3 id="fidelityCurrentLevel">🥉 Bronze</h3>
+          <p id="fidelityBenefits">Benefícios iniciais de fidelidade.</p>
+          <p id="fidelityPoints">0 pontos acumulados</p>
+          <div class="portal-inline-actions">
+            <a class="portal-btn portal-btn-secondary" href="../referral.html">Indicar amigos</a>
+            <button class="portal-btn portal-btn-secondary" id="fidelityHowBtn">Como ganhar pontos?</button>
+          </div>
+        </article>
+
+        <div>
+          <h3>Histórico de pontos</h3>
+          <ul id="fidelityHistory" class="portal-points-history"></ul>
+        </div>
+      </section>
+
+      <section class="portal-section" id="section-vouchers" hidden>
+        <header class="portal-section-header">
+          <h2>Vouchers</h2>
+          <p>Seus vouchers digitais prontos para uso.</p>
+        </header>
+        <div id="voucherGrid" class="portal-voucher-grid"></div>
+        <div id="voucherEmpty" class="portal-empty-state" hidden>
+          <p>Nenhum voucher disponível no momento.</p>
+        </div>
+      </section>
+
+      <section class="portal-section" id="section-configuracoes" hidden>
+        <header class="portal-section-header">
+          <h2>Configurações</h2>
+          <p>Atualize seu perfil e preferências.</p>
+        </header>
+
+        <form id="profileForm" class="portal-form" novalidate>
+          <div class="portal-field">
+            <label for="profileName">Nome</label>
+            <input id="profileName" type="text" minlength="3" required>
+          </div>
+          <div class="portal-field">
+            <label for="profileWhatsapp">WhatsApp</label>
+            <input id="profileWhatsapp" type="tel" inputmode="numeric" placeholder="(11) 98888-7777">
+          </div>
+          <div class="portal-field">
+            <label for="profileBirthDate">Data de nascimento</label>
+            <input id="profileBirthDate" type="date">
+          </div>
+
+          <fieldset class="portal-fieldset">
+            <legend>Preferências de notificação</legend>
+            <label class="portal-checkbox">
+              <input type="checkbox" id="prefEmail">
+              <span>Receber avisos por e-mail</span>
+            </label>
+            <label class="portal-checkbox">
+              <input type="checkbox" id="prefWhatsapp">
+              <span>Receber avisos por WhatsApp</span>
+            </label>
+          </fieldset>
+
+          <button type="submit" class="portal-btn portal-btn-primary" id="saveProfileBtn">
+            <span class="btn-label">Salvar perfil</span>
+            <span class="btn-spinner" aria-hidden="true"></span>
+          </button>
+        </form>
+
+        <form id="passwordForm" class="portal-form" novalidate>
+          <div class="portal-field">
+            <label for="newPassword">Nova senha</label>
+            <div class="portal-password-wrap">
+              <input id="newPassword" type="password" minlength="8" required>
+              <button type="button" class="portal-icon-btn" data-password-toggle="newPassword" aria-label="Mostrar ou ocultar senha">👁️</button>
+            </div>
+          </div>
+          <div class="portal-field">
+            <label for="confirmNewPassword">Confirmar nova senha</label>
+            <div class="portal-password-wrap">
+              <input id="confirmNewPassword" type="password" minlength="8" required>
+              <button type="button" class="portal-icon-btn" data-password-toggle="confirmNewPassword" aria-label="Mostrar ou ocultar senha">👁️</button>
+            </div>
+          </div>
+          <button type="submit" class="portal-btn portal-btn-secondary" id="savePasswordBtn">
+            <span class="btn-label">Alterar senha</span>
+            <span class="btn-spinner" aria-hidden="true"></span>
+          </button>
+        </form>
+
+        <button class="portal-btn portal-btn-danger" id="deleteAccountBtn">Excluir conta</button>
+      </section>
+    </main>
+  </div>
+
+  <div class="portal-modal" id="pointsInfoModal" role="dialog" aria-modal="true" aria-labelledby="pointsInfoTitle" hidden>
+    <div class="portal-modal-content">
+      <button class="portal-modal-close" id="pointsInfoClose" aria-label="Fechar modal">✕</button>
+      <h2 id="pointsInfoTitle">Como ganhar pontos?</h2>
+      <ul class="portal-rules-list">
+        <li>+100 pontos por diária concluída</li>
+        <li>+300 pontos por indicação convertida no referral</li>
+        <li>+150 pontos por avaliação publicada</li>
+        <li>Resgates variam de 500 a 3000 pontos</li>
+      </ul>
+    </div>
+  </div>
+
+  <div id="portalToast" class="portal-toast" role="status" aria-live="polite"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../assets/supabase-config.js"></script>
+  <script src="../assets/portal.js"></script>
+</body>
+</html>

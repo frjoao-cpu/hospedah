@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://ydrmjoppjxtmnwtvtinb.supabase.co; img-src 'self' data:; object-src 'none'; base-uri 'self'; frame-ancestors 'self';">
+  <title>Portal do Hóspede | HOSPEDAH</title>
+  <meta name="description" content="Acesse sua conta HOSPEDAH para gerenciar reservas, fidelidade, vouchers e perfil com segurança.">
+  <meta name="theme-color" content="#0B1C3D">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Portal do Hóspede | HOSPEDAH">
+  <meta property="og:description" content="Entrar ou criar conta para acompanhar reservas e benefícios da HOSPEDAH.">
+  <meta property="og:url" content="https://hospedah.tur.br/portal/">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap">
+  <link rel="stylesheet" href="../assets/mobile-first.css">
+  <link rel="stylesheet" href="../assets/style.css">
+  <link rel="stylesheet" href="../assets/portal.css">
+</head>
+<body class="portal-body portal-auth-page">
+  <a class="skip-link" href="#portalAuthMain">Ir para o formulário principal</a>
+
+  <nav class="portal-topbar" aria-label="Navegação do portal">
+    <a href="../index.html" class="portal-brand" aria-label="Voltar para a página inicial da HOSPEDAH">
+      <img src="../assets/logo-navbar.svg" width="160" height="32" alt="HOSPEDAH">
+    </a>
+    <a href="../index.html" class="portal-back-link">← Voltar ao site</a>
+  </nav>
+
+  <main id="portalAuthMain" class="portal-auth-wrapper" role="main">
+    <section class="portal-auth-card" aria-label="Entrar ou criar conta">
+      <header class="portal-auth-header">
+        <h1>Portal do Hóspede</h1>
+        <p>Gerencie suas reservas, pontos e vouchers em um só lugar.</p>
+      </header>
+
+      <div class="portal-tablist" role="tablist" aria-label="Alternar entre entrar e criar conta">
+        <button class="portal-tab is-active" id="tab-login" role="tab" aria-selected="true" aria-controls="panel-login" data-tab-target="panel-login">Entrar</button>
+        <button class="portal-tab" id="tab-signup" role="tab" aria-selected="false" aria-controls="panel-signup" data-tab-target="panel-signup">Criar conta</button>
+      </div>
+
+      <section class="portal-tab-panel is-active" id="panel-login" role="tabpanel" aria-labelledby="tab-login">
+        <form id="loginForm" class="portal-form" novalidate>
+          <div class="portal-field">
+            <label for="loginEmail">E-mail</label>
+            <input id="loginEmail" name="email" type="email" autocomplete="email" required aria-label="Digite seu e-mail">
+            <small class="portal-help" id="loginEmailHelp"></small>
+          </div>
+
+          <div class="portal-field">
+            <label for="loginPassword">Senha</label>
+            <div class="portal-password-wrap">
+              <input id="loginPassword" name="password" type="password" autocomplete="current-password" required minlength="6" aria-label="Digite sua senha">
+              <button type="button" class="portal-icon-btn" data-password-toggle="loginPassword" aria-label="Mostrar ou ocultar senha">👁️</button>
+            </div>
+          </div>
+
+          <button type="submit" class="portal-btn portal-btn-primary" id="loginSubmitBtn">
+            <span class="btn-label">Entrar</span>
+            <span class="btn-spinner" aria-hidden="true"></span>
+          </button>
+
+          <button type="button" class="portal-btn portal-btn-google" id="googleLoginBtn">Entrar com Google</button>
+
+          <div class="portal-inline-links">
+            <button type="button" class="portal-link-btn" id="forgotPasswordBtn">Esqueci minha senha</button>
+            <button type="button" class="portal-link-btn" data-tab-target="panel-signup">Não tenho conta</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="portal-tab-panel" id="panel-signup" role="tabpanel" aria-labelledby="tab-signup" hidden>
+        <form id="signupForm" class="portal-form" novalidate>
+          <div class="portal-field">
+            <label for="signupName">Nome completo</label>
+            <input id="signupName" name="full_name" type="text" autocomplete="name" minlength="3" required aria-label="Nome completo">
+            <small class="portal-help" id="signupNameHelp"></small>
+          </div>
+
+          <div class="portal-field">
+            <label for="signupEmail">E-mail</label>
+            <input id="signupEmail" name="email" type="email" autocomplete="email" required aria-label="E-mail para cadastro">
+            <small class="portal-help" id="signupEmailHelp"></small>
+          </div>
+
+          <div class="portal-field">
+            <label for="signupWhatsapp">WhatsApp (com DDD)</label>
+            <input id="signupWhatsapp" name="whatsapp" type="tel" inputmode="numeric" autocomplete="tel" placeholder="(11) 98888-7777" required aria-label="WhatsApp com DDD">
+            <small class="portal-help" id="signupWhatsappHelp"></small>
+          </div>
+
+          <div class="portal-field">
+            <label for="signupPassword">Senha</label>
+            <div class="portal-password-wrap">
+              <input id="signupPassword" name="password" type="password" autocomplete="new-password" minlength="8" required aria-describedby="passwordStrengthText" aria-label="Senha para cadastro">
+              <button type="button" class="portal-icon-btn" data-password-toggle="signupPassword" aria-label="Mostrar ou ocultar senha">👁️</button>
+            </div>
+            <div class="portal-strength" role="status" aria-live="polite">
+              <div class="portal-strength-bar" id="passwordStrengthBar"></div>
+            </div>
+            <small id="passwordStrengthText" class="portal-help">Use ao menos 8 caracteres com números e símbolos.</small>
+          </div>
+
+          <div class="portal-field">
+            <label for="signupConfirmPassword">Confirmar senha</label>
+            <div class="portal-password-wrap">
+              <input id="signupConfirmPassword" name="confirm_password" type="password" autocomplete="new-password" minlength="8" required aria-label="Confirmar senha">
+              <button type="button" class="portal-icon-btn" data-password-toggle="signupConfirmPassword" aria-label="Mostrar ou ocultar senha">👁️</button>
+            </div>
+            <small class="portal-help" id="signupConfirmHelp"></small>
+          </div>
+
+          <label class="portal-checkbox">
+            <input type="checkbox" id="signupTerms" required>
+            <span>Aceito os termos de uso e política de privacidade da HOSPEDAH.</span>
+          </label>
+
+          <button type="submit" class="portal-btn portal-btn-primary" id="signupSubmitBtn">
+            <span class="btn-label">Criar conta</span>
+            <span class="btn-spinner" aria-hidden="true"></span>
+          </button>
+        </form>
+      </section>
+    </section>
+  </main>
+
+  <div class="portal-modal" id="resetModal" role="dialog" aria-modal="true" aria-labelledby="resetModalTitle" hidden>
+    <div class="portal-modal-content">
+      <button class="portal-modal-close" id="resetModalClose" aria-label="Fechar modal">✕</button>
+      <h2 id="resetModalTitle">Recuperar senha</h2>
+      <p>Informe seu e-mail para enviarmos o link de redefinição.</p>
+      <form id="resetRequestForm" class="portal-form" novalidate>
+        <div class="portal-field">
+          <label for="resetEmail">E-mail</label>
+          <input id="resetEmail" type="email" autocomplete="email" required aria-label="E-mail para recuperação">
+        </div>
+        <button type="submit" class="portal-btn portal-btn-primary" id="resetRequestBtn">
+          <span class="btn-label">Enviar link</span>
+          <span class="btn-spinner" aria-hidden="true"></span>
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <div id="portalToast" class="portal-toast" role="status" aria-live="polite"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../assets/supabase-config.js"></script>
+  <script src="../assets/portal.js"></script>
+</body>
+</html>
