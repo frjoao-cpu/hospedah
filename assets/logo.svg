@@ -14,9 +14,14 @@
       <stop offset="60%" stop-color="#1a2f5e"/>
       <stop offset="100%" stop-color="#D4AF37"/>
     </linearGradient>
-    <radialGradient id="globeBg" cx="38%" cy="30%" r="70%">
-      <stop offset="0%" stop-color="#1a2f5e"/>
+    <radialGradient id="globeBg" cx="36%" cy="28%" r="72%">
+      <stop offset="0%" stop-color="#243a6e"/>
+      <stop offset="45%" stop-color="#1a2f5e"/>
       <stop offset="100%" stop-color="#0B1C3D"/>
+    </radialGradient>
+    <radialGradient id="globeHighlight" cx="34%" cy="26%" r="52%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.13"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
     </radialGradient>
     <linearGradient id="goldRing" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0%" stop-color="#F5E27A"/>
@@ -55,40 +60,63 @@
 
   <g filter="url(#shadow)">
     <circle cx="150" cy="86" r="55" fill="url(#globeBg)" stroke="#D4AF37" stroke-width="2"/>
-    <g clip-path="url(#globeClip)" fill="none" stroke="#D4AF37" stroke-opacity="0.4" stroke-width="0.8">
-      <ellipse cx="150" cy="86" rx="8" ry="55"/>
-      <ellipse cx="150" cy="86" rx="18" ry="55"/>
-      <ellipse cx="150" cy="86" rx="28" ry="55"/>
-      <ellipse cx="150" cy="86" rx="38" ry="55"/>
-      <ellipse cx="150" cy="86" rx="48" ry="55"/>
-      <ellipse cx="150" cy="86" rx="55" ry="55"/>
-      <path d="M95 64 Q150 48 205 64"/>
+    <g clip-path="url(#globeClip)" fill="none" stroke="#D4AF37" stroke-opacity="0.35" stroke-width="0.7">
+      <ellipse cx="150" cy="86" rx="10" ry="55"/>
+      <ellipse cx="150" cy="86" rx="22" ry="55"/>
+      <ellipse cx="150" cy="86" rx="35" ry="55"/>
+      <ellipse cx="150" cy="86" rx="46" ry="55"/>
+      <path d="M95 64 Q150 50 205 64"/>
       <path d="M95 75 Q150 64 205 75"/>
       <path d="M95 86 Q150 86 205 86"/>
       <path d="M95 97 Q150 108 205 97"/>
       <path d="M95 108 Q150 124 205 108"/>
     </g>
 
+    <!-- South America -->
     <g clip-path="url(#globeClip)">
-      <path fill="#D4AF37" fill-opacity="0.75" d="M117 52 L126 46 L138 48 L143 55 L139 63 L131 65 L124 62 L119 57 Z"/>
-      <path fill="#D4AF37" fill-opacity="0.85" d="M126 68 L136 66 L142 72 L141 82 L136 91 L137 100 L133 110 L126 122 L118 124 L114 116 L116 106 L120 98 L118 89 L121 80 Z"/>
-      <path fill="#D4AF37" fill-opacity="0.7" d="M159 54 L170 50 L178 54 L178 61 L170 65 L162 62 Z"/>
-      <path fill="#D4AF37" fill-opacity="0.7" d="M162 67 L172 66 L180 72 L183 83 L180 96 L172 104 L164 102 L159 90 L158 79 Z"/>
+      <path fill="#D4AF37" fill-opacity="0.82" d="M114 52 L121 48 L132 49 L140 54 L142 61 L139 67 L135 71 L134 77 L131 83 L128 91 L126 101 L123 113 L120 121 L116 122 L113 116 L114 107 L117 98 L115 89 L112 80 L111 70 L113 61 Z"/>
+      <path fill="#D4AF37" fill-opacity="0.68" d="M109 51 L114 48 L118 50 L117 55 L112 57 L108 55 Z"/>
     </g>
 
-    <!-- Resort building inside globe -->
-    <g clip-path="url(#globeClip)" fill="#F5E27A">
-      <path d="M133 97 H167 L163 110 H137 Z"/>
-      <rect x="137" y="82" width="26" height="15"/>
-      <polygon points="135,82 150,72 165,82"/>
-      <rect x="139" y="84" width="3" height="13" fill="#D4AF37"/>
-      <rect x="144" y="84" width="3" height="13" fill="#D4AF37"/>
-      <rect x="153" y="84" width="3" height="13" fill="#D4AF37"/>
-      <rect x="158" y="84" width="3" height="13" fill="#D4AF37"/>
-      <rect x="148.5" y="88" width="3" height="9" fill="#D4AF37"/>
-      <rect x="140" y="100" width="20" height="2" fill="#D4AF37"/>
-      <rect x="145" y="102" width="10" height="3" fill="#D4AF37"/>
+    <!-- Africa -->
+    <g clip-path="url(#globeClip)">
+      <path fill="#D4AF37" fill-opacity="0.80" d="M156 46 L167 43 L175 47 L181 55 L183 64 L181 74 L180 83 L177 93 L172 103 L167 112 L162 117 L157 115 L154 107 L154 97 L152 87 L151 77 L153 67 L152 56 Z"/>
+      <path fill="#D4AF37" fill-opacity="0.72" d="M180 76 L188 72 L192 76 L186 82 L180 82 Z"/>
     </g>
+
+    <!-- Classical resort building -->
+    <g clip-path="url(#globeClip)" fill="#F5E27A">
+      <!-- Foundation steps -->
+      <rect x="130" y="107" width="40" height="4"/>
+      <rect x="133" y="103" width="34" height="4"/>
+      <!-- Main floor body -->
+      <rect x="135" y="87" width="30" height="16"/>
+      <!-- Upper floor -->
+      <rect x="136" y="75" width="28" height="12"/>
+      <!-- Triangular pediment -->
+      <polygon points="132,75 150,64 168,75"/>
+      <!-- Cornice lines -->
+      <rect x="133" y="87" width="34" height="1.5" fill="#8B6914"/>
+      <rect x="134" y="75" width="32" height="1.5" fill="#8B6914"/>
+      <!-- Columns (7 evenly spaced) -->
+      <rect x="136" y="87" width="2" height="16" fill="#D4AF37"/>
+      <rect x="140" y="87" width="2" height="16" fill="#D4AF37"/>
+      <rect x="144" y="87" width="2" height="16" fill="#D4AF37"/>
+      <rect x="148" y="87" width="2" height="16" fill="#D4AF37"/>
+      <rect x="152" y="87" width="2" height="16" fill="#D4AF37"/>
+      <rect x="156" y="87" width="2" height="16" fill="#D4AF37"/>
+      <rect x="160" y="87" width="2" height="16" fill="#D4AF37"/>
+      <!-- Upper floor windows -->
+      <rect x="139" y="77" width="4" height="7" fill="#D4AF37"/>
+      <rect x="146" y="77" width="4" height="7" fill="#D4AF37"/>
+      <rect x="153" y="77" width="4" height="7" fill="#D4AF37"/>
+      <rect x="160" y="77" width="4" height="7" fill="#D4AF37"/>
+      <!-- Central door -->
+      <rect x="147" y="96" width="6" height="7" fill="#D4AF37"/>
+    </g>
+
+    <!-- 3D sphere highlight -->
+    <circle cx="150" cy="86" r="55" fill="url(#globeHighlight)"/>
 
     <circle cx="150" cy="86" r="55" fill="none" stroke="url(#goldRing)" stroke-width="3"/>
     <circle cx="150" cy="86" r="53" fill="none" stroke="url(#goldGlobe)" stroke-width="1" opacity="0.8"/>
