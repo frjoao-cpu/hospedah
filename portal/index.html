@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Portal do Hóspede | HOSPEDAH</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap">
+<link rel="stylesheet" href="/assets/mobile-first.css">
+<link rel="stylesheet" href="/assets/style.css">
+<link rel="stylesheet" href="/assets/portal.css">
+</head>
+<body class="portal-body">
+<main class="portal-auth" aria-label="Acesso ao portal do hóspede">
+  <div class="portal-brand">
+    <img src="/assets/logo-navbar.svg" alt="HOSPEDAH" width="180" height="36">
+    <p>Área exclusiva para acompanhar reservas, fidelidade e vouchers.</p>
+  </div>
+
+  <section class="portal-card" aria-labelledby="portal-auth-title">
+    <h1 id="portal-auth-title">Minha Conta</h1>
+
+    <div class="portal-tabs" role="tablist" aria-label="Formulários de acesso">
+      <button type="button" class="portal-tab is-active" data-tab="login" role="tab" aria-selected="true">Entrar</button>
+      <button type="button" class="portal-tab" data-tab="signup" role="tab" aria-selected="false">Cadastrar</button>
+    </div>
+
+    <p class="portal-feedback" id="authFeedback" aria-live="polite"></p>
+
+    <form id="loginForm" class="portal-form" data-panel="login" autocomplete="on">
+      <label for="loginEmail">E-mail</label>
+      <input id="loginEmail" name="email" type="email" required>
+
+      <label for="loginPassword">Senha</label>
+      <input id="loginPassword" name="password" type="password" required minlength="6">
+
+      <button type="submit" class="portal-btn portal-btn-primary">Entrar</button>
+      <button type="button" class="portal-btn portal-btn-google js-google-auth">Continuar com Google</button>
+      <a class="portal-link" href="/portal/reset-password.html">Esqueci minha senha</a>
+    </form>
+
+    <form id="signupForm" class="portal-form is-hidden" data-panel="signup" autocomplete="on">
+      <label for="signupName">Nome completo</label>
+      <input id="signupName" name="name" type="text" required>
+
+      <label for="signupEmail">E-mail</label>
+      <input id="signupEmail" name="email" type="email" required>
+
+      <label for="signupPassword">Senha</label>
+      <input id="signupPassword" name="password" type="password" required minlength="6">
+
+      <button type="submit" class="portal-btn portal-btn-primary">Criar conta</button>
+      <button type="button" class="portal-btn portal-btn-google js-google-auth">Cadastrar com Google</button>
+    </form>
+  </section>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/assets/supabase-config.js"></script>
+<script src="/assets/portal.js"></script>
+</body>
+</html>

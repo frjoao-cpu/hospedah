@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard do Hóspede | HOSPEDAH</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap">
+<link rel="stylesheet" href="/assets/mobile-first.css">
+<link rel="stylesheet" href="/assets/style.css">
+<link rel="stylesheet" href="/assets/portal.css">
+</head>
+<body class="portal-body portal-dashboard-body">
+<div class="portal-layout">
+  <aside class="portal-sidebar" aria-label="Navegação da conta">
+    <a href="/index.html" class="portal-logo-link" aria-label="Voltar ao site">HOSPEDAH</a>
+    <nav>
+      <a href="#reservations" class="portal-nav-link">📅 Reservas</a>
+      <a href="#loyalty" class="portal-nav-link">🏅 Fidelidade</a>
+      <a href="#vouchers" class="portal-nav-link">🎟️ Vouchers</a>
+      <a href="#profile" class="portal-nav-link">⚙️ Perfil</a>
+    </nav>
+    <button type="button" id="logoutButton" class="portal-btn portal-btn-ghost">Sair</button>
+  </aside>
+
+  <main class="portal-content">
+    <header class="portal-page-header">
+      <h1>Olá, <span id="guestName">Hóspede</span></h1>
+      <p id="guestEmail">Carregando dados...</p>
+    </header>
+
+    <section id="reservations" class="portal-section">
+      <h2>Minhas Reservas</h2>
+      <div class="portal-grid">
+        <article class="portal-panel">
+          <h3>Próxima estadia</h3>
+          <p>Hot Beach Suites — 20/06 até 24/06</p>
+          <span class="portal-chip">Confirmada</span>
+        </article>
+        <article class="portal-panel">
+          <h3>Histórico</h3>
+          <p>2 estadias concluídas em 2025.</p>
+          <a href="/reservas.html" class="portal-link">Ver detalhes</a>
+        </article>
+      </div>
+    </section>
+
+    <section id="loyalty" class="portal-section">
+      <h2>Programa de Fidelidade</h2>
+      <div class="portal-panel">
+        <p>Nível atual: <strong id="loyaltyLevel">Bronze</strong></p>
+        <p>Pontos acumulados: <strong id="loyaltyPoints">0</strong></p>
+        <div class="portal-levels">
+          <span>Bronze</span>
+          <span>Silver</span>
+          <span>Gold</span>
+          <span>Platinum</span>
+          <span>Diamond</span>
+        </div>
+      </div>
+    </section>
+
+    <section id="vouchers" class="portal-section">
+      <h2>Vouchers Digitais</h2>
+      <div class="portal-grid">
+        <article class="portal-panel">
+          <h3>Voucher ativo</h3>
+          <p>WELCOME10 — 10% de desconto na próxima reserva.</p>
+          <button type="button" class="portal-btn portal-btn-primary">Baixar PDF</button>
+        </article>
+        <article class="portal-panel">
+          <h3>Recompensas disponíveis</h3>
+          <p>Upgrade de quarto e early check-in para membros Gold+.</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="profile" class="portal-section">
+      <h2>Configurações de Perfil</h2>
+      <p class="portal-feedback" id="profileFeedback" aria-live="polite"></p>
+      <form id="profileForm" class="portal-form portal-form-inline">
+        <label for="profileName">Nome</label>
+        <input id="profileName" name="name" type="text" required>
+
+        <label for="profilePhone">Telefone</label>
+        <input id="profilePhone" name="phone" type="tel" placeholder="(00) 00000-0000">
+
+        <button type="submit" class="portal-btn portal-btn-primary">Salvar perfil</button>
+      </form>
+    </section>
+  </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/assets/supabase-config.js"></script>
+<script src="/assets/portal.js"></script>
+</body>
+</html>
