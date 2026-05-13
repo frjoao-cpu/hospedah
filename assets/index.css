@@ -1390,6 +1390,9 @@ html[data-theme="light"] .faq-btn { color: var(--azul); }
   .urgencia-strip-inner { animation: none; }
   .urgencia-item[aria-hidden="true"] { display: none; }
 }
+@media (max-width: 767px) {
+  .urgencia-strip { display: none; }
+}
 
 /* ==========================================
    SEÇÃO EMOCIONAL / DESEJO
