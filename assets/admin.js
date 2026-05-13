@@ -151,6 +151,7 @@
       if (result.error) throw result.error;
       rows = result.data || [];
     } catch (error) {
+      setText('adminRoleNotice', 'Não foi possível carregar os leads reais. Exibindo dados de exemplo.');
       rows = [
         { nome: 'Lead Exemplo', email: 'lead@exemplo.com', telefone: '(17) 99999-9999', status: 'novo', created_at: new Date().toISOString() }
       ];
@@ -206,9 +207,13 @@
     if (csvButton) csvButton.addEventListener('click', exportCsv);
     if (logoutButton) {
       logoutButton.addEventListener('click', async function () {
-        var sb = getClient();
-        await sb.auth.signOut();
-        window.location.assign('/portal/index.html');
+        try {
+          var sb = getClient();
+          await sb.auth.signOut();
+          window.location.assign('/portal/index.html');
+        } catch (error) {
+          setText('adminRoleNotice', error.message || 'Não foi possível sair no momento.');
+        }
       });
     }
   }

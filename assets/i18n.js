@@ -16,7 +16,7 @@
   }
 
   async function fetchTranslations(lang) {
-    var response = await fetch('/assets/i18n/' + lang + '.json', { cache: 'force-cache' });
+    var response = await fetch('/assets/i18n/' + lang + '.json', { cache: 'default' });
     if (!response.ok) throw new Error('Arquivo de tradução indisponível.');
     return response.json();
   }

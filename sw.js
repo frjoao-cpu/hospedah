@@ -84,7 +84,9 @@ function staleWhileRevalidate(request, cacheName) {
       });
 
       if (cached) {
-        fetchPromise.catch(function () {});
+        fetchPromise.catch(function (error) {
+          console.warn('SW staleWhileRevalidate failed:', error);
+        });
         return cached;
       }
       return fetchPromise;
