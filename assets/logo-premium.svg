@@ -101,11 +101,9 @@
 
       <text x="230" y="96" font-family="Georgia, 'Times New Roman', serif" font-weight="700" font-size="52" letter-spacing="8" fill="url(#goldH)" filter="url(#textShadow)">HOSPEDAH</text>
       <g font-family="Georgia, 'Times New Roman', serif" fill="#D4AF37" text-anchor="middle">
-        <line x1="258" y1="136" x2="298" y2="136" stroke="url(#goldH)" stroke-width="1.5"/>
-        <line x1="454" y1="136" x2="494" y2="136" stroke="url(#goldH)" stroke-width="1.5"/>
-        <text x="376" y="141" font-style="italic" font-size="16" letter-spacing="2">Sua experiência começa aqui.</text>
-        <text x="252" y="141" font-size="14" fill="#D4AF37">✦</text>
-        <text x="500" y="141" font-size="14" fill="#D4AF37">✦</text>
+      <text x="376" y="141" font-style="italic" font-size="16" letter-spacing="2">Sua experiência começa aqui</text>
+        <text x="248" y="141" font-size="18" fill="url(#goldH)">→</text>
+        <text x="504" y="141" font-size="18" fill="url(#goldH)">←</text>
       </g>
     </svg>
   </g>

@@ -11,6 +11,13 @@
       <stop offset="0%" stop-color="#1a2f5e"/>
       <stop offset="100%" stop-color="#0B1C3D"/>
     </radialGradient>
+    <linearGradient id="ringFav" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#F5E27A" stop-opacity="0.3"/>
+      <stop offset="30%" stop-color="#D4AF37"/>
+      <stop offset="50%" stop-color="#F5E27A"/>
+      <stop offset="70%" stop-color="#D4AF37"/>
+      <stop offset="100%" stop-color="#F5E27A" stop-opacity="0.3"/>
+    </linearGradient>
     <clipPath id="clipFav">
       <circle cx="18" cy="16" r="12"/>
     </clipPath>
@@ -41,4 +48,7 @@
       <rect x="18.2" y="16" width="0.8" height="2" fill="#D4AF37"/>
     </g>
   </g>
+  <!-- Equatorial orbital ring -->
+  <ellipse cx="18" cy="16" rx="14" ry="2.5" fill="none" stroke="url(#ringFav)" stroke-width="1.8" opacity="0.9"/>
+  <ellipse cx="18" cy="16" rx="14" ry="2.5" fill="none" stroke="#F5E27A" stroke-width="0.6" opacity="0.5"/>
 </svg>

@@ -44,5 +44,8 @@
         <rect x="18.2" y="16" width="0.8" height="2" fill="#D4AF37"/>
       </g>
     </g>
+    <!-- Equatorial orbital ring -->
+    <ellipse cx="18" cy="16" rx="14" ry="2.5" fill="none" stroke="#D4AF37" stroke-width="1.8" opacity="0.9"/>
+    <ellipse cx="18" cy="16" rx="14" ry="2.5" fill="none" stroke="#F5E27A" stroke-width="0.6" opacity="0.5"/>
   </svg>
 </svg>
