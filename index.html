@@ -224,6 +224,17 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   </div>
 </div>
 
+<div id="pwa-install-banner" class="pwa-install-banner" role="dialog" aria-live="polite" aria-label="Instalar aplicativo">
+  <div class="pwa-install-content">
+    <strong data-i18n="pwa.installTitle">Instale o app HOSPEDAH</strong>
+    <p data-i18n="pwa.installDesc">Acesso rápido ao portal do hóspede, reservas e ofertas exclusivas.</p>
+  </div>
+  <div class="pwa-install-actions">
+    <button type="button" id="pwaInstallBtn" data-i18n="pwa.installButton">Instalar</button>
+    <button type="button" id="pwaInstallClose" class="secondary" data-i18n="pwa.dismissButton">Agora não</button>
+  </div>
+</div>
+
 <!-- ==========================================
      ✅ NAVBAR + MENU SANDUÍCHE
 =========================================== -->
@@ -233,17 +244,23 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   </a>
 
   <ul class="nav-links" role="list">
-    <li><a href="#topo">🏠 Início</a></li>
-    <li><a href="busca.html">🔍 Buscar</a></li>
-    <li><a href="reservas.html">📅 Reservar</a></li>
-    <li><a href="avaliacoes.html">⭐ Avaliações</a></li>
-    <li><a href="#orcamento">💰 Orçamento</a></li>
-    <li><a href="chat.html">🤖 Chat IA</a></li>
-    <li><a href="referral.html">🎁 Indicar</a></li>
-    <li><a href="jornal.html">📰 Jornal</a></li>
+    <li><a href="#topo" data-i18n="nav.home">🏠 Início</a></li>
+    <li><a href="busca.html" data-i18n="nav.search">🔍 Buscar</a></li>
+    <li><a href="reservas.html" data-i18n="nav.reserve">📅 Reservar</a></li>
+    <li><a href="avaliacoes.html" data-i18n="nav.reviews">⭐ Avaliações</a></li>
+    <li><a href="#orcamento" data-i18n="nav.budget">💰 Orçamento</a></li>
+    <li><a href="/portal/index.html" data-i18n="nav.account">👤 Minha Conta</a></li>
+    <li><a href="chat.html" data-i18n="nav.chat">🤖 Chat IA</a></li>
+    <li><a href="referral.html" data-i18n="nav.referral">🎁 Indicar</a></li>
+    <li><a href="jornal.html" data-i18n="nav.news">📰 Jornal</a></li>
   </ul>
 
   <div class="nav-right">
+    <div class="lang-switcher" aria-label="Selecionar idioma">
+      <button type="button" class="lang-btn" data-switch-lang="pt" aria-pressed="false">🇧🇷</button>
+      <button type="button" class="lang-btn" data-switch-lang="en" aria-pressed="false">🇺🇸</button>
+      <button type="button" class="lang-btn" data-switch-lang="es" aria-pressed="false">🇪🇸</button>
+    </div>
     <button class="btn-tema" id="btnTema" aria-label="Trocar tema">🌓</button>
     <button class="hamburger" id="hamburger" aria-label="Abrir menu" aria-expanded="false">
       <span></span><span></span><span></span>
@@ -254,14 +271,15 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <!-- Gaveta lateral -->
 <div class="nav-overlay" id="navOverlay"></div>
 <nav class="nav-drawer" id="navDrawer" aria-label="Menu mobile">
-  <a href="#topo"           onclick="closeDrawer()">🏠 Início</a>
-  <a href="busca.html"      onclick="closeDrawer()">🔍 Buscar Acomodações</a>
-  <a href="reservas.html"   onclick="closeDrawer()">📅 Fazer Reserva</a>
-  <a href="avaliacoes.html" onclick="closeDrawer()">⭐ Avaliações</a>
-  <a href="#orcamento"      onclick="closeDrawer()">💰 Orçamento</a>
-  <a href="chat.html"       onclick="closeDrawer()">🤖 Chat IA</a>
-  <a href="referral.html"   onclick="closeDrawer()">🎁 Indicar &amp; Ganhar</a>
-  <a href="jornal.html"     onclick="closeDrawer()">📰 Jornal HOSPEDAH</a>
+  <a href="#topo"           onclick="closeDrawer()" data-i18n="nav.home">🏠 Início</a>
+  <a href="busca.html"      onclick="closeDrawer()" data-i18n="nav.search">🔍 Buscar</a>
+  <a href="reservas.html"   onclick="closeDrawer()" data-i18n="nav.reserve">📅 Reservar</a>
+  <a href="avaliacoes.html" onclick="closeDrawer()" data-i18n="nav.reviews">⭐ Avaliações</a>
+  <a href="#orcamento"      onclick="closeDrawer()" data-i18n="nav.budget">💰 Orçamento</a>
+  <a href="/portal/index.html" onclick="closeDrawer()" data-i18n="nav.account">👤 Minha Conta</a>
+  <a href="chat.html"       onclick="closeDrawer()" data-i18n="nav.chat">🤖 Chat IA</a>
+  <a href="referral.html"   onclick="closeDrawer()" data-i18n="nav.referral">🎁 Indicar</a>
+  <a href="jornal.html"     onclick="closeDrawer()" data-i18n="nav.news">📰 Jornal</a>
   <a href="#galeria"        onclick="closeDrawer()">🖼️ Galeria</a>
   <a href="resorts/ipioca.html"  onclick="closeDrawer()">🌊 Ipioca Beach Resort</a>
   <a href="resorts/portoi2.html" onclick="closeDrawer()">⚓ Porto 2 Life</a>
@@ -299,14 +317,14 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <picture>
       <source srcset="/assets/logo.svg" type="image/svg+xml">
       <img src="https://i.imgur.com/ITjjQaf.jpeg" alt="HOSPEDAH — Resorts e Experiências Exclusivas"
-           class="hero-logo" loading="eager" fetchpriority="high" decoding="auto" width="320" height="120">
+            class="hero-logo" loading="eager" fetchpriority="high" decoding="auto" width="320" height="120">
     </picture>
-    <p class="hero-tagline">Resorts & Experiências Exclusivas</p>
-    <span class="hero-badge">✦ Atendimento Premium ✦</span>
+    <p class="hero-tagline" data-i18n="hero.tagline">Resorts & Experiências Exclusivas</p>
+    <span class="hero-badge" data-i18n="hero.badge">✦ Atendimento Premium ✦</span>
 
     <!-- ✅ Busca estilo Booking dentro do banner -->
     <div class="hero-search" role="search" aria-label="Buscar hospedagem">
-      <div class="hero-search-title">🔍 Encontre sua hospedagem ideal</div>
+      <div class="hero-search-title" data-i18n="hero.searchTitle">🔍 Encontre sua hospedagem ideal</div>
       <div class="hero-search-grid">
         <div class="hs-field">
           <label for="hs_resort">Destino / Resort</label>
@@ -334,7 +352,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           <label for="hs_pessoas">Pessoas</label>
           <input type="number" id="hs_pessoas" min="1" max="20" placeholder="2">
         </div>
-        <button class="hs-btn" id="heroCTA" onclick="heroCTAClick()" type="button">
+        <button class="hs-btn" id="heroCTA" onclick="heroCTAClick()" type="button" data-i18n="hero.searchButton">
           🔍 Buscar
         </button>
       </div>
@@ -548,7 +566,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
      GALERIA
 =========================================== -->
 <div class="section-wrap" id="galeria">
-  <h2 class="section-title">🏖️ Nossos Resorts</h2>
+  <h2 class="section-title" data-i18n="sections.gallery">🏝️ Galeria de Resorts</h2>
   <div class="tabs" role="tablist" aria-label="Selecionar resort">
     <button class="tab active" id="tab_hotbeach" role="tab" aria-controls="hotbeach" aria-selected="true"  tabindex="0">Hot Beach Suites</button>
     <button class="tab"        id="tab_saopedro" role="tab" aria-controls="saopedro" aria-selected="false" tabindex="-1">São Pedro</button>
@@ -861,7 +879,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 =========================================== -->
 <section class="section-form" id="orcamento" aria-labelledby="titulo-orc">
   <div class="section-wrap" style="padding-top:0;">
-    <h2 class="section-title" id="titulo-orc">💰 Solicite um Orçamento</h2>
+    <h2 class="section-title" id="titulo-orc" data-i18n="sections.budget">💰 Solicite um Orçamento</h2>
     <p class="orc-section-sub">Atendimento personalizado · Proposta em até 2 horas · 100% pelo WhatsApp</p>
     <div class="parcela-strip" aria-label="Formas de pagamento">
       <div class="parcela-card">
@@ -1057,7 +1075,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 =========================================== -->
 <section class="section-form" id="contato" aria-labelledby="titulo-contato">
   <div class="section-wrap" style="padding-top:0;">
-    <h2 class="section-title" id="titulo-contato">📬 Fale Conosco</h2>
+    <h2 class="section-title" id="titulo-contato" data-i18n="sections.contact">📬 Contato</h2>
     <form class="form-std" id="formContato" onsubmit="enviarContato(event)" novalidate>
       <input type="text" id="cont_nome" placeholder="Seu nome"               required autocomplete="name">
       <input type="tel"  id="cont_wpp"  placeholder="Seu WhatsApp (com DDD)" required autocomplete="tel">
@@ -1130,7 +1148,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 =========================================== -->
 <section class="faq-section" id="faq" aria-labelledby="faq-titulo">
   <div class="faq-wrap">
-    <h2 class="section-title" id="faq-titulo" style="margin-bottom:32px;">❓ Perguntas Frequentes</h2>
+    <h2 class="section-title" id="faq-titulo" style="margin-bottom:32px;" data-i18n="sections.faq">❓ Perguntas Frequentes</h2>
     <div class="faq-item">
       <button class="faq-btn" aria-expanded="false" data-faq="0">
         Como funciona o processo de reserva?
@@ -2578,15 +2596,6 @@ function exitIntentSubmit(e) {
 })();
 </script>
 
-<!-- PWA — Registro do Service Worker -->
-<script>
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', function () {
-    navigator.serviceWorker.register('/sw.js').catch(function () {});
-  });
-}
-</script>
-
 <!-- ============================================================
      SUPABASE: AggregateRating + Social Proof Real + Lead Tracking
      + jsPDF Proposal + Referral code
@@ -3272,6 +3281,8 @@ function gerarPropostaPDF() {
 <script src="/assets/supabase-config.js"></script>
 <script src="/assets/ai-config.js"></script>
 <script src="/assets/ai-concierge.js"></script>
+<script src="/assets/i18n.js"></script>
+<script src="/assets/pwa.js"></script>
 <script>
 (function () {
   var hcBtn  = document.getElementById('hospedah-chat-btn');

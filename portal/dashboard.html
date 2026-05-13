@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard do Hóspede | HOSPEDAH</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap">
+  <link rel="stylesheet" href="/assets/mobile-first.css">
+  <link rel="stylesheet" href="/assets/style.css">
+  <link rel="stylesheet" href="/assets/portal.css">
+</head>
+<body data-portal-page="dashboard">
+  <div class="portal-layout">
+    <aside class="portal-sidebar glass">
+      <a class="portal-brand" href="/index.html">HOSPEDAH</a>
+      <h1 class="portal-title-sm">Minha Conta</h1>
+      <p class="portal-user" id="portalUserInfo">Carregando perfil...</p>
+
+      <nav class="portal-nav" aria-label="Navegação do portal">
+        <button type="button" class="portal-nav-link active" data-section="reservas">Reservas</button>
+        <button type="button" class="portal-nav-link" data-section="fidelidade">Fidelidade</button>
+        <button type="button" class="portal-nav-link" data-section="vouchers">Vouchers</button>
+        <button type="button" class="portal-nav-link" data-section="config">Configurações</button>
+      </nav>
+
+      <button type="button" id="portalLogout" class="portal-btn portal-btn-secondary">Sair</button>
+    </aside>
+
+    <main class="portal-content">
+      <section id="section-reservas" class="portal-panel glass">
+        <h2>Minhas Reservas</h2>
+        <div id="portalReservations" class="portal-grid"></div>
+      </section>
+
+      <section id="section-fidelidade" class="portal-panel glass hidden">
+        <h2>Programa de Fidelidade</h2>
+        <p class="portal-subtitle">Seu status atual e próximos benefícios.</p>
+        <div class="tier-track" id="tierTrack"></div>
+      </section>
+
+      <section id="section-vouchers" class="portal-panel glass hidden">
+        <h2>Vouchers</h2>
+        <div id="portalVouchers" class="portal-grid"></div>
+      </section>
+
+      <section id="section-config" class="portal-panel glass hidden">
+        <h2>Configurações</h2>
+        <p class="portal-subtitle">Atualize sua senha com segurança.</p>
+        <div class="portal-message" id="portalConfigMessage" aria-live="polite"></div>
+        <form id="updatePasswordForm" class="portal-form" novalidate>
+          <label for="newPassword">Nova senha</label>
+          <input id="newPassword" type="password" minlength="6" required>
+          <button type="submit" class="portal-btn portal-btn-primary">Salvar nova senha</button>
+        </form>
+      </section>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="/assets/supabase-config.js"></script>
+  <script src="/assets/portal.js"></script>
+</body>
+</html>
