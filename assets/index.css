@@ -137,17 +137,21 @@ html[data-theme="light"] footer                 { background: #e8e4d8; color: #4
   display: block;
 }
 .nav-links {
-  display: flex; align-items: center; gap: 6px;
+  display: flex; align-items: center; gap: 4px;
   list-style: none;
+}
+.nav-links li {
+  display: flex;
 }
 .nav-links a {
   color: #fff; text-decoration: none;
-  font-size: 13.5px; font-weight: 600;
-  padding: 7px 13px; border-radius: 22px;
+  font-size: 13px; font-weight: 600;
+  padding: 7px 10px; border-radius: 22px;
   transition: background .16s, color .16s;
   white-space: nowrap;
   display: inline-flex; align-items: center; justify-content: center;
-  min-width: 96px;
+  width: 96px;
+  box-sizing: border-box;
 }
 .nav-links a:hover, .nav-links a:focus {
   background: var(--dourado); color: var(--azul);
@@ -2053,7 +2057,7 @@ html[data-theme="light"] .orc-summary-row strong { color: #1a1a1a; }
 }
 
 @media (max-width: 480px) {
-  .hero-logo { max-width: 320px; margin-bottom: -12px; }
+  .hero-logo { max-width: 380px; margin-bottom: -12px; }
   .navbar .logo-txt img { height: 116px; }
   #fomo-bar { top: 84px; right: 8px; }
   .fomo-pill { padding: 5px 11px; font-size: .72em; }
