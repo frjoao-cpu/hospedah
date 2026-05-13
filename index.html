@@ -236,18 +236,22 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   </a>
 
   <ul class="nav-links" role="list">
-    <li><a href="#topo">🏠 Início</a></li>
-    <li><a href="busca.html">🔍 Buscar</a></li>
-    <li><a href="reservas.html">📅 Reservar</a></li>
-    <li><a href="avaliacoes.html">⭐ Avaliações</a></li>
-    <li><a href="#orcamento">💰 Orçamento</a></li>
-    <li><a href="chat.html">🤖 Chat IA</a></li>
-    <li><a href="referral.html">🎁 Indicar</a></li>
-    <li><a href="jornal.html">📰 Jornal</a></li>
+    <li><a href="#topo" data-i18n="nav.home">🏠 Início</a></li>
+    <li><a href="busca.html" data-i18n="nav.search">🔍 Buscar</a></li>
+    <li><a href="reservas.html" data-i18n="nav.book">📅 Reservar</a></li>
+    <li><a href="avaliacoes.html" data-i18n="nav.reviews">⭐ Avaliações</a></li>
+    <li><a href="#orcamento" data-i18n="nav.quote">💰 Orçamento</a></li>
+    <li><a href="chat.html" data-i18n="nav.chat">🤖 Chat IA</a></li>
+    <li><a href="referral.html" data-i18n="nav.refer">🎁 Indicar</a></li>
+    <li><a href="jornal.html" data-i18n="nav.news">📰 Jornal</a></li>
+    <li><a href="portal/index.html" data-i18n="nav.account">👤 Minha Conta</a></li>
   </ul>
 
   <div class="nav-right">
     <button class="btn-tema" id="btnTema" aria-label="Trocar tema">🌓</button>
+    <button class="btn-tema" type="button" data-lang="pt" aria-pressed="true">PT</button>
+    <button class="btn-tema" type="button" data-lang="en" aria-pressed="false">EN</button>
+    <button class="btn-tema" type="button" data-lang="es" aria-pressed="false">ES</button>
     <button class="hamburger" id="hamburger" aria-label="Abrir menu" aria-expanded="false">
       <span></span><span></span><span></span>
     </button>
@@ -257,14 +261,15 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <!-- Gaveta lateral -->
 <div class="nav-overlay" id="navOverlay"></div>
 <nav class="nav-drawer" id="navDrawer" aria-label="Menu mobile">
-  <a href="#topo"           onclick="closeDrawer()">🏠 Início</a>
-  <a href="busca.html"      onclick="closeDrawer()">🔍 Buscar Acomodações</a>
-  <a href="reservas.html"   onclick="closeDrawer()">📅 Fazer Reserva</a>
+  <a href="#topo"           onclick="closeDrawer()" data-i18n="drawer.home">🏠 Início</a>
+  <a href="busca.html"      onclick="closeDrawer()" data-i18n="drawer.search">🔍 Buscar Acomodações</a>
+  <a href="reservas.html"   onclick="closeDrawer()" data-i18n="drawer.book">📅 Fazer Reserva</a>
   <a href="avaliacoes.html" onclick="closeDrawer()">⭐ Avaliações</a>
   <a href="#orcamento"      onclick="closeDrawer()">💰 Orçamento</a>
   <a href="chat.html"       onclick="closeDrawer()">🤖 Chat IA</a>
   <a href="referral.html"   onclick="closeDrawer()">🎁 Indicar &amp; Ganhar</a>
   <a href="jornal.html"     onclick="closeDrawer()">📰 Jornal HOSPEDAH</a>
+  <a href="portal/index.html" onclick="closeDrawer()" data-i18n="drawer.account">👤 Minha Conta</a>
   <a href="#galeria"        onclick="closeDrawer()">🖼️ Galeria</a>
   <a href="resorts/ipioca.html"  onclick="closeDrawer()">🌊 Ipioca Beach Resort</a>
   <a href="resorts/portoi2.html" onclick="closeDrawer()">⚓ Porto 2 Life</a>
@@ -278,7 +283,18 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
      style="background:var(--wpp);border-radius:10px;text-align:center;">
     💬 WhatsApp
   </a>
+  <div style="display:flex;gap:8px;margin-top:8px;">
+    <button class="btn-tema" type="button" data-lang="pt" aria-pressed="true" style="flex:1;">PT</button>
+    <button class="btn-tema" type="button" data-lang="en" aria-pressed="false" style="flex:1;">EN</button>
+    <button class="btn-tema" type="button" data-lang="es" aria-pressed="false" style="flex:1;">ES</button>
+  </div>
 </nav>
+
+<div id="pwa-install-banner" hidden style="position:fixed;left:50%;transform:translateX(-50%);bottom:84px;z-index:1000;background:rgba(11,28,61,0.96);border:1px solid rgba(212,175,55,0.35);border-radius:12px;padding:12px 14px;display:flex;gap:10px;align-items:center;max-width:560px;width:calc(100% - 24px);box-shadow:0 10px 26px rgba(0,0,0,0.35);">
+  <span data-i18n="pwa.banner" style="flex:1;color:#e8eaf0;font-size:0.9rem;">Instale o app HOSPEDAH para acesso rápido e uso offline.</span>
+  <button id="btn-install-pwa" type="button" style="min-height:40px;border:0;border-radius:9px;background:linear-gradient(135deg,#D4AF37,#b78914);color:#0B1C3D;font-weight:700;padding:0 10px;" data-i18n="pwa.install">Instalar app</button>
+  <button id="btn-dismiss-pwa" type="button" style="min-height:40px;border:1px solid rgba(255,255,255,0.2);border-radius:9px;background:rgba(255,255,255,0.08);color:#e8eaf0;padding:0 10px;" data-i18n="pwa.dismiss">Agora não</button>
+</div>
 
 <!-- ==========================================
      ✅ HERO COM CARROSSEL + OVERLAY + BUSCA
@@ -309,12 +325,12 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       width="320"
       height="102"
     >
-    <p class="hero-tagline">Resorts & Experiências Exclusivas</p>
-    <span class="hero-badge">✦ Atendimento Premium ✦</span>
+    <p class="hero-tagline" data-i18n="hero.tagline">Resorts & Experiências Exclusivas</p>
+    <span class="hero-badge" data-i18n="hero.badge">✦ Atendimento Premium ✦</span>
 
     <!-- ✅ Busca estilo Booking dentro do banner -->
     <div class="hero-search" role="search" aria-label="Buscar hospedagem">
-      <div class="hero-search-title">🔍 Encontre sua hospedagem ideal</div>
+      <div class="hero-search-title" data-i18n="hero.searchTitle">🔍 Encontre sua hospedagem ideal</div>
       <div class="hero-search-grid">
         <div class="hs-field">
           <label for="hs_resort">Destino / Resort</label>
@@ -2583,14 +2599,6 @@ function exitIntentSubmit(e) {
 })();
 </script>
 
-<!-- PWA — Registro do Service Worker -->
-<script>
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', function () {
-    navigator.serviceWorker.register('/sw.js').catch(function () {});
-  });
-}
-</script>
 
 <!-- ============================================================
      SUPABASE: AggregateRating + Social Proof Real + Lead Tracking
@@ -3274,6 +3282,8 @@ function gerarPropostaPDF() {
   </div>
 </div>
 
+<script src="/assets/i18n.js"></script>
+<script src="/assets/pwa.js"></script>
 <script src="/assets/supabase-config.js"></script>
 <script src="/assets/ai-config.js"></script>
 <script src="/assets/ai-concierge.js"></script>

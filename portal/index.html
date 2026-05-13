@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Portal do Hóspede | HOSPEDAH</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap">
+<link rel="stylesheet" href="/assets/mobile-first.css">
+<link rel="stylesheet" href="/assets/style.css">
+<link rel="stylesheet" href="/assets/portal.css">
+</head>
+<body class="portal-page" data-portal-page="auth">
+  <main class="portal-shell">
+    <section class="portal-card portal-auth" aria-label="Acesso ao portal do hóspede">
+      <div class="portal-brand">
+        <img src="/assets/logo-navbar.svg" alt="HOSPEDAH" width="180" height="36">
+        <h1>Minha Conta</h1>
+        <p>Acesse reservas, fidelidade e vouchers em um só lugar.</p>
+      </div>
+
+      <div class="portal-tabs" role="tablist" aria-label="Alternar entre login e cadastro">
+        <button class="portal-tab active" type="button" data-auth-tab="login" role="tab" aria-selected="true">Entrar</button>
+        <button class="portal-tab" type="button" data-auth-tab="signup" role="tab" aria-selected="false">Criar conta</button>
+      </div>
+
+      <section class="portal-panel active" data-auth-panel="login" aria-label="Login">
+        <form class="portal-form" id="loginForm" novalidate>
+          <label for="loginEmail">E-mail
+            <input class="portal-input" id="loginEmail" name="email" type="email" autocomplete="email" required>
+          </label>
+          <label for="loginPassword">Senha
+            <input class="portal-input" id="loginPassword" name="password" type="password" autocomplete="current-password" minlength="6" required>
+          </label>
+          <button class="portal-btn portal-btn-primary" type="submit">Entrar no portal</button>
+        </form>
+        <div class="portal-helper"><a href="/portal/reset-password.html">Esqueci minha senha</a></div>
+        <div class="portal-divider">ou</div>
+        <button class="portal-btn portal-btn-secondary" type="button" data-google-auth>Continuar com Google</button>
+      </section>
+
+      <section class="portal-panel" data-auth-panel="signup" aria-label="Cadastro">
+        <form class="portal-form" id="signupForm" novalidate>
+          <label for="signupName">Nome completo
+            <input class="portal-input" id="signupName" name="name" type="text" minlength="3" required>
+          </label>
+          <label for="signupEmail">E-mail
+            <input class="portal-input" id="signupEmail" name="email" type="email" autocomplete="email" required>
+          </label>
+          <label for="signupPassword">Senha
+            <input class="portal-input" id="signupPassword" name="password" type="password" minlength="6" required>
+          </label>
+          <label for="signupPasswordConfirm">Confirmar senha
+            <input class="portal-input" id="signupPasswordConfirm" name="password-confirm" type="password" minlength="6" required>
+          </label>
+          <button class="portal-btn portal-btn-primary" type="submit">Criar conta</button>
+        </form>
+        <div class="portal-divider">ou</div>
+        <button class="portal-btn portal-btn-secondary" type="button" data-google-auth>Cadastrar com Google</button>
+      </section>
+
+      <div class="portal-alert" data-portal-alert role="status" aria-live="polite"></div>
+    </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="/assets/supabase-config.js"></script>
+  <script src="/assets/portal.js"></script>
+</body>
+</html>

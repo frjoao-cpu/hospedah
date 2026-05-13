@@ -1,20 +1,18 @@
 /* ============================================================
    HOSPEDAH — Service Worker
-   Estratégia:
-     • Cache-First com revalidação background (SWR) para fontes e CSS.
-     • Network-First para HTML/navegação.
-     • Cache-First para imagens Imgur.
+   Estratégias:
+     • Network-first para navegação HTML com fallback offline.
+     • Stale-while-revalidate para CSS/JS/fontes.
+     • Cache-first para imagens e páginas resort pré-cacheadas.
    ============================================================ */
 'use strict';
 
-/* OneSignal Web Push — importa o SW do SDK para compatibilidade */
-
 importScripts('https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.sw.js');
-var CACHE_NAME = 'hospedah-v4';
-var ASSETS_CACHE = 'hospedah-assets-v4';
-var FONT_CACHE = 'hospedah-fonts-v4';
 
-/* Recursos essenciais para funcionar offline */
+var CACHE_STATIC = 'hospedah-static-v5';
+var CACHE_RUNTIME = 'hospedah-runtime-v5';
+var CACHE_IMAGES = 'hospedah-images-v5';
+
 var PRECACHE_URLS = [
   '/',
   '/index.html',
@@ -25,6 +23,18 @@ var PRECACHE_URLS = [
   '/cadastro.html',
   '/painel.html',
   '/sistema.html',
+  '/portal/index.html',
+  '/portal/dashboard.html',
+  '/portal/reset-password.html',
+  '/admin/index.html',
+  '/offline.html',
+  '/manifest.json',
+  '/assets/mobile-first.css',
+  '/assets/style.css',
+  '/assets/portal.css',
+  '/assets/admin.css',
+  '/assets/i18n.js',
+  '/assets/pwa.js',
   '/resorts/hotbeach.html',
   '/resorts/saopedro.html',
   '/resorts/olimpia.html',
@@ -32,18 +42,12 @@ var PRECACHE_URLS = [
   '/resorts/wyndham.html',
   '/resorts/juquehy.html',
   '/resorts/ipioca.html',
-  '/resorts/portoi2.html',
-  '/assets/mobile-first.css',
-  '/assets/index.css',
-  '/assets/style.css',
-  '/manifest.json',
-  'https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap'
+  '/resorts/portoi2.html'
 ];
 
-/* ── Install: pré-cacheia os essenciais ── */
 self.addEventListener('install', function (event) {
   event.waitUntil(
-    caches.open(CACHE_NAME).then(function (cache) {
+    caches.open(CACHE_STATIC).then(function (cache) {
       return cache.addAll(PRECACHE_URLS);
     }).then(function () {
       return self.skipWaiting();
@@ -51,40 +55,80 @@ self.addEventListener('install', function (event) {
   );
 });
 
-/* ── Activate: remove caches antigos ── */
 self.addEventListener('activate', function (event) {
-  var validCaches = [CACHE_NAME, ASSETS_CACHE, FONT_CACHE];
+  var valid = [CACHE_STATIC, CACHE_RUNTIME, CACHE_IMAGES];
   event.waitUntil(
     caches.keys().then(function (keys) {
-      return Promise.all(
-        keys.filter(function (key) {
-          return validCaches.indexOf(key) === -1;
-        }).map(function (key) {
+      return Promise.all(keys.map(function (key) {
+        if (valid.indexOf(key) === -1) {
           return caches.delete(key);
-        })
-      );
+        }
+        return Promise.resolve();
+      }));
     }).then(function () {
       return self.clients.claim();
     })
   );
 });
 
-/* ── Fetch: estratégia híbrida ── */
+function staleWhileRevalidate(request, cacheName) {
+  return caches.open(cacheName).then(function (cache) {
+    return cache.match(request).then(function (cached) {
+      var fetchPromise = fetch(request).then(function (response) {
+        if (response && response.status === 200) {
+          cache.put(request, response.clone());
+        }
+        return response;
+      }).catch(function () {
+        return cached;
+      });
+
+      if (cached) {
+        fetchPromise.catch(function () {});
+        return cached;
+      }
+      return fetchPromise;
+    });
+  });
+}
+
 self.addEventListener('fetch', function (event) {
   var req = event.request;
   var url = new URL(req.url);
 
-  /* Ignora requisições não-GET e extensões externas que não cachear */
   if (req.method !== 'GET') return;
-  if (url.origin !== self.location.origin &&
-      url.hostname !== 'fonts.googleapis.com' &&
-      url.hostname !== 'fonts.gstatic.com' &&
-      url.hostname !== 'i.imgur.com') return;
 
-  /* Imagens Imgur: Cache-First com fallback de rede */
-  if (url.hostname === 'i.imgur.com') {
+  if (req.mode === 'navigate') {
     event.respondWith(
-      caches.open(ASSETS_CACHE).then(function (cache) {
+      fetch(req).then(function (response) {
+        if (response && response.status === 200) {
+          caches.open(CACHE_RUNTIME).then(function (cache) {
+            cache.put(req, response.clone());
+          });
+        }
+        return response;
+      }).catch(function () {
+        return caches.match(req).then(function (cachedPage) {
+          return cachedPage || caches.match('/offline.html');
+        });
+      })
+    );
+    return;
+  }
+
+  if (url.origin === self.location.origin && (url.pathname.endsWith('.css') || url.pathname.endsWith('.js'))) {
+    event.respondWith(staleWhileRevalidate(req, CACHE_RUNTIME));
+    return;
+  }
+
+  if (url.hostname === 'fonts.googleapis.com' || url.hostname === 'fonts.gstatic.com') {
+    event.respondWith(staleWhileRevalidate(req, CACHE_RUNTIME));
+    return;
+  }
+
+  if (req.destination === 'image' || url.hostname === 'i.imgur.com') {
+    event.respondWith(
+      caches.open(CACHE_IMAGES).then(function (cache) {
         return cache.match(req).then(function (cached) {
           if (cached) return cached;
           return fetch(req).then(function (response) {
@@ -99,89 +143,20 @@ self.addEventListener('fetch', function (event) {
     return;
   }
 
-  /* Google Fonts: Stale-While-Revalidate — serve do cache imediatamente
-     e atualiza em background para garantir versões recentes */
-  if (url.hostname === 'fonts.googleapis.com' ||
-      url.hostname === 'fonts.gstatic.com') {
-    event.respondWith(
-      caches.open(FONT_CACHE).then(function (cache) {
-        return cache.match(req).then(function (cached) {
-          var fetchPromise = fetch(req).then(function (response) {
-            if (response && response.status === 200) {
-              cache.put(req, response.clone());
-            }
-            return response;
-          }).catch(function () { return cached; });
-          /* Stale-While-Revalidate: serve do cache imediatamente E atualiza em background */
-          if (cached) { fetchPromise.catch(function () {}); return cached; }
-          return fetchPromise;
-        });
-      })
-    );
-    return;
-  }
-
-  /* ai-config.js / ai-concierge.js: sempre da rede — ai-config.js contém a chave de API injetada
-     pelo CI; ai-concierge.js contém o sistema de IA que é atualizado frequentemente.
-     Nenhum deles deve ser servido de um cache antigo. */
-  if (url.pathname === '/assets/ai-config.js' ||
-      url.pathname === '/assets/ai-concierge.js') {
-    event.respondWith(
-      fetch(req).catch(function () {
-        return caches.match(req);
-      })
-    );
-    return;
-  }
-
-  /* CSS e JS locais: Stale-While-Revalidate — performance + frescor */
-  if (url.origin === self.location.origin &&
-      (url.pathname.endsWith('.css') || url.pathname.endsWith('.js'))) {
-    event.respondWith(
-      caches.open(CACHE_NAME).then(function (cache) {
-        return cache.match(req).then(function (cached) {
-          var fetchPromise = fetch(req).then(function (response) {
-            if (response && response.status === 200) {
-              cache.put(req, response.clone());
-            }
-            return response;
-          }).catch(function () { return cached; });
-          /* Stale-While-Revalidate: serve do cache imediatamente E atualiza em background */
-          if (cached) { fetchPromise.catch(function () {}); return cached; }
-          return fetchPromise;
-        });
-      })
-    );
-    return;
-  }
-
-  /* HTML (navegação): Network-First com fallback para cache */
-  if (req.mode === 'navigate') {
-    event.respondWith(
-      fetch(req).then(function (response) {
-        if (response && response.status === 200) {
-          caches.open(CACHE_NAME).then(function (cache) {
-            cache.put(req, response.clone());
-          });
-        }
-        return response;
-      }).catch(function () {
-        return caches.match('/index.html');
-      })
-    );
-    return;
-  }
-
-  /* Outros recursos: Cache-First */
   event.respondWith(
     caches.match(req).then(function (cached) {
-      return cached || fetch(req).then(function (response) {
-        if (response && response.status === 200) {
-          caches.open(CACHE_NAME).then(function (cache) {
-            cache.put(req, response.clone());
-          });
-        }
-        return response;
+      return cached || fetch(req);
+    })
+  );
+});
+
+self.addEventListener('sync', function (event) {
+  if (event.tag !== 'hospedah-sync') return;
+
+  event.waitUntil(
+    self.clients.matchAll({ includeUncontrolled: true }).then(function (clients) {
+      clients.forEach(function (client) {
+        client.postMessage({ type: 'SYNC_READY', at: Date.now() });
       });
     })
   );

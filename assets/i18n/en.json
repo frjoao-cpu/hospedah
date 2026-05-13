@@ -1,0 +1,21 @@
+{
+  "nav.home": "🏠 Home",
+  "nav.search": "🔍 Search",
+  "nav.book": "📅 Book",
+  "nav.reviews": "⭐ Reviews",
+  "nav.quote": "💰 Quote",
+  "nav.chat": "🤖 AI Chat",
+  "nav.refer": "🎁 Refer",
+  "nav.news": "📰 News",
+  "nav.account": "👤 My Account",
+  "hero.tagline": "Resorts & Exclusive Experiences",
+  "hero.badge": "✦ Premium Service ✦",
+  "hero.searchTitle": "🔍 Find your ideal stay",
+  "drawer.home": "🏠 Home",
+  "drawer.search": "🔍 Search Stays",
+  "drawer.book": "📅 Book Stay",
+  "drawer.account": "👤 My Account",
+  "pwa.banner": "Install the HOSPEDAH app for quick access and offline mode.",
+  "pwa.install": "Install app",
+  "pwa.dismiss": "Not now"
+}

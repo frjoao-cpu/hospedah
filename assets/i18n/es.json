@@ -1,0 +1,21 @@
+{
+  "nav.home": "🏠 Inicio",
+  "nav.search": "🔍 Buscar",
+  "nav.book": "📅 Reservar",
+  "nav.reviews": "⭐ Reseñas",
+  "nav.quote": "💰 Presupuesto",
+  "nav.chat": "🤖 Chat IA",
+  "nav.refer": "�� Referir",
+  "nav.news": "📰 Noticias",
+  "nav.account": "👤 Mi Cuenta",
+  "hero.tagline": "Resorts y Experiencias Exclusivas",
+  "hero.badge": "✦ Atención Premium ✦",
+  "hero.searchTitle": "🔍 Encuentra tu hospedaje ideal",
+  "drawer.home": "🏠 Inicio",
+  "drawer.search": "🔍 Buscar Alojamientos",
+  "drawer.book": "📅 Hacer Reserva",
+  "drawer.account": "👤 Mi Cuenta",
+  "pwa.banner": "Instala la app HOSPEDAH para acceso rápido y modo sin conexión.",
+  "pwa.install": "Instalar app",
+  "pwa.dismiss": "Ahora no"
+}

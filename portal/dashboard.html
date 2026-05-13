@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard do Hóspede | HOSPEDAH</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap">
+<link rel="stylesheet" href="/assets/mobile-first.css">
+<link rel="stylesheet" href="/assets/style.css">
+<link rel="stylesheet" href="/assets/portal.css">
+</head>
+<body class="portal-page" data-portal-page="dashboard">
+  <main class="portal-shell portal-layout">
+    <aside class="portal-card portal-sidebar">
+      <div class="portal-header">
+        <h1>Portal</h1>
+        <button class="portal-btn portal-btn-secondary" id="btnPortalLogout" type="button">Sair</button>
+      </div>
+      <p class="portal-muted">Olá, <strong id="guestName">Hóspede</strong></p>
+      <p class="portal-muted" id="guestEmail">-</p>
+      <nav aria-label="Seções do portal">
+        <a href="#reservations">📅 Reservas</a>
+        <a href="#loyalty">🏅 Fidelidade</a>
+        <a href="#vouchers">🎟️ Vouchers</a>
+        <a href="#settings">⚙️ Configurações</a>
+      </nav>
+    </aside>
+
+    <div class="portal-main">
+      <section class="portal-card" id="reservations">
+        <h2>Minhas Reservas</h2>
+        <div class="portal-grid">
+          <article class="portal-stat">
+            Total de reservas
+            <strong id="reservationCount">0</strong>
+          </article>
+          <article class="portal-stat">
+            Próxima categoria
+            <strong>Silver</strong>
+          </article>
+        </div>
+        <div class="table-wrap">
+          <table class="portal-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Resort</th>
+                <th>Check-in</th>
+                <th>Check-out</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="guestReservations"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="portal-card" id="loyalty">
+        <h2>Programa de Fidelidade</h2>
+        <p class="portal-muted">Você acumulou <strong id="loyaltyPoints">0</strong> pontos e está no nível <strong id="loyaltyTier">Bronze</strong>.</p>
+        <div class="loyalty-badges">
+          <article class="loyalty-badge" data-tier="Bronze">🥉<br>Bronze</article>
+          <article class="loyalty-badge" data-tier="Silver">🥈<br>Silver</article>
+          <article class="loyalty-badge" data-tier="Gold">🥇<br>Gold</article>
+          <article class="loyalty-badge" data-tier="Diamond">💎<br>Diamond</article>
+        </div>
+      </section>
+
+      <section class="portal-card" id="vouchers">
+        <h2>Vouchers Disponíveis</h2>
+        <div class="voucher-grid" id="voucherList"></div>
+      </section>
+
+      <section class="portal-card" id="settings">
+        <h2>Configurações</h2>
+        <form class="portal-form" id="settingsForm">
+          <label for="settingName">Nome exibido
+            <input class="portal-input" id="settingName" type="text" required>
+          </label>
+          <label for="settingEmail">E-mail
+            <input class="portal-input" id="settingEmail" type="email" readonly>
+          </label>
+          <button class="portal-btn portal-btn-primary" type="submit">Salvar dados</button>
+        </form>
+        <div class="portal-alert" data-portal-alert role="status" aria-live="polite"></div>
+      </section>
+    </div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="/assets/supabase-config.js"></script>
+  <script src="/assets/portal.js"></script>
+</body>
+</html>

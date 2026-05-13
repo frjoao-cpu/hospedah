@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Dashboard | HOSPEDAH</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap">
+<link rel="stylesheet" href="/assets/mobile-first.css">
+<link rel="stylesheet" href="/assets/style.css">
+<link rel="stylesheet" href="/assets/admin.css">
+</head>
+<body class="admin-page">
+  <main class="admin-shell admin-grid">
+    <section class="admin-head">
+      <div>
+        <h1>Painel Administrativo</h1>
+        <p class="admin-muted">Conectado como <strong id="adminUser">-</strong></p>
+        <p class="admin-muted" id="adminRoleNotice"></p>
+      </div>
+      <div class="admin-actions">
+        <button class="admin-btn" id="btnExportCsv" type="button">Exportar CSV</button>
+        <button class="admin-btn" id="btnAdminLogout" type="button">Sair</button>
+      </div>
+    </section>
+
+    <section class="kpi-grid">
+      <article class="admin-card kpi-card"><h2>Leads</h2><strong id="kpiLeads">0</strong></article>
+      <article class="admin-card kpi-card"><h2>Reservas</h2><strong id="kpiReservas">0</strong></article>
+      <article class="admin-card kpi-card"><h2>Clientes</h2><strong id="kpiClientes">0</strong></article>
+      <article class="admin-card kpi-card"><h2>Atividade pública</h2><strong id="kpiAtividade">0</strong></article>
+    </section>
+
+    <section class="chart-grid">
+      <article class="admin-card chart-card">
+        <h2>Performance de Leads</h2>
+        <div class="chart-wrap"><canvas id="chartLeads" aria-label="Gráfico de leads" role="img"></canvas></div>
+      </article>
+      <article class="admin-card chart-card">
+        <h2>Reservas por dia</h2>
+        <div class="chart-wrap"><canvas id="chartReservas" aria-label="Gráfico de reservas" role="img"></canvas></div>
+      </article>
+    </section>
+
+    <section class="admin-card feed-card">
+      <h2>Feed de Leads em tempo real</h2>
+      <ul class="feed-list" id="leadsFeed"></ul>
+    </section>
+
+    <section class="admin-card crm-card">
+      <h2>CRM de Leads</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Nome</th>
+              <th>E-mail</th>
+              <th>Telefone</th>
+              <th>Status</th>
+              <th>Cadastro</th>
+            </tr>
+          </thead>
+          <tbody id="crmTableBody"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="/assets/supabase-config.js"></script>
+  <script src="/assets/admin.js"></script>
+</body>
+</html>
