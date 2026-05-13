@@ -3,60 +3,88 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png" sizes="180x180">
-<link rel="icon" type="image/svg+xml" href="/assets/logo-favicon.svg">
+  <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png" sizes="180x180">
+  <link rel="icon" type="image/svg+xml" href="/assets/logo-favicon.svg">
   <title>Dashboard do Hóspede | HOSPEDAH</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap">
   <link rel="stylesheet" href="/assets/mobile-first.css">
   <link rel="stylesheet" href="/assets/style.css">
   <link rel="stylesheet" href="/assets/portal.css">
 </head>
 <body data-portal-page="dashboard">
   <div class="portal-layout">
-    <aside class="portal-sidebar glass">
+    <!-- ── SIDEBAR ── -->
+    <aside class="portal-sidebar glass" role="navigation" aria-label="Menu do portal">
       <a class="portal-brand" href="/index.html">HOSPEDAH</a>
-      <h1 class="portal-title-sm">Minha Conta</h1>
-      <p class="portal-user" id="portalUserInfo">Carregando perfil...</p>
 
-      <nav class="portal-nav" aria-label="Navegação do portal">
+      <div class="portal-user-block">
+        <div class="portal-avatar" aria-hidden="true">👤</div>
+        <div>
+          <p class="portal-user" id="portalUserInfo">Carregando...</p>
+          <span id="portalUserTier" class="portal-status-badge confirmada"></span>
+        </div>
+      </div>
+
+      <p class="portal-nav-label">Menu</p>
+      <nav class="portal-nav">
         <button type="button" class="portal-nav-link active" data-section="reservas">Reservas</button>
         <button type="button" class="portal-nav-link" data-section="fidelidade">Fidelidade</button>
         <button type="button" class="portal-nav-link" data-section="vouchers">Vouchers</button>
         <button type="button" class="portal-nav-link" data-section="config">Configurações</button>
       </nav>
 
-      <button type="button" id="portalLogout" class="portal-btn portal-btn-secondary">Sair</button>
+      <button type="button" id="portalLogout" class="portal-btn portal-btn-secondary" style="margin-top:auto;">🚪 Sair</button>
     </aside>
 
-    <main class="portal-content">
-      <section id="section-reservas" class="portal-panel glass">
-        <h2>Minhas Reservas</h2>
+    <!-- ── MAIN CONTENT ── -->
+    <main class="portal-content" role="main">
+
+      <!-- Reservas -->
+      <section id="section-reservas" class="portal-panel glass" aria-label="Minhas Reservas">
+        <h2>📋 Minhas Reservas</h2>
+        <p class="portal-panel-desc">Histórico e status das suas hospedagens.</p>
         <div id="portalReservations" class="portal-grid"></div>
       </section>
 
-      <section id="section-fidelidade" class="portal-panel glass hidden">
-        <h2>Programa de Fidelidade</h2>
-        <p class="portal-subtitle">Seu status atual e próximos benefícios.</p>
+      <!-- Fidelidade -->
+      <section id="section-fidelidade" class="portal-panel glass hidden" aria-label="Programa de Fidelidade">
+        <h2>⭐ Programa de Fidelidade</h2>
+        <p class="portal-panel-desc">Acumule pontos e desbloqueie benefícios exclusivos.</p>
+        <div class="tier-progress-wrap">
+          <div class="tier-points-text">
+            <span>Seus pontos: <strong id="tierPoints">0</strong></span>
+            <span id="tierNextLabel"></span>
+          </div>
+          <div class="tier-progress-bar">
+            <div class="tier-progress-fill" id="tierProgressFill" style="width:0%"></div>
+          </div>
+        </div>
         <div class="tier-track" id="tierTrack"></div>
       </section>
 
-      <section id="section-vouchers" class="portal-panel glass hidden">
-        <h2>Vouchers</h2>
+      <!-- Vouchers -->
+      <section id="section-vouchers" class="portal-panel glass hidden" aria-label="Vouchers">
+        <h2>🎫 Meus Vouchers</h2>
+        <p class="portal-panel-desc">Vouchers digitais com QR Code para check-in.</p>
         <div id="portalVouchers" class="portal-grid"></div>
       </section>
 
-      <section id="section-config" class="portal-panel glass hidden">
-        <h2>Configurações</h2>
-        <p class="portal-subtitle">Atualize sua senha com segurança.</p>
+      <!-- Configurações -->
+      <section id="section-config" class="portal-panel glass hidden" aria-label="Configurações">
+        <h2>⚙️ Configurações</h2>
+        <p class="portal-panel-desc">Atualize seus dados e senha com segurança.</p>
         <div class="portal-message" id="portalConfigMessage" aria-live="polite"></div>
-        <form id="updatePasswordForm" class="portal-form" novalidate>
-          <label for="newPassword">Nova senha</label>
-          <input id="newPassword" type="password" minlength="6" required>
-          <button type="submit" class="portal-btn portal-btn-primary">Salvar nova senha</button>
-        </form>
+        <div class="portal-config-section">
+          <form id="updatePasswordForm" class="portal-form" novalidate>
+            <label for="newPassword">Nova senha (mín. 6 caracteres)</label>
+            <input id="newPassword" type="password" minlength="6" placeholder="••••••••" required>
+            <button type="submit" class="portal-btn portal-btn-primary">🔐 Salvar nova senha</button>
+          </form>
+        </div>
       </section>
+
     </main>
   </div>
 
