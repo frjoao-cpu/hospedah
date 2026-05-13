@@ -18,6 +18,7 @@
     var installBtn = document.getElementById('pwa-install-btn');
     var closeBtn = document.getElementById('pwa-install-close');
 
+    // Mostra após 30s para não competir com interações iniciais da homepage.
     setTimeout(function () {
       if (deferredPrompt) banner.hidden = false;
     }, 30000);
