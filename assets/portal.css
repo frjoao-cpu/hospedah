@@ -10,6 +10,8 @@
   --portal-warning: #f59e0b;
   --portal-info: #3b82f6;
   --portal-error: #ef4444;
+  --portal-sidebar-width: 280px;
+  --portal-btn-text: #07122c;
 }
 
 .portal-body {
@@ -169,7 +171,7 @@ input:focus {
 
 .portal-btn-primary {
   background: linear-gradient(120deg, #D4AF37, #b98c22);
-  color: #07122c;
+  color: var(--portal-btn-text);
 }
 
 .portal-btn-google {
@@ -194,7 +196,7 @@ input:focus {
 .btn-spinner {
   width: 14px;
   height: 14px;
-  border: 2px solid #07234f;
+  border: 2px solid var(--portal-navy);
   border-top-color: transparent;
   border-radius: 50%;
   animation: portal-spin 0.9s linear infinite;
@@ -240,7 +242,7 @@ input:focus {
 
 .portal-layout {
   display: grid;
-  grid-template-columns: 280px minmax(0, 1fr);
+  grid-template-columns: var(--portal-sidebar-width) minmax(0, 1fr);
   min-height: 100vh;
 }
 
@@ -462,8 +464,8 @@ input:focus {
   .portal-sidebar {
     position: fixed;
     top: 0;
-    left: -310px;
-    width: 280px;
+    left: calc(var(--portal-sidebar-width) * -1.1);
+    width: var(--portal-sidebar-width);
     height: 100vh;
     transition: left 0.25s ease;
     z-index: 35;

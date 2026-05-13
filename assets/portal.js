@@ -1,15 +1,22 @@
 'use strict';
 
 (function () {
+  var SUPPORT_WHATSAPP = window.HOSPEDAH_SUPPORT_WHATSAPP || '5517982006382';
+
   function byId(id) {
     return document.getElementById(id);
   }
 
   function formatDate(value) {
     if (!value) return '—';
-    var parsed = new Date(value + 'T00:00:00');
+    var raw = String(value).slice(0, 10).split('-');
+    if (raw.length !== 3) return '—';
+    var year = Number(raw[0]);
+    var month = Number(raw[1]) - 1;
+    var day = Number(raw[2]);
+    var parsed = new Date(Date.UTC(year, month, day));
     if (Number.isNaN(parsed.getTime())) return '—';
-    return parsed.toLocaleDateString('pt-BR');
+    return parsed.toLocaleDateString('pt-BR', { timeZone: 'UTC' });
   }
 
   function formatMoney(value) {
@@ -68,10 +75,15 @@
 
   function parseSearchNext() {
     var params = new URLSearchParams(window.location.search || '');
-    var next = params.get('next');
-    if (!next || next.startsWith('http://') || next.startsWith('https://')) return '/portal/dashboard.html';
-    if (next.startsWith('/')) return next;
-    return '/' + next;
+    var next = params.get('next') || '';
+    if (!next) return '/portal/dashboard.html';
+    try {
+      var safeUrl = new URL(next, window.location.origin);
+      if (safeUrl.origin !== window.location.origin) return '/portal/dashboard.html';
+      return safeUrl.pathname + safeUrl.search + safeUrl.hash;
+    } catch (_) {
+      return '/portal/dashboard.html';
+    }
   }
 
   function getLevelProgress(level, points) {
@@ -250,6 +262,11 @@
           return;
         }
 
+        if (password.length < 8) {
+          setFeedback(signupFeedback, 'A senha deve ter no mínimo 8 caracteres.', 'error');
+          return;
+        }
+
         if (passwordStrength(password) < 4) {
           setFeedback(signupFeedback, 'Escolha uma senha mais forte.', 'error');
           return;
@@ -325,13 +342,14 @@
   }
 
   async function fetchUserProfile(client, user) {
-    var fallbackName = (user.user_metadata && user.user_metadata.full_name) || user.email.split('@')[0];
-    var fallbackWhatsapp = (user.user_metadata && user.user_metadata.whatsapp) || '';
+    var email = user && user.email ? user.email : '';
+    var fallbackName = (user.user_metadata && user.user_metadata.full_name) || (email ? email.split('@')[0] : 'Hóspede');
+    var fallbackWhatsApp = (user.user_metadata && user.user_metadata.whatsapp) || '';
 
     var profile = {
       id: user.id,
       nome_completo: fallbackName,
-      whatsapp: fallbackWhatsapp
+      whatsapp: fallbackWhatsApp
     };
 
     try {
@@ -339,7 +357,7 @@
       if (existing && existing.data) {
         profile = Object.assign(profile, existing.data);
       } else {
-        await client.from('profiles').upsert([{ id: user.id, nome_completo: fallbackName, whatsapp: fallbackWhatsapp }]);
+        await client.from('profiles').upsert([{ id: user.id, nome_completo: fallbackName, whatsapp: fallbackWhatsApp }]);
       }
     } catch (_) {
       // fallback local only
@@ -349,8 +367,9 @@
   }
 
   function buildVoucherCode(reserva) {
-    var idPart = (reserva.id || '').toString().replace(/[^A-Za-z0-9]/g, '').slice(0, 6).toUpperCase();
-    return 'HSP-' + idPart.padEnd(6, 'X');
+    var rawId = String((reserva && reserva.id) || '').replace(/[^A-Za-z0-9]/g, '').toUpperCase();
+    var seed = rawId || Math.random().toString(36).slice(2, 8).toUpperCase();
+    return 'HSP-' + seed.slice(0, 6);
   }
 
   async function loadDashboardData(client, user, profile) {
@@ -399,8 +418,8 @@
           'Valor: ' + formatMoney(reserva.valor_total)
         ].join('\n'));
 
-        var phone = (reserva.telefone || '').replace(/\D/g, '');
-        var whatsappLink = phone ? 'https://wa.me/55' + phone : 'https://wa.me/5517982006382';
+        var phoneDigits = (reserva.telefone || '').replace(/\D/g, '');
+        var whatsappLink = phoneDigits ? 'https://wa.me/55' + phoneDigits : 'https://wa.me/' + SUPPORT_WHATSAPP;
 
         return '<article class="portal-reserva-card">'
           + '<h3>' + escapeHtml(reserva.resort_nome || 'Reserva HOSPEDAH') + '</h3>'
@@ -409,7 +428,7 @@
           + '<span class="portal-badge ' + normalizeStatus(reserva.status || 'pendente') + '">' + escapeHtml(reserva.status || 'pendente') + '</span>'
           + '<div class="portal-reserva-actions">'
           + '<a href="' + whatsappLink + '" target="_blank" rel="noopener">WhatsApp</a>'
-          + '<a href="https://wa.me/5517982006382?text=' + detailsPayload + '" target="_blank" rel="noopener">Detalhes</a>'
+          + '<a href="https://wa.me/' + SUPPORT_WHATSAPP + '?text=' + detailsPayload + '" target="_blank" rel="noopener">Detalhes</a>'
           + '<button type="button" data-cancel-reserva="' + escapeHtml(reserva.id) + '">Cancelar</button>'
           + '</div>'
           + '</article>';
@@ -529,9 +548,17 @@
     var createVoucherButton = byId('createVoucherButton');
     if (createVoucherButton) {
       createVoucherButton.onclick = async function () {
+        var settingsFeedback = byId('settingsFeedback');
         if (!activeReservas.length) return;
         var reserva = activeReservas[0];
-        var codigo = buildVoucherCode(reserva) + '-' + Date.now().toString().slice(-4);
+        if (!window.crypto || !window.crypto.getRandomValues) {
+          setFeedback(settingsFeedback, 'Seu navegador não suporta geração segura de voucher.', 'error');
+          return;
+        }
+        var randomValues = new Uint32Array(1);
+        window.crypto.getRandomValues(randomValues);
+        var codeSuffix = randomValues[0].toString(36).slice(0, 6).toUpperCase();
+        var codigo = buildVoucherCode(reserva) + '-' + codeSuffix;
         var insert = await client.from('vouchers').insert([{
           email_hospede: user.email,
           reserva_id: reserva.id,
@@ -541,7 +568,11 @@
           criado_em: new Date().toISOString()
         }]).select('*');
 
-        if (insert.error) return;
+        if (insert.error) {
+          setFeedback(settingsFeedback, 'Não foi possível criar voucher: ' + insert.error.message, 'error');
+          return;
+        }
+        setFeedback(settingsFeedback, 'Voucher criado com sucesso.', 'success');
         await loadDashboardData(client, user, profile);
       };
     }
