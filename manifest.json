@@ -1,57 +1,47 @@
 {
   "name": "HOSPEDAH — Resorts e Experiências Exclusivas",
   "short_name": "HOSPEDAH",
-  "description": "Hospede-se com qualidade nos melhores resorts e tenha experiências exclusivas. Orçamento premium e atendimento digital.",
+  "description": "Reserve resorts premium com atendimento exclusivo",
   "start_url": "/",
-  "scope": "/",
   "display": "standalone",
-  "orientation": "portrait-primary",
   "background_color": "#0B1C3D",
   "theme_color": "#D4AF37",
-  "lang": "pt-BR",
-  "categories": ["travel", "lifestyle"],
+  "orientation": "portrait-primary",
   "icons": [
     {
-      "src": "/assets/icons/icon-192.svg",
+      "src": "/assets/logo-favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://i.imgur.com/ITjjQaf.jpeg",
       "sizes": "192x192",
-      "type": "image/svg+xml",
-      "purpose": "any"
+      "type": "image/jpeg"
     },
     {
-      "src": "/assets/icons/icon-512.svg",
+      "src": "https://i.imgur.com/ITjjQaf.jpeg",
       "sizes": "512x512",
-      "type": "image/svg+xml",
-      "purpose": "any"
-    },
-    {
-      "src": "/assets/icons/icon-maskable.svg",
-      "sizes": "512x512",
-      "type": "image/svg+xml",
-      "purpose": "maskable"
+      "type": "image/jpeg"
     }
   ],
   "shortcuts": [
     {
-      "name": "Solicitar Orçamento",
-      "short_name": "Orçamento",
-      "description": "Solicite um orçamento rápido via WhatsApp",
+      "name": "Orçamento",
       "url": "/#orcamento",
-      "icons": [{ "src": "/assets/icons/icon-192.svg", "sizes": "192x192" }]
+      "icons": [{ "src": "/assets/logo-favicon.svg", "sizes": "any" }]
     },
     {
-      "name": "Ver Galeria",
-      "short_name": "Galeria",
-      "description": "Veja as fotos dos resorts",
-      "url": "/#galeria",
-      "icons": [{ "src": "/assets/icons/icon-192.svg", "sizes": "192x192" }]
+      "name": "Buscar Resorts",
+      "url": "/busca.html",
+      "icons": [{ "src": "/assets/logo-favicon.svg", "sizes": "any" }]
+    },
+    {
+      "name": "Minha Conta",
+      "url": "/portal/",
+      "icons": [{ "src": "/assets/logo-favicon.svg", "sizes": "any" }]
     }
   ],
-  "screenshots": [
-    {
-      "src": "https://i.imgur.com/AmFSwwd.jpeg",
-      "sizes": "1280x720",
-      "type": "image/jpeg",
-      "label": "Página inicial — Hot Beach Suites"
-    }
-  ]
+  "screenshots": [],
+  "categories": ["travel", "lifestyle"]
 }

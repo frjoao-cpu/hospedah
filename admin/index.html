@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://ydrmjoppjxtmnwtvtinb.supabase.co; img-src 'self' data: https://i.imgur.com; media-src 'self'; object-src 'none'; base-uri 'self';">
+<title>Admin | HOSPEDAH</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap">
+<link rel="stylesheet" href="/assets/mobile-first.css">
+<link rel="stylesheet" href="/assets/style.css">
+<link rel="stylesheet" href="/assets/admin.css">
+</head>
+<body>
+<a class="skip-link" href="#admin-main">Ir para o conteúdo principal</a>
+<div class="admin-layout">
+  <aside class="admin-sidebar" aria-label="Menu administrativo">
+    <a class="admin-logo" href="/" aria-label="Voltar para o site HOSPEDAH">
+      <img src="/assets/logo-navbar.svg" alt="HOSPEDAH" width="150" height="30">
+    </a>
+    <nav>
+      <button class="nav-item active" data-section="dashboard">Dashboard</button>
+      <button class="nav-item" data-section="leads">Leads</button>
+      <button class="nav-item" data-section="reservas">Reservas</button>
+      <button class="nav-item" data-section="resorts">Resorts</button>
+      <button class="nav-item" data-section="clientes">Clientes</button>
+      <button class="nav-item" data-section="configuracoes">Configurações</button>
+      <a class="nav-item nav-link" href="/">Sair</a>
+    </nav>
+  </aside>
+
+  <main id="admin-main" class="admin-main">
+    <header class="admin-header">
+      <h1>Painel Administrativo</h1>
+      <label class="sound-toggle">
+        <input type="checkbox" id="leadSoundToggle">
+        Som de notificações
+      </label>
+    </header>
+
+    <section id="section-dashboard" class="admin-section active" aria-labelledby="title-dashboard">
+      <h2 id="title-dashboard">Dashboard</h2>
+      <div class="kpi-grid">
+        <article class="kpi-card"><h3>Total hoje</h3><p id="kpiHoje">0</p></article>
+        <article class="kpi-card"><h3>Total na semana</h3><p id="kpiSemana">0</p></article>
+        <article class="kpi-card"><h3>Total no mês</h3><p id="kpiMes">0</p></article>
+        <article class="kpi-card"><h3>Taxa de conversão</h3><p id="kpiConversao">0%</p><canvas id="conversaoSparkline" aria-label="Sparkline da taxa de conversão" role="img"></canvas></article>
+      </div>
+
+      <div class="admin-panels-2">
+        <article class="admin-panel"><h3>Resorts mais buscados</h3><canvas id="resortsChart" aria-label="Gráfico de barras de resorts" role="img"></canvas></article>
+        <article class="admin-panel"><h3>Mapa de calor de horários de contato</h3><div id="heatmap" class="heatmap" role="img" aria-label="Mapa de calor semanal"></div></article>
+      </div>
+
+      <article class="admin-panel"><h3>Feed ao vivo de novos leads</h3><ul id="liveFeed" class="feed-list" aria-live="polite"></ul></article>
+    </section>
+
+    <section id="section-leads" class="admin-section" aria-labelledby="title-leads">
+      <h2 id="title-leads">Leads / CRM</h2>
+      <div class="filters-row">
+        <input type="search" id="leadSearch" placeholder="Buscar por nome ou WhatsApp" aria-label="Buscar lead">
+        <select id="leadFilterResort" aria-label="Filtrar por resort"><option value="">Todos os resorts</option></select>
+        <select id="leadFilterStatus" aria-label="Filtrar por status"><option value="">Todos os status</option><option value="novo">Novo</option><option value="contatado">Contatado</option><option value="reservado">Reserva confirmada</option><option value="arquivado">Arquivado</option></select>
+        <input type="date" id="leadFilterDate" aria-label="Filtrar por data">
+        <button id="exportCsvBtn" type="button">Exportar CSV</button>
+      </div>
+
+      <div class="table-wrap">
+        <table class="admin-table">
+          <thead><tr><th>Nome</th><th>WhatsApp</th><th>Resort</th><th>Datas</th><th>Status</th><th>Ações</th></tr></thead>
+          <tbody id="leadsTableBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="section-reservas" class="admin-section" aria-labelledby="title-reservas">
+      <h2 id="title-reservas">Reservas</h2>
+      <div class="calendar-toolbar"><button id="calPrev" type="button" aria-label="Mês anterior">◀</button><strong id="calendarMonthLabel">-</strong><button id="calNext" type="button" aria-label="Próximo mês">▶</button></div>
+      <div id="reservasCalendar" class="calendar-grid" aria-label="Calendário de reservas"></div>
+
+      <div class="filters-row">
+        <input type="search" id="reservaSearch" placeholder="Buscar reserva" aria-label="Buscar reserva">
+        <select id="reservaFilterResort" aria-label="Filtrar reservas por resort"><option value="">Todos os resorts</option></select>
+        <input type="date" id="reservaFilterDate" aria-label="Filtrar reserva por data">
+      </div>
+      <div class="table-wrap">
+        <table class="admin-table">
+          <thead><tr><th>Cliente</th><th>Resort</th><th>Check-in</th><th>Check-out</th><th>Status</th></tr></thead>
+          <tbody id="reservasTableBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="section-resorts" class="admin-section" aria-labelledby="title-resorts"><h2 id="title-resorts">Resorts</h2><p class="section-note">Gerencie inventário e disponibilidade diretamente via Supabase.</p></section>
+    <section id="section-clientes" class="admin-section" aria-labelledby="title-clientes"><h2 id="title-clientes">Clientes</h2><p class="section-note">Acompanhamento de clientes em desenvolvimento contínuo.</p></section>
+    <section id="section-configuracoes" class="admin-section" aria-labelledby="title-configuracoes"><h2 id="title-configuracoes">Configurações</h2><p class="section-note">Ajuste permissões, notificações e parâmetros comerciais.</p></section>
+  </main>
+</div>
+
+<div id="adminToastContainer" class="toast-container" aria-live="polite" aria-atomic="false"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script src="/assets/supabase-config.js"></script>
+<script src="/assets/admin.js"></script>
+</body>
+</html>

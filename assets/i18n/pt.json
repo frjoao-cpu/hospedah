@@ -1,0 +1,58 @@
+{
+  "meta": {"title": "HOSPEDAH | Resorts e Experiências Exclusivas"},
+  "nav": {
+    "home": "🏠 Início",
+    "search": "🔍 Buscar",
+    "book": "📅 Reservar",
+    "reviews": "⭐ Avaliações",
+    "quote": "💰 Orçamento",
+    "chat": "🤖 Chat IA",
+    "refer": "🎁 Indicar",
+    "journal": "📰 Jornal"
+  },
+  "hero": {
+    "tagline": "Resorts & Experiências Exclusivas",
+    "badge": "✦ Atendimento Premium ✦",
+    "searchTitle": "🔍 Encontre sua hospedagem ideal"
+  },
+  "how": {
+    "title": "Como funciona",
+    "step1": "Você escolhe o resort e as datas",
+    "step2": "Nosso time envia as melhores opções",
+    "step3": "Você confirma e curte sua viagem"
+  },
+  "differentials": {
+    "title": "🚀 Por que escolher a HOSPEDAH?",
+    "subtitle": "Você fala direto com quem resolve. Simples assim.",
+    "humanTitle": "Atendimento humano",
+    "humanText": "Uma equipe real que entende sua viagem e cuida de cada detalhe com atenção",
+    "priceTitle": "Melhores preços",
+    "priceText": "Ofertas selecionadas com os melhores preços do mercado",
+    "speedTitle": "Reserva rápida",
+    "speedText": "Reservas rápidas, seguras e sem burocracia — do orçamento à confirmação",
+    "directTitle": "Direto com quem resolve",
+    "directText": "Sem espera e sem burocracia — atendimento direto e pessoal",
+    "cta": "💰 Solicitar meu orçamento exclusivo"
+  },
+  "faq": {
+    "title": "❓ Perguntas Frequentes",
+    "q1": "Como funciona o processo de reserva?",
+    "q2": "Quais formas de pagamento são aceitas?",
+    "q3": "É possível cancelar ou alterar a reserva?",
+    "q4": "Os resorts aceitam animais de estimação?",
+    "q5": "O café da manhã está incluído?",
+    "q6": "Há estacionamento nos resorts?",
+    "q7": "Qual é o prazo de confirmação da reserva?"
+  },
+  "footer": {
+    "rights": "© 2026 HOSPEDAH — Todos os direitos reservados.",
+    "privacy": "Política de Privacidade",
+    "safeLabel": "Site seguro",
+    "safeText": "SSL Criptografado · 🛡️ Dados Protegidos"
+  },
+  "pwa": {
+    "installTitle": "Instalar HOSPEDAH",
+    "installText": "Acesse resorts e reservas direto do seu celular",
+    "installButton": "Instalar"
+  }
+}

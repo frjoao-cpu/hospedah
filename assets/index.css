@@ -949,6 +949,82 @@ html[data-theme="light"] .faq-btn { color: var(--azul); }
   background:rgba(0,0,0,.72); backdrop-filter:blur(3px);
   align-items:center; justify-content:center;
 }
+
+/* ==========================================
+   i18n + PWA
+========================================== */
+.lang-switcher {
+  display: inline-flex;
+  gap: 6px;
+  margin-right: 8px;
+}
+
+.lang-btn {
+  min-width: 36px;
+  min-height: 36px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.12);
+  cursor: pointer;
+}
+
+.lang-btn.active {
+  border-color: var(--dourado, #D4AF37);
+  box-shadow: 0 0 0 1px rgba(212, 175, 55, 0.45);
+}
+
+.pwa-banner {
+  position: fixed;
+  left: 12px;
+  right: 12px;
+  bottom: 14px;
+  z-index: 9999;
+  display: none;
+  align-items: center;
+  gap: 10px;
+  border-radius: 14px;
+  border: 1px solid rgba(212, 175, 55, 0.4);
+  background: rgba(11, 28, 61, 0.96);
+  color: #fff;
+  padding: 12px;
+  box-shadow: 0 16px 24px rgba(0, 0, 0, 0.35);
+}
+
+.pwa-banner > div {
+  flex: 1;
+  display: grid;
+  gap: 2px;
+  font-size: 0.8rem;
+}
+
+.pwa-banner strong {
+  color: var(--dourado, #D4AF37);
+}
+
+.pwa-banner button {
+  min-height: 36px;
+  border-radius: 8px;
+  border: 1px solid rgba(212, 175, 55, 0.45);
+  background: rgba(212, 175, 55, 0.13);
+  color: #fff;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+#pwa-install-btn {
+  background: var(--dourado, #D4AF37);
+  color: #0B1C3D;
+  font-weight: 700;
+  border-color: var(--dourado, #D4AF37);
+}
+
+@media (min-width: 860px) {
+  .pwa-banner {
+    max-width: 560px;
+    left: auto;
+    right: 18px;
+  }
+}
 #exit-overlay.visible { display:flex; }
 #exit-popup {
   background:linear-gradient(135deg,#0B1C3D,#142850);

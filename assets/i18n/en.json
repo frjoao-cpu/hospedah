@@ -1,0 +1,58 @@
+{
+  "meta": {"title": "HOSPEDAH | Exclusive Resorts & Experiences"},
+  "nav": {
+    "home": "🏠 Home",
+    "search": "🔍 Search",
+    "book": "📅 Book",
+    "reviews": "⭐ Reviews",
+    "quote": "💰 Quote",
+    "chat": "🤖 AI Chat",
+    "refer": "🎁 Refer",
+    "journal": "📰 Journal"
+  },
+  "hero": {
+    "tagline": "Resorts & Exclusive Experiences",
+    "badge": "✦ Premium Service ✦",
+    "searchTitle": "🔍 Find your ideal stay"
+  },
+  "how": {
+    "title": "How it works",
+    "step1": "You choose the resort and dates",
+    "step2": "Our team sends the best options",
+    "step3": "You confirm and enjoy your trip"
+  },
+  "differentials": {
+    "title": "🚀 Why choose HOSPEDAH?",
+    "subtitle": "You talk directly to people who solve it. Simple.",
+    "humanTitle": "Human support",
+    "humanText": "A real team that understands your trip and handles every detail with care",
+    "priceTitle": "Best prices",
+    "priceText": "Curated offers with top market prices",
+    "speedTitle": "Fast booking",
+    "speedText": "Fast, secure, no-bureaucracy bookings — from quote to confirmation",
+    "directTitle": "Direct contact",
+    "directText": "No waiting and no bureaucracy — direct and personal service",
+    "cta": "💰 Request my exclusive quote"
+  },
+  "faq": {
+    "title": "❓ Frequently Asked Questions",
+    "q1": "How does the booking process work?",
+    "q2": "Which payment methods are accepted?",
+    "q3": "Can I cancel or change the booking?",
+    "q4": "Do resorts accept pets?",
+    "q5": "Is breakfast included?",
+    "q6": "Is parking available at resorts?",
+    "q7": "How long does booking confirmation take?"
+  },
+  "footer": {
+    "rights": "© 2026 HOSPEDAH — All rights reserved.",
+    "privacy": "Privacy Policy",
+    "safeLabel": "Secure website",
+    "safeText": "SSL Encrypted · 🛡️ Protected Data"
+  },
+  "pwa": {
+    "installTitle": "Install HOSPEDAH",
+    "installText": "Access resorts and bookings directly from your phone",
+    "installButton": "Install"
+  }
+}

@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="HOSPEDAH">
+  <defs>
+    <linearGradient id="gold" x1="0%" x2="100%" y1="0%" y2="100%">
+      <stop offset="0%" stop-color="#f6de8f"/>
+      <stop offset="50%" stop-color="#d4af37"/>
+      <stop offset="100%" stop-color="#8d6a1f"/>
+    </linearGradient>
+  </defs>
+  <rect width="128" height="128" rx="26" fill="#0B1C3D"/>
+  <circle cx="64" cy="64" r="44" fill="none" stroke="url(#gold)" stroke-width="8"/>
+  <path d="M42 78V55l22-14 22 14v23h-9V60l-13-8-13 8v18z" fill="url(#gold)"/>
+  <circle cx="64" cy="64" r="3.4" fill="#0B1C3D"/>
+</svg>
