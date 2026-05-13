@@ -280,11 +280,11 @@ html[data-theme="light"] footer                 { background: #e8e4d8; color: #4
 /* ✅ Logo central com overlay premium */
 .hero-logo {
   width: 100%;
-  max-width: 400px;
+  max-width: 560px;
   height: auto;
   display: block;
-  margin: 0 auto 12px;
-  filter: drop-shadow(0 4px 18px rgba(0,0,0,0.5));
+  margin: 0 auto 24px;
+  filter: drop-shadow(0 6px 28px rgba(0,0,0,0.65)) drop-shadow(0 2px 8px rgba(212,175,55,0.25));
   animation: logoPop .9s cubic-bezier(.4,0,.2,1) both;
 }
 @keyframes logoPop {
@@ -2049,6 +2049,6 @@ html[data-theme="light"] .orc-summary-row strong { color: #1a1a1a; }
 }
 
 @media (max-width: 480px) {
-  .hero-logo { max-width: 280px; }
+  .hero-logo { max-width: 320px; }
   .navbar .logo-txt img { height: 36px; }
 }
