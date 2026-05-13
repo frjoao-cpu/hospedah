@@ -15,6 +15,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="HOSPEDAH">
 <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png" sizes="180x180">
+<link rel="icon" type="image/svg+xml" href="/assets/logo-favicon.svg">
 
 <!-- Open Graph — compartilhamento no WhatsApp, Facebook, Instagram -->
 <meta property="og:type"        content="website">
@@ -232,7 +233,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 =========================================== -->
 <nav class="navbar" id="navbar" aria-label="Menu principal">
   <a href="#topo" class="logo-txt" aria-label="HOSPEDAH início">
-    <img src="/assets/logo-navbar.svg" alt="HOSPEDAH" class="logo-img" width="160" height="32">
+    <img src="/assets/logo-navbar.svg" alt="HOSPEDAH" width="180" height="36" loading="eager">
   </a>
 
   <ul class="nav-links" role="list">
@@ -299,16 +300,11 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
   <div class="hero-content">
     <!-- ✅ Logo central com overlay premium -->
-    <img
-      src="/assets/logo.svg"
-      alt="HOSPEDAH — Resorts e Experiências Exclusivas"
-      class="hero-logo"
-      loading="eager"
-      fetchpriority="high"
-      decoding="auto"
-      width="320"
-      height="102"
-    >
+    <picture>
+      <source srcset="/assets/logo.svg" type="image/svg+xml">
+      <img src="https://i.imgur.com/ITjjQaf.jpeg" alt="HOSPEDAH — Resorts e Experiências Exclusivas"
+           class="hero-logo" loading="eager" fetchpriority="high" decoding="auto" width="320" height="120">
+    </picture>
     <p class="hero-tagline">Resorts & Experiências Exclusivas</p>
     <span class="hero-badge">✦ Atendimento Premium ✦</span>
 
