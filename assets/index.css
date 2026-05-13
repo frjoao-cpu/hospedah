@@ -85,7 +85,6 @@ html[data-theme="dark"] .hero-search select     { background: #fff; color: #222;
 /* — CLARO — */
 html[data-theme="light"] body                   { background: var(--bg-light); color: #191919; }
 html[data-theme="light"] .navbar                { background: rgba(255,255,255,0.97); box-shadow: 0 2px 12px #0001; }
-html[data-theme="light"] .navbar .logo-txt      { color: var(--azul); }
 html[data-theme="light"] .nav-links a           { color: var(--azul); }
 html[data-theme="light"] .hamburger span        { background: var(--azul); }
 html[data-theme="light"] .panel-box             { background: #fff; border: 1px solid #ddd; }
@@ -129,11 +128,15 @@ html[data-theme="light"] footer                 { background: #e8e4d8; color: #4
   transition: background 0.3s;
 }
 .navbar .logo-txt {
-  font-size: 1.5rem; font-weight: 700;
-  color: var(--dourado); letter-spacing: 2px;
-  text-decoration: none; white-space: nowrap;
+  display: flex; align-items: center;
+  text-decoration: none; white-space: nowrap; flex-shrink: 0;
 }
-.navbar .logo-txt span { color: #fff; }
+.navbar .logo-txt .logo-img {
+  height: 32px; width: auto; display: block;
+}
+@media (max-width: 480px) {
+  .navbar .logo-txt .logo-img { height: 28px; }
+}
 .nav-links {
   display: flex; align-items: center; gap: 6px;
   list-style: none;
@@ -208,7 +211,6 @@ html[data-theme="light"] footer                 { background: #e8e4d8; color: #4
 }
 @media (max-width: 480px) {
   .navbar { padding: 0 14px; }
-  .navbar .logo-txt  { font-size: 1.2rem; }
 }
 
 /* ==========================================
