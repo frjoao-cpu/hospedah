@@ -1,380 +1,313 @@
 (function () {
   'use strict';
 
-  var state = {
-    client: null,
-    session: null,
-    user: null,
-    loyaltyPoints: 0,
-    reservations: []
-  };
-
-  function qs(selector) {
-    return document.querySelector(selector);
-  }
-
-  function qsa(selector) {
-    return Array.prototype.slice.call(document.querySelectorAll(selector));
-  }
-
-  function showAlert(message, type) {
-    var alert = qs('[data-portal-alert]');
-    if (!alert) return;
-    alert.textContent = message;
-    alert.className = 'portal-alert show ' + (type || 'ok');
-  }
-
-  function clearAlert() {
-    var alert = qs('[data-portal-alert]');
-    if (!alert) return;
-    alert.className = 'portal-alert';
-    alert.textContent = '';
-  }
-
   function getClient() {
-    if (state.client) return state.client;
     if (!window.supabase || !window.HOSPEDAH_SB_URL || !window.HOSPEDAH_SB_ANON) {
-      throw new Error('Supabase indisponível no momento.');
+      throw new Error('Supabase indisponível.');
     }
-    state.client = window.supabase.createClient(window.HOSPEDAH_SB_URL, window.HOSPEDAH_SB_ANON);
-    return state.client;
+    return window.supabase.createClient(window.HOSPEDAH_SB_URL, window.HOSPEDAH_SB_ANON);
   }
 
-  function validEmail(value) {
+  var client;
+
+  function setMessage(el, text, type) {
+    if (!el) return;
+    el.textContent = text || '';
+    el.classList.remove('success', 'error');
+    if (type) el.classList.add(type);
+  }
+
+  function isValidEmail(value) {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
   }
 
-  function getTier(points) {
-    if (points >= 2000) return 'Diamond';
-    if (points >= 1200) return 'Gold';
-    if (points >= 600) return 'Silver';
-    return 'Bronze';
+  function findFirstMessageElement() {
+    return document.getElementById('portalAuthMessage') ||
+      document.getElementById('portalResetMessage') ||
+      document.getElementById('portalConfigMessage');
   }
 
-  async function requireSession() {
-    var sb = getClient();
-    var data = await sb.auth.getSession();
-    var session = data && data.data ? data.data.session : null;
-    var pathname = window.location.pathname || '';
-    var onDashboard = pathname.indexOf('/portal/dashboard.html') !== -1;
-    var onLogin = pathname.indexOf('/portal/index.html') !== -1;
-
-    if (!session && onDashboard) {
-      window.location.replace('/portal/index.html?next=dashboard.html');
-      return null;
-    }
-
-    if (session && onLogin) {
-      window.location.replace('/portal/dashboard.html');
-      return null;
-    }
-
-    state.session = session;
-    state.user = session ? session.user : null;
-    return session;
-  }
-
-  async function signIn(event) {
-    event.preventDefault();
-    clearAlert();
-    var email = (qs('#loginEmail') || {}).value || '';
-    var password = (qs('#loginPassword') || {}).value || '';
-
-    if (!validEmail(email)) {
-      showAlert('Informe um e-mail válido.', 'error');
-      return;
-    }
-    if (password.length < 6) {
-      showAlert('A senha deve ter ao menos 6 caracteres.', 'error');
-      return;
-    }
-
-    var sb = getClient();
-    var result = await sb.auth.signInWithPassword({ email: email, password: password });
-    if (result.error) {
-      showAlert(result.error.message || 'Não foi possível fazer login.', 'error');
-      return;
-    }
-
-    showAlert('Login realizado com sucesso!', 'ok');
-    window.location.assign('/portal/dashboard.html');
-  }
-
-  async function signUp(event) {
-    event.preventDefault();
-    clearAlert();
-
-    var name = (qs('#signupName') || {}).value || '';
-    var email = (qs('#signupEmail') || {}).value || '';
-    var password = (qs('#signupPassword') || {}).value || '';
-    var confirm = (qs('#signupPasswordConfirm') || {}).value || '';
-
-    if (name.trim().length < 3) {
-      showAlert('Informe seu nome completo.', 'error');
-      return;
-    }
-    if (!validEmail(email)) {
-      showAlert('Informe um e-mail válido.', 'error');
-      return;
-    }
-    if (password.length < 6) {
-      showAlert('A senha deve ter ao menos 6 caracteres.', 'error');
-      return;
-    }
-    if (password !== confirm) {
-      showAlert('As senhas não coincidem.', 'error');
-      return;
-    }
-
-    var sb = getClient();
-    var result = await sb.auth.signUp({
-      email: email,
-      password: password,
-      options: {
-        data: {
-          full_name: name
+  function makeQrSvg(code) {
+    var bits = Array.from(code).map(function (c) { return c.charCodeAt(0); });
+    var size = 17;
+    var pixel = 7;
+    var markup = '<svg viewBox="0 0 ' + (size * pixel) + ' ' + (size * pixel) + '" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="QR do voucher"><rect width="100%" height="100%" fill="#fff"/>';
+    for (var y = 0; y < size; y++) {
+      for (var x = 0; x < size; x++) {
+        var value = bits[(x + y) % bits.length] || 0;
+        if ((value + x * 3 + y * 5) % 2 === 0) {
+          markup += '<rect x="' + (x * pixel) + '" y="' + (y * pixel) + '" width="' + pixel + '" height="' + pixel + '" fill="#0B1C3D"/>';
         }
       }
-    });
-
-    if (result.error) {
-      showAlert(result.error.message || 'Não foi possível concluir o cadastro.', 'error');
-      return;
     }
-
-    showAlert('Cadastro criado. Verifique seu e-mail para confirmar o acesso.', 'ok');
+    return markup + '</svg>';
   }
 
-  async function signInGoogle() {
-    clearAlert();
-    var sb = getClient();
-    var result = await sb.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: window.location.origin + '/portal/dashboard.html'
+  function showSection(name) {
+    var links = document.querySelectorAll('.portal-nav-link');
+    var sections = ['reservas', 'fidelidade', 'vouchers', 'config'];
+    links.forEach(function (btn) {
+      btn.classList.toggle('active', btn.getAttribute('data-section') === name);
+    });
+    sections.forEach(function (id) {
+      var el = document.getElementById('section-' + id);
+      if (el) el.classList.toggle('hidden', id !== name);
+    });
+  }
+
+  async function getSessionUser() {
+    var sessionRes = await client.auth.getSession();
+    return sessionRes && sessionRes.data && sessionRes.data.session && sessionRes.data.session.user;
+  }
+
+  async function loadDashboardData(user) {
+    var reservationsWrap = document.getElementById('portalReservations');
+    var vouchersWrap = document.getElementById('portalVouchers');
+    var tierTrack = document.getElementById('tierTrack');
+    var userInfo = document.getElementById('portalUserInfo');
+    if (userInfo) userInfo.textContent = user.email || 'Usuário autenticado';
+
+    var reservationRows = [];
+    try {
+      var reservationRes = await client
+        .from('reservas')
+        .select('resort, checkin, checkout, status')
+        .eq('user_id', user.id)
+        .order('checkin', { ascending: false })
+        .limit(6);
+      if (!reservationRes.error && reservationRes.data) {
+        reservationRows = reservationRes.data;
       }
+    } catch (err) {
+      reservationRows = [];
+    }
+
+    if (!reservationRows.length) {
+      reservationRows = [
+        { resort: 'Hot Beach Suites', checkin: '2026-07-18', checkout: '2026-07-22', status: 'Confirmada' },
+        { resort: 'Ipioca Beach Resort', checkin: '2026-10-02', checkout: '2026-10-06', status: 'Pré-reserva' }
+      ];
+    }
+
+    if (reservationsWrap) {
+      reservationsWrap.innerHTML = reservationRows.map(function (row) {
+        return '<article class="portal-item"><h3>' + row.resort + '</h3><p>Check-in: ' + row.checkin + '</p><p>Check-out: ' + row.checkout + '</p><p>Status: ' + row.status + '</p></article>';
+      }).join('');
+    }
+
+    var points = reservationRows.length * 450;
+    var tiers = [
+      { name: 'Bronze', min: 0 },
+      { name: 'Prata', min: 1200 },
+      { name: 'Ouro', min: 2500 },
+      { name: 'Diamante', min: 4500 }
+    ];
+
+    if (tierTrack) {
+      tierTrack.innerHTML = tiers.map(function (tier) {
+        var active = points >= tier.min;
+        return '<div class="tier-step' + (active ? ' active' : '') + '"><strong>' + tier.name + '</strong> · ' + tier.min + '+ pts</div>';
+      }).join('');
+    }
+
+    var voucherRows = reservationRows.map(function (item, index) {
+      return {
+        title: 'Voucher #' + (index + 1),
+        code: (item.resort || 'HOSPEDAH').replace(/\s+/g, '').toUpperCase().slice(0, 8) + '-' + (index + 1) + '-' + user.id.slice(0, 6)
+      };
     });
 
-    if (result.error) {
-      showAlert(result.error.message || 'Não foi possível entrar com Google.', 'error');
+    if (vouchersWrap) {
+      vouchersWrap.innerHTML = voucherRows.map(function (voucher) {
+        return '<article class="portal-item"><h3>' + voucher.title + '</h3><p>' + voucher.code + '</p><div class="qr-box">' + makeQrSvg(voucher.code) + '</div></article>';
+      }).join('');
     }
   }
 
-  function setupTabs() {
-    var buttons = qsa('[data-auth-tab]');
-    var panels = qsa('[data-auth-panel]');
-    if (!buttons.length || !panels.length) return;
-
-    buttons.forEach(function (button) {
-      button.addEventListener('click', function () {
-        var target = button.getAttribute('data-auth-tab');
-        buttons.forEach(function (item) { item.classList.remove('active'); });
-        panels.forEach(function (panel) { panel.classList.remove('active'); });
-        button.classList.add('active');
-        var panel = qs('[data-auth-panel="' + target + '"]');
-        if (panel) panel.classList.add('active');
+  function initAuthTabs() {
+    var tabButtons = document.querySelectorAll('.portal-tab');
+    var loginForm = document.getElementById('loginForm');
+    var signupForm = document.getElementById('signupForm');
+    tabButtons.forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var isLogin = btn.getAttribute('data-tab') === 'login';
+        tabButtons.forEach(function (item) {
+          var active = item === btn;
+          item.classList.toggle('active', active);
+          item.setAttribute('aria-selected', active ? 'true' : 'false');
+        });
+        if (loginForm) loginForm.classList.toggle('hidden', !isLogin);
+        if (signupForm) signupForm.classList.toggle('hidden', isLogin);
       });
     });
   }
 
-  async function loadReservations() {
-    var sb = getClient();
-    try {
-      var query = await sb
-        .from('reservas')
-        .select('id,resort,checkin,checkout,status,created_at')
-        .order('created_at', { ascending: false })
-        .limit(8);
-
-      if (query.error) throw query.error;
-      state.reservations = query.data || [];
-    } catch (error) {
-      state.reservations = [
-        { id: 'PEND-01', resort: 'Hot Beach Suites', checkin: '2026-08-14', checkout: '2026-08-18', status: 'pendente' },
-        { id: 'CONF-02', resort: 'São Pedro Thermas', checkin: '2026-11-02', checkout: '2026-11-06', status: 'confirmada' }
-      ];
-    }
-  }
-
-  function renderReservations() {
-    var tbody = qs('#guestReservations');
-    if (!tbody) return;
-
-    var rows = state.reservations.map(function (item) {
-      return '<tr>' +
-        '<td>' + String(item.id || '-') + '</td>' +
-        '<td>' + String(item.resort || '-') + '</td>' +
-        '<td>' + String(item.checkin || '-') + '</td>' +
-        '<td>' + String(item.checkout || '-') + '</td>' +
-        '<td>' + String(item.status || '-') + '</td>' +
-      '</tr>';
-    });
-
-    tbody.innerHTML = rows.join('');
-    var count = qs('#reservationCount');
-    if (count) count.textContent = String(state.reservations.length);
-  }
-
-  function renderLoyalty() {
-    state.loyaltyPoints = state.reservations.length * 350;
-    var tier = getTier(state.loyaltyPoints);
-
-    var points = qs('#loyaltyPoints');
-    var tierEl = qs('#loyaltyTier');
-    if (points) points.textContent = String(state.loyaltyPoints);
-    if (tierEl) tierEl.textContent = tier;
-
-    qsa('.loyalty-badge').forEach(function (item) {
-      item.classList.remove('active');
-      if (item.getAttribute('data-tier') === tier) {
-        item.classList.add('active');
-      }
-    });
-  }
-
-  function renderVouchers() {
-    var container = qs('#voucherList');
-    if (!container) return;
-
-    var vouchers = [
-      { code: 'WELCOME10', title: '10% OFF na primeira reserva', points: 300 },
-      { code: 'UPGRADE15', title: 'Upgrade VIP em estadias selecionadas', points: 900 },
-      { code: 'SPA25', title: 'R$ 25 de crédito em SPA parceiro', points: 1400 }
-    ];
-
-    container.innerHTML = vouchers.map(function (voucher) {
-      var qr = 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=' + encodeURIComponent(voucher.code);
-      return '<article class="voucher-card">' +
-        '<h3>' + voucher.title + '</h3>' +
-        '<p class="portal-muted">Código: <strong>' + voucher.code + '</strong></p>' +
-        '<p class="portal-muted">Resgate com ' + voucher.points + ' pts</p>' +
-        '<img src="' + qr + '" alt="QR Code do voucher ' + voucher.code + '" loading="lazy">' +
-      '</article>';
-    }).join('');
-  }
-
-  function renderProfile() {
-    var name = qs('#guestName');
-    var email = qs('#guestEmail');
-    var settingName = qs('#settingName');
-    var settingEmail = qs('#settingEmail');
-
-    var fullName = (state.user && state.user.user_metadata && state.user.user_metadata.full_name) ||
-      (state.user && state.user.email ? state.user.email.split('@')[0] : 'Hóspede');
-
-    var mail = state.user ? state.user.email : 'visitante@hospedah.tur.br';
-
-    if (name) name.textContent = fullName;
-    if (email) email.textContent = mail;
-    if (settingName) settingName.value = fullName;
-    if (settingEmail) settingEmail.value = mail;
-  }
-
-  async function saveSettings(event) {
-    event.preventDefault();
-    clearAlert();
-
-    var fullName = ((qs('#settingName') || {}).value || '').trim();
-    var sb = getClient();
-    var result = await sb.auth.updateUser({
-      data: {
-        full_name: fullName
-      }
-    });
-
-    if (result.error) {
-      showAlert(result.error.message || 'Não foi possível salvar as configurações.', 'error');
-      return;
-    }
-
-    showAlert('Configurações salvas com sucesso!', 'ok');
-    renderProfile();
-  }
-
-  async function resetPassword(event) {
-    event.preventDefault();
-    clearAlert();
-
-    var password = ((qs('#newPassword') || {}).value || '').trim();
-    var confirm = ((qs('#confirmNewPassword') || {}).value || '').trim();
-    if (password.length < 6) {
-      showAlert('A nova senha deve ter pelo menos 6 caracteres.', 'error');
-      return;
-    }
-    if (password !== confirm) {
-      showAlert('As senhas não coincidem.', 'error');
-      return;
-    }
-
-    var sb = getClient();
-    var result = await sb.auth.updateUser({ password: password });
-    if (result.error) {
-      showAlert(result.error.message || 'Não foi possível redefinir sua senha.', 'error');
-      return;
-    }
-
-    showAlert('Senha redefinida com sucesso! Redirecionando para login...', 'ok');
-    window.setTimeout(function () {
-      window.location.assign('/portal/index.html');
-    }, 1500);
-  }
-
-  async function logout() {
-    var sb = getClient();
-    await sb.auth.signOut();
-    window.location.assign('/portal/index.html');
-  }
-
-  async function initDashboard() {
-    await requireSession();
-    if (!state.session) return;
-    renderProfile();
-    await loadReservations();
-    renderReservations();
-    renderLoyalty();
-    renderVouchers();
-
-    var form = qs('#settingsForm');
-    var btnLogout = qs('#btnPortalLogout');
-    if (form) form.addEventListener('submit', saveSettings);
-    if (btnLogout) btnLogout.addEventListener('click', logout);
-  }
-
   async function initAuthPage() {
-    await requireSession();
-    setupTabs();
+    initAuthTabs();
+    var message = document.getElementById('portalAuthMessage');
+    var loginForm = document.getElementById('loginForm');
+    var signupForm = document.getElementById('signupForm');
+    var googleBtn = document.getElementById('btnGoogleAuth');
 
-    var loginForm = qs('#loginForm');
-    var signupForm = qs('#signupForm');
-    var googleButtons = qsa('[data-google-auth]');
+    var activeUser = await getSessionUser();
+    if (activeUser) {
+      window.location.replace('/portal/dashboard.html');
+      return;
+    }
 
-    if (loginForm) loginForm.addEventListener('submit', signIn);
-    if (signupForm) signupForm.addEventListener('submit', signUp);
-    googleButtons.forEach(function (button) {
-      button.addEventListener('click', signInGoogle);
+    if (loginForm) {
+      loginForm.addEventListener('submit', async function (event) {
+        event.preventDefault();
+        var email = document.getElementById('loginEmail').value.trim().toLowerCase();
+        var password = document.getElementById('loginPassword').value;
+        if (!isValidEmail(email) || !password) {
+          setMessage(message, 'Preencha e-mail e senha válidos.', 'error');
+          return;
+        }
+        var loginRes = await client.auth.signInWithPassword({ email: email, password: password });
+        if (loginRes.error) {
+          setMessage(message, loginRes.error.message, 'error');
+          return;
+        }
+        window.location.replace('/portal/dashboard.html');
+      });
+    }
+
+    if (signupForm) {
+      signupForm.addEventListener('submit', async function (event) {
+        event.preventDefault();
+        var name = document.getElementById('signupName').value.trim();
+        var email = document.getElementById('signupEmail').value.trim().toLowerCase();
+        var password = document.getElementById('signupPassword').value;
+        if (!name || !isValidEmail(email) || password.length < 6) {
+          setMessage(message, 'Informe nome, e-mail válido e senha com 6+ caracteres.', 'error');
+          return;
+        }
+        var signUpRes = await client.auth.signUp({
+          email: email,
+          password: password,
+          options: { data: { full_name: name }, emailRedirectTo: window.location.origin + '/portal/dashboard.html' }
+        });
+        if (signUpRes.error) {
+          setMessage(message, signUpRes.error.message, 'error');
+          return;
+        }
+        setMessage(message, 'Conta criada! Verifique seu e-mail para confirmar o acesso.', 'success');
+      });
+    }
+
+    if (googleBtn) {
+      googleBtn.addEventListener('click', async function () {
+        var oauthRes = await client.auth.signInWithOAuth({
+          provider: 'google',
+          options: { redirectTo: window.location.origin + '/portal/dashboard.html' }
+        });
+        if (oauthRes.error) {
+          setMessage(message, oauthRes.error.message, 'error');
+        }
+      });
+    }
+  }
+
+  async function initDashboardPage() {
+    var user = await getSessionUser();
+    if (!user) {
+      window.location.replace('/portal/index.html');
+      return;
+    }
+
+    var navLinks = document.querySelectorAll('.portal-nav-link');
+    navLinks.forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        showSection(btn.getAttribute('data-section'));
+      });
     });
+
+    var logoutBtn = document.getElementById('portalLogout');
+    if (logoutBtn) {
+      logoutBtn.addEventListener('click', async function () {
+        await client.auth.signOut();
+        window.location.replace('/portal/index.html');
+      });
+    }
+
+    var updatePasswordForm = document.getElementById('updatePasswordForm');
+    var configMessage = document.getElementById('portalConfigMessage');
+    if (updatePasswordForm) {
+      updatePasswordForm.addEventListener('submit', async function (event) {
+        event.preventDefault();
+        var password = document.getElementById('newPassword').value;
+        if (!password || password.length < 6) return;
+        var response = await client.auth.updateUser({ password: password });
+        if (response.error) {
+          setMessage(configMessage, 'Não foi possível atualizar a senha: ' + response.error.message, 'error');
+          return;
+        }
+        setMessage(configMessage, 'Senha atualizada com sucesso.', 'success');
+        updatePasswordForm.reset();
+      });
+    }
+
+    await loadDashboardData(user);
   }
 
   async function initResetPage() {
-    var form = qs('#resetForm');
-    if (form) form.addEventListener('submit', resetPassword);
+    var user = await getSessionUser();
+    var message = document.getElementById('portalResetMessage');
+    var form = document.getElementById('resetPasswordForm');
+
+    if (!user) {
+      setMessage(message, 'Abra este link pelo e-mail de recuperação enviado pela HOSPEDAH.', 'error');
+      return;
+    }
+
+    if (form) {
+      form.addEventListener('submit', async function (event) {
+        event.preventDefault();
+        var password = document.getElementById('resetNewPassword').value;
+        if (!password || password.length < 6) {
+          setMessage(message, 'A senha deve ter ao menos 6 caracteres.', 'error');
+          return;
+        }
+        var resetRes = await client.auth.updateUser({ password: password });
+        if (resetRes.error) {
+          setMessage(message, resetRes.error.message, 'error');
+          return;
+        }
+        setMessage(message, 'Senha atualizada! Redirecionando...', 'success');
+        window.setTimeout(function () {
+          window.location.replace('/portal/dashboard.html');
+        }, 1200);
+      });
+    }
+  }
+
+  async function init() {
+    try {
+      client = getClient();
+    } catch (err) {
+      setMessage(findFirstMessageElement(), err.message, 'error');
+      console.error(err);
+      return;
+    }
+
+    var page = document.body.getAttribute('data-portal-page');
+    if (page === 'auth') {
+      await initAuthPage();
+      return;
+    }
+    if (page === 'dashboard') {
+      await initDashboardPage();
+      return;
+    }
+    if (page === 'reset-password') {
+      await initResetPage();
+    }
   }
 
   document.addEventListener('DOMContentLoaded', function () {
-    var page = document.body.getAttribute('data-portal-page');
-
-    try {
-      if (page === 'auth') {
-        initAuthPage();
-      }
-      if (page === 'dashboard') {
-        initDashboard();
-      }
-      if (page === 'reset') {
-        initResetPage();
-      }
-    } catch (error) {
-      showAlert(error.message || 'Erro ao carregar portal.', 'error');
-    }
+    init().catch(function () {
+      setMessage(findFirstMessageElement(), 'Não foi possível inicializar o portal.', 'error');
+    });
   });
 })();

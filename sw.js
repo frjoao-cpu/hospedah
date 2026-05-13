@@ -1,17 +1,8 @@
-/* ============================================================
-   HOSPEDAH — Service Worker
-   Estratégias:
-     • Network-first para navegação HTML com fallback offline.
-     • Stale-while-revalidate para CSS/JS/fontes.
-     • Cache-first para imagens e páginas resort pré-cacheadas.
-   ============================================================ */
 'use strict';
 
-importScripts('https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.sw.js');
-
-var CACHE_STATIC = 'hospedah-static-v5';
-var CACHE_RUNTIME = 'hospedah-runtime-v5';
-var CACHE_IMAGES = 'hospedah-images-v5';
+var STATIC_CACHE = 'hospedah-static-v5';
+var PAGE_CACHE = 'hospedah-pages-v5';
+var OFFLINE_URL = '/offline.html';
 
 var PRECACHE_URLS = [
   '/',
@@ -20,21 +11,11 @@ var PRECACHE_URLS = [
   '/reservas.html',
   '/chat.html',
   '/avaliacoes.html',
-  '/cadastro.html',
-  '/painel.html',
-  '/sistema.html',
+  '/jornal.html',
   '/portal/index.html',
   '/portal/dashboard.html',
   '/portal/reset-password.html',
   '/admin/index.html',
-  '/offline.html',
-  '/manifest.json',
-  '/assets/mobile-first.css',
-  '/assets/style.css',
-  '/assets/portal.css',
-  '/assets/admin.css',
-  '/assets/i18n.js',
-  '/assets/pwa.js',
   '/resorts/hotbeach.html',
   '/resorts/saopedro.html',
   '/resorts/olimpia.html',
@@ -42,12 +23,20 @@ var PRECACHE_URLS = [
   '/resorts/wyndham.html',
   '/resorts/juquehy.html',
   '/resorts/ipioca.html',
-  '/resorts/portoi2.html'
+  '/resorts/portoi2.html',
+  '/assets/mobile-first.css',
+  '/assets/index.css',
+  '/assets/style.css',
+  '/assets/portal.css',
+  '/assets/admin.css',
+  '/assets/pwa.js',
+  '/offline.html',
+  '/manifest.json'
 ];
 
 self.addEventListener('install', function (event) {
   event.waitUntil(
-    caches.open(CACHE_STATIC).then(function (cache) {
+    caches.open(STATIC_CACHE).then(function (cache) {
       return cache.addAll(PRECACHE_URLS);
     }).then(function () {
       return self.skipWaiting();
@@ -56,11 +45,10 @@ self.addEventListener('install', function (event) {
 });
 
 self.addEventListener('activate', function (event) {
-  var valid = [CACHE_STATIC, CACHE_RUNTIME, CACHE_IMAGES];
   event.waitUntil(
     caches.keys().then(function (keys) {
       return Promise.all(keys.map(function (key) {
-        if (valid.indexOf(key) === -1) {
+        if (key !== STATIC_CACHE && key !== PAGE_CACHE) {
           return caches.delete(key);
         }
         return Promise.resolve();
@@ -71,85 +59,48 @@ self.addEventListener('activate', function (event) {
   );
 });
 
-function staleWhileRevalidate(request, cacheName) {
-  return caches.open(cacheName).then(function (cache) {
-    return cache.match(request).then(function (cached) {
-      var fetchPromise = fetch(request).then(function (response) {
-        if (response && response.status === 200) {
-          cache.put(request, response.clone());
-        }
-        return response;
-      }).catch(function () {
-        return cached;
-      });
-
-      if (cached) {
-        fetchPromise.catch(function (error) {
-          console.warn('SW staleWhileRevalidate failed:', error);
-        });
-        return cached;
-      }
-      return fetchPromise;
-    });
-  });
+function isAsset(pathname) {
+  return /\.(?:css|js|png|jpg|jpeg|svg|webp|woff2?)$/i.test(pathname);
 }
 
 self.addEventListener('fetch', function (event) {
   var req = event.request;
-  var url = new URL(req.url);
-
   if (req.method !== 'GET') return;
+
+  var url = new URL(req.url);
+  if (url.origin !== self.location.origin) return;
 
   if (req.mode === 'navigate') {
     event.respondWith(
       fetch(req).then(function (response) {
         if (response && response.status === 200) {
-          caches.open(CACHE_RUNTIME).then(function (cache) {
-            cache.put(req, response.clone());
+          var clone = response.clone();
+          caches.open(PAGE_CACHE).then(function (cache) {
+            cache.put(req, clone);
           });
         }
         return response;
       }).catch(function () {
-        return caches.match(req).then(function (cachedPage) {
-          if (cachedPage) return cachedPage;
-          return caches.match('/offline.html').then(function (offlinePage) {
-            if (offlinePage) return offlinePage;
-            return caches.match('/index.html').then(function (homePage) {
-              if (homePage) return homePage;
-              return new Response('Offline', {
-                status: 503,
-                statusText: 'Service Unavailable',
-                headers: { 'Content-Type': 'text/plain; charset=utf-8' }
-              });
-            });
-          });
+        return caches.match(req).then(function (cached) {
+          return cached || caches.match(OFFLINE_URL);
         });
       })
     );
     return;
   }
 
-  if (url.origin === self.location.origin && (url.pathname.endsWith('.css') || url.pathname.endsWith('.js'))) {
-    event.respondWith(staleWhileRevalidate(req, CACHE_RUNTIME));
-    return;
-  }
-
-  if (url.hostname === 'fonts.googleapis.com' || url.hostname === 'fonts.gstatic.com') {
-    event.respondWith(staleWhileRevalidate(req, CACHE_RUNTIME));
-    return;
-  }
-
-  if (req.destination === 'image' || url.hostname === 'i.imgur.com') {
+  if (isAsset(url.pathname)) {
     event.respondWith(
-      caches.open(CACHE_IMAGES).then(function (cache) {
-        return cache.match(req).then(function (cached) {
-          if (cached) return cached;
-          return fetch(req).then(function (response) {
-            if (response && response.status === 200) {
-              cache.put(req, response.clone());
-            }
-            return response;
-          });
+      caches.match(req).then(function (cached) {
+        if (cached) return cached;
+        return fetch(req).then(function (response) {
+          if (response && response.status === 200) {
+            var clone = response.clone();
+            caches.open(STATIC_CACHE).then(function (cache) {
+              cache.put(req, clone);
+            });
+          }
+          return response;
         });
       })
     );
@@ -157,20 +108,14 @@ self.addEventListener('fetch', function (event) {
   }
 
   event.respondWith(
-    caches.match(req).then(function (cached) {
-      return cached || fetch(req);
+    fetch(req).catch(function () {
+      return caches.match(req);
     })
   );
 });
 
 self.addEventListener('sync', function (event) {
-  if (event.tag !== 'hospedah-sync') return;
-
-  event.waitUntil(
-    self.clients.matchAll({ includeUncontrolled: true }).then(function (clients) {
-      clients.forEach(function (client) {
-        client.postMessage({ type: 'SYNC_READY', at: Date.now() });
-      });
-    })
-  );
+  if (event.tag === 'hospedah-sync') {
+    event.waitUntil(Promise.resolve());
+  }
 });

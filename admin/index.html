@@ -1,64 +1,63 @@
 <!DOCTYPE html>
 <html lang="pt-BR" data-theme="dark">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin Dashboard | HOSPEDAH</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap">
-<link rel="stylesheet" href="/assets/mobile-first.css">
-<link rel="stylesheet" href="/assets/style.css">
-<link rel="stylesheet" href="/assets/admin.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Painel Admin | HOSPEDAH</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap">
+  <link rel="stylesheet" href="/assets/mobile-first.css">
+  <link rel="stylesheet" href="/assets/style.css">
+  <link rel="stylesheet" href="/assets/admin.css">
 </head>
-<body class="admin-page">
-  <main class="admin-shell admin-grid">
-    <section class="admin-head">
-      <div>
-        <h1>Painel Administrativo</h1>
-        <p class="admin-muted">Conectado como <strong id="adminUser">-</strong></p>
-        <p class="admin-muted" id="adminRoleNotice"></p>
-      </div>
-      <div class="admin-actions">
-        <button class="admin-btn" id="btnExportCsv" type="button">Exportar CSV</button>
-        <button class="admin-btn" id="btnAdminLogout" type="button">Sair</button>
-      </div>
+<body data-admin-page="dashboard">
+  <header class="admin-header glass">
+    <div>
+      <h1>Dashboard Administrativo</h1>
+      <p>Visão geral de reservas, receita e leads em tempo real.</p>
+    </div>
+    <div class="admin-actions">
+      <a class="admin-btn" href="/portal/dashboard.html">Portal do hóspede</a>
+      <button type="button" id="adminLogout" class="admin-btn admin-btn-secondary">Sair</button>
+    </div>
+  </header>
+
+  <main class="admin-main">
+    <section class="admin-kpis" id="adminKpis">
+      <article class="admin-card glass"><h2>Leads hoje</h2><p id="kpiLeads">0</p></article>
+      <article class="admin-card glass"><h2>Reservas mês</h2><p id="kpiBookings">0</p></article>
+      <article class="admin-card glass"><h2>Taxa conversão</h2><p id="kpiConversion">0%</p></article>
+      <article class="admin-card glass"><h2>Receita estimada</h2><p id="kpiRevenue">R$ 0</p></article>
     </section>
 
-    <section class="kpi-grid">
-      <article class="admin-card kpi-card"><h2>Leads</h2><strong id="kpiLeads">0</strong></article>
-      <article class="admin-card kpi-card"><h2>Reservas</h2><strong id="kpiReservas">0</strong></article>
-      <article class="admin-card kpi-card"><h2>Clientes</h2><strong id="kpiClientes">0</strong></article>
-      <article class="admin-card kpi-card"><h2>Atividade pública</h2><strong id="kpiAtividade">0</strong></article>
-    </section>
-
-    <section class="chart-grid">
-      <article class="admin-card chart-card">
-        <h2>Performance de Leads</h2>
-        <div class="chart-wrap"><canvas id="chartLeads" aria-label="Gráfico de leads" role="img"></canvas></div>
+    <section class="admin-charts">
+      <article class="admin-card glass">
+        <h2>Reservas por mês</h2>
+        <canvas id="bookingsChart" height="120" aria-label="Gráfico de reservas por mês"></canvas>
       </article>
-      <article class="admin-card chart-card">
-        <h2>Reservas por dia</h2>
-        <div class="chart-wrap"><canvas id="chartReservas" aria-label="Gráfico de reservas" role="img"></canvas></div>
+      <article class="admin-card glass">
+        <h2>Origem dos leads</h2>
+        <canvas id="leadSourceChart" height="120" aria-label="Gráfico de origem dos leads"></canvas>
       </article>
     </section>
 
-    <section class="admin-card feed-card">
-      <h2>Feed de Leads em tempo real</h2>
-      <ul class="feed-list" id="leadsFeed"></ul>
-    </section>
-
-    <section class="admin-card crm-card">
-      <h2>CRM de Leads</h2>
-      <div class="table-wrap">
-        <table>
+    <section class="admin-card glass">
+      <div class="admin-table-head">
+        <h2>CRM de Leads</h2>
+        <button type="button" id="exportCsv" class="admin-btn">Exportar CSV</button>
+      </div>
+      <div class="admin-realtime" id="realtimeStatus">Realtime: aguardando conexão…</div>
+      <div class="admin-table-wrap">
+        <table class="admin-table" id="crmTable">
           <thead>
             <tr>
               <th>Nome</th>
               <th>E-mail</th>
               <th>Telefone</th>
+              <th>Origem</th>
               <th>Status</th>
-              <th>Cadastro</th>
+              <th>Data</th>
             </tr>
           </thead>
           <tbody id="crmTableBody"></tbody>
@@ -67,8 +66,8 @@
     </section>
   </main>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="/assets/supabase-config.js"></script>
   <script src="/assets/admin.js"></script>
 </body>

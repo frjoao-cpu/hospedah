@@ -2,62 +2,92 @@
   'use strict';
 
   var STORAGE_KEY = 'hospedah_lang';
-  var DEFAULT_LANG = 'pt';
-  var supported = ['pt', 'en', 'es'];
+  var defaultLang = 'pt';
+  var loadedMessages = {};
 
-  function detectLang() {
-    var saved = window.localStorage.getItem(STORAGE_KEY);
-    if (saved && supported.indexOf(saved) !== -1) return saved;
-
-    var navLang = (navigator.language || DEFAULT_LANG).toLowerCase();
-    if (navLang.indexOf('es') === 0) return 'es';
-    if (navLang.indexOf('en') === 0) return 'en';
-    return DEFAULT_LANG;
+  function normalizeLang(lang) {
+    var value = (lang || '').toLowerCase();
+    if (value.indexOf('es') === 0) return 'es';
+    if (value.indexOf('en') === 0) return 'en';
+    return 'pt';
   }
 
-  async function fetchTranslations(lang) {
+  function getPreferredLang() {
+    var stored = localStorage.getItem(STORAGE_KEY);
+    if (stored) return normalizeLang(stored);
+    return normalizeLang(navigator.language || defaultLang);
+  }
+
+  async function getMessages(lang) {
+    if (loadedMessages[lang]) return loadedMessages[lang];
     var response = await fetch('/assets/i18n/' + lang + '.json', { cache: 'default' });
-    if (!response.ok) throw new Error('Arquivo de tradução indisponível.');
-    return response.json();
+    if (!response.ok) {
+      if (lang !== defaultLang) return getMessages(defaultLang);
+      throw new Error('Falha ao carregar tradução');
+    }
+    loadedMessages[lang] = await response.json();
+    return loadedMessages[lang];
+  }
+
+  function textForPath(dict, path) {
+    return path.split('.').reduce(function (acc, key) {
+      if (acc && Object.prototype.hasOwnProperty.call(acc, key)) return acc[key];
+      return null;
+    }, dict);
   }
 
   function applyTranslations(dict) {
-    var nodes = document.querySelectorAll('[data-i18n]');
-    nodes.forEach(function (node) {
-      var key = node.getAttribute('data-i18n');
-      if (!dict[key]) return;
-      node.textContent = dict[key];
+    document.querySelectorAll('[data-i18n]').forEach(function (el) {
+      var key = el.getAttribute('data-i18n');
+      var value = textForPath(dict, key);
+      if (typeof value === 'string') {
+        el.textContent = value;
+      }
     });
+
+    document.querySelectorAll('[data-i18n-placeholder]').forEach(function (el) {
+      var key = el.getAttribute('data-i18n-placeholder');
+      var value = textForPath(dict, key);
+      if (typeof value === 'string') {
+        el.setAttribute('placeholder', value);
+      }
+    });
+
+    document.querySelectorAll('[data-i18n-title]').forEach(function (el) {
+      var key = el.getAttribute('data-i18n-title');
+      var value = textForPath(dict, key);
+      if (typeof value === 'string') {
+        el.setAttribute('title', value);
+      }
+    });
+
+    document.documentElement.setAttribute('lang', normalizeLang(localStorage.getItem(STORAGE_KEY) || defaultLang));
   }
 
   async function switchLang(lang) {
-    var target = supported.indexOf(lang) !== -1 ? lang : DEFAULT_LANG;
-    var dict = await fetchTranslations(target);
-    applyTranslations(dict);
-    window.localStorage.setItem(STORAGE_KEY, target);
-    document.documentElement.setAttribute('lang', target === 'pt' ? 'pt-BR' : target);
+    var nextLang = normalizeLang(lang);
+    localStorage.setItem(STORAGE_KEY, nextLang);
+    var messages = await getMessages(nextLang);
+    applyTranslations(messages);
 
-    document.querySelectorAll('[data-lang]').forEach(function (button) {
-      var active = button.getAttribute('data-lang') === target;
-      button.setAttribute('aria-pressed', active ? 'true' : 'false');
+    document.querySelectorAll('[data-switch-lang]').forEach(function (btn) {
+      var isActive = btn.getAttribute('data-switch-lang') === nextLang;
+      btn.classList.toggle('active', isActive);
+      btn.setAttribute('aria-pressed', isActive ? 'true' : 'false');
     });
   }
 
   window.switchLang = function (lang) {
-    return switchLang(lang).catch(function () {
-      return null;
-    });
+    return switchLang(lang).catch(function () {});
   };
 
   document.addEventListener('DOMContentLoaded', function () {
-    var langButtons = document.querySelectorAll('[data-lang]');
-    langButtons.forEach(function (button) {
-      button.addEventListener('click', function () {
-        var lang = button.getAttribute('data-lang');
-        window.switchLang(lang);
+    document.querySelectorAll('[data-switch-lang]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        switchLang(btn.getAttribute('data-switch-lang')).catch(function () {});
       });
     });
 
-    window.switchLang(detectLang());
+    switchLang(getPreferredLang()).catch(function () {});
   });
 })();

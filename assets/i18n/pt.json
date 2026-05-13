@@ -1,21 +1,31 @@
 {
-  "nav.home": "🏠 Início",
-  "nav.search": "🔍 Buscar",
-  "nav.book": "📅 Reservar",
-  "nav.reviews": "⭐ Avaliações",
-  "nav.quote": "💰 Orçamento",
-  "nav.chat": "🤖 Chat IA",
-  "nav.refer": "🎁 Indicar",
-  "nav.news": "📰 Jornal",
-  "nav.account": "👤 Minha Conta",
-  "hero.tagline": "Resorts & Experiências Exclusivas",
-  "hero.badge": "✦ Atendimento Premium ✦",
-  "hero.searchTitle": "🔍 Encontre sua hospedagem ideal",
-  "drawer.home": "🏠 Início",
-  "drawer.search": "🔍 Buscar Acomodações",
-  "drawer.book": "📅 Fazer Reserva",
-  "drawer.account": "👤 Minha Conta",
-  "pwa.banner": "Instale o app HOSPEDAH para acesso rápido e uso offline.",
-  "pwa.install": "Instalar app",
-  "pwa.dismiss": "Agora não"
+  "nav": {
+    "home": "🏠 Início",
+    "search": "🔍 Buscar",
+    "reserve": "📅 Reservar",
+    "reviews": "⭐ Avaliações",
+    "budget": "💰 Orçamento",
+    "account": "👤 Minha Conta",
+    "chat": "🤖 Chat IA",
+    "referral": "🎁 Indicar",
+    "news": "📰 Jornal"
+  },
+  "hero": {
+    "tagline": "Resorts & Experiências Exclusivas",
+    "badge": "✦ Atendimento Premium ✦",
+    "searchTitle": "🔍 Encontre sua hospedagem ideal",
+    "searchButton": "🔍 Buscar"
+  },
+  "sections": {
+    "gallery": "🏝️ Galeria de Resorts",
+    "budget": "💰 Solicite um Orçamento",
+    "faq": "❓ Perguntas Frequentes",
+    "contact": "📬 Contato"
+  },
+  "pwa": {
+    "installTitle": "Instale o app HOSPEDAH",
+    "installDesc": "Acesso rápido ao portal do hóspede, reservas e ofertas exclusivas.",
+    "installButton": "Instalar",
+    "dismissButton": "Agora não"
+  }
 }

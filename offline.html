@@ -1,62 +1,57 @@
 <!DOCTYPE html>
 <html lang="pt-BR" data-theme="dark">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sem conexão | HOSPEDAH</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap">
-<style>
-  body {
-    margin: 0;
-    min-height: 100vh;
-    display: grid;
-    place-items: center;
-    font-family: 'Poppins', sans-serif;
-    background: radial-gradient(circle at top, #1c335f 0%, #0B1C3D 48%, #050b19 100%);
-    color: #e9eef8;
-    padding: 20px;
-    box-sizing: border-box;
-  }
-  .offline-card {
-    max-width: 560px;
-    width: 100%;
-    border: 1px solid rgba(212, 175, 55, 0.25);
-    background: rgba(11, 28, 61, 0.92);
-    border-radius: 18px;
-    padding: 24px;
-    text-align: center;
-    box-shadow: 0 20px 44px rgba(0, 0, 0, 0.42);
-  }
-  h1 {
-    margin: 12px 0;
-    color: #D4AF37;
-  }
-  p {
-    color: #bac4da;
-    margin: 0 0 14px;
-  }
-  a {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 44px;
-    padding: 0 16px;
-    border-radius: 10px;
-    background: linear-gradient(135deg, #D4AF37, #b88910);
-    color: #0B1C3D;
-    text-decoration: none;
-    font-weight: 700;
-  }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Você está offline | HOSPEDAH</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap">
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      font-family: 'Poppins', sans-serif;
+      background: radial-gradient(circle at top, #1b3568, #0B1C3D 55%, #08162d);
+      color: #f3f6ff;
+      padding: 20px;
+      text-align: center;
+    }
+    .card {
+      max-width: 560px;
+      border-radius: 22px;
+      padding: 28px;
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      background: rgba(11, 28, 61, 0.7);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 24px 44px rgba(0, 0, 0, 0.35);
+    }
+    h1 {
+      margin: 0 0 10px;
+      color: #D4AF37;
+    }
+    p {
+      margin: 0 0 16px;
+      line-height: 1.6;
+    }
+    a {
+      display: inline-block;
+      padding: 10px 16px;
+      border-radius: 12px;
+      background: #D4AF37;
+      color: #0B1C3D;
+      text-decoration: none;
+      font-weight: 700;
+    }
+  </style>
 </head>
 <body>
-  <section class="offline-card" aria-label="Aviso de conexão offline">
-    <img src="/assets/logo-navbar.svg" alt="HOSPEDAH" width="180" height="36">
-    <h1>Você está offline</h1>
-    <p>Não foi possível carregar esta página agora. Confira conteúdos já salvos no app ou tente novamente quando sua conexão voltar.</p>
-    <a href="/index.html">Voltar para início</a>
-  </section>
+  <article class="card">
+    <h1>Sem conexão no momento</h1>
+    <p>Seu acesso premium continua parcialmente disponível offline. Assim que a conexão voltar, atualize para sincronizar suas reservas e dados do portal.</p>
+    <a href="/index.html">Tentar novamente</a>
+  </article>
 </body>
 </html>
