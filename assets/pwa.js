@@ -70,6 +70,18 @@
     });
   }
 
+  function notify(message) {
+    var toast = document.createElement('div');
+    toast.textContent = message;
+    toast.style.cssText = 'position:fixed;bottom:86px;left:50%;transform:translateX(-50%);' +
+      'background:rgba(11,28,61,0.96);color:#D4AF37;padding:10px 14px;border-radius:10px;' +
+      'border:1px solid rgba(212,175,55,0.28);z-index:9999;font-size:13px;';
+    document.body.appendChild(toast);
+    setTimeout(function () {
+      if (toast.parentNode) toast.parentNode.removeChild(toast);
+    }, 2800);
+  }
+
   function queueFormSubmission(payload) {
     return openQueueDb().then(function (db) {
       return new Promise(function (resolve, reject) {
@@ -107,10 +119,10 @@
 
         queueFormSubmission(payload).then(function () {
           maybeRegisterSync();
-          window.alert('Sem conexão. Envio salvo e será reenviado automaticamente.');
+          notify('Sem conexão. Envio salvo e será reenviado automaticamente.');
           form.reset();
         }).catch(function () {
-          window.alert('Sem conexão. Não foi possível salvar para reenvio.');
+          notify('Sem conexão. Não foi possível salvar para reenvio.');
         });
       });
     });
