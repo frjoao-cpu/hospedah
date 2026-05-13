@@ -131,7 +131,7 @@ html[data-theme="light"] footer                 { background: #e8e4d8; color: #4
   display: flex; align-items: center;
   text-decoration: none; white-space: nowrap; flex-shrink: 0;
 }
-.logo-txt img {
+.navbar .logo-txt img {
   height: 36px;
   width: auto;
   display: block;
@@ -1987,5 +1987,5 @@ html[data-theme="light"] .orc-summary-row strong { color: #1a1a1a; }
 
 @media (max-width: 480px) {
   .hero-logo { max-width: 220px; }
-  .logo-txt img { height: 28px; }
+  .navbar .logo-txt img { height: 28px; }
 }
