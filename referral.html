@@ -41,7 +41,7 @@ body { font-family: 'Poppins', sans-serif; background: var(--bg); color: var(--c
   gap: 12px; flex-wrap: wrap; position: sticky; top: 0; z-index: 100;
   box-shadow: var(--sombra);
 }
-.logo { color: var(--dourado); font-weight: 700; font-size: 1.2em; text-decoration: none; }
+.logo { display: inline-flex; align-items: center; color: var(--dourado); font-weight: 700; font-size: 1.2em; text-decoration: none; }
 .nav-links { display: flex; gap: 10px; flex-wrap: wrap; }
 .nav-links a {
   color: var(--cor-sub); text-decoration: none; padding: 6px 14px;
@@ -181,7 +181,7 @@ body { font-family: 'Poppins', sans-serif; background: var(--bg); color: var(--c
 <a class="skip-link" href="#referral-main">Ir para o conteúdo principal</a>
 
 <header class="header">
-  <a href="index.html" class="logo">🏨 HOSPEDAH</a>
+  <a href="index.html" class="logo" aria-label="HOSPEDAH início"><img src="/assets/logo-navbar.svg" alt="HOSPEDAH" width="160" height="32"></a>
   <nav class="nav-links">
     <a href="index.html">🏠 Início</a>
     <a href="busca.html">🔍 Buscar</a>

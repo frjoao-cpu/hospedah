@@ -29,6 +29,8 @@ body {
 }
 
 .logo {
+  display: inline-flex;
+  align-items: center;
   color: var(--dourado);
   font-weight: 700;
   font-size: 1.2em;
