@@ -628,7 +628,11 @@ body {
 /* ── UTILITY ── */
 .hidden { display: none !important; }
 
-/* ── RESPONSIVE ── */
+/* Security seal spacing when inside portal card */
+.portal-security-seal { margin-top: 16px; }
+
+/* Logout button pushed to bottom of sidebar */
+.portal-sidebar-logout { margin-top: auto; }
 @media (max-width: 960px) {
   .portal-layout {
     grid-template-columns: 1fr;

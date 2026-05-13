@@ -1054,9 +1054,9 @@ html[data-theme="light"] .faq-btn { color: var(--azul); }
 }
 #exit-popup .ep-skip:hover { color:rgba(255,255,255,.75); }
 
-/* --- FOMO WIDGET (visitantes ao vivo) --- */
+/* FOMO bar — positioned below navbar (--navbar-h = 64px + 8px gap) */
 #fomo-bar {
-  position:fixed; top:72px; right:24px;
+  position:fixed; top:calc(var(--navbar-h, 64px) + 8px); right:24px;
   z-index:900; display:flex; gap:12px; flex-wrap:wrap; justify-content:flex-end;
   pointer-events:none;
 }

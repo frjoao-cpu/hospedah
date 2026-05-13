@@ -186,7 +186,8 @@
       tierNextLabel.textContent = 'Próximo: ' + nextTier.name + ' (' + nextTier.min + ' pts)';
     }
     if (tierFill) {
-      var pct = nextTier ? Math.min(100, ((points - currentTier.min) / (nextTier.min - currentTier.min)) * 100) : 100;
+      var range = nextTier ? (nextTier.min - currentTier.min) : 1;
+      var pct = nextTier && range > 0 ? Math.min(100, ((points - currentTier.min) / range) * 100) : 100;
       tierFill.style.width = pct.toFixed(1) + '%';
     }
     if (tierTrack) {
