@@ -121,7 +121,7 @@ html[data-theme="light"] footer                 { background: #e8e4d8; color: #4
 .navbar {
   position: fixed; top: 0; left: 0; width: 100%; z-index: 1000;
   display: flex; align-items: center; justify-content: space-between;
-  padding: 0 24px; height: 64px;
+  padding: 0 24px; height: 90px;
   background: rgba(11,28,61,0.97);
   backdrop-filter: blur(10px);
   box-shadow: 0 2px 16px rgba(0,0,0,0.25);
@@ -132,7 +132,7 @@ html[data-theme="light"] footer                 { background: #e8e4d8; color: #4
   text-decoration: none; white-space: nowrap; flex-shrink: 0;
 }
 .navbar .logo-txt img {
-  height: 110px;
+  height: 155px;
   width: auto;
   display: block;
 }
@@ -280,7 +280,7 @@ html[data-theme="light"] footer                 { background: #e8e4d8; color: #4
 /* ✅ Logo central com overlay premium */
 .hero-logo {
   width: 100%;
-  max-width: 900px;
+  max-width: 1100px;
   height: auto;
   display: block;
   margin: 0 auto 24px;
@@ -2049,6 +2049,6 @@ html[data-theme="light"] .orc-summary-row strong { color: #1a1a1a; }
 }
 
 @media (max-width: 480px) {
-  .hero-logo { max-width: 580px; }
-  .navbar .logo-txt img { height: 88px; }
+  .hero-logo { max-width: 700px; }
+  .navbar .logo-txt img { height: 110px; }
 }
