@@ -121,7 +121,7 @@ html[data-theme="light"] footer                 { background: #e8e4d8; color: #4
 .navbar {
   position: fixed; top: 0; left: 0; width: 100%; z-index: 1000;
   display: flex; align-items: center; justify-content: space-between;
-  padding: 0 24px; height: 90px;
+  padding: 0 24px; height: 64px;
   background: rgba(11,28,61,0.97);
   backdrop-filter: blur(10px);
   box-shadow: 0 2px 16px rgba(0,0,0,0.25);
@@ -132,7 +132,7 @@ html[data-theme="light"] footer                 { background: #e8e4d8; color: #4
   text-decoration: none; white-space: nowrap; flex-shrink: 0;
 }
 .navbar .logo-txt img {
-  height: 155px;
+  height: 52px;
   width: auto;
   display: block;
 }
@@ -280,7 +280,7 @@ html[data-theme="light"] footer                 { background: #e8e4d8; color: #4
 /* ✅ Logo central com overlay premium */
 .hero-logo {
   width: 100%;
-  max-width: 1100px;
+  max-width: 420px;
   height: auto;
   display: block;
   margin: 0 auto 24px;
@@ -1152,7 +1152,6 @@ html[data-theme="light"] .faq-btn { color: var(--azul); }
   width: 100%;
   box-sizing: border-box;
   justify-content: center;
-  flex-wrap: wrap;
 }
 
 .stories-rail::-webkit-scrollbar { display: none; }
@@ -1171,8 +1170,8 @@ html[data-theme="light"] .faq-btn { color: var(--azul); }
 .story-item:hover { transform: translateY(-4px); }
 
 .story-ring {
-  width: 100px;
-  height: 100px;
+  width: 72px;
+  height: 72px;
   border-radius: 50%;
   padding: 3px;
   background: linear-gradient(135deg, var(--dourado), #f5d060, #b8961e);
@@ -1198,7 +1197,7 @@ html[data-theme="light"] .faq-btn { color: var(--azul); }
   color: var(--cor-texto, #e8eaf0);
   font-weight: 500;
   text-align: center;
-  max-width: 100px;
+  max-width: 72px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -2049,6 +2048,6 @@ html[data-theme="light"] .orc-summary-row strong { color: #1a1a1a; }
 }
 
 @media (max-width: 480px) {
-  .hero-logo { max-width: 700px; }
-  .navbar .logo-txt img { height: 110px; }
+  .hero-logo { max-width: 280px; }
+  .navbar .logo-txt img { height: 44px; }
 }
