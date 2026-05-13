@@ -1,5 +1,3 @@
 # A chave da API Gemini foi movida para a Edge Function (Supabase).
 # O arquivo assets/ai-config.js agora é apenas um placeholder sem segredos.
 node_modules/
-package.json
-package-lock.json

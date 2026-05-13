@@ -69,7 +69,7 @@
     <rect x="17"  y="2.5" width="4"  height="2"   fill="#FFF1B0" opacity="0.40"/>
   </g>
 
-  <!-- Atmosphere halo (blurred, drawn before globe so it sits behind) -->
+  <!-- Atmosphere halo (r=16 = globe r=14 + 2px glow offset, blurred, drawn before globe so it sits behind) -->
   <circle cx="29" cy="20" r="16" fill="none" stroke="#4488FF" stroke-width="3.5" opacity="0.25" filter="url(#atmosphereBlurNav)"/>
 
   <!-- Globe rendered SECOND (in front of H) — centre (29,20) r=14 -->
