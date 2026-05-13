@@ -1368,8 +1368,27 @@ html[data-theme="light"] .faq-btn { color: var(--azul); }
 .urgencia-item:last-child { border-right: none; }
 .urgencia-item span.ui-icon { font-size: 1.35em; flex-shrink: 0; }
 @media (max-width: 600px) {
-  .urgencia-item { border-right: none; border-bottom: 1px solid rgba(11,28,61,.13); padding: 11px 18px; font-size: .86em; }
-  .urgencia-item:last-child { border-bottom: none; }
+  .urgencia-strip { overflow: hidden; }
+  .urgencia-strip-inner {
+    display: flex; flex-wrap: nowrap;
+    width: max-content;
+    animation: urgenciaTicker 20s linear infinite;
+  }
+  .urgencia-item {
+    flex: 0 0 auto; border-right: 1px solid rgba(11,28,61,.18);
+    border-bottom: none; padding: 11px 22px; font-size: .86em;
+    white-space: nowrap;
+  }
+  .urgencia-item:last-child { border-right: 1px solid rgba(11,28,61,.18); }
+}
+@keyframes urgenciaTicker {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+@media (max-width: 600px) and (prefers-reduced-motion: reduce) {
+  .urgencia-strip { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .urgencia-strip-inner { animation: none; }
+  .urgencia-item[aria-hidden="true"] { display: none; }
 }
 
 /* ==========================================
@@ -1743,8 +1762,14 @@ html[data-theme="light"] .parcela-card-desc  { color: #8B6914; }
   100% { background-position: 100% 50%; }
 }
 
+@media (max-width: 600px) {
+  .promo-flash-inner {
+    flex-direction: column; align-items: center; text-align: center;
+    padding: 12px 44px 12px 16px; gap: 5px;
+  }
+  .promo-flash-close { top: 10px; transform: none; }
+}
 @media (max-width: 479px) {
-  .promo-flash-inner { gap: 6px 10px; padding-right: 40px; }
   .promo-flash-text  { font-size: .78em; }
   .parcela-strip     { flex-direction: column; gap: 4px; }
   .parcela-sep-v     { display: none; }
