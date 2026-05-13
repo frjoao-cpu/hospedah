@@ -280,10 +280,10 @@ html[data-theme="light"] footer                 { background: #e8e4d8; color: #4
 /* ✅ Logo central com overlay premium */
 .hero-logo {
   width: 100%;
-  max-width: 880px;
+  max-width: 560px;
   height: auto;
   display: block;
-  margin: 0 auto -8px;
+  margin: 0 auto -18px;
   filter: drop-shadow(0 6px 28px rgba(0,0,0,0.65)) drop-shadow(0 2px 8px rgba(212,175,55,0.25));
   animation: logoPop .9s cubic-bezier(.4,0,.2,1) both;
 }
@@ -295,7 +295,7 @@ html[data-theme="light"] footer                 { background: #e8e4d8; color: #4
   font-size: 1.15rem; font-weight: 400;
   color: rgba(255,255,255,0.92);
   letter-spacing: 4px; text-transform: uppercase;
-  margin-bottom: 6px;
+  margin: 0 0 4px;
   animation: fadeUp .9s .2s both;
 }
 .hero-badge {
@@ -304,7 +304,7 @@ html[data-theme="light"] footer                 { background: #e8e4d8; color: #4
   color: var(--azul); font-weight: 700;
   font-size: 1rem; letter-spacing: 1px;
   padding: 6px 24px; border-radius: 20px;
-  margin-bottom: 14px;
+  margin-bottom: 10px;
   animation: fadeUp .9s .35s both;
 }
 @keyframes fadeUp {
@@ -369,7 +369,7 @@ html[data-theme="light"] footer                 { background: #e8e4d8; color: #4
 
 @media (max-width: 768px) {
   .hero-content {
-    padding-top: 80px;
+    padding-top: 70px;
   }
   .hero-search-grid {
     grid-template-columns: 1fr 1fr;
@@ -2050,7 +2050,7 @@ html[data-theme="light"] .orc-summary-row strong { color: #1a1a1a; }
 }
 
 @media (max-width: 480px) {
-  .hero-logo { max-width: 480px; }
+  .hero-logo { max-width: 320px; margin-bottom: -12px; }
   .navbar .logo-txt img { height: 72px; }
   #fomo-bar { top: 84px; right: 8px; }
   .fomo-pill { padding: 5px 11px; font-size: .72em; }
