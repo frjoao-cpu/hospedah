@@ -315,13 +315,18 @@
             throw oauthRes.error;
           }
         } catch (oauthErr) {
-          var errMsg = (oauthErr && (oauthErr.message || oauthErr.msg)) || String(oauthErr);
-          if (
-            errMsg.toLowerCase().indexOf('provider') !== -1 ||
-            errMsg.toLowerCase().indexOf('not enabled') !== -1 ||
-            errMsg.toLowerCase().indexOf('unsupported') !== -1 ||
-            (oauthErr && (oauthErr.status === 400 || oauthErr.code === 400))
-          ) {
+          var rawErrMsg = '';
+          if (oauthErr) {
+            rawErrMsg = oauthErr.message || oauthErr.msg || String(oauthErr);
+          }
+          var errMsg = rawErrMsg;
+          var lc = errMsg.toLowerCase();
+          var isProviderDisabled =
+            lc.indexOf('provider') !== -1 ||
+            lc.indexOf('not enabled') !== -1 ||
+            lc.indexOf('unsupported') !== -1 ||
+            (oauthErr && (oauthErr.status === 400 || oauthErr.code === 400));
+          if (isProviderDisabled) {
             errMsg = 'Login com Google temporariamente indisponível. Use e-mail e senha.';
           }
           setMessage(message, errMsg, 'error');
