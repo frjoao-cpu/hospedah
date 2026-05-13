@@ -108,10 +108,25 @@
     var amount = formatBRL(lead.budget);
     var time = new Date(lead.created_at).toLocaleTimeString('pt-BR');
     li.setAttribute('aria-label', 'Lead ' + lead.name + ', resort ' + lead.resort + ', orçamento ' + amount + ', status ' + lead.status + ', recebido às ' + time);
-    li.innerHTML = '<strong>' + lead.name + '</strong> <span>(' + time + ')</span><br>' +
-      '<span>Resort: ' + lead.resort + '</span><br>' +
-      '<span>Orçamento: ' + amount + '</span><br>' +
-      '<span>Status: ' + lead.status + '</span>';
+    var strong = document.createElement('strong');
+    strong.textContent = lead.name;
+    li.appendChild(strong);
+    li.appendChild(document.createTextNode(' (' + time + ')'));
+    li.appendChild(document.createElement('br'));
+
+    var resort = document.createElement('span');
+    resort.textContent = 'Resort: ' + lead.resort;
+    li.appendChild(resort);
+    li.appendChild(document.createElement('br'));
+
+    var budget = document.createElement('span');
+    budget.textContent = 'Orçamento: ' + amount;
+    li.appendChild(budget);
+    li.appendChild(document.createElement('br'));
+
+    var status = document.createElement('span');
+    status.textContent = 'Status: ' + lead.status;
+    li.appendChild(status);
     feed.prepend(li);
 
     while (feed.children.length > 20) {
