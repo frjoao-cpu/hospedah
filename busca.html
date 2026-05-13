@@ -1742,8 +1742,26 @@ filtrar = function() {
           function (finalText) {
             if (!finalText) {
               if (div.parentNode) div.parentNode.removeChild(div);
-              hcMensagens.splice(userMsgIdx, 1);
-              resolve(null);
+              /* Streaming falhou — tentar versão não-streaming antes de desistir */
+              hcRemoveTyping();
+              hcAddTyping();
+              window.HOSPEDAH_AI.chamar(
+                { nome: hcNome, assunto: hcAssunto },
+                hcMensagens,
+                intencao,
+                0.7
+              ).then(function (resp) {
+                if (resp) {
+                  hcMensagens.push({ role: 'assistant', content: resp, ts: new Date().toISOString() });
+                  resolve(resp);
+                } else {
+                  hcMensagens.splice(userMsgIdx, 1);
+                  resolve(null);
+                }
+              }).catch(function () {
+                hcMensagens.splice(userMsgIdx, 1);
+                resolve(null);
+              });
             } else {
               hcMensagens.push({ role: 'assistant', content: finalText, ts: new Date().toISOString() });
               resolve('STREAMED');

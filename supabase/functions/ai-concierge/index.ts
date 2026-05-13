@@ -494,30 +494,51 @@ serve(async (req: Request): Promise<Response> => {
 
   // ── STREAMING path ──────────────────────────────────────────
   if (ctx.stream === true) {
-    let streamRes: Response;
+    // Try primary model streaming
+    let streamRes: Response | null = null;
     try {
-      streamRes = await fetchGeminiWithRetry(
+      const primary = await fetchGeminiWithRetry(
         `${GEMINI_STREAM_URL}?alt=sse&key=${effectiveKey}`,
         JSON.stringify(geminiPayload),
       );
+      if (primary.ok) {
+        streamRes = primary;
+      } else {
+        const errText = await primary.text();
+        console.warn(`[ai-concierge] Primary stream failed: HTTP ${primary.status} — ${errText.slice(0, 200)}`);
+      }
     } catch (err) {
-      console.error('[ai-concierge] Erro ao chamar Gemini streaming:', err);
-      return new Response(
-        JSON.stringify({ error: 'Falha de comunicação com a IA. Tente novamente.', model: GEMINI_MODEL }),
-        { status: 502, headers: { ...corsH, 'Content-Type': 'application/json' } },
-      );
+      console.warn('[ai-concierge] Primary stream error:', err);
     }
 
-    if (!streamRes.ok) {
-      const errBody = await streamRes.text();
-      console.error('[ai-concierge] Gemini streaming erro:', streamRes.status, errBody);
-      let geminiError = 'Serviço de IA indisponível. Tente mais tarde.';
+    // Fallback to secondary model when primary streaming fails
+    if (!streamRes && GEMINI_FALLBACK_MODEL && GEMINI_FALLBACK_MODEL !== GEMINI_MODEL) {
+      console.warn('[ai-concierge] Primary streaming failed — trying fallback model:', GEMINI_FALLBACK_MODEL);
+      const fallbackStreamUrl = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_FALLBACK_MODEL}:streamGenerateContent`;
+      const fallbackSupportsThinking = modelSupportsThinking(GEMINI_FALLBACK_MODEL);
+      const fallbackStreamPayload = {
+        ...geminiPayload,
+        generationConfig: buildGenerationConfig(fallbackSupportsThinking, temperature),
+      };
       try {
-        const parsed = JSON.parse(errBody);
-        if (parsed?.error?.message) geminiError = parsed.error.message;
-      } catch { /* ignore parse error */ }
+        const fallback = await fetchGeminiWithRetry(
+          `${fallbackStreamUrl}?alt=sse&key=${effectiveKey}`,
+          JSON.stringify(fallbackStreamPayload),
+        );
+        if (fallback.ok) {
+          streamRes = fallback;
+        } else {
+          const errText = await fallback.text();
+          console.error(`[ai-concierge] Fallback stream also failed: HTTP ${fallback.status} — ${errText.slice(0, 200)}`);
+        }
+      } catch (err) {
+        console.error('[ai-concierge] Fallback stream error:', err);
+      }
+    }
+
+    if (!streamRes) {
       return new Response(
-        JSON.stringify({ error: geminiError, geminiStatus: streamRes.status, model: GEMINI_MODEL }),
+        JSON.stringify({ error: 'Serviço de IA indisponível. Tente novamente.', model: GEMINI_MODEL }),
         { status: 502, headers: { ...corsH, 'Content-Type': 'application/json' } },
       );
     }
