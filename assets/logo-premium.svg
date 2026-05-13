@@ -18,92 +18,119 @@
   <g transform="translate(50 200)">
     <svg x="0" y="0" width="500" height="200" viewBox="0 0 500 200" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
       <defs>
-        <linearGradient id="goldH" x1="0" y1="0" x2="0" y2="1">
+        <linearGradient id="goldHP" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stop-color="#F5E27A"/>
           <stop offset="40%" stop-color="#D4AF37"/>
           <stop offset="60%" stop-color="#8B6914"/>
           <stop offset="80%" stop-color="#D4AF37"/>
           <stop offset="100%" stop-color="#F5E27A"/>
         </linearGradient>
-        <linearGradient id="goldGlobe" x1="0" y1="0" x2="1" y2="1">
+        <linearGradient id="goldGlobeP" x1="0" y1="0" x2="1" y2="1">
           <stop offset="0%" stop-color="#0B1C3D"/>
           <stop offset="60%" stop-color="#1a2f5e"/>
           <stop offset="100%" stop-color="#D4AF37"/>
         </linearGradient>
-        <radialGradient id="globeBg" cx="38%" cy="30%" r="70%">
-          <stop offset="0%" stop-color="#1a2f5e"/>
+        <radialGradient id="globeBgP" cx="36%" cy="28%" r="72%">
+          <stop offset="0%" stop-color="#243a6e"/>
+          <stop offset="45%" stop-color="#1a2f5e"/>
           <stop offset="100%" stop-color="#0B1C3D"/>
         </radialGradient>
-        <linearGradient id="goldRing" x1="0" y1="0" x2="1" y2="1">
+        <radialGradient id="globeHLP" cx="34%" cy="26%" r="52%">
+          <stop offset="0%" stop-color="#ffffff" stop-opacity="0.13"/>
+          <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+        </radialGradient>
+        <linearGradient id="goldRingP" x1="0" y1="0" x2="1" y2="1">
           <stop offset="0%" stop-color="#F5E27A"/>
           <stop offset="28%" stop-color="#D4AF37"/>
           <stop offset="50%" stop-color="#8B6914"/>
           <stop offset="72%" stop-color="#D4AF37"/>
           <stop offset="100%" stop-color="#F5E27A"/>
         </linearGradient>
-        <filter id="shadow" x="-30%" y="-30%" width="180%" height="180%">
+        <linearGradient id="ringHP" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stop-color="#F5E27A" stop-opacity="0.3"/>
+          <stop offset="30%" stop-color="#D4AF37"/>
+          <stop offset="50%" stop-color="#F5E27A"/>
+          <stop offset="70%" stop-color="#D4AF37"/>
+          <stop offset="100%" stop-color="#F5E27A" stop-opacity="0.3"/>
+        </linearGradient>
+        <filter id="shadowP" x="-30%" y="-30%" width="180%" height="180%">
           <feDropShadow dx="2" dy="4" stdDeviation="3" flood-color="#00000066"/>
         </filter>
-        <filter id="glow" x="-40%" y="-40%" width="220%" height="220%">
+        <filter id="glowP" x="-40%" y="-40%" width="220%" height="220%">
           <feGaussianBlur in="SourceGraphic" stdDeviation="1.4" result="blurred"/>
           <feComposite in="blurred" in2="SourceGraphic" operator="over"/>
         </filter>
-        <filter id="textShadow" x="-10%" y="-30%" width="140%" height="180%">
+        <filter id="textShadowP" x="-10%" y="-30%" width="140%" height="180%">
           <feDropShadow dx="1" dy="1" stdDeviation="1" flood-color="#000000" flood-opacity="0.15"/>
         </filter>
-        <clipPath id="globeClip">
+        <clipPath id="globeClipP">
           <circle cx="150" cy="86" r="55"/>
         </clipPath>
       </defs>
 
-      <g filter="url(#shadow)">
-        <g filter="url(#glow)">
-          <path fill="url(#goldH)" d="M52 28 L80 28 L80 76 L112 76 L112 28 L140 28 L140 148 L112 148 L112 102 L80 102 L80 148 L52 148 Z M46 28 L88 28 L82 20 L52 20 Z M104 28 L146 28 L140 20 L110 20 Z M46 148 L52 156 L82 156 L88 148 Z M104 148 L110 156 L140 156 L146 148 Z"/>
+      <g filter="url(#shadowP)">
+        <g filter="url(#glowP)">
+          <path fill="url(#goldHP)" d="M52 28 L80 28 L80 76 L112 76 L112 28 L140 28 L140 148 L112 148 L112 102 L80 102 L80 148 L52 148 Z M46 28 L88 28 L82 20 L52 20 Z M104 28 L146 28 L140 20 L110 20 Z M46 148 L52 156 L82 156 L88 148 Z M104 148 L110 156 L140 156 L146 148 Z"/>
         </g>
       </g>
 
-      <g filter="url(#shadow)">
-        <circle cx="150" cy="86" r="55" fill="url(#globeBg)" stroke="#D4AF37" stroke-width="2"/>
-        <g clip-path="url(#globeClip)" fill="none" stroke="#D4AF37" stroke-opacity="0.4" stroke-width="0.8">
-          <ellipse cx="150" cy="86" rx="8" ry="55"/>
-          <ellipse cx="150" cy="86" rx="18" ry="55"/>
-          <ellipse cx="150" cy="86" rx="28" ry="55"/>
-          <ellipse cx="150" cy="86" rx="38" ry="55"/>
-          <ellipse cx="150" cy="86" rx="48" ry="55"/>
-          <ellipse cx="150" cy="86" rx="55" ry="55"/>
-          <path d="M95 64 Q150 48 205 64"/>
+      <g filter="url(#shadowP)">
+        <circle cx="150" cy="86" r="55" fill="url(#globeBgP)" stroke="#D4AF37" stroke-width="2"/>
+        <g clip-path="url(#globeClipP)" fill="none" stroke="#D4AF37" stroke-opacity="0.35" stroke-width="0.7">
+          <ellipse cx="150" cy="86" rx="10" ry="55"/>
+          <ellipse cx="150" cy="86" rx="22" ry="55"/>
+          <ellipse cx="150" cy="86" rx="35" ry="55"/>
+          <ellipse cx="150" cy="86" rx="46" ry="55"/>
+          <path d="M95 64 Q150 50 205 64"/>
           <path d="M95 75 Q150 64 205 75"/>
           <path d="M95 86 Q150 86 205 86"/>
           <path d="M95 97 Q150 108 205 97"/>
           <path d="M95 108 Q150 124 205 108"/>
         </g>
-        <g clip-path="url(#globeClip)">
-          <path fill="#D4AF37" fill-opacity="0.75" d="M117 52 L126 46 L138 48 L143 55 L139 63 L131 65 L124 62 L119 57 Z"/>
-          <path fill="#D4AF37" fill-opacity="0.85" d="M126 68 L136 66 L142 72 L141 82 L136 91 L137 100 L133 110 L126 122 L118 124 L114 116 L116 106 L120 98 L118 89 L121 80 Z"/>
-          <path fill="#D4AF37" fill-opacity="0.7" d="M159 54 L170 50 L178 54 L178 61 L170 65 L162 62 Z"/>
-          <path fill="#D4AF37" fill-opacity="0.7" d="M162 67 L172 66 L180 72 L183 83 L180 96 L172 104 L164 102 L159 90 L158 79 Z"/>
+        <!-- South America -->
+        <g clip-path="url(#globeClipP)">
+          <path fill="#D4AF37" fill-opacity="0.82" d="M114 52 L121 48 L132 49 L140 54 L142 61 L139 67 L135 71 L134 77 L131 83 L128 91 L126 101 L123 113 L120 121 L116 122 L113 116 L114 107 L117 98 L115 89 L112 80 L111 70 L113 61 Z"/>
+          <path fill="#D4AF37" fill-opacity="0.68" d="M109 51 L114 48 L118 50 L117 55 L112 57 L108 55 Z"/>
         </g>
-        <g clip-path="url(#globeClip)" fill="#F5E27A">
-          <path d="M133 97 H167 L163 110 H137 Z"/>
-          <rect x="137" y="82" width="26" height="15"/>
-          <polygon points="135,82 150,72 165,82"/>
-          <rect x="139" y="84" width="3" height="13" fill="#D4AF37"/>
-          <rect x="144" y="84" width="3" height="13" fill="#D4AF37"/>
-          <rect x="153" y="84" width="3" height="13" fill="#D4AF37"/>
-          <rect x="158" y="84" width="3" height="13" fill="#D4AF37"/>
-          <rect x="148.5" y="88" width="3" height="9" fill="#D4AF37"/>
-          <rect x="140" y="100" width="20" height="2" fill="#D4AF37"/>
-          <rect x="145" y="102" width="10" height="3" fill="#D4AF37"/>
+        <!-- Africa -->
+        <g clip-path="url(#globeClipP)">
+          <path fill="#D4AF37" fill-opacity="0.80" d="M156 46 L167 43 L175 47 L181 55 L183 64 L181 74 L180 83 L177 93 L172 103 L167 112 L162 117 L157 115 L154 107 L154 97 L152 87 L151 77 L153 67 L152 56 Z"/>
+          <path fill="#D4AF37" fill-opacity="0.72" d="M180 76 L188 72 L192 76 L186 82 L180 82 Z"/>
         </g>
-        <circle cx="150" cy="86" r="55" fill="none" stroke="url(#goldRing)" stroke-width="3"/>
-        <circle cx="150" cy="86" r="53" fill="none" stroke="url(#goldGlobe)" stroke-width="1" opacity="0.8"/>
+        <!-- Classical resort building -->
+        <g clip-path="url(#globeClipP)" fill="#F5E27A">
+          <rect x="130" y="107" width="40" height="4"/>
+          <rect x="133" y="103" width="34" height="4"/>
+          <rect x="135" y="87" width="30" height="16"/>
+          <rect x="136" y="75" width="28" height="12"/>
+          <polygon points="132,75 150,64 168,75"/>
+          <rect x="133" y="87" width="34" height="1.5" fill="#8B6914"/>
+          <rect x="134" y="75" width="32" height="1.5" fill="#8B6914"/>
+          <rect x="136" y="87" width="2" height="16" fill="#D4AF37"/>
+          <rect x="140" y="87" width="2" height="16" fill="#D4AF37"/>
+          <rect x="144" y="87" width="2" height="16" fill="#D4AF37"/>
+          <rect x="148" y="87" width="2" height="16" fill="#D4AF37"/>
+          <rect x="152" y="87" width="2" height="16" fill="#D4AF37"/>
+          <rect x="156" y="87" width="2" height="16" fill="#D4AF37"/>
+          <rect x="160" y="87" width="2" height="16" fill="#D4AF37"/>
+          <rect x="139" y="77" width="4" height="7" fill="#D4AF37"/>
+          <rect x="146" y="77" width="4" height="7" fill="#D4AF37"/>
+          <rect x="153" y="77" width="4" height="7" fill="#D4AF37"/>
+          <rect x="160" y="77" width="4" height="7" fill="#D4AF37"/>
+          <rect x="147" y="96" width="6" height="7" fill="#D4AF37"/>
+        </g>
+        <circle cx="150" cy="86" r="55" fill="url(#globeHLP)"/>
+        <circle cx="150" cy="86" r="55" fill="none" stroke="url(#goldRingP)" stroke-width="3"/>
+        <circle cx="150" cy="86" r="53" fill="none" stroke="url(#goldGlobeP)" stroke-width="1" opacity="0.8"/>
+        <ellipse cx="150" cy="86" rx="63" ry="10" fill="none" stroke="url(#ringHP)" stroke-width="5" opacity="0.9"/>
+        <ellipse cx="150" cy="86" rx="63" ry="10" fill="none" stroke="#F5E27A" stroke-width="1.5" opacity="0.5"/>
       </g>
 
-      <text x="230" y="96" font-family="Georgia, 'Times New Roman', serif" font-weight="700" font-size="52" letter-spacing="8" fill="url(#goldH)" filter="url(#textShadow)">HOSPEDAH</text>
+      <text x="230" y="96" font-family="Georgia, 'Times New Roman', serif" font-weight="700" font-size="52" letter-spacing="8" fill="url(#goldHP)" filter="url(#textShadowP)">HOSPEDAH</text>
       <g font-family="Georgia, 'Times New Roman', serif" fill="#D4AF37" text-anchor="middle">
-      <text x="376" y="141" font-style="italic" font-size="16" letter-spacing="2">Sua experiência começa aqui</text>
-        <text x="248" y="141" font-size="18" fill="url(#goldH)">→</text>
-        <text x="504" y="141" font-size="18" fill="url(#goldH)">←</text>
+        <text x="376" y="141" font-style="italic" font-size="16" letter-spacing="2">Sua experiência começa aqui</text>
+        <text x="248" y="141" font-size="18" fill="url(#goldHP)">→</text>
+        <text x="504" y="141" font-size="18" fill="url(#goldHP)">←</text>
       </g>
     </svg>
   </g>

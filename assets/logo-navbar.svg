@@ -9,9 +9,14 @@
       <stop offset="80%" stop-color="#D4AF37"/>
       <stop offset="100%" stop-color="#F5E27A"/>
     </linearGradient>
-    <radialGradient id="globeNav" cx="38%" cy="30%" r="70%">
-      <stop offset="0%" stop-color="#1a2f5e"/>
+    <radialGradient id="globeNav" cx="36%" cy="28%" r="72%">
+      <stop offset="0%" stop-color="#243a6e"/>
+      <stop offset="45%" stop-color="#1a2f5e"/>
       <stop offset="100%" stop-color="#0B1C3D"/>
+    </radialGradient>
+    <radialGradient id="globeNavHL" cx="34%" cy="26%" r="52%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.13"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
     </radialGradient>
     <linearGradient id="ringNav" x1="0" y1="0" x2="1" y2="0">
       <stop offset="0%" stop-color="#F5E27A" stop-opacity="0.3"/>
@@ -28,33 +33,63 @@
   <path fill="url(#goldNav)" d="M5 7 H13 V17 H22 V7 H30 V37 H22 V24 H13 V37 H5 Z M3 7 H15 L14 4 H4 Z M20 7 H32 L31 4 H21 Z M3 37 L4 40 H14 L15 37 Z M20 37 L21 40 H31 L32 37 Z"/>
 
   <circle cx="26" cy="22" r="18" fill="url(#globeNav)" stroke="#D4AF37" stroke-width="1.4"/>
-  <g clip-path="url(#globeClipNav)" fill="none" stroke="#D4AF37" stroke-opacity="0.45" stroke-width="0.5">
-    <ellipse cx="26" cy="22" rx="4" ry="18"/>
-    <ellipse cx="26" cy="22" rx="8" ry="18"/>
-    <ellipse cx="26" cy="22" rx="12" ry="18"/>
-    <ellipse cx="26" cy="22" rx="16" ry="18"/>
-    <ellipse cx="26" cy="22" rx="18" ry="18"/>
+  <g clip-path="url(#globeClipNav)" fill="none" stroke="#D4AF37" stroke-opacity="0.35" stroke-width="0.5">
+    <ellipse cx="26" cy="22" rx="3.3" ry="18"/>
+    <ellipse cx="26" cy="22" rx="7.2" ry="18"/>
+    <ellipse cx="26" cy="22" rx="11.5" ry="18"/>
+    <ellipse cx="26" cy="22" rx="15" ry="18"/>
     <path d="M8 16 Q26 11 44 16"/>
     <path d="M8 22 Q26 22 44 22"/>
     <path d="M8 28 Q26 33 44 28"/>
     <path d="M8 34 Q26 38 44 34"/>
     <path d="M8 10 Q26 6 44 10"/>
   </g>
+
+  <!-- South America (scaled from logo.svg: factor 18/55=0.327, offset to cx=26,cy=22) -->
   <g clip-path="url(#globeClipNav)">
-    <path fill="#D4AF37" fill-opacity="0.78" d="M15 13 L18 11 L22 12 L24 15 L22 17 L20 18 L17 17 Z"/>
-    <path fill="#D4AF37" fill-opacity="0.86" d="M18 19 L21 18 L23 20 L24 24 L23 28 L21 32 L18 34 L16 31 L17 27 L18 24 Z"/>
-    <path fill="#D4AF37" fill-opacity="0.72" d="M28 14 L33 12 L36 14 L36 17 L33 18 L29 17 Z"/>
-    <path fill="#D4AF37" fill-opacity="0.72" d="M29 20 L33 19 L36 22 L37 26 L36 30 L33 32 L30 30 L29 26 Z"/>
-    <g fill="#F5E27A">
-      <path d="M21 25 H31 L29.5 30 H22.5 Z"/>
-      <rect x="22" y="20" width="8" height="5"/>
-      <polygon points="21,20 26,16.5 31,20"/>
-      <rect x="23" y="21" width="1" height="4" fill="#D4AF37"/>
-      <rect x="25" y="21" width="1" height="4" fill="#D4AF37"/>
-      <rect x="27" y="21" width="1" height="4" fill="#D4AF37"/>
-      <rect x="24" y="26" width="4" height="1" fill="#D4AF37"/>
-    </g>
+    <path fill="#D4AF37" fill-opacity="0.82" d="M13.9 12.2 L16.2 10.3 L19.3 10.6 L21.9 12.8 L22.5 14.1 L21.9 16.0 L20.6 17.3 L20.3 19.2 L19.3 21.1 L18.3 23.8 L17.6 27.0 L16.6 31.0 L15.6 33.6 L14.3 33.9 L13.3 31.9 L13.7 28.9 L14.7 26.1 L14.0 23.2 L13.0 20.2 L12.7 17.0 L13.3 14.0 Z"/>
+    <path fill="#D4AF37" fill-opacity="0.68" d="M12.0 12.0 L13.9 10.7 L15.2 11.3 L15.2 13.0 L13.3 13.6 L11.7 13.0 Z"/>
   </g>
+
+  <!-- Africa (scaled) -->
+  <g clip-path="url(#globeClipNav)">
+    <path fill="#D4AF37" fill-opacity="0.80" d="M28.0 8.9 L31.6 7.6 L34.3 9.0 L35.9 11.5 L36.6 14.2 L36.0 17.2 L35.6 20.2 L34.7 23.1 L33.1 26.6 L31.2 29.8 L29.8 31.4 L28.0 30.8 L27.0 28.1 L27.0 24.8 L26.3 21.5 L26.0 18.2 L26.7 15.0 L26.3 11.7 Z"/>
+    <path fill="#D4AF37" fill-opacity="0.72" d="M35.5 19.2 L38.1 17.9 L39.4 19.2 L37.4 21.1 L35.5 21.1 Z"/>
+  </g>
+
+  <!-- Classical building (scaled) -->
+  <g clip-path="url(#globeClipNav)" fill="#F5E27A">
+    <!-- Steps -->
+    <rect x="19.7" y="29.5" width="13.1" height="1.3"/>
+    <rect x="20.7" y="28.2" width="11.1" height="1.3"/>
+    <!-- Main body -->
+    <rect x="21.4" y="22.8" width="9.8" height="5.4"/>
+    <!-- Upper floor -->
+    <rect x="21.7" y="18.6" width="9.2" height="4.2"/>
+    <!-- Pediment -->
+    <polygon points="20.4,18.6 26,15.1 31.6,18.6"/>
+    <!-- Cornice lines -->
+    <rect x="20.7" y="22.8" width="11.1" height="0.5" fill="#8B6914"/>
+    <rect x="21.0" y="18.6" width="10.5" height="0.5" fill="#8B6914"/>
+    <!-- Columns -->
+    <rect x="21.7" y="22.8" width="0.65" height="5.4" fill="#D4AF37"/>
+    <rect x="23.0" y="22.8" width="0.65" height="5.4" fill="#D4AF37"/>
+    <rect x="24.3" y="22.8" width="0.65" height="5.4" fill="#D4AF37"/>
+    <rect x="25.6" y="22.8" width="0.65" height="5.4" fill="#D4AF37"/>
+    <rect x="26.9" y="22.8" width="0.65" height="5.4" fill="#D4AF37"/>
+    <rect x="28.2" y="22.8" width="0.65" height="5.4" fill="#D4AF37"/>
+    <rect x="29.5" y="22.8" width="0.65" height="5.4" fill="#D4AF37"/>
+    <!-- Upper windows -->
+    <rect x="22.4" y="19.4" width="1.3" height="2.3" fill="#D4AF37"/>
+    <rect x="24.7" y="19.4" width="1.3" height="2.3" fill="#D4AF37"/>
+    <rect x="27.0" y="19.4" width="1.3" height="2.3" fill="#D4AF37"/>
+    <rect x="29.3" y="19.4" width="1.3" height="2.3" fill="#D4AF37"/>
+    <!-- Door -->
+    <rect x="25.0" y="25.8" width="2.0" height="2.3" fill="#D4AF37"/>
+  </g>
+
+  <!-- 3D highlight -->
+  <circle cx="26" cy="22" r="18" fill="url(#globeNavHL)"/>
 
   <!-- Equatorial orbital ring -->
   <ellipse cx="26" cy="22" rx="22" ry="3.5" fill="none" stroke="url(#ringNav)" stroke-width="2.5" opacity="0.9"/>
