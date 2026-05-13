@@ -36,14 +36,21 @@
       "short_name": "Orçamento",
       "description": "Solicite um orçamento rápido via WhatsApp",
       "url": "/#orcamento",
-      "icons": [{ "src": "/assets/icons/icon-192.svg", "sizes": "192x192" }]
+      "icons": [{ "src": "/assets/icons/icon-192.svg", "sizes": "192x192", "type": "image/svg+xml" }]
     },
     {
-      "name": "Ver Galeria",
-      "short_name": "Galeria",
-      "description": "Veja as fotos dos resorts",
-      "url": "/#galeria",
-      "icons": [{ "src": "/assets/icons/icon-192.svg", "sizes": "192x192" }]
+      "name": "Buscar Resorts",
+      "short_name": "Buscar",
+      "description": "Encontre hospedagens e destinos",
+      "url": "/busca.html",
+      "icons": [{ "src": "/assets/icons/icon-192.svg", "sizes": "192x192", "type": "image/svg+xml" }]
+    },
+    {
+      "name": "Minha Conta",
+      "short_name": "Conta",
+      "description": "Acesse reservas, fidelidade e vouchers",
+      "url": "/portal/dashboard.html",
+      "icons": [{ "src": "/assets/icons/icon-192.svg", "sizes": "192x192", "type": "image/svg+xml" }]
     }
   ],
   "screenshots": [

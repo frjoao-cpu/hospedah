@@ -1,0 +1,31 @@
+{
+  "nav": {
+    "home": "🏠 Inicio",
+    "search": "🔍 Buscar",
+    "reserve": "📅 Reservar",
+    "reviews": "⭐ Reseñas",
+    "budget": "💰 Presupuesto",
+    "account": "👤 Mi Cuenta",
+    "chat": "🤖 Chat IA",
+    "referral": "🎁 Recomendar",
+    "news": "📰 Noticias"
+  },
+  "hero": {
+    "tagline": "Resorts y Experiencias Exclusivas",
+    "badge": "✦ Atención Premium ✦",
+    "searchTitle": "🔍 Encuentra tu hospedaje ideal",
+    "searchButton": "🔍 Buscar"
+  },
+  "sections": {
+    "gallery": "🏝️ Galería de Resorts",
+    "budget": "💰 Solicita un Presupuesto",
+    "faq": "❓ Preguntas Frecuentes",
+    "contact": "📬 Contacto"
+  },
+  "pwa": {
+    "installTitle": "Instala la app de HOSPEDAH",
+    "installDesc": "Acceso rápido al portal del huésped, reservas y ofertas exclusivas.",
+    "installButton": "Instalar",
+    "dismissButton": "Ahora no"
+  }
+}

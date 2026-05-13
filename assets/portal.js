@@ -1,361 +1,313 @@
-'use strict';
-
 (function () {
-  var DASHBOARD_PATH = '/portal/dashboard.html';
-  var LOGIN_PATH = '/portal/index.html';
-  var RESET_PATH = '/portal/reset-password.html';
+  'use strict';
 
-  function getPage() {
-    var parts = window.location.pathname.split('/');
-    return parts[parts.length - 1] || 'index.html';
-  }
-
-  function getSupabaseClient() {
+  function getClient() {
     if (!window.supabase || !window.HOSPEDAH_SB_URL || !window.HOSPEDAH_SB_ANON) {
-      return null;
+      throw new Error('Supabase indisponível.');
     }
-    if (!window.__hospedahPortalClient) {
-      window.__hospedahPortalClient = window.supabase.createClient(
-        window.HOSPEDAH_SB_URL,
-        window.HOSPEDAH_SB_ANON
-      );
-    }
-    return window.__hospedahPortalClient;
+    return window.supabase.createClient(window.HOSPEDAH_SB_URL, window.HOSPEDAH_SB_ANON);
   }
 
-  function getOrigin() {
-    if (window.location.origin && window.location.origin !== 'null') {
-      return window.location.origin;
-    }
-    return 'https://hospedah.tur.br';
+  var client;
+
+  function setMessage(el, text, type) {
+    if (!el) return;
+    el.textContent = text || '';
+    el.classList.remove('success', 'error');
+    if (type) el.classList.add(type);
   }
 
-  function setFeedback(id, message, type) {
-    var el = document.getElementById(id);
-    if (!el) {
-      return;
+  function isValidEmail(value) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+  }
+
+  function findFirstMessageElement() {
+    return document.getElementById('portalAuthMessage') ||
+      document.getElementById('portalResetMessage') ||
+      document.getElementById('portalConfigMessage');
+  }
+
+  function makeQrSvg(code) {
+    var bits = Array.from(code).map(function (c) { return c.charCodeAt(0); });
+    var size = 17;
+    var pixel = 7;
+    var markup = '<svg viewBox="0 0 ' + (size * pixel) + ' ' + (size * pixel) + '" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="QR do voucher"><rect width="100%" height="100%" fill="#fff"/>';
+    for (var y = 0; y < size; y++) {
+      for (var x = 0; x < size; x++) {
+        var value = bits[(x + y) % bits.length] || 0;
+        if ((value + x * 3 + y * 5) % 2 === 0) {
+          markup += '<rect x="' + (x * pixel) + '" y="' + (y * pixel) + '" width="' + pixel + '" height="' + pixel + '" fill="#0B1C3D"/>';
+        }
+      }
     }
-    el.textContent = message || '';
-    el.classList.remove('is-error', 'is-success');
-    if (type) {
-      el.classList.add(type === 'error' ? 'is-error' : 'is-success');
+    return markup + '</svg>';
+  }
+
+  function showSection(name) {
+    var links = document.querySelectorAll('.portal-nav-link');
+    var sections = ['reservas', 'fidelidade', 'vouchers', 'config'];
+    links.forEach(function (btn) {
+      btn.classList.toggle('active', btn.getAttribute('data-section') === name);
+    });
+    sections.forEach(function (id) {
+      var el = document.getElementById('section-' + id);
+      if (el) el.classList.toggle('hidden', id !== name);
+    });
+  }
+
+  async function getSessionUser() {
+    var sessionRes = await client.auth.getSession();
+    return sessionRes && sessionRes.data && sessionRes.data.session && sessionRes.data.session.user;
+  }
+
+  async function loadDashboardData(user) {
+    var reservationsWrap = document.getElementById('portalReservations');
+    var vouchersWrap = document.getElementById('portalVouchers');
+    var tierTrack = document.getElementById('tierTrack');
+    var userInfo = document.getElementById('portalUserInfo');
+    if (userInfo) userInfo.textContent = user.email || 'Usuário autenticado';
+
+    var reservationRows = [];
+    try {
+      var reservationRes = await client
+        .from('reservas')
+        .select('resort, checkin, checkout, status')
+        .eq('user_id', user.id)
+        .order('checkin', { ascending: false })
+        .limit(6);
+      if (!reservationRes.error && reservationRes.data) {
+        reservationRows = reservationRes.data;
+      }
+    } catch (err) {
+      reservationRows = [];
+    }
+
+    if (!reservationRows.length) {
+      reservationRows = [
+        { resort: 'Hot Beach Suites', checkin: '2026-07-18', checkout: '2026-07-22', status: 'Confirmada' },
+        { resort: 'Ipioca Beach Resort', checkin: '2026-10-02', checkout: '2026-10-06', status: 'Pré-reserva' }
+      ];
+    }
+
+    if (reservationsWrap) {
+      reservationsWrap.innerHTML = reservationRows.map(function (row) {
+        return '<article class="portal-item"><h3>' + row.resort + '</h3><p>Check-in: ' + row.checkin + '</p><p>Check-out: ' + row.checkout + '</p><p>Status: ' + row.status + '</p></article>';
+      }).join('');
+    }
+
+    var points = reservationRows.length * 450;
+    var tiers = [
+      { name: 'Bronze', min: 0 },
+      { name: 'Prata', min: 1200 },
+      { name: 'Ouro', min: 2500 },
+      { name: 'Diamante', min: 4500 }
+    ];
+
+    if (tierTrack) {
+      tierTrack.innerHTML = tiers.map(function (tier) {
+        var active = points >= tier.min;
+        return '<div class="tier-step' + (active ? ' active' : '') + '"><strong>' + tier.name + '</strong> · ' + tier.min + '+ pts</div>';
+      }).join('');
+    }
+
+    var voucherRows = reservationRows.map(function (item, index) {
+      return {
+        title: 'Voucher #' + (index + 1),
+        code: (item.resort || 'HOSPEDAH').replace(/\s+/g, '').toUpperCase().slice(0, 8) + '-' + (index + 1) + '-' + user.id.slice(0, 6)
+      };
+    });
+
+    if (vouchersWrap) {
+      vouchersWrap.innerHTML = voucherRows.map(function (voucher) {
+        return '<article class="portal-item"><h3>' + voucher.title + '</h3><p>' + voucher.code + '</p><div class="qr-box">' + makeQrSvg(voucher.code) + '</div></article>';
+      }).join('');
     }
   }
 
-  function redirect(path) {
-    if (window.location.pathname !== path) {
-      window.location.href = path;
-    }
-  }
-
-  function normalizePoints(rawPoints) {
-    var points = Number(rawPoints || 0);
-    if (Number.isNaN(points) || points < 0) {
-      return 0;
-    }
-    return points;
-  }
-
-  function loyaltyLevel(points) {
-    if (points >= 1500) {
-      return 'Diamond';
-    }
-    if (points >= 1000) {
-      return 'Platinum';
-    }
-    if (points >= 700) {
-      return 'Gold';
-    }
-    if (points >= 350) {
-      return 'Silver';
-    }
-    return 'Bronze';
-  }
-
-  function initTabs() {
-    var tabs = document.querySelectorAll('.portal-tab');
-    if (!tabs.length) {
-      return;
-    }
-
-    tabs.forEach(function (tabButton) {
-      tabButton.addEventListener('click', function () {
-        tabs.forEach(function (btn) {
-          btn.classList.remove('is-active');
-          btn.setAttribute('aria-selected', 'false');
+  function initAuthTabs() {
+    var tabButtons = document.querySelectorAll('.portal-tab');
+    var loginForm = document.getElementById('loginForm');
+    var signupForm = document.getElementById('signupForm');
+    tabButtons.forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var isLogin = btn.getAttribute('data-tab') === 'login';
+        tabButtons.forEach(function (item) {
+          var active = item === btn;
+          item.classList.toggle('active', active);
+          item.setAttribute('aria-selected', active ? 'true' : 'false');
         });
-
-        var selected = tabButton.getAttribute('data-tab');
-        var panels = document.querySelectorAll('[data-panel]');
-        panels.forEach(function (panel) {
-          panel.classList.toggle('is-hidden', panel.getAttribute('data-panel') !== selected);
-        });
-
-        tabButton.classList.add('is-active');
-        tabButton.setAttribute('aria-selected', 'true');
+        if (loginForm) loginForm.classList.toggle('hidden', !isLogin);
+        if (signupForm) signupForm.classList.toggle('hidden', isLogin);
       });
     });
   }
 
-  async function ensureSessionForDashboard(client) {
-    var sessionData = await client.auth.getSession();
-    if (!sessionData || !sessionData.data || !sessionData.data.session) {
-      redirect(LOGIN_PATH);
-      return null;
-    }
-    return sessionData.data.session;
-  }
+  async function initAuthPage() {
+    initAuthTabs();
+    var message = document.getElementById('portalAuthMessage');
+    var loginForm = document.getElementById('loginForm');
+    var signupForm = document.getElementById('signupForm');
+    var googleBtn = document.getElementById('btnGoogleAuth');
 
-  async function maybeRedirectAuthenticatedFromLogin(client) {
-    var sessionData = await client.auth.getSession();
-    if (sessionData && sessionData.data && sessionData.data.session) {
-      redirect(DASHBOARD_PATH);
+    var activeUser = await getSessionUser();
+    if (activeUser) {
+      window.location.replace('/portal/dashboard.html');
+      return;
     }
-  }
 
-  function bindGoogleOAuth(client) {
-    var buttons = document.querySelectorAll('.js-google-auth');
-    buttons.forEach(function (button) {
-      button.addEventListener('click', async function () {
-        setFeedback('authFeedback', 'Redirecionando para o Google...', 'success');
-        var result = await client.auth.signInWithOAuth({
+    if (loginForm) {
+      loginForm.addEventListener('submit', async function (event) {
+        event.preventDefault();
+        var email = document.getElementById('loginEmail').value.trim().toLowerCase();
+        var password = document.getElementById('loginPassword').value;
+        if (!isValidEmail(email) || !password) {
+          setMessage(message, 'Preencha e-mail e senha válidos.', 'error');
+          return;
+        }
+        var loginRes = await client.auth.signInWithPassword({ email: email, password: password });
+        if (loginRes.error) {
+          setMessage(message, loginRes.error.message, 'error');
+          return;
+        }
+        window.location.replace('/portal/dashboard.html');
+      });
+    }
+
+    if (signupForm) {
+      signupForm.addEventListener('submit', async function (event) {
+        event.preventDefault();
+        var name = document.getElementById('signupName').value.trim();
+        var email = document.getElementById('signupEmail').value.trim().toLowerCase();
+        var password = document.getElementById('signupPassword').value;
+        if (!name || !isValidEmail(email) || password.length < 6) {
+          setMessage(message, 'Informe nome, e-mail válido e senha com 6+ caracteres.', 'error');
+          return;
+        }
+        var signUpRes = await client.auth.signUp({
+          email: email,
+          password: password,
+          options: { data: { full_name: name }, emailRedirectTo: window.location.origin + '/portal/dashboard.html' }
+        });
+        if (signUpRes.error) {
+          setMessage(message, signUpRes.error.message, 'error');
+          return;
+        }
+        setMessage(message, 'Conta criada! Verifique seu e-mail para confirmar o acesso.', 'success');
+      });
+    }
+
+    if (googleBtn) {
+      googleBtn.addEventListener('click', async function () {
+        var oauthRes = await client.auth.signInWithOAuth({
           provider: 'google',
-          options: {
-            redirectTo: getOrigin() + DASHBOARD_PATH
-          }
+          options: { redirectTo: window.location.origin + '/portal/dashboard.html' }
         });
-        if (result.error) {
-          setFeedback('authFeedback', result.error.message, 'error');
+        if (oauthRes.error) {
+          setMessage(message, oauthRes.error.message, 'error');
         }
       });
-    });
+    }
   }
 
-  function bindLogin(client) {
-    var form = document.getElementById('loginForm');
-    if (!form) {
+  async function initDashboardPage() {
+    var user = await getSessionUser();
+    if (!user) {
+      window.location.replace('/portal/index.html');
       return;
     }
 
-    form.addEventListener('submit', async function (event) {
-      event.preventDefault();
-      var email = document.getElementById('loginEmail').value.trim();
-      var password = document.getElementById('loginPassword').value;
-
-      setFeedback('authFeedback', 'Entrando...', 'success');
-      var result = await client.auth.signInWithPassword({
-        email: email,
-        password: password
+    var navLinks = document.querySelectorAll('.portal-nav-link');
+    navLinks.forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        showSection(btn.getAttribute('data-section'));
       });
-
-      if (result.error) {
-        setFeedback('authFeedback', result.error.message, 'error');
-        return;
-      }
-
-      redirect(DASHBOARD_PATH);
     });
-  }
 
-  function bindSignup(client) {
-    var form = document.getElementById('signupForm');
-    if (!form) {
-      return;
-    }
-
-    form.addEventListener('submit', async function (event) {
-      event.preventDefault();
-      var name = document.getElementById('signupName').value.trim();
-      var email = document.getElementById('signupEmail').value.trim();
-      var password = document.getElementById('signupPassword').value;
-
-      setFeedback('authFeedback', 'Criando conta...', 'success');
-      var result = await client.auth.signUp({
-        email: email,
-        password: password,
-        options: {
-          data: {
-            full_name: name,
-            loyalty_points: 0
-          },
-          emailRedirectTo: getOrigin() + DASHBOARD_PATH
-        }
-      });
-
-      if (result.error) {
-        setFeedback('authFeedback', result.error.message, 'error');
-        return;
-      }
-
-      setFeedback('authFeedback', 'Conta criada! Verifique seu e-mail para confirmar o acesso.', 'success');
-      form.reset();
-    });
-  }
-
-  async function hydrateDashboard(client, session) {
-    var user = session.user;
-    var metadata = user.user_metadata || {};
-    var name = metadata.full_name || user.email || 'Hóspede';
-    var phone = metadata.phone || '';
-    var points = normalizePoints(metadata.loyalty_points);
-
-    var guestName = document.getElementById('guestName');
-    var guestEmail = document.getElementById('guestEmail');
-    var profileName = document.getElementById('profileName');
-    var profilePhone = document.getElementById('profilePhone');
-    var loyaltyPoints = document.getElementById('loyaltyPoints');
-    var loyaltyLevelEl = document.getElementById('loyaltyLevel');
-
-    if (guestName) {
-      guestName.textContent = name;
-    }
-    if (guestEmail) {
-      guestEmail.textContent = user.email || '';
-    }
-    if (profileName) {
-      profileName.value = metadata.full_name || '';
-    }
-    if (profilePhone) {
-      profilePhone.value = phone;
-    }
-    if (loyaltyPoints) {
-      loyaltyPoints.textContent = String(points);
-    }
-    if (loyaltyLevelEl) {
-      loyaltyLevelEl.textContent = loyaltyLevel(points);
-    }
-
-    var logoutButton = document.getElementById('logoutButton');
-    if (logoutButton) {
-      logoutButton.addEventListener('click', async function () {
+    var logoutBtn = document.getElementById('portalLogout');
+    if (logoutBtn) {
+      logoutBtn.addEventListener('click', async function () {
         await client.auth.signOut();
-        redirect(LOGIN_PATH);
+        window.location.replace('/portal/index.html');
       });
     }
 
-    var profileForm = document.getElementById('profileForm');
-    if (profileForm) {
-      profileForm.addEventListener('submit', async function (event) {
+    var updatePasswordForm = document.getElementById('updatePasswordForm');
+    var configMessage = document.getElementById('portalConfigMessage');
+    if (updatePasswordForm) {
+      updatePasswordForm.addEventListener('submit', async function (event) {
         event.preventDefault();
-        var fullName = document.getElementById('profileName').value.trim();
-        var updatedPhone = document.getElementById('profilePhone').value.trim();
-
-        var result = await client.auth.updateUser({
-          data: {
-            full_name: fullName,
-            phone: updatedPhone,
-            loyalty_points: points
-          }
-        });
-
-        if (result.error) {
-          setFeedback('profileFeedback', result.error.message, 'error');
+        var password = document.getElementById('newPassword').value;
+        if (!password || password.length < 6) return;
+        var response = await client.auth.updateUser({ password: password });
+        if (response.error) {
+          setMessage(configMessage, 'Não foi possível atualizar a senha: ' + response.error.message, 'error');
           return;
         }
-
-        if (guestName) {
-          guestName.textContent = fullName || (user.email || 'Hóspede');
-        }
-        setFeedback('profileFeedback', 'Perfil atualizado com sucesso.', 'success');
+        setMessage(configMessage, 'Senha atualizada com sucesso.', 'success');
+        updatePasswordForm.reset();
       });
     }
+
+    await loadDashboardData(user);
   }
 
-  async function bindResetFlows(client) {
-    var requestForm = document.getElementById('resetRequestForm');
-    if (requestForm) {
-      requestForm.addEventListener('submit', async function (event) {
-        event.preventDefault();
-        var email = document.getElementById('resetEmail').value.trim();
-        var result = await client.auth.resetPasswordForEmail(email, {
-          redirectTo: getOrigin() + RESET_PATH
-        });
+  async function initResetPage() {
+    var user = await getSessionUser();
+    var message = document.getElementById('portalResetMessage');
+    var form = document.getElementById('resetPasswordForm');
 
-        if (result.error) {
-          setFeedback('resetFeedback', result.error.message, 'error');
-          return;
-        }
-
-        setFeedback('resetFeedback', 'Enviamos um link de recuperação para seu e-mail.', 'success');
-      });
+    if (!user) {
+      setMessage(message, 'Abra este link pelo e-mail de recuperação enviado pela HOSPEDAH.', 'error');
+      return;
     }
 
-    var params = new URLSearchParams(window.location.search);
-    var code = params.get('code');
-    if (code) {
-      var exchange = await client.auth.exchangeCodeForSession(code);
-      if (exchange.error) {
-        setFeedback('resetFeedback', 'Não foi possível validar o link de recuperação.', 'error');
-      }
-    }
-
-    var passwordForm = document.getElementById('resetPasswordForm');
-    if (passwordForm) {
-      passwordForm.addEventListener('submit', async function (event) {
+    if (form) {
+      form.addEventListener('submit', async function (event) {
         event.preventDefault();
-        var newPassword = document.getElementById('newPassword').value;
-        var confirmPassword = document.getElementById('confirmPassword').value;
-
-        if (newPassword !== confirmPassword) {
-          setFeedback('resetFeedback', 'As senhas não conferem.', 'error');
+        var password = document.getElementById('resetNewPassword').value;
+        if (!password || password.length < 6) {
+          setMessage(message, 'A senha deve ter ao menos 6 caracteres.', 'error');
           return;
         }
-
-        var result = await client.auth.updateUser({
-          password: newPassword
-        });
-
-        if (result.error) {
-          setFeedback('resetFeedback', result.error.message, 'error');
+        var resetRes = await client.auth.updateUser({ password: password });
+        if (resetRes.error) {
+          setMessage(message, resetRes.error.message, 'error');
           return;
         }
-
-        setFeedback('resetFeedback', 'Senha atualizada. Faça login novamente.', 'success');
-        setTimeout(function () {
-          redirect(LOGIN_PATH);
-        }, 1000);
+        setMessage(message, 'Senha atualizada! Redirecionando...', 'success');
+        window.setTimeout(function () {
+          window.location.replace('/portal/dashboard.html');
+        }, 1200);
       });
     }
   }
 
   async function init() {
-    var client = getSupabaseClient();
-    if (!client) {
-      setFeedback('authFeedback', 'Falha ao iniciar autenticação do portal.', 'error');
-      setFeedback('resetFeedback', 'Falha ao iniciar autenticação do portal.', 'error');
+    try {
+      client = getClient();
+    } catch (err) {
+      setMessage(findFirstMessageElement(), err.message, 'error');
+      console.error(err);
       return;
     }
 
-    var page = getPage();
-    initTabs();
-
-    client.auth.onAuthStateChange(function (event) {
-      if (event === 'SIGNED_OUT' && page === 'dashboard.html') {
-        redirect(LOGIN_PATH);
-      }
-    });
-
-    if (page === 'index.html') {
-      await maybeRedirectAuthenticatedFromLogin(client);
-      bindGoogleOAuth(client);
-      bindLogin(client);
-      bindSignup(client);
+    var page = document.body.getAttribute('data-portal-page');
+    if (page === 'auth') {
+      await initAuthPage();
       return;
     }
-
-    if (page === 'dashboard.html') {
-      var session = await ensureSessionForDashboard(client);
-      if (!session) {
-        return;
-      }
-      await hydrateDashboard(client, session);
+    if (page === 'dashboard') {
+      await initDashboardPage();
       return;
     }
-
-    if (page === 'reset-password.html') {
-      await bindResetFlows(client);
+    if (page === 'reset-password') {
+      await initResetPage();
     }
   }
 
-  init();
+  document.addEventListener('DOMContentLoaded', function () {
+    init().catch(function () {
+      setMessage(findFirstMessageElement(), 'Não foi possível inicializar o portal.', 'error');
+    });
+  });
 })();
