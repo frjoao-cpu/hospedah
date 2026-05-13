@@ -236,17 +236,23 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   </a>
 
   <ul class="nav-links" role="list">
-    <li><a href="#topo">🏠 Início</a></li>
-    <li><a href="busca.html">🔍 Buscar</a></li>
-    <li><a href="reservas.html">📅 Reservar</a></li>
-    <li><a href="avaliacoes.html">⭐ Avaliações</a></li>
-    <li><a href="#orcamento">💰 Orçamento</a></li>
-    <li><a href="chat.html">🤖 Chat IA</a></li>
-    <li><a href="referral.html">🎁 Indicar</a></li>
-    <li><a href="jornal.html">📰 Jornal</a></li>
+    <li><a href="#topo" data-i18n="nav.home">🏠 Início</a></li>
+    <li><a href="busca.html" data-i18n="nav.search">🔍 Buscar</a></li>
+    <li><a href="reservas.html" data-i18n="nav.reserve">📅 Reservar</a></li>
+    <li><a href="avaliacoes.html" data-i18n="nav.reviews">⭐ Avaliações</a></li>
+    <li><a href="#orcamento" data-i18n="nav.budget">💰 Orçamento</a></li>
+    <li><a href="chat.html" data-i18n="nav.chat">🤖 Chat IA</a></li>
+    <li><a href="referral.html" data-i18n="nav.refer">🎁 Indicar</a></li>
+    <li><a href="jornal.html" data-i18n="nav.journal">📰 Jornal</a></li>
+    <li><a href="/portal/index.html" data-i18n="nav.account">👤 Minha Conta</a></li>
   </ul>
 
   <div class="nav-right">
+    <div class="lang-switcher" aria-label="Selecionar idioma">
+      <button type="button" class="btn-tema" data-lang="pt" data-i18n="lang.pt" aria-label="Português">🇧🇷</button>
+      <button type="button" class="btn-tema" data-lang="en" data-i18n="lang.en" aria-label="English">🇺🇸</button>
+      <button type="button" class="btn-tema" data-lang="es" data-i18n="lang.es" aria-label="Español">🇪🇸</button>
+    </div>
     <button class="btn-tema" id="btnTema" aria-label="Trocar tema">🌓</button>
     <button class="hamburger" id="hamburger" aria-label="Abrir menu" aria-expanded="false">
       <span></span><span></span><span></span>
@@ -257,14 +263,15 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <!-- Gaveta lateral -->
 <div class="nav-overlay" id="navOverlay"></div>
 <nav class="nav-drawer" id="navDrawer" aria-label="Menu mobile">
-  <a href="#topo"           onclick="closeDrawer()">🏠 Início</a>
-  <a href="busca.html"      onclick="closeDrawer()">🔍 Buscar Acomodações</a>
-  <a href="reservas.html"   onclick="closeDrawer()">📅 Fazer Reserva</a>
-  <a href="avaliacoes.html" onclick="closeDrawer()">⭐ Avaliações</a>
-  <a href="#orcamento"      onclick="closeDrawer()">💰 Orçamento</a>
-  <a href="chat.html"       onclick="closeDrawer()">🤖 Chat IA</a>
-  <a href="referral.html"   onclick="closeDrawer()">🎁 Indicar &amp; Ganhar</a>
-  <a href="jornal.html"     onclick="closeDrawer()">📰 Jornal HOSPEDAH</a>
+  <a href="#topo"           onclick="closeDrawer()" data-i18n="nav.home">🏠 Início</a>
+  <a href="busca.html"      onclick="closeDrawer()" data-i18n="nav.search">🔍 Buscar Acomodações</a>
+  <a href="reservas.html"   onclick="closeDrawer()" data-i18n="nav.reserve">📅 Fazer Reserva</a>
+  <a href="avaliacoes.html" onclick="closeDrawer()" data-i18n="nav.reviews">⭐ Avaliações</a>
+  <a href="#orcamento"      onclick="closeDrawer()" data-i18n="nav.budget">💰 Orçamento</a>
+  <a href="chat.html"       onclick="closeDrawer()" data-i18n="nav.chat">🤖 Chat IA</a>
+  <a href="referral.html"   onclick="closeDrawer()" data-i18n="nav.refer">🎁 Indicar &amp; Ganhar</a>
+  <a href="jornal.html"     onclick="closeDrawer()" data-i18n="nav.journal">📰 Jornal HOSPEDAH</a>
+  <a href="/portal/index.html" onclick="closeDrawer()" data-i18n="nav.account">👤 Minha Conta</a>
   <a href="#galeria"        onclick="closeDrawer()">🖼️ Galeria</a>
   <a href="resorts/ipioca.html"  onclick="closeDrawer()">🌊 Ipioca Beach Resort</a>
   <a href="resorts/portoi2.html" onclick="closeDrawer()">⚓ Porto 2 Life</a>
@@ -309,15 +316,15 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       width="320"
       height="102"
     >
-    <p class="hero-tagline">Resorts & Experiências Exclusivas</p>
-    <span class="hero-badge">✦ Atendimento Premium ✦</span>
+    <p class="hero-tagline" data-i18n="hero.tagline">Resorts & Experiências Exclusivas</p>
+    <span class="hero-badge" data-i18n="hero.badge">✦ Atendimento Premium ✦</span>
 
     <!-- ✅ Busca estilo Booking dentro do banner -->
     <div class="hero-search" role="search" aria-label="Buscar hospedagem">
-      <div class="hero-search-title">🔍 Encontre sua hospedagem ideal</div>
+      <div class="hero-search-title" data-i18n="hero.searchTitle">🔍 Encontre sua hospedagem ideal</div>
       <div class="hero-search-grid">
         <div class="hs-field">
-          <label for="hs_resort">Destino / Resort</label>
+          <label for="hs_resort" data-i18n="hero.field.destination">Destino / Resort</label>
           <select id="hs_resort">
             <option value="">Todos os resorts</option>
             <option value="Hot Beach Suites">Hot Beach Suites</option>
@@ -331,18 +338,18 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           </select>
         </div>
         <div class="hs-field">
-          <label for="hs_entrada">Check-in</label>
+          <label for="hs_entrada" data-i18n="hero.field.checkin">Check-in</label>
           <input type="date" id="hs_entrada">
         </div>
         <div class="hs-field">
-          <label for="hs_saida">Check-out</label>
+          <label for="hs_saida" data-i18n="hero.field.checkout">Check-out</label>
           <input type="date" id="hs_saida">
         </div>
         <div class="hs-field">
-          <label for="hs_pessoas">Pessoas</label>
+          <label for="hs_pessoas" data-i18n="hero.field.people">Pessoas</label>
           <input type="number" id="hs_pessoas" min="1" max="20" placeholder="2">
         </div>
-        <button class="hs-btn" id="heroCTA" onclick="heroCTAClick()" type="button">
+        <button class="hs-btn" id="heroCTA" onclick="heroCTAClick()" type="button" data-i18n="hero.searchButton">
           🔍 Buscar
         </button>
       </div>
@@ -814,29 +821,29 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
      COMO FUNCIONA — 3 PASSOS
 =========================================== -->
 <section class="como-section" aria-labelledby="como-titulo">
-  <h2 id="como-titulo">🧠 Reserve em 3 passos simples</h2>
-  <p class="como-sub">Rápido, seguro e sem burocracia — do início ao fim.</p>
+  <h2 id="como-titulo" data-i18n="how.title">🧠 Reserve em 3 passos simples</h2>
+  <p class="como-sub" data-i18n="how.subtitle">Rápido, seguro e sem burocracia — do início ao fim.</p>
   <div class="como-steps">
     <div class="como-step">
       <div class="como-step-num">1</div>
       <div class="como-step-icon">🏖️</div>
-      <h3>Escolha seu destino</h3>
-      <p>Explore nossos resorts e encontre o que combina com você</p>
+      <h3 data-i18n="how.step1.title">Escolha seu destino</h3>
+      <p data-i18n="how.step1.text">Explore nossos resorts e encontre o que combina com você</p>
     </div>
     <div class="como-step">
       <div class="como-step-num">2</div>
       <div class="como-step-icon">💬</div>
-      <h3>Fale com nosso atendimento</h3>
-      <p>Nossa equipe responde rápido e com condições exclusivas</p>
+      <h3 data-i18n="how.step2.title">Fale com nosso atendimento</h3>
+      <p data-i18n="how.step2.text">Nossa equipe responde rápido e com condições exclusivas</p>
     </div>
     <div class="como-step">
       <div class="como-step-num">3</div>
       <div class="como-step-icon">✅</div>
-      <h3>Garanta sua reserva com desconto</h3>
-      <p>Confirme em minutos e já planeje sua viagem dos sonhos</p>
+      <h3 data-i18n="how.step3.title">Garanta sua reserva com desconto</h3>
+      <p data-i18n="how.step3.text">Confirme em minutos e já planeje sua viagem dos sonhos</p>
     </div>
   </div>
-  <a href="https://wa.me/5517982006382?text=Ol%C3%A1%21+Quero+fazer+minha+reserva+com+desconto%21" class="como-cta" target="_blank" rel="noopener">💬 Iniciar minha reserva agora</a>
+  <a href="https://wa.me/5517982006382?text=Ol%C3%A1%21+Quero+fazer+minha+reserva+com+desconto%21" class="como-cta" target="_blank" rel="noopener" data-i18n="how.cta">💬 Iniciar minha reserva agora</a>
 </section>
 
 <!-- ==========================================
@@ -988,32 +995,32 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 =========================================== -->
 <section class="diferenciais-section" aria-labelledby="dif-titulo">
   <div class="section-wrap" style="padding-top:0;">
-    <h2 id="dif-titulo">🚀 Por que escolher a HOSPEDAH?</h2>
-    <p class="dif-sub">Você fala direto com quem resolve. Simples assim.</p>
+    <h2 id="dif-titulo" data-i18n="diff.title">🚀 Por que escolher a HOSPEDAH?</h2>
+    <p class="dif-sub" data-i18n="diff.subtitle">Você fala direto com quem resolve. Simples assim.</p>
     <div class="dif-grid">
       <div class="dif-card">
         <span class="dif-icon">🤝</span>
-        <h3>Atendimento humano</h3>
-        <p>Uma equipe real que entende sua viagem e cuida de cada detalhe com atenção</p>
+        <h3 data-i18n="diff.card1.title">Atendimento humano</h3>
+        <p data-i18n="diff.card1.text">Uma equipe real que entende sua viagem e cuida de cada detalhe com atenção</p>
       </div>
       <div class="dif-card">
         <span class="dif-icon">🏷️</span>
-        <h3>Melhores preços</h3>
-        <p>Ofertas selecionadas com os melhores preços do mercado</p>
+        <h3 data-i18n="diff.card2.title">Melhores preços</h3>
+        <p data-i18n="diff.card2.text">Ofertas selecionadas com os melhores preços do mercado</p>
       </div>
       <div class="dif-card">
         <span class="dif-icon">⚡</span>
-        <h3>Reserva rápida</h3>
-        <p>Reservas rápidas, seguras e sem burocracia — do orçamento à confirmação</p>
+        <h3 data-i18n="diff.card3.title">Reserva rápida</h3>
+        <p data-i18n="diff.card3.text">Reservas rápidas, seguras e sem burocracia — do orçamento à confirmação</p>
       </div>
       <div class="dif-card">
         <span class="dif-icon">🎯</span>
-        <h3>Direto com quem resolve</h3>
-        <p>Sem espera e sem burocracia — atendimento direto e pessoal</p>
+        <h3 data-i18n="diff.card4.title">Direto com quem resolve</h3>
+        <p data-i18n="diff.card4.text">Sem espera e sem burocracia — atendimento direto e pessoal</p>
       </div>
     </div>
     <div class="dif-cta-wrap">
-      <a href="#orcamento" class="dif-cta">💰 Solicitar meu orçamento exclusivo</a>
+      <a href="#orcamento" class="dif-cta" data-i18n="diff.cta">💰 Solicitar meu orçamento exclusivo</a>
     </div>
   </div>
 </section>
@@ -1136,55 +1143,55 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 =========================================== -->
 <section class="faq-section" id="faq" aria-labelledby="faq-titulo">
   <div class="faq-wrap">
-    <h2 class="section-title" id="faq-titulo" style="margin-bottom:32px;">❓ Perguntas Frequentes</h2>
+    <h2 class="section-title" id="faq-titulo" style="margin-bottom:32px;" data-i18n="faq.title">❓ Perguntas Frequentes</h2>
     <div class="faq-item">
-      <button class="faq-btn" aria-expanded="false" data-faq="0">
+      <button class="faq-btn" aria-expanded="false" data-faq="0" data-i18n="faq.q1">
         Como funciona o processo de reserva?
         <span class="faq-icon" aria-hidden="true">+</span>
       </button>
-      <div class="faq-body" id="faq-body-0"><p>Você preenche o formulário de orçamento ou nos chama diretamente no WhatsApp. Nossa equipe responde rapidamente com as opções disponíveis, valores e condições. Após confirmação e pagamento, sua reserva está garantida!</p></div>
+      <div class="faq-body" id="faq-body-0"><p data-i18n="faq.a1">Você preenche o formulário de orçamento ou nos chama diretamente no WhatsApp. Nossa equipe responde rapidamente com as opções disponíveis, valores e condições. Após confirmação e pagamento, sua reserva está garantida!</p></div>
     </div>
     <div class="faq-item">
-      <button class="faq-btn" aria-expanded="false" data-faq="1">
+      <button class="faq-btn" aria-expanded="false" data-faq="1" data-i18n="faq.q2">
         Quais formas de pagamento são aceitas?
         <span class="faq-icon" aria-hidden="true">+</span>
       </button>
-      <div class="faq-body" id="faq-body-1"><p>Trabalhamos com Pix, transferência bancária e cartão de crédito (parcelamento disponível). As condições específicas são combinadas diretamente com o nosso time via WhatsApp.</p></div>
+      <div class="faq-body" id="faq-body-1"><p data-i18n="faq.a2">Trabalhamos com Pix, transferência bancária e cartão de crédito (parcelamento disponível). As condições específicas são combinadas diretamente com o nosso time via WhatsApp.</p></div>
     </div>
     <div class="faq-item">
-      <button class="faq-btn" aria-expanded="false" data-faq="2">
+      <button class="faq-btn" aria-expanded="false" data-faq="2" data-i18n="faq.q3">
         É possível cancelar ou alterar a reserva?
         <span class="faq-icon" aria-hidden="true">+</span>
       </button>
-      <div class="faq-body" id="faq-body-2"><p>Sim! A política de cancelamento e alteração varia conforme o resort e o período. Entre em contato com nossa equipe para verificar as condições específicas da sua reserva antes de confirmar.</p></div>
+      <div class="faq-body" id="faq-body-2"><p data-i18n="faq.a3">Sim! A política de cancelamento e alteração varia conforme o resort e o período. Entre em contato com nossa equipe para verificar as condições específicas da sua reserva antes de confirmar.</p></div>
     </div>
     <div class="faq-item">
-      <button class="faq-btn" aria-expanded="false" data-faq="3">
+      <button class="faq-btn" aria-expanded="false" data-faq="3" data-i18n="faq.q4">
         Os resorts aceitam animais de estimação?
         <span class="faq-icon" aria-hidden="true">+</span>
       </button>
-      <div class="faq-body" id="faq-body-3"><p>A política pet varia por resort. Alguns aceitam pets de pequeno porte, outros não permitem animais. Consulte nossa equipe ao fazer o orçamento para verificar a política do resort desejado.</p></div>
+      <div class="faq-body" id="faq-body-3"><p data-i18n="faq.a4">A política pet varia por resort. Alguns aceitam pets de pequeno porte, outros não permitem animais. Consulte nossa equipe ao fazer o orçamento para verificar a política do resort desejado.</p></div>
     </div>
     <div class="faq-item">
-      <button class="faq-btn" aria-expanded="false" data-faq="4">
+      <button class="faq-btn" aria-expanded="false" data-faq="4" data-i18n="faq.q5">
         O café da manhã está incluído?
         <span class="faq-icon" aria-hidden="true">+</span>
       </button>
-      <div class="faq-body" id="faq-body-4"><p>Depende do pacote escolhido. Alguns resorts oferecem café da manhã incluso, outros cobram à parte. Ao solicitar o orçamento, informe sua preferência e nossa equipe apresentará as opções disponíveis.</p></div>
+      <div class="faq-body" id="faq-body-4"><p data-i18n="faq.a5">Depende do pacote escolhido. Alguns resorts oferecem café da manhã incluso, outros cobram à parte. Ao solicitar o orçamento, informe sua preferência e nossa equipe apresentará as opções disponíveis.</p></div>
     </div>
     <div class="faq-item">
-      <button class="faq-btn" aria-expanded="false" data-faq="5">
+      <button class="faq-btn" aria-expanded="false" data-faq="5" data-i18n="faq.q6">
         Há estacionamento nos resorts?
         <span class="faq-icon" aria-hidden="true">+</span>
       </button>
-      <div class="faq-body" id="faq-body-5"><p>A maioria dos resorts parceiros oferece estacionamento gratuito para hóspedes. Consulte nossa equipe para confirmar a disponibilidade de vagas no resort de sua escolha.</p></div>
+      <div class="faq-body" id="faq-body-5"><p data-i18n="faq.a6">A maioria dos resorts parceiros oferece estacionamento gratuito para hóspedes. Consulte nossa equipe para confirmar a disponibilidade de vagas no resort de sua escolha.</p></div>
     </div>
     <div class="faq-item">
-      <button class="faq-btn" aria-expanded="false" data-faq="6">
+      <button class="faq-btn" aria-expanded="false" data-faq="6" data-i18n="faq.q7">
         Qual é o prazo de confirmação da reserva?
         <span class="faq-icon" aria-hidden="true">+</span>
       </button>
-      <div class="faq-body" id="faq-body-6"><p>Após o envio do orçamento via WhatsApp, nossa equipe retorna em até 2 horas em horário comercial. A confirmação definitiva ocorre após a confirmação do pagamento.</p></div>
+      <div class="faq-body" id="faq-body-6"><p data-i18n="faq.a7">Após o envio do orçamento via WhatsApp, nossa equipe retorna em até 2 horas em horário comercial. A confirmação definitiva ocorre após a confirmação do pagamento.</p></div>
     </div>
   </div>
 </section>
@@ -2583,14 +2590,15 @@ function exitIntentSubmit(e) {
 })();
 </script>
 
-<!-- PWA — Registro do Service Worker -->
-<script>
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', function () {
-    navigator.serviceWorker.register('/sw.js').catch(function () {});
-  });
-}
-</script>
+<!-- PWA Install Banner -->
+<div id="pwa-install-banner" class="promo-flash" hidden>
+  <div class="promo-flash-inner">
+    <span class="promo-flash-badge" data-i18n="pwa.installTitle">Instale o app HOSPEDAH</span>
+    <span class="promo-flash-text" data-i18n="pwa.installText">Acesse mais rápido, com experiência de aplicativo no seu celular.</span>
+    <button class="promo-flash-cta" id="pwa-install-btn" type="button" data-i18n="pwa.installBtn">Instalar</button>
+    <button class="promo-flash-close" id="pwa-install-close" aria-label="Fechar banner de instalação" data-i18n="pwa.installLater">Agora não</button>
+  </div>
+</div>
 
 <!-- ============================================================
      SUPABASE: AggregateRating + Social Proof Real + Lead Tracking
@@ -3274,6 +3282,8 @@ function gerarPropostaPDF() {
   </div>
 </div>
 
+<script src="/assets/i18n.js"></script>
+<script src="/assets/pwa.js"></script>
 <script src="/assets/supabase-config.js"></script>
 <script src="/assets/ai-config.js"></script>
 <script src="/assets/ai-concierge.js"></script>

@@ -9,7 +9,7 @@
   "background_color": "#0B1C3D",
   "theme_color": "#D4AF37",
   "lang": "pt-BR",
-  "categories": ["travel", "lifestyle"],
+  "categories": ["travel", "booking", "lifestyle", "hospitality"],
   "icons": [
     {
       "src": "/assets/icons/icon-192.svg",
@@ -27,23 +27,30 @@
       "src": "/assets/icons/icon-maskable.svg",
       "sizes": "512x512",
       "type": "image/svg+xml",
-      "purpose": "maskable"
+      "purpose": "maskable any"
     }
   ],
   "shortcuts": [
     {
       "name": "Solicitar Orçamento",
       "short_name": "Orçamento",
-      "description": "Solicite um orçamento rápido via WhatsApp",
+      "description": "Solicite um orçamento premium rapidamente",
       "url": "/#orcamento",
-      "icons": [{ "src": "/assets/icons/icon-192.svg", "sizes": "192x192" }]
+      "icons": [{ "src": "/assets/icons/icon-192.svg", "sizes": "192x192", "type": "image/svg+xml" }]
     },
     {
-      "name": "Ver Galeria",
-      "short_name": "Galeria",
-      "description": "Veja as fotos dos resorts",
-      "url": "/#galeria",
-      "icons": [{ "src": "/assets/icons/icon-192.svg", "sizes": "192x192" }]
+      "name": "Buscar Resorts",
+      "short_name": "Buscar",
+      "description": "Explore todos os resorts disponíveis",
+      "url": "/busca.html",
+      "icons": [{ "src": "/assets/icons/icon-192.svg", "sizes": "192x192", "type": "image/svg+xml" }]
+    },
+    {
+      "name": "Minha Conta",
+      "short_name": "Conta",
+      "description": "Acesse seu portal de reservas e fidelidade",
+      "url": "/portal/index.html",
+      "icons": [{ "src": "/assets/icons/icon-192.svg", "sizes": "192x192", "type": "image/svg+xml" }]
     }
   ],
   "screenshots": [
@@ -51,7 +58,7 @@
       "src": "https://i.imgur.com/AmFSwwd.jpeg",
       "sizes": "1280x720",
       "type": "image/jpeg",
-      "label": "Página inicial — Hot Beach Suites"
+      "label": "Página inicial HOSPEDAH"
     }
   ]
 }

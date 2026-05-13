@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://ydrmjoppjxtmnwtvtinb.supabase.co; img-src 'self' data:; object-src 'none'; base-uri 'self';">
+  <title>Admin Dashboard | HOSPEDAH</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap">
+  <link rel="stylesheet" href="/assets/mobile-first.css">
+  <link rel="stylesheet" href="/assets/style.css">
+  <link rel="stylesheet" href="/assets/admin.css">
+</head>
+<body class="admin-body">
+  <div class="admin-layout">
+    <aside class="admin-sidebar" aria-label="Menu administrativo">
+      <a href="/index.html" class="admin-logo-link">
+        <img src="/assets/logo-navbar.svg" alt="HOSPEDAH" width="160" height="32">
+      </a>
+      <nav class="admin-menu">
+        <a href="#kpis">KPIs</a>
+        <a href="#buscas">Resorts mais buscados</a>
+        <a href="#leads">Leads em tempo real</a>
+        <a href="#crm">CRM</a>
+        <a href="#calendar">Calendário</a>
+      </nav>
+      <button id="adminLogoutBtn" class="admin-btn danger">Sair</button>
+    </aside>
+
+    <main class="admin-content">
+      <header class="admin-header">
+        <h1>Painel de Analytics HOSPEDAH</h1>
+        <p id="adminIdentity">Validando perfil...</p>
+      </header>
+
+      <section id="kpis" class="admin-section">
+        <h2>KPIs</h2>
+        <div class="kpi-grid">
+          <article class="kpi-card"><h3>Orçamentos hoje</h3><strong id="kpiToday">0</strong></article>
+          <article class="kpi-card"><h3>Orçamentos semana</h3><strong id="kpiWeek">0</strong></article>
+          <article class="kpi-card"><h3>Orçamentos mês</h3><strong id="kpiMonth">0</strong></article>
+          <article class="kpi-card"><h3>Taxa de conversão</h3><strong id="kpiConversion">0%</strong></article>
+        </div>
+      </section>
+
+      <section id="buscas" class="admin-section">
+        <h2>Resorts mais buscados</h2>
+        <div class="admin-card"><canvas id="searchesChart" aria-label="Gráfico de resorts mais buscados"></canvas></div>
+      </section>
+
+      <section id="leads" class="admin-section">
+        <h2>Feed de leads em tempo real</h2>
+        <div class="admin-card">
+          <ul id="leadsFeed" class="leads-feed"></ul>
+        </div>
+      </section>
+
+      <section id="crm" class="admin-section">
+        <h2>Leads / CRM</h2>
+        <div class="crm-tools">
+          <input id="leadSearch" type="search" placeholder="Buscar por nome, e-mail ou resort">
+          <select id="leadStatusFilter">
+            <option value="all">Todos status</option>
+            <option value="novo">Novo</option>
+            <option value="contatado">Contatado</option>
+            <option value="convertido">Convertido</option>
+            <option value="perdido">Perdido</option>
+          </select>
+          <button id="exportCsvBtn" class="admin-btn">Exportar CSV</button>
+        </div>
+        <div class="admin-card table-wrap">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Data</th>
+                <th>Lead</th>
+                <th>Resort</th>
+                <th>Canal</th>
+                <th>Orçamento</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="crmTableBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="calendar" class="admin-section">
+        <h2>Calendário de reservas</h2>
+        <div class="admin-card">
+          <div class="calendar-head">
+            <button id="calendarPrev" class="admin-btn">←</button>
+            <strong id="calendarMonthLabel"></strong>
+            <button id="calendarNext" class="admin-btn">→</button>
+          </div>
+          <div id="calendarGrid" class="calendar-grid"></div>
+        </div>
+      </section>
+
+      <div id="adminFeedback" class="admin-feedback" aria-live="polite"></div>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="/assets/supabase-config.js"></script>
+  <script src="/assets/admin.js"></script>
+</body>
+</html>

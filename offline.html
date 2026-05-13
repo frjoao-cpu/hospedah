@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Offline | HOSPEDAH</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap">
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: 'Poppins', sans-serif;
+      color: #e8edf8;
+      background: radial-gradient(circle at top, #112a57, #0b1c3d 45%);
+      display: grid;
+      place-items: center;
+      padding: 24px;
+    }
+    .offline-box {
+      width: min(680px, 100%);
+      border: 1px solid rgba(212, 175, 55, 0.28);
+      border-radius: 16px;
+      background: rgba(11, 28, 61, 0.9);
+      padding: 24px;
+    }
+    h1 { margin: 0 0 8px; color: #D4AF37; }
+    p { margin: 0 0 14px; color: #b6c4de; }
+    ul { margin: 0; padding-left: 20px; color: #dbe4f5; }
+    a { color: #D4AF37; }
+  </style>
+</head>
+<body>
+  <section class="offline-box" aria-labelledby="offline-title">
+    <h1 id="offline-title">Você está offline</h1>
+    <p>Sem internet no momento. Você ainda pode acessar páginas já armazenadas em cache:</p>
+    <ul>
+      <li><a href="/index.html">Página inicial</a></li>
+      <li><a href="/busca.html">Busca</a></li>
+      <li><a href="/reservas.html">Reservas</a></li>
+      <li><a href="/resorts/hotbeach.html">Hot Beach Suites</a></li>
+      <li><a href="/resorts/juquehy.html">Praia de Juquehy</a></li>
+      <li><a href="/portal/index.html">Portal do Hóspede</a></li>
+    </ul>
+  </section>
+</body>
+</html>

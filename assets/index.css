@@ -154,6 +154,19 @@ html[data-theme="light"] footer                 { background: #e8e4d8; color: #4
 .nav-right {
   display: flex; align-items: center; gap: 10px;
 }
+.lang-switcher {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.lang-switcher .btn-tema {
+  min-width: 44px;
+  padding: 7px 10px;
+}
+.lang-switcher .btn-tema.active {
+  background: var(--dourado);
+  color: var(--azul);
+}
 .btn-tema {
   background: var(--azul2); color: var(--dourado);
   border: none; border-radius: 22px;

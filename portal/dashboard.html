@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://ydrmjoppjxtmnwtvtinb.supabase.co; img-src 'self' data:; object-src 'none'; base-uri 'self';">
+  <title>Dashboard do Hóspede | HOSPEDAH</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap">
+  <link rel="stylesheet" href="/assets/mobile-first.css">
+  <link rel="stylesheet" href="/assets/style.css">
+  <link rel="stylesheet" href="/assets/portal.css">
+</head>
+<body class="portal-body portal-dashboard-body">
+  <div class="portal-dashboard-layout">
+    <aside class="portal-sidebar" aria-label="Menu do hóspede">
+      <div class="portal-userbox">
+        <div id="portalAvatar" class="portal-avatar">👤</div>
+        <strong id="portalUserName">Hóspede</strong>
+        <span id="portalUserEmail">email@hospedah.tur.br</span>
+      </div>
+
+      <nav class="portal-menu">
+        <button class="portal-menu-item active" data-section="inicio">Início</button>
+        <button class="portal-menu-item" data-section="reservas">Reservas</button>
+        <button class="portal-menu-item" data-section="historico">Histórico</button>
+        <button class="portal-menu-item" data-section="fidelidade">Fidelidade</button>
+        <button class="portal-menu-item" data-section="vouchers">Vouchers</button>
+        <button class="portal-menu-item" data-section="configuracoes">Configurações</button>
+        <button class="portal-menu-item danger" id="portalLogoutBtn">Sair</button>
+      </nav>
+    </aside>
+
+    <main class="portal-content">
+      <header class="portal-content-header">
+        <h1 id="portalGreeting">Olá, viajante!</h1>
+        <p>Veja o resumo da sua conta e acompanhe suas próximas experiências.</p>
+      </header>
+
+      <section id="section-inicio" class="portal-section active">
+        <div class="portal-summary-grid">
+          <article class="portal-summary-card"><h2>Reservas ativas</h2><strong id="summaryActiveBookings">0</strong></article>
+          <article class="portal-summary-card"><h2>Pontos fidelidade</h2><strong id="summaryPoints">0</strong></article>
+          <article class="portal-summary-card"><h2>Vouchers disponíveis</h2><strong id="summaryVouchers">0</strong></article>
+        </div>
+      </section>
+
+      <section id="section-reservas" class="portal-section">
+        <h2>Minhas reservas ativas</h2>
+        <div id="reservationsList" class="portal-card-grid"></div>
+      </section>
+
+      <section id="section-historico" class="portal-section">
+        <h2>Histórico de estadias</h2>
+        <div id="historyList" class="portal-card-grid"></div>
+      </section>
+
+      <section id="section-fidelidade" class="portal-section">
+        <h2>Programa de fidelidade</h2>
+        <div class="loyalty-card">
+          <p>Nível atual: <strong id="loyaltyTier">Bronze</strong></p>
+          <div class="loyalty-track"><div id="loyaltyProgress" class="loyalty-progress"></div></div>
+          <p id="loyaltyPointsInfo">0 pontos</p>
+          <ul id="loyaltyBenefits" class="loyalty-benefits"></ul>
+        </div>
+      </section>
+
+      <section id="section-vouchers" class="portal-section">
+        <h2>Vouchers digitais</h2>
+        <div id="vouchersGrid" class="voucher-grid"></div>
+      </section>
+
+      <section id="section-configuracoes" class="portal-section">
+        <h2>Configurações</h2>
+        <div class="portal-settings-grid">
+          <form id="profileForm" class="portal-form card-inline" novalidate>
+            <h3>Editar perfil</h3>
+            <label for="profileName">Nome</label>
+            <input id="profileName" type="text" required>
+            <label for="profileWhatsapp">WhatsApp</label>
+            <input id="profileWhatsapp" type="tel" required>
+            <button type="submit" class="portal-btn portal-btn-primary">Salvar perfil</button>
+          </form>
+
+          <form id="passwordForm" class="portal-form card-inline" novalidate>
+            <h3>Alterar senha</h3>
+            <label for="newPassword">Nova senha</label>
+            <input id="newPassword" type="password" minlength="6" required>
+            <label for="confirmNewPassword">Confirmar nova senha</label>
+            <input id="confirmNewPassword" type="password" minlength="6" required>
+            <button type="submit" class="portal-btn portal-btn-primary">Atualizar senha</button>
+          </form>
+        </div>
+      </section>
+
+      <div id="portalDashboardFeedback" class="portal-feedback" aria-live="polite"></div>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="/assets/supabase-config.js"></script>
+  <script src="/assets/portal.js"></script>
+</body>
+</html>
