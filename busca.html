@@ -1743,6 +1743,7 @@ filtrar = function() {
             if (!finalText) {
               if (div.parentNode) div.parentNode.removeChild(div);
               /* Streaming falhou — tentar versão não-streaming antes de desistir */
+              hcRemoveTyping();
               hcAddTyping();
               window.HOSPEDAH_AI.chamar(
                 { nome: hcNome, assunto: hcAssunto },
