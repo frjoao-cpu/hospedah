@@ -171,9 +171,18 @@ html[data-theme="light"] footer                 { background: #e8e4d8; color: #4
   border: none;
   background: transparent;
   border-radius: 999px;
-  padding: 4px 7px;
+  padding: 3px 4px;
   cursor: pointer;
   line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.lang-btn img {
+  display: block;
+  border-radius: 2px;
+  width: 22px;
+  height: auto;
 }
 .lang-btn.active {
   background: var(--dourado);
