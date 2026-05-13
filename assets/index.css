@@ -389,11 +389,12 @@ html[data-theme="light"] footer                 { background: #e8e4d8; color: #4
   position: absolute; bottom: 22px; left: 50%;
   transform: translateX(-50%);
   display: flex; gap: 5px; z-index: 3;
+  align-items: center;
 }
 .hero-dot {
   width: 5px; height: 5px; border-radius: 50%;
   /* override mobile-first.css min-height/min-width on all buttons */
-  min-height: unset; min-width: unset;
+  min-height: 0; min-width: 0;
   background: rgba(255,255,255,0.4);
   cursor: pointer; border: none; padding: 0;
   transition: background .2s, transform .2s;
@@ -2051,7 +2052,7 @@ html[data-theme="light"] .orc-summary-row strong { color: #1a1a1a; }
 
 @media (max-width: 480px) {
   .hero-logo { max-width: 320px; margin-bottom: -12px; }
-  .navbar .logo-txt img { height: 72px; }
+  .navbar .logo-txt img { height: 88px; }
   #fomo-bar { top: 84px; right: 8px; }
   .fomo-pill { padding: 5px 11px; font-size: .72em; }
 }
