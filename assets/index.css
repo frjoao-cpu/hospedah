@@ -295,7 +295,7 @@ html[data-theme="light"] footer                 { background: #e8e4d8; color: #4
 /* ✅ Logo central com overlay premium */
 .hero-logo {
   width: 100%;
-  max-width: 560px;
+  max-width: 680px;
   height: auto;
   display: block;
   margin: 0 auto -18px;
@@ -1371,28 +1371,15 @@ html[data-theme="light"] .faq-btn { color: var(--azul); }
 .urgencia-item:last-child { border-right: none; }
 .urgencia-item span.ui-icon { font-size: 1.2em; flex-shrink: 0; }
 
-/* ── MOBILE: ticker horizontal animado ── */
+/* ── MOBILE: itens lado a lado, scroll se necessário ── */
 @media (max-width: 767px) {
-  .urgencia-strip { overflow: hidden; }
-  .urgencia-strip-inner {
-    width: max-content;
-    animation: urgenciaTicker 18s linear infinite;
-  }
+  .urgencia-strip { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .urgencia-strip-inner { width: auto; justify-content: center; }
   .urgencia-item {
-    flex: 0 0 auto; border-right: 1px solid rgba(11,28,61,.18);
+    flex: 1 1 0; border-right: 1px solid rgba(11,28,61,.18);
     padding: 4px 18px; font-size: .80em;
   }
-  .urgencia-item[aria-hidden="true"] { display: flex; }
-  .urgencia-item:last-child { border-right: 1px solid rgba(11,28,61,.18); }
-}
-@keyframes urgenciaTicker {
-  0%   { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
-}
-@media (max-width: 767px) and (prefers-reduced-motion: reduce) {
-  .urgencia-strip { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-  .urgencia-strip-inner { animation: none; width: auto; }
-  .urgencia-item[aria-hidden="true"] { display: none; }
+  .urgencia-item:last-child { border-right: none; }
 }
 
 /* ==========================================
@@ -2095,7 +2082,7 @@ html[data-theme="light"] .orc-summary-row strong { color: #1a1a1a; }
 }
 
 @media (max-width: 480px) {
-  .hero-logo { max-width: 380px; margin-bottom: -12px; }
+  .hero-logo { max-width: 460px; margin-bottom: -12px; }
   .navbar .logo-txt img { height: 116px; }
   #fomo-bar { top: 84px; right: 8px; }
   .fomo-pill { padding: 5px 11px; font-size: .72em; }
