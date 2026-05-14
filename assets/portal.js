@@ -473,6 +473,7 @@
     if (logoutBtn) {
       logoutBtn.addEventListener('click', async function () {
         logoutBtn.disabled = true;
+        logoutBtn.textContent = '⏳ Saindo…';
         try {
           await client.auth.signOut();
         } catch (e) {
