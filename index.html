@@ -451,7 +451,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           <option value="4">4+ dormitórios</option>
         </select>
         <input id="empCapacidade" type="number" placeholder="Capacidade (pessoas)" min="1" required>
-        <input id="empPreco"      type="number" placeholder="Preço referencial (R$/noite)" min="1" required>
 
         <!-- Períodos disponíveis (oculto, expande ao clicar) -->
         <button type="button" class="btn-toggle-periodos" id="btnTogglePeriodos" onclick="togglePeriodos()">
@@ -487,7 +486,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       <input type="date" id="saida">
       <input type="number" id="pessoas" placeholder="Nº de pessoas" min="1">
       <select id="filtroDorm">
-        <option value="">Qualquer nº de dormitórios</option>
+        <option value="">N° de dormitórios</option>
         <option value="1">1 dormitório</option>
         <option value="2">2 dormitórios</option>
         <option value="3">3 dormitórios</option>
@@ -1641,7 +1640,6 @@ function enviarCadastroEmp(e) {
   var tipo     = document.getElementById('empTipo').value;
   var dorm     = document.getElementById('empDorm').value;
   var cap      = document.getElementById('empCapacidade').value;
-  var preco    = document.getElementById('empPreco').value;
   var cidade   = document.getElementById('empCidade').value.trim();
   var contato  = document.getElementById('empContato').value.trim();
   var whatsapp = document.getElementById('empWhatsapp').value.trim();
@@ -1663,7 +1661,6 @@ function enviarCadastroEmp(e) {
     '🏨 *Tipo:* ' + tipo + '\n' +
     '🛏️ *Dormitórios:* ' + dorm + '\n' +
     '👥 *Capacidade:* ' + cap + ' pessoas\n' +
-    '💰 *Preço:* R$ ' + Number(preco).toLocaleString('pt-BR') + '/noite\n' +
     (periodosStr ? '📅 *Períodos disponíveis:*' + periodosStr + '\n' : '') +
     '📍 *Cidade:* ' + cidade + '\n' +
     '👤 *Responsável:* ' + contato + '\n' +
