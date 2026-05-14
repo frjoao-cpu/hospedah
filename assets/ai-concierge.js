@@ -17,9 +17,6 @@
   // Chave anon pública centralizada em assets/supabase-config.js.
   // Segurança garantida pelo RLS do Supabase, não pela ocultação da chave.
   var SUPABASE_ANON_KEY = window.HOSPEDAH_SB_ANON || '';
-  // Compatibilidade: se definido, permite fallback da Edge Function via ctx.gemini_key.
-  // A chave preferencial continua sendo GEMINI_API_KEY no servidor.
-  var CLIENT_GEMINI_KEY = (typeof window.GEMINI_API_KEY === 'string' ? window.GEMINI_API_KEY.trim() : '');
   var DEFAULT_TEMPERATURE = 0.7;
   var FALLBACK_COUNTER = 0;
 
@@ -68,7 +65,6 @@
       temperature: typeof temperature === 'number' ? temperature : DEFAULT_TEMPERATURE,
       faq_extras: faqExtras || ''
     };
-    if (CLIENT_GEMINI_KEY) payload.gemini_key = CLIENT_GEMINI_KEY;
 
     var controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
     var timeoutId = controller
@@ -150,7 +146,6 @@
       faq_extras: faqExtras || '',
       stream: true
     };
-    if (CLIENT_GEMINI_KEY) payload.gemini_key = CLIENT_GEMINI_KEY;
 
     var controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
     var timeoutId = controller
