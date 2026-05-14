@@ -2200,7 +2200,10 @@ thead .col-sticky-right {
       </div>
       <div id="lockError" class="lock-error">❌ Credenciais inválidas. Tente novamente.</div>
       <button class="btn btn-primary" style="width:100%; margin-top:16px;" onclick="tentarLogin()">🔓 Entrar</button>
-
+      <br>
+      <button class="lock-link" onclick="mostrarViewOTP()">✉️ Entrar via link mágico</button>
+      <br>
+      <button class="lock-link" onclick="mostrarViewReset()">🔑 Esqueci minha senha</button>
     </div>
 
     <!-- VIEW 2: Login por link mágico (OTP) -->
@@ -5461,28 +5464,26 @@ async function _carregarPrecosFormCache(resort) {
 }
 
 // Auto-preenche valor/noite com preço dinâmico ao escolher resort + datas
-(function() {
-  function triggerPrecoDinamico() {
-    var resort  = document.getElementById('c_resort').value;
-    var entrada = document.getElementById('c_entrada').value;
-    var saida   = document.getElementById('c_saida').value;
-    if (resort) {
-      _carregarPrecosFormCache(resort).then(function() {
-        preencherPrecoDinamicoNoFormulario(resort, entrada, saida);
-      });
-    } else {
-      var hint = document.getElementById('c_preco_hint');
-      if (hint) hint.style.display = 'none';
-    }
+function triggerPrecoDinamico() {
+  var resort  = document.getElementById('c_resort').value;
+  var entrada = document.getElementById('c_entrada').value;
+  var saida   = document.getElementById('c_saida').value;
+  if (resort) {
+    _carregarPrecosFormCache(resort).then(function() {
+      preencherPrecoDinamicoNoFormulario(resort, entrada, saida);
+    });
+  } else {
+    var hint = document.getElementById('c_preco_hint');
+    if (hint) hint.style.display = 'none';
   }
-  ['c_resort','c_entrada','c_saida'].forEach(function(id) {
-    var el = document.getElementById(id);
-    if (el) {
-      el.addEventListener('change', triggerPrecoDinamico);
-      el.addEventListener('input',  triggerPrecoDinamico);
-    }
-  });
-})();
+}
+['c_resort','c_entrada','c_saida'].forEach(function(id) {
+  var el = document.getElementById(id);
+  if (el) {
+    el.addEventListener('change', triggerPrecoDinamico);
+    el.addEventListener('input',  triggerPrecoDinamico);
+  }
+});
 
 function preencherPrecoDinamicoNoFormulario(resort, entrada, saida) {
   var hint   = document.getElementById('c_preco_hint');
@@ -10521,18 +10522,15 @@ function verificarRepassesAtrasados() {
 }
 
 /* Fechar modais de cobrança ao clicar fora */
-(function() {
-  var mc = document.getElementById('modalCobranca');
-  if (mc) mc.addEventListener('click', function(e){ if (e.target === this) fecharModalCobranca(); });
-  var mh = document.getElementById('modalHistoricoCobrancas');
-  if (mh) mh.addEventListener('click', function(e){ if (e.target === this) this.classList.remove('open'); });
-})();
+var mc = document.getElementById('modalCobranca');
+if (mc) mc.addEventListener('click', function(e){ if (e.target === this) fecharModalCobranca(); });
+var mh = document.getElementById('modalHistoricoCobrancas');
+if (mh) mh.addEventListener('click', function(e){ if (e.target === this) this.classList.remove('open'); });
 
 /* ==========================================
    CALENDÁRIO ANUAL DE FERIADOS
 ========================================== */
-(function() {
-  var calCurrentYear = new Date().getFullYear();
+var calCurrentYear = new Date().getFullYear();
 
   /* Feriados nacionais fixos (dia, mês) */
   var FERIADOS_NACIONAIS_FIXOS = [
@@ -10738,7 +10736,6 @@ function verificarRepassesAtrasados() {
   document.addEventListener('DOMContentLoaded', function() {
     renderCalendar(new Date().getFullYear());
   });
-})();
 
 function toggleCalendario() {
   const content = document.getElementById('calendarioContent');
