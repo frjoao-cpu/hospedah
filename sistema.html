@@ -4350,7 +4350,7 @@ function tentarLogin() {
         var msg = result.error.message || 'Credenciais inválidas.';
         var msgLow = msg.toLowerCase();
         if (msgLow.indexOf('failed to fetch') !== -1 || msgLow.indexOf('network') !== -1 ||
-            msgLow.indexOf('fetch') !== -1 || msgLow.indexOf('load failed') !== -1) {
+            msgLow.indexOf('load failed') !== -1) {
           msg = 'Serviço temporariamente indisponível. Verifique sua conexão com a internet e tente novamente.';
         } else if (msgLow.indexOf('email not confirmed') !== -1) {
           msg = 'E-mail não confirmado. Verifique sua caixa de entrada e clique no link de confirmação.';
