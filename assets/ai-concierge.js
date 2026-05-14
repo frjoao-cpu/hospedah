@@ -132,6 +132,7 @@
   // Segurança garantida pelo RLS do Supabase, não pela ocultação da chave.
   var SUPABASE_ANON_KEY = window.HOSPEDAH_SB_ANON || '';
   var DEFAULT_TEMPERATURE = 0.7;
+  var LOCAL_CONTEXT_LOOKBACK = 8;
   var FALLBACK_COUNTER = 0;
 
   function serviceFallbackMessage(detail) {
@@ -184,9 +185,9 @@
     if (textHasAny(text, ['parque', 'taxa do parque', 'valor do parque', 'preco do parque', 'ingresso'])) return 'parque';
     if (textHasAny(text, ['estacionamento', 'estrcionamento', 'garagem', 'vaga'])) return 'estacionamento';
     if (textHasAny(text, ['check-in', 'checkin', 'check out', 'checkout', 'entrada', 'saida', 'saída', 'horario', 'horário'])) return 'checkin';
-    if (textHasAny(text, ['alimentacao', 'alimentação', 'refeicao', 'refeição', 'refeicoes', 'refeições', 'cafe', 'café', 'almoco', 'almoço', 'jantar', 'comida'])) return 'alimentacao';
-    if (textHasAny(text, ['cozinha', 'utensilio', 'utensílio', 'talher', 'panela', 'microondas', 'micro-ondas', 'geladeira'])) return 'cozinha';
-    if (textHasAny(text, ['quantas pessoas', 'capacidade', 'hospedes', 'hóspedes', 'pessoas'])) return 'capacidade';
+    if (textHasAny(text, ['alimentacao', 'refeicao', 'refeicoes', 'cafe', 'almoco', 'jantar', 'comida'])) return 'alimentacao';
+    if (textHasAny(text, ['cozinha', 'utensilio', 'talher', 'panela', 'microondas', 'micro-ondas', 'geladeira'])) return 'cozinha';
+    if (textHasAny(text, ['quantas pessoas', 'capacidade', 'hospedes', 'pessoas'])) return 'capacidade';
     if (textHasAny(text, ['pet', 'pets', 'cachorro', 'gato', 'animal', 'animais'])) return 'pets';
     return null;
   }
@@ -194,7 +195,7 @@
   function detectResortFact(mensagens, intencao) {
     var candidates = [];
     if (intencao && intencao.resort_interesse) candidates.push(normalizeText(intencao.resort_interesse));
-    for (var i = mensagens.length - 1; i >= 0 && candidates.length < 8; i--) {
+    for (var i = mensagens.length - 1; i >= 0 && candidates.length < LOCAL_CONTEXT_LOOKBACK; i--) {
       if (mensagens[i] && mensagens[i].content) candidates.push(normalizeText(mensagens[i].content));
     }
     for (var c = 0; c < candidates.length; c++) {
