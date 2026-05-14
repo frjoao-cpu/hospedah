@@ -1327,6 +1327,17 @@ function escalarParaAIStream(temperature) {
     if (!window.HOSPEDAH_AI) return Promise.resolve(null);
     if (!_aiContext.mensagens || !_aiContext.mensagens.length) return Promise.resolve(null);
 
+    if (window.HOSPEDAH_AI.responderLocal) {
+      const respostaLocal = window.HOSPEDAH_AI.responderLocal(
+        _aiContext.mensagens,
+        _aiContext.contexto_intencao
+      );
+      if (respostaLocal) {
+        addMessage('recv', 'HOSPEDAH ✨', respostaLocal, null, false);
+        return Promise.resolve(respostaLocal);
+      }
+    }
+
     // Todas as chamadas de IA devem passar pela Edge Function; não use GEMINI_API_KEY no browser.
     const edgeUrl  = (window.HOSPEDAH_AI.edgeUrl) || (SUPABASE_URL + '/functions/v1/ai-concierge');
     const edgeAnon = (window.HOSPEDAH_AI.edgeAnon) || SUPABASE_KEY;

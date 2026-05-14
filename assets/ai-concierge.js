@@ -18,6 +18,7 @@
   var MSG_SERVICE_UNSTABLE_GENERIC = 'Estou com instabilidade temporária no atendimento automático. Fale pelo WhatsApp 📱 ' + SUPPORT_WHATSAPP + '.';
   var MSG_NETWORK_UNSTABLE = 'Estou com instabilidade de conexão no atendimento automático. Fale pelo WhatsApp 📱 ' + SUPPORT_WHATSAPP + '.';
   var LOCAL_RESORT_FALLBACK_MATCHES = [];
+  var LOCAL_RESORT_FACT_MATCHES = [];
   var LOCAL_RESORT_FALLBACKS = [
     {
       terms: ['olimpia park', 'olímpia park', 'olimpia', 'olímpia'],
@@ -77,6 +78,56 @@
         'Para consultar detalhes, valores e disponibilidade, me diga as datas desejadas e quantas pessoas vão viajar. 😊'
     }
   ];
+  var LOCAL_RESORT_FACTS = [
+    {
+      terms: ['hot beach', 'hotbeach', 'hot beach suites'],
+      facts: {
+        parque: 'No Hot Beach Suites, a taxa do parque aquático é paga diretamente ao resort no check-in:\n\n' +
+          '• Apartamento de 1 dormitório: R$129,00/dia acima de 2 dias\n' +
+          '• Apartamento de 2 dormitórios: R$169,00/dia acima de 2 dias\n' +
+          '• O valor é por apartamento, independente do número de hóspedes\n\n' +
+          'Valores sujeitos a alterações pelo resort. 😊',
+        estacionamento: 'Sim! No Hot Beach Suites há 1 vaga gratuita na garagem por apartamento, inclusa na diária. 🚗',
+        checkin: 'No Hot Beach Suites, o check-in é a partir das 15h e o check-out até as 11h. 🔑',
+        alimentacao: 'No Hot Beach Suites, as refeições não estão incluídas na diária. O apartamento tem cozinha completa e o resort também possui restaurante com refeições pagas à parte. 🍽️',
+        cozinha: 'Sim! O Hot Beach Suites tem cozinha completa no apartamento, com panelas, cafeteira, talheres, pratos, copos, cooktop, micro-ondas, geladeira e varanda gourmet. 🍳',
+        capacidade: 'No Hot Beach Suites, o apartamento de 1 dormitório acomoda até 6 pessoas e o de 2 dormitórios acomoda até 8 pessoas. 👨‍👩‍👧‍👦',
+        pets: 'Sobre pets no Hot Beach Suites, essa informação precisa ser confirmada pelo WhatsApp 📱 ' + SUPPORT_WHATSAPP + '.'
+      }
+    },
+    {
+      terms: ['olimpia park', 'olímpia park', 'olimpia park resort'],
+      facts: {
+        estacionamento: 'Sim! No Olimpia Park Resort há 1 vaga gratuita na garagem por apartamento, inclusa na diária. 🚗',
+        checkin: 'No Olimpia Park Resort, o check-in é a partir das 14h e o check-out até as 11h. 🔑',
+        alimentacao: 'No Olimpia Park Resort, as refeições não estão incluídas na diária. O resort tem restaurante e lanchonete com refeições pagas à parte. 🍽️',
+        cozinha: 'No Olimpia Park Resort, o apartamento possui roupas de cama e banho, mas não inclui talheres, pratos, copos ou utensílios de cozinha.',
+        capacidade: 'No Olimpia Park Resort, o apartamento de 1 dormitório acomoda até 6 pessoas e o de 2 dormitórios acomoda até 8 pessoas. 👨‍👩‍👧‍👦',
+        pets: 'O Olimpia Park Resort não aceita pets. 🐾'
+      }
+    },
+    {
+      terms: ['sao pedro', 'são pedro', 'sao pedro thermas', 'são pedro thermas'],
+      facts: {
+        estacionamento: 'Sim! No São Pedro Thermas há 1 vaga gratuita na garagem por apartamento, inclusa na diária. 🚗',
+        checkin: 'No São Pedro Thermas, o check-in é a partir das 14h e o check-out até as 11h. 🔑',
+        alimentacao: 'No São Pedro Thermas, as refeições não estão incluídas na diária. O resort tem restaurante e lanchonete com refeições pagas diretamente no local; alimentos de fora não são permitidos. 🍽️',
+        cozinha: 'No São Pedro Thermas, o apartamento possui roupas de cama e banho, mas não inclui talheres, pratos, copos ou utensílios de cozinha.',
+        pets: 'O São Pedro Thermas não aceita pets. 🐾'
+      }
+    },
+    {
+      terms: ['solar das aguas', 'solar das águas'],
+      facts: {
+        estacionamento: 'Sim! No Solar das Águas há 1 vaga gratuita na garagem por apartamento, inclusa na diária. 🚗',
+        checkin: 'No Solar das Águas, o check-in é a partir das 14h e o check-out até as 11h. 🔑',
+        alimentacao: 'No Solar das Águas, as refeições não estão incluídas na diária. O resort tem restaurante com refeições pagas à parte. 🍽️',
+        cozinha: 'No Solar das Águas, o apartamento possui roupas de cama e banho, mas não inclui talheres, pratos, copos ou utensílios de cozinha.',
+        capacidade: 'No Solar das Águas, o apartamento de 1 dormitório acomoda até 5 pessoas e o de 2 dormitórios acomoda até 7 pessoas. 👨‍👩‍👧‍👦',
+        pets: 'O Solar das Águas não aceita pets. 🐾'
+      }
+    }
+  ];
   // Chave anon pública centralizada em assets/supabase-config.js.
   // Segurança garantida pelo RLS do Supabase, não pela ocultação da chave.
   var SUPABASE_ANON_KEY = window.HOSPEDAH_SB_ANON || '';
@@ -106,6 +157,13 @@
     };
   });
 
+  LOCAL_RESORT_FACT_MATCHES = LOCAL_RESORT_FACTS.map(function (item) {
+    return {
+      normalizedTerms: item.terms.map(normalizeText),
+      facts: item.facts
+    };
+  });
+
   function getLastUserText(mensagens) {
     for (var i = mensagens.length - 1; i >= 0; i--) {
       if (mensagens[i] && mensagens[i].role === 'user') {
@@ -113,6 +171,49 @@
       }
     }
     return '';
+  }
+
+  function textHasAny(text, terms) {
+    for (var i = 0; i < terms.length; i++) {
+      if (text.indexOf(terms[i]) !== -1) return true;
+    }
+    return false;
+  }
+
+  function detectFactIntent(text) {
+    if (textHasAny(text, ['parque', 'taxa do parque', 'valor do parque', 'preco do parque', 'preço do parque', 'ingresso'])) return 'parque';
+    if (textHasAny(text, ['estacionamento', 'estrcionamento', 'garagem', 'vaga'])) return 'estacionamento';
+    if (textHasAny(text, ['check-in', 'checkin', 'check out', 'checkout', 'entrada', 'saida', 'saída', 'horario', 'horário'])) return 'checkin';
+    if (textHasAny(text, ['alimentacao', 'alimentação', 'refeicao', 'refeição', 'refeicoes', 'refeições', 'cafe', 'café', 'almoco', 'almoço', 'jantar', 'comida'])) return 'alimentacao';
+    if (textHasAny(text, ['cozinha', 'utensilio', 'utensílio', 'talher', 'panela', 'microondas', 'micro-ondas', 'geladeira'])) return 'cozinha';
+    if (textHasAny(text, ['quantas pessoas', 'capacidade', 'hospedes', 'hóspedes', 'pessoas'])) return 'capacidade';
+    if (textHasAny(text, ['pet', 'pets', 'cachorro', 'gato', 'animal'])) return 'pets';
+    return null;
+  }
+
+  function detectResortFact(mensagens, intencao) {
+    var candidates = [];
+    if (intencao && intencao.resort_interesse) candidates.push(normalizeText(intencao.resort_interesse));
+    for (var i = mensagens.length - 1; i >= 0 && candidates.length < 8; i--) {
+      if (mensagens[i] && mensagens[i].content) candidates.push(normalizeText(mensagens[i].content));
+    }
+    for (var c = 0; c < candidates.length; c++) {
+      for (var r = 0; r < LOCAL_RESORT_FACT_MATCHES.length; r++) {
+        if (textHasAny(candidates[c], LOCAL_RESORT_FACT_MATCHES[r].normalizedTerms)) {
+          return LOCAL_RESORT_FACT_MATCHES[r];
+        }
+      }
+    }
+    return null;
+  }
+
+  function localFactResponse(mensagens, intencao) {
+    var text = normalizeText(getLastUserText(mensagens));
+    var intent = detectFactIntent(text);
+    if (!intent) return null;
+    var resort = detectResortFact(mensagens, intencao);
+    if (!resort || !resort.facts[intent]) return null;
+    return resort.facts[intent];
   }
 
   function localFallbackResponse(mensagens) {
@@ -127,6 +228,10 @@
       }
     }
     return null;
+  }
+
+  function localResponse(mensagens, intencao) {
+    return localFactResponse(mensagens, intencao) || localFallbackResponse(mensagens);
   }
 
   function buildConversationId() {
@@ -156,6 +261,9 @@
   function chamar(lead, mensagens, intencao, temperature, faqExtras) {
     // Sem mensagens não há contexto para a IA responder.
     if (!mensagens || !mensagens.length) return Promise.resolve(null);
+
+    var local = localResponse(mensagens, intencao);
+    if (local) return Promise.resolve(local);
 
     var payload = {
       lead: lead || { nome: '', assunto: '' },
@@ -234,6 +342,13 @@
   function chamarStream(lead, mensagens, intencao, temperature, faqExtras, onToken, onDone) {
     if (!mensagens || !mensagens.length) {
       if (onDone) onDone(null);
+      return;
+    }
+
+    var local = localResponse(mensagens, intencao);
+    if (local) {
+      if (onToken) onToken(local, local);
+      if (onDone) onDone(local);
       return;
     }
 
@@ -316,6 +431,7 @@
   window.HOSPEDAH_AI = {
     chamar: chamar,
     chamarStream: chamarStream,
+    responderLocal: localResponse,
     renderMarkdown: renderMarkdown,
     edgeUrl: EDGE_FN_URL,
     edgeAnon: SUPABASE_ANON_KEY
