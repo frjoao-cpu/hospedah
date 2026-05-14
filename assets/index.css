@@ -132,7 +132,7 @@ html[data-theme="light"] footer                 { background: #e8e4d8; color: #4
   text-decoration: none; white-space: nowrap; flex-shrink: 0;
 }
 .navbar .logo-txt img {
-  height: 40px;
+  height: 56px;
   width: auto;
   display: block;
 }
@@ -2128,7 +2128,7 @@ html[data-theme="light"] .orc-summary-row strong { color: #1a1a1a; }
 
 @media (max-width: 480px) {
   .hero-logo { max-width: 460px; margin-bottom: 4px; }
-  .navbar .logo-txt img { height: 36px; }
+  .navbar .logo-txt img { height: 46px; }
   #fomo-bar { top: 84px; right: 8px; }
   .fomo-pill { padding: 5px 11px; font-size: .72em; }
 }
