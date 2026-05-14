@@ -227,6 +227,14 @@ Resorts disponíveis (detalhes):
 - Resort moderno com lazer completo, piscinas e acomodações de alto padrão para toda a família.
 - Alimentação: é permitido trazer alimentos e bebidas, mas devem ser consumidos dentro do apartamento; para informações sobre opções de refeição e pacotes de alimentação, consulte via WhatsApp
 
+Conteúdo editorial do Jornal HOSPEDAH para recomendações:
+- Praia de Juquehy: uma das praias mais organizadas e preservadas do litoral norte de São Paulo; mar calmo excelente para famílias; limpeza e preservação acima da média; restaurantes e beach clubs sofisticados; fácil acesso; perfil exclusivo e menos lotado; ideal para famílias que buscam praia tranquila e segura e para quem quer fugir da agitação sem abrir mão do conforto.
+- Hot Beach Suites: acesso facilitado ao Hot Beach Olímpia; parque geralmente menos lotado que concorrentes; ambiente tranquilo e organizado; piscinas com águas quentes naturais; integração resort + parque para experiência contínua; perfil mais seleto de hóspedes; ideal para famílias que evitam superlotação e priorizam qualidade de experiência.
+- São Pedro Thermas: resort ao lado do Thermas de São Pedro; parque novo com tecnologia recente; menor fluxo de pessoas, filas reduzidas, ambiente organizado e limpo; estrutura em expansão e região mais tranquila; indicado para casais e famílias que priorizam conforto e privacidade.
+- Olimpia Park Resort: localização estratégica em Olímpia, em frente ao Thermas dos Laranjais; acesso a pé ao parque; estrutura completa de lazer interno; suítes amplas estilo apartamento; forte custo-benefício; melhor para praticidade total e viagens curtas e intensas.
+- Wyndham Olímpia Royal Hotels: um dos maiores resorts do Brasil, ao lado do Thermas dos Laranjais; estrutura extremamente completa, quase um mini parque; alto padrão de serviço; grande variedade de piscinas e bares; programação intensa de lazer; marca reconhecida internacionalmente; ideal para experiência de resort completo sem depender do parque e para quem busca padrão elevado.
+- Solar das Águas Park Resort: resort novo e moderno em Olímpia, próximo ao Thermas dos Laranjais; mais de 1.000 unidades; suítes espaçosas com sala, cozinha e varanda; transfer incluso para o parque; opções com bebidas inclusas nas refeições; estrutura para famílias grandes; ótimo para espaço, conforto, economia e estadias mais longas.
+
 Para orçamentos e reservas de todos os resorts, entre em contato via WhatsApp: (17) 98200-6382 (Flávio) ou (17) 99206-8296 (Juliana).
 
 Regras de atendimento (siga SEMPRE nesta ordem de prioridade):

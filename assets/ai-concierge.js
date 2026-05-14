@@ -28,6 +28,7 @@
         '• 1 vaga gratuita na garagem por apartamento\n' +
         '• Não aceita pets\n' +
         '• Refeições não estão incluídas na diária; alimentos e bebidas podem ser levados, mas devem ser consumidos dentro do apartamento\n\n' +
+        'Diferenciais do Jornal HOSPEDAH: localização estratégica em Olímpia, em frente ao Thermas dos Laranjais, acesso a pé ao parque, suítes amplas estilo apartamento e forte custo-benefício para viagens curtas e intensas.\n\n' +
         'Para eu te ajudar melhor, quais datas e quantas pessoas vão viajar? 😊'
     },
     {
@@ -37,6 +38,7 @@
         '• Apartamento de 1 dormitório para até 6 pessoas ou 2 dormitórios para até 8 pessoas\n' +
         '• 1 vaga gratuita na garagem por apartamento\n' +
         '• Refeições não estão incluídas na diária; alimentos e bebidas podem ser levados, mas devem ser consumidos dentro do apartamento\n\n' +
+        'Diferenciais do Jornal HOSPEDAH: acesso facilitado ao Hot Beach Olímpia, piscinas de águas quentes naturais, ambiente mais tranquilo e organizado, perfil mais seleto e experiência integrada resort + parque.\n\n' +
         'Quais datas e quantas pessoas vão viajar? 😊'
     },
     {
@@ -46,6 +48,7 @@
         '• 1 vaga gratuita na garagem por apartamento\n' +
         '• Não aceita pets\n' +
         '• Refeições não estão incluídas na diária; alimentos e bebidas podem ser levados, mas devem ser consumidos dentro do apartamento\n\n' +
+        'Diferenciais do Jornal HOSPEDAH: fica ao lado do Thermas de São Pedro, tem parque novo, menor fluxo de pessoas, filas reduzidas, ambiente organizado e região mais tranquila.\n\n' +
         'Quais datas e quantas pessoas vão viajar? 😊'
     },
     {
@@ -55,17 +58,20 @@
         '• Apartamento de 1 dormitório para até 5 pessoas ou 2 dormitórios para até 7 pessoas\n' +
         '• 1 vaga gratuita na garagem por apartamento\n' +
         '• Refeições não estão incluídas na diária; alimentos e bebidas podem ser levados, mas devem ser consumidos dentro do apartamento\n\n' +
+        'Diferenciais do Jornal HOSPEDAH: resort novo e moderno em Olímpia, com mais de 1.000 unidades, suítes com sala, cozinha e varanda, transfer incluso para o parque e boa opção para estadias mais longas.\n\n' +
         'Quais datas e quantas pessoas vão viajar? 😊'
     },
     {
       terms: ['wyndham', 'royal'],
       response: 'Ótima escolha! 👑 O Wyndham Royal é uma opção de alto padrão, com suítes de luxo, piscinas premium e lazer exclusivo.\n\n' +
         '• Alimentos e bebidas podem ser levados, mas devem ser consumidos dentro do apartamento\n\n' +
+        'Diferenciais do Jornal HOSPEDAH: um dos maiores resorts do Brasil, ao lado do Thermas dos Laranjais, com estrutura extremamente completa, muitas piscinas e bares, alto padrão de serviço e programação intensa de lazer.\n\n' +
         'Para consultar detalhes, valores e disponibilidade, me diga as datas desejadas e quantas pessoas vão viajar. 😊'
     },
     {
       terms: ['juquehy', 'juquei'],
       response: 'Ótima escolha! 🌊 A Praia de Juquehy, em São Sebastião/SP, é ideal para quem busca praia, descanso e natureza.\n\n' +
+        'Diferenciais do Jornal HOSPEDAH: praia organizada e preservada no litoral norte, mar calmo, restaurantes e beach clubs sofisticados, fácil acesso, perfil mais exclusivo e menos lotado.\n\n' +
         'Para consultar detalhes, valores e disponibilidade, me diga as datas desejadas e quantas pessoas vão viajar. 😊'
     },
     {
