@@ -1344,31 +1344,6 @@ document.addEventListener('keydown', function (e) {
   if (e.key === 'Escape') closeDrawer();
 });
 
-/* =====================
-   🔒 ACESSO SECRETO: 7 cliques/toques no logo HOSPEDAH → sistema.html
-   Fluxo ADM: navegação pública nunca pede login; somente este atalho
-   leva ao sistema protegido, que valida sessão/role e redireciona ao login ADM.
-===================== */
-(function () {
-  var logoEl = document.querySelector('.logo-txt');
-  if (!logoEl) return;
-  var count = 0;
-  var timer = null;
-  function reset() { count = 0; }
-  logoEl.addEventListener('click', function (e) {
-    e.preventDefault();
-    count++;
-    clearTimeout(timer);
-    timer = setTimeout(reset, 3000);
-    if (count >= 7) {
-      reset();
-      clearTimeout(timer);
-      window.location.href = 'sistema.html';
-    }
-  });
-})();
-
-
 
 /* =====================
    ✅ HERO CARROSSEL
