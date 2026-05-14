@@ -70,12 +70,12 @@
   }
 
   function translateAuthError(message) {
-    var errorMessage = (message && String(message).trim()) || 'Não foi possível concluir a autenticação.';
+    var errorMessage = (message ? String(message).trim() : '') || 'Não foi possível concluir a autenticação.';
     var normalized = errorMessage.toLowerCase();
     var fetchErrorPatterns = [
       'failed to fetch', 'falhou em buscar', 'networkerror', 'network request failed',
-      'fetch error', 'load failed', 'network error', 'net::err', 'typeerror: failed',
-      'typeerror: load', 'connection refused', 'conexão recusada', 'não foi possível conectar',
+      'fetch error', 'load failed', 'network error', 'net::err',
+      'connection refused', 'conexão recusada', 'não foi possível conectar',
       'could not connect', 'getaddrinfo', 'econnrefused', 'enotfound', 'etimedout',
       'fetch is not defined', 'unable to fetch'
     ];
