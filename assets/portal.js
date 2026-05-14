@@ -258,12 +258,54 @@
     });
   }
 
+  function initPasswordToggles() {
+    document.querySelectorAll('.portal-eye-btn').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var target = document.getElementById(btn.getAttribute('data-target'));
+        if (!target) return;
+        var isHidden = target.type === 'password';
+        target.type = isHidden ? 'text' : 'password';
+        btn.setAttribute('aria-label', isHidden ? 'Ocultar senha' : 'Mostrar senha');
+        btn.textContent = isHidden ? '🙈' : '👁';
+      });
+    });
+  }
+
+  function initStrengthMeter() {
+    var passwordInput = document.getElementById('signupPassword');
+    var fill = document.getElementById('signupStrengthFill');
+    var label = document.getElementById('signupStrengthLabel');
+    if (!passwordInput || !fill || !label) return;
+    passwordInput.addEventListener('input', function () {
+      var val = passwordInput.value;
+      var score = 0;
+      if (val.length >= 6) score++;
+      if (val.length >= 10) score++;
+      if (/[A-Z]/.test(val)) score++;
+      if (/[0-9]/.test(val)) score++;
+      if (/[^A-Za-z0-9]/.test(val)) score++;
+      var levels = [
+        { pct: '0%',   color: 'transparent', text: '' },
+        { pct: '25%',  color: '#e74c3c',      text: 'Fraca' },
+        { pct: '50%',  color: '#f39c12',      text: 'Razoável' },
+        { pct: '75%',  color: '#f0c93a',      text: 'Boa' },
+        { pct: '90%',  color: '#22c55e',      text: 'Forte' },
+        { pct: '100%', color: '#16a34a',      text: 'Excelente' }
+      ];
+      var lv = levels[Math.min(score, levels.length - 1)];
+      fill.style.width = val.length ? lv.pct : '0%';
+      fill.style.background = lv.color;
+      label.textContent = val.length ? lv.text : '';
+      label.style.color = lv.color;
+    });
+  }
+
   async function initAuthPage() {
-    initAuthTabs();
     var message   = document.getElementById('portalAuthMessage');
     var loginForm  = document.getElementById('loginForm');
     var signupForm = document.getElementById('signupForm');
     var googleBtn  = document.getElementById('btnGoogleAuth');
+    var magicBtn   = document.getElementById('btnMagicLink');
 
     var activeUser = await getSessionUser();
     if (activeUser) {
@@ -281,9 +323,9 @@
           return;
         }
         var submitBtn = loginForm.querySelector('button[type="submit"]');
-        if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Entrando…'; }
+        if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = '⏳ Entrando…'; }
         var loginRes = await client.auth.signInWithPassword({ email: email, password: password });
-        if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'Entrar na minha conta'; }
+        if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = '🔐 Entrar na minha conta'; }
         if (loginRes.error) {
           var msg = loginRes.error.message;
           if (msg === 'Invalid login credentials') msg = 'E-mail ou senha incorretos.';
@@ -305,13 +347,13 @@
           return;
         }
         var submitBtn = signupForm.querySelector('button[type="submit"]');
-        if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Criando conta…'; }
+        if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = '⏳ Criando conta…'; }
         var signUpRes = await client.auth.signUp({
           email: email,
           password: password,
           options: { data: { full_name: name }, emailRedirectTo: window.location.origin + '/portal/dashboard.html' }
         });
-        if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'Criar minha conta'; }
+        if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = '🚀 Criar minha conta'; }
         if (signUpRes.error) {
           var errMsg = signUpRes.error.message;
           if (errMsg && errMsg.toLowerCase().indexOf('already registered') !== -1) {
@@ -321,6 +363,32 @@
           return;
         }
         setMessage(message, '✅ Conta criada! Verifique seu e-mail para confirmar o acesso.', 'success');
+      });
+    }
+
+    if (magicBtn) {
+      magicBtn.addEventListener('click', async function () {
+        var emailInput = document.getElementById('loginEmail') || document.getElementById('signupEmail');
+        var email = emailInput ? emailInput.value.trim().toLowerCase() : '';
+        if (!isValidEmail(email)) {
+          setMessage(message, 'Digite seu e-mail no campo acima para receber o link mágico.', 'error');
+          return;
+        }
+        magicBtn.disabled = true;
+        magicBtn.textContent = '⏳ Enviando link…';
+        try {
+          var otpRes = await client.auth.signInWithOtp({
+            email: email,
+            options: { emailRedirectTo: window.location.origin + '/portal/dashboard.html' }
+          });
+          if (otpRes.error) { throw otpRes.error; }
+          setMessage(message, '✉️ Link mágico enviado para ' + email + '. Verifique sua caixa de entrada.', 'success');
+        } catch (otpErr) {
+          var otpErrMsg = (otpErr && otpErr.message) ? otpErr.message : 'Erro ao enviar link. Tente novamente.';
+          setMessage(message, otpErrMsg, 'error');
+        }
+        magicBtn.disabled = false;
+        magicBtn.textContent = '✉️ Link mágico por e-mail';
       });
     }
 
@@ -439,6 +507,14 @@
   }
 
   async function init() {
+    /* Always initialize UI interactions first — independent of Supabase */
+    var page = document.body.getAttribute('data-portal-page');
+    if (page === 'auth') {
+      initAuthTabs();
+      initPasswordToggles();
+      initStrengthMeter();
+    }
+
     try {
       client = getClient();
     } catch (err) {
@@ -447,7 +523,6 @@
       return;
     }
 
-    var page = document.body.getAttribute('data-portal-page');
     if (page === 'auth') {
       await initAuthPage();
       return;
