@@ -684,6 +684,7 @@ body {
   transition: color .15s, background .15s;
   min-height: unset;
   min-width: unset;
+  z-index: 1;
 }
 .portal-eye-btn:hover {
   color: var(--portal-gold);
