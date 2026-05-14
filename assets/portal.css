@@ -73,7 +73,7 @@ body {
   border-bottom: 1px solid var(--portal-border-gold);
 }
 .portal-logo-wrap img {
-  height: 48px;
+  height: 64px;
   width: auto;
   filter: drop-shadow(0 2px 8px rgba(212,175,55,0.45));
   flex-shrink: 0;
@@ -803,7 +803,7 @@ body {
 }
 @media (max-width: 480px) {
   .portal-card { padding: 24px 18px; }
-  .portal-logo-wrap img { height: 40px; }
+  .portal-logo-wrap img { height: 52px; }
   .portal-logo-tagline strong { font-size: 1.15rem; }
   .portal-grid { grid-template-columns: 1fr; }
   .tier-track  { grid-template-columns: repeat(2, 1fr); }
