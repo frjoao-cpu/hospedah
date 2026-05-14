@@ -194,12 +194,6 @@
 <!-- ==========================================
      FOMO BAR (visitantes ao vivo + timer)
 =========================================== -->
-<div id="fomo-bar" aria-live="polite">
-  <div class="fomo-pill">
-    <span class="fomo-dot"></span>
-    <span id="fomo-viewers">12</span> pessoas vendo agora
-  </div>
-</div>
 
 <!-- ==========================================
      PROVA SOCIAL (container de toasts)
@@ -318,10 +312,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       <img src="https://i.imgur.com/fVKGOSt.png" alt="HOSPEDAH — Resorts e Experiências Exclusivas"
             class="hero-logo" loading="eager" fetchpriority="high" decoding="auto" width="700" height="280">
     </picture>
-    <div class="hero-viewers-pill">
-      <span class="fomo-dot"></span>
-      <span id="hero-viewers">12</span> pessoas vendo agora
-    </div>
     <p class="hero-tagline" data-i18n="hero.tagline">Resorts & Experiências Exclusivas</p>
     <span class="hero-badge" data-i18n="hero.badge">✦ Atendimento Premium ✦</span>
 
@@ -2498,51 +2488,6 @@ function exitIntentSubmit(e) {
     document.addEventListener('keydown', function (e) {
       if (e.key === 'Escape') hide();
     });
-  })();
-
-  /* ══════════════════════════════════════════
-     2. FOMO — Visitantes ao vivo + Countdown
-  ══════════════════════════════════════════ */
-  (function fomo() {
-    var viewersEl  = $('fomo-viewers');
-    var heroViewEl = $('hero-viewers');
-    var timerEl   = $('fomo-timer-val');
-
-    /* Contador de "visitantes" oscila suavemente */
-    var viewers = rand(8, 18);
-    viewersEl.textContent = viewers;
-    if (heroViewEl) heroViewEl.textContent = viewers;
-    function updateViewers() {
-      viewers += rand(-2, 3);
-      if (viewers < 4)  viewers = 4;
-      if (viewers > 28) viewers = 28;
-      viewersEl.textContent = viewers;
-      if (heroViewEl) heroViewEl.textContent = viewers;
-    }
-    setInterval(updateViewers, rand(5000, 9000));
-
-    /* Timer regressivo — reinicia ao expirar (janela de sessão) */
-    var SESSION_KEY = 'hospedah_fomo_end';
-    var DURATION    = 15 * 60; /* 15 minutos em segundos */
-    var endTime     = parseInt(sessionStorage.getItem(SESSION_KEY), 10);
-    if (!endTime || endTime <= Date.now()) {
-      endTime = Date.now() + DURATION * 1000;
-      sessionStorage.setItem(SESSION_KEY, endTime);
-    }
-
-    function tick() {
-      if (!timerEl) return;
-      var diff = Math.max(0, Math.floor((endTime - Date.now()) / 1000));
-      var m = Math.floor(diff / 60);
-      var s = diff % 60;
-      timerEl.textContent = (m < 10 ? '0' : '') + m + ':' + (s < 10 ? '0' : '') + s;
-      if (diff === 0) {
-        endTime = Date.now() + DURATION * 1000;
-        sessionStorage.setItem(SESSION_KEY, endTime);
-      }
-    }
-    tick();
-    setInterval(tick, 1000);
   })();
 
   /* ══════════════════════════════════════════
