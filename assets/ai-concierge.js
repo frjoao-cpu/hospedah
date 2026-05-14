@@ -27,7 +27,8 @@
         '• Apartamentos de 1 dormitório para até 6 pessoas ou 2 dormitórios para até 8 pessoas\n' +
         '• 1 vaga gratuita na garagem por apartamento\n' +
         '• Não aceita pets\n' +
-        '• Refeições não estão incluídas na diária; são pagas diretamente no restaurante/lanchonete do resort\n\n' +
+        '• Refeições não estão incluídas na diária; alimentos e bebidas podem ser levados, mas devem ser consumidos dentro do apartamento\n\n' +
+        'Diferenciais do Jornal HOSPEDAH: localização estratégica em Olímpia, em frente ao Thermas dos Laranjais, acesso a pé ao parque, suítes amplas estilo apartamento e forte custo-benefício para viagens curtas e intensas.\n\n' +
         'Para eu te ajudar melhor, quais datas e quantas pessoas vão viajar? 😊'
     },
     {
@@ -36,7 +37,8 @@
         '• Check-in a partir das 15h e check-out até as 11h\n' +
         '• Apartamento de 1 dormitório para até 6 pessoas ou 2 dormitórios para até 8 pessoas\n' +
         '• 1 vaga gratuita na garagem por apartamento\n' +
-        '• Refeições não estão incluídas na diária\n\n' +
+        '• Refeições não estão incluídas na diária; alimentos e bebidas podem ser levados, mas devem ser consumidos dentro do apartamento\n\n' +
+        'Diferenciais do Jornal HOSPEDAH: acesso facilitado ao Hot Beach Olímpia, piscinas de águas quentes naturais, ambiente mais tranquilo e organizado, perfil mais seleto e experiência integrada resort + parque.\n\n' +
         'Quais datas e quantas pessoas vão viajar? 😊'
     },
     {
@@ -45,7 +47,8 @@
         '• Check-in a partir das 14h e check-out até as 11h\n' +
         '• 1 vaga gratuita na garagem por apartamento\n' +
         '• Não aceita pets\n' +
-        '• Refeições não estão incluídas na diária e alimentos de fora não são permitidos\n\n' +
+        '• Refeições não estão incluídas na diária; alimentos e bebidas podem ser levados, mas devem ser consumidos dentro do apartamento\n\n' +
+        'Diferenciais do Jornal HOSPEDAH: fica ao lado do Thermas de São Pedro, tem parque novo, menor fluxo de pessoas, filas reduzidas, ambiente organizado e região mais tranquila.\n\n' +
         'Quais datas e quantas pessoas vão viajar? 😊'
     },
     {
@@ -54,27 +57,33 @@
         '• Check-in a partir das 14h e check-out até as 11h\n' +
         '• Apartamento de 1 dormitório para até 5 pessoas ou 2 dormitórios para até 7 pessoas\n' +
         '• 1 vaga gratuita na garagem por apartamento\n' +
-        '• Refeições não estão incluídas na diária\n\n' +
+        '• Refeições não estão incluídas na diária; alimentos e bebidas podem ser levados, mas devem ser consumidos dentro do apartamento\n\n' +
+        'Diferenciais do Jornal HOSPEDAH: resort novo e moderno em Olímpia, com mais de 1.000 unidades, suítes com sala, cozinha e varanda, transfer incluso para o parque e boa opção para estadias mais longas.\n\n' +
         'Quais datas e quantas pessoas vão viajar? 😊'
     },
     {
       terms: ['wyndham', 'royal'],
       response: 'Ótima escolha! 👑 O Wyndham Royal é uma opção de alto padrão, com suítes de luxo, piscinas premium e lazer exclusivo.\n\n' +
+        '• Alimentos e bebidas podem ser levados, mas devem ser consumidos dentro do apartamento\n\n' +
+        'Diferenciais do Jornal HOSPEDAH: um dos maiores resorts do Brasil, ao lado do Thermas dos Laranjais, com estrutura extremamente completa, muitas piscinas e bares, alto padrão de serviço e programação intensa de lazer.\n\n' +
         'Para consultar detalhes, valores e disponibilidade, me diga as datas desejadas e quantas pessoas vão viajar. 😊'
     },
     {
       terms: ['juquehy', 'juquei'],
       response: 'Ótima escolha! 🌊 A Praia de Juquehy, em São Sebastião/SP, é ideal para quem busca praia, descanso e natureza.\n\n' +
+        'Diferenciais do Jornal HOSPEDAH: praia organizada e preservada no litoral norte, mar calmo, restaurantes e beach clubs sofisticados, fácil acesso, perfil mais exclusivo e menos lotado.\n\n' +
         'Para consultar detalhes, valores e disponibilidade, me diga as datas desejadas e quantas pessoas vão viajar. 😊'
     },
     {
       terms: ['ipioca'],
       response: 'Ótima escolha! 🌊 O Ipioca Beach Resort fica em Maceió/AL, à beira-mar, com praia exclusiva e estrutura para toda a família.\n\n' +
+        '• Alimentos e bebidas podem ser levados, mas devem ser consumidos dentro do apartamento\n\n' +
         'Para consultar detalhes, valores e disponibilidade, me diga as datas desejadas e quantas pessoas vão viajar. 😊'
     },
     {
       terms: ['porto 2 life', 'porto 2', 'porto dois', 'porto life'],
       response: 'Ótima escolha! ⚓ O Porto 2 Life é um resort moderno, com lazer completo, piscinas e acomodações de alto padrão.\n\n' +
+        '• Alimentos e bebidas podem ser levados, mas devem ser consumidos dentro do apartamento\n\n' +
         'Para consultar detalhes, valores e disponibilidade, me diga as datas desejadas e quantas pessoas vão viajar. 😊'
     }
   ];
@@ -89,7 +98,7 @@
           'Valores sujeitos a alterações pelo resort. 😊',
         estacionamento: 'Sim! No Hot Beach Suites há 1 vaga gratuita na garagem por apartamento, inclusa na diária. 🚗',
         checkin: 'No Hot Beach Suites, o check-in é a partir das 15h e o check-out até as 11h. 🔑',
-        alimentacao: 'No Hot Beach Suites, as refeições não estão incluídas na diária. O apartamento tem cozinha completa e o resort também possui restaurante com refeições pagas à parte. 🍽️',
+        alimentacao: 'No Hot Beach Suites, as refeições não estão incluídas na diária. Alimentos e bebidas podem ser levados, mas devem ser consumidos dentro do apartamento. O apartamento tem cozinha completa e o resort também possui restaurante com refeições pagas à parte. 🍽️',
         cozinha: 'Sim! O Hot Beach Suites tem cozinha completa no apartamento, com panelas, cafeteira, talheres, pratos, copos, cooktop, micro-ondas, geladeira e varanda gourmet. 🍳',
         capacidade: 'No Hot Beach Suites, o apartamento de 1 dormitório acomoda até 6 pessoas e o de 2 dormitórios acomoda até 8 pessoas. 👨‍👩‍👧‍👦',
         pets: 'Sobre pets no Hot Beach Suites, essa informação precisa ser confirmada pelo WhatsApp 📱 ' + SUPPORT_WHATSAPP + '.'
@@ -100,7 +109,7 @@
       facts: {
         estacionamento: 'Sim! No Olimpia Park Resort há 1 vaga gratuita na garagem por apartamento, inclusa na diária. 🚗',
         checkin: 'No Olimpia Park Resort, o check-in é a partir das 14h e o check-out até as 11h. 🔑',
-        alimentacao: 'No Olimpia Park Resort, as refeições não estão incluídas na diária. O resort tem restaurante e lanchonete com refeições pagas à parte. 🍽️',
+        alimentacao: 'No Olimpia Park Resort, as refeições não estão incluídas na diária. Alimentos e bebidas podem ser levados, mas devem ser consumidos dentro do apartamento. O resort tem restaurante e lanchonete com refeições pagas à parte. 🍽️',
         cozinha: 'No Olimpia Park Resort, o apartamento possui roupas de cama e banho, mas não inclui talheres, pratos, copos ou utensílios de cozinha.',
         capacidade: 'No Olimpia Park Resort, o apartamento de 1 dormitório acomoda até 6 pessoas e o de 2 dormitórios acomoda até 8 pessoas. 👨‍👩‍👧‍👦',
         pets: 'O Olimpia Park Resort não aceita pets. 🐾'
@@ -111,7 +120,7 @@
       facts: {
         estacionamento: 'Sim! No São Pedro Thermas há 1 vaga gratuita na garagem por apartamento, inclusa na diária. 🚗',
         checkin: 'No São Pedro Thermas, o check-in é a partir das 14h e o check-out até as 11h. 🔑',
-        alimentacao: 'No São Pedro Thermas, as refeições não estão incluídas na diária. O resort tem restaurante e lanchonete com refeições pagas diretamente no local; alimentos de fora não são permitidos. 🍽️',
+        alimentacao: 'No São Pedro Thermas, as refeições não estão incluídas na diária. Alimentos e bebidas podem ser levados, mas devem ser consumidos dentro do apartamento. O resort tem restaurante e lanchonete com refeições pagas diretamente no local. 🍽️',
         cozinha: 'No São Pedro Thermas, o apartamento possui roupas de cama e banho, mas não inclui talheres, pratos, copos ou utensílios de cozinha.',
         pets: 'O São Pedro Thermas não aceita pets. 🐾'
       }
@@ -121,10 +130,28 @@
       facts: {
         estacionamento: 'Sim! No Solar das Águas há 1 vaga gratuita na garagem por apartamento, inclusa na diária. 🚗',
         checkin: 'No Solar das Águas, o check-in é a partir das 14h e o check-out até as 11h. 🔑',
-        alimentacao: 'No Solar das Águas, as refeições não estão incluídas na diária. O resort tem restaurante com refeições pagas à parte. 🍽️',
+        alimentacao: 'No Solar das Águas, as refeições não estão incluídas na diária. Alimentos e bebidas podem ser levados, mas devem ser consumidos dentro do apartamento. O resort tem restaurante com refeições pagas à parte. 🍽️',
         cozinha: 'No Solar das Águas, o apartamento possui roupas de cama e banho, mas não inclui talheres, pratos, copos ou utensílios de cozinha.',
         capacidade: 'No Solar das Águas, o apartamento de 1 dormitório acomoda até 5 pessoas e o de 2 dormitórios acomoda até 7 pessoas. 👨‍👩‍👧‍👦',
         pets: 'O Solar das Águas não aceita pets. 🐾'
+      }
+    },
+    {
+      terms: ['wyndham', 'royal', 'wyndham royal'],
+      facts: {
+        alimentacao: 'No Wyndham Royal, alimentos e bebidas podem ser levados, mas devem ser consumidos dentro do apartamento. Para opções de refeição e pacotes de alimentação, consulte pelo WhatsApp 📱 ' + SUPPORT_WHATSAPP + '. 🍽️'
+      }
+    },
+    {
+      terms: ['ipioca', 'ipioca beach', 'ipioca beach resort'],
+      facts: {
+        alimentacao: 'No Ipioca Beach Resort, alimentos e bebidas podem ser levados, mas devem ser consumidos dentro do apartamento. Para opções de refeição e pacotes de alimentação, consulte pelo WhatsApp 📱 ' + SUPPORT_WHATSAPP + '. 🍽️'
+      }
+    },
+    {
+      terms: ['porto 2 life', 'porto 2', 'porto dois', 'porto life'],
+      facts: {
+        alimentacao: 'No Porto 2 Life, alimentos e bebidas podem ser levados, mas devem ser consumidos dentro do apartamento. Para opções de refeição e pacotes de alimentação, consulte pelo WhatsApp 📱 ' + SUPPORT_WHATSAPP + '. 🍽️'
       }
     }
   ];
@@ -132,8 +159,14 @@
   // Segurança garantida pelo RLS do Supabase, não pela ocultação da chave.
   var SUPABASE_ANON_KEY = window.HOSPEDAH_SB_ANON || '';
   var DEFAULT_TEMPERATURE = 0.7;
+  var AI_RESPONSE_DELAY_MS = 3000;
   var LOCAL_CONTEXT_LOOKBACK = 8;
   var FALLBACK_COUNTER = 0;
+  var FOOD_INTENT_TERMS = [
+    'alimentacao', 'alimentação', 'refeicao', 'refeição', 'refeicoes', 'refeições',
+    'cafe', 'café', 'almoco', 'almoço', 'jantar', 'comida', 'alimento', 'alimentos',
+    'bebida', 'bebidas', 'levar alimento', 'levar comida'
+  ];
 
   function serviceFallbackMessage(detail) {
     var d = (detail || '').toLowerCase();
@@ -185,7 +218,7 @@
     if (textHasAny(text, ['parque', 'taxa do parque', 'valor do parque', 'preco do parque', 'ingresso'])) return 'parque';
     if (textHasAny(text, ['estacionamento', 'estrcionamento', 'garagem', 'vaga'])) return 'estacionamento';
     if (textHasAny(text, ['check-in', 'checkin', 'check out', 'checkout', 'entrada', 'saida', 'saída', 'horario', 'horário'])) return 'checkin';
-    if (textHasAny(text, ['alimentacao', 'refeicao', 'refeicoes', 'cafe', 'almoco', 'jantar', 'comida'])) return 'alimentacao';
+    if (textHasAny(text, FOOD_INTENT_TERMS)) return 'alimentacao';
     if (textHasAny(text, ['cozinha', 'utensilio', 'talher', 'panela', 'microondas', 'micro-ondas', 'geladeira'])) return 'cozinha';
     if (textHasAny(text, ['quantas pessoas', 'capacidade', 'hospedes', 'pessoas'])) return 'capacidade';
     if (textHasAny(text, ['pet', 'pets', 'cachorro', 'gato', 'animal', 'animais'])) return 'pets';
@@ -235,6 +268,12 @@
     return localFactResponse(mensagens, intencao) || localFallbackResponse(mensagens);
   }
 
+  function delayResponse(value) {
+    return new Promise(function (resolve) {
+      setTimeout(function () { resolve(value); }, AI_RESPONSE_DELAY_MS);
+    });
+  }
+
   function buildConversationId() {
     if (typeof crypto !== 'undefined') {
       if (crypto.randomUUID) return crypto.randomUUID();
@@ -264,7 +303,7 @@
     if (!mensagens || !mensagens.length) return Promise.resolve(null);
 
     var local = localResponse(mensagens, intencao);
-    if (local) return Promise.resolve(local);
+    if (local) return delayResponse(local);
 
     var payload = {
       lead: lead || { nome: '', assunto: '' },
@@ -304,17 +343,17 @@
             (gStatus ? ' | Gemini: ' + gStatus : '') +
             ' | erro: ' + detail
           );
-          return friendly || localFallbackResponse(mensagens) || MSG_SERVICE_UNSTABLE_GENERIC;
+          return delayResponse(friendly || localFallbackResponse(mensagens) || MSG_SERVICE_UNSTABLE_GENERIC);
         }
-        return (data && data.resposta) ? data.resposta.trim() : null;
+        return delayResponse((data && data.resposta) ? data.resposta.trim() : null);
       }).catch(function () {
         console.warn('[HOSPEDAH_AI] Não foi possível ler a resposta da Edge Function.');
-        return localFallbackResponse(mensagens) || MSG_SERVICE_UNSTABLE_GENERIC;
+        return delayResponse(localFallbackResponse(mensagens) || MSG_SERVICE_UNSTABLE_GENERIC);
       });
     }).catch(function () {
       if (timeoutId) clearTimeout(timeoutId);
       console.error('[HOSPEDAH_AI] Erro de rede ao chamar a Edge Function.');
-      return localFallbackResponse(mensagens) || MSG_NETWORK_UNSTABLE;
+      return delayResponse(localFallbackResponse(mensagens) || MSG_NETWORK_UNSTABLE);
     });
   }
 
@@ -348,8 +387,10 @@
 
     var local = localResponse(mensagens, intencao);
     if (local) {
-      if (onToken) onToken(local, local);
-      if (onDone) onDone(local);
+      setTimeout(function () {
+        if (onToken) onToken(local, local);
+        if (onDone) onDone(local);
+      }, AI_RESPONSE_DELAY_MS);
       return;
     }
 
@@ -364,69 +405,70 @@
       stream: true
     };
 
-    var controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
-    var timeoutId = controller
-      ? setTimeout(function () { controller.abort(); }, 45000)
-      : null;
-
-    fetch(EDGE_FN_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'apikey': SUPABASE_ANON_KEY,
-        'Authorization': 'Bearer ' + SUPABASE_ANON_KEY
-      },
-      body: JSON.stringify(payload),
-      signal: controller ? controller.signal : undefined
-    }).then(function (res) {
-      if (timeoutId) clearTimeout(timeoutId);
-      if (!res.ok || !res.body) {
-        console.error('[HOSPEDAH_AI] Stream: HTTP ' + res.status);
-        if (onDone) onDone(null);
-        return;
-      }
-      var reader = res.body.getReader();
-      var decoder = new TextDecoder();
-      var buffer = '';
-      var fullText = '';
-      function readChunk() {
-        reader.read().then(function (result) {
-          if (result.done) {
-            if (onDone) onDone(fullText || null);
-            return;
-          }
-          buffer += decoder.decode(result.value, { stream: true });
-          var lines = buffer.split('\n');
-          buffer = lines.pop() || '';
-          for (var i = 0; i < lines.length; i++) {
-            var line = lines[i];
-            if (!line.startsWith('data: ')) continue;
-            var jsonStr = line.slice(6).trim();
-            if (!jsonStr || jsonStr === '[DONE]') continue;
-            try {
-              var parsed = JSON.parse(jsonStr);
-              var parts = (parsed && parsed.candidates && parsed.candidates[0] &&
-                parsed.candidates[0].content && parsed.candidates[0].content.parts) || [];
-              for (var k = 0; k < parts.length; k++) {
-                var p = parts[k];
-                if (p.text && !p.thought) {
-                  fullText += p.text;
-                  if (onToken) onToken(p.text, fullText);
+    setTimeout(function () {
+      var controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
+      var timeoutId = controller
+        ? setTimeout(function () { controller.abort(); }, 45000)
+        : null;
+      fetch(EDGE_FN_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': SUPABASE_ANON_KEY,
+          'Authorization': 'Bearer ' + SUPABASE_ANON_KEY
+        },
+        body: JSON.stringify(payload),
+        signal: controller ? controller.signal : undefined
+      }).then(function (res) {
+        if (timeoutId) clearTimeout(timeoutId);
+        if (!res.ok || !res.body) {
+          console.error('[HOSPEDAH_AI] Stream: HTTP ' + res.status);
+          if (onDone) onDone(null);
+          return;
+        }
+        var reader = res.body.getReader();
+        var decoder = new TextDecoder();
+        var buffer = '';
+        var fullText = '';
+        function readChunk() {
+          reader.read().then(function (result) {
+            if (result.done) {
+              if (onDone) onDone(fullText || null);
+              return;
+            }
+            buffer += decoder.decode(result.value, { stream: true });
+            var lines = buffer.split('\n');
+            buffer = lines.pop() || '';
+            for (var i = 0; i < lines.length; i++) {
+              var line = lines[i];
+              if (!line.startsWith('data: ')) continue;
+              var jsonStr = line.slice(6).trim();
+              if (!jsonStr || jsonStr === '[DONE]') continue;
+              try {
+                var parsed = JSON.parse(jsonStr);
+                var parts = (parsed && parsed.candidates && parsed.candidates[0] &&
+                  parsed.candidates[0].content && parsed.candidates[0].content.parts) || [];
+                for (var k = 0; k < parts.length; k++) {
+                  var p = parts[k];
+                  if (p.text && !p.thought) {
+                    fullText += p.text;
+                    if (onToken) onToken(p.text, fullText);
+                  }
                 }
-              }
-            } catch (e) { /* skip malformed chunk */ }
-          }
-          readChunk();
-        }).catch(function () {
-          if (onDone) onDone(fullText || null);
-        });
-      }
-      readChunk();
-    }).catch(function () {
-      if (timeoutId) clearTimeout(timeoutId);
-      console.error('[HOSPEDAH_AI] Erro de rede ao chamar a Edge Function (stream).');
-      if (onDone) onDone(null);
-    });
+              } catch (e) { /* skip malformed chunk */ }
+            }
+            readChunk();
+          }).catch(function () {
+            if (onDone) onDone(fullText || null);
+          });
+        }
+        readChunk();
+      }).catch(function () {
+        if (timeoutId) clearTimeout(timeoutId);
+        console.error('[HOSPEDAH_AI] Erro de rede ao chamar a Edge Function (stream).');
+        if (onDone) onDone(null);
+      });
+    }, AI_RESPONSE_DELAY_MS);
   }
 
   window.HOSPEDAH_AI = {
