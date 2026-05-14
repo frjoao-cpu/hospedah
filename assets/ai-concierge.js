@@ -11,6 +11,9 @@
 /* global window, fetch */
 (function () {
   var EDGE_FN_URL = (window.HOSPEDAH_SB_URL || 'https://ydrmjoppjxtmnwtvtinb.supabase.co') + '/functions/v1/ai-concierge';
+  var SUPPORT_WHATSAPP = '(17) 98200-6382';
+  var KEY_MISSING_ERROR = 'gemini_api_key';
+  var SERVICE_DOWN_ERROR = 'temporariamente indisponível';
   // Chave anon pública centralizada em assets/supabase-config.js.
   // Segurança garantida pelo RLS do Supabase, não pela ocultação da chave.
   var SUPABASE_ANON_KEY = window.HOSPEDAH_SB_ANON || '';
@@ -22,8 +25,8 @@
 
   function serviceFallbackMessage(detail) {
     var d = (detail || '').toLowerCase();
-    if (d.indexOf('gemini_api_key') !== -1 || d.indexOf('temporariamente indisponível') !== -1) {
-      return 'Estou com instabilidade temporária no atendimento automático. Tente novamente em instantes ou fale pelo WhatsApp 📱 (17) 98200-6382.';
+    if (d.indexOf(KEY_MISSING_ERROR) !== -1 || d.indexOf(SERVICE_DOWN_ERROR) !== -1) {
+      return 'Estou com instabilidade temporária no atendimento automático. Tente novamente em instantes ou fale pelo WhatsApp 📱 ' + SUPPORT_WHATSAPP + '.';
     }
     return null;
   }
@@ -100,12 +103,12 @@
         return (data && data.resposta) ? data.resposta.trim() : null;
       }).catch(function () {
         console.warn('[HOSPEDAH_AI] Não foi possível ler a resposta da Edge Function.');
-        return 'Estou com instabilidade temporária no atendimento automático. Fale pelo WhatsApp 📱 (17) 98200-6382.';
+        return 'Estou com instabilidade temporária no atendimento automático. Fale pelo WhatsApp 📱 ' + SUPPORT_WHATSAPP + '.';
       });
     }).catch(function () {
       if (timeoutId) clearTimeout(timeoutId);
       console.error('[HOSPEDAH_AI] Erro de rede ao chamar a Edge Function.');
-      return 'Estou com instabilidade de conexão no atendimento automático. Fale pelo WhatsApp 📱 (17) 98200-6382.';
+      return 'Estou com instabilidade de conexão no atendimento automático. Fale pelo WhatsApp 📱 ' + SUPPORT_WHATSAPP + '.';
     });
   }
 
