@@ -29,7 +29,7 @@
   }
 
   function limitedKitchenFact(resortName) {
-    return 'No ' + resortName + ', o apartamento dispõe de roupas de cama e banho, frigobar e forno micro-ondas, mas não possui talheres, pratos, copos ou utensílios de cozinha. Recomendamos levar um kit de utensílios.';
+    return 'No ' + resortName + ', o apartamento dispõe de roupas de cama e banho, frigobar e forno microondas, mas não possui talheres, pratos, copos ou utensílios de cozinha. Recomendamos levar um kit de utensílios.';
   }
 
   function noPetsFact(resortName) {
@@ -66,7 +66,7 @@
         '• Check-in a partir das 15h e check-out até as 11h; pré check-in e pós checkout para uso das áreas aquáticas mediante taxa de R$15,00 por pessoa\n' +
         '• Apartamento de 1 dormitório para até 6 pessoas ou 2 dormitórios para até 8 pessoas\n' +
         '• 1 vaga gratuita na garagem por apartamento\n' +
-        '• Apartamento 220V, com roupas de cama e banho, utensílios completos de cozinha, micro-ondas, geladeira e varanda gourmet com tela de proteção\n' +
+        '• Apartamento 220V, com roupas de cama e banho, utensílios completos de cozinha, microondas, geladeira e varanda gourmet com tela de proteção\n' +
         '• Alimentos e bebidas podem ser levados, mas devem ser consumidos dentro do apartamento\n' +
         '• Acesso gratuito à Vila Guarani; não aceita pets\n' +
         '• Menor desacompanhado dos pais precisa de autorização prévia\n\n' +
@@ -79,7 +79,7 @@
         '• 1 vaga gratuita na garagem por apartamento\n' +
         '• Não aceita pets\n' +
         '• Refeições não estão incluídas na diária; alimentos e bebidas podem ser levados, mas devem ser consumidos dentro do apartamento\n\n' +
-        '• Apartamento 220V, com roupas de cama e banho, frigobar e micro-ondas; não possui talheres, pratos, copos ou utensílios de cozinha\n' +
+        '• Apartamento 220V, com roupas de cama e banho, frigobar e microondas; não possui talheres, pratos, copos ou utensílios de cozinha\n' +
         '• Menor desacompanhado dos pais precisa de autorização prévia\n\n' +
         'Quais datas e quantas pessoas vão viajar? 😊'
     },
@@ -90,7 +90,7 @@
         '• Apartamento de 1 dormitório para até 5 pessoas ou 2 dormitórios para até 7 pessoas\n' +
         '• 1 vaga gratuita na garagem por apartamento\n' +
         '• Refeições não estão incluídas na diária; alimentos e bebidas podem ser levados, mas devem ser consumidos dentro do apartamento\n' +
-        '• Apartamento 220V, com roupas de cama e banho, frigobar e micro-ondas; não possui talheres, pratos, copos ou utensílios de cozinha\n' +
+        '• Apartamento 220V, com roupas de cama e banho, frigobar e microondas; não possui talheres, pratos, copos ou utensílios de cozinha\n' +
         '• Menor desacompanhado dos pais precisa de autorização prévia; não aceita pets\n\n' +
         'Quais datas e quantas pessoas vão viajar? 😊'
     },
@@ -99,7 +99,7 @@
       response: 'Ótima escolha! 👑 O Wyndham Royal é uma opção de alto padrão, com suítes de luxo, piscinas premium e lazer exclusivo.\n\n' +
         '• Check-in a partir das 14h e check-out até as 11h\n' +
         '• 1 vaga gratuita na garagem por apartamento\n' +
-        '• Apartamento 220V, com roupas de cama e banho, frigobar e micro-ondas; não possui talheres, pratos, copos ou utensílios de cozinha\n' +
+        '• Apartamento 220V, com roupas de cama e banho, frigobar e microondas; não possui talheres, pratos, copos ou utensílios de cozinha\n' +
         '• Alimentos e bebidas podem ser levados, mas devem ser consumidos dentro do apartamento\n' +
         '• Menor desacompanhado dos pais precisa de autorização prévia; não aceita pets\n\n' +
         'Para consultar detalhes, valores e disponibilidade, me diga as datas desejadas e quantas pessoas vão viajar. 😊'
@@ -115,7 +115,7 @@
       response: 'Ótima escolha! 🌊 O Ipioca Beach Resort fica em Maceió/AL, à beira-mar, com praia exclusiva e estrutura para toda a família.\n\n' +
         '• Check-in a partir das 14h e check-out até as 11h\n' +
         '• 1 vaga gratuita na garagem por apartamento\n' +
-        '• Apartamento 220V, com roupas de cama e banho, frigobar e micro-ondas; não possui talheres, pratos, copos ou utensílios de cozinha\n' +
+        '• Apartamento 220V, com roupas de cama e banho, frigobar e microondas; não possui talheres, pratos, copos ou utensílios de cozinha\n' +
         '• Alimentos e bebidas podem ser levados, mas devem ser consumidos dentro do apartamento\n' +
         '• Menor desacompanhado dos pais precisa de autorização prévia; não aceita pets\n\n' +
         'Para consultar detalhes, valores e disponibilidade, me diga as datas desejadas e quantas pessoas vão viajar. 😊'
@@ -125,7 +125,7 @@
       response: 'Ótima escolha! ⚓ O Porto 2 Life é um resort moderno, com lazer completo, piscinas e acomodações de alto padrão.\n\n' +
         '• Check-in a partir das 14h e check-out até as 11h\n' +
         '• 1 vaga gratuita na garagem por apartamento\n' +
-        '• Apartamento 220V, com roupas de cama e banho, frigobar e micro-ondas; não possui talheres, pratos, copos ou utensílios de cozinha\n' +
+        '• Apartamento 220V, com roupas de cama e banho, frigobar e microondas; não possui talheres, pratos, copos ou utensílios de cozinha\n' +
         '• Alimentos e bebidas podem ser levados, mas devem ser consumidos dentro do apartamento\n' +
         '• Menor desacompanhado dos pais precisa de autorização prévia; não aceita pets\n\n' +
         'Para consultar detalhes, valores e disponibilidade, me diga as datas desejadas e quantas pessoas vão viajar. 😊'
@@ -143,7 +143,7 @@
         estacionamento: garageFact('Hot Beach Suites'),
         checkin: 'No Hot Beach Suites, o check-in é a partir das 15h e o check-out até as 11h. É possível fazer pré check-in para usar as instalações aquáticas antes das 15h mediante taxa de R$15,00 por pessoa. Após o check-out, pagando R$15,00 por pessoa, é permitido aproveitar o parque aquático até o fim do dia. 🔑',
         alimentacao: 'No Hot Beach Suites, as refeições não estão incluídas na diária. Alimentos e bebidas podem ser levados, mas devem ser consumidos dentro do apartamento. O apartamento tem cozinha completa e o resort também possui restaurante com refeições pagas à parte. 🍽️',
-        cozinha: 'Sim! O Hot Beach Suites tem cozinha completa no apartamento, com panelas, cafeteira, talheres, pratos, copos, cooktop, micro-ondas, geladeira e varanda gourmet. 🍳',
+        cozinha: 'Sim! O Hot Beach Suites tem cozinha completa no apartamento, com panelas, cafeteira, talheres, pratos, copos, cooktop, microondas, geladeira e varanda gourmet. 🍳',
         capacidade: 'No Hot Beach Suites, o apartamento de 1 dormitório acomoda até 6 pessoas e o de 2 dormitórios acomoda até 8 pessoas. 👨‍👩‍👧‍👦',
         pets: noPetsFact('Hot Beach Suites'),
         menor: minorAuthorizationFact('Hot Beach Suites'),
