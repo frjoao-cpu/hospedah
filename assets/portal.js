@@ -100,8 +100,12 @@
   }
 
   async function getSessionUser() {
-    var sessionRes = await client.auth.getSession();
-    return sessionRes && sessionRes.data && sessionRes.data.session && sessionRes.data.session.user;
+    try {
+      var userRes = await client.auth.getUser();
+      return (userRes && userRes.data && userRes.data.user) || null;
+    } catch (e) {
+      return null;
+    }
   }
 
   function renderReservationCard(row) {
@@ -307,10 +311,14 @@
     var googleBtn  = document.getElementById('btnGoogleAuth');
     var magicBtn   = document.getElementById('btnMagicLink');
 
-    var activeUser = await getSessionUser();
-    if (activeUser) {
-      window.location.replace('/portal/dashboard.html');
-      return;
+    try {
+      var activeUser = await getSessionUser();
+      if (activeUser) {
+        window.location.replace('/portal/dashboard.html');
+        return;
+      }
+    } catch (e) {
+      /* Session check failed — show login form anyway */
     }
 
     if (loginForm) {
@@ -324,16 +332,21 @@
         }
         var submitBtn = loginForm.querySelector('button[type="submit"]');
         if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = '⏳ Entrando…'; }
-        var loginRes = await client.auth.signInWithPassword({ email: email, password: password });
-        if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = '🔐 Entrar na minha conta'; }
-        if (loginRes.error) {
-          var msg = loginRes.error.message;
-          if (msg === 'Invalid login credentials') msg = 'E-mail ou senha incorretos.';
-          else if (msg === 'Email not confirmed') msg = 'E-mail não confirmado. Verifique sua caixa de entrada (incluindo spam) e clique no link de confirmação.';
-          setMessage(message, msg, 'error');
-          return;
+        try {
+          var loginRes = await client.auth.signInWithPassword({ email: email, password: password });
+          if (loginRes.error) {
+            var msg = loginRes.error.message;
+            if (msg === 'Invalid login credentials') msg = 'E-mail ou senha incorretos.';
+            else if (msg === 'Email not confirmed') msg = 'E-mail não confirmado. Verifique sua caixa de entrada (incluindo spam) e clique no link de confirmação.';
+            setMessage(message, msg, 'error');
+            return;
+          }
+          window.location.replace('/portal/dashboard.html');
+        } catch (err) {
+          setMessage(message, 'Erro de conexão. Verifique sua internet e tente novamente.', 'error');
+        } finally {
+          if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = '🔐 Entrar na minha conta'; }
         }
-        window.location.replace('/portal/dashboard.html');
       });
     }
 
@@ -349,25 +362,30 @@
         }
         var submitBtn = signupForm.querySelector('button[type="submit"]');
         if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = '⏳ Criando conta…'; }
-        var signUpRes = await client.auth.signUp({
-          email: email,
-          password: password,
-          options: { data: { full_name: name }, emailRedirectTo: window.location.origin + '/portal/dashboard.html' }
-        });
-        if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = '🚀 Criar minha conta'; }
-        if (signUpRes.error) {
-          var errMsg = signUpRes.error.message;
-          if (errMsg && errMsg.toLowerCase().indexOf('already registered') !== -1) {
-            errMsg = 'Este e-mail já está cadastrado. Use a aba "Entrar".';
+        try {
+          var signUpRes = await client.auth.signUp({
+            email: email,
+            password: password,
+            options: { data: { full_name: name }, emailRedirectTo: window.location.origin + '/portal/dashboard.html' }
+          });
+          if (signUpRes.error) {
+            var errMsg = signUpRes.error.message;
+            if (errMsg && errMsg.toLowerCase().indexOf('already registered') !== -1) {
+              errMsg = 'Este e-mail já está cadastrado. Use a aba "Entrar".';
+            }
+            setMessage(message, errMsg, 'error');
+            return;
           }
-          setMessage(message, errMsg, 'error');
-          return;
+          if (signUpRes.data && signUpRes.data.session) {
+            window.location.replace('/portal/dashboard.html');
+            return;
+          }
+          setMessage(message, '✅ Conta criada! Verifique seu e-mail para confirmar o acesso.', 'success');
+        } catch (err) {
+          setMessage(message, 'Erro de conexão. Verifique sua internet e tente novamente.', 'error');
+        } finally {
+          if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = '🚀 Criar minha conta'; }
         }
-        if (signUpRes.data && signUpRes.data.session) {
-          window.location.replace('/portal/dashboard.html');
-          return;
-        }
-        setMessage(message, '✅ Conta criada! Verifique seu e-mail para confirmar o acesso.', 'success');
       });
     }
 
@@ -454,7 +472,12 @@
     var logoutBtn = document.getElementById('portalLogout');
     if (logoutBtn) {
       logoutBtn.addEventListener('click', async function () {
-        await client.auth.signOut();
+        logoutBtn.disabled = true;
+        try {
+          await client.auth.signOut();
+        } catch (e) {
+          /* Force redirect even if signOut fails */
+        }
         window.location.replace('/portal/index.html');
       });
     }
@@ -471,14 +494,19 @@
         }
         var submitBtn = updatePasswordForm.querySelector('button[type="submit"]');
         if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Salvando…'; }
-        var response = await client.auth.updateUser({ password: password });
-        if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = '🔐 Salvar nova senha'; }
-        if (response.error) {
-          setMessage(configMessage, 'Não foi possível atualizar a senha: ' + response.error.message, 'error');
-          return;
+        try {
+          var response = await client.auth.updateUser({ password: password });
+          if (response.error) {
+            setMessage(configMessage, 'Não foi possível atualizar a senha: ' + response.error.message, 'error');
+            return;
+          }
+          setMessage(configMessage, '✅ Senha atualizada com sucesso.', 'success');
+          updatePasswordForm.reset();
+        } catch (err) {
+          setMessage(configMessage, 'Erro de conexão. Verifique sua internet e tente novamente.', 'error');
+        } finally {
+          if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = '🔐 Salvar nova senha'; }
         }
-        setMessage(configMessage, '✅ Senha atualizada com sucesso.', 'success');
-        updatePasswordForm.reset();
       });
     }
 
@@ -503,15 +531,23 @@
           setMessage(message, 'A senha deve ter ao menos 6 caracteres.', 'error');
           return;
         }
-        var resetRes = await client.auth.updateUser({ password: password });
-        if (resetRes.error) {
-          setMessage(message, resetRes.error.message, 'error');
-          return;
+        var submitBtn = form.querySelector('button[type="submit"]');
+        if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Salvando…'; }
+        try {
+          var resetRes = await client.auth.updateUser({ password: password });
+          if (resetRes.error) {
+            setMessage(message, resetRes.error.message, 'error');
+            return;
+          }
+          setMessage(message, '✅ Senha atualizada! Redirecionando…', 'success');
+          window.setTimeout(function () {
+            window.location.replace('/portal/dashboard.html');
+          }, 1200);
+        } catch (err) {
+          setMessage(message, 'Erro de conexão. Verifique sua internet e tente novamente.', 'error');
+        } finally {
+          if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'Atualizar senha'; }
         }
-        setMessage(message, '✅ Senha atualizada! Redirecionando…', 'success');
-        window.setTimeout(function () {
-          window.location.replace('/portal/dashboard.html');
-        }, 1200);
       });
     }
   }
