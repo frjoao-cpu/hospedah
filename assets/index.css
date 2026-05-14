@@ -263,7 +263,7 @@ html[data-theme="light"] footer                 { background: #e8e4d8; color: #4
 }
 .nav-overlay.open { display: block; }
 
-/* Desktop menu needs wider space because it includes nine navigation items. */
+/* Desktop menu needs wider space to accommodate all navigation items. */
 @media (max-width: 1180px) {
   .nav-links         { display: none; }
   .hamburger         { display: flex; }
