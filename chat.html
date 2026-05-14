@@ -1324,12 +1324,10 @@ const AI_EDGE_STREAM_TIMEOUT_MS = 45000;
 
 function escalarParaAIStream(temperature) {
   try {
-  if (!window.HOSPEDAH_AI) return Promise.resolve(null);
-  const key = (typeof window !== 'undefined' && window.GEMINI_API_KEY) || '';
-
-  if (!key) {
-    // Sem chave no browser — usa Edge Function com streaming (pass-through SSE)
+    if (!window.HOSPEDAH_AI) return Promise.resolve(null);
     if (!_aiContext.mensagens || !_aiContext.mensagens.length) return Promise.resolve(null);
+
+    // Todas as chamadas de IA devem passar pela Edge Function; não use GEMINI_API_KEY no browser.
     const edgeUrl  = (window.HOSPEDAH_AI.edgeUrl) || (SUPABASE_URL + '/functions/v1/ai-concierge');
     const edgeAnon = (window.HOSPEDAH_AI.edgeAnon) || SUPABASE_KEY;
     var edgePayload = {
@@ -1361,33 +1359,6 @@ function escalarParaAIStream(temperature) {
       console.error('[HOSPEDAH] Edge stream error:', e);
       return null;
     });
-  }
-
-  const payload = window.HOSPEDAH_AI.buildPayload(
-    _aiContext.lead,
-    _aiContext.mensagens,
-    _aiContext.contexto_intencao,
-    temperature || 0.7,
-    _aiContext.faq_extras
-  );
-  if (!payload.contents || !payload.contents.length) return Promise.resolve(null);
-
-  let fetchStream = window.HOSPEDAH_AI.fetchGeminiWithRetry;
-  if (!fetchStream) {
-    console.warn('[HOSPEDAH] Retry Gemini indisponível para streaming; usando fetch direto.');
-    fetchStream = fetch;
-  }
-  return fetchStream(window.HOSPEDAH_AI.streamUrl(), {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload)
-  }, 'Gemini streaming direto').then(function (res) {
-    if (!res.ok || !res.body) {
-      console.error('[HOSPEDAH] Stream API error:', res.status);
-      return null;
-    }
-    return renderizarStream(res);
-  }).catch(function (e) { console.error('[HOSPEDAH] Stream error:', e); return null; });
   } catch (e) {
     console.error('[HOSPEDAH] escalarParaAIStream error:', e);
     return Promise.resolve(null);
