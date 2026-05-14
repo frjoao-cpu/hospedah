@@ -306,12 +306,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   <!-- ✅ Overlay premium -->
   <div class="hero-overlay"></div>
 
-  <!-- ✅ Contador de visitantes em tempo real — lateral direita -->
-  <div class="hero-viewers-pill" id="heroViewers" aria-live="polite" aria-atomic="true">
-    <span class="live-dot" aria-hidden="true"></span>
-    <span><span id="heroViewersCount"></span> <span data-i18n="hero.viewers">pessoas vendo agora</span></span>
-  </div>
-
   <div class="hero-content">
     <!-- ✅ Logo central com overlay premium -->
     <picture>
@@ -320,7 +314,14 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     </picture>
 
     <p class="hero-tagline" data-i18n="hero.tagline">Resorts & Experiências Exclusivas</p>
-    <span class="hero-badge" data-i18n="hero.badge">✦ Atendimento Premium ✦</span>
+    <div class="hero-badge-row">
+      <span class="hero-badge" data-i18n="hero.badge">✦ Atendimento Premium ✦</span>
+      <!-- ✅ Contador de visitantes em tempo real -->
+      <div class="hero-viewers-pill" id="heroViewers" aria-live="polite" aria-atomic="true">
+        <span class="live-dot" aria-hidden="true"></span>
+        <span><span id="heroViewersCount"></span> <span data-i18n="hero.viewers">pessoas vendo agora</span></span>
+      </div>
+    </div>
 
     <!-- ✅ Busca estilo Booking dentro do banner -->
     <div class="hero-search" role="search" aria-label="Buscar hospedagem">

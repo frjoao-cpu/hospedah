@@ -306,9 +306,14 @@ html[data-theme="light"] footer                 { background: #e8e4d8; color: #4
   from { opacity: 0; transform: scale(.88) translateY(-12px); }
   to   { opacity: 1; transform: scale(1) translateY(0); }
 }
+.hero-badge-row {
+  display: inline-flex; align-items: center; gap: 12px;
+  flex-wrap: wrap; justify-content: center;
+  margin-bottom: 10px;
+}
+.hero-badge-row .hero-badge { margin-bottom: 0; }
 .hero-viewers-pill {
-  position: absolute; z-index: 3;
-  right: 22px; top: 62%; transform: translateY(-50%);
+  position: relative; z-index: 3;
   display: inline-flex; align-items: center; gap: 7px;
   background: rgba(11,28,61,.82); color: #fff;
   border: 1px solid rgba(212,175,55,.55); border-radius: 30px;
@@ -408,9 +413,6 @@ html[data-theme="light"] footer                 { background: #e8e4d8; color: #4
 
 @media (max-width: 768px) {
   .hero-viewers-pill {
-    right: 12px; top: auto;
-    /* 90px keeps the pill above the hero navigation dots (bottom: 22px) and carousel arrows */
-    bottom: 90px; transform: none;
     font-size: .72em;
   }
   .hero-content {
