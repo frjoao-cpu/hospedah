@@ -98,6 +98,10 @@
       .replace(/[\u0300-\u036f]/g, '');
   }
 
+  for (var f = 0; f < LOCAL_RESORT_FALLBACKS.length; f++) {
+    LOCAL_RESORT_FALLBACKS[f].normalizedTerms = LOCAL_RESORT_FALLBACKS[f].terms.map(normalizeText);
+  }
+
   function getLastUserText(mensagens) {
     for (var i = mensagens.length - 1; i >= 0; i--) {
       if (mensagens[i] && mensagens[i].role === 'user') {
@@ -112,7 +116,6 @@
     if (!text) return null;
     for (var i = 0; i < LOCAL_RESORT_FALLBACKS.length; i++) {
       var item = LOCAL_RESORT_FALLBACKS[i];
-      item.normalizedTerms = item.normalizedTerms || item.terms.map(normalizeText);
       for (var j = 0; j < item.normalizedTerms.length; j++) {
         if (text.indexOf(item.normalizedTerms[j]) !== -1) {
           return item.response;
