@@ -11,11 +11,25 @@
 /* global window, fetch */
 (function () {
   var EDGE_FN_URL = (window.HOSPEDAH_SB_URL || 'https://ydrmjoppjxtmnwtvtinb.supabase.co') + '/functions/v1/ai-concierge';
+  var SUPPORT_WHATSAPP = '(17) 98200-6382';
+  var KEY_MISSING_ERROR = 'gemini_api_key';
+  var SERVICE_DOWN_ERROR = 'temporariamente indisponível';
+  var MSG_SERVICE_UNSTABLE = 'Estou com instabilidade temporária no atendimento automático. Tente novamente em instantes ou fale pelo WhatsApp 📱 ' + SUPPORT_WHATSAPP + '.';
+  var MSG_SERVICE_UNSTABLE_GENERIC = 'Estou com instabilidade temporária no atendimento automático. Fale pelo WhatsApp 📱 ' + SUPPORT_WHATSAPP + '.';
+  var MSG_NETWORK_UNSTABLE = 'Estou com instabilidade de conexão no atendimento automático. Fale pelo WhatsApp 📱 ' + SUPPORT_WHATSAPP + '.';
   // Chave anon pública centralizada em assets/supabase-config.js.
   // Segurança garantida pelo RLS do Supabase, não pela ocultação da chave.
   var SUPABASE_ANON_KEY = window.HOSPEDAH_SB_ANON || '';
   var DEFAULT_TEMPERATURE = 0.7;
   var FALLBACK_COUNTER = 0;
+
+  function serviceFallbackMessage(detail) {
+    var d = (detail || '').toLowerCase();
+    if (d.indexOf(KEY_MISSING_ERROR) !== -1 || d.indexOf(SERVICE_DOWN_ERROR) !== -1) {
+      return MSG_SERVICE_UNSTABLE;
+    }
+    return null;
+  }
 
   function buildConversationId() {
     if (typeof crypto !== 'undefined') {
@@ -76,23 +90,24 @@
           var detail = data && data.error ? data.error : '(sem detalhe)';
           var model  = data && data.model  ? data.model  : '';
           var gStatus = data && data.geminiStatus ? data.geminiStatus : '';
+          var friendly = serviceFallbackMessage(detail);
           console.error(
             '[HOSPEDAH_AI] Edge function HTTP ' + res.status +
             (model  ? ' | modelo: ' + model   : '') +
             (gStatus ? ' | Gemini: ' + gStatus : '') +
             ' | erro: ' + detail
           );
-          return null;
+          return friendly || MSG_SERVICE_UNSTABLE_GENERIC;
         }
         return (data && data.resposta) ? data.resposta.trim() : null;
       }).catch(function () {
         console.warn('[HOSPEDAH_AI] Não foi possível ler a resposta da Edge Function.');
-        return null;
+        return MSG_SERVICE_UNSTABLE_GENERIC;
       });
     }).catch(function () {
       if (timeoutId) clearTimeout(timeoutId);
       console.error('[HOSPEDAH_AI] Erro de rede ao chamar a Edge Function.');
-      return null;
+      return MSG_NETWORK_UNSTABLE;
     });
   }
 
