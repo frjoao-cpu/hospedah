@@ -46,8 +46,9 @@ confirmação chegar ao usuário e o link funcionar:
 
 1. Em **Authentication → URL Configuration**, defina:
    - **Site URL**: `https://<SEU_DOMINIO>` (ex.: `https://hospedah.com.br`)
-   - **Redirect URLs**: adicionar `https://<SEU_DOMINIO>/portal/dashboard.html`
-     e `http://localhost:*` (para testes locais).
+   - **Redirect URLs**: adicionar `https://<SEU_DOMINIO>/portal/dashboard.html`,
+     `https://<SEU_DOMINIO>/portal/reset-password.html` e `http://localhost:*`
+     (para testes locais).
 2. Em **Authentication → Email Templates**, revise o template **Confirm signup**
    e personalize se desejar.
 3. Em **Authentication → Providers → Email**, mantenha **Enable email provider**
@@ -56,7 +57,20 @@ confirmação chegar ao usuário e o link funcionar:
 
 ---
 
-## 3. Vouchers sem foto
+## 3. Recuperação de senha pelo login
+
+O botão **Esqueci minha senha** chama `supabase.auth.resetPasswordForEmail(...)`
+e envia o usuário para `/portal/reset-password.html`. Para o fluxo funcionar:
+
+1. Em **Authentication → URL Configuration**, confirme que
+   `https://<SEU_DOMINIO>/portal/reset-password.html` está em **Redirect URLs**.
+2. Em **Authentication → Email Templates**, revise o template **Reset Password**.
+3. Teste com um e-mail cadastrado: o link recebido deve abrir a tela
+   **Redefinir senha** já autenticada para salvar a nova senha.
+
+---
+
+## 4. Vouchers sem foto
 
 O código foi corrigido para:
 - mapear corretamente todos os resorts (Hot Beach, São Pedro Thermas,
@@ -71,7 +85,7 @@ Se ainda assim algum voucher aparecer sem foto, verifique se o campo
 
 ---
 
-## 4. Verificação rápida
+## 5. Verificação rápida
 
 Após aplicar as configurações acima, teste no portal:
 
