@@ -70,8 +70,8 @@
   }
 
   function translateAuthError(message) {
-    var msg = message || 'Não foi possível concluir a autenticação.';
-    var normalized = msg.toLowerCase();
+    var errorMessage = message || 'Não foi possível concluir a autenticação.';
+    var normalized = errorMessage.toLowerCase();
     if (normalized.indexOf('invalid login credentials') !== -1) {
       return 'E-mail ou senha incorretos. Confira os dados ou use "Esqueci minha senha".';
     }
@@ -87,13 +87,16 @@
     if (normalized.indexOf('provider') !== -1 || normalized.indexOf('not enabled') !== -1 || normalized.indexOf('unsupported') !== -1) {
       return 'Login com Google temporariamente indisponível. Use e-mail e senha ou link mágico.';
     }
-    return msg;
+    return errorMessage;
+  }
+
+  function getHashParamString() {
+    var hashParams = window.location.hash ? window.location.hash.slice(1) : '';
+    return hashParams.charAt(0) === '?' ? hashParams.slice(1) : hashParams;
   }
 
   function getAuthRedirectError() {
-    var hashParams = window.location.hash ? window.location.hash.slice(1) : '';
-    if (hashParams.charAt(0) === '?') hashParams = hashParams.slice(1);
-    var sources = [window.location.search, hashParams];
+    var sources = [window.location.search, getHashParamString()];
     for (var i = 0; i < sources.length; i++) {
       var params = new URLSearchParams(sources[i]);
       var error = params.get('error_description') || params.get('error');
@@ -106,7 +109,7 @@
     var code = new URLSearchParams(window.location.search).get('code');
     if (!code) return null;
     if (!client.auth.exchangeCodeForSession) {
-      console.warn('Supabase client sem exchangeCodeForSession; atualize @supabase/supabase-js.');
+      console.warn('Supabase client sem exchangeCodeForSession; confirme o carregamento de @supabase/supabase-js v2.');
       return null;
     }
     var codeRes = await client.auth.exchangeCodeForSession(code);
@@ -483,7 +486,7 @@
           : document.getElementById('signupEmail');
         var email = emailInput ? emailInput.value.trim().toLowerCase() : '';
         if (!isValidEmail(email)) {
-          setMessage(message, 'Digite seu e-mail no campo de login para receber a recuperação de senha.', 'error');
+          setMessage(message, 'Digite um e-mail válido no formulário ativo para receber a recuperação de senha.', 'error');
           return;
         }
         resetBtn.disabled = true;
