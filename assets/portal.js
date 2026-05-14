@@ -114,7 +114,13 @@
     for (var i = 0; i < sources.length; i++) {
       var params = new URLSearchParams(sources[i]);
       var error = params.get('error_description') || params.get('error');
-      if (error) return translateAuthError(error.replace(/\+/g, ' '));
+      if (error) {
+        /* Clean the URL so refreshing the page does not re-show a stale OAuth error */
+        if (window.history && window.history.replaceState) {
+          window.history.replaceState(null, '', window.location.pathname);
+        }
+        return translateAuthError(error.replace(/\+/g, ' '));
+      }
     }
     return '';
   }
