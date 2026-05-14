@@ -17,6 +17,65 @@
   var MSG_SERVICE_UNSTABLE = 'Estou com instabilidade temporária no atendimento automático. Tente novamente em instantes ou fale pelo WhatsApp 📱 ' + SUPPORT_WHATSAPP + '.';
   var MSG_SERVICE_UNSTABLE_GENERIC = 'Estou com instabilidade temporária no atendimento automático. Fale pelo WhatsApp 📱 ' + SUPPORT_WHATSAPP + '.';
   var MSG_NETWORK_UNSTABLE = 'Estou com instabilidade de conexão no atendimento automático. Fale pelo WhatsApp 📱 ' + SUPPORT_WHATSAPP + '.';
+  var LOCAL_RESORT_FALLBACKS = [
+    {
+      terms: ['olimpia park', 'olímpia park', 'olimpia', 'olímpia'],
+      response: 'Ótima escolha! 🎢 O Olimpia Park Resort fica em Olímpia/SP e é uma opção com parque aquático, piscinas e acomodações premium.\n\n' +
+        '• Check-in a partir das 14h e check-out até as 11h\n' +
+        '• Apartamentos de 1 dormitório para até 6 pessoas ou 2 dormitórios para até 8 pessoas\n' +
+        '• 1 vaga gratuita na garagem por apartamento\n' +
+        '• Não aceita pets\n' +
+        '• Refeições não estão incluídas na diária; são pagas diretamente no restaurante/lanchonete do resort\n\n' +
+        'Para eu te ajudar melhor, quais datas e quantas pessoas vão viajar? 😊'
+    },
+    {
+      terms: ['hot beach', 'hotbeach'],
+      response: 'Ótima escolha! 🏖️ O Hot Beach Suites fica em Olímpia/SP, tem piscinas termais, lazer completo e apartamentos com cozinha completa.\n\n' +
+        '• Check-in a partir das 15h e check-out até as 11h\n' +
+        '• Apartamento de 1 dormitório para até 6 pessoas ou 2 dormitórios para até 8 pessoas\n' +
+        '• 1 vaga gratuita na garagem por apartamento\n' +
+        '• Refeições não estão incluídas na diária\n\n' +
+        'Quais datas e quantas pessoas vão viajar? 😊'
+    },
+    {
+      terms: ['sao pedro', 'são pedro', 'thermas'],
+      response: 'Ótima escolha! ♨️ O São Pedro Thermas tem águas termais naturais, piscinas aquecidas e acomodações premium.\n\n' +
+        '• Check-in a partir das 14h e check-out até as 11h\n' +
+        '• 1 vaga gratuita na garagem por apartamento\n' +
+        '• Não aceita pets\n' +
+        '• Refeições não estão incluídas na diária e alimentos de fora não são permitidos\n\n' +
+        'Quais datas e quantas pessoas vão viajar? 😊'
+    },
+    {
+      terms: ['solar das aguas', 'solar das águas', 'solar'],
+      response: 'Ótima escolha! ☀️ O Solar das Águas é um resort completo, com piscinas, lazer e acomodações para famílias.\n\n' +
+        '• Check-in a partir das 14h e check-out até as 11h\n' +
+        '• Apartamento de 1 dormitório para até 5 pessoas ou 2 dormitórios para até 7 pessoas\n' +
+        '• 1 vaga gratuita na garagem por apartamento\n' +
+        '• Refeições não estão incluídas na diária\n\n' +
+        'Quais datas e quantas pessoas vão viajar? 😊'
+    },
+    {
+      terms: ['wyndham', 'royal'],
+      response: 'Ótima escolha! 👑 O Wyndham Royal é uma opção de alto padrão, com suítes de luxo, piscinas premium e lazer exclusivo.\n\n' +
+        'Para consultar detalhes, valores e disponibilidade, me diga as datas desejadas e quantas pessoas vão viajar. 😊'
+    },
+    {
+      terms: ['juquehy', 'juquei'],
+      response: 'Ótima escolha! 🌊 A Praia de Juquehy, em São Sebastião/SP, é ideal para quem busca praia, descanso e natureza.\n\n' +
+        'Para consultar detalhes, valores e disponibilidade, me diga as datas desejadas e quantas pessoas vão viajar. 😊'
+    },
+    {
+      terms: ['ipioca'],
+      response: 'Ótima escolha! 🌊 O Ipioca Beach Resort fica em Maceió/AL, à beira-mar, com praia exclusiva e estrutura para toda a família.\n\n' +
+        'Para consultar detalhes, valores e disponibilidade, me diga as datas desejadas e quantas pessoas vão viajar. 😊'
+    },
+    {
+      terms: ['porto 2 life', 'porto i2', 'porto'],
+      response: 'Ótima escolha! ⚓ O Porto 2 Life é um resort moderno, com lazer completo, piscinas e acomodações de alto padrão.\n\n' +
+        'Para consultar detalhes, valores e disponibilidade, me diga as datas desejadas e quantas pessoas vão viajar. 😊'
+    }
+  ];
   // Chave anon pública centralizada em assets/supabase-config.js.
   // Segurança garantida pelo RLS do Supabase, não pela ocultação da chave.
   var SUPABASE_ANON_KEY = window.HOSPEDAH_SB_ANON || '';
@@ -27,6 +86,36 @@
     var d = (detail || '').toLowerCase();
     if (d.indexOf(KEY_MISSING_ERROR) !== -1 || d.indexOf(SERVICE_DOWN_ERROR) !== -1) {
       return MSG_SERVICE_UNSTABLE;
+    }
+    return null;
+  }
+
+  function normalizeText(text) {
+    return String(text || '')
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '');
+  }
+
+  function getLastUserText(mensagens) {
+    for (var i = mensagens.length - 1; i >= 0; i--) {
+      if (mensagens[i] && mensagens[i].role === 'user') {
+        return mensagens[i].content || '';
+      }
+    }
+    return '';
+  }
+
+  function localFallbackResponse(mensagens) {
+    var text = normalizeText(getLastUserText(mensagens));
+    if (!text) return null;
+    for (var i = 0; i < LOCAL_RESORT_FALLBACKS.length; i++) {
+      var item = LOCAL_RESORT_FALLBACKS[i];
+      for (var j = 0; j < item.terms.length; j++) {
+        if (text.indexOf(normalizeText(item.terms[j])) !== -1) {
+          return item.response;
+        }
+      }
     }
     return null;
   }
@@ -97,17 +186,17 @@
             (gStatus ? ' | Gemini: ' + gStatus : '') +
             ' | erro: ' + detail
           );
-          return friendly || MSG_SERVICE_UNSTABLE_GENERIC;
+          return friendly || localFallbackResponse(mensagens) || MSG_SERVICE_UNSTABLE_GENERIC;
         }
         return (data && data.resposta) ? data.resposta.trim() : null;
       }).catch(function () {
         console.warn('[HOSPEDAH_AI] Não foi possível ler a resposta da Edge Function.');
-        return MSG_SERVICE_UNSTABLE_GENERIC;
+        return localFallbackResponse(mensagens) || MSG_SERVICE_UNSTABLE_GENERIC;
       });
     }).catch(function () {
       if (timeoutId) clearTimeout(timeoutId);
       console.error('[HOSPEDAH_AI] Erro de rede ao chamar a Edge Function.');
-      return MSG_NETWORK_UNSTABLE;
+      return localFallbackResponse(mensagens) || MSG_NETWORK_UNSTABLE;
     });
   }
 
