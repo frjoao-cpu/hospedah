@@ -368,7 +368,11 @@
 
     if (magicBtn) {
       magicBtn.addEventListener('click', async function () {
-        var emailInput = document.getElementById('loginEmail') || document.getElementById('signupEmail');
+        var loginFormEl   = document.getElementById('loginForm');
+        var isLoginActive = loginFormEl && !loginFormEl.classList.contains('hidden');
+        var emailInput    = isLoginActive
+          ? document.getElementById('loginEmail')
+          : (document.getElementById('signupEmail') || document.getElementById('loginEmail'));
         var email = emailInput ? emailInput.value.trim().toLowerCase() : '';
         if (!isValidEmail(email)) {
           setMessage(message, 'Digite seu e-mail no campo acima para receber o link mágico.', 'error');
@@ -512,9 +516,10 @@
     var page = document.body.getAttribute('data-portal-page');
     if (page === 'auth') {
       initAuthTabs();
-      initPasswordToggles();
       initStrengthMeter();
     }
+    /* Password toggles apply on any page that has eye buttons */
+    initPasswordToggles();
 
     try {
       client = getClient();
