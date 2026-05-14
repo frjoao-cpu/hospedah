@@ -372,7 +372,7 @@
         var isLoginActive = loginFormEl && !loginFormEl.classList.contains('hidden');
         var emailInput    = isLoginActive
           ? document.getElementById('loginEmail')
-          : (document.getElementById('signupEmail') || document.getElementById('loginEmail'));
+          : document.getElementById('signupEmail');
         var email = emailInput ? emailInput.value.trim().toLowerCase() : '';
         if (!isValidEmail(email)) {
           setMessage(message, 'Digite seu e-mail no campo acima para receber o link mágico.', 'error');
