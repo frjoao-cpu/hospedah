@@ -39,7 +39,7 @@
   --wpp: #25D366;
   --radius: 14px;
   --sombra: 0 4px 24px rgba(0,0,0,0.18);
-  --nav-item-min: 92px;
+  --nav-item-min-width: 92px;
 }
 
 /* ==========================================
@@ -155,10 +155,10 @@ html[data-theme="light"] footer                 { background: #e8e4d8; color: #4
 .nav-links a {
   color: #fff; text-decoration: none;
   font-size: 12px; font-weight: 700;
-  letter-spacing: .01em;
+  letter-spacing: 0.01em;
   line-height: 1.1;
   min-height: 36px;
-  min-width: var(--nav-item-min);
+  min-width: var(--nav-item-min-width);
   padding: 8px 12px; border-radius: 999px;
   border: 1px solid rgba(212,175,55,0.28);
   background: rgba(255,255,255,0.05);
