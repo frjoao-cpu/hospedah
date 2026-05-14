@@ -329,6 +329,7 @@
         if (loginRes.error) {
           var msg = loginRes.error.message;
           if (msg === 'Invalid login credentials') msg = 'E-mail ou senha incorretos.';
+          else if (msg === 'Email not confirmed') msg = 'E-mail não confirmado. Verifique sua caixa de entrada (incluindo spam) e clique no link de confirmação.';
           setMessage(message, msg, 'error');
           return;
         }
@@ -360,6 +361,10 @@
             errMsg = 'Este e-mail já está cadastrado. Use a aba "Entrar".';
           }
           setMessage(message, errMsg, 'error');
+          return;
+        }
+        if (signUpRes.data && signUpRes.data.session) {
+          window.location.replace('/portal/dashboard.html');
           return;
         }
         setMessage(message, '✅ Conta criada! Verifique seu e-mail para confirmar o acesso.', 'success');
