@@ -47,7 +47,7 @@
         'Quais datas e quantas pessoas vão viajar? 😊'
     },
     {
-      terms: ['solar das aguas', 'solar das águas', 'solar'],
+      terms: ['solar das aguas', 'solar das águas', 'solar das aguas resort', 'solar das águas resort'],
       response: 'Ótima escolha! ☀️ O Solar das Águas é um resort completo, com piscinas, lazer e acomodações para famílias.\n\n' +
         '• Check-in a partir das 14h e check-out até as 11h\n' +
         '• Apartamento de 1 dormitório para até 5 pessoas ou 2 dormitórios para até 7 pessoas\n' +
@@ -71,7 +71,7 @@
         'Para consultar detalhes, valores e disponibilidade, me diga as datas desejadas e quantas pessoas vão viajar. 😊'
     },
     {
-      terms: ['porto 2 life', 'porto i2', 'porto'],
+      terms: ['porto 2 life', 'porto 2', 'porto dois', 'porto life'],
       response: 'Ótima escolha! ⚓ O Porto 2 Life é um resort moderno, com lazer completo, piscinas e acomodações de alto padrão.\n\n' +
         'Para consultar detalhes, valores e disponibilidade, me diga as datas desejadas e quantas pessoas vão viajar. 😊'
     }
