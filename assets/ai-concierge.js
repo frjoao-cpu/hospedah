@@ -97,7 +97,7 @@
             (gStatus ? ' | Gemini: ' + gStatus : '') +
             ' | erro: ' + detail
           );
-          return friendly;
+          return friendly || MSG_SERVICE_UNSTABLE_GENERIC;
         }
         return (data && data.resposta) ? data.resposta.trim() : null;
       }).catch(function () {
