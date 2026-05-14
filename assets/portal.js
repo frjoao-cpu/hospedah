@@ -486,7 +486,7 @@
           : document.getElementById('signupEmail');
         var email = emailInput ? emailInput.value.trim().toLowerCase() : '';
         if (!isValidEmail(email)) {
-          setMessage(message, 'Digite um e-mail válido no formulário ativo para receber a recuperação de senha.', 'error');
+          setMessage(message, 'Digite um e-mail válido para receber o link de recuperação de senha.', 'error');
           return;
         }
         resetBtn.disabled = true;
