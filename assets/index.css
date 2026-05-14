@@ -263,7 +263,7 @@ html[data-theme="light"] footer                 { background: #e8e4d8; color: #4
 }
 .nav-overlay.open { display: block; }
 
-/* Switch earlier so desktop buttons never compress beside the logo and controls. */
+/* Switch earlier so desktop buttons are never compressed beside the logo and controls. */
 @media (max-width: 1180px) {
   .nav-links         { display: none; }
   .hamburger         { display: flex; }
