@@ -2510,6 +2510,8 @@ function exitIntentSubmit(e) {
 
     /* Contador de "visitantes" oscila suavemente */
     var viewers = rand(8, 18);
+    viewersEl.textContent = viewers;
+    if (heroViewEl) heroViewEl.textContent = viewers;
     function updateViewers() {
       viewers += rand(-2, 3);
       if (viewers < 4)  viewers = 4;
