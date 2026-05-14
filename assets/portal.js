@@ -261,10 +261,10 @@
   function initPasswordToggles() {
     document.querySelectorAll('.portal-eye-btn').forEach(function (btn) {
       btn.addEventListener('click', function () {
-        var target = document.getElementById(btn.getAttribute('data-target'));
-        if (!target) return;
-        var isHidden = target.type === 'password';
-        target.type = isHidden ? 'text' : 'password';
+        var targetInput = document.getElementById(btn.getAttribute('data-target'));
+        if (!targetInput) return;
+        var isHidden = targetInput.type === 'password';
+        targetInput.type = isHidden ? 'text' : 'password';
         btn.setAttribute('aria-label', isHidden ? 'Ocultar senha' : 'Mostrar senha');
         btn.textContent = isHidden ? '🙈' : '👁';
       });
@@ -386,9 +386,10 @@
         } catch (otpErr) {
           var otpErrMsg = (otpErr && otpErr.message) ? otpErr.message : 'Erro ao enviar link. Tente novamente.';
           setMessage(message, otpErrMsg, 'error');
+        } finally {
+          magicBtn.disabled = false;
+          magicBtn.textContent = '✉️ Link mágico por e-mail';
         }
-        magicBtn.disabled = false;
-        magicBtn.textContent = '✉️ Link mágico por e-mail';
       });
     }
 
