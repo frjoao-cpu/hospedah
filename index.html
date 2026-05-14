@@ -316,7 +316,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <!-- ✅ Contador de visitantes em tempo real -->
     <div class="hero-viewers-pill" id="heroViewers" aria-live="polite" aria-atomic="true">
       <span aria-hidden="true">👁️</span>
-      <span><span id="heroViewersCount">47</span> <span data-i18n="hero.viewers">pessoas vendo agora</span></span>
+      <span><span id="heroViewersCount"></span> <span data-i18n="hero.viewers">pessoas vendo agora</span></span>
     </div>
 
     <p class="hero-tagline" data-i18n="hero.tagline">Resorts & Experiências Exclusivas</p>
@@ -1500,11 +1500,12 @@ document.addEventListener('DOMContentLoaded', function () {
 (function () {
   var el = document.getElementById('heroViewersCount');
   if (!el) { return; }
-  var count = Math.floor(Math.random() * 30) + 35; /* 35–64 */
+  var count = Math.floor(Math.random() * 31) + 35; /* 35–65 */
   el.textContent = count;
-  setInterval(function () {
+  var timer = setInterval(function () {
+    if (!document.body.contains(el)) { clearInterval(timer); return; }
     var delta = Math.random() < 0.5 ? 1 : -1;
-    count = Math.min(80, Math.max(20, count + delta));
+    count = Math.min(65, Math.max(35, count + delta));
     el.textContent = count;
   }, 4500);
 }());
