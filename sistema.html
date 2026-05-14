@@ -4117,6 +4117,29 @@ var SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
 
 var _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 
+/* Sonda de conectividade não-bloqueante: avisa imediatamente se o Supabase
+   está inacessível, sem travar o carregamento do formulário de login. */
+(function probeSupabaseConnectivity() {
+  var ctrl = typeof AbortController !== 'undefined' ? new AbortController() : null;
+  var timer = ctrl ? setTimeout(function () { ctrl.abort(); }, 5000) : null;
+  fetch(SUPABASE_URL + '/auth/v1/settings', {
+    method: 'GET',
+    headers: { 'apikey': SUPABASE_ANON },
+    cache: 'no-store',
+    signal: ctrl ? ctrl.signal : undefined
+  }).then(
+    function () { if (timer) { clearTimeout(timer); } },
+    function () {
+      if (timer) { clearTimeout(timer); }
+      var msgEl = document.getElementById('lockError');
+      if (msgEl && msgEl.style.display === 'none') {
+        msgEl.textContent = '⚠️ Serviço de autenticação inacessível. Verifique sua conexão ou tente novamente mais tarde.';
+        msgEl.style.display = 'block';
+      }
+    }
+  );
+}());
+
 /* Segurança de rota (front-end):
    sistema.html é restrito para admin/proprietario.
    loginPath aponta para a própria página pois sistema.html possui overlay de
@@ -4325,9 +4348,13 @@ function tentarLogin() {
         }
         var restantes = MAX_LOGIN_ATTEMPTS - _loginAttempts;
         var msg = result.error.message || 'Credenciais inválidas.';
-        if (msg.toLowerCase().indexOf('email not confirmed') !== -1) {
+        var msgLow = msg.toLowerCase();
+        if (msgLow.indexOf('failed to fetch') !== -1 || msgLow.indexOf('network') !== -1 ||
+            msgLow.indexOf('fetch') !== -1 || msgLow.indexOf('load failed') !== -1) {
+          msg = 'Serviço temporariamente indisponível. Verifique sua conexão com a internet e tente novamente.';
+        } else if (msgLow.indexOf('email not confirmed') !== -1) {
           msg = 'E-mail não confirmado. Verifique sua caixa de entrada e clique no link de confirmação.';
-        } else if (msg.toLowerCase().indexOf('invalid login') !== -1 || msg.toLowerCase().indexOf('invalid credentials') !== -1) {
+        } else if (msgLow.indexOf('invalid login') !== -1 || msgLow.indexOf('invalid credentials') !== -1) {
           msg = 'E-mail ou senha incorretos. ' + restantes + ' tentativa(s) restante(s) antes do bloqueio.';
         }
         err.textContent = '❌ ' + msg;

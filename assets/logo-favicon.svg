@@ -14,8 +14,8 @@
   <rect width="32" height="32" rx="6" ry="6" fill="url(#bgGrad)"/>
   <!-- Gold border -->
   <rect width="32" height="32" rx="6" ry="6" fill="none" stroke="#D4AF37" stroke-width="1.5"/>
-  <!-- Bold H letter centred, enlarged to fill more canvas -->
-  <rect x="3"  y="3" width="7" height="26" rx="1.5" fill="url(#hGold)"/>
-  <rect x="22" y="3" width="7" height="26" rx="1.5" fill="url(#hGold)"/>
-  <rect x="3"  y="12.5" width="26" height="7" rx="1.5" fill="url(#hGold)"/>
+  <!-- Bold H letter enlarged to fill the canvas -->
+  <rect x="1"  y="1" width="9" height="30" rx="1.5" fill="url(#hGold)"/>
+  <rect x="22" y="1" width="9" height="30" rx="1.5" fill="url(#hGold)"/>
+  <rect x="1"  y="12" width="30" height="8" rx="1.5" fill="url(#hGold)"/>
 </svg>
