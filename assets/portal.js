@@ -72,6 +72,9 @@
   function translateAuthError(message) {
     var errorMessage = message || 'Não foi possível concluir a autenticação.';
     var normalized = errorMessage.toLowerCase();
+    if (normalized.indexOf('failed to fetch') !== -1 || normalized.indexOf('falhou em buscar') !== -1 || normalized.indexOf('networkerror') !== -1 || normalized.indexOf('network request failed') !== -1) {
+      return 'Erro de conexão com o servidor. Verifique sua internet e tente novamente.';
+    }
     if (normalized.indexOf('invalid login credentials') !== -1) {
       return 'E-mail ou senha incorretos. Confira os dados ou use "Esqueci minha senha".';
     }
