@@ -213,7 +213,7 @@
     if (textHasAny(text, ['parque', 'taxa do parque', 'valor do parque', 'preco do parque', 'ingresso'])) return 'parque';
     if (textHasAny(text, ['estacionamento', 'estrcionamento', 'garagem', 'vaga'])) return 'estacionamento';
     if (textHasAny(text, ['check-in', 'checkin', 'check out', 'checkout', 'entrada', 'saida', 'saída', 'horario', 'horário'])) return 'checkin';
-    if (textHasAny(text, ['alimentacao', 'alimentação', 'refeicao', 'refeição', 'refeicoes', 'refeições', 'cafe', 'almoco', 'jantar', 'comida', 'alimento', 'alimentos', 'bebida', 'bebidas', 'levar alimento', 'levar comida'])) return 'alimentacao';
+    if (textHasAny(text, ['alimentacao', 'alimentação', 'refeicao', 'refeição', 'refeicoes', 'refeições', 'cafe', 'café', 'almoco', 'almoço', 'jantar', 'comida', 'alimento', 'alimentos', 'bebida', 'bebidas', 'levar alimento', 'levar comida'])) return 'alimentacao';
     if (textHasAny(text, ['cozinha', 'utensilio', 'talher', 'panela', 'microondas', 'micro-ondas', 'geladeira'])) return 'cozinha';
     if (textHasAny(text, ['quantas pessoas', 'capacidade', 'hospedes', 'pessoas'])) return 'capacidade';
     if (textHasAny(text, ['pet', 'pets', 'cachorro', 'gato', 'animal', 'animais'])) return 'pets';
@@ -338,17 +338,17 @@
             (gStatus ? ' | Gemini: ' + gStatus : '') +
             ' | erro: ' + detail
           );
-          return friendly || localFallbackResponse(mensagens) || MSG_SERVICE_UNSTABLE_GENERIC;
+          return delayResponse(friendly || localFallbackResponse(mensagens) || MSG_SERVICE_UNSTABLE_GENERIC);
         }
         return delayResponse((data && data.resposta) ? data.resposta.trim() : null);
       }).catch(function () {
         console.warn('[HOSPEDAH_AI] Não foi possível ler a resposta da Edge Function.');
-        return localFallbackResponse(mensagens) || MSG_SERVICE_UNSTABLE_GENERIC;
+        return delayResponse(localFallbackResponse(mensagens) || MSG_SERVICE_UNSTABLE_GENERIC);
       });
     }).catch(function () {
       if (timeoutId) clearTimeout(timeoutId);
       console.error('[HOSPEDAH_AI] Erro de rede ao chamar a Edge Function.');
-      return localFallbackResponse(mensagens) || MSG_NETWORK_UNSTABLE;
+      return delayResponse(localFallbackResponse(mensagens) || MSG_NETWORK_UNSTABLE);
     });
   }
 
@@ -400,12 +400,11 @@
       stream: true
     };
 
-    var controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
-    var timeoutId = controller
-      ? setTimeout(function () { controller.abort(); }, 45000)
-      : null;
-
     setTimeout(function () {
+      var controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
+      var timeoutId = controller
+        ? setTimeout(function () { controller.abort(); }, 45000)
+        : null;
       fetch(EDGE_FN_URL, {
         method: 'POST',
         headers: {
