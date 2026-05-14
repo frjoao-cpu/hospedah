@@ -1,8 +1,13 @@
 'use strict';
 
-var STATIC_CACHE = 'hospedah-static-v5';
-var PAGE_CACHE = 'hospedah-pages-v5';
+var STATIC_CACHE = 'hospedah-static-v6';
+var PAGE_CACHE = 'hospedah-pages-v6';
 var OFFLINE_URL = '/offline.html';
+var NETWORK_ONLY_ASSETS = [
+  '/assets/ai-config.js',
+  '/assets/ai-concierge.js',
+  '/assets/supabase-config.js'
+];
 
 var PRECACHE_URLS = [
   '/',
@@ -63,6 +68,10 @@ function isAsset(pathname) {
   return /\.(?:css|js|png|jpg|jpeg|svg|webp|woff2?)$/i.test(pathname);
 }
 
+function isNetworkOnlyAsset(pathname) {
+  return NETWORK_ONLY_ASSETS.indexOf(pathname) !== -1;
+}
+
 self.addEventListener('fetch', function (event) {
   var req = event.request;
   if (req.method !== 'GET') return;
@@ -86,6 +95,11 @@ self.addEventListener('fetch', function (event) {
         });
       })
     );
+    return;
+  }
+
+  if (isNetworkOnlyAsset(url.pathname)) {
+    event.respondWith(fetch(req, { cache: 'no-store' }));
     return;
   }
 
