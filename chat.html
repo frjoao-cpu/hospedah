@@ -1342,8 +1342,8 @@ function escalarParaAIStream(temperature) {
       faq_extras:       _aiContext.faq_extras || '',
       stream:           true
     };
-    const controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
-    const timeoutId = controller ? setTimeout(function () { controller.abort(); }, AI_EDGE_STREAM_TIMEOUT_MS) : null;
+    const controller = new AbortController();
+    const timeoutId = setTimeout(function () { controller.abort(); }, AI_EDGE_STREAM_TIMEOUT_MS);
     return fetch(edgeUrl, {
       method: 'POST',
       headers: {
@@ -1352,12 +1352,12 @@ function escalarParaAIStream(temperature) {
         'Authorization': 'Bearer ' + edgeAnon
       },
       body: JSON.stringify(edgePayload),
-      signal: controller ? controller.signal : undefined
+      signal: controller.signal
     }).then(function (res) {
-      if (timeoutId) clearTimeout(timeoutId);
+      clearTimeout(timeoutId);
       return renderizarStream(res);
     }).catch(function (e) {
-      if (timeoutId) clearTimeout(timeoutId);
+      clearTimeout(timeoutId);
       console.error('[HOSPEDAH] Edge stream error:', e);
       return null;
     });
