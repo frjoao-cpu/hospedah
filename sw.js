@@ -1,8 +1,15 @@
 'use strict';
 
-var STATIC_CACHE = 'hospedah-static-v5';
-var PAGE_CACHE = 'hospedah-pages-v5';
+var STATIC_CACHE = 'hospedah-static-v6';
+var PAGE_CACHE = 'hospedah-pages-v6';
 var OFFLINE_URL = '/offline.html';
+// Scripts de runtime do Chat IA/Supabase devem vir sempre da rede para evitar
+// caminhos legados cacheados, especialmente ai-config.js com chave Gemini antiga.
+var NETWORK_ONLY_ASSETS = new Set([
+  '/assets/ai-config.js',
+  '/assets/ai-concierge.js',
+  '/assets/supabase-config.js'
+]);
 
 var PRECACHE_URLS = [
   '/',
@@ -63,6 +70,10 @@ function isAsset(pathname) {
   return /\.(?:css|js|png|jpg|jpeg|svg|webp|woff2?)$/i.test(pathname);
 }
 
+function isNetworkOnlyAsset(pathname) {
+  return NETWORK_ONLY_ASSETS.has(pathname);
+}
+
 self.addEventListener('fetch', function (event) {
   var req = event.request;
   if (req.method !== 'GET') return;
@@ -83,6 +94,19 @@ self.addEventListener('fetch', function (event) {
       }).catch(function () {
         return caches.match(req).then(function (cached) {
           return cached || caches.match(OFFLINE_URL);
+        });
+      })
+    );
+    return;
+  }
+
+  if (isNetworkOnlyAsset(url.pathname)) {
+    event.respondWith(
+      fetch(req, { cache: 'no-store' }).catch(function () {
+        return new Response('Network-only asset unavailable: ' + url.pathname, {
+          status: 503,
+          statusText: 'Service Unavailable',
+          headers: { 'Content-Type': 'text/plain; charset=utf-8' }
         });
       })
     );
