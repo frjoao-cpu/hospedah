@@ -318,6 +318,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       <img src="https://i.imgur.com/fVKGOSt.png" alt="HOSPEDAH — Resorts e Experiências Exclusivas"
             class="hero-logo" loading="eager" fetchpriority="high" decoding="auto" width="700" height="280">
     </picture>
+    <div class="hero-viewers-pill">
+      <span class="fomo-dot"></span>
+      <span id="hero-viewers">12</span> pessoas vendo agora
+    </div>
     <p class="hero-tagline" data-i18n="hero.tagline">Resorts & Experiências Exclusivas</p>
     <span class="hero-badge" data-i18n="hero.badge">✦ Atendimento Premium ✦</span>
 
@@ -2500,16 +2504,20 @@ function exitIntentSubmit(e) {
      2. FOMO — Visitantes ao vivo + Countdown
   ══════════════════════════════════════════ */
   (function fomo() {
-    var viewersEl = $('fomo-viewers');
+    var viewersEl  = $('fomo-viewers');
+    var heroViewEl = $('hero-viewers');
     var timerEl   = $('fomo-timer-val');
 
     /* Contador de "visitantes" oscila suavemente */
     var viewers = rand(8, 18);
+    viewersEl.textContent = viewers;
+    if (heroViewEl) heroViewEl.textContent = viewers;
     function updateViewers() {
       viewers += rand(-2, 3);
       if (viewers < 4)  viewers = 4;
       if (viewers > 28) viewers = 28;
       viewersEl.textContent = viewers;
+      if (heroViewEl) heroViewEl.textContent = viewers;
     }
     setInterval(updateViewers, rand(5000, 9000));
 

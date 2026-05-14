@@ -306,6 +306,15 @@ html[data-theme="light"] footer                 { background: #e8e4d8; color: #4
   from { opacity: 0; transform: scale(.88) translateY(-12px); }
   to   { opacity: 1; transform: scale(1) translateY(0); }
 }
+.hero-viewers-pill {
+  display: inline-flex; align-items: center; gap: 7px;
+  background: rgba(11,28,61,.82); color: #fff;
+  border: 1px solid rgba(212,175,55,.55); border-radius: 30px;
+  padding: 5px 14px; font-size: .78em; font-weight: 600;
+  margin-bottom: 10px;
+  box-shadow: 0 4px 14px rgba(0,0,0,.4);
+  animation: fadeUp .9s .15s both;
+}
 .hero-tagline {
   font-size: 1.15rem; font-weight: 400;
   color: rgba(255,255,255,0.92);
