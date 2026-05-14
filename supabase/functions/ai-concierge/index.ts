@@ -177,7 +177,7 @@ Resorts disponíveis (detalhes):
 - Águas termais naturais, piscinas aquecidas e acomodações premium.
 - Check-in a partir das 14h | Check-out até as 11h
 - Estacionamento: 1 vaga na garagem gratuita por apartamento (inclusa na diária, sem custo adicional)
-- Apartamento com roupas de cama e banho, refrigerador frigobar e forno microondas; NÃO inclui talheres, pratos, copos ou utensílios de cozinha (recomendar levar um kit de utensílios)
+- Apartamento com roupas de cama e banho, frigobar e forno microondas; NÃO inclui talheres, pratos, copos ou utensílios de cozinha (recomendar levar um kit de utensílios)
 - Voltagem do apartamento: 220V
 - Wi-Fi gratuito disponível
 - Não aceita pets
@@ -191,7 +191,7 @@ Resorts disponíveis (detalhes):
 - Check-in a partir das 14h | Check-out até as 11h
 - Estacionamento: 1 vaga na garagem gratuita por apartamento (inclusa na diária, sem custo adicional)
 - Capacidade: Apartamento de 1 dormitório comporta até 6 pessoas | Apartamento de 2 dormitórios comporta até 8 pessoas
-- Apartamento com roupas de cama e banho, refrigerador frigobar e forno microondas; NÃO inclui talheres, pratos, copos ou utensílios de cozinha (recomendar levar um kit de utensílios)
+- Apartamento com roupas de cama e banho, frigobar e forno microondas; NÃO inclui talheres, pratos, copos ou utensílios de cozinha (recomendar levar um kit de utensílios)
 - Voltagem do apartamento: 220V
 - Wi-Fi gratuito disponível
 - Não aceita pets
@@ -205,7 +205,7 @@ Resorts disponíveis (detalhes):
 - Check-in a partir das 14h | Check-out até as 11h
 - Estacionamento: 1 vaga na garagem gratuita por apartamento (inclusa na diária, sem custo adicional)
 - Capacidade: Apartamento de 1 dormitório comporta até 5 pessoas | Apartamento de 2 dormitórios comporta até 7 pessoas
-- Apartamento com roupas de cama e banho, refrigerador frigobar e forno microondas; NÃO inclui talheres, pratos, copos ou utensílios de cozinha (recomendar levar um kit de utensílios)
+- Apartamento com roupas de cama e banho, frigobar e forno microondas; NÃO inclui talheres, pratos, copos ou utensílios de cozinha (recomendar levar um kit de utensílios)
 - Voltagem do apartamento: 220V
 - Wi-Fi gratuito disponível
 - Não aceita pets
@@ -218,7 +218,7 @@ Resorts disponíveis (detalhes):
 - Suítes de luxo, piscinas premium e lazer exclusivo.
 - Check-in a partir das 14h | Check-out até as 11h
 - Estacionamento: 1 vaga na garagem gratuita por apartamento (inclusa na diária, sem custo adicional)
-- Apartamento com roupas de cama e banho, refrigerador frigobar e forno microondas; NÃO inclui talheres, pratos, copos ou utensílios de cozinha (recomendar levar um kit de utensílios)
+- Apartamento com roupas de cama e banho, frigobar e forno microondas; NÃO inclui talheres, pratos, copos ou utensílios de cozinha (recomendar levar um kit de utensílios)
 - Voltagem do apartamento: 220V
 - Não aceita pets
 - Alimentação: é permitido trazer alimentos e bebidas, mas devem ser consumidos dentro do apartamento; para informações sobre opções de refeição e pacotes de alimentação, consulte via WhatsApp
@@ -232,7 +232,7 @@ Resorts disponíveis (detalhes):
 - Resort à beira-mar com praia exclusiva, natureza exuberante e infraestrutura completa para toda a família.
 - Check-in a partir das 14h | Check-out até as 11h
 - Estacionamento: 1 vaga na garagem gratuita por apartamento (inclusa na diária, sem custo adicional)
-- Apartamento com roupas de cama e banho, refrigerador frigobar e forno microondas; NÃO inclui talheres, pratos, copos ou utensílios de cozinha (recomendar levar um kit de utensílios)
+- Apartamento com roupas de cama e banho, frigobar e forno microondas; NÃO inclui talheres, pratos, copos ou utensílios de cozinha (recomendar levar um kit de utensílios)
 - Voltagem do apartamento: 220V
 - Não aceita pets
 - Alimentação: é permitido trazer alimentos e bebidas, mas devem ser consumidos dentro do apartamento; para informações sobre opções de refeição e pacotes de alimentação, consulte via WhatsApp
@@ -242,7 +242,7 @@ Resorts disponíveis (detalhes):
 - Resort moderno com lazer completo, piscinas e acomodações de alto padrão para toda a família.
 - Check-in a partir das 14h | Check-out até as 11h
 - Estacionamento: 1 vaga na garagem gratuita por apartamento (inclusa na diária, sem custo adicional)
-- Apartamento com roupas de cama e banho, refrigerador frigobar e forno microondas; NÃO inclui talheres, pratos, copos ou utensílios de cozinha (recomendar levar um kit de utensílios)
+- Apartamento com roupas de cama e banho, frigobar e forno microondas; NÃO inclui talheres, pratos, copos ou utensílios de cozinha (recomendar levar um kit de utensílios)
 - Voltagem do apartamento: 220V
 - Não aceita pets
 - Alimentação: é permitido trazer alimentos e bebidas, mas devem ser consumidos dentro do apartamento; para informações sobre opções de refeição e pacotes de alimentação, consulte via WhatsApp
