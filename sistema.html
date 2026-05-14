@@ -5464,7 +5464,7 @@ async function _carregarPrecosFormCache(resort) {
 }
 
 // Auto-preenche valor/noite com preço dinâmico ao escolher resort + datas
-function triggerPrecoDinamico() {
+function triggerPrecoDinamicoFormulario() {
   var resort  = document.getElementById('c_resort').value;
   var entrada = document.getElementById('c_entrada').value;
   var saida   = document.getElementById('c_saida').value;
@@ -5480,8 +5480,8 @@ function triggerPrecoDinamico() {
 ['c_resort','c_entrada','c_saida'].forEach(function(id) {
   var el = document.getElementById(id);
   if (el) {
-    el.addEventListener('change', triggerPrecoDinamico);
-    el.addEventListener('input',  triggerPrecoDinamico);
+    el.addEventListener('change', triggerPrecoDinamicoFormulario);
+    el.addEventListener('input',  triggerPrecoDinamicoFormulario);
   }
 });
 
@@ -10530,7 +10530,7 @@ if (mh) mh.addEventListener('click', function(e){ if (e.target === this) this.cl
 /* ==========================================
    CALENDÁRIO ANUAL DE FERIADOS
 ========================================== */
-var calCurrentYear = new Date().getFullYear();
+var calFeriadosCurrentYear = new Date().getFullYear();
 
   /* Feriados nacionais fixos (dia, mês) */
   var FERIADOS_NACIONAIS_FIXOS = [
@@ -10621,7 +10621,7 @@ var calCurrentYear = new Date().getFullYear();
   var TIPO_LABEL = { nacional: 'Nacional', estadual: 'Estadual/Municipal', facultativo: 'Facultativo' };
 
   function renderCalendar(y) {
-    calCurrentYear = y;
+    calFeriadosCurrentYear = y;
     document.getElementById('calYearDisplay').textContent  = y;
     document.getElementById('calHolidayYear').textContent  = y;
 
@@ -10730,7 +10730,7 @@ var calCurrentYear = new Date().getFullYear();
     });
   }
 
-  window.calNavYear = function(delta) { renderCalendar(calCurrentYear + delta); };
+  window.calNavYear = function(delta) { renderCalendar(calFeriadosCurrentYear + delta); };
 
   /* Init on DOM ready */
   document.addEventListener('DOMContentLoaded', function() {
