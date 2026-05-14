@@ -511,6 +511,13 @@ serve(async (req: Request): Promise<Response> => {
     };
   }
 
+  // Picks the best model for an emergency base-prompt retry: the fallback model when
+  // it is configured and different from the primary (it may succeed when the primary
+  // is degraded), otherwise falls back to the primary model itself.
+  const emergencyModel = (GEMINI_FALLBACK_MODEL && GEMINI_FALLBACK_MODEL !== GEMINI_MODEL)
+    ? GEMINI_FALLBACK_MODEL
+    : GEMINI_MODEL;
+
   // ── STREAMING path ──────────────────────────────────────────
   if (ctx.stream === true) {
     // Try primary model streaming
@@ -559,9 +566,6 @@ serve(async (req: Request): Promise<Response> => {
     // loaded, the custom data may be the cause. Try the fallback model (or primary
     // if no fallback) with only the hardcoded SYSTEM_PROMPT before giving up.
     if (!streamRes && hasCustomData) {
-      const emergencyModel = (GEMINI_FALLBACK_MODEL && GEMINI_FALLBACK_MODEL !== GEMINI_MODEL)
-        ? GEMINI_FALLBACK_MODEL
-        : GEMINI_MODEL;
       console.warn('[ai-concierge] Both streaming attempts failed — emergency base-prompt retry:', emergencyModel);
       const emergencyStreamUrl =
         `https://generativelanguage.googleapis.com/v1beta/models/${emergencyModel}:streamGenerateContent`;
