@@ -1320,9 +1320,10 @@ function renderizarStream(res) {
   return readChunk();
 }
 
+const AI_EDGE_STREAM_TIMEOUT_MS = 45000;
+
 function escalarParaAIStream(temperature) {
   try {
-  const STREAM_TIMEOUT_MS = 45000;
   if (!window.HOSPEDAH_AI) return Promise.resolve(null);
   const key = (typeof window !== 'undefined' && window.GEMINI_API_KEY) || '';
 
@@ -1342,7 +1343,7 @@ function escalarParaAIStream(temperature) {
       stream:           true
     };
     const controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
-    const timeoutId = controller ? setTimeout(function () { controller.abort(); }, STREAM_TIMEOUT_MS) : null;
+    const timeoutId = controller ? setTimeout(function () { controller.abort(); }, AI_EDGE_STREAM_TIMEOUT_MS) : null;
     return fetch(edgeUrl, {
       method: 'POST',
       headers: {
