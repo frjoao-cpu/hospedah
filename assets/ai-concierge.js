@@ -184,10 +184,10 @@
     if (textHasAny(text, ['parque', 'taxa do parque', 'valor do parque', 'preco do parque', 'ingresso'])) return 'parque';
     if (textHasAny(text, ['estacionamento', 'estrcionamento', 'garagem', 'vaga'])) return 'estacionamento';
     if (textHasAny(text, ['check-in', 'checkin', 'check out', 'checkout', 'entrada', 'saida', 'saída', 'horario', 'horário'])) return 'checkin';
-    if (textHasAny(text, ['alimentacao', 'refeicao', 'refeicoes', 'cafe', 'almoco', 'jantar', 'comida'])) return 'alimentacao';
-    if (textHasAny(text, ['cozinha', 'utensilio', 'talher', 'panela', 'microondas', 'micro-ondas', 'geladeira'])) return 'cozinha';
-    if (textHasAny(text, ['quantas pessoas', 'capacidade', 'hospedes', 'pessoas'])) return 'capacidade';
-    if (textHasAny(text, ['pet', 'pets', 'cachorro', 'gato', 'animal'])) return 'pets';
+    if (textHasAny(text, ['alimentacao', 'alimentação', 'refeicao', 'refeição', 'refeicoes', 'refeições', 'cafe', 'café', 'almoco', 'almoço', 'jantar', 'comida'])) return 'alimentacao';
+    if (textHasAny(text, ['cozinha', 'utensilio', 'utensílio', 'talher', 'panela', 'microondas', 'micro-ondas', 'geladeira'])) return 'cozinha';
+    if (textHasAny(text, ['quantas pessoas', 'capacidade', 'hospedes', 'hóspedes', 'pessoas'])) return 'capacidade';
+    if (textHasAny(text, ['pet', 'pets', 'cachorro', 'gato', 'animal', 'animais'])) return 'pets';
     return null;
   }
 
