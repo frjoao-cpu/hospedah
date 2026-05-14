@@ -80,7 +80,7 @@
       'fetch is not defined', 'unable to fetch'
     ];
     if (fetchErrorPatterns.some(function (p) { return normalized.indexOf(p) !== -1; })) {
-      return 'Erro de conexão com o servidor. Verifique sua internet e tente novamente.';
+      return 'Serviço de autenticação temporariamente indisponível. Verifique sua conexão e tente novamente.';
     }
     if (normalized.indexOf('invalid login credentials') !== -1) {
       return 'E-mail ou senha incorretos. Confira os dados ou use "Esqueci minha senha".';
@@ -394,6 +394,31 @@
     if (redirectError) {
       setMessage(message, redirectError, 'error');
     }
+
+    /* Non-blocking connectivity probe — warns immediately if Supabase is unreachable
+       without blocking the display of the login form.
+       AbortController is used for a 5-second timeout; supported in all modern browsers. */
+    (function probeSupabaseConnectivity() {
+      if (!window.HOSPEDAH_SB_URL || !window.HOSPEDAH_SB_ANON) { return; }
+      var ctrl = typeof AbortController !== 'undefined' ? new AbortController() : null;
+      var timer = ctrl ? setTimeout(function () { ctrl.abort(); }, 5000) : null;
+      fetch(window.HOSPEDAH_SB_URL + '/auth/v1/settings', {
+        method: 'GET',
+        headers: { 'apikey': window.HOSPEDAH_SB_ANON },
+        cache: 'no-store',
+        signal: ctrl ? ctrl.signal : undefined
+      }).then(
+        function ()    { if (timer) { clearTimeout(timer); } },
+        function ()    {
+          if (timer) { clearTimeout(timer); }
+          console.warn('Supabase auth unreachable — check project status at https://supabase.com/dashboard');
+          var msgEl = document.getElementById('portalAuthMessage');
+          if (msgEl && !msgEl.textContent.trim()) {
+            setMessage(msgEl, 'Serviço de autenticação temporariamente indisponível. Tente novamente em alguns minutos.', 'error');
+          }
+        }
+      );
+    }());
 
     try {
       var activeUser = await getSessionUser();
