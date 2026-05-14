@@ -19,6 +19,35 @@
   var MSG_NETWORK_UNSTABLE = 'Estou com instabilidade de conexão no atendimento automático. Fale pelo WhatsApp 📱 ' + SUPPORT_WHATSAPP + '.';
   var LOCAL_RESORT_FALLBACK_MATCHES = [];
   var LOCAL_RESORT_FACT_MATCHES = [];
+
+  function garageFact(resortName) {
+    return 'Sim! No ' + resortName + ' há 1 vaga gratuita na garagem por apartamento, inclusa na diária. 🚗';
+  }
+
+  function standardCheckinFact(resortName) {
+    return 'No ' + resortName + ', o check-in é a partir das 14h e o check-out até as 11h. 🔑';
+  }
+
+  function limitedKitchenFact(resortName) {
+    return 'No ' + resortName + ', o apartamento dispõe de roupas de cama e banho, frigobar e forno micro-ondas, mas não possui talheres, pratos, copos ou utensílios de cozinha. Recomendamos levar um kit de utensílios.';
+  }
+
+  function noPetsFact(resortName) {
+    return 'O ' + resortName + ' não aceita pets. 🐾';
+  }
+
+  function minorAuthorizationFact(resortName) {
+    return 'No ' + resortName + ', menor desacompanhado dos pais precisa de autorização prévia. Avise nossa equipe antes da hospedagem para orientar o atendimento. 🚸';
+  }
+
+  function voltageFact(resortName) {
+    return 'No ' + resortName + ', a voltagem do apartamento é 220V. ⚡';
+  }
+
+  function linenFact(resortName) {
+    return 'No ' + resortName + ', o apartamento dispõe de roupas de cama e banho. 🛌🚿';
+  }
+
   var LOCAL_RESORT_FALLBACKS = [
     {
       terms: ['olimpia park', 'olímpia park', 'olimpia', 'olímpia'],
@@ -111,15 +140,15 @@
           '• Apartamento de 2 dormitórios: R$169,00/dia para estadias de 2 ou mais dias\n' +
           '• O valor é por apartamento, independente do número de hóspedes\n\n' +
           'Valores sujeitos a alterações pelo resort. 😊',
-        estacionamento: 'Sim! No Hot Beach Suites há 1 vaga gratuita na garagem por apartamento, inclusa na diária. 🚗',
+        estacionamento: garageFact('Hot Beach Suites'),
         checkin: 'No Hot Beach Suites, o check-in é a partir das 15h e o check-out até as 11h. É possível fazer pré check-in para usar as instalações aquáticas antes das 15h mediante taxa de R$15,00 por pessoa. Após o check-out, pagando R$15,00 por pessoa, é permitido aproveitar o parque aquático até o fim do dia. 🔑',
         alimentacao: 'No Hot Beach Suites, as refeições não estão incluídas na diária. Alimentos e bebidas podem ser levados, mas devem ser consumidos dentro do apartamento. O apartamento tem cozinha completa e o resort também possui restaurante com refeições pagas à parte. 🍽️',
         cozinha: 'Sim! O Hot Beach Suites tem cozinha completa no apartamento, com panelas, cafeteira, talheres, pratos, copos, cooktop, micro-ondas, geladeira e varanda gourmet. 🍳',
         capacidade: 'No Hot Beach Suites, o apartamento de 1 dormitório acomoda até 6 pessoas e o de 2 dormitórios acomoda até 8 pessoas. 👨‍👩‍👧‍👦',
-        pets: 'O Hot Beach Suites não aceita pets. 🐾',
-        menor: 'No Hot Beach Suites, menor desacompanhado dos pais precisa de autorização prévia. Avise nossa equipe antes da hospedagem para orientar o atendimento. 🚸',
-        voltagem: 'No Hot Beach Suites, a voltagem do apartamento é 220V. ⚡',
-        enxoval: 'No Hot Beach Suites, o apartamento dispõe de roupas de cama e banho. 🛌🚿',
+        pets: noPetsFact('Hot Beach Suites'),
+        menor: minorAuthorizationFact('Hot Beach Suites'),
+        voltagem: voltageFact('Hot Beach Suites'),
+        enxoval: linenFact('Hot Beach Suites'),
         churrasqueira: 'No Hot Beach Suites, a área gourmet possui churrasqueira. O resort fornece gratuitamente um kit churrasco (1 tábua, 1 faca, 1 pegador e 1 garfo), sujeito à disponibilidade, e cobra taxa de R$40,00 para higienização da churrasqueira. Informe o interesse no momento do check-in. 🥩',
         vila: 'Hóspedes do Hot Beach Suites têm acesso gratuito à Vila Guarani. ✅'
       }
@@ -127,81 +156,81 @@
     {
       terms: ['olimpia park', 'olímpia park', 'olimpia park resort'],
       facts: {
-        estacionamento: 'Sim! No Olimpia Park Resort há 1 vaga gratuita na garagem por apartamento, inclusa na diária. 🚗',
-        checkin: 'No Olimpia Park Resort, o check-in é a partir das 14h e o check-out até as 11h. 🔑',
+        estacionamento: garageFact('Olimpia Park Resort'),
+        checkin: standardCheckinFact('Olimpia Park Resort'),
         alimentacao: 'No Olimpia Park Resort, as refeições não estão incluídas na diária. Alimentos e bebidas podem ser levados, mas devem ser consumidos dentro do apartamento. O resort tem restaurante e lanchonete com refeições pagas à parte. 🍽️',
-        cozinha: 'No Olimpia Park Resort, o apartamento dispõe de roupas de cama e banho, frigobar e forno micro-ondas, mas não possui talheres, pratos, copos ou utensílios de cozinha. Recomendamos levar um kit de utensílios.',
+        cozinha: limitedKitchenFact('Olimpia Park Resort'),
         capacidade: 'No Olimpia Park Resort, o apartamento de 1 dormitório acomoda até 6 pessoas e o de 2 dormitórios acomoda até 8 pessoas. 👨‍👩‍👧‍👦',
-        pets: 'O Olimpia Park Resort não aceita pets. 🐾',
-        menor: 'No Olimpia Park Resort, menor desacompanhado dos pais precisa de autorização prévia. Avise nossa equipe antes da hospedagem para orientar o atendimento. 🚸',
-        voltagem: 'No Olimpia Park Resort, a voltagem do apartamento é 220V. ⚡',
-        enxoval: 'No Olimpia Park Resort, o apartamento dispõe de roupas de cama e banho. 🛌🚿'
+        pets: noPetsFact('Olimpia Park Resort'),
+        menor: minorAuthorizationFact('Olimpia Park Resort'),
+        voltagem: voltageFact('Olimpia Park Resort'),
+        enxoval: linenFact('Olimpia Park Resort')
       }
     },
     {
       terms: ['sao pedro', 'são pedro', 'sao pedro thermas', 'são pedro thermas'],
       facts: {
-        estacionamento: 'Sim! No São Pedro Thermas há 1 vaga gratuita na garagem por apartamento, inclusa na diária. 🚗',
-        checkin: 'No São Pedro Thermas, o check-in é a partir das 14h e o check-out até as 11h. 🔑',
+        estacionamento: garageFact('São Pedro Thermas'),
+        checkin: standardCheckinFact('São Pedro Thermas'),
         alimentacao: 'No São Pedro Thermas, as refeições não estão incluídas na diária. Alimentos e bebidas podem ser levados, mas devem ser consumidos dentro do apartamento. O resort tem restaurante e lanchonete com refeições pagas diretamente no local. 🍽️',
-        cozinha: 'No São Pedro Thermas, o apartamento dispõe de roupas de cama e banho, frigobar e forno micro-ondas, mas não possui talheres, pratos, copos ou utensílios de cozinha. Recomendamos levar um kit de utensílios.',
-        pets: 'O São Pedro Thermas não aceita pets. 🐾',
-        menor: 'No São Pedro Thermas, menor desacompanhado dos pais precisa de autorização prévia. Avise nossa equipe antes da hospedagem para orientar o atendimento. 🚸',
-        voltagem: 'No São Pedro Thermas, a voltagem do apartamento é 220V. ⚡',
-        enxoval: 'No São Pedro Thermas, o apartamento dispõe de roupas de cama e banho. 🛌🚿'
+        cozinha: limitedKitchenFact('São Pedro Thermas'),
+        pets: noPetsFact('São Pedro Thermas'),
+        menor: minorAuthorizationFact('São Pedro Thermas'),
+        voltagem: voltageFact('São Pedro Thermas'),
+        enxoval: linenFact('São Pedro Thermas')
       }
     },
     {
       terms: ['solar das aguas', 'solar das águas'],
       facts: {
-        estacionamento: 'Sim! No Solar das Águas há 1 vaga gratuita na garagem por apartamento, inclusa na diária. 🚗',
-        checkin: 'No Solar das Águas, o check-in é a partir das 14h e o check-out até as 11h. 🔑',
+        estacionamento: garageFact('Solar das Águas'),
+        checkin: standardCheckinFact('Solar das Águas'),
         alimentacao: 'No Solar das Águas, as refeições não estão incluídas na diária. Alimentos e bebidas podem ser levados, mas devem ser consumidos dentro do apartamento. O resort tem restaurante com refeições pagas à parte. 🍽️',
-        cozinha: 'No Solar das Águas, o apartamento dispõe de roupas de cama e banho, frigobar e forno micro-ondas, mas não possui talheres, pratos, copos ou utensílios de cozinha. Recomendamos levar um kit de utensílios.',
+        cozinha: limitedKitchenFact('Solar das Águas'),
         capacidade: 'No Solar das Águas, o apartamento de 1 dormitório acomoda até 5 pessoas e o de 2 dormitórios acomoda até 7 pessoas. 👨‍👩‍👧‍👦',
-        pets: 'O Solar das Águas não aceita pets. 🐾',
-        menor: 'No Solar das Águas, menor desacompanhado dos pais precisa de autorização prévia. Avise nossa equipe antes da hospedagem para orientar o atendimento. 🚸',
-        voltagem: 'No Solar das Águas, a voltagem do apartamento é 220V. ⚡',
-        enxoval: 'No Solar das Águas, o apartamento dispõe de roupas de cama e banho. 🛌🚿'
+        pets: noPetsFact('Solar das Águas'),
+        menor: minorAuthorizationFact('Solar das Águas'),
+        voltagem: voltageFact('Solar das Águas'),
+        enxoval: linenFact('Solar das Águas')
       }
     },
     {
       terms: ['wyndham', 'royal', 'wyndham royal'],
       facts: {
-        estacionamento: 'Sim! No Wyndham Royal há 1 vaga gratuita na garagem por apartamento, inclusa na diária. 🚗',
-        checkin: 'No Wyndham Royal, o check-in é a partir das 14h e o check-out até as 11h. 🔑',
+        estacionamento: garageFact('Wyndham Royal'),
+        checkin: standardCheckinFact('Wyndham Royal'),
         alimentacao: 'No Wyndham Royal, alimentos e bebidas podem ser levados, mas devem ser consumidos dentro do apartamento. Para opções de refeição e pacotes de alimentação, consulte pelo WhatsApp 📱 ' + SUPPORT_WHATSAPP + '. 🍽️',
-        cozinha: 'No Wyndham Royal, o apartamento dispõe de roupas de cama e banho, frigobar e forno micro-ondas, mas não possui talheres, pratos, copos ou utensílios de cozinha. Recomendamos levar um kit de utensílios.',
-        pets: 'O Wyndham Royal não aceita pets. 🐾',
-        menor: 'No Wyndham Royal, menor desacompanhado dos pais precisa de autorização prévia. Avise nossa equipe antes da hospedagem para orientar o atendimento. 🚸',
-        voltagem: 'No Wyndham Royal, a voltagem do apartamento é 220V. ⚡',
-        enxoval: 'No Wyndham Royal, o apartamento dispõe de roupas de cama e banho. 🛌🚿'
+        cozinha: limitedKitchenFact('Wyndham Royal'),
+        pets: noPetsFact('Wyndham Royal'),
+        menor: minorAuthorizationFact('Wyndham Royal'),
+        voltagem: voltageFact('Wyndham Royal'),
+        enxoval: linenFact('Wyndham Royal')
       }
     },
     {
       terms: ['ipioca', 'ipioca beach', 'ipioca beach resort'],
       facts: {
-        estacionamento: 'Sim! No Ipioca Beach Resort há 1 vaga gratuita na garagem por apartamento, inclusa na diária. 🚗',
-        checkin: 'No Ipioca Beach Resort, o check-in é a partir das 14h e o check-out até as 11h. 🔑',
+        estacionamento: garageFact('Ipioca Beach Resort'),
+        checkin: standardCheckinFact('Ipioca Beach Resort'),
         alimentacao: 'No Ipioca Beach Resort, alimentos e bebidas podem ser levados, mas devem ser consumidos dentro do apartamento. Para opções de refeição e pacotes de alimentação, consulte pelo WhatsApp 📱 ' + SUPPORT_WHATSAPP + '. 🍽️',
-        cozinha: 'No Ipioca Beach Resort, o apartamento dispõe de roupas de cama e banho, frigobar e forno micro-ondas, mas não possui talheres, pratos, copos ou utensílios de cozinha. Recomendamos levar um kit de utensílios.',
-        pets: 'O Ipioca Beach Resort não aceita pets. 🐾',
-        menor: 'No Ipioca Beach Resort, menor desacompanhado dos pais precisa de autorização prévia. Avise nossa equipe antes da hospedagem para orientar o atendimento. 🚸',
-        voltagem: 'No Ipioca Beach Resort, a voltagem do apartamento é 220V. ⚡',
-        enxoval: 'No Ipioca Beach Resort, o apartamento dispõe de roupas de cama e banho. 🛌🚿'
+        cozinha: limitedKitchenFact('Ipioca Beach Resort'),
+        pets: noPetsFact('Ipioca Beach Resort'),
+        menor: minorAuthorizationFact('Ipioca Beach Resort'),
+        voltagem: voltageFact('Ipioca Beach Resort'),
+        enxoval: linenFact('Ipioca Beach Resort')
       }
     },
     {
       terms: ['porto 2 life', 'porto 2', 'porto dois', 'porto life'],
       facts: {
-        estacionamento: 'Sim! No Porto 2 Life há 1 vaga gratuita na garagem por apartamento, inclusa na diária. 🚗',
-        checkin: 'No Porto 2 Life, o check-in é a partir das 14h e o check-out até as 11h. 🔑',
+        estacionamento: garageFact('Porto 2 Life'),
+        checkin: standardCheckinFact('Porto 2 Life'),
         alimentacao: 'No Porto 2 Life, alimentos e bebidas podem ser levados, mas devem ser consumidos dentro do apartamento. Para opções de refeição e pacotes de alimentação, consulte pelo WhatsApp 📱 ' + SUPPORT_WHATSAPP + '. 🍽️',
-        cozinha: 'No Porto 2 Life, o apartamento dispõe de roupas de cama e banho, frigobar e forno micro-ondas, mas não possui talheres, pratos, copos ou utensílios de cozinha. Recomendamos levar um kit de utensílios.',
-        pets: 'O Porto 2 Life não aceita pets. 🐾',
-        menor: 'No Porto 2 Life, menor desacompanhado dos pais precisa de autorização prévia. Avise nossa equipe antes da hospedagem para orientar o atendimento. 🚸',
-        voltagem: 'No Porto 2 Life, a voltagem do apartamento é 220V. ⚡',
-        enxoval: 'No Porto 2 Life, o apartamento dispõe de roupas de cama e banho. 🛌🚿'
+        cozinha: limitedKitchenFact('Porto 2 Life'),
+        pets: noPetsFact('Porto 2 Life'),
+        menor: minorAuthorizationFact('Porto 2 Life'),
+        voltagem: voltageFact('Porto 2 Life'),
+        enxoval: linenFact('Porto 2 Life')
       }
     }
   ];
