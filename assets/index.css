@@ -1355,43 +1355,44 @@ html[data-theme="light"] .faq-btn { color: var(--azul); }
   color: #0B1C3D; padding: 0;
   overflow: hidden; position: relative;
 }
+
+/* ── DESKTOP: itens lado a lado em linha única ── */
 .urgencia-strip-inner {
-  display: flex; align-items: stretch; flex-wrap: wrap;
+  display: flex; align-items: center; flex-wrap: nowrap;
 }
 .urgencia-item {
-  display: flex; align-items: center; gap: 10px;
-  padding: 13px 28px; font-size: .92em; font-weight: 700;
+  display: flex; align-items: center; gap: 7px;
+  padding: 7px 20px; font-size: .83em; font-weight: 700;
   border-right: 1px solid rgba(11,28,61,.18);
-  flex: 1 1 220px; min-width: 0;
+  flex: 1 1 0; min-width: 0; white-space: nowrap;
   background: transparent;
 }
+.urgencia-item[aria-hidden="true"] { display: none; }
 .urgencia-item:last-child { border-right: none; }
-.urgencia-item span.ui-icon { font-size: 1.35em; flex-shrink: 0; }
-@media (max-width: 600px) {
+.urgencia-item span.ui-icon { font-size: 1.2em; flex-shrink: 0; }
+
+/* ── MOBILE: ticker horizontal animado ── */
+@media (max-width: 767px) {
   .urgencia-strip { overflow: hidden; }
   .urgencia-strip-inner {
-    display: flex; flex-wrap: nowrap;
     width: max-content;
-    animation: urgenciaTicker 20s linear infinite;
+    animation: urgenciaTicker 18s linear infinite;
   }
   .urgencia-item {
     flex: 0 0 auto; border-right: 1px solid rgba(11,28,61,.18);
-    border-bottom: none; padding: 11px 22px; font-size: .86em;
-    white-space: nowrap;
+    padding: 6px 18px; font-size: .80em;
   }
+  .urgencia-item[aria-hidden="true"] { display: flex; }
   .urgencia-item:last-child { border-right: 1px solid rgba(11,28,61,.18); }
 }
 @keyframes urgenciaTicker {
   0%   { transform: translateX(0); }
   100% { transform: translateX(-50%); }
 }
-@media (max-width: 600px) and (prefers-reduced-motion: reduce) {
+@media (max-width: 767px) and (prefers-reduced-motion: reduce) {
   .urgencia-strip { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-  .urgencia-strip-inner { animation: none; }
+  .urgencia-strip-inner { animation: none; width: auto; }
   .urgencia-item[aria-hidden="true"] { display: none; }
-}
-@media (max-width: 767px) {
-  .urgencia-strip { display: none; }
 }
 
 /* ==========================================
