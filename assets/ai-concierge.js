@@ -83,8 +83,8 @@
       terms: ['hot beach', 'hotbeach', 'hot beach suites'],
       facts: {
         parque: 'No Hot Beach Suites, a taxa do parque aquático é paga diretamente ao resort no check-in:\n\n' +
-          '• Apartamento de 1 dormitório: R$129,00/dia acima de 2 dias\n' +
-          '• Apartamento de 2 dormitórios: R$169,00/dia acima de 2 dias\n' +
+          '• Apartamento de 1 dormitório: R$129,00/dia para estadias de 2 ou mais dias\n' +
+          '• Apartamento de 2 dormitórios: R$169,00/dia para estadias de 2 ou mais dias\n' +
           '• O valor é por apartamento, independente do número de hóspedes\n\n' +
           'Valores sujeitos a alterações pelo resort. 😊',
         estacionamento: 'Sim! No Hot Beach Suites há 1 vaga gratuita na garagem por apartamento, inclusa na diária. 🚗',
@@ -181,12 +181,12 @@
   }
 
   function detectFactIntent(text) {
-    if (textHasAny(text, ['parque', 'taxa do parque', 'valor do parque', 'preco do parque', 'preço do parque', 'ingresso'])) return 'parque';
+    if (textHasAny(text, ['parque', 'taxa do parque', 'valor do parque', 'preco do parque', 'ingresso'])) return 'parque';
     if (textHasAny(text, ['estacionamento', 'estrcionamento', 'garagem', 'vaga'])) return 'estacionamento';
     if (textHasAny(text, ['check-in', 'checkin', 'check out', 'checkout', 'entrada', 'saida', 'saída', 'horario', 'horário'])) return 'checkin';
-    if (textHasAny(text, ['alimentacao', 'alimentação', 'refeicao', 'refeição', 'refeicoes', 'refeições', 'cafe', 'café', 'almoco', 'almoço', 'jantar', 'comida'])) return 'alimentacao';
-    if (textHasAny(text, ['cozinha', 'utensilio', 'utensílio', 'talher', 'panela', 'microondas', 'micro-ondas', 'geladeira'])) return 'cozinha';
-    if (textHasAny(text, ['quantas pessoas', 'capacidade', 'hospedes', 'hóspedes', 'pessoas'])) return 'capacidade';
+    if (textHasAny(text, ['alimentacao', 'refeicao', 'refeicoes', 'cafe', 'almoco', 'jantar', 'comida'])) return 'alimentacao';
+    if (textHasAny(text, ['cozinha', 'utensilio', 'talher', 'panela', 'microondas', 'micro-ondas', 'geladeira'])) return 'cozinha';
+    if (textHasAny(text, ['quantas pessoas', 'capacidade', 'hospedes', 'pessoas'])) return 'capacidade';
     if (textHasAny(text, ['pet', 'pets', 'cachorro', 'gato', 'animal'])) return 'pets';
     return null;
   }
