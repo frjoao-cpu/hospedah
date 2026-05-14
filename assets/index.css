@@ -251,7 +251,7 @@ html[data-theme="light"] footer                 { background: #e8e4d8; color: #4
 ========================================== */
 .hero {
   position: relative; width: 100%;
-  height: 100vh; min-height: 540px;
+  min-height: 100vh; height: auto;
   overflow: hidden; display: flex;
   align-items: flex-start; justify-content: center;
 }
@@ -289,7 +289,7 @@ html[data-theme="light"] footer                 { background: #e8e4d8; color: #4
   position: relative; z-index: 2;
   display: flex; flex-direction: column;
   align-items: center; text-align: center;
-  padding: 80px 16px 0; width: 100%; max-width: 900px;
+  padding: 80px 16px 60px; width: 100%; max-width: 900px;
 }
 
 /* ✅ Logo central com overlay premium */
@@ -298,7 +298,7 @@ html[data-theme="light"] footer                 { background: #e8e4d8; color: #4
   max-width: 680px;
   height: auto;
   display: block;
-  margin: 0 auto -18px;
+  margin: 0 auto 4px;
   filter: drop-shadow(0 6px 28px rgba(0,0,0,0.65)) drop-shadow(0 2px 8px rgba(212,175,55,0.25));
   animation: logoPop .9s cubic-bezier(.4,0,.2,1) both;
 }
@@ -2082,7 +2082,7 @@ html[data-theme="light"] .orc-summary-row strong { color: #1a1a1a; }
 }
 
 @media (max-width: 480px) {
-  .hero-logo { max-width: 460px; margin-bottom: -12px; }
+  .hero-logo { max-width: 460px; margin-bottom: 4px; }
   .navbar .logo-txt img { height: 116px; }
   #fomo-bar { top: 84px; right: 8px; }
   .fomo-pill { padding: 5px 11px; font-size: .72em; }
