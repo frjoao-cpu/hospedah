@@ -384,8 +384,11 @@ html[data-theme="light"] footer                 { background: #e8e4d8; color: #4
 
 @media (max-width: 768px) {
   .hero-content {
-    padding-top: 20px;
+    padding: calc(64px + 60px + env(safe-area-inset-top, 0px)) 16px 40px;
   }
+  .hero-logo     { margin-bottom: 16px; }
+  .hero-tagline  { font-size: 1rem; letter-spacing: 3px; margin: 0 0 10px; }
+  .hero-badge    { font-size: 0.92rem; margin-bottom: 20px; }
   .hero-search-grid {
     grid-template-columns: 1fr 1fr;
   }
@@ -397,6 +400,7 @@ html[data-theme="light"] footer                 { background: #e8e4d8; color: #4
   }
   .hs-btn { grid-column: span 1; }
   .hero-search { padding: 16px 14px; }
+  .hero-search-title { text-align: center; }
 }
 
 /* Indicadores hero */
