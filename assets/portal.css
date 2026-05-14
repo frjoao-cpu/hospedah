@@ -297,6 +297,40 @@ body {
 }
 .portal-btn-google:hover { background: #f5f5f5; }
 
+.portal-btn-reset {
+  width: 100%;
+  margin-bottom: 12px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  border: 1px solid var(--portal-border);
+}
+.portal-btn-reset:hover {
+  background: rgba(255,255,255,0.14);
+}
+
+.portal-auth-automation {
+  margin: 14px 0 0;
+  padding: 12px 14px;
+  border-radius: var(--portal-radius-sm);
+  border: 1px solid var(--portal-border-gold);
+  background: rgba(212,175,55,0.08);
+  color: var(--portal-sub);
+  font-size: 0.78rem;
+}
+.portal-auth-automation strong {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--portal-gold);
+  font-size: 0.82rem;
+}
+.portal-auth-automation ul {
+  margin: 0;
+  padding-left: 18px;
+}
+.portal-auth-automation li + li {
+  margin-top: 3px;
+}
+
 .portal-link {
   display: block;
   text-align: center;
