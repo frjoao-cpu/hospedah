@@ -72,10 +72,10 @@
   function translateAuthError(message) {
     var msg = message || 'Não foi possível concluir a autenticação.';
     var normalized = msg.toLowerCase();
-    if (msg === 'Invalid login credentials' || normalized.indexOf('invalid login credentials') !== -1) {
+    if (normalized.indexOf('invalid login credentials') !== -1) {
       return 'E-mail ou senha incorretos. Confira os dados ou use "Esqueci minha senha".';
     }
-    if (msg === 'Email not confirmed' || normalized.indexOf('email not confirmed') !== -1) {
+    if (normalized.indexOf('email not confirmed') !== -1) {
       return 'E-mail não confirmado. Verifique sua caixa de entrada (incluindo spam) ou use o link mágico.';
     }
     if (normalized.indexOf('already registered') !== -1 || normalized.indexOf('already been registered') !== -1) {
@@ -91,7 +91,9 @@
   }
 
   function getAuthRedirectError() {
-    var sources = [window.location.search, window.location.hash.replace(/^#/, '?')];
+    var hashParams = window.location.hash ? window.location.hash.slice(1) : '';
+    if (hashParams.charAt(0) === '?') hashParams = hashParams.slice(1);
+    var sources = [window.location.search, hashParams];
     for (var i = 0; i < sources.length; i++) {
       var params = new URLSearchParams(sources[i]);
       var error = params.get('error_description') || params.get('error');
@@ -102,7 +104,11 @@
 
   async function exchangeCodeFromUrl() {
     var code = new URLSearchParams(window.location.search).get('code');
-    if (!code || !client.auth.exchangeCodeForSession) return null;
+    if (!code) return null;
+    if (!client.auth.exchangeCodeForSession) {
+      console.warn('Supabase client sem exchangeCodeForSession; atualize @supabase/supabase-js.');
+      return null;
+    }
     var codeRes = await client.auth.exchangeCodeForSession(code);
     if (codeRes.error) throw codeRes.error;
     return codeRes.data && codeRes.data.session && codeRes.data.session.user;
