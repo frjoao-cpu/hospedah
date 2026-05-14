@@ -38,7 +38,7 @@
     '.hsh-footer-seal { margin-top:10px; font-size:.9em; color:var(--cor-sub,#aab4c4); }',
     '.hsh-header { display:flex; align-items:center; justify-content:space-between; padding:0 24px; height:56px; background:linear-gradient(135deg,var(--azul,#0B1C3D),var(--azul2,#142850)); border-bottom:1px solid var(--borda,rgba(212,175,55,.15)); position:sticky; top:0; z-index:900; }',
     '.hsh-logo { display:inline-flex; align-items:center; text-decoration:none; }',
-    '.hsh-logo img { display:block; height:44px; width:auto; }',
+    '.hsh-logo img { display:block; height:60px; width:auto; }',
     '.hsh-nav { display:flex; gap:4px; align-items:center; }',
     '.hsh-nav a { color:var(--cor-texto,#e8eaf0); text-decoration:none; padding:6px 10px; border-radius:7px; font-size:.82em; font-weight:500; transition:background .2s,color .2s; white-space:nowrap; }',
     '.hsh-nav a:hover { background:rgba(212,175,55,.12); color:var(--dourado,#D4AF37); }',
