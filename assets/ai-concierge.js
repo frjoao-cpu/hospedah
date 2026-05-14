@@ -17,6 +17,7 @@
   var MSG_SERVICE_UNSTABLE = 'Estou com instabilidade temporária no atendimento automático. Tente novamente em instantes ou fale pelo WhatsApp 📱 ' + SUPPORT_WHATSAPP + '.';
   var MSG_SERVICE_UNSTABLE_GENERIC = 'Estou com instabilidade temporária no atendimento automático. Fale pelo WhatsApp 📱 ' + SUPPORT_WHATSAPP + '.';
   var MSG_NETWORK_UNSTABLE = 'Estou com instabilidade de conexão no atendimento automático. Fale pelo WhatsApp 📱 ' + SUPPORT_WHATSAPP + '.';
+  var LOCAL_RESORT_FALLBACK_MATCHES = [];
   var LOCAL_RESORT_FALLBACKS = [
     {
       terms: ['olimpia park', 'olímpia park', 'olimpia', 'olímpia'],
@@ -98,9 +99,12 @@
       .replace(/[\u0300-\u036f]/g, '');
   }
 
-  for (var f = 0; f < LOCAL_RESORT_FALLBACKS.length; f++) {
-    LOCAL_RESORT_FALLBACKS[f].normalizedTerms = LOCAL_RESORT_FALLBACKS[f].terms.map(normalizeText);
-  }
+  LOCAL_RESORT_FALLBACK_MATCHES = LOCAL_RESORT_FALLBACKS.map(function (item) {
+    return {
+      normalizedTerms: item.terms.map(normalizeText),
+      response: item.response
+    };
+  });
 
   function getLastUserText(mensagens) {
     for (var i = mensagens.length - 1; i >= 0; i--) {
@@ -114,8 +118,8 @@
   function localFallbackResponse(mensagens) {
     var text = normalizeText(getLastUserText(mensagens));
     if (!text) return null;
-    for (var i = 0; i < LOCAL_RESORT_FALLBACKS.length; i++) {
-      var item = LOCAL_RESORT_FALLBACKS[i];
+    for (var i = 0; i < LOCAL_RESORT_FALLBACK_MATCHES.length; i++) {
+      var item = LOCAL_RESORT_FALLBACK_MATCHES[i];
       for (var j = 0; j < item.normalizedTerms.length; j++) {
         if (text.indexOf(item.normalizedTerms[j]) !== -1) {
           return item.response;
