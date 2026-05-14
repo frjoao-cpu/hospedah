@@ -35,8 +35,10 @@ const GEMINI_URL =
 const GEMINI_STREAM_URL =
   `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:streamGenerateContent`;
 // Timeout for individual Gemini API requests (ms).
-// With GEMINI_MAX_RETRIES=1 (2 attempts total), worst-case primary = 12s + 1.5s + 12s = 25.5s,
-// leaving room for a fallback model call within the 45s client-side AbortController timeout.
+// With GEMINI_MAX_RETRIES=0 (single attempt per model) and two models (primary + fallback),
+// worst-case total = 12s + 12s = 24s — well within the 45s client-side AbortController timeout.
+// The fallback model provides the redundancy that retries used to provide; keeping retries at 0
+// prevents the combined chain from exceeding the client timeout when both models are slow.
 const GEMINI_REQUEST_TIMEOUT_MS = 12000;
 // Models that support thinkingConfig. Maintained as an explicit set to avoid
 // false positives from prefix matching (e.g. a future gemini-2.5-lite variant
@@ -78,7 +80,7 @@ const GEMINI_RETRYABLE_STATUSES = new Set([429, 500, 502, 503, 504]);
 // Calls the Gemini REST API with automatic retry on HTTP 429 (rate-limit) and 5xx errors.
 // Attempts: 1 original + up to GEMINI_MAX_RETRIES retries.
 // Wait before retry i (1-based): GEMINI_RETRY_BASE_MS * i  (1.5 s, …)
-const GEMINI_MAX_RETRIES  = 1;
+const GEMINI_MAX_RETRIES  = 0;
 const GEMINI_RETRY_BASE_MS = 1500;
 
 async function fetchGeminiWithRetry(url: string, bodyStr: string): Promise<Response> {
@@ -609,6 +611,26 @@ serve(async (req: Request): Promise<Response> => {
     );
   }
 
+  // True when the system prompt was extended with DB-loaded custom instructions or FAQ data.
+  // Used to decide whether an emergency base-prompt retry makes sense.
+  const hasCustomData = systemPrompt !== SYSTEM_PROMPT || allFaqExtras.length > 0;
+
+  // Helper: retry the primary model with only the hardcoded SYSTEM_PROMPT (no custom
+  // instructions, no FAQ). This is the last resort when every attempt with the full prompt
+  // fails — for example, because custom data added via the admin panel triggers Gemini's
+  // safety filters, causing every request to be blocked regardless of model.
+  async function callWithBasePrompt(): Promise<string> {
+    console.warn('[ai-concierge] Retrying primary model with base SYSTEM_PROMPT only (no custom data)...');
+    const basePayload = {
+      ...geminiPayload,
+      generationConfig: buildGenerationConfig(SUPPORTS_THINKING, temperature),
+      system_instruction: { parts: [{ text: SYSTEM_PROMPT }] },
+    };
+    const r = await callGeminiModel(GEMINI_MODEL, basePayload);
+    console.log('[ai-concierge] Base-prompt fallback succeeded.');
+    return r;
+  }
+
   try {
     resposta = await callGeminiModel(GEMINI_MODEL, geminiPayload);
   } catch (primaryErr) {
@@ -626,12 +648,30 @@ serve(async (req: Request): Promise<Response> => {
         console.log('[ai-concierge] Fallback model succeeded:', GEMINI_FALLBACK_MODEL);
       } catch (fallbackErr) {
         console.error('[ai-concierge] Both models failed. Primary:', primaryErr, '| Fallback:', fallbackErr);
-        return geminiErrorResponse(primaryErr, usedModel);
+        // Emergency: retry with base SYSTEM_PROMPT when custom data may be the cause.
+        if (hasCustomData) {
+          try {
+            usedModel = GEMINI_MODEL;
+            resposta = await callWithBasePrompt();
+          } catch {
+            return geminiErrorResponse(primaryErr, GEMINI_MODEL);
+          }
+        } else {
+          return geminiErrorResponse(primaryErr, usedModel);
+        }
       }
     } else {
-      // No fallback configured — surface the primary error
+      // No fallback model configured — try base prompt if custom data was loaded.
       console.error('[ai-concierge] Primary model failed (no fallback):', primaryErr);
-      return geminiErrorResponse(primaryErr, usedModel);
+      if (hasCustomData) {
+        try {
+          resposta = await callWithBasePrompt();
+        } catch {
+          return geminiErrorResponse(primaryErr, GEMINI_MODEL);
+        }
+      } else {
+        return geminiErrorResponse(primaryErr, usedModel);
+      }
     }
   }
 
