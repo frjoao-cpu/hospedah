@@ -70,9 +70,15 @@
   }
 
   function translateAuthError(message) {
-    var errorMessage = message || 'Não foi possível concluir a autenticação.';
+    var errorMessage = (message ? String(message).trim() : '') || 'Não foi possível concluir a autenticação.';
     var normalized = errorMessage.toLowerCase();
-    var fetchErrorPatterns = ['failed to fetch', 'falhou em buscar', 'networkerror', 'network request failed'];
+    var fetchErrorPatterns = [
+      'failed to fetch', 'falhou em buscar', 'networkerror', 'network request failed',
+      'fetch error', 'load failed', 'network error', 'net::err',
+      'connection refused', 'conexão recusada', 'não foi possível conectar',
+      'could not connect', 'getaddrinfo', 'econnrefused', 'enotfound', 'etimedout',
+      'fetch is not defined', 'unable to fetch'
+    ];
     if (fetchErrorPatterns.some(function (p) { return normalized.indexOf(p) !== -1; })) {
       return 'Erro de conexão com o servidor. Verifique sua internet e tente novamente.';
     }
@@ -90,6 +96,10 @@
     }
     if (normalized.indexOf('provider') !== -1 || normalized.indexOf('not enabled') !== -1 || normalized.indexOf('unsupported') !== -1) {
       return 'Login com Google temporariamente indisponível. Use e-mail e senha ou link mágico.';
+    }
+    /* Mask raw JS/browser error objects that should never be shown directly */
+    if (/^(typeerror|syntaxerror|referenceerror|rangeerror|error)[\s:]/i.test(errorMessage)) {
+      return 'Ocorreu um erro inesperado. Verifique sua internet e tente novamente.';
     }
     return errorMessage;
   }
@@ -408,7 +418,7 @@
           }
           window.location.replace('/portal/dashboard.html');
         } catch (err) {
-          setMessage(message, 'Erro de conexão. Verifique sua internet e tente novamente.', 'error');
+          setMessage(message, translateAuthError((err && err.message) || ''), 'error');
         } finally {
           if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = '🔐 Entrar na minha conta'; }
         }
@@ -443,7 +453,7 @@
           }
           setMessage(message, '✅ Conta criada! Verifique seu e-mail para confirmar o acesso.', 'success');
         } catch (err) {
-          setMessage(message, 'Erro de conexão. Verifique sua internet e tente novamente.', 'error');
+          setMessage(message, translateAuthError((err && err.message) || ''), 'error');
         } finally {
           if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = '🚀 Criar minha conta'; }
         }
