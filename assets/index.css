@@ -1362,7 +1362,7 @@ html[data-theme="light"] .faq-btn { color: var(--azul); }
 }
 .urgencia-item {
   display: flex; align-items: center; gap: 7px;
-  padding: 7px 20px; font-size: .83em; font-weight: 700;
+  padding: 4px 20px; font-size: .83em; font-weight: 700;
   border-right: 1px solid rgba(11,28,61,.18);
   flex: 1 1 0; min-width: 0; white-space: nowrap;
   background: transparent;
@@ -1380,7 +1380,7 @@ html[data-theme="light"] .faq-btn { color: var(--azul); }
   }
   .urgencia-item {
     flex: 0 0 auto; border-right: 1px solid rgba(11,28,61,.18);
-    padding: 6px 18px; font-size: .80em;
+    padding: 4px 18px; font-size: .80em;
   }
   .urgencia-item[aria-hidden="true"] { display: flex; }
   .urgencia-item:last-child { border-right: 1px solid rgba(11,28,61,.18); }
