@@ -65,6 +65,49 @@
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
   }
 
+  function portalUrl(path) {
+    return window.location.origin + path;
+  }
+
+  function translateAuthError(message) {
+    var msg = message || 'Não foi possível concluir a autenticação.';
+    var normalized = msg.toLowerCase();
+    if (msg === 'Invalid login credentials' || normalized.indexOf('invalid login credentials') !== -1) {
+      return 'E-mail ou senha incorretos. Confira os dados ou use "Esqueci minha senha".';
+    }
+    if (msg === 'Email not confirmed' || normalized.indexOf('email not confirmed') !== -1) {
+      return 'E-mail não confirmado. Verifique sua caixa de entrada (incluindo spam) ou use o link mágico.';
+    }
+    if (normalized.indexOf('already registered') !== -1 || normalized.indexOf('already been registered') !== -1) {
+      return 'Este e-mail já está cadastrado. Use a aba "Entrar" ou recupere a senha.';
+    }
+    if (normalized.indexOf('rate limit') !== -1 || normalized.indexOf('too many') !== -1) {
+      return 'Muitas tentativas em pouco tempo. Aguarde alguns minutos e tente novamente.';
+    }
+    if (normalized.indexOf('provider') !== -1 || normalized.indexOf('not enabled') !== -1 || normalized.indexOf('unsupported') !== -1) {
+      return 'Login com Google temporariamente indisponível. Use e-mail e senha ou link mágico.';
+    }
+    return msg;
+  }
+
+  function getAuthRedirectError() {
+    var sources = [window.location.search, window.location.hash.replace(/^#/, '?')];
+    for (var i = 0; i < sources.length; i++) {
+      var params = new URLSearchParams(sources[i]);
+      var error = params.get('error_description') || params.get('error');
+      if (error) return translateAuthError(error.replace(/\+/g, ' '));
+    }
+    return '';
+  }
+
+  async function exchangeCodeFromUrl() {
+    var code = new URLSearchParams(window.location.search).get('code');
+    if (!code || !client.auth.exchangeCodeForSession) return null;
+    var codeRes = await client.auth.exchangeCodeForSession(code);
+    if (codeRes.error) throw codeRes.error;
+    return codeRes.data && codeRes.data.session && codeRes.data.session.user;
+  }
+
   function findFirstMessageElement() {
     return document.getElementById('portalAuthMessage') ||
       document.getElementById('portalResetMessage') ||
@@ -101,6 +144,12 @@
 
   async function getSessionUser() {
     try {
+      var exchangedUser = await exchangeCodeFromUrl();
+      if (exchangedUser) return exchangedUser;
+      var sessionRes = await client.auth.getSession();
+      if (sessionRes && sessionRes.data && sessionRes.data.session && sessionRes.data.session.user) {
+        return sessionRes.data.session.user;
+      }
       var userRes = await client.auth.getUser();
       return (userRes && userRes.data && userRes.data.user) || null;
     } catch (e) {
@@ -310,6 +359,12 @@
     var signupForm = document.getElementById('signupForm');
     var googleBtn  = document.getElementById('btnGoogleAuth');
     var magicBtn   = document.getElementById('btnMagicLink');
+    var resetBtn   = document.getElementById('btnPasswordReset');
+
+    var redirectError = getAuthRedirectError();
+    if (redirectError) {
+      setMessage(message, redirectError, 'error');
+    }
 
     try {
       var activeUser = await getSessionUser();
@@ -335,10 +390,7 @@
         try {
           var loginRes = await client.auth.signInWithPassword({ email: email, password: password });
           if (loginRes.error) {
-            var msg = loginRes.error.message;
-            if (msg === 'Invalid login credentials') msg = 'E-mail ou senha incorretos.';
-            else if (msg === 'Email not confirmed') msg = 'E-mail não confirmado. Verifique sua caixa de entrada (incluindo spam) e clique no link de confirmação.';
-            setMessage(message, msg, 'error');
+            setMessage(message, translateAuthError(loginRes.error.message), 'error');
             return;
           }
           window.location.replace('/portal/dashboard.html');
@@ -366,14 +418,10 @@
           var signUpRes = await client.auth.signUp({
             email: email,
             password: password,
-            options: { data: { full_name: name }, emailRedirectTo: window.location.origin + '/portal/dashboard.html' }
+            options: { data: { full_name: name }, emailRedirectTo: portalUrl('/portal/dashboard.html') }
           });
           if (signUpRes.error) {
-            var errMsg = signUpRes.error.message;
-            if (errMsg && errMsg.toLowerCase().indexOf('already registered') !== -1) {
-              errMsg = 'Este e-mail já está cadastrado. Use a aba "Entrar".';
-            }
-            setMessage(message, errMsg, 'error');
+            setMessage(message, translateAuthError(signUpRes.error.message), 'error');
             return;
           }
           if (signUpRes.data && signUpRes.data.session) {
@@ -406,16 +454,46 @@
         try {
           var otpRes = await client.auth.signInWithOtp({
             email: email,
-            options: { emailRedirectTo: window.location.origin + '/portal/dashboard.html' }
+            options: { emailRedirectTo: portalUrl('/portal/dashboard.html') }
           });
           if (otpRes.error) { throw otpRes.error; }
           setMessage(message, '✉️ Link mágico enviado para ' + email + '. Verifique sua caixa de entrada.', 'success');
         } catch (otpErr) {
           var otpErrMsg = (otpErr && otpErr.message) ? otpErr.message : 'Erro ao enviar link. Tente novamente.';
-          setMessage(message, otpErrMsg, 'error');
+          setMessage(message, translateAuthError(otpErrMsg), 'error');
         } finally {
           magicBtn.disabled = false;
           magicBtn.textContent = '✉️ Link mágico por e-mail';
+        }
+      });
+    }
+
+    if (resetBtn) {
+      resetBtn.addEventListener('click', async function () {
+        var loginFormEl = document.getElementById('loginForm');
+        var isLoginActive = loginFormEl && !loginFormEl.classList.contains('hidden');
+        var emailInput = isLoginActive
+          ? document.getElementById('loginEmail')
+          : document.getElementById('signupEmail');
+        var email = emailInput ? emailInput.value.trim().toLowerCase() : '';
+        if (!isValidEmail(email)) {
+          setMessage(message, 'Digite seu e-mail no campo de login para receber a recuperação de senha.', 'error');
+          return;
+        }
+        resetBtn.disabled = true;
+        resetBtn.textContent = '⏳ Enviando recuperação…';
+        try {
+          var resetRes = await client.auth.resetPasswordForEmail(email, {
+            redirectTo: portalUrl('/portal/reset-password.html')
+          });
+          if (resetRes.error) { throw resetRes.error; }
+          setMessage(message, '🔁 Enviamos o link de recuperação para ' + email + '.', 'success');
+        } catch (resetErr) {
+          var resetErrMsg = (resetErr && resetErr.message) ? resetErr.message : 'Erro ao enviar recuperação. Tente novamente.';
+          setMessage(message, translateAuthError(resetErrMsg), 'error');
+        } finally {
+          resetBtn.disabled = false;
+          resetBtn.textContent = '🔁 Esqueci minha senha';
         }
       });
     }
@@ -445,9 +523,9 @@
             lc.indexOf('unsupported') !== -1 ||
             (oauthErr && (oauthErr.status === 400 || oauthErr.code === 400));
           if (isProviderDisabled) {
-            errMsg = 'Login com Google temporariamente indisponível. Use e-mail e senha.';
+            errMsg = 'Login com Google temporariamente indisponível. Use e-mail e senha ou link mágico.';
           }
-          setMessage(message, errMsg, 'error');
+          setMessage(message, translateAuthError(errMsg), 'error');
           googleBtn.disabled = false;
           googleBtn.textContent = 'Entrar com Google';
         }
