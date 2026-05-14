@@ -3,11 +3,11 @@
 var STATIC_CACHE = 'hospedah-static-v6';
 var PAGE_CACHE = 'hospedah-pages-v6';
 var OFFLINE_URL = '/offline.html';
-var NETWORK_ONLY_ASSETS = [
+var NETWORK_ONLY_ASSETS = new Set([
   '/assets/ai-config.js',
   '/assets/ai-concierge.js',
   '/assets/supabase-config.js'
-];
+]);
 
 var PRECACHE_URLS = [
   '/',
@@ -69,7 +69,7 @@ function isAsset(pathname) {
 }
 
 function isNetworkOnlyAsset(pathname) {
-  return NETWORK_ONLY_ASSETS.indexOf(pathname) !== -1;
+  return NETWORK_ONLY_ASSETS.has(pathname);
 }
 
 self.addEventListener('fetch', function (event) {
@@ -99,7 +99,11 @@ self.addEventListener('fetch', function (event) {
   }
 
   if (isNetworkOnlyAsset(url.pathname)) {
-    event.respondWith(fetch(req, { cache: 'no-store' }));
+    event.respondWith(
+      fetch(req, { cache: 'no-store' }).catch(function () {
+        return new Response('', { status: 503, statusText: 'Service Unavailable' });
+      })
+    );
     return;
   }
 
