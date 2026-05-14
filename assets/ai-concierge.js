@@ -14,8 +14,19 @@
   // Chave anon pública centralizada em assets/supabase-config.js.
   // Segurança garantida pelo RLS do Supabase, não pela ocultação da chave.
   var SUPABASE_ANON_KEY = window.HOSPEDAH_SB_ANON || '';
+  // Compatibilidade: se definido, permite fallback da Edge Function via ctx.gemini_key.
+  // A chave preferencial continua sendo GEMINI_API_KEY no servidor.
+  var CLIENT_GEMINI_KEY = (typeof window.GEMINI_API_KEY === 'string' ? window.GEMINI_API_KEY.trim() : '');
   var DEFAULT_TEMPERATURE = 0.7;
   var FALLBACK_COUNTER = 0;
+
+  function serviceFallbackMessage(detail) {
+    var d = (detail || '').toLowerCase();
+    if (d.indexOf('gemini_api_key') !== -1 || d.indexOf('temporariamente indisponível') !== -1) {
+      return 'Estou com instabilidade temporária no atendimento automático. Tente novamente em instantes ou fale pelo WhatsApp 📱 (17) 98200-6382.';
+    }
+    return null;
+  }
 
   function buildConversationId() {
     if (typeof crypto !== 'undefined') {
@@ -54,6 +65,7 @@
       temperature: typeof temperature === 'number' ? temperature : DEFAULT_TEMPERATURE,
       faq_extras: faqExtras || ''
     };
+    if (CLIENT_GEMINI_KEY) payload.gemini_key = CLIENT_GEMINI_KEY;
 
     var controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
     var timeoutId = controller
@@ -76,23 +88,24 @@
           var detail = data && data.error ? data.error : '(sem detalhe)';
           var model  = data && data.model  ? data.model  : '';
           var gStatus = data && data.geminiStatus ? data.geminiStatus : '';
+          var friendly = serviceFallbackMessage(detail);
           console.error(
             '[HOSPEDAH_AI] Edge function HTTP ' + res.status +
             (model  ? ' | modelo: ' + model   : '') +
             (gStatus ? ' | Gemini: ' + gStatus : '') +
             ' | erro: ' + detail
           );
-          return null;
+          return friendly;
         }
         return (data && data.resposta) ? data.resposta.trim() : null;
       }).catch(function () {
         console.warn('[HOSPEDAH_AI] Não foi possível ler a resposta da Edge Function.');
-        return null;
+        return 'Estou com instabilidade temporária no atendimento automático. Fale pelo WhatsApp 📱 (17) 98200-6382.';
       });
     }).catch(function () {
       if (timeoutId) clearTimeout(timeoutId);
       console.error('[HOSPEDAH_AI] Erro de rede ao chamar a Edge Function.');
-      return null;
+      return 'Estou com instabilidade de conexão no atendimento automático. Fale pelo WhatsApp 📱 (17) 98200-6382.';
     });
   }
 
@@ -134,6 +147,7 @@
       faq_extras: faqExtras || '',
       stream: true
     };
+    if (CLIENT_GEMINI_KEY) payload.gemini_key = CLIENT_GEMINI_KEY;
 
     var controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
     var timeoutId = controller
