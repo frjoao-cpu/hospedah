@@ -28,17 +28,19 @@
         '• 1 vaga gratuita na garagem por apartamento\n' +
         '• Não aceita pets\n' +
         '• Refeições não estão incluídas na diária; alimentos e bebidas podem ser levados, mas devem ser consumidos dentro do apartamento\n\n' +
-        'Diferenciais do Jornal HOSPEDAH: localização estratégica em Olímpia, em frente ao Thermas dos Laranjais, acesso a pé ao parque, suítes amplas estilo apartamento e forte custo-benefício para viagens curtas e intensas.\n\n' +
+        '• Localização estratégica em Olímpia, em frente ao Thermas dos Laranjais, com acesso a pé ao parque\n\n' +
         'Para eu te ajudar melhor, quais datas e quantas pessoas vão viajar? 😊'
     },
     {
       terms: ['hot beach', 'hotbeach'],
       response: 'Ótima escolha! 🏖️ O Hot Beach Suites fica em Olímpia/SP, tem piscinas termais, lazer completo e apartamentos com cozinha completa.\n\n' +
-        '• Check-in a partir das 15h e check-out até as 11h\n' +
+        '• Check-in a partir das 15h e check-out até as 11h; pré check-in e pós checkout para uso das áreas aquáticas mediante taxa de R$15,00 por pessoa\n' +
         '• Apartamento de 1 dormitório para até 6 pessoas ou 2 dormitórios para até 8 pessoas\n' +
         '• 1 vaga gratuita na garagem por apartamento\n' +
-        '• Refeições não estão incluídas na diária; alimentos e bebidas podem ser levados, mas devem ser consumidos dentro do apartamento\n\n' +
-        'Diferenciais do Jornal HOSPEDAH: acesso facilitado ao Hot Beach Olímpia, piscinas de águas quentes naturais, ambiente mais tranquilo e organizado, perfil mais seleto e experiência integrada resort + parque.\n\n' +
+        '• Apartamento 220V, com roupas de cama e banho, utensílios completos de cozinha, micro-ondas, geladeira e varanda gourmet com tela de proteção\n' +
+        '• Alimentos e bebidas podem ser levados, mas devem ser consumidos dentro do apartamento\n' +
+        '• Acesso gratuito à Vila Guarani; não aceita pets\n' +
+        '• Menor desacompanhado dos pais precisa de autorização prévia\n\n' +
         'Quais datas e quantas pessoas vão viajar? 😊'
     },
     {
@@ -48,7 +50,8 @@
         '• 1 vaga gratuita na garagem por apartamento\n' +
         '• Não aceita pets\n' +
         '• Refeições não estão incluídas na diária; alimentos e bebidas podem ser levados, mas devem ser consumidos dentro do apartamento\n\n' +
-        'Diferenciais do Jornal HOSPEDAH: fica ao lado do Thermas de São Pedro, tem parque novo, menor fluxo de pessoas, filas reduzidas, ambiente organizado e região mais tranquila.\n\n' +
+        '• Apartamento 220V, com roupas de cama e banho, frigobar e micro-ondas; não possui talheres, pratos, copos ou utensílios de cozinha\n' +
+        '• Menor desacompanhado dos pais precisa de autorização prévia\n\n' +
         'Quais datas e quantas pessoas vão viajar? 😊'
     },
     {
@@ -57,33 +60,45 @@
         '• Check-in a partir das 14h e check-out até as 11h\n' +
         '• Apartamento de 1 dormitório para até 5 pessoas ou 2 dormitórios para até 7 pessoas\n' +
         '• 1 vaga gratuita na garagem por apartamento\n' +
-        '• Refeições não estão incluídas na diária; alimentos e bebidas podem ser levados, mas devem ser consumidos dentro do apartamento\n\n' +
-        'Diferenciais do Jornal HOSPEDAH: resort novo e moderno em Olímpia, com mais de 1.000 unidades, suítes com sala, cozinha e varanda, transfer incluso para o parque e boa opção para estadias mais longas.\n\n' +
+        '• Refeições não estão incluídas na diária; alimentos e bebidas podem ser levados, mas devem ser consumidos dentro do apartamento\n' +
+        '• Apartamento 220V, com roupas de cama e banho, frigobar e micro-ondas; não possui talheres, pratos, copos ou utensílios de cozinha\n' +
+        '• Menor desacompanhado dos pais precisa de autorização prévia; não aceita pets\n\n' +
         'Quais datas e quantas pessoas vão viajar? 😊'
     },
     {
       terms: ['wyndham', 'royal'],
       response: 'Ótima escolha! 👑 O Wyndham Royal é uma opção de alto padrão, com suítes de luxo, piscinas premium e lazer exclusivo.\n\n' +
-        '• Alimentos e bebidas podem ser levados, mas devem ser consumidos dentro do apartamento\n\n' +
-        'Diferenciais do Jornal HOSPEDAH: um dos maiores resorts do Brasil, ao lado do Thermas dos Laranjais, com estrutura extremamente completa, muitas piscinas e bares, alto padrão de serviço e programação intensa de lazer.\n\n' +
+        '• Check-in a partir das 14h e check-out até as 11h\n' +
+        '• 1 vaga gratuita na garagem por apartamento\n' +
+        '• Apartamento 220V, com roupas de cama e banho, frigobar e micro-ondas; não possui talheres, pratos, copos ou utensílios de cozinha\n' +
+        '• Alimentos e bebidas podem ser levados, mas devem ser consumidos dentro do apartamento\n' +
+        '• Menor desacompanhado dos pais precisa de autorização prévia; não aceita pets\n\n' +
         'Para consultar detalhes, valores e disponibilidade, me diga as datas desejadas e quantas pessoas vão viajar. 😊'
     },
     {
       terms: ['juquehy', 'juquei'],
       response: 'Ótima escolha! 🌊 A Praia de Juquehy, em São Sebastião/SP, é ideal para quem busca praia, descanso e natureza.\n\n' +
-        'Diferenciais do Jornal HOSPEDAH: praia organizada e preservada no litoral norte, mar calmo, restaurantes e beach clubs sofisticados, fácil acesso, perfil mais exclusivo e menos lotado.\n\n' +
+        '• Praia organizada e preservada no litoral norte, com mar calmo e fácil acesso\n\n' +
         'Para consultar detalhes, valores e disponibilidade, me diga as datas desejadas e quantas pessoas vão viajar. 😊'
     },
     {
       terms: ['ipioca'],
       response: 'Ótima escolha! 🌊 O Ipioca Beach Resort fica em Maceió/AL, à beira-mar, com praia exclusiva e estrutura para toda a família.\n\n' +
-        '• Alimentos e bebidas podem ser levados, mas devem ser consumidos dentro do apartamento\n\n' +
+        '• Check-in a partir das 14h e check-out até as 11h\n' +
+        '• 1 vaga gratuita na garagem por apartamento\n' +
+        '• Apartamento 220V, com roupas de cama e banho, frigobar e micro-ondas; não possui talheres, pratos, copos ou utensílios de cozinha\n' +
+        '• Alimentos e bebidas podem ser levados, mas devem ser consumidos dentro do apartamento\n' +
+        '• Menor desacompanhado dos pais precisa de autorização prévia; não aceita pets\n\n' +
         'Para consultar detalhes, valores e disponibilidade, me diga as datas desejadas e quantas pessoas vão viajar. 😊'
     },
     {
       terms: ['porto 2 life', 'porto 2', 'porto dois', 'porto life'],
       response: 'Ótima escolha! ⚓ O Porto 2 Life é um resort moderno, com lazer completo, piscinas e acomodações de alto padrão.\n\n' +
-        '• Alimentos e bebidas podem ser levados, mas devem ser consumidos dentro do apartamento\n\n' +
+        '• Check-in a partir das 14h e check-out até as 11h\n' +
+        '• 1 vaga gratuita na garagem por apartamento\n' +
+        '• Apartamento 220V, com roupas de cama e banho, frigobar e micro-ondas; não possui talheres, pratos, copos ou utensílios de cozinha\n' +
+        '• Alimentos e bebidas podem ser levados, mas devem ser consumidos dentro do apartamento\n' +
+        '• Menor desacompanhado dos pais precisa de autorização prévia; não aceita pets\n\n' +
         'Para consultar detalhes, valores e disponibilidade, me diga as datas desejadas e quantas pessoas vão viajar. 😊'
     }
   ];
@@ -97,11 +112,16 @@
           '• O valor é por apartamento, independente do número de hóspedes\n\n' +
           'Valores sujeitos a alterações pelo resort. 😊',
         estacionamento: 'Sim! No Hot Beach Suites há 1 vaga gratuita na garagem por apartamento, inclusa na diária. 🚗',
-        checkin: 'No Hot Beach Suites, o check-in é a partir das 15h e o check-out até as 11h. 🔑',
+        checkin: 'No Hot Beach Suites, o check-in é a partir das 15h e o check-out até as 11h. É possível fazer pré check-in para usar as instalações aquáticas antes das 15h mediante taxa de R$15,00 por pessoa. Após o check-out, pagando R$15,00 por pessoa, é permitido aproveitar o parque aquático até o fim do dia. 🔑',
         alimentacao: 'No Hot Beach Suites, as refeições não estão incluídas na diária. Alimentos e bebidas podem ser levados, mas devem ser consumidos dentro do apartamento. O apartamento tem cozinha completa e o resort também possui restaurante com refeições pagas à parte. 🍽️',
         cozinha: 'Sim! O Hot Beach Suites tem cozinha completa no apartamento, com panelas, cafeteira, talheres, pratos, copos, cooktop, micro-ondas, geladeira e varanda gourmet. 🍳',
         capacidade: 'No Hot Beach Suites, o apartamento de 1 dormitório acomoda até 6 pessoas e o de 2 dormitórios acomoda até 8 pessoas. 👨‍👩‍👧‍👦',
-        pets: 'Sobre pets no Hot Beach Suites, essa informação precisa ser confirmada pelo WhatsApp 📱 ' + SUPPORT_WHATSAPP + '.'
+        pets: 'O Hot Beach Suites não aceita pets. 🐾',
+        menor: 'No Hot Beach Suites, menor desacompanhado dos pais precisa de autorização prévia. Avise nossa equipe antes da hospedagem para orientar o atendimento. 🚸',
+        voltagem: 'No Hot Beach Suites, a voltagem do apartamento é 220V. ⚡',
+        enxoval: 'No Hot Beach Suites, o apartamento dispõe de roupas de cama e banho. 🛌🚿',
+        churrasqueira: 'No Hot Beach Suites, a área gourmet possui churrasqueira. O resort fornece gratuitamente um kit churrasco (1 tábua, 1 faca, 1 pegador e 1 garfo), sujeito à disponibilidade, e cobra taxa de R$40,00 para higienização da churrasqueira. Informe o interesse no momento do check-in. 🥩',
+        vila: 'Hóspedes do Hot Beach Suites têm acesso gratuito à Vila Guarani. ✅'
       }
     },
     {
@@ -110,9 +130,12 @@
         estacionamento: 'Sim! No Olimpia Park Resort há 1 vaga gratuita na garagem por apartamento, inclusa na diária. 🚗',
         checkin: 'No Olimpia Park Resort, o check-in é a partir das 14h e o check-out até as 11h. 🔑',
         alimentacao: 'No Olimpia Park Resort, as refeições não estão incluídas na diária. Alimentos e bebidas podem ser levados, mas devem ser consumidos dentro do apartamento. O resort tem restaurante e lanchonete com refeições pagas à parte. 🍽️',
-        cozinha: 'No Olimpia Park Resort, o apartamento possui roupas de cama e banho, mas não inclui talheres, pratos, copos ou utensílios de cozinha.',
+        cozinha: 'No Olimpia Park Resort, o apartamento dispõe de roupas de cama e banho, refrigerador frigobar e forno micro-ondas, mas não possui talheres, pratos, copos ou utensílios de cozinha. Recomendamos levar um kit de utensílios.',
         capacidade: 'No Olimpia Park Resort, o apartamento de 1 dormitório acomoda até 6 pessoas e o de 2 dormitórios acomoda até 8 pessoas. 👨‍👩‍👧‍👦',
-        pets: 'O Olimpia Park Resort não aceita pets. 🐾'
+        pets: 'O Olimpia Park Resort não aceita pets. 🐾',
+        menor: 'No Olimpia Park Resort, menor desacompanhado dos pais precisa de autorização prévia. Avise nossa equipe antes da hospedagem para orientar o atendimento. 🚸',
+        voltagem: 'No Olimpia Park Resort, a voltagem do apartamento é 220V. ⚡',
+        enxoval: 'No Olimpia Park Resort, o apartamento dispõe de roupas de cama e banho. 🛌🚿'
       }
     },
     {
@@ -121,8 +144,11 @@
         estacionamento: 'Sim! No São Pedro Thermas há 1 vaga gratuita na garagem por apartamento, inclusa na diária. 🚗',
         checkin: 'No São Pedro Thermas, o check-in é a partir das 14h e o check-out até as 11h. 🔑',
         alimentacao: 'No São Pedro Thermas, as refeições não estão incluídas na diária. Alimentos e bebidas podem ser levados, mas devem ser consumidos dentro do apartamento. O resort tem restaurante e lanchonete com refeições pagas diretamente no local. 🍽️',
-        cozinha: 'No São Pedro Thermas, o apartamento possui roupas de cama e banho, mas não inclui talheres, pratos, copos ou utensílios de cozinha.',
-        pets: 'O São Pedro Thermas não aceita pets. 🐾'
+        cozinha: 'No São Pedro Thermas, o apartamento dispõe de roupas de cama e banho, refrigerador frigobar e forno micro-ondas, mas não possui talheres, pratos, copos ou utensílios de cozinha. Recomendamos levar um kit de utensílios.',
+        pets: 'O São Pedro Thermas não aceita pets. 🐾',
+        menor: 'No São Pedro Thermas, menor desacompanhado dos pais precisa de autorização prévia. Avise nossa equipe antes da hospedagem para orientar o atendimento. 🚸',
+        voltagem: 'No São Pedro Thermas, a voltagem do apartamento é 220V. ⚡',
+        enxoval: 'No São Pedro Thermas, o apartamento dispõe de roupas de cama e banho. 🛌🚿'
       }
     },
     {
@@ -131,27 +157,51 @@
         estacionamento: 'Sim! No Solar das Águas há 1 vaga gratuita na garagem por apartamento, inclusa na diária. 🚗',
         checkin: 'No Solar das Águas, o check-in é a partir das 14h e o check-out até as 11h. 🔑',
         alimentacao: 'No Solar das Águas, as refeições não estão incluídas na diária. Alimentos e bebidas podem ser levados, mas devem ser consumidos dentro do apartamento. O resort tem restaurante com refeições pagas à parte. 🍽️',
-        cozinha: 'No Solar das Águas, o apartamento possui roupas de cama e banho, mas não inclui talheres, pratos, copos ou utensílios de cozinha.',
+        cozinha: 'No Solar das Águas, o apartamento dispõe de roupas de cama e banho, refrigerador frigobar e forno micro-ondas, mas não possui talheres, pratos, copos ou utensílios de cozinha. Recomendamos levar um kit de utensílios.',
         capacidade: 'No Solar das Águas, o apartamento de 1 dormitório acomoda até 5 pessoas e o de 2 dormitórios acomoda até 7 pessoas. 👨‍👩‍👧‍👦',
-        pets: 'O Solar das Águas não aceita pets. 🐾'
+        pets: 'O Solar das Águas não aceita pets. 🐾',
+        menor: 'No Solar das Águas, menor desacompanhado dos pais precisa de autorização prévia. Avise nossa equipe antes da hospedagem para orientar o atendimento. 🚸',
+        voltagem: 'No Solar das Águas, a voltagem do apartamento é 220V. ⚡',
+        enxoval: 'No Solar das Águas, o apartamento dispõe de roupas de cama e banho. 🛌🚿'
       }
     },
     {
       terms: ['wyndham', 'royal', 'wyndham royal'],
       facts: {
-        alimentacao: 'No Wyndham Royal, alimentos e bebidas podem ser levados, mas devem ser consumidos dentro do apartamento. Para opções de refeição e pacotes de alimentação, consulte pelo WhatsApp 📱 ' + SUPPORT_WHATSAPP + '. 🍽️'
+        estacionamento: 'Sim! No Wyndham Royal há 1 vaga gratuita na garagem por apartamento, inclusa na diária. 🚗',
+        checkin: 'No Wyndham Royal, o check-in é a partir das 14h e o check-out até as 11h. 🔑',
+        alimentacao: 'No Wyndham Royal, alimentos e bebidas podem ser levados, mas devem ser consumidos dentro do apartamento. Para opções de refeição e pacotes de alimentação, consulte pelo WhatsApp 📱 ' + SUPPORT_WHATSAPP + '. 🍽️',
+        cozinha: 'No Wyndham Royal, o apartamento dispõe de roupas de cama e banho, refrigerador frigobar e forno micro-ondas, mas não possui talheres, pratos, copos ou utensílios de cozinha. Recomendamos levar um kit de utensílios.',
+        pets: 'O Wyndham Royal não aceita pets. 🐾',
+        menor: 'No Wyndham Royal, menor desacompanhado dos pais precisa de autorização prévia. Avise nossa equipe antes da hospedagem para orientar o atendimento. 🚸',
+        voltagem: 'No Wyndham Royal, a voltagem do apartamento é 220V. ⚡',
+        enxoval: 'No Wyndham Royal, o apartamento dispõe de roupas de cama e banho. 🛌🚿'
       }
     },
     {
       terms: ['ipioca', 'ipioca beach', 'ipioca beach resort'],
       facts: {
-        alimentacao: 'No Ipioca Beach Resort, alimentos e bebidas podem ser levados, mas devem ser consumidos dentro do apartamento. Para opções de refeição e pacotes de alimentação, consulte pelo WhatsApp 📱 ' + SUPPORT_WHATSAPP + '. 🍽️'
+        estacionamento: 'Sim! No Ipioca Beach Resort há 1 vaga gratuita na garagem por apartamento, inclusa na diária. 🚗',
+        checkin: 'No Ipioca Beach Resort, o check-in é a partir das 14h e o check-out até as 11h. 🔑',
+        alimentacao: 'No Ipioca Beach Resort, alimentos e bebidas podem ser levados, mas devem ser consumidos dentro do apartamento. Para opções de refeição e pacotes de alimentação, consulte pelo WhatsApp 📱 ' + SUPPORT_WHATSAPP + '. 🍽️',
+        cozinha: 'No Ipioca Beach Resort, o apartamento dispõe de roupas de cama e banho, refrigerador frigobar e forno micro-ondas, mas não possui talheres, pratos, copos ou utensílios de cozinha. Recomendamos levar um kit de utensílios.',
+        pets: 'O Ipioca Beach Resort não aceita pets. 🐾',
+        menor: 'No Ipioca Beach Resort, menor desacompanhado dos pais precisa de autorização prévia. Avise nossa equipe antes da hospedagem para orientar o atendimento. 🚸',
+        voltagem: 'No Ipioca Beach Resort, a voltagem do apartamento é 220V. ⚡',
+        enxoval: 'No Ipioca Beach Resort, o apartamento dispõe de roupas de cama e banho. 🛌🚿'
       }
     },
     {
       terms: ['porto 2 life', 'porto 2', 'porto dois', 'porto life'],
       facts: {
-        alimentacao: 'No Porto 2 Life, alimentos e bebidas podem ser levados, mas devem ser consumidos dentro do apartamento. Para opções de refeição e pacotes de alimentação, consulte pelo WhatsApp 📱 ' + SUPPORT_WHATSAPP + '. 🍽️'
+        estacionamento: 'Sim! No Porto 2 Life há 1 vaga gratuita na garagem por apartamento, inclusa na diária. 🚗',
+        checkin: 'No Porto 2 Life, o check-in é a partir das 14h e o check-out até as 11h. 🔑',
+        alimentacao: 'No Porto 2 Life, alimentos e bebidas podem ser levados, mas devem ser consumidos dentro do apartamento. Para opções de refeição e pacotes de alimentação, consulte pelo WhatsApp 📱 ' + SUPPORT_WHATSAPP + '. 🍽️',
+        cozinha: 'No Porto 2 Life, o apartamento dispõe de roupas de cama e banho, refrigerador frigobar e forno micro-ondas, mas não possui talheres, pratos, copos ou utensílios de cozinha. Recomendamos levar um kit de utensílios.',
+        pets: 'O Porto 2 Life não aceita pets. 🐾',
+        menor: 'No Porto 2 Life, menor desacompanhado dos pais precisa de autorização prévia. Avise nossa equipe antes da hospedagem para orientar o atendimento. 🚸',
+        voltagem: 'No Porto 2 Life, a voltagem do apartamento é 220V. ⚡',
+        enxoval: 'No Porto 2 Life, o apartamento dispõe de roupas de cama e banho. 🛌🚿'
       }
     }
   ];
@@ -222,6 +272,11 @@
     if (textHasAny(text, ['cozinha', 'utensilio', 'talher', 'panela', 'microondas', 'micro-ondas', 'geladeira'])) return 'cozinha';
     if (textHasAny(text, ['quantas pessoas', 'capacidade', 'hospedes', 'pessoas'])) return 'capacidade';
     if (textHasAny(text, ['pet', 'pets', 'cachorro', 'gato', 'animal', 'animais'])) return 'pets';
+    if (textHasAny(text, ['menor', 'menores', 'crianca desacompanhada', 'criança desacompanhada', 'autorizacao', 'autorização'])) return 'menor';
+    if (textHasAny(text, ['voltagem', 'voltagens', 'tomada', 'tomadas', '110', '127', '220'])) return 'voltagem';
+    if (textHasAny(text, ['roupa de cama', 'roupas de cama', 'roupa de banho', 'roupas de banho', 'toalha', 'toalhas', 'enxoval'])) return 'enxoval';
+    if (textHasAny(text, ['churrasqueira', 'churrasco', 'kit churrasco'])) return 'churrasqueira';
+    if (textHasAny(text, ['vila guarani', 'guarani'])) return 'vila';
     return null;
   }
 
