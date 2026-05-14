@@ -1321,6 +1321,7 @@ function renderizarStream(res) {
 }
 
 const AI_EDGE_STREAM_TIMEOUT_MS = 45000;
+const AI_RESPONSE_DELAY_MS = 3000;
 
 function escalarParaAIStream(temperature) {
   try {
@@ -1333,8 +1334,12 @@ function escalarParaAIStream(temperature) {
         _aiContext.contexto_intencao
       );
       if (respostaLocal) {
-        addMessage('recv', 'HOSPEDAH ✨', respostaLocal, null, false);
-        return Promise.resolve(respostaLocal);
+        return new Promise(function (resolve) {
+          setTimeout(function () {
+            addMessage('recv', 'HOSPEDAH ✨', respostaLocal, null, false);
+            resolve(respostaLocal);
+          }, AI_RESPONSE_DELAY_MS);
+        });
       }
     }
 
@@ -1353,15 +1358,19 @@ function escalarParaAIStream(temperature) {
     };
     const controller = new AbortController();
     const timeoutId = setTimeout(function () { controller.abort(); }, AI_EDGE_STREAM_TIMEOUT_MS);
-    return fetch(edgeUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'apikey': edgeAnon,
-        'Authorization': 'Bearer ' + edgeAnon
-      },
-      body: JSON.stringify(edgePayload),
-      signal: controller.signal
+    return new Promise(function (resolve) {
+      setTimeout(resolve, AI_RESPONSE_DELAY_MS);
+    }).then(function () {
+      return fetch(edgeUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': edgeAnon,
+          'Authorization': 'Bearer ' + edgeAnon
+        },
+        body: JSON.stringify(edgePayload),
+        signal: controller.signal
+      });
     }).then(function (res) {
       clearTimeout(timeoutId);
       return renderizarStream(res);
