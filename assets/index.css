@@ -318,7 +318,7 @@ html[data-theme="light"] footer                 { background: #e8e4d8; color: #4
 .hero-badge-row {
   display: inline-flex; align-items: center; gap: 12px;
   flex-wrap: wrap; justify-content: center;
-  margin-bottom: 10px;
+  margin-bottom: 6px;
 }
 .hero-badge-row .hero-badge { margin-bottom: 0; }
 .hero-viewers-pill {
@@ -348,7 +348,7 @@ html[data-theme="light"] footer                 { background: #e8e4d8; color: #4
   font-size: 1.15rem; font-weight: 400;
   color: rgba(255,255,255,0.92);
   letter-spacing: 4px; text-transform: uppercase;
-  margin: 18px 0 4px;
+  margin: 6px 0 4px;
   animation: fadeUp .9s .2s both;
 }
 .hero-badge {
@@ -357,7 +357,7 @@ html[data-theme="light"] footer                 { background: #e8e4d8; color: #4
   color: var(--azul); font-weight: 700;
   font-size: 1rem; letter-spacing: 1px;
   padding: 6px 24px; border-radius: 20px;
-  margin-bottom: 10px;
+  margin-bottom: 6px;
   animation: fadeUp .9s .35s both;
 }
 @keyframes fadeUp {
@@ -428,8 +428,8 @@ html[data-theme="light"] footer                 { background: #e8e4d8; color: #4
     padding: calc(64px + 8px + env(safe-area-inset-top, 0px)) 16px 16px;
   }
   .hero-logo     { margin-bottom: 4px; }
-  .hero-tagline  { font-size: 1rem; letter-spacing: 3px; margin: 14px 0 4px; }
-  .hero-badge    { font-size: 0.92rem; margin-bottom: 8px; }
+  .hero-tagline  { font-size: 1rem; letter-spacing: 3px; margin: 6px 0 4px; }
+  .hero-badge    { font-size: 0.92rem; margin-bottom: 6px; }
   .hero-search-grid {
     grid-template-columns: 1fr 1fr;
   }
