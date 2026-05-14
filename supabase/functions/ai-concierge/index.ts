@@ -35,11 +35,12 @@ const GEMINI_URL =
 const GEMINI_STREAM_URL =
   `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:streamGenerateContent`;
 // Timeout for individual Gemini API requests (ms).
-// With GEMINI_MAX_RETRIES=0 (single attempt per model) and two models (primary + fallback),
-// worst-case total = 12s + 12s = 24s — well within the 45s client-side AbortController timeout.
-// The fallback model provides the redundancy that retries used to provide; keeping retries at 0
-// prevents the combined chain from exceeding the client timeout when both models are slow.
-const GEMINI_REQUEST_TIMEOUT_MS = 12000;
+// With GEMINI_MAX_RETRIES=0 (one attempt per model), the full retry chain is:
+//   Streaming:     primary-full(10s) + fallback-full(10s) + emergency-base(10s) = 30s < 45s
+//   Non-streaming: primary-full(10s) + fallback-full(10s) + emergency-primary-base(10s)
+//                  + emergency-fallback-base(10s) = 40s < 45s
+// Both chains fit within the 45s client AbortController budget.
+const GEMINI_REQUEST_TIMEOUT_MS = 10000;
 // Models that support thinkingConfig. Maintained as an explicit set to avoid
 // false positives from prefix matching (e.g. a future gemini-2.5-lite variant
 // that may not support thinking). Add new thinking-capable models here as needed.
@@ -494,6 +495,22 @@ serve(async (req: Request): Promise<Response> => {
     safetySettings,
   };
 
+  // True when the system prompt was extended with DB-loaded custom instructions or FAQ data.
+  // Used to decide whether an emergency base-prompt retry makes sense in both
+  // the streaming and non-streaming paths.
+  const hasCustomData = systemPrompt !== SYSTEM_PROMPT || allFaqExtras.length > 0;
+
+  // Shared base-prompt payload: same as geminiPayload but uses only the hardcoded
+  // SYSTEM_PROMPT (no custom instructions, no FAQ). Reused by both streaming and
+  // non-streaming emergency retries.
+  function buildBasePayload(modelName: string): Record<string, unknown> {
+    return {
+      ...geminiPayload,
+      system_instruction: { parts: [{ text: SYSTEM_PROMPT }] },
+      generationConfig: buildGenerationConfig(modelSupportsThinking(modelName), temperature),
+    };
+  }
+
   // ── STREAMING path ──────────────────────────────────────────
   if (ctx.stream === true) {
     // Try primary model streaming
@@ -535,6 +552,33 @@ serve(async (req: Request): Promise<Response> => {
         }
       } catch (err) {
         console.error('[ai-concierge] Fallback stream error:', err);
+      }
+    }
+
+    // Emergency: if both models failed with the full prompt and custom DB data is
+    // loaded, the custom data may be the cause. Try the fallback model (or primary
+    // if no fallback) with only the hardcoded SYSTEM_PROMPT before giving up.
+    if (!streamRes && hasCustomData) {
+      const emergencyModel = (GEMINI_FALLBACK_MODEL && GEMINI_FALLBACK_MODEL !== GEMINI_MODEL)
+        ? GEMINI_FALLBACK_MODEL
+        : GEMINI_MODEL;
+      console.warn('[ai-concierge] Both streaming attempts failed — emergency base-prompt retry:', emergencyModel);
+      const emergencyStreamUrl =
+        `https://generativelanguage.googleapis.com/v1beta/models/${emergencyModel}:streamGenerateContent`;
+      try {
+        const emergency = await fetchGeminiWithRetry(
+          `${emergencyStreamUrl}?alt=sse&key=${effectiveKey}`,
+          JSON.stringify(buildBasePayload(emergencyModel)),
+        );
+        if (emergency.ok) {
+          streamRes = emergency;
+          console.log('[ai-concierge] Emergency streaming with base prompt succeeded.');
+        } else {
+          const errText = await emergency.text();
+          console.error(`[ai-concierge] Emergency stream failed: HTTP ${emergency.status} — ${errText.slice(0, 200)}`);
+        }
+      } catch (err) {
+        console.error('[ai-concierge] Emergency stream error:', err);
       }
     }
 
@@ -611,23 +655,14 @@ serve(async (req: Request): Promise<Response> => {
     );
   }
 
-  // True when the system prompt was extended with DB-loaded custom instructions or FAQ data.
-  // Used to decide whether an emergency base-prompt retry makes sense.
-  const hasCustomData = systemPrompt !== SYSTEM_PROMPT || allFaqExtras.length > 0;
-
-  // Helper: retry the primary model with only the hardcoded SYSTEM_PROMPT (no custom
+  // Helper: retry a specific model with only the hardcoded SYSTEM_PROMPT (no custom
   // instructions, no FAQ). This is the last resort when every attempt with the full prompt
   // fails — for example, because custom data added via the admin panel triggers Gemini's
   // safety filters, causing every request to be blocked regardless of model.
-  async function callWithBasePrompt(): Promise<string> {
-    console.warn('[ai-concierge] Retrying primary model with base SYSTEM_PROMPT only (no custom data)...');
-    const basePayload = {
-      ...geminiPayload,
-      generationConfig: buildGenerationConfig(SUPPORTS_THINKING, temperature),
-      system_instruction: { parts: [{ text: SYSTEM_PROMPT }] },
-    };
-    const r = await callGeminiModel(GEMINI_MODEL, basePayload);
-    console.log('[ai-concierge] Base-prompt fallback succeeded.');
+  async function callWithBasePrompt(modelName: string): Promise<string> {
+    console.warn(`[ai-concierge] Retrying ${modelName} with base SYSTEM_PROMPT only (no custom data)...`);
+    const r = await callGeminiModel(modelName, buildBasePayload(modelName));
+    console.log(`[ai-concierge] Base-prompt retry succeeded (${modelName}).`);
     return r;
   }
 
@@ -638,10 +673,9 @@ serve(async (req: Request): Promise<Response> => {
     // Attempt fallback model if configured and different from primary
     if (GEMINI_FALLBACK_MODEL && GEMINI_FALLBACK_MODEL !== GEMINI_MODEL) {
       usedModel = GEMINI_FALLBACK_MODEL;
-      const fallbackSupportsThinking = modelSupportsThinking(GEMINI_FALLBACK_MODEL);
       const fallbackPayload = {
         ...geminiPayload,
-        generationConfig: buildGenerationConfig(fallbackSupportsThinking, temperature),
+        generationConfig: buildGenerationConfig(modelSupportsThinking(GEMINI_FALLBACK_MODEL), temperature),
       };
       try {
         resposta = await callGeminiModel(GEMINI_FALLBACK_MODEL, fallbackPayload);
@@ -652,9 +686,20 @@ serve(async (req: Request): Promise<Response> => {
         if (hasCustomData) {
           try {
             usedModel = GEMINI_MODEL;
-            resposta = await callWithBasePrompt();
+            resposta = await callWithBasePrompt(GEMINI_MODEL);
           } catch {
-            return geminiErrorResponse(primaryErr, GEMINI_MODEL);
+            // Primary model with base prompt also failed — try fallback model with base prompt.
+            if (GEMINI_FALLBACK_MODEL && GEMINI_FALLBACK_MODEL !== GEMINI_MODEL) {
+              console.warn('[ai-concierge] Primary base-prompt retry failed — trying fallback model with base prompt...');
+              try {
+                usedModel = GEMINI_FALLBACK_MODEL;
+                resposta = await callWithBasePrompt(GEMINI_FALLBACK_MODEL);
+              } catch {
+                return geminiErrorResponse(primaryErr, GEMINI_MODEL);
+              }
+            } else {
+              return geminiErrorResponse(primaryErr, GEMINI_MODEL);
+            }
           }
         } else {
           return geminiErrorResponse(primaryErr, usedModel);
@@ -665,7 +710,7 @@ serve(async (req: Request): Promise<Response> => {
       console.error('[ai-concierge] Primary model failed (no fallback):', primaryErr);
       if (hasCustomData) {
         try {
-          resposta = await callWithBasePrompt();
+          resposta = await callWithBasePrompt(GEMINI_MODEL);
         } catch {
           return geminiErrorResponse(primaryErr, GEMINI_MODEL);
         }
