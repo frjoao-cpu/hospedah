@@ -4300,6 +4300,42 @@ var _loginBlockedUntil = parseInt(sessionStorage.getItem('_loginBlockedUntil') |
    não sobrescreva a mensagem de erro sobre um login que pode ainda vir a ter sucesso. */
 var _loginInProgress = false;
 
+function _isErroRedeAuth(error) {
+  var msg = ((error && error.message) || error || '').toString().toLowerCase();
+  var networkErrorPatterns = [
+    'failed to fetch', 'networkerror', 'network request failed',
+    'fetch error', 'load failed', 'network error', 'net::err',
+    'connection refused', 'could not connect', 'getaddrinfo',
+    'econnrefused', 'enotfound', 'etimedout', 'unable to fetch'
+  ];
+  return networkErrorPatterns.some(function(p) { return msg.indexOf(p) !== -1; });
+}
+
+function _esperarAuth(ms) {
+  return new Promise(function(resolve) { setTimeout(resolve, ms); });
+}
+
+function autenticarComRetry(email, senha, tentativa) {
+  var atual = tentativa || 1;
+  return _supabase.auth.signInWithPassword({ email: email, password: senha })
+    .then(function(result) {
+      if (result.error && _isErroRedeAuth(result.error) && atual < 3) {
+        return _esperarAuth(atual * 1000).then(function() {
+          return autenticarComRetry(email, senha, atual + 1);
+        });
+      }
+      return result;
+    })
+    .catch(function(error) {
+      if (_isErroRedeAuth(error) && atual < 3) {
+        return _esperarAuth(atual * 1000).then(function() {
+          return autenticarComRetry(email, senha, atual + 1);
+        });
+      }
+      throw error;
+    });
+}
+
 function tentarLogin() {
   var now  = Date.now();
   var err  = document.getElementById('lockError');
@@ -4337,7 +4373,7 @@ function tentarLogin() {
     }
   }, 30000);
 
-  _supabase.auth.signInWithPassword({ email: email, password: senha })
+  autenticarComRetry(email, senha)
     .then(function(result) {
       _loginInProgress = false;
       if (result.error) {
@@ -4347,14 +4383,7 @@ function tentarLogin() {
         var msgLow = msg.toLowerCase();
         /* Erros de rede não contam como tentativas incorretas de login —
            o usuário não errou as credenciais, apenas o serviço está inacessível. */
-        var networkErrorPatterns = [
-          'failed to fetch', 'networkerror', 'network request failed',
-          'fetch error', 'load failed', 'network error', 'net::err',
-          'connection refused', 'could not connect', 'getaddrinfo',
-          'econnrefused', 'enotfound', 'etimedout', 'unable to fetch'
-        ];
-        var isNetworkError = networkErrorPatterns.some(function(p) { return msgLow.indexOf(p) !== -1; });
-        if (isNetworkError) {
+        if (_isErroRedeAuth(result.error)) {
           console.warn('Erro de rede ao autenticar com Supabase — verifique se o projeto está ativo em https://supabase.com/dashboard:', result.error);
           err.textContent = '❌ Serviço de autenticação temporariamente indisponível. Tente novamente em alguns instantes.';
           err.style.display = 'block';
