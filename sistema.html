@@ -4301,7 +4301,13 @@ var _loginBlockedUntil = parseInt(sessionStorage.getItem('_loginBlockedUntil') |
 var _loginInProgress = false;
 
 function _isErroRedeAutenticacao(error) {
-  var msg = ((error && error.message) || error || '').toString().toLowerCase();
+  var msg = '';
+  if (error && error.message) {
+    msg = error.message;
+  } else if (error) {
+    msg = String(error);
+  }
+  msg = msg.toLowerCase();
   var networkErrorPatterns = [
     'failed to fetch', 'networkerror', 'network request failed',
     'fetch error', 'load failed', 'network error', 'net::err',
@@ -4316,11 +4322,13 @@ function _esperarAutenticacao(ms) {
 }
 
 function autenticarComRetry(email, senha) {
+  var RETRY_DELAY_MS = [1000, 2000];
+
   function tentar(atual) {
     return _supabase.auth.signInWithPassword({ email: email, password: senha })
       .then(function(result) {
         if (result.error && _isErroRedeAutenticacao(result.error) && atual < 3) {
-          return _esperarAutenticacao(atual * 1000).then(function() {
+          return _esperarAutenticacao(RETRY_DELAY_MS[atual - 1]).then(function() {
             return tentar(atual + 1);
           });
         }
@@ -4328,7 +4336,7 @@ function autenticarComRetry(email, senha) {
       })
       .catch(function(error) {
         if (_isErroRedeAutenticacao(error) && atual < 3) {
-          return _esperarAutenticacao(atual * 1000).then(function() {
+          return _esperarAutenticacao(RETRY_DELAY_MS[atual - 1]).then(function() {
             return tentar(atual + 1);
           });
         }
