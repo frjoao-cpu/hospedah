@@ -4134,6 +4134,7 @@ var _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
     function () { if (timer) { clearTimeout(timer); } },
     function () {
       if (timer) { clearTimeout(timer); }
+      console.warn('Supabase inacessível — verifique o status do projeto em https://supabase.com/dashboard');
       var msgEl = document.getElementById('lockError');
       if (msgEl && msgEl.style.display === 'none') {
         msgEl.textContent = '⚠️ Serviço de autenticação inacessível. Verifique sua conexão ou tente novamente mais tarde.';
@@ -4336,6 +4337,24 @@ function tentarLogin() {
       if (result.error) {
         clearTimeout(loginTimer);
         if (btn) { btn.disabled = false; btn.textContent = '🔓 Entrar'; }
+        var msg = result.error.message || 'Credenciais inválidas.';
+        var msgLow = msg.toLowerCase();
+        /* Erros de rede não contam como tentativas incorretas de login —
+           o usuário não errou as credenciais, apenas o serviço está inacessível. */
+        var networkErrorPatterns = [
+          'failed to fetch', 'networkerror', 'network request failed',
+          'load failed', 'net::err', 'etimedout', 'econnrefused'
+        ];
+        var isNetworkError = networkErrorPatterns.some(function(p) { return msgLow.indexOf(p) !== -1; });
+        if (isNetworkError) {
+          console.warn('Erro de rede ao autenticar com Supabase — verifique o status do projeto em https://supabase.com/dashboard:', result.error);
+          err.textContent = '❌ Serviço temporariamente indisponível. Verifique sua conexão com a internet e tente novamente.';
+          err.style.display = 'block';
+          document.getElementById('lockInput').value = '';
+          document.getElementById('lockInput').focus();
+          setTimeout(function() { err.style.display = 'none'; }, 8000);
+          return;
+        }
         _loginAttempts++;
         sessionStorage.setItem('_loginAttempts', _loginAttempts);
         if (_loginAttempts >= MAX_LOGIN_ATTEMPTS) {
@@ -4350,12 +4369,7 @@ function tentarLogin() {
           return;
         }
         var restantes = MAX_LOGIN_ATTEMPTS - _loginAttempts;
-        var msg = result.error.message || 'Credenciais inválidas.';
-        var msgLow = msg.toLowerCase();
-        if (msgLow.indexOf('failed to fetch') !== -1 || msgLow.indexOf('network') !== -1 ||
-            msgLow.indexOf('load failed') !== -1) {
-          msg = 'Serviço temporariamente indisponível. Verifique sua conexão com a internet e tente novamente.';
-        } else if (msgLow.indexOf('email not confirmed') !== -1) {
+        if (msgLow.indexOf('email not confirmed') !== -1) {
           msg = 'E-mail não confirmado. Verifique sua caixa de entrada e clique no link de confirmação.';
         } else if (msgLow.indexOf('invalid login') !== -1 || msgLow.indexOf('invalid credentials') !== -1) {
           msg = 'E-mail ou senha incorretos. ' + restantes + ' tentativa(s) restante(s) antes do bloqueio.';
