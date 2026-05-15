@@ -4324,6 +4324,20 @@ function _esperarAutenticacao(ms) {
 function autenticarComTentativas(email, senha) {
   var MAX_AUTH_RETRIES = 2;
   var ATRASO_RETRY_BASE_MS = 1000;
+  /* Tempo máximo por tentativa: 8 s × 3 tentativas + 3 s de delays = 27 s,
+     dentro do limite de 30 s do loginTimer e suficiente para absorver
+     cold-start de projetos no plano gratuito do Supabase. */
+  var PER_ATTEMPT_TIMEOUT_MS = 8000;
+
+  function _signInComTimeout() {
+    var authPromise = _supabase.auth.signInWithPassword({ email: email, password: senha });
+    var timeoutPromise = new Promise(function(resolve) {
+      setTimeout(function() {
+        resolve({ data: null, error: new Error('failed to fetch') });
+      }, PER_ATTEMPT_TIMEOUT_MS);
+    });
+    return Promise.race([authPromise, timeoutPromise]);
+  }
 
   function tentarNovamente(tentativaAtual) {
     return _esperarAutenticacao((tentativaAtual + 1) * ATRASO_RETRY_BASE_MS).then(function() {
@@ -4336,7 +4350,7 @@ function autenticarComTentativas(email, senha) {
   }
 
   function tentar(tentativaAtual) {
-    return _supabase.auth.signInWithPassword({ email: email, password: senha })
+    return _signInComTimeout()
       .then(function(result) {
         if (result.error && deveTentarNovamente(result.error, tentativaAtual)) {
           return tentarNovamente(tentativaAtual);
