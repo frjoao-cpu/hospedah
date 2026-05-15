@@ -4206,10 +4206,12 @@ _supabase.auth.onAuthStateChange(function(event, session) {
       inicializarSistema();
     } else if (event === 'INITIAL_SESSION') {
       /* Sessão preexistente detectada na inicialização: não chama signOut para evitar
-         race condition com signInWithPassword (sem await, o signOut assíncrono poderia
+         race condition com signInWithPassword. Sem await, o signOut assíncrono poderia
          remover a sessão recém-criada pelo login manual antes que inicializarSistema()
-         a validasse). O overlay já inicia visível por padrão (class="lock-overlay show")
-         — o usuário deve refazer login manualmente. */
+         a validasse, impedindo o acesso. A sessão pré-existente é sobrescrita
+         automaticamente por signInWithPassword ao reautenticar. O overlay já inicia
+         visível por padrão (class="lock-overlay show") — o usuário deve refazer
+         login manualmente, o que garante autenticação fresca. */
       _focarElemento('lockEmail');
     }
     /* SIGNED_IN sem _isAuthRedirect: login manual já tratado por tentarLogin() */
