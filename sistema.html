@@ -4330,12 +4330,17 @@ function autenticarComTentativas(email, senha) {
   var PER_ATTEMPT_TIMEOUT_MS = 8000;
 
   function _signInComTimeout() {
-    var authPromise = _supabase.auth.signInWithPassword({ email: email, password: senha });
+    var timeoutId;
+    /* O erro usa 'etimedout' para ser reconhecido como erro de rede por
+       _isErroRedeAutenticacao e acionar a lógica de retry/mensagem existente. */
     var timeoutPromise = new Promise(function(resolve) {
-      setTimeout(function() {
-        resolve({ data: null, error: new Error('failed to fetch') });
+      timeoutId = setTimeout(function() {
+        resolve({ data: null, error: new Error('etimedout: autenticação expirou após ' + PER_ATTEMPT_TIMEOUT_MS + ' ms') });
       }, PER_ATTEMPT_TIMEOUT_MS);
     });
+    var authPromise = _supabase.auth.signInWithPassword({ email: email, password: senha })
+      .then(function(result) { clearTimeout(timeoutId); return result; })
+      .catch(function(err)   { clearTimeout(timeoutId); throw err; });
     return Promise.race([authPromise, timeoutPromise]);
   }
 
