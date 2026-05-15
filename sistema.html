@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>HOSPEDA-SISTEMA | Gestão Financeira</title>
+<title>HOSPEDAH-SISTEMA | Gestão Financeira</title>
 <meta name="robots" content="noindex, nofollow">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://ydrmjoppjxtmnwtvtinb.supabase.co; img-src 'self' data:; object-src 'none'; base-uri 'self';">
 <link rel="manifest" href="/manifest.json">
@@ -2183,7 +2183,7 @@ thead .col-sticky-right {
 <div class="lock-overlay show" id="lockOverlay">
   <div class="lock-box">
     <div style="font-size:2.5em; margin-bottom:12px;">🔐</div>
-    <h2>HOSPEDA-SISTEMA</h2>
+    <h2>HOSPEDAH-SISTEMA</h2>
 
     <!-- VIEW 1: Login normal -->
     <div class="lock-view ativo" id="lockViewLogin">
@@ -2200,10 +2200,6 @@ thead .col-sticky-right {
       </div>
       <div id="lockError" class="lock-error">❌ Credenciais inválidas. Tente novamente.</div>
       <button class="btn btn-primary" style="width:100%; margin-top:16px;" onclick="tentarLogin()">🔓 Entrar</button>
-      <br>
-      <button class="lock-link" onclick="mostrarViewOTP()">✉️ Entrar via link mágico</button>
-      <br>
-      <button class="lock-link" onclick="mostrarViewReset()">🔑 Esqueci minha senha</button>
     </div>
 
     <!-- VIEW 2: Login por link mágico (OTP) -->
@@ -4209,12 +4205,14 @@ _supabase.auth.onAuthStateChange(function(event, session) {
       }
       inicializarSistema();
     } else if (event === 'INITIAL_SESSION') {
-      /* Sessão preexistente detectada: remove apenas a sessão local (scope:'local')
-         para exigir novo login manual sem fazer chamada de rede. Isso evita a race
-         condition onde o signOut global completava após o signInWithPassword já ter
-         armazenado a nova sessão, derrubando o acesso logo após um login bem-sucedido
-         (sintoma: botão preso em "Entrando..." no desktop). */
-      _supabase.auth.signOut({ scope: 'local' });
+      /* Sessão preexistente detectada na inicialização: não chama signOut para evitar
+         race condition com signInWithPassword. Sem await, o signOut assíncrono poderia
+         remover a sessão recém-criada pelo login manual antes que inicializarSistema()
+         a validasse, impedindo o acesso. A sessão pré-existente é sobrescrita
+         automaticamente por signInWithPassword ao reautenticar. O overlay já inicia
+         visível por padrão (class="lock-overlay show") — o usuário deve refazer
+         login manualmente, o que garante autenticação fresca. */
+      _focarElemento('lockEmail');
     }
     /* SIGNED_IN sem _isAuthRedirect: login manual já tratado por tentarLogin() */
   } else if (event === 'INITIAL_SESSION' && !session) {
