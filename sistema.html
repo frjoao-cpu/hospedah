@@ -4120,13 +4120,14 @@ var SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
 
 var _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 
+var PROBE_TIMEOUT_MS = 10000; // 10 s para acomodar cold-start de projetos no plano gratuito
+
 /* Sonda de conectividade não-bloqueante: avisa imediatamente se o Supabase
    está inacessível, sem travar o carregamento do formulário de login.
-   O timeout é de 10 s para acomodar o cold-start de projetos no plano gratuito.
    A sonda não exibe a mensagem se um login já está em andamento (_loginInProgress). */
 (function probeSupabaseConnectivity() {
   var ctrl = typeof AbortController !== 'undefined' ? new AbortController() : null;
-  var timer = ctrl ? setTimeout(function () { ctrl.abort(); }, 10000) : null;
+  var timer = ctrl ? setTimeout(function () { ctrl.abort(); }, PROBE_TIMEOUT_MS) : null;
   fetch(SUPABASE_URL + '/auth/v1/settings', {
     method: 'GET',
     headers: { 'apikey': SUPABASE_ANON },
@@ -4300,7 +4301,7 @@ var LOGIN_BLOCK_MS = 60000; // 60 segundos
 var _loginAttempts = parseInt(sessionStorage.getItem('_loginAttempts') || '0', 10);
 var _loginBlockedUntil = parseInt(sessionStorage.getItem('_loginBlockedUntil') || '0', 10);
 /* Sinaliza que uma tentativa de login está em andamento para que a sonda de conectividade
-   não sobreponha a mensagem de erro sobre um login que pode ainda vir a ter sucesso. */
+   não sobrescreva a mensagem de erro sobre um login que pode ainda vir a ter sucesso. */
 var _loginInProgress = false;
 
 function tentarLogin() {
