@@ -4396,9 +4396,9 @@ function tentarLogin() {
   if (btn) { btn.disabled = true; btn.textContent = '⏳ Entrando...'; }
   _loginInProgress = true;
 
-  /* Limite de 40 s: se o processo de login travar (rede lenta/indisponível),
-     o botão é reativado e o usuário recebe feedback para tentar novamente.
-     Pior caso: 20 s × 3 tentativas + 3 s de delays = 63 s < 70 s. */
+  /* Guarda-tempo de segurança de 70 s: se autenticarComTentativas() travar
+     (rede lenta / projeto indisponível), o botão é reativado com feedback.
+     Pior caso coberto: 20 s × 3 tentativas + (1+2) s de delays = 63 s < 70 s. */
   var loginTimer = setTimeout(function() {
     _loginInProgress = false;
     if (btn && btn.disabled) {
@@ -8547,7 +8547,7 @@ async function validarAcessoPainelHospedah() {
            PostgREST ainda está inicializando. Não faz signOut para preservar
            a sessão e permitir nova tentativa sem re-autenticação completa. */
         if (err) {
-          err.textContent = '❌ Tempo esgotado ao verificar permissões. O serviço pode estar inicializando. Aguarde e tente novamente.';
+          err.textContent = '❌ Tempo esgotado ao verificar permissões. O serviço pode estar inicializando. Aguarde alguns segundos e clique em Entrar para tentar novamente.';
           err.style.display = 'block';
         }
       } else {
