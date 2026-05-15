@@ -1,0 +1,28 @@
+name: Supabase Keep-Alive
+
+# Faz uma requisição leve ao projeto Supabase a cada 4 dias para evitar
+# que o projeto entre em modo de pausa por inatividade (Free Tier pausa
+# projetos que ficam 7 dias sem nenhuma chamada de API).
+
+on:
+  schedule:
+    - cron: '0 8 */4 * *'   # a cada 4 dias, às 08h UTC
+  workflow_dispatch:          # permite disparar manualmente pela aba Actions
+
+jobs:
+  ping:
+    name: Ping Supabase
+    runs-on: ubuntu-latest
+    steps:
+      - name: Requisição keep-alive
+        run: |
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+            -H "apikey: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlkcm1qb3Bwanh0bW53dHZ0aW5iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYyNzA3MzksImV4cCI6MjA5MTg0NjczOX0.Gp4ed332v62sC5e5GXXbPqOIBNpS4EzMCFawnBJE_Cw" \
+            "https://ydrmjoppjxtmnwtvtinb.supabase.co/auth/v1/settings")
+          echo "HTTP status: $STATUS"
+          if [ "$STATUS" -ge 200 ] && [ "$STATUS" -lt 300 ]; then
+            echo "Supabase respondeu OK — projeto ativo."
+          else
+            echo "Atenção: Supabase retornou status $STATUS"
+            exit 1
+          fi
