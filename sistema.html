@@ -4322,36 +4322,35 @@ function _esperarAutenticacao(ms) {
 }
 
 function autenticarComRetry(email, senha) {
-  var RETRY_DELAY_MS = [1000, 2000];
-  var MAX_AUTH_ATTEMPTS = RETRY_DELAY_MS.length + 1;
+  var RETRY_DELAYS_MS = [1000, 2000];
 
-  function tentarNovamente(atual) {
-    return _esperarAutenticacao(RETRY_DELAY_MS[atual - 1]).then(function() {
-      return tentar(atual + 1);
+  function tentarNovamente(indiceTentativa) {
+    return _esperarAutenticacao(RETRY_DELAYS_MS[indiceTentativa]).then(function() {
+      return tentar(indiceTentativa + 1);
     });
   }
 
-  function deveTentarNovamente(error, atual) {
-    return atual < MAX_AUTH_ATTEMPTS && _isErroRedeAutenticacao(error);
+  function deveTentarNovamente(error, indiceTentativa) {
+    return indiceTentativa < RETRY_DELAYS_MS.length && _isErroRedeAutenticacao(error);
   }
 
-  function tentar(atual) {
+  function tentar(indiceTentativa) {
     return _supabase.auth.signInWithPassword({ email: email, password: senha })
       .then(function(result) {
-        if (result.error && deveTentarNovamente(result.error, atual)) {
-          return tentarNovamente(atual);
+        if (result.error && deveTentarNovamente(result.error, indiceTentativa)) {
+          return tentarNovamente(indiceTentativa);
         }
         return result;
       })
       .catch(function(error) {
-        if (deveTentarNovamente(error, atual)) {
-          return tentarNovamente(atual);
+        if (deveTentarNovamente(error, indiceTentativa)) {
+          return tentarNovamente(indiceTentativa);
         }
         throw error;
       });
   }
 
-  return tentar(1);
+  return tentar(0);
 }
 
 function tentarLogin() {
