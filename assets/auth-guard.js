@@ -5,8 +5,8 @@
    --------------------------------------------------------------------------
    - Rotas públicas explícitas não exigem login.
    - Somente páginas administrativas/privadas devem chamar enforceProtectedRoute().
-   - O acesso ADM público ocorre apenas pelo atalho secreto (7 cliques no logo),
-     que leva para sistema.html (rota protegida).
+   - O acesso ADM público ocorre via painel.html ("⚙️ Abrir painel completo") ou
+     pela URL direta: seusite.com/sistema.html (rota protegida).
    - Se não houver sessão válida em rota protegida, redireciona para o login ADM.
    - Suporta validação opcional de role (ex.: admin/proprietario).
    ========================================================================== */

@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>HOSPEDAH-SISTEMA | Gestão Financeira</title>
 <meta name="robots" content="noindex, nofollow">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://ydrmjoppjxtmnwtvtinb.supabase.co; img-src 'self' data:; object-src 'none'; base-uri 'self';">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://ydrmjoppjxtmnwtvtinb.supabase.co wss://ydrmjoppjxtmnwtvtinb.supabase.co; img-src 'self' data:; object-src 'none'; base-uri 'self';">
 <link rel="manifest" href="/manifest.json">
 <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png" sizes="180x180">
 <link rel="icon" type="image/svg+xml" href="/assets/logo-favicon.svg" sizes="any">
@@ -4322,10 +4322,10 @@ function _esperarAutenticacao(ms) {
 function autenticarComTentativas(email, senha) {
   var MAX_AUTH_RETRIES = 2;
   var ATRASO_RETRY_BASE_MS = 1000;
-  /* Tempo máximo por tentativa: 12 s × 3 tentativas + 3 s de delays = 39 s,
-     dentro do limite de 40 s do loginTimer e suficiente para absorver
-     cold-start de projetos no plano gratuito do Supabase. */
-  var PER_ATTEMPT_TIMEOUT_MS = 12000;
+  /* Tempo máximo por tentativa: 20 s × 3 tentativas + 3 s de delays = 63 s,
+     dentro do limite de 70 s do loginTimer e suficiente para absorver
+     cold-start de projetos no plano gratuito do Supabase (até ~60 s). */
+  var PER_ATTEMPT_TIMEOUT_MS = 20000;
 
   function _signInComTimeout() {
     var timeoutId;
@@ -4398,7 +4398,7 @@ function tentarLogin() {
 
   /* Limite de 40 s: se o processo de login travar (rede lenta/indisponível),
      o botão é reativado e o usuário recebe feedback para tentar novamente.
-     Pior caso: 12 s × 3 tentativas + 3 s de delays = 39 s < 40 s. */
+     Pior caso: 20 s × 3 tentativas + 3 s de delays = 63 s < 70 s. */
   var loginTimer = setTimeout(function() {
     _loginInProgress = false;
     if (btn && btn.disabled) {
@@ -4407,7 +4407,7 @@ function tentarLogin() {
       err.textContent = '❌ Tempo esgotado. Verifique sua conexão com a internet e tente novamente.';
       err.style.display = 'block';
     }
-  }, 40000);
+  }, 70000);
 
   autenticarComTentativas(email, senha)
     .then(function(result) {
@@ -8527,7 +8527,7 @@ async function validarAcessoPainelHospedah() {
        que o overlay fique preso sem feedback quando o PostgREST ainda está em
        cold-start após a autenticação bem-sucedida, impedindo o usuário de tentar
        novamente (botão permanece desabilitado indefinidamente). */
-    var ROLE_QUERY_TIMEOUT_MS = 10000;
+    var ROLE_QUERY_TIMEOUT_MS = 20000;
     var roleQueryTimeoutId;
     var roleTimeoutPromise = new Promise(function(resolve) {
       roleQueryTimeoutId = setTimeout(function() {
@@ -8541,13 +8541,23 @@ async function validarAcessoPainelHospedah() {
 
     if (roleRes.error) {
       console.warn('Erro ao verificar perfil de acesso:', roleRes.error);
-      await _supabase.auth.signOut();
       var err = document.getElementById('lockError');
-      if (err) {
-        err.textContent = _isErroRedeAutenticacao(roleRes.error)
-          ? '❌ Tempo esgotado ao verificar permissões. O serviço pode estar inicializando. Tente novamente.'
-          : '❌ Erro ao verificar permissões de acesso. Execute a migração SQL no Supabase e tente novamente.';
-        err.style.display = 'block';
+      if (_isErroRedeAutenticacao(roleRes.error)) {
+        /* Erro de rede / cold-start: a sessão do usuário é válida, apenas o
+           PostgREST ainda está inicializando. Não faz signOut para preservar
+           a sessão e permitir nova tentativa sem re-autenticação completa. */
+        if (err) {
+          err.textContent = '❌ Tempo esgotado ao verificar permissões. O serviço pode estar inicializando. Aguarde e tente novamente.';
+          err.style.display = 'block';
+        }
+      } else {
+        /* Erro de configuração (tabela ausente, etc.): faz signOut pois o
+           problema não é transitório e o perfil pode estar inconsistente. */
+        await _supabase.auth.signOut();
+        if (err) {
+          err.textContent = '❌ Erro ao verificar permissões de acesso. Execute a migração SQL no Supabase e tente novamente.';
+          err.style.display = 'block';
+        }
       }
       document.getElementById('lockOverlay').classList.add('show');
       mostrarViewLogin();
