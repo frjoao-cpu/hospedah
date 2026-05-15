@@ -4324,10 +4324,10 @@ function _esperarAutenticacao(ms) {
 function autenticarComTentativas(email, senha) {
   var MAX_AUTH_RETRIES = 2;
   var ATRASO_RETRY_BASE_MS = 1000;
-  /* Tempo máximo por tentativa: 8 s × 3 tentativas + 3 s de delays = 27 s,
-     dentro do limite de 30 s do loginTimer e suficiente para absorver
+  /* Tempo máximo por tentativa: 12 s × 3 tentativas + 3 s de delays = 39 s,
+     dentro do limite de 40 s do loginTimer e suficiente para absorver
      cold-start de projetos no plano gratuito do Supabase. */
-  var PER_ATTEMPT_TIMEOUT_MS = 8000;
+  var PER_ATTEMPT_TIMEOUT_MS = 12000;
 
   function _signInComTimeout() {
     var timeoutId;
@@ -4398,8 +4398,9 @@ function tentarLogin() {
   if (btn) { btn.disabled = true; btn.textContent = '⏳ Entrando...'; }
   _loginInProgress = true;
 
-  /* Limite de 30 s: se o processo de login travar (rede lenta/indisponível),
-     o botão é reativado e o usuário recebe feedback para tentar novamente. */
+  /* Limite de 40 s: se o processo de login travar (rede lenta/indisponível),
+     o botão é reativado e o usuário recebe feedback para tentar novamente.
+     Pior caso: 12 s × 3 tentativas + 3 s de delays = 39 s < 40 s. */
   var loginTimer = setTimeout(function() {
     _loginInProgress = false;
     if (btn && btn.disabled) {
@@ -4408,7 +4409,7 @@ function tentarLogin() {
       err.textContent = '❌ Tempo esgotado. Verifique sua conexão com a internet e tente novamente.';
       err.style.display = 'block';
     }
-  }, 30000);
+  }, 40000);
 
   autenticarComTentativas(email, senha)
     .then(function(result) {
@@ -8524,14 +8525,30 @@ async function validarAcessoPainelHospedah() {
       return false;
     }
 
-    var roleRes = await _supabase.from('profiles').select('role').eq('id', uid).maybeSingle();
+    /* Envolve a consulta de permissões em um Promise.race com timeout para evitar
+       que o overlay fique preso sem feedback quando o PostgREST ainda está em
+       cold-start após a autenticação bem-sucedida, impedindo o usuário de tentar
+       novamente (botão permanece desabilitado indefinidamente). */
+    var ROLE_QUERY_TIMEOUT_MS = 10000;
+    var roleQueryTimeoutId;
+    var roleTimeoutPromise = new Promise(function(resolve) {
+      roleQueryTimeoutId = setTimeout(function() {
+        resolve({ data: null, error: new Error('etimedout: consulta de permissões expirou após ' + ROLE_QUERY_TIMEOUT_MS + ' ms') });
+      }, ROLE_QUERY_TIMEOUT_MS);
+    });
+    var roleQueryPromise = _supabase.from('profiles').select('role').eq('id', uid).maybeSingle()
+      .then(function(r) { clearTimeout(roleQueryTimeoutId); return r; })
+      .catch(function(e) { clearTimeout(roleQueryTimeoutId); throw e; });
+    var roleRes = await Promise.race([roleQueryPromise, roleTimeoutPromise]);
 
     if (roleRes.error) {
       console.warn('Erro ao verificar perfil de acesso:', roleRes.error);
       await _supabase.auth.signOut();
       var err = document.getElementById('lockError');
       if (err) {
-        err.textContent = '❌ Erro ao verificar permissões de acesso. Execute a migração SQL no Supabase e tente novamente.';
+        err.textContent = _isErroRedeAutenticacao(roleRes.error)
+          ? '❌ Tempo esgotado ao verificar permissões. O serviço pode estar inicializando. Tente novamente.'
+          : '❌ Erro ao verificar permissões de acesso. Execute a migração SQL no Supabase e tente novamente.';
         err.style.display = 'block';
       }
       document.getElementById('lockOverlay').classList.add('show');
