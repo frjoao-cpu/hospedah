@@ -66,55 +66,9 @@ body {
     radial-gradient(ellipse 700px 500px at 90% 85%, rgba(20,40,90,0.5) 0%, transparent 65%);
 }
 
-/* ── HEADER ─────────────────────────────────────────────── */
+/* ── HEADER — herda de navbar-shared.css ─────────────────── */
 .header {
-  background: linear-gradient(135deg, #07111f 0%, #0d1e38 100%);
-  border-bottom: 1px solid rgba(212,175,55,0.3);
-  padding: 14px 28px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  flex-wrap: wrap;
-  position: sticky;
-  top: 0;
   z-index: 200;
-  box-shadow: 0 2px 30px rgba(0,0,0,0.6), 0 1px 0 rgba(212,175,55,0.08);
-}
-
-.logo {
-  display: inline-flex;
-  align-items: center;
-  color: var(--dourado);
-  font-weight: 700;
-  font-size: 1.22em;
-  text-decoration: none;
-  letter-spacing: 2px;
-  text-shadow: 0 0 20px rgba(212,175,55,0.3);
-}
-
-.logo img {
-  height: 68px;
-  width: auto;
-}
-
-.nav-links { display: flex; gap: 8px; flex-wrap: wrap; }
-
-.nav-links a {
-  color: var(--cor-sub);
-  text-decoration: none;
-  padding: 5px 13px;
-  border-radius: 20px;
-  font-size: 0.82em;
-  border: 1px solid rgba(212,175,55,0.12);
-  transition: all 0.22s;
-}
-
-.nav-links a:hover, .nav-links a.active {
-  background: var(--dourado);
-  color: var(--azul);
-  border-color: var(--dourado);
-  box-shadow: 0 0 14px rgba(212,175,55,0.25);
 }
 
 /* ── HERO ────────────────────────────────────────────────── */

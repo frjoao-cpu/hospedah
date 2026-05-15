@@ -17,6 +17,7 @@
 <link rel="preload" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
 <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap"></noscript>
 <link rel="stylesheet" href="/assets/mobile-first.css">
+<link rel="stylesheet" href="/assets/navbar-shared.css">
 <style>
 :root {
   --dourado: #D4AF37;
@@ -41,54 +42,6 @@ body {
   background: var(--bg);
   color: var(--cor-texto);
   min-height: 100vh;
-}
-
-/* HEADER */
-.header {
-  background: linear-gradient(135deg, var(--azul), var(--azul2));
-  border-bottom: 2px solid var(--dourado);
-  padding: 16px 24px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  flex-wrap: wrap;
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  box-shadow: var(--sombra);
-}
-
-.logo {
-  display: inline-flex;
-  align-items: center;
-  color: var(--dourado);
-  font-weight: 700;
-  font-size: 1.2em;
-  text-decoration: none;
-}
-.logo img { height: 120px; width: auto; }
-
-.nav-links {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-
-.nav-links a {
-  color: var(--cor-sub);
-  text-decoration: none;
-  padding: 6px 14px;
-  border-radius: 20px;
-  font-size: 0.85em;
-  border: 1px solid var(--borda);
-  transition: all 0.2s;
-}
-
-.nav-links a:hover, .nav-links a.active {
-  background: var(--dourado);
-  color: var(--azul);
-  border-color: var(--dourado);
 }
 
 /* SKIP LINK */
@@ -446,7 +399,7 @@ body {
 <a class="skip-link" href="#avaliacoes-main">Ir para o conteúdo principal</a>
 
 <header class="header">
-  <a href="index.html" class="logo" aria-label="HOSPEDAH início"><img src="https://i.imgur.com/fVKGOSt.png" alt="HOSPEDAH" width="600" height="120"></a>
+  <a href="index.html" class="logo" aria-label="HOSPEDAH início"><span class="logo-wordmark">HOSPEDAH</span></a>
   <nav class="nav-links">
     <a href="index.html">🏠 Início</a>
     <a href="busca.html">🔍 Buscar</a>

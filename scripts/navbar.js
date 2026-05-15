@@ -36,14 +36,15 @@
     '.hsh-footer a { color:var(--dourado,#D4AF37); text-decoration:none; }',
     '.hsh-footer a:hover { text-decoration:underline; }',
     '.hsh-footer-seal { margin-top:10px; font-size:.9em; color:var(--cor-sub,#aab4c4); }',
-    '.hsh-header { display:flex; align-items:center; justify-content:space-between; padding:0 24px; height:56px; background:linear-gradient(135deg,var(--azul,#0B1C3D),var(--azul2,#142850)); border-bottom:1px solid var(--borda,rgba(212,175,55,.15)); position:sticky; top:0; z-index:900; }',
-    '.hsh-logo { display:inline-flex; align-items:center; text-decoration:none; }',
-    '.hsh-logo img { display:block; height:60px; width:auto; }',
-    '.hsh-nav { display:flex; gap:4px; align-items:center; }',
-    '.hsh-nav a { color:var(--cor-texto,#e8eaf0); text-decoration:none; padding:6px 10px; border-radius:7px; font-size:.82em; font-weight:500; transition:background .2s,color .2s; white-space:nowrap; }',
-    '.hsh-nav a:hover { background:rgba(212,175,55,.12); color:var(--dourado,#D4AF37); }',
-    '.hsh-nav a.active { background:rgba(212,175,55,.18); color:var(--dourado,#D4AF37); font-weight:700; }',
-    '@media(max-width:680px){ .hsh-nav { display:none; } }',
+    '.hsh-header { display:flex; align-items:center; justify-content:space-between; padding:0 28px; min-height:72px; background:linear-gradient(135deg,#0B1C3D,#142850); border-bottom:2px solid rgba(212,175,55,.45); position:sticky; top:0; z-index:1000; backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px); box-shadow:0 2px 24px rgba(0,0,0,.45); gap:16px; flex-wrap:wrap; }',
+    '.hsh-logo { display:inline-flex; align-items:center; text-decoration:none; flex-shrink:0; }',
+    '.hsh-logo-wordmark { font-family:"Playfair Display","Georgia",serif; font-size:1.75em; font-weight:700; letter-spacing:4px; text-transform:uppercase; background:linear-gradient(135deg,#F5D060 0%,#D4AF37 45%,#b8961e 100%); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; filter:drop-shadow(0 1px 6px rgba(212,175,55,.4)); line-height:1; user-select:none; }',
+    '.hsh-nav { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }',
+    '.hsh-nav a { color:rgba(232,234,240,.85); text-decoration:none; padding:6px 14px; border-radius:20px; font-size:.84em; font-weight:500; border:1px solid rgba(212,175,55,.18); transition:background .2s,color .2s,border-color .2s,box-shadow .2s; white-space:nowrap; }',
+    '.hsh-nav a:hover { background:rgba(212,175,55,.15); color:#D4AF37; border-color:rgba(212,175,55,.45); box-shadow:0 0 12px rgba(212,175,55,.15); }',
+    '.hsh-nav a.active { background:rgba(212,175,55,.18); color:#D4AF37; border-color:rgba(212,175,55,.5); font-weight:700; }',
+    '.hsh-nav a[aria-current="page"] { background:rgba(212,175,55,.18); color:#D4AF37; border-color:rgba(212,175,55,.5); font-weight:700; }',
+    '@media(max-width:680px){ .hsh-nav { display:none; } .hsh-header { padding:0 16px; min-height:64px; } .hsh-logo-wordmark { font-size:1.4em; letter-spacing:3px; } }',
   ].join('\n');
 
   function currentPage() {
@@ -66,7 +67,7 @@
       return '<a href="' + item.href + '"' + cls + '>' + item.label + '</a>';
     }).join('');
     return '<header class="hsh-header">' +
-      '<a href="/index.html" class="hsh-logo" aria-label="HOSPEDAH in&iacute;cio"><img src="/assets/logo-navbar.svg" alt="HOSPEDAH" width="220" height="44"></a>' +
+      '<a href="/index.html" class="hsh-logo" aria-label="HOSPEDAH in&iacute;cio"><span class="hsh-logo-wordmark">HOSPEDAH</span></a>' +
       '<nav class="hsh-nav" aria-label="Menu principal">' + links + '</nav>' +
       '</header>';
   }
