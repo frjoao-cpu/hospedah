@@ -1,0 +1,117 @@
+/* ============================================================
+   HOSPEDAH — Navbar Shared — padrão unificado em todas as páginas
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&display=swap');
+
+/* ── HEADER PADRÃO ── */
+.header,
+.hsh-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 28px;
+  min-height: 72px;
+  background: linear-gradient(135deg, #0B1C3D 0%, #142850 100%);
+  border-bottom: 2px solid rgba(212,175,55,0.45);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 2px 24px rgba(0,0,0,0.45), 0 1px 0 rgba(212,175,55,0.1) inset;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+/* ── LETREIRO DOURADO HOSPEDAH ── */
+.logo,
+.hsh-logo,
+.logo-txt {
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+  flex-shrink: 0;
+}
+
+.logo-wordmark,
+.hsh-logo-wordmark {
+  font-family: 'Playfair Display', 'Georgia', serif;
+  font-size: 1.75em;
+  font-weight: 700;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  background: linear-gradient(135deg, #F5D060 0%, #D4AF37 45%, #b8961e 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter: drop-shadow(0 1px 6px rgba(212,175,55,0.4));
+  line-height: 1;
+  user-select: none;
+}
+
+/* Esconde imgs de logo antigas (caso ainda existam no HTML) */
+.logo img,
+.hsh-logo img,
+.logo-txt img {
+  display: none !important;
+}
+
+/* ── NAV-LINKS PADRÃO ── */
+.nav-links,
+.hsh-nav {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.nav-links a,
+.hsh-nav a {
+  color: rgba(232,234,240,0.85);
+  text-decoration: none;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 0.84em;
+  font-weight: 500;
+  border: 1px solid rgba(212,175,55,0.18);
+  transition: background 0.2s, color 0.2s, border-color 0.2s, box-shadow 0.2s;
+  white-space: nowrap;
+}
+
+.nav-links a:hover,
+.nav-links a.active,
+.hsh-nav a:hover,
+.hsh-nav a.active {
+  background: rgba(212,175,55,0.15);
+  color: #D4AF37;
+  border-color: rgba(212,175,55,0.45);
+  box-shadow: 0 0 12px rgba(212,175,55,0.15);
+}
+
+.nav-links a[aria-current="page"],
+.hsh-nav a[aria-current="page"] {
+  background: rgba(212,175,55,0.18);
+  color: #D4AF37;
+  border-color: rgba(212,175,55,0.5);
+  font-weight: 700;
+}
+
+@media (max-width: 680px) {
+  .nav-links,
+  .hsh-nav {
+    display: none;
+  }
+
+  .header,
+  .hsh-header {
+    padding: 0 16px;
+    min-height: 64px;
+  }
+
+  .logo-wordmark,
+  .hsh-logo-wordmark {
+    font-size: 1.4em;
+    letter-spacing: 3px;
+  }
+}

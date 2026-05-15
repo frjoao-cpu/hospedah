@@ -12,56 +12,9 @@ body {
   min-height: 100vh;
 }
 
-/* HEADER */
+/* HEADER — herda de navbar-shared.css */
 .header {
-  background: linear-gradient(135deg, var(--azul), var(--azul2));
-  border-bottom: 2px solid var(--dourado);
-  padding: 16px 24px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  flex-wrap: wrap;
-  position: sticky;
-  top: 0;
   z-index: 1000;
-  box-shadow: var(--sombra);
-}
-
-.logo {
-  display: inline-flex;
-  align-items: center;
-  color: var(--dourado);
-  font-weight: 700;
-  font-size: 1.2em;
-  text-decoration: none;
-}
-
-.logo img {
-  height: 68px;
-  width: auto;
-}
-
-.nav-links {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-
-.nav-links a {
-  color: var(--cor-sub);
-  text-decoration: none;
-  padding: 6px 14px;
-  border-radius: 20px;
-  font-size: 0.85em;
-  border: 1px solid var(--borda);
-  transition: all 0.2s;
-}
-
-.nav-links a:hover, .nav-links a.active {
-  background: var(--dourado);
-  color: var(--azul);
-  border-color: var(--dourado);
 }
 
 /* FILTROS BARRA */
