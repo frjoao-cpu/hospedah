@@ -4119,9 +4119,10 @@ var _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 
 var PROBE_TIMEOUT_MS = 10000; // 10 s para acomodar cold-start de projetos no plano gratuito
 
-/* Sonda de conectividade não-bloqueante: registra diagnóstico sem bloquear o
-   formulário. O usuário só recebe erro de autenticação após uma tentativa real
-   de login, evitando falso alerta por DNS/preflight/transiente do navegador. */
+/* Sonda de conectividade não-bloqueante: se o Supabase estiver completamente
+   inacessível (projeto pausado/excluído), exibe aviso visível ao administrador
+   antes mesmo de ele tentar o login, evitando esperar 63 s para descobrir.
+   AbortError (sonda lenta, possível cold-start) é tratado separadamente. */
 (function probeSupabaseConnectivity() {
   var ctrl = typeof AbortController !== 'undefined' ? new AbortController() : null;
   var timer = ctrl ? setTimeout(function () { ctrl.abort(); }, PROBE_TIMEOUT_MS) : null;
@@ -4135,7 +4136,19 @@ var PROBE_TIMEOUT_MS = 10000; // 10 s para acomodar cold-start de projetos no pl
     function (probeError) {
       if (timer) { clearTimeout(timer); }
       if (_loginInProgress) { return; }
-      console.warn('Diagnóstico informativo: sonda de autenticação Supabase falhou, mas o usuário pode tentar login normalmente:', probeError);
+      var isAborted = probeError && probeError.name === 'AbortError';
+      if (isAborted) {
+        /* Sonda lenta: pode ser cold-start do plano gratuito. Apenas loga. */
+        console.warn('Diagnóstico informativo: sonda Supabase lenta (possível cold-start). O login ainda pode funcionar.');
+      } else {
+        /* Falha imediata de rede: projeto provavelmente pausado ou URL incorreta. */
+        console.warn('Diagnóstico: Supabase inacessível — verifique o projeto em https://supabase.com/dashboard:', probeError);
+        var errEl = document.getElementById('lockError');
+        if (errEl && !errEl.textContent.trim()) {
+          errEl.textContent = '⚠️ Não foi possível conectar ao serviço de autenticação. Verifique se o projeto Supabase está ativo em supabase.com/dashboard.';
+          errEl.style.display = 'block';
+        }
+      }
     }
   );
 }());
@@ -4404,7 +4417,7 @@ function tentarLogin() {
     if (btn && btn.disabled) {
       btn.disabled = false;
       btn.textContent = '🔓 Entrar';
-      err.textContent = '❌ Tempo esgotado. Verifique sua conexão com a internet e tente novamente.';
+      err.textContent = '❌ Tempo esgotado. Verifique sua conexão e se o projeto Supabase está ativo em supabase.com/dashboard, depois tente novamente.';
       err.style.display = 'block';
     }
   }, 70000);
@@ -4421,7 +4434,7 @@ function tentarLogin() {
            o usuário não errou as credenciais, apenas o serviço está inacessível. */
         if (_isErroRedeAutenticacao(result.error)) {
           console.warn('Erro de rede ao autenticar com Supabase — verifique se o projeto está ativo em https://supabase.com/dashboard:', result.error);
-          err.textContent = '❌ Serviço de autenticação temporariamente indisponível. Tente novamente em alguns instantes.';
+          err.textContent = '❌ Serviço de autenticação indisponível. Acesse supabase.com/dashboard e verifique se o projeto está ativo, depois tente novamente.';
           err.style.display = 'block';
           document.getElementById('lockInput').value = '';
           document.getElementById('lockInput').focus();
