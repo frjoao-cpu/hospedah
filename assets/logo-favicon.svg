@@ -1,21 +1,38 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" preserveAspectRatio="xMidYMid meet" role="img" aria-label="HOSPEDAH favicon">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 148 36" preserveAspectRatio="xMidYMid meet" role="img" aria-label="HOSPEDAH favicon">
   <defs>
-    <linearGradient id="bgGrad" x1="0" y1="0" x2="0" y2="1">
+    <linearGradient id="bgFav" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0%" stop-color="#1a2f5e"/>
       <stop offset="100%" stop-color="#0B1C3D"/>
     </linearGradient>
-    <linearGradient id="hGold" x1="0" y1="0" x2="0" y2="1">
+    <linearGradient id="goldFav" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0%" stop-color="#F5E27A"/>
-      <stop offset="45%" stop-color="#D4AF37"/>
-      <stop offset="100%" stop-color="#B8911F"/>
+      <stop offset="40%" stop-color="#D4AF37"/>
+      <stop offset="60%" stop-color="#8B6914"/>
+      <stop offset="80%" stop-color="#D4AF37"/>
+      <stop offset="100%" stop-color="#F5E27A"/>
     </linearGradient>
+    <filter id="favGlow" x="-8%" y="-25%" width="116%" height="150%">
+      <feDropShadow dx="0" dy="1" stdDeviation="1.2" flood-color="#D4AF37" flood-opacity="0.45"/>
+    </filter>
   </defs>
-  <!-- Background rounded square -->
-  <rect width="32" height="32" rx="6" ry="6" fill="url(#bgGrad)"/>
-  <!-- Gold border -->
-  <rect width="32" height="32" rx="6" ry="6" fill="none" stroke="#D4AF37" stroke-width="1.5"/>
-  <!-- Bold H letter enlarged to fill the canvas -->
-  <rect x="1"  y="1" width="9" height="30" rx="1.5" fill="url(#hGold)"/>
-  <rect x="22" y="1" width="9" height="30" rx="1.5" fill="url(#hGold)"/>
-  <rect x="1"  y="12" width="30" height="8" rx="1.5" fill="url(#hGold)"/>
+  <!-- Background -->
+  <rect width="148" height="36" rx="5" ry="5" fill="url(#bgFav)"/>
+  <!-- Outer gold border -->
+  <rect width="148" height="36" rx="5" ry="5" fill="none" stroke="#D4AF37" stroke-width="1.5"/>
+  <!-- Inner accent border -->
+  <rect x="2.5" y="2.5" width="143" height="31" rx="3.5" ry="3.5" fill="none" stroke="#D4AF37" stroke-width="0.5" opacity="0.3"/>
+  <!-- Decorative gold rule lines (matching main logo ornament style) -->
+  <line x1="6" y1="6" x2="142" y2="6" stroke="#D4AF37" stroke-width="0.5" opacity="0.4"/>
+  <line x1="6" y1="30" x2="142" y2="30" stroke="#D4AF37" stroke-width="0.5" opacity="0.4"/>
+  <!-- HOSPEDAH text — Georgia serif bold, vertical gold gradient, matching main logo -->
+  <text
+    x="74"
+    y="25"
+    font-family="Georgia, 'Times New Roman', serif"
+    font-weight="700"
+    font-size="19"
+    letter-spacing="3"
+    text-anchor="middle"
+    fill="url(#goldFav)"
+    filter="url(#favGlow)">HOSPEDAH</text>
 </svg>
