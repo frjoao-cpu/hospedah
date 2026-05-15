@@ -4097,7 +4097,7 @@ thead .col-sticky-right {
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-<script src="assets/supabase-config.js" onerror="console.warn('Configuração Supabase centralizada indisponível: usando fallback local.');"></script>
+<script src="assets/supabase-config.js" onerror="console.warn('Configuração Supabase centralizada não carregada, usando valores padrão (esperado em cache/ambientes antigos).');"></script>
 <script src="assets/auth-guard.js"></script>
 <script>
 'use strict';
@@ -4139,7 +4139,7 @@ var PROBE_TIMEOUT_MS = 10000; // 10 s para acomodar cold-start de projetos no pl
     function (probeError) {
       if (timer) { clearTimeout(timer); }
       if (_loginInProgress) { return; }
-      console.warn('Sonda de autenticação Supabase falhou, login manual continuará disponível:', probeError);
+      console.warn('Sonda de autenticação Supabase falhou, mas isso não bloqueia tentativas reais de login:', probeError);
     }
   );
 }());
