@@ -4366,19 +4366,18 @@ function tentarLogin() {
         document.getElementById('lockInput').focus();
         setTimeout(function() { err.style.display = 'none'; }, 8000);
       } else {
+        clearTimeout(loginTimer);
         _loginAttempts = 0;
         sessionStorage.removeItem('_loginAttempts');
         sessionStorage.removeItem('_loginBlockedUntil');
-        /* O overlay é ocultado apenas após validarAcessoPainelHospedah() confirmar permissão.
-           O timer é cancelado ao resolver (sucesso ou erro) via finally. */
+        /* O overlay é ocultado apenas após validarAcessoPainelHospedah() confirmar permissão. */
         inicializarSistema()
           .catch(function(e) {
             console.warn('Erro ao inicializar sistema:', e);
             if (btn) { btn.disabled = false; btn.textContent = '🔓 Entrar'; }
             err.textContent = '❌ Erro ao inicializar o sistema. Tente novamente.';
             err.style.display = 'block';
-          })
-          .finally(function() { clearTimeout(loginTimer); });
+          });
       }
     })
     .catch(function(e) {
