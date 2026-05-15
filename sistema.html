@@ -4121,10 +4121,12 @@ var SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
 var _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 
 /* Sonda de conectividade não-bloqueante: avisa imediatamente se o Supabase
-   está inacessível, sem travar o carregamento do formulário de login. */
+   está inacessível, sem travar o carregamento do formulário de login.
+   O timeout é de 10 s para acomodar o cold-start de projetos no plano gratuito.
+   A sonda não exibe a mensagem se um login já está em andamento (_loginInProgress). */
 (function probeSupabaseConnectivity() {
   var ctrl = typeof AbortController !== 'undefined' ? new AbortController() : null;
-  var timer = ctrl ? setTimeout(function () { ctrl.abort(); }, 5000) : null;
+  var timer = ctrl ? setTimeout(function () { ctrl.abort(); }, 10000) : null;
   fetch(SUPABASE_URL + '/auth/v1/settings', {
     method: 'GET',
     headers: { 'apikey': SUPABASE_ANON },
@@ -4134,6 +4136,7 @@ var _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
     function () { if (timer) { clearTimeout(timer); } },
     function () {
       if (timer) { clearTimeout(timer); }
+      if (_loginInProgress) { return; }
       console.warn('Supabase inacessível — verifique o status do projeto em https://supabase.com/dashboard');
       var msgEl = document.getElementById('lockError');
       if (msgEl && msgEl.style.display === 'none') {
@@ -4296,6 +4299,9 @@ var MAX_LOGIN_ATTEMPTS = 5;
 var LOGIN_BLOCK_MS = 60000; // 60 segundos
 var _loginAttempts = parseInt(sessionStorage.getItem('_loginAttempts') || '0', 10);
 var _loginBlockedUntil = parseInt(sessionStorage.getItem('_loginBlockedUntil') || '0', 10);
+/* Sinaliza que uma tentativa de login está em andamento para que a sonda de conectividade
+   não sobreponha a mensagem de erro sobre um login que pode ainda vir a ter sucesso. */
+var _loginInProgress = false;
 
 function tentarLogin() {
   var now  = Date.now();
@@ -4320,10 +4326,12 @@ function tentarLogin() {
 
   var btn = document.querySelector('#lockViewLogin .btn-primary');
   if (btn) { btn.disabled = true; btn.textContent = '⏳ Entrando...'; }
+  _loginInProgress = true;
 
   /* Limite de 30 s: se o processo de login travar (rede lenta/indisponível),
      o botão é reativado e o usuário recebe feedback para tentar novamente. */
   var loginTimer = setTimeout(function() {
+    _loginInProgress = false;
     if (btn && btn.disabled) {
       btn.disabled = false;
       btn.textContent = '🔓 Entrar';
@@ -4334,6 +4342,7 @@ function tentarLogin() {
 
   _supabase.auth.signInWithPassword({ email: email, password: senha })
     .then(function(result) {
+      _loginInProgress = false;
       if (result.error) {
         clearTimeout(loginTimer);
         if (btn) { btn.disabled = false; btn.textContent = '🔓 Entrar'; }
@@ -4397,6 +4406,7 @@ function tentarLogin() {
       }
     })
     .catch(function(e) {
+      _loginInProgress = false;
       clearTimeout(loginTimer);
       console.warn('Erro ao autenticar com Supabase:', e);
       if (btn) { btn.disabled = false; btn.textContent = '🔓 Entrar'; }
