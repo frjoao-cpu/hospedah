@@ -4097,6 +4097,7 @@ thead .col-sticky-right {
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="assets/supabase-config.js" onerror="console.warn('Configuração Supabase centralizada não carregada, usando valores padrão (esperado em cache ou ambientes antigos).');"></script>
 <script src="assets/auth-guard.js"></script>
 <script>
 'use strict';
@@ -4112,19 +4113,19 @@ var CONFIG = {
 
 /* ==========================================
    SUPABASE AUTH
-   Substitua os valores abaixo pelas credenciais
-   do seu projeto em supabase.com > Project Settings > API
+   Configuração centralizada em assets/supabase-config.js.
+   Mantém fallback local para ambientes antigos com cache do HTML.
 ========================================== */
-var SUPABASE_URL  = 'https://ydrmjoppjxtmnwtvtinb.supabase.co';
-var SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlkcm1qb3Bwanh0bW53dHZ0aW5iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYyNzA3MzksImV4cCI6MjA5MTg0NjczOX0.Gp4ed332v62sC5e5GXXbPqOIBNpS4EzMCFawnBJE_Cw'; // chave pública (anon/public)
+var SUPABASE_URL  = window.HOSPEDAH_SB_URL || 'https://ydrmjoppjxtmnwtvtinb.supabase.co';
+var SUPABASE_ANON = window.HOSPEDAH_SB_ANON || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlkcm1qb3Bwanh0bW53dHZ0aW5iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYyNzA3MzksImV4cCI6MjA5MTg0NjczOX0.Gp4ed332v62sC5e5GXXbPqOIBNpS4EzMCFawnBJE_Cw'; // chave pública (anon/public)
 
 var _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 
 var PROBE_TIMEOUT_MS = 10000; // 10 s para acomodar cold-start de projetos no plano gratuito
 
-/* Sonda de conectividade não-bloqueante: avisa imediatamente se o Supabase
-   está inacessível, sem travar o carregamento do formulário de login.
-   A sonda não exibe a mensagem se um login já está em andamento (_loginInProgress). */
+/* Sonda de conectividade não-bloqueante: registra diagnóstico sem bloquear o
+   formulário. O usuário só recebe erro de autenticação após uma tentativa real
+   de login, evitando falso alerta por DNS/preflight/transiente do navegador. */
 (function probeSupabaseConnectivity() {
   var ctrl = typeof AbortController !== 'undefined' ? new AbortController() : null;
   var timer = ctrl ? setTimeout(function () { ctrl.abort(); }, PROBE_TIMEOUT_MS) : null;
@@ -4135,15 +4136,10 @@ var PROBE_TIMEOUT_MS = 10000; // 10 s para acomodar cold-start de projetos no pl
     signal: ctrl ? ctrl.signal : undefined
   }).then(
     function () { if (timer) { clearTimeout(timer); } },
-    function () {
+    function (probeError) {
       if (timer) { clearTimeout(timer); }
       if (_loginInProgress) { return; }
-      console.warn('Supabase inacessível — verifique o status do projeto em https://supabase.com/dashboard');
-      var msgEl = document.getElementById('lockError');
-      if (msgEl && msgEl.style.display === 'none') {
-        msgEl.textContent = '⚠️ Serviço de autenticação inacessível. Verifique sua conexão ou tente novamente mais tarde.';
-        msgEl.style.display = 'block';
-      }
+      console.warn('Diagnóstico informativo: sonda de autenticação Supabase falhou, mas o usuário pode tentar login normalmente:', probeError);
     }
   );
 }());
