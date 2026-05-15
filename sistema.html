@@ -4323,22 +4323,29 @@ function _esperarAutenticacao(ms) {
 
 function autenticarComRetry(email, senha) {
   var RETRY_DELAY_MS = [1000, 2000];
+  var MAX_AUTH_ATTEMPTS = RETRY_DELAY_MS.length + 1;
+
+  function tentarNovamente(atual) {
+    return _esperarAutenticacao(RETRY_DELAY_MS[atual - 1]).then(function() {
+      return tentar(atual + 1);
+    });
+  }
+
+  function deveTentarNovamente(error, atual) {
+    return atual < MAX_AUTH_ATTEMPTS && _isErroRedeAutenticacao(error);
+  }
 
   function tentar(atual) {
     return _supabase.auth.signInWithPassword({ email: email, password: senha })
       .then(function(result) {
-        if (result.error && _isErroRedeAutenticacao(result.error) && atual < 3) {
-          return _esperarAutenticacao(RETRY_DELAY_MS[atual - 1]).then(function() {
-            return tentar(atual + 1);
-          });
+        if (result.error && deveTentarNovamente(result.error, atual)) {
+          return tentarNovamente(atual);
         }
         return result;
       })
       .catch(function(error) {
-        if (_isErroRedeAutenticacao(error) && atual < 3) {
-          return _esperarAutenticacao(RETRY_DELAY_MS[atual - 1]).then(function() {
-            return tentar(atual + 1);
-          });
+        if (deveTentarNovamente(error, atual)) {
+          return tentarNovamente(atual);
         }
         throw error;
       });
