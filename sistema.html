@@ -4300,6 +4300,60 @@ var _loginBlockedUntil = parseInt(sessionStorage.getItem('_loginBlockedUntil') |
    não sobrescreva a mensagem de erro sobre um login que pode ainda vir a ter sucesso. */
 var _loginInProgress = false;
 
+function _isErroRedeAutenticacao(error) {
+  var msg = '';
+  if (error && error.message) {
+    msg = error.message;
+  } else if (error) {
+    msg = String(error);
+  }
+  msg = msg.toLowerCase();
+  var networkErrorPatterns = [
+    'failed to fetch', 'networkerror', 'network request failed',
+    'fetch error', 'load failed', 'network error', 'net::err',
+    'connection refused', 'could not connect', 'getaddrinfo',
+    'econnrefused', 'enotfound', 'etimedout', 'unable to fetch'
+  ];
+  return networkErrorPatterns.some(function(p) { return msg.indexOf(p) !== -1; });
+}
+
+function _esperarAutenticacao(ms) {
+  return new Promise(function(resolve) { setTimeout(resolve, ms); });
+}
+
+function autenticarComTentativas(email, senha) {
+  var MAX_AUTH_RETRIES = 2;
+  var ATRASO_RETRY_BASE_MS = 1000;
+
+  function tentarNovamente(tentativaAtual) {
+    return _esperarAutenticacao((tentativaAtual + 1) * ATRASO_RETRY_BASE_MS).then(function() {
+      return tentar(tentativaAtual + 1);
+    });
+  }
+
+  function deveTentarNovamente(error, tentativaAtual) {
+    return tentativaAtual < MAX_AUTH_RETRIES && _isErroRedeAutenticacao(error);
+  }
+
+  function tentar(tentativaAtual) {
+    return _supabase.auth.signInWithPassword({ email: email, password: senha })
+      .then(function(result) {
+        if (result.error && deveTentarNovamente(result.error, tentativaAtual)) {
+          return tentarNovamente(tentativaAtual);
+        }
+        return result;
+      })
+      .catch(function(error) {
+        if (deveTentarNovamente(error, tentativaAtual)) {
+          return tentarNovamente(tentativaAtual);
+        }
+        throw error;
+      });
+  }
+
+  return tentar(0);
+}
+
 function tentarLogin() {
   var now  = Date.now();
   var err  = document.getElementById('lockError');
@@ -4337,7 +4391,7 @@ function tentarLogin() {
     }
   }, 30000);
 
-  _supabase.auth.signInWithPassword({ email: email, password: senha })
+  autenticarComTentativas(email, senha)
     .then(function(result) {
       _loginInProgress = false;
       if (result.error) {
@@ -4347,14 +4401,7 @@ function tentarLogin() {
         var msgLow = msg.toLowerCase();
         /* Erros de rede não contam como tentativas incorretas de login —
            o usuário não errou as credenciais, apenas o serviço está inacessível. */
-        var networkErrorPatterns = [
-          'failed to fetch', 'networkerror', 'network request failed',
-          'fetch error', 'load failed', 'network error', 'net::err',
-          'connection refused', 'could not connect', 'getaddrinfo',
-          'econnrefused', 'enotfound', 'etimedout', 'unable to fetch'
-        ];
-        var isNetworkError = networkErrorPatterns.some(function(p) { return msgLow.indexOf(p) !== -1; });
-        if (isNetworkError) {
+        if (_isErroRedeAutenticacao(result.error)) {
           console.warn('Erro de rede ao autenticar com Supabase — verifique se o projeto está ativo em https://supabase.com/dashboard:', result.error);
           err.textContent = '❌ Serviço de autenticação temporariamente indisponível. Tente novamente em alguns instantes.';
           err.style.display = 'block';
