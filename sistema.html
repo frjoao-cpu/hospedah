@@ -4349,7 +4349,7 @@ function tentarLogin() {
         ];
         var isNetworkError = networkErrorPatterns.some(function(p) { return msgLow.indexOf(p) !== -1; });
         if (isNetworkError) {
-          console.warn('Erro de rede ao autenticar com Supabase — verifique se o projeto está ativo em https://supabase.com/dashboard (projeto: ' + SUPABASE_URL + '):', result.error);
+          console.warn('Erro de rede ao autenticar com Supabase — verifique se o projeto está ativo em https://supabase.com/dashboard:', result.error);
           err.textContent = '❌ Serviço de autenticação temporariamente indisponível. Tente novamente em alguns instantes.';
           err.style.display = 'block';
           document.getElementById('lockInput').value = '';
