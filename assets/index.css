@@ -522,13 +522,14 @@ html[data-theme="light"] footer                 { background: #e8e4d8; color: #4
   font-weight: 600; letter-spacing: .4px;
 }
 .insta-top {
-  display: inline-block; padding: 11px 28px;
+  display: inline-flex; align-items: center; gap: 8px; padding: 11px 28px;
   border-radius: 30px;
   background: linear-gradient(45deg,#833AB4,#E1306C,#FCAF45);
   text-decoration: none; color: #fff;
   font-size: 16px; font-weight: 500;
   transition: opacity .15s;
 }
+.insta-top svg { flex-shrink: 0; }
 .insta-top:hover { opacity: .85; }
 .contatos-topo {
   display: flex; gap: 18px;
@@ -553,8 +554,10 @@ html[data-theme="light"] .contato-b p { color: #555; }
   background: var(--wpp); border-radius: 16px;
   color: #fff; text-decoration: none;
   font-size: 14px; font-weight: 600;
+  display: inline-flex; align-items: center; gap: 7px;
   transition: background .15s;
 }
+.contato-b a.btn svg { flex-shrink: 0; }
 .contato-b a.btn:hover { background: #1ebe58; }
 
 /* ==========================================
