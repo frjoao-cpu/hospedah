@@ -71,6 +71,20 @@
       return false;
     }
 
+    // Cache de sessão por 5 minutos no sessionStorage
+    var GUARD_CACHE_MS = 5 * 60 * 1000;
+    var GUARD_CACHE_KEY = 'hospedah_auth_guard';
+    try {
+      var raw = sessionStorage.getItem(GUARD_CACHE_KEY);
+      if (raw) {
+        var entry = JSON.parse(raw);
+        if (entry && (Date.now() - entry.ts) < GUARD_CACHE_MS && entry.result === true &&
+            (!allowedRoles || !allowedRoles.length || allowedRoles.indexOf(entry.role) !== -1)) {
+          return true;
+        }
+      }
+    } catch (e) { /* ignora erro de parse */ }
+
     try {
       var sessionRes = await client.auth.getSession();
       var session = sessionRes && sessionRes.data && sessionRes.data.session;
@@ -81,7 +95,10 @@
         return false;
       }
 
-      if (!allowedRoles || !allowedRoles.length) return true;
+      if (!allowedRoles || !allowedRoles.length) {
+        try { sessionStorage.setItem(GUARD_CACHE_KEY, JSON.stringify({ result: true, role: null, ts: Date.now() })); } catch (e) { /**/ }
+        return true;
+      }
 
       var roleRes = await client.from('profiles').select('role').eq('id', user.id).maybeSingle();
       if (roleRes && roleRes.error) {
@@ -97,6 +114,7 @@
         return false;
       }
 
+      try { sessionStorage.setItem(GUARD_CACHE_KEY, JSON.stringify({ result: true, role: role, ts: Date.now() })); } catch (e) { /**/ }
       return true;
     } catch (err) {
       console.warn('Falha ao validar sessão em rota protegida:', err);

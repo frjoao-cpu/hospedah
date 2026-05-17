@@ -8,6 +8,11 @@
   var client;
   var CRM_FETCH_LIMIT = 100;
   var crmData = [];
+  var leadsCache = null;
+  var leadsCacheTs = 0;
+  var LEADS_CACHE_MS = 2 * 60 * 1000;
+  var POLL_INTERVAL_MS = 60 * 1000;
+  var pollTimer = null;
   var bookingsChart;
   var leadSourceChart;
   var BOOKED_STATUSES = ['booked', 'reservado'];
@@ -130,7 +135,12 @@
     if (el) el.textContent = text;
   }
 
-  async function loadLeads() {
+  async function loadLeads(force) {
+    var now = Date.now();
+    if (!force && leadsCache && (now - leadsCacheTs) < LEADS_CACHE_MS) {
+      return;
+    }
+
     var rows = [];
     try {
       var response = await client.from('leads').select('name,email,phone,source,status,created_at,revenue').order('created_at', { ascending: false }).limit(CRM_FETCH_LIMIT);
@@ -140,29 +150,21 @@
     }
 
     if (!rows.length) {
-      rows = FALLBACK_LEADS;
+      rows = leadsCache || FALLBACK_LEADS;
     }
 
+    leadsCache = rows;
+    leadsCacheTs = Date.now();
     crmData = rows;
     renderCrmTable(rows);
     updateKpis(rows);
     renderCharts(rows);
+    setRealtimeStatus('Atualizado em ' + new Date().toLocaleTimeString('pt-BR'));
   }
 
-  function initRealtime() {
-    try {
-      var channel = client.channel('admin-leads-live');
-      channel
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'leads' }, function () {
-          setRealtimeStatus('Realtime: novo evento recebido em ' + new Date().toLocaleTimeString('pt-BR'));
-          loadLeads();
-        })
-        .subscribe(function (status) {
-          setRealtimeStatus('Realtime: ' + status);
-        });
-    } catch (err) {
-      setRealtimeStatus('Realtime indisponível neste ambiente.');
-    }
+  function startPolling() {
+    if (pollTimer) return;
+    pollTimer = window.setInterval(function () { loadLeads(false); }, POLL_INTERVAL_MS);
   }
 
   async function enforceAdmin() {
@@ -207,8 +209,8 @@
       exportBtn.addEventListener('click', exportCsv);
     }
 
-    await loadLeads();
-    initRealtime();
+    await loadLeads(true);
+    startPolling();
   }
 
   document.addEventListener('DOMContentLoaded', function () {

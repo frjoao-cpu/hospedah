@@ -17,6 +17,10 @@ const WEATHER_CONFIG = {
 const API_KEY  = WEATHER_CONFIG.apiKey;
 const BASE_URL = WEATHER_CONFIG.baseUrl;
 
+// Cache de clima: 30 minutos
+var WEATHER_CACHE_MS = 30 * 60 * 1000;
+var WEATHER_CACHE_KEY = 'hospedah_weather_cache';
+
 const weatherIcons = {
     '01d': '☀️',
     '01n': '🌙',
@@ -97,6 +101,21 @@ function searchWeatherByCity(city) {
 }
 
 function fetchWeather(lat, lon) {
+    /* Arredonda coordenadas a 1 casa decimal (~11 km) para cache sem expor localização exacta */
+    var latR = Math.round(lat * 10) / 10;
+    var lonR = Math.round(lon * 10) / 10;
+    /* Verifica cache antes de chamar a Edge Function */
+    try {
+        var cached = JSON.parse(localStorage.getItem(WEATHER_CACHE_KEY) || 'null');
+        if (cached && cached.latR === latR && cached.lonR === lonR &&
+            (Date.now() - cached.ts) < WEATHER_CACHE_MS) {
+            displayCurrentWeather(cached.current);
+            displayForecast(cached.forecast);
+            displayDetails(cached.current);
+            return;
+        }
+    } catch (e) { /* ignora erro de parse */ }
+
     /* Usa data/2.5/weather (atual) + data/2.5/forecast (previsão 5 dias),
        ambos disponíveis no plano gratuito da OpenWeatherMap.
        O endpoint onecall foi removido do free tier. */
@@ -113,6 +132,12 @@ function fetchWeather(lat, lon) {
             return Promise.all(responses.map(function(r) { return r.json(); }));
         })
         .then(function(results) {
+            try {
+                localStorage.setItem(WEATHER_CACHE_KEY, JSON.stringify({
+                    latR: latR, lonR: lonR, ts: Date.now(),
+                    current: results[0], forecast: results[1].list
+                }));
+            } catch (e) { /* ignora quota de storage */ }
             displayCurrentWeather(results[0]);
             displayForecast(results[1].list);
             displayDetails(results[0]);
