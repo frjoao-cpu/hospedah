@@ -2159,14 +2159,18 @@ html[data-theme="light"] .insta-feed-section {
 .insta-feed-sub {
   text-align: center;
   font-size: .95em;
-  opacity: .8;
-  margin: -16px 0 32px;
+  opacity: .85;
+  margin: -16px 0 36px;
+  line-height: 1.6;
 }
 
 .insta-feed-link {
-  color: var(--dourado);
+  background: linear-gradient(45deg, #833AB4, #E1306C, #FCAF45);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
   text-decoration: none;
-  font-weight: 600;
+  font-weight: 700;
 }
 .insta-feed-link:hover { text-decoration: underline; }
 
@@ -2260,29 +2264,79 @@ html[data-theme="light"] .insta-feed-skeleton {
 
 /* Botão "Ver mais" */
 .btn-insta-feed {
-  display: inline-block;
-  background: transparent;
-  color: var(--dourado);
-  border: 2px solid var(--dourado);
-  padding: 11px 32px;
-  font-size: .9em;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45em;
+  background: linear-gradient(45deg, #833AB4, #E1306C, #FCAF45);
+  color: #fff;
+  border: none;
+  padding: 13px 36px;
+  font-size: .85rem;
   font-weight: 700;
-  letter-spacing: .06em;
+  letter-spacing: .1em;
   text-transform: uppercase;
   text-decoration: none;
-  border-radius: 4px;
-  transition: background .2s, color .2s;
+  border-radius: 30px;
+  transition: opacity .2s, transform .2s, box-shadow .2s;
+  box-shadow: 0 4px 18px rgba(225,48,108,.35);
 }
 .btn-insta-feed:hover {
-  background: var(--dourado);
-  color: #0D0D0D;
+  opacity: .9;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 26px rgba(225,48,108,.5);
+}
+
+/* Ícone SVG no cabeçalho da seção Instagram */
+.insta-svg-icon {
+  width: 1.1em;
+  height: 1.1em;
+  vertical-align: -0.15em;
+  margin-right: 0.35em;
+  flex-shrink: 0;
+}
+
+/* Ícone SVG no botão "Ver mais" */
+.insta-btn-icon {
+  width: 1.1em;
+  height: 1.1em;
+  flex-shrink: 0;
+}
+
+/* CTA wrapper */
+.insta-feed-cta-wrap {
+  text-align: center;
+  margin-top: 32px;
+}
+
+/* Estado vazio do feed */
+.insta-feed-empty {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 48px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.insta-feed-empty-icon {
+  width: 56px;
+  height: 56px;
+  opacity: .75;
 }
 
 /* Mensagem de erro do feed */
 .insta-feed-error {
   grid-column: 1 / -1;
   text-align: center;
-  padding: 32px;
-  opacity: .6;
+  padding: 0;
+  opacity: .7;
   font-size: .92em;
+  margin: 0;
+}
+
+.insta-feed-empty-hint {
+  font-size: .82em;
+  opacity: .5;
+  margin: 0;
 }

@@ -1205,7 +1205,21 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 =========================================== -->
 <section class="insta-feed-section" id="instagram" aria-labelledby="insta-feed-titulo">
   <div class="section-wrap" style="padding-top:0;">
-    <h2 class="section-title" id="insta-feed-titulo">📸 No Instagram</h2>
+    <h2 class="section-title" id="insta-feed-titulo">
+      <svg class="insta-svg-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <defs>
+          <linearGradient id="ig-hdr-grad" x1="0%" y1="100%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#FCAF45"/>
+            <stop offset="50%" stop-color="#E1306C"/>
+            <stop offset="100%" stop-color="#833AB4"/>
+          </linearGradient>
+        </defs>
+        <rect x="2" y="2" width="20" height="20" rx="5" ry="5" stroke="url(#ig-hdr-grad)" stroke-width="2"/>
+        <circle cx="12" cy="12" r="5" stroke="url(#ig-hdr-grad)" stroke-width="2"/>
+        <circle cx="17.5" cy="6.5" r="1.5" fill="url(#ig-hdr-grad)"/>
+      </svg>
+      No Instagram
+    </h2>
     <p class="insta-feed-sub">
       Siga <a href="https://www.instagram.com/julianasilvaoliveira.joao?igsh=bzZmNGIxdjdqc285"
               target="_blank" rel="noopener" class="insta-feed-link">@julianasilvaoliveira.joao</a>
@@ -1220,10 +1234,15 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       <div class="insta-feed-skeleton"></div>
       <div class="insta-feed-skeleton"></div>
     </div>
-    <div style="text-align:center;margin-top:28px;">
+    <div class="insta-feed-cta-wrap">
       <a href="https://www.instagram.com/julianasilvaoliveira.joao?igsh=bzZmNGIxdjdqc285"
          target="_blank" rel="noopener" class="btn-insta-feed">
-        Ver mais no Instagram →
+        <svg class="insta-btn-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <rect x="2" y="2" width="20" height="20" rx="5" ry="5" stroke="currentColor" stroke-width="2"/>
+          <circle cx="12" cy="12" r="5" stroke="currentColor" stroke-width="2"/>
+          <circle cx="17.5" cy="6.5" r="1.5" fill="currentColor"/>
+        </svg>
+        Ver mais no Instagram
       </a>
     </div>
   </div>
@@ -3523,7 +3542,18 @@ function gerarPropostaPDF() {
 
   function renderPosts(posts) {
     if (!posts || posts.length === 0) {
-      grid.innerHTML = '<p class="insta-feed-error">Nenhum post disponível no momento.</p>';
+      grid.innerHTML = '<div class="insta-feed-empty">'
+        + '<svg class="insta-feed-empty-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">'
+        + '<defs><linearGradient id="ig-empty-grad" x1="0%" y1="100%" x2="100%" y2="0%">'
+        + '<stop offset="0%" stop-color="#FCAF45"/><stop offset="50%" stop-color="#E1306C"/><stop offset="100%" stop-color="#833AB4"/>'
+        + '</linearGradient></defs>'
+        + '<rect x="2" y="2" width="20" height="20" rx="5" ry="5" stroke="url(#ig-empty-grad)" stroke-width="1.5"/>'
+        + '<circle cx="12" cy="12" r="5" stroke="url(#ig-empty-grad)" stroke-width="1.5"/>'
+        + '<circle cx="17.5" cy="6.5" r="1.5" fill="url(#ig-empty-grad)"/>'
+        + '</svg>'
+        + '<p class="insta-feed-error">Nenhum post disponível no momento.</p>'
+        + '<p class="insta-feed-empty-hint">Visite o perfil para ver as últimas publicações.</p>'
+        + '</div>';
       return;
     }
     grid.innerHTML = posts.map(function (p) {
