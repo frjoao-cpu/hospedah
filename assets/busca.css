@@ -548,22 +548,6 @@ details.adv-filters[open] > summary { color: var(--dourado); border-color: var(-
 }
 .skip-link:focus { top: 12px; left: 12px; }
 
-/* BREADCRUMB */
-.breadcrumb-bar {
-  background: var(--azul2);
-  border-bottom: 1px solid var(--borda);
-  padding: 9px 24px;
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  font-size: 0.78em;
-  color: var(--cor-sub);
-  flex-wrap: wrap;
-}
-.breadcrumb-bar a { color: var(--cor-sub); text-decoration: none; transition: color 0.2s; }
-.breadcrumb-bar a:hover { color: var(--dourado); }
-.breadcrumb-bar [aria-current="page"] { color: var(--dourado); font-weight: 500; }
-
 /* COMPARADOR */
 .compare-btn {
   background: transparent;

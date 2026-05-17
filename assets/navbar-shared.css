@@ -115,3 +115,20 @@
     letter-spacing: 3px;
   }
 }
+
+/* ── BREADCRUMB COMPARTILHADO ── */
+.breadcrumb-bar {
+  background: var(--azul2, #142850);
+  border-bottom: 1px solid var(--borda, rgba(212,175,55,0.15));
+  padding: 9px 24px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 0.78em;
+  color: var(--cor-sub, #aab4c4);
+  flex-wrap: wrap;
+}
+.breadcrumb-bar a { color: var(--cor-sub, #aab4c4); text-decoration: none; transition: color 0.2s; }
+.breadcrumb-bar a:hover { color: var(--dourado, #D4AF37); }
+.breadcrumb-bar [aria-current="page"] { color: var(--dourado, #D4AF37); font-weight: 500; }
+.breadcrumb-bar [aria-hidden="true"] { opacity: 0.4; }

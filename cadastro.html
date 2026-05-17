@@ -17,6 +17,7 @@
 <link rel="preload" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
 <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap"></noscript>
 <link rel="stylesheet" href="/assets/mobile-first.css">
+<link rel="stylesheet" href="/assets/navbar-shared.css">
 
 <!-- Google Tag Manager, Clarity, Meta Pixel, OneSignal — carregados somente após consentimento LGPD -->
 <script>
@@ -70,37 +71,7 @@ min-height:100vh;
 .skip-link{position:absolute;top:-999px;left:-999px;background:var(--dourado);color:var(--azul);padding:10px 18px;border-radius:8px;font-weight:700;font-size:.9em;z-index:10000;text-decoration:none;}
 .skip-link:focus{top:12px;left:12px;}
 
-/* TOPO */
-.topo{
-display:flex;
-align-items:center;
-gap:16px;
-padding:20px 30px;
-background:rgba(0,0,0,0.3);
-backdrop-filter:blur(10px);
-position:sticky;
-top:0;
-z-index:100;
-}
-
-.logo{
-display:inline-flex;
-align-items:center;
-color:var(--dourado);
-font-weight:600;
-font-size:20px;
-text-decoration:none;
-}
-.logo img { height: 120px; width: auto; }
-
-.btn-voltar{
-background:#007AFF;
-color:#fff;
-padding:8px 16px;
-border-radius:8px;
-text-decoration:none;
-font-size:13px;
-}
+/* TOPO — removido: substituído pela navbar padrão via navbar.js */
 
 /* HERO */
 .hero{
@@ -295,7 +266,7 @@ border-top:1px solid rgba(212,175,55,.3);font-size:13px;line-height:1.5;
 
 <!-- LGPD Banner -->
 <div id="cookie-banner-cad">
-  <p>🍪 Usamos cookies, Google Tag Manager, Microsoft Clarity, Meta Pixel e notificações push para melhorar sua experiência, nos termos da <strong>LGPD</strong>. <a href="privacidade.html" style="color:var(--dourado);text-decoration:underline;">Política de Privacidade</a>.</p>
+  <p>🍪 Usamos cookies, Google Tag Manager, Microsoft Clarity, Meta Pixel e notificações push para melhorar sua experiência, nos termos da <strong>LGPD</strong>. <a href="privacidade.html">Política de Privacidade</a>.</p>
   <div class="cad-cookie-btns">
     <button class="btn-cad-accept" id="btnCadAccept">✓ Aceitar</button>
     <button class="btn-cad-decline" id="btnCadDecline">Recusar</button>
@@ -306,17 +277,13 @@ border-top:1px solid rgba(212,175,55,.3);font-size:13px;line-height:1.5;
 <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-1258221909856324"
 height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
-<!-- TOPO -->
-<div class="topo">
-<a href="index.html" class="logo" aria-label="HOSPEDAH início"><img src="https://i.imgur.com/fVKGOSt.png" alt="HOSPEDAH" width="600" height="120"></a>
-<a href="index.html" class="btn-voltar">← Voltar</a>
-</div>
+<!-- TOPO — injetado via navbar.js -->
 
 <!-- BREADCRUMB -->
-<nav style="background:rgba(11,28,61,0.85);border-bottom:1px solid rgba(212,175,55,0.15);padding:9px 24px;display:flex;align-items:center;gap:7px;font-size:0.78em;color:rgba(170,180,196,0.85);flex-wrap:wrap;" aria-label="Navegação estrutural">
-  <a href="index.html" style="color:rgba(170,180,196,0.85);text-decoration:none;" onmouseover="this.style.color='#D4AF37'" onmouseout="this.style.color='rgba(170,180,196,0.85)'">🏠 Início</a>
-  <span aria-hidden="true" style="opacity:0.4;">›</span>
-  <span style="color:#D4AF37;font-weight:500;" aria-current="page">🏡 Cadastrar Imóvel</span>
+<nav class="breadcrumb-bar" aria-label="Navegação estrutural">
+  <a href="index.html">🏠 Início</a>
+  <span aria-hidden="true">›</span>
+  <span aria-current="page">🏡 Cadastrar Imóvel</span>
 </nav>
 
 <!-- HERO -->
@@ -694,5 +661,6 @@ function enviarCadastro(e) {
 })();
 </script>
 
+<script src="/scripts/navbar.js" data-page="cadastro"></script>
 </body>
 </html>

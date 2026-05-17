@@ -18,6 +18,7 @@
     { label: '📅 Reservar',     href: '/reservas.html',   key: 'reservas'  },
     { label: '⭐ Avaliações',   href: '/avaliacoes.html', key: 'avaliacoes' },
     { label: '🤖 Chat IA',      href: '/chat.html',       key: 'chat'      },
+    { label: '🎁 Indicar',      href: '/referral.html',   key: 'referral'  },
     { label: '🏡 Cadastrar',    href: '/cadastro.html',   key: 'cadastro'  },
   ];
 
