@@ -172,18 +172,30 @@
   }
 
   async function getSessionUser() {
+    var SESSION_CACHE_MS = 5 * 60 * 1000;
+    var cache = getSessionUser._cache;
+    if (cache && (Date.now() - cache.ts) < SESSION_CACHE_MS) {
+      return cache.user;
+    }
+    var user = null;
     try {
       var exchangedUser = await exchangeCodeFromUrl();
-      if (exchangedUser) return exchangedUser;
-      var sessionRes = await client.auth.getSession();
-      if (sessionRes && sessionRes.data && sessionRes.data.session && sessionRes.data.session.user) {
-        return sessionRes.data.session.user;
+      if (exchangedUser) {
+        user = exchangedUser;
+      } else {
+        var sessionRes = await client.auth.getSession();
+        if (sessionRes && sessionRes.data && sessionRes.data.session && sessionRes.data.session.user) {
+          user = sessionRes.data.session.user;
+        } else {
+          var userRes = await client.auth.getUser();
+          user = (userRes && userRes.data && userRes.data.user) || null;
+        }
       }
-      var userRes = await client.auth.getUser();
-      return (userRes && userRes.data && userRes.data.user) || null;
     } catch (e) {
-      return null;
+      user = null;
     }
+    getSessionUser._cache = { user: user, ts: Date.now() };
+    return user;
   }
 
   function renderReservationCard(row) {
@@ -608,6 +620,7 @@
         logoutBtn.textContent = '⏳ Saindo…';
         try {
           await client.auth.signOut();
+          getSessionUser._cache = null;
         } catch (e) {
           /* Force redirect even if signOut fails */
         }
