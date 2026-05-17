@@ -613,3 +613,30 @@ body.has-bottom-nav {
   max-width: 480px;
   flex-wrap: wrap;
 }
+
+/* ── Feed do Instagram — ícones menores somente no mobile ── */
+@media (max-width: 767px) {
+  /* Ícone SVG no título da seção Instagram */
+  .insta-svg-icon {
+    width: 0.55em !important;
+    height: 0.55em !important;
+  }
+
+  /* Ícone SVG dentro do botão "Ver mais no Instagram" */
+  .insta-btn-icon {
+    width: 0.7em !important;
+    height: 0.7em !important;
+  }
+
+  /* Ícone de estado vazio do feed */
+  .insta-feed-empty-icon {
+    width: 36px !important;
+    height: 36px !important;
+  }
+
+  /* Botão "Ver mais" — padding e fonte menores */
+  .btn-insta-feed {
+    padding: 10px 22px;
+    font-size: .78rem;
+  }
+}
