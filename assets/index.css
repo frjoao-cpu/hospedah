@@ -171,6 +171,19 @@ html[data-theme="light"] footer                 { background: #e8e4d8; color: #4
 .nav-right {
   display: flex; align-items: center; gap: 10px;
 }
+/* ── Social icons in navbar right ── */
+.nav-social-icon {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 30px; height: 30px; border-radius: 50%;
+  flex-shrink: 0;
+  transition: transform .18s, opacity .18s;
+  opacity: .85;
+}
+.nav-social-icon svg { width: 18px; height: 18px; display: block; }
+.nav-social-icon:hover { transform: scale(1.18); opacity: 1; }
+.nav-social-insta { color: #e1306c; }
+.nav-social-wpp   { color: #25D366; }
+@media (max-width: 767px) { .nav-social-icon { display: none; } }
 .lang-switcher {
   display: flex;
   align-items: center;
@@ -903,6 +916,7 @@ html[data-theme="light"] .orc-section-sub { color: #666; }
   animation: wppPulse 2.2s infinite;
   transition: background .15s, transform .15s;
 }
+.wpp-float-btn svg { width: 30px; height: 30px; flex-shrink: 0; }
 .wpp-float-btn:hover { background: #1ebe58; transform: scale(1.1); }
 @keyframes wppPulse {
   0%, 100% { box-shadow: 0 4px 18px rgba(37,211,102,0.5); transform: scale(1); }
