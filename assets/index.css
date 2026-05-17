@@ -868,14 +868,16 @@ html[data-theme="light"] .orc-section-sub { color: #666; }
   gap: 14px; flex-wrap: wrap;
 }
 .contato-redes a {
-  display: inline-block; padding: 11px 22px;
+  display: inline-flex; align-items: center; gap: 7px; padding: 11px 22px;
   border-radius: 26px; font-weight: 600;
   font-size: 14px; text-decoration: none;
   transition: opacity .15s;
 }
 .contato-redes a:hover { opacity: .82; }
 .btn-insta  { background: linear-gradient(45deg,#833AB4,#E1306C,#FCAF45); color: #fff; }
+.btn-insta svg { flex-shrink: 0; }
 .btn-wpp    { background: var(--wpp); color: #fff; }
+.btn-wpp svg { flex-shrink: 0; }
 
 /* ==========================================
    ✅ CONTAINER ÚNICO DE BOTÕES FLUTUANTES
