@@ -609,6 +609,7 @@ html[data-theme="light"] .section-title { color: #8B6914; }
   padding: 7px 16px; border-radius: 20px; text-decoration: none;
   margin-bottom: 18px; transition: background .2s;
 }
+.resort-wpp-btn svg { flex-shrink: 0; }
 .resort-wpp-btn:hover { background: #1ebe5a; }
 .gallery {
   display: grid;
@@ -856,6 +857,7 @@ html[data-theme="light"] .orc-section-sub { color: #666; }
 .form-std textarea:focus { outline: none; border-color: var(--dourado); }
 .form-std textarea { min-height: 88px; resize: vertical; }
 .form-std button {
+  display: inline-flex; align-items: center; justify-content: center; gap: 7px;
   padding: 13px; border: none; border-radius: 10px;
   background: var(--azul); color: var(--dourado);
   font-family: 'Poppins', sans-serif;
@@ -1128,7 +1130,8 @@ html[data-theme="light"] .faq-btn { color: var(--azul); }
 #exit-popup h2 { font-size:1.45em; margin-bottom:10px; line-height:1.25; }
 #exit-popup p  { font-size:.97em; opacity:.84; margin-bottom:22px; line-height:1.5; }
 #exit-popup .ep-btn {
-  display:block; width:100%; padding:14px;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  width:100%; padding:14px;
   background:var(--dourado); color:#0B1C3D; font-weight:700;
   border:none; border-radius:12px; font-size:1.05em; cursor:pointer;
   transition:background .18s; text-decoration:none;
@@ -1545,7 +1548,8 @@ html[data-theme="light"] .faq-btn { color: var(--azul); }
   .como-step-num::after { display: none; }
 }
 .como-cta {
-  display: inline-block; background: #25D366; color: #fff;
+  display: inline-flex; align-items: center; gap: 8px;
+  background: #25D366; color: #fff;
   font-weight: 700; font-size: 1.05em; padding: 14px 36px;
   border-radius: 50px; text-decoration: none;
   transition: background .18s, transform .18s;
@@ -2035,6 +2039,7 @@ html[data-theme="light"] .parcela-card-desc  { color: #8B6914; }
 
 .orc-btn-next,
 .orc-btn-submit {
+  display: inline-flex; align-items: center; justify-content: center; gap: 7px;
   padding: 14px 28px;
   background: linear-gradient(135deg, #c9a22e 0%, var(--dourado, #D4AF37) 50%, #e8c84a 100%);
   color: var(--azul, #0B1C3D);
