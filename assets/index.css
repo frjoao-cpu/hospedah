@@ -1148,6 +1148,16 @@ html[data-theme="light"] .faq-btn { color: var(--azul); }
   color:rgba(255,255,255,.45); cursor:pointer; background:none; border:none;
 }
 #exit-popup .ep-skip:hover { color:rgba(255,255,255,.75); }
+#exit-popup input[type="email"] {
+  width:100%; padding:12px 14px; border-radius:10px;
+  border:1px solid rgba(212,175,55,.5); background:rgba(255,255,255,.1);
+  color:#fff; font-size:14px; margin-bottom:10px;
+  font-family:inherit; box-sizing:border-box;
+}
+#exit-popup .ep-btn--wpp {
+  margin-top:10px;
+  background:var(--wpp, #25D366);
+}
 
 /* FOMO bar — repositioned to top-right under navbar so it never overlaps the hero search card */
 #fomo-bar {

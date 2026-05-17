@@ -398,23 +398,11 @@ body {
 <!-- Skip to main content (acessibilidade) -->
 <a class="skip-link" href="#avaliacoes-main">Ir para o conteúdo principal</a>
 
-<header class="header">
-  <a href="index.html" class="logo" aria-label="HOSPEDAH início"><span class="logo-wordmark">HOSPEDAH</span></a>
-  <nav class="nav-links">
-    <a href="index.html">🏠 Início</a>
-    <a href="busca.html">🔍 Buscar</a>
-    <a href="reservas.html">📅 Reservar</a>
-    <a href="avaliacoes.html" class="active">⭐ Avaliações</a>
-    <a href="chat.html">🤖 Chat IA</a>
-    <a href="referral.html">🎁 Indicar</a>
-    <a href="cadastro.html">🏡 Cadastrar Imóvel</a>
-  </nav>
-</header>
-
-<nav style="background:var(--azul2);border-bottom:1px solid var(--borda);padding:9px 24px;display:flex;align-items:center;gap:7px;font-size:0.78em;color:var(--cor-sub);flex-wrap:wrap;" aria-label="Navegação estrutural">
-  <a href="index.html" style="color:var(--cor-sub);text-decoration:none;transition:color 0.2s;" onmouseover="this.style.color='var(--dourado)'" onmouseout="this.style.color='var(--cor-sub)'">🏠 Início</a>
-  <span aria-hidden="true" style="opacity:0.4;">›</span>
-  <span style="color:var(--dourado);font-weight:500;" aria-current="page">⭐ Avaliações</span>
+<!-- BREADCRUMB -->
+<nav class="breadcrumb-bar" aria-label="Navegação estrutural">
+  <a href="index.html">🏠 Início</a>
+  <span aria-hidden="true">›</span>
+  <span aria-current="page">⭐ Avaliações</span>
 </nav>
 
 <div class="hero" id="avaliacoes-main">
@@ -938,5 +926,6 @@ carregarReviews();
   }
 })();
 </script>
+<script src="/scripts/navbar.js" data-page="avaliacoes"></script>
 </body>
 </html>
