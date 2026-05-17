@@ -101,10 +101,13 @@ function searchWeatherByCity(city) {
 }
 
 function fetchWeather(lat, lon) {
+    /* Arredonda coordenadas a 1 casa decimal (~11 km) para cache sem expor localização exacta */
+    var latR = Math.round(lat * 10) / 10;
+    var lonR = Math.round(lon * 10) / 10;
     /* Verifica cache antes de chamar a Edge Function */
     try {
         var cached = JSON.parse(localStorage.getItem(WEATHER_CACHE_KEY) || 'null');
-        if (cached && cached.lat === lat && cached.lon === lon &&
+        if (cached && cached.latR === latR && cached.lonR === lonR &&
             (Date.now() - cached.ts) < WEATHER_CACHE_MS) {
             displayCurrentWeather(cached.current);
             displayForecast(cached.forecast);
@@ -131,7 +134,7 @@ function fetchWeather(lat, lon) {
         .then(function(results) {
             try {
                 localStorage.setItem(WEATHER_CACHE_KEY, JSON.stringify({
-                    lat: lat, lon: lon, ts: Date.now(),
+                    latR: latR, lonR: lonR, ts: Date.now(),
                     current: results[0], forecast: results[1].list
                 }));
             } catch (e) { /* ignora quota de storage */ }
