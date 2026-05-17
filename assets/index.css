@@ -2288,17 +2288,17 @@ html[data-theme="light"] .insta-feed-skeleton {
 
 /* Ícone SVG no cabeçalho da seção Instagram */
 .insta-svg-icon {
-  width: 1.1em;
-  height: 1.1em;
-  vertical-align: -0.15em;
+  width: 0.85em;
+  height: 0.85em;
+  vertical-align: -0.1em;
   margin-right: 0.35em;
   flex-shrink: 0;
 }
 
 /* Ícone SVG no botão "Ver mais" */
 .insta-btn-icon {
-  width: 1.1em;
-  height: 1.1em;
+  width: 1em;
+  height: 1em;
   flex-shrink: 0;
 }
 
