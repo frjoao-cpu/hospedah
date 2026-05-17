@@ -1,7 +1,7 @@
 'use strict';
 
-var STATIC_CACHE = 'hospedah-static-v7';
-var PAGE_CACHE = 'hospedah-pages-v7';
+var STATIC_CACHE = 'hospedah-static-v8';
+var PAGE_CACHE = 'hospedah-pages-v8';
 var OFFLINE_URL = '/offline.html';
 // Scripts de runtime do Chat IA/Supabase devem vir sempre da rede para evitar
 // caminhos legados cacheados, especialmente ai-config.js com chave Gemini antiga.
