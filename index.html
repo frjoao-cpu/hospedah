@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://www.googletagmanager.com https://www.clarity.ms https://connect.facebook.net https://cdn.onesignal.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://ydrmjoppjxtmnwtvtinb.supabase.co https://www.google-analytics.com https://stats.g.doubleclick.net https://www.googletagmanager.com https://api.openweathermap.org https://generativelanguage.googleapis.com; img-src 'self' data: https://i.imgur.com https://www.facebook.com https://www.googletagmanager.com https://flagcdn.com; frame-src https://www.googletagmanager.com; worker-src 'self' blob:; object-src 'none'; base-uri 'self';">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://www.googletagmanager.com https://www.clarity.ms https://connect.facebook.net https://cdn.onesignal.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://ydrmjoppjxtmnwtvtinb.supabase.co https://www.google-analytics.com https://stats.g.doubleclick.net https://www.googletagmanager.com https://api.openweathermap.org https://generativelanguage.googleapis.com; img-src 'self' data: https://i.imgur.com https://www.facebook.com https://www.googletagmanager.com https://flagcdn.com https://*.cdninstagram.com; frame-src https://www.googletagmanager.com; worker-src 'self' blob:; object-src 'none'; base-uri 'self';">
 <title>HOSPEDAH | Resorts e Experiências Exclusivas</title>
 <meta name="description" content="Hospede-se com qualidade nos melhores resorts e tenha experiências exclusivas. Orçamento premium, atendimento digital e profissionais à disposição.">
 <link rel="canonical" href="https://hospedah.tur.br/">
@@ -1199,6 +1199,35 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   </div>
 </section>
 
+
+<!-- ==========================================
+     📸 FEED DO INSTAGRAM
+=========================================== -->
+<section class="insta-feed-section" id="instagram" aria-labelledby="insta-feed-titulo">
+  <div class="section-wrap" style="padding-top:0;">
+    <h2 class="section-title" id="insta-feed-titulo">📸 No Instagram</h2>
+    <p class="insta-feed-sub">
+      Siga <a href="https://www.instagram.com/julianasilvaoliveira.joao?igsh=bzZmNGIxdjdqc285"
+              target="_blank" rel="noopener" class="insta-feed-link">@julianasilvaoliveira.joao</a>
+      e acompanhe os melhores momentos dos nossos resorts.
+    </p>
+    <div id="insta-feed-grid" class="insta-feed-grid" aria-live="polite">
+      <!-- Posts carregados via JS -->
+      <div class="insta-feed-skeleton"></div>
+      <div class="insta-feed-skeleton"></div>
+      <div class="insta-feed-skeleton"></div>
+      <div class="insta-feed-skeleton"></div>
+      <div class="insta-feed-skeleton"></div>
+      <div class="insta-feed-skeleton"></div>
+    </div>
+    <div style="text-align:center;margin-top:28px;">
+      <a href="https://www.instagram.com/julianasilvaoliveira.joao?igsh=bzZmNGIxdjdqc285"
+         target="_blank" rel="noopener" class="btn-insta-feed">
+        Ver mais no Instagram →
+      </a>
+    </div>
+  </div>
+</section>
 
 <!-- ==========================================
      JORNAL HOSPEDAH — EDITORIAL PREMIUM
@@ -3472,6 +3501,54 @@ function gerarPropostaPDF() {
       showToast('Copie o link da barra de endereço 🔗');
     }
   });
+}());
+</script>
+
+<script>
+/* ── FEED DO INSTAGRAM ── */
+(function () {
+  var grid = document.getElementById('insta-feed-grid');
+  if (!grid) return;
+
+  /* URL da Edge Function — fallback silencioso se não configurada */
+  var EDGE_URL = 'https://ydrmjoppjxtmnwtvtinb.supabase.co/functions/v1/instagram-feed?limit=6';
+
+  function escHtml(str) {
+    return String(str || '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  function renderPosts(posts) {
+    if (!posts || posts.length === 0) {
+      grid.innerHTML = '<p class="insta-feed-error">Nenhum post disponível no momento.</p>';
+      return;
+    }
+    grid.innerHTML = posts.map(function (p) {
+      var imgSrc    = p.media_type === 'VIDEO' ? (p.thumbnail_url || p.media_url) : p.media_url;
+      var caption   = escHtml(p.caption);
+      var videoBadge = p.media_type === 'VIDEO' ? '<span class="insta-video-badge" aria-hidden="true">▶ Vídeo</span>' : '';
+      var overlay   = caption
+        ? '<div class="insta-post-overlay"><p class="insta-post-caption">' + caption + '</p></div>'
+        : '';
+      return '<a class="insta-post" href="' + escHtml(p.permalink) + '" target="_blank" rel="noopener" aria-label="Ver post no Instagram">'
+        + '<img src="' + escHtml(imgSrc) + '" alt="Post do Instagram" loading="lazy">'
+        + videoBadge
+        + overlay
+        + '</a>';
+    }).join('');
+  }
+
+  fetch(EDGE_URL)
+    .then(function (res) { return res.json(); })
+    .then(function (data) { renderPosts(data.posts); })
+    .catch(function () {
+      /* Erro silencioso — esconde a seção para não quebrar a página */
+      var section = document.getElementById('instagram');
+      if (section) section.style.display = 'none';
+    });
 }());
 </script>
 </body>

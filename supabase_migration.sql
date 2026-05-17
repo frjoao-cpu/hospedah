@@ -1470,3 +1470,31 @@ LEFT JOIN (
 ORDER BY vm.mes DESC;
 
 GRANT SELECT ON vw_financeiro_mensal_completo TO authenticated;
+
+-- ============================================================
+-- CACHE DO FEED DO INSTAGRAM
+-- Armazena temporariamente os posts buscados pela Edge Function
+-- instagram-feed para evitar chamadas repetidas à API do Meta.
+-- ============================================================
+CREATE TABLE IF NOT EXISTS instagram_cache (
+  id            text        PRIMARY KEY,             -- ID do post no Instagram
+  media_type    text        NOT NULL,                -- IMAGE | VIDEO
+  media_url     text,                                -- URL da imagem ou vídeo
+  thumbnail_url text,                                -- Thumbnail para vídeos
+  permalink     text        NOT NULL,                -- Link direto do post
+  caption       text,                                -- Legenda do post
+  timestamp     timestamptz NOT NULL,               -- Data de publicação
+  cached_at     timestamptz NOT NULL DEFAULT now()  -- Última vez que foi armazenado
+);
+
+-- Índice para buscas por data de cache (usado no filtro de TTL)
+CREATE INDEX IF NOT EXISTS instagram_cache_cached_at_idx
+  ON instagram_cache (cached_at DESC);
+
+-- Leitura pública (sem autenticação) — a Edge Function usa service_role para gravação
+ALTER TABLE instagram_cache ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "instagram_cache_public_read" ON instagram_cache;
+CREATE POLICY "instagram_cache_public_read"
+  ON instagram_cache FOR SELECT
+  USING (true);

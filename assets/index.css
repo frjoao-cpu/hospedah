@@ -2144,3 +2144,145 @@ html[data-theme="light"] .orc-summary-row strong { color: #1a1a1a; }
   #fomo-bar { top: 84px; right: 8px; }
   .fomo-pill { padding: 5px 11px; font-size: .72em; }
 }
+
+/* ── Feed do Instagram ─────────────────────────────────────── */
+.insta-feed-section {
+  background: #0a0a0a;
+  border-top: 3px solid var(--dourado);
+  border-bottom: 3px solid var(--dourado);
+  padding: 56px 0;
+}
+html[data-theme="light"] .insta-feed-section {
+  background: #f7f4ec;
+}
+
+.insta-feed-sub {
+  text-align: center;
+  font-size: .95em;
+  opacity: .8;
+  margin: -16px 0 32px;
+}
+
+.insta-feed-link {
+  color: var(--dourado);
+  text-decoration: none;
+  font-weight: 600;
+}
+.insta-feed-link:hover { text-decoration: underline; }
+
+.insta-feed-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+@media (max-width: 600px) {
+  .insta-feed-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* Skeleton loader */
+.insta-feed-skeleton {
+  aspect-ratio: 1;
+  background: linear-gradient(90deg, #1e1e1e 25%, #2a2a2a 50%, #1e1e1e 75%);
+  background-size: 200% 100%;
+  animation: insta-shimmer 1.4s infinite;
+  border-radius: 4px;
+}
+html[data-theme="light"] .insta-feed-skeleton {
+  background: linear-gradient(90deg, #e0ddd5 25%, #f0ede5 50%, #e0ddd5 75%);
+  background-size: 200% 100%;
+}
+
+@keyframes insta-shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* Post card */
+.insta-post {
+  position: relative;
+  aspect-ratio: 1;
+  overflow: hidden;
+  border-radius: 4px;
+  display: block;
+  cursor: pointer;
+}
+
+.insta-post img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform .35s ease;
+}
+
+.insta-post:hover img { transform: scale(1.07); }
+
+.insta-post-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,.55);
+  opacity: 0;
+  transition: opacity .3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px;
+}
+.insta-post:hover .insta-post-overlay,
+.insta-post:focus .insta-post-overlay {
+  opacity: 1;
+}
+
+.insta-post-caption {
+  color: #fff;
+  font-size: .82em;
+  text-align: center;
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.insta-video-badge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: rgba(0,0,0,.65);
+  color: #fff;
+  font-size: .7em;
+  padding: 2px 6px;
+  border-radius: 4px;
+  pointer-events: none;
+}
+
+/* Botão "Ver mais" */
+.btn-insta-feed {
+  display: inline-block;
+  background: transparent;
+  color: var(--dourado);
+  border: 2px solid var(--dourado);
+  padding: 11px 32px;
+  font-size: .9em;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  text-decoration: none;
+  border-radius: 4px;
+  transition: background .2s, color .2s;
+}
+.btn-insta-feed:hover {
+  background: var(--dourado);
+  color: #0D0D0D;
+}
+
+/* Mensagem de erro do feed */
+.insta-feed-error {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 32px;
+  opacity: .6;
+  font-size: .92em;
+}
