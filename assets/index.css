@@ -611,6 +611,14 @@ html[data-theme="light"] .section-title { color: #8B6914; }
 }
 .resort-wpp-btn svg { flex-shrink: 0; }
 .resort-wpp-btn:hover { background: #1ebe5a; }
+.resort-ig-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: #E1306C; color: #fff; font-size: .88rem; font-weight: 600;
+  padding: 7px 16px; border-radius: 20px; text-decoration: none;
+  margin-bottom: 18px; transition: background .2s;
+}
+.resort-ig-btn svg { flex-shrink: 0; }
+.resort-ig-btn:hover { background: #c13584; }
 
 /* ══════════════════════════════════════════════
    SÃO PEDRO THERMAS — GALLERY TABS
