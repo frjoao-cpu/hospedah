@@ -1551,7 +1551,9 @@ thead .col-sticky-right {
   color: var(--cor-texto); font-size: 0.85em; font-family: inherit;
 }
 .parcela-row input[type="number"] { max-width: 120px; }
+.parcela-row input.parcela-dia { max-width: 62px; }
 .parcela-row .parcela-label { font-size: 0.75em; color: var(--cor-sub); white-space: nowrap; }
+.parcela-atrasada { color: var(--vermelho); font-size: 0.72em; font-weight: 600; white-space: nowrap; }
 .parcela-remove {
   background: rgba(231,76,60,0.15); border: none; border-radius: 4px;
   color: var(--vermelho); cursor: pointer; padding: 4px 7px; font-size: 0.85em;
@@ -5352,7 +5354,7 @@ function _comissaoPendente(comissaoGerada, comissaoRecebida) {
 ========================================== */
 
 /* Adiciona uma linha de parcela ao builder. prefix = 'c' (criar) ou 'edit' */
-function adicionarLinhaParcelaForm(prefix, mes, valor) {
+function adicionarLinhaParcelaForm(prefix, mes, valor, dia) {
   var builder = document.getElementById(prefix + '_parcelasBuilder');
   if (!builder) return;
   var idx  = builder.querySelectorAll('.parcela-row').length;
@@ -5363,7 +5365,10 @@ function adicionarLinhaParcelaForm(prefix, mes, valor) {
   _nextMonth.setDate(1);
   _nextMonth.setMonth(_nextMonth.getMonth() + 1);
   var defaultMes = mes || _mesKey(_nextMonth);
+  var defaultDia = (dia != null && dia !== '') ? String(parseInt(dia, 10) || '') : '';
   row.innerHTML =
+    '<span class="parcela-label">Dia</span>' +
+    '<input type="number" class="parcela-dia" min="1" max="31" placeholder="DD" value="' + escapeHtml(defaultDia) + '" oninput="_atualizarTotalParcelas(\'' + prefix + '\')">' +
     '<span class="parcela-label">Mês</span>' +
     '<input type="month" class="parcela-mes" value="' + escapeHtml(defaultMes) + '" oninput="_atualizarTotalParcelas(\'' + prefix + '\')">' +
     '<span class="parcela-label">Valor&nbsp;(R$)</span>' +
@@ -5416,27 +5421,28 @@ function _getTotalParcelas(prefix) {
   return total;
 }
 
-/* Lê as parcelas do builder e retorna array [{mes, valor}] */
+/* Lê as parcelas do builder e retorna array [{dia, mes, valor}] */
 function _getParcelasFromForm(prefix) {
   var builder = document.getElementById(prefix + '_parcelasBuilder');
   if (!builder) return [];
   var rows = builder.querySelectorAll('.parcela-row');
   var result = [];
   rows.forEach(function (row) {
+    var diaRaw = parseInt((row.querySelector('.parcela-dia')   || {}).value) || 0;
     var mes   = (row.querySelector('.parcela-mes')   || {}).value || '';
     var valor = parseFloat((row.querySelector('.parcela-valor') || {}).value) || 0;
-    if (mes && valor > 0) result.push({ mes: mes, valor: valor, recebido: 0, status: 'pendente' });
+    if (mes && valor > 0) result.push({ dia: diaRaw || null, mes: mes, valor: valor, recebido: 0, status: 'pendente' });
   });
   return result;
 }
 
-/* Preenche o builder com um array de parcelas [{mes, valor, recebido, status}] */
+/* Preenche o builder com um array de parcelas [{dia, mes, valor, recebido, status}] */
 function _renderParcelasForm(prefix, parcelas) {
   var builder = document.getElementById(prefix + '_parcelasBuilder');
   if (!builder) return;
   builder.innerHTML = '';
   (parcelas || []).forEach(function (p) {
-    adicionarLinhaParcelaForm(prefix, p.mes, p.valor);
+    adicionarLinhaParcelaForm(prefix, p.mes, p.valor, p.dia);
   });
 }
 
@@ -6548,6 +6554,7 @@ function atualizarPrevisaoRecebimentos() {
         label:     label,
         valor:     parseFloat(p.valor),
         mesVenda:  mesVenda,
+        dia:       p.dia || null,
         status:    p.status || 'pendente'
       });
     });
@@ -6572,6 +6579,7 @@ function atualizarPrevisaoRecebimentos() {
 
   var html = '';
   var hoje = _mesKey(new Date());
+  var hojeDate = new Date(); hojeDate.setHours(0, 0, 0, 0);
   chaves.forEach(function (key) {
     var m = meses[key];
     /* "YYYY-MM" lexicographic comparison is reliable across year/month boundaries */
@@ -6587,9 +6595,20 @@ function atualizarPrevisaoRecebimentos() {
     m.parcelas.forEach(function (p) {
       var statusIcon = p.status === 'recebida' ? '✅' : p.status === 'parcial' ? '🔶' : '⏳';
       var origemTxt  = p.mesVenda ? ' <small style="color:var(--cor-sub);">(venda: ' + nomeDoMes(p.mesVenda) + ')</small>' : '';
+      /* Late payment alert: show when dia is set, full date is past, and not yet received */
+      var atrasadoHtml = '';
+      if (p.dia && p.status !== 'recebida') {
+        var parts = key.split('-');
+        var venc = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(p.dia, 10));
+        venc.setHours(0, 0, 0, 0);
+        if (venc < hojeDate) {
+          atrasadoHtml = ' <span class="parcela-atrasada">⚠ ATRASADO</span>';
+        }
+      }
+      var diaLabel = p.dia ? '<small style="color:var(--cor-sub);margin-right:4px;">dia&nbsp;' + parseInt(p.dia, 10) + '</small>' : '';
       html +=
         '<div class="pv-row">' +
-        '<span>' + statusIcon + ' ' + escapeHtml(p.label) + origemTxt + '</span>' +
+        '<span>' + statusIcon + ' ' + escapeHtml(p.label) + origemTxt + diaLabel + atrasadoHtml + '</span>' +
         '<span>' + formatBRL(p.valor) + '</span>' +
         '</div>';
     });
