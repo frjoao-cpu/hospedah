@@ -20,24 +20,26 @@
 <meta property="og:locale"      content="pt_BR">
 <!-- Schema.org -->
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"Resort","name":"São Pedro Thermas","description":"Resort termal com piscinas aquecidas e acomodações premium.","url":"https://hospedah.tur.br/resorts/saopedro.html","telephone":"+5517982006382","address":{"@type":"PostalAddress","addressCountry":"BR","addressLocality":"São Pedro","addressRegion":"SP"},"sameAs":["https://wa.me/5517982006382"]}
+{"@context":"https://schema.org","@type":"Resort","name":"São Pedro Thermas","description":"Resort termal com piscinas aquecidas e acomodações premium.","url":"https://hospedah.tur.br/resorts/saopedro.html","image":"https://i.imgur.com/pyEKOtQ.jpeg","address":{"@type":"PostalAddress","addressCountry":"BR"}}
 </script>
 <link rel="stylesheet" href="../assets/mobile-first.css">
 <link rel="stylesheet" href="../assets/style.css">
 
 <style>
-/* ── GALLERY TABS ─────────────────────────────────────── */
+/* ══════════════════════════════════════════════
+   GALLERY TABS
+══════════════════════════════════════════════ */
 .gallery-tabs {
   display: flex;
-  gap: 8px;
-  margin: 18px 0 0 0;
+  gap: 10px;
+  margin: 20px 0 0;
   padding: 0 4px;
   justify-content: center;
 }
 .gallery-tab {
   flex: 1;
-  max-width: 180px;
-  padding: 10px 20px;
+  max-width: 190px;
+  padding: 11px 22px;
   font-size: 0.95rem;
   font-weight: 700;
   letter-spacing: 0.04em;
@@ -47,37 +49,44 @@
   color: #D4AF37;
   cursor: pointer;
   transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+  outline-offset: 3px;
 }
 .gallery-tab.active,
-.gallery-tab:hover {
+.gallery-tab:hover,
+.gallery-tab:focus-visible {
   background: #D4AF37;
   color: #1a1a1a;
-  box-shadow: 0 4px 18px rgba(212,175,55,0.35);
+  box-shadow: 0 4px 18px rgba(212,175,55,0.4);
 }
+
 .gallery-panel { display: none; }
 .gallery-panel.active { display: block; }
 
-/* ── VIDEO GRID ───────────────────────────────────────── */
+/* ══════════════════════════════════════════════
+   VIDEO GRID
+══════════════════════════════════════════════ */
 .videos-section {
-  padding: 16px 0 24px;
+  padding: 18px 0 28px;
 }
 .videos-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 20px;
-  padding: 0 4px;
+  max-width: 920px;
+  margin: 0 auto;
+  gap: 22px;
+  padding: 0 8px;
 }
 .video-card {
   position: relative;
-  border-radius: 14px;
+  border-radius: 16px;
   overflow: hidden;
-  background: #111;
-  box-shadow: 0 6px 28px rgba(0,0,0,0.55), 0 0 0 1.5px rgba(212,175,55,0.25);
+  background: #0d0d0d;
+  box-shadow: 0 6px 30px rgba(0,0,0,0.6), 0 0 0 1.5px rgba(212,175,55,0.22);
   transition: transform 0.25s, box-shadow 0.25s;
 }
 .video-card:hover {
-  transform: translateY(-4px) scale(1.01);
-  box-shadow: 0 12px 40px rgba(0,0,0,0.7), 0 0 0 2px rgba(212,175,55,0.5);
+  transform: translateY(-5px) scale(1.015);
+  box-shadow: 0 14px 44px rgba(0,0,0,0.75), 0 0 0 2px rgba(212,175,55,0.55);
 }
 .video-card video {
   display: block;
@@ -87,7 +96,7 @@
   background: #000;
   outline: none;
 }
-/* Custom controls bar accent */
+/* Barra dourada na base */
 .video-card::after {
   content: '';
   position: absolute;
@@ -95,25 +104,184 @@
   height: 3px;
   background: linear-gradient(90deg, #D4AF37, #f5d97a, #D4AF37);
   pointer-events: none;
+  z-index: 2;
 }
+
+/* Label do resort */
 .video-label {
   position: absolute;
   top: 10px; left: 10px;
-  background: rgba(0,0,0,0.65);
+  background: rgba(0,0,0,0.68);
   color: #D4AF37;
   font-size: 0.72rem;
   font-weight: 700;
   letter-spacing: 0.08em;
-  padding: 3px 10px;
+  padding: 3px 11px;
   border-radius: 20px;
-  backdrop-filter: blur(6px);
+  backdrop-filter: blur(7px);
   pointer-events: none;
   text-transform: uppercase;
+  z-index: 3;
 }
 
+/* Badge HD */
+.vm-hd-badge {
+  position: absolute;
+  top: 10px; right: 10px;
+  background: linear-gradient(135deg, #D4AF37 0%, #f5d97a 100%);
+  color: #1a1a1a;
+  font-size: 0.62rem;
+  font-weight: 900;
+  padding: 3px 9px;
+  border-radius: 6px;
+  letter-spacing: 0.12em;
+  pointer-events: none;
+  z-index: 3;
+  box-shadow: 0 2px 8px rgba(212,175,55,0.45);
+}
+
+/* Botão Play HD overlay */
+.play-hd-btn {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  z-index: 4;
+  transition: background 0.22s;
+}
+.play-hd-btn:hover,
+.play-hd-btn:focus-visible {
+  background: rgba(0,0,0,0.32);
+  outline: none;
+}
+.play-hd-btn .play-icon {
+  opacity: 0;
+  transition: opacity 0.22s, transform 0.22s;
+  transform: scale(0.85);
+  filter: drop-shadow(0 4px 16px rgba(0,0,0,0.8));
+}
+.video-card:hover .play-hd-btn .play-icon,
+.play-hd-btn:focus-visible .play-icon {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* ══════════════════════════════════════════════
+   VIDEO MODAL HD
+══════════════════════════════════════════════ */
+#video-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.97);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  z-index: 10000;
+  padding: 20px;
+}
+#video-modal.open { display: flex; }
+.vm-inner {
+  width: min(94vw, 1200px);
+  position: relative;
+}
+#vm-player {
+  display: block;
+  width: 100%;
+  max-height: 80vh;
+  border-radius: 12px;
+  box-shadow: 0 0 70px rgba(212,175,55,0.28), 0 0 0 1.5px rgba(212,175,55,0.3);
+  outline: none;
+  background: #000;
+}
+.vm-close {
+  position: fixed;
+  top: 18px; right: 20px;
+  background: rgba(212,175,55,0.12);
+  border: 1.5px solid #D4AF37;
+  color: #D4AF37;
+  font-size: 1.3rem;
+  width: 42px; height: 42px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s, transform 0.2s;
+  z-index: 10001;
+}
+.vm-close:hover,
+.vm-close:focus-visible {
+  background: #D4AF37;
+  color: #1a1a1a;
+  transform: scale(1.1);
+  outline: none;
+}
+.vm-title {
+  color: rgba(212,175,55,0.8);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-top: 14px;
+  text-align: center;
+}
+
+/* ══════════════════════════════════════════════
+   LIGHTBOX (FOTOS)
+══════════════════════════════════════════════ */
+#lightbox {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.96);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  cursor: zoom-out;
+  padding: 16px;
+}
+#lightbox.open { display: flex; }
+#lightbox-img {
+  max-width: min(94vw, 1100px);
+  max-height: 90vh;
+  border-radius: 10px;
+  box-shadow: 0 0 60px rgba(212,175,55,0.22);
+  object-fit: contain;
+}
+#lightbox .close {
+  position: fixed;
+  top: 16px; right: 18px;
+  color: #D4AF37;
+  font-size: 1.6rem;
+  font-weight: 700;
+  cursor: pointer;
+  background: rgba(0,0,0,0.6);
+  border-radius: 50%;
+  width: 42px; height: 42px;
+  display: flex; align-items: center; justify-content: center;
+  border: 1.5px solid rgba(212,175,55,0.5);
+  transition: background 0.2s;
+  z-index: 10000;
+}
+#lightbox .close:hover { background: rgba(212,175,55,0.25); }
+
+/* ══════════════════════════════════════════════
+   RESPONSIVE
+══════════════════════════════════════════════ */
 @media (max-width: 600px) {
-  .videos-grid { grid-template-columns: 1fr; gap: 14px; }
+  .videos-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+    padding: 0 4px;
+  }
   .gallery-tab { font-size: 0.85rem; padding: 9px 14px; }
+  .vm-title { font-size: 0.72rem; }
 }
 </style>
 </head>
@@ -124,130 +292,291 @@
 
 <!-- ── ABAS DE GALERIA ────────────────────────────── -->
 <div class="gallery-tabs" role="tablist" aria-label="Galeria do resort">
-  <button class="gallery-tab active" role="tab" aria-selected="true"  aria-controls="panel-fotos"  id="tab-fotos"  onclick="switchTab('fotos')">📷 Fotos</button>
-  <button class="gallery-tab"        role="tab" aria-selected="false" aria-controls="panel-videos" id="tab-videos" onclick="switchTab('videos')">🎬 Vídeos</button>
+  <button class="gallery-tab active"
+          role="tab"
+          aria-selected="true"
+          aria-controls="panel-fotos"
+          id="tab-fotos"
+          tabindex="0"
+          onclick="switchTab('fotos')">📷 Fotos</button>
+  <button class="gallery-tab"
+          role="tab"
+          aria-selected="false"
+          aria-controls="panel-videos"
+          id="tab-videos"
+          tabindex="-1"
+          onclick="switchTab('videos')">🎬 Vídeos HD</button>
 </div>
 
 <!-- ── PAINEL: FOTOS ──────────────────────────────── -->
 <div class="gallery-panel active" id="panel-fotos" role="tabpanel" aria-labelledby="tab-fotos">
   <div class="gallery">
-    <img src="https://i.imgur.com/pyEKOtQ.jpeg" alt="São Pedro Thermas 1" loading="eager" fetchpriority="high" width="800" height="600" onclick="openImg(this)">
-    <img src="https://i.imgur.com/1HeNjKT.jpeg" alt="São Pedro Thermas 2" loading="lazy" width="800" height="600" onclick="openImg(this)">
-    <img src="https://i.imgur.com/9kgfR2y.jpeg" alt="São Pedro Thermas 3" loading="lazy" width="800" height="600" onclick="openImg(this)">
-    <img src="https://i.imgur.com/2MinAKg.jpeg" alt="São Pedro Thermas 4" loading="lazy" width="800" height="600" onclick="openImg(this)">
-    <img src="https://i.imgur.com/1eOkkpi.jpeg" alt="São Pedro Thermas 5" loading="lazy" width="800" height="600" onclick="openImg(this)">
-    <img src="https://i.imgur.com/VNUPsl2.jpeg" alt="São Pedro Thermas 6" loading="lazy" width="800" height="600" onclick="openImg(this)">
-    <img src="https://i.imgur.com/5pbb4ba.jpeg" alt="São Pedro Thermas 7" loading="lazy" width="800" height="600" onclick="openImg(this)">
-    <img src="https://i.imgur.com/uop7Fdo.jpeg" alt="São Pedro Thermas 8" loading="lazy" width="800" height="600" onclick="openImg(this)">
-    <img src="https://i.imgur.com/JAaWFiz.jpeg" alt="São Pedro Thermas 9" loading="lazy" width="800" height="600" onclick="openImg(this)">
-    <img src="https://i.imgur.com/61P9R4K.jpeg" alt="São Pedro Thermas 10" loading="lazy" width="800" height="600" onclick="openImg(this)">
-    <img src="https://i.imgur.com/VVc8UtU.jpeg" alt="São Pedro Thermas 11" loading="lazy" width="800" height="600" onclick="openImg(this)">
+    <img src="https://i.imgur.com/pyEKOtQ.jpeg" alt="São Pedro Thermas — vista das piscinas termais 1" loading="eager" fetchpriority="high" width="800" height="600" onclick="openImg(this)">
+    <img src="https://i.imgur.com/1HeNjKT.jpeg" alt="São Pedro Thermas — área de lazer 2" loading="lazy" width="800" height="600" onclick="openImg(this)">
+    <img src="https://i.imgur.com/9kgfR2y.jpeg" alt="São Pedro Thermas — piscina aquecida 3" loading="lazy" width="800" height="600" onclick="openImg(this)">
+    <img src="https://i.imgur.com/2MinAKg.jpeg" alt="São Pedro Thermas — acomodações premium 4" loading="lazy" width="800" height="600" onclick="openImg(this)">
+    <img src="https://i.imgur.com/1eOkkpi.jpeg" alt="São Pedro Thermas — águas termais 5" loading="lazy" width="800" height="600" onclick="openImg(this)">
+    <img src="https://i.imgur.com/VNUPsl2.jpeg" alt="São Pedro Thermas — estrutura do resort 6" loading="lazy" width="800" height="600" onclick="openImg(this)">
+    <img src="https://i.imgur.com/5pbb4ba.jpeg" alt="São Pedro Thermas — toboáguas 7" loading="lazy" width="800" height="600" onclick="openImg(this)">
+    <img src="https://i.imgur.com/uop7Fdo.jpeg" alt="São Pedro Thermas — parque aquático 8" loading="lazy" width="800" height="600" onclick="openImg(this)">
+    <img src="https://i.imgur.com/JAaWFiz.jpeg" alt="São Pedro Thermas — jardins e paisagismo 9" loading="lazy" width="800" height="600" onclick="openImg(this)">
+    <img src="https://i.imgur.com/61P9R4K.jpeg" alt="São Pedro Thermas — restaurante 10" loading="lazy" width="800" height="600" onclick="openImg(this)">
+    <img src="https://i.imgur.com/VVc8UtU.jpeg" alt="São Pedro Thermas — vista aérea 11" loading="lazy" width="800" height="600" onclick="openImg(this)">
   </div>
 </div>
 
-<!-- ── PAINEL: VÍDEOS ─────────────────────────────── -->
+<!-- ── PAINEL: VÍDEOS HD ───────────────────────────── -->
 <div class="gallery-panel" id="panel-videos" role="tabpanel" aria-labelledby="tab-videos">
-  <section class="videos-section">
+  <section class="videos-section" aria-label="Galeria de vídeos HD — São Pedro Thermas">
     <div class="videos-grid">
 
+      <!-- Vídeo 1 -->
       <div class="video-card">
         <span class="video-label">♨️ São Pedro Thermas</span>
+        <span class="vm-hd-badge">HD</span>
         <video
           controls
           playsinline
           preload="metadata"
-          poster="https://i.imgur.com/Vycn9k9h.jpg"
+          poster="https://i.imgur.com/Vycn9k9.jpg"
           aria-label="Vídeo 1 — São Pedro Thermas">
           <source src="https://i.imgur.com/Vycn9k9.mp4" type="video/mp4">
           Seu navegador não suporta vídeo HTML5.
         </video>
+        <button class="play-hd-btn"
+                aria-label="Assistir vídeo 1 em HD"
+                data-src="https://i.imgur.com/Vycn9k9.mp4"
+                data-title="São Pedro Thermas — Vídeo 1">
+          <svg class="play-icon" xmlns="http://www.w3.org/2000/svg" width="72" height="72" viewBox="0 0 72 72" aria-hidden="true">
+            <circle cx="36" cy="36" r="36" fill="rgba(0,0,0,0.62)"/>
+            <polygon points="28,22 54,36 28,50" fill="#D4AF37"/>
+          </svg>
+        </button>
       </div>
 
+      <!-- Vídeo 2 -->
       <div class="video-card">
         <span class="video-label">♨️ São Pedro Thermas</span>
+        <span class="vm-hd-badge">HD</span>
         <video
           controls
           playsinline
           preload="metadata"
-          poster="https://i.imgur.com/lhPr4MBh.jpg"
+          poster="https://i.imgur.com/lhPr4MB.jpg"
           aria-label="Vídeo 2 — São Pedro Thermas">
           <source src="https://i.imgur.com/lhPr4MB.mp4" type="video/mp4">
           Seu navegador não suporta vídeo HTML5.
         </video>
+        <button class="play-hd-btn"
+                aria-label="Assistir vídeo 2 em HD"
+                data-src="https://i.imgur.com/lhPr4MB.mp4"
+                data-title="São Pedro Thermas — Vídeo 2">
+          <svg class="play-icon" xmlns="http://www.w3.org/2000/svg" width="72" height="72" viewBox="0 0 72 72" aria-hidden="true">
+            <circle cx="36" cy="36" r="36" fill="rgba(0,0,0,0.62)"/>
+            <polygon points="28,22 54,36 28,50" fill="#D4AF37"/>
+          </svg>
+        </button>
       </div>
 
+      <!-- Vídeo 3 -->
       <div class="video-card">
         <span class="video-label">♨️ São Pedro Thermas</span>
+        <span class="vm-hd-badge">HD</span>
         <video
           controls
           playsinline
           preload="metadata"
-          poster="https://i.imgur.com/gcoE2p3h.jpg"
+          poster="https://i.imgur.com/gcoE2p3.jpg"
           aria-label="Vídeo 3 — São Pedro Thermas">
           <source src="https://i.imgur.com/gcoE2p3.mp4" type="video/mp4">
           Seu navegador não suporta vídeo HTML5.
         </video>
+        <button class="play-hd-btn"
+                aria-label="Assistir vídeo 3 em HD"
+                data-src="https://i.imgur.com/gcoE2p3.mp4"
+                data-title="São Pedro Thermas — Vídeo 3">
+          <svg class="play-icon" xmlns="http://www.w3.org/2000/svg" width="72" height="72" viewBox="0 0 72 72" aria-hidden="true">
+            <circle cx="36" cy="36" r="36" fill="rgba(0,0,0,0.62)"/>
+            <polygon points="28,22 54,36 28,50" fill="#D4AF37"/>
+          </svg>
+        </button>
       </div>
 
     </div>
   </section>
 </div>
 
-<!-- ── LIGHTBOX ───────────────────────────────────── -->
-<div id="lightbox" onclick="closeImg()">
-  <span class="close">✕</span>
-  <img id="lightbox-img" alt="Foto ampliada do resort">
+<!-- ── MODAL DE VÍDEO HD ──────────────────────────── -->
+<div id="video-modal" role="dialog" aria-modal="true" aria-label="Player de vídeo HD — São Pedro Thermas">
+  <button class="vm-close" id="vm-close" aria-label="Fechar player de vídeo">✕</button>
+  <div class="vm-inner">
+    <video id="vm-player" controls playsinline preload="metadata" aria-label="Vídeo HD em tela cheia"></video>
+    <p class="vm-title" id="vm-title" aria-live="polite"></p>
+  </div>
 </div>
 
-<a href="https://wa.me/5517982006382?text=Ol%C3%A1!%20Tenho%20interesse%20no%20S%C3%A3o%20Pedro%20Thermas.%20Pode%20me%20enviar%20mais%20informa%C3%A7%C3%B5es%20e%20valores%3F" class="whatsapp" target="_blank" rel="noopener noreferrer">
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="16" height="16" aria-hidden="true" focusable="false"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg>
- WhatsApp — Solicitar Orçamento
+<!-- ── LIGHTBOX DE FOTOS ──────────────────────────── -->
+<div id="lightbox" role="dialog" aria-modal="true" aria-label="Foto ampliada do resort" onclick="closeImg()">
+  <span class="close" role="button" aria-label="Fechar foto">✕</span>
+  <img id="lightbox-img" alt="Foto ampliada — São Pedro Thermas">
+</div>
+
+<!-- ── BOTÕES FLUTUANTES ──────────────────────────── -->
+<a href="https://wa.me/5517982006382?text=Ol%C3%A1!%20Tenho%20interesse%20no%20S%C3%A3o%20Pedro%20Thermas.%20Pode%20me%20enviar%20mais%20informa%C3%A7%C3%B5es%20e%20valores%3F"
+   class="whatsapp"
+   target="_blank"
+   rel="noopener noreferrer"
+   aria-label="Solicitar orçamento via WhatsApp">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="16" height="16" aria-hidden="true" focusable="false"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+  WhatsApp — Solicitar Orçamento
 </a>
 
-<a href="https://www.instagram.com/julianasilvaoliveira.joao" class="instagram" target="_blank" rel="noopener noreferrer">
-📸 Instagram Oficial
+<a href="https://www.instagram.com/julianasilvaoliveira.joao"
+   class="instagram"
+   target="_blank"
+   rel="noopener noreferrer"
+   aria-label="Instagram Oficial">
+  📸 Instagram Oficial
 </a>
 
 <a href="../chat.html?resort=saopedro" class="chat-resort">🤖 Chat IA</a>
 
+<!-- ── SCRIPTS ─────────────────────────────────────── -->
 <script>
-// Salvar contexto do resort para o Concierge IA
+// Contexto do resort para o Concierge IA
 try {
   sessionStorage.setItem('hospedah_busca_ctx', JSON.stringify({ resort: 'saopedro' }));
 } catch(e) {}
 
-/* ── Troca de abas ── */
-function switchTab(tab) {
-  document.querySelectorAll('.gallery-tab').forEach(function(btn) {
-    btn.classList.remove('active');
-    btn.setAttribute('aria-selected', 'false');
-  });
-  document.querySelectorAll('.gallery-panel').forEach(function(panel) {
-    panel.classList.remove('active');
-  });
-  document.getElementById('tab-' + tab).classList.add('active');
-  document.getElementById('tab-' + tab).setAttribute('aria-selected', 'true');
-  document.getElementById('panel-' + tab).classList.add('active');
+/* ════════════════════════════════════════════
+   ABAS — troca com scroll suave + WCAG 2.1
+════════════════════════════════════════════ */
+var tabs   = Array.from(document.querySelectorAll('.gallery-tab'));
+var panels = Array.from(document.querySelectorAll('.gallery-panel'));
 
-  // Pausa todos os vídeos ao sair da aba vídeos
-  if (tab !== 'videos') {
+function switchTab(name) {
+  tabs.forEach(function(btn) {
+    var isActive = btn.id === 'tab-' + name;
+    btn.classList.toggle('active', isActive);
+    btn.setAttribute('aria-selected', String(isActive));
+    btn.tabIndex = isActive ? 0 : -1;
+  });
+  panels.forEach(function(p) {
+    p.classList.toggle('active', p.id === 'panel-' + name);
+  });
+  // Pausa todos os vídeos ao sair da aba de vídeos
+  if (name !== 'videos') {
     document.querySelectorAll('video').forEach(function(v) { v.pause(); });
   }
+  // Scroll suave para a galeria em mobile
+  var panel = document.getElementById('panel-' + name);
+  if (panel) panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
-/* ── Lightbox ── */
+// Navegação por teclado nas abas (← →) — WCAG 2.1 §4.1.3
+document.querySelector('[role="tablist"]').addEventListener('keydown', function(e) {
+  var idx = tabs.findIndex(function(t) { return t === document.activeElement; });
+  if (idx === -1) return;
+  if (e.key === 'ArrowRight' && idx < tabs.length - 1) {
+    tabs[idx + 1].focus();
+    tabs[idx + 1].click();
+    e.preventDefault();
+  } else if (e.key === 'ArrowLeft' && idx > 0) {
+    tabs[idx - 1].focus();
+    tabs[idx - 1].click();
+    e.preventDefault();
+  }
+});
+
+/* ════════════════════════════════════════════
+   MODAL DE VÍDEO HD
+════════════════════════════════════════════ */
+var videoModal  = document.getElementById('video-modal');
+var vmPlayer    = document.getElementById('vm-player');
+var vmTitle     = document.getElementById('vm-title');
+var vmClose     = document.getElementById('vm-close');
+var _lastFocus  = null;
+
+function openVideoModal(src, title) {
+  _lastFocus = document.activeElement;
+  vmPlayer.src = src;
+  vmTitle.textContent = title || '';
+  videoModal.classList.add('open');
+  document.body.style.overflow = 'hidden';
+  vmPlayer.play().catch(function() {});
+  vmClose.focus();
+}
+
+function closeVideoModal() {
+  vmPlayer.pause();
+  vmPlayer.removeAttribute('src');
+  vmPlayer.load();
+  vmTitle.textContent = '';
+  videoModal.classList.remove('open');
+  document.body.style.overflow = '';
+  if (_lastFocus) _lastFocus.focus();
+}
+
+vmClose.addEventListener('click', closeVideoModal);
+videoModal.addEventListener('click', function(e) {
+  if (e.target === videoModal) closeVideoModal();
+});
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape' && videoModal.classList.contains('open')) closeVideoModal();
+});
+
+// Delegar evento nos botões play-hd-btn
+document.querySelectorAll('.play-hd-btn').forEach(function(btn) {
+  btn.addEventListener('click', function(e) {
+    e.stopPropagation();
+    openVideoModal(btn.dataset.src, btn.dataset.title);
+  });
+});
+
+/* ════════════════════════════════════════════
+   INTERSECTION OBSERVER — pausa vídeos fora da viewport
+════════════════════════════════════════════ */
+if ('IntersectionObserver' in window) {
+  var ioVideos = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (!entry.isIntersecting) entry.target.pause();
+    });
+  }, { threshold: 0.15 });
+  document.querySelectorAll('video').forEach(function(v) { ioVideos.observe(v); });
+}
+
+/* ════════════════════════════════════════════
+   LIGHTBOX DE FOTOS
+════════════════════════════════════════════ */
+var lightbox    = document.getElementById('lightbox');
+var lightboxImg = document.getElementById('lightbox-img');
+var _lbFocus    = null;
+
 function openImg(img) {
-  document.getElementById('lightbox').style.display = 'flex';
-  document.getElementById('lightbox-img').src = img.src;
-}
-function closeImg() {
-  document.getElementById('lightbox').style.display = 'none';
+  _lbFocus = document.activeElement;
+  lightboxImg.src = img.src;
+  lightboxImg.alt = img.alt || 'Foto ampliada — São Pedro Thermas';
+  lightbox.classList.add('open');
+  document.body.style.overflow = 'hidden';
 }
 
-document.getElementById('lightbox').style.cssText =
-  'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.95);display:none;align-items:center;justify-content:center;z-index:9999;cursor:zoom-out;';
+function closeImg() {
+  lightbox.classList.remove('open');
+  lightboxImg.src = '';
+  document.body.style.overflow = '';
+  if (_lbFocus) _lbFocus.focus();
+}
+
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape' && lightbox.classList.contains('open')) closeImg();
+});
 </script>
-<script>if ('serviceWorker' in navigator) { navigator.serviceWorker.register('/sw.js').catch(function(){}); }</script>
+
+<script>
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js').catch(function() {});
+}
+</script>
 
 <!-- SECURITY SEAL -->
 <div class="security-seal" aria-label="Site seguro">🔒 <strong>Site Seguro</strong> &nbsp;·&nbsp; SSL Criptografado &nbsp;·&nbsp; 🛡️ Dados Protegidos</div>
