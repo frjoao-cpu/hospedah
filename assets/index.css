@@ -2390,3 +2390,26 @@ html[data-theme="light"] .insta-feed-skeleton {
   opacity: .5;
   margin: 0;
 }
+
+.resort-insta-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 18px;
+  border-radius: 30px;
+  background: linear-gradient(45deg, #f58529, #833ab4);
+  color: #fff;
+  text-decoration: none;
+  font-weight: 700;
+  transition: opacity .2s, transform .2s;
+  margin: 0 0 12px;
+}
+
+.resort-insta-btn:hover {
+  opacity: .9;
+  transform: translateY(-2px);
+}
+
+.resort-insta-btn svg {
+  flex-shrink: 0;
+}
