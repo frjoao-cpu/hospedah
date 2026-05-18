@@ -633,6 +633,204 @@ html[data-theme="light"] .section-title { color: #8B6914; }
 }
 .resort-wpp-btn svg { flex-shrink: 0; }
 .resort-wpp-btn:hover { background: #1ebe5a; }
+
+/* ══════════════════════════════════════════════
+   SÃO PEDRO THERMAS — GALLERY TABS
+══════════════════════════════════════════════ */
+.sp-gallery-tabs {
+  display: flex;
+  gap: 10px;
+  margin: 16px 0 12px;
+  padding: 0 2px;
+  justify-content: center;
+}
+.sp-gallery-tab {
+  flex: 1;
+  max-width: 190px;
+  padding: 10px 20px;
+  font-size: 0.93rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  border: 2px solid #D4AF37;
+  border-radius: 40px;
+  background: transparent;
+  color: #D4AF37;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+  outline-offset: 3px;
+}
+.sp-gallery-tab.active,
+.sp-gallery-tab:hover,
+.sp-gallery-tab:focus-visible {
+  background: #D4AF37;
+  color: #1a1a1a;
+  box-shadow: 0 4px 18px rgba(212,175,55,0.4);
+}
+.sp-gallery-panel { display: none; }
+.sp-gallery-panel.active { display: block; }
+
+/* ══════════════════════════════════════════════
+   SÃO PEDRO THERMAS — VIDEO GRID
+══════════════════════════════════════════════ */
+.sp-videos-section { padding: 14px 0 24px; }
+.sp-videos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+  padding: 0 4px;
+}
+.sp-video-card {
+  position: relative;
+  border-radius: 16px;
+  overflow: hidden;
+  background: #0d0d0d;
+  box-shadow: 0 6px 30px rgba(0,0,0,0.6), 0 0 0 1.5px rgba(212,175,55,0.22);
+  transition: transform 0.25s, box-shadow 0.25s;
+}
+.sp-video-card:hover {
+  transform: translateY(-5px) scale(1.015);
+  box-shadow: 0 14px 44px rgba(0,0,0,0.75), 0 0 0 2px rgba(212,175,55,0.55);
+}
+.sp-video-card video {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  background: #000;
+  outline: none;
+}
+.sp-video-card::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #D4AF37, #f5d97a, #D4AF37);
+  pointer-events: none;
+  z-index: 2;
+}
+.sp-video-label {
+  position: absolute;
+  top: 10px; left: 10px;
+  background: rgba(0,0,0,0.68);
+  color: #D4AF37;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  padding: 3px 11px;
+  border-radius: 20px;
+  backdrop-filter: blur(7px);
+  pointer-events: none;
+  text-transform: uppercase;
+  z-index: 3;
+}
+.sp-vm-hd-badge {
+  position: absolute;
+  top: 10px; right: 10px;
+  background: linear-gradient(135deg, #D4AF37 0%, #f5d97a 100%);
+  color: #1a1a1a;
+  font-size: 0.62rem;
+  font-weight: 900;
+  padding: 3px 9px;
+  border-radius: 6px;
+  letter-spacing: 0.12em;
+  pointer-events: none;
+  z-index: 3;
+  box-shadow: 0 2px 8px rgba(212,175,55,0.45);
+}
+.sp-play-hd-btn {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  z-index: 4;
+  transition: background 0.22s;
+}
+.sp-play-hd-btn:hover,
+.sp-play-hd-btn:focus-visible {
+  background: rgba(0,0,0,0.32);
+  outline: none;
+}
+.sp-play-icon {
+  opacity: 0;
+  transition: opacity 0.22s, transform 0.22s;
+  transform: scale(0.85);
+  filter: drop-shadow(0 4px 16px rgba(0,0,0,0.8));
+}
+.sp-video-card:hover .sp-play-hd-btn .sp-play-icon,
+.sp-play-hd-btn:focus-visible .sp-play-icon {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* ══════════════════════════════════════════════
+   SÃO PEDRO THERMAS — VIDEO MODAL HD
+══════════════════════════════════════════════ */
+#sp-video-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.97);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  z-index: 10000;
+  padding: 20px;
+}
+#sp-video-modal.open { display: flex; }
+.sp-vm-inner {
+  width: min(94vw, 1200px);
+  position: relative;
+}
+#sp-vm-player {
+  display: block;
+  width: 100%;
+  max-height: 80vh;
+  border-radius: 12px;
+  box-shadow: 0 0 70px rgba(212,175,55,0.28), 0 0 0 1.5px rgba(212,175,55,0.3);
+  outline: none;
+  background: #000;
+}
+.sp-vm-close {
+  position: fixed;
+  top: 18px; right: 20px;
+  background: rgba(212,175,55,0.12);
+  border: 1.5px solid #D4AF37;
+  color: #D4AF37;
+  font-size: 1.3rem;
+  width: 42px; height: 42px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s, transform 0.2s;
+  z-index: 10001;
+}
+.sp-vm-close:hover,
+.sp-vm-close:focus-visible {
+  background: #D4AF37;
+  color: #1a1a1a;
+  transform: scale(1.1);
+  outline: none;
+}
+.sp-vm-title {
+  color: rgba(212,175,55,0.8);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-top: 14px;
+  text-align: center;
+}
+@media (max-width: 600px) {
+  .sp-videos-grid { grid-template-columns: 1fr; gap: 14px; padding: 0 2px; }
+  .sp-gallery-tab { font-size: 0.83rem; padding: 9px 12px; }
+  .sp-vm-title { font-size: 0.72rem; }
+}
 .gallery {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(240px,1fr));
