@@ -655,6 +655,8 @@ html[data-theme="light"] .section-title { color: #8B6914; }
 .sp-videos-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  max-width: 920px;
+  margin: 0 auto;
   gap: 20px;
   padding: 0 4px;
 }
@@ -815,10 +817,16 @@ html[data-theme="light"] .section-title { color: #8B6914; }
   margin-top: 14px;
   text-align: center;
 }
-@media (max-width: 600px) {
+@media (max-width: 840px) {
   .sp-videos-grid {
     grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
+    gap: 14px;
+  }
+}
+@media (max-width: 480px) {
+  .sp-videos-grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
     padding: 0 2px;
   }
   .sp-play-icon { width: 44px; height: 44px; }
