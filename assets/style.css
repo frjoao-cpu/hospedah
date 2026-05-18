@@ -79,6 +79,10 @@
     opacity: 0.9;
 }
 
+.instagram svg {
+    flex-shrink: 0;
+}
+
 @media (max-width: 600px) {
     .instagram {
         right: auto;
