@@ -603,6 +603,28 @@ html[data-theme="light"] .section-title { color: #8B6914; }
   text-decoration: none; font-weight: 500;
   margin-bottom: 18px; display: inline-block;
 }
+.resort-insta-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 18px;
+  border-radius: 30px;
+  background: linear-gradient(135deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+  color: #fff;
+  font-size: 0.88rem;
+  font-weight: 700;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.2s;
+  margin-top: 6px;
+}
+.resort-insta-btn:hover,
+.resort-insta-btn:focus-visible {
+  opacity: 0.88;
+  transform: translateY(-2px);
+  outline: none;
+}
 .resort-wpp-btn {
   display: inline-flex; align-items: center; gap: 6px;
   background: #25D366; color: #fff; font-size: .88rem; font-weight: 600;
