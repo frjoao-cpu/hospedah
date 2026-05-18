@@ -610,7 +610,6 @@ html[data-theme="light"] .section-title { color: #8B6914; }
   margin-bottom: 18px; transition: background .2s;
 }
 .resort-wpp-btn svg { flex-shrink: 0; }
-.resort-wpp-btn .wpp-ig-icon { opacity: 0.82; }
 .resort-wpp-btn:hover { background: #1ebe5a; }
 
 /* ══════════════════════════════════════════════
