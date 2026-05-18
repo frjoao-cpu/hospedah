@@ -46,6 +46,9 @@
     '.hsh-nav a.active { background:rgba(212,175,55,.18); color:#D4AF37; border-color:rgba(212,175,55,.5); font-weight:700; }',
     '.hsh-nav a[aria-current="page"] { background:rgba(212,175,55,.18); color:#D4AF37; border-color:rgba(212,175,55,.5); font-weight:700; }',
     '@media(max-width:680px){ .hsh-nav { display:none; } .hsh-header { padding:0 16px; min-height:64px; } .hsh-logo-wordmark { font-size:1.4em; letter-spacing:3px; } }',
+    '.hsh-back-btn { color:#D4AF37; text-decoration:none; font-size:.84em; font-weight:600; padding:6px 14px; border-radius:20px; border:1px solid rgba(212,175,55,.45); white-space:nowrap; transition:background .2s,color .2s; margin-left:auto; }',
+    '.hsh-back-btn:hover { background:rgba(212,175,55,.15); }',
+    '.hsh-back-btn svg { vertical-align:middle; margin-right:4px; }',
   ].join('\n');
 
   function currentPage() {
@@ -67,8 +70,14 @@
       var cls = item.key === activePage ? ' class="active" aria-current="page"' : '';
       return '<a href="' + item.href + '"' + cls + '>' + item.label + '</a>';
     }).join('');
+    var backBtn = activePage === 'resort'
+      ? '<a href="/index.html#galeria" class="hsh-back-btn" aria-label="Voltar &agrave; galeria de resorts">' +
+        '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>' +
+        'Voltar</a>'
+      : '';
     return '<header class="hsh-header">' +
       '<a href="/index.html" class="hsh-logo" aria-label="HOSPEDAH in&iacute;cio"><span class="hsh-logo-wordmark">HOSPEDAH</span></a>' +
+      backBtn +
       '<nav class="hsh-nav" aria-label="Menu principal">' + links + '</nav>' +
       '</header>';
   }
