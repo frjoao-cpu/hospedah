@@ -653,10 +653,10 @@ html[data-theme="light"] .section-title { color: #8B6914; }
 .sp-videos-section { padding: 14px 0 24px; }
 .sp-videos-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  max-width: 920px;
+  grid-template-columns: repeat(3, 1fr);
+  max-width: 720px;
   margin: 0 auto;
-  gap: 20px;
+  gap: 16px;
   padding: 0 4px;
 }
 .sp-video-card {
@@ -816,10 +816,10 @@ html[data-theme="light"] .section-title { color: #8B6914; }
   margin-top: 14px;
   text-align: center;
 }
-@media (max-width: 840px) {
+@media (max-width: 600px) {
   .sp-videos-grid {
     grid-template-columns: repeat(2, 1fr);
-    gap: 14px;
+    gap: 12px;
   }
 }
 @media (max-width: 480px) {

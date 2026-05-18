@@ -27,46 +27,32 @@
 
 <style>
 /* ══════════════════════════════════════════════
-   GALLERY TABS
+   SECTION HEADING
 ══════════════════════════════════════════════ */
-.gallery-tabs {
-  display: flex;
-  gap: 10px;
-  margin: 20px 0 0;
-  padding: 0 4px;
-  justify-content: center;
-}
-.gallery-tab {
-  flex: 1;
-  max-width: 190px;
-  padding: 11px 22px;
-  font-size: 0.95rem;
+.sp-section-heading {
+  font-size: 1.05rem;
   font-weight: 700;
-  letter-spacing: 0.04em;
-  border: 2px solid #D4AF37;
-  border-radius: 40px;
-  background: transparent;
   color: #D4AF37;
-  cursor: pointer;
-  transition: background 0.2s, color 0.2s, box-shadow 0.2s;
-  outline-offset: 3px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin: 28px 0 14px;
+  padding: 0 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
-.gallery-tab.active,
-.gallery-tab:hover,
-.gallery-tab:focus-visible {
-  background: #D4AF37;
-  color: #1a1a1a;
-  box-shadow: 0 4px 18px rgba(212,175,55,0.4);
+.sp-section-heading::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: rgba(212,175,55,0.3);
 }
-
-.gallery-panel { display: none; }
-.gallery-panel.active { display: block; }
 
 /* ══════════════════════════════════════════════
    VIDEO GRID
 ══════════════════════════════════════════════ */
 .videos-section {
-  padding: 18px 0 28px;
+  padding: 0 0 28px;
 }
 .videos-grid {
   display: grid;
@@ -292,7 +278,6 @@
     gap: 16px;
     padding: 0 4px;
   }
-  .gallery-tab { font-size: 0.85rem; padding: 9px 14px; }
   .vm-title { font-size: 0.72rem; }
 }
 </style>
@@ -302,111 +287,91 @@
 
 <h1>♨️ São Pedro Thermas</h1>
 
-<!-- ── ABAS DE GALERIA ────────────────────────────── -->
-<div class="gallery-tabs" role="tablist" aria-label="Galeria do resort">
-  <button class="gallery-tab active"
-          role="tab"
-          aria-selected="true"
-          aria-controls="panel-fotos"
-          id="tab-fotos"
-          tabindex="0"
-          onclick="switchTab('fotos')">📷 Fotos</button>
-  <button class="gallery-tab"
-          role="tab"
-          aria-selected="false"
-          aria-controls="panel-videos"
-          id="tab-videos"
-          tabindex="-1"
-          onclick="switchTab('videos')">🎬 Vídeos HD</button>
+<!-- ── FOTOS ─────────────────────────────────────── -->
+<p class="sp-section-heading">📷 Fotos</p>
+<div class="gallery">
+  <img src="https://i.imgur.com/pyEKOtQ.jpeg" alt="São Pedro Thermas — vista das piscinas termais" loading="eager" fetchpriority="high" width="800" height="600" onclick="openImg(this)">
+  <img src="https://i.imgur.com/1HeNjKT.jpeg" alt="São Pedro Thermas — área de lazer" loading="lazy" width="800" height="600" onclick="openImg(this)">
+  <img src="https://i.imgur.com/9kgfR2y.jpeg" alt="São Pedro Thermas — piscina aquecida" loading="lazy" width="800" height="600" onclick="openImg(this)">
+  <img src="https://i.imgur.com/2MinAKg.jpeg" alt="São Pedro Thermas — acomodações premium" loading="lazy" width="800" height="600" onclick="openImg(this)">
+  <img src="https://i.imgur.com/1eOkkpi.jpeg" alt="São Pedro Thermas — águas termais" loading="lazy" width="800" height="600" onclick="openImg(this)">
+  <img src="https://i.imgur.com/VNUPsl2.jpeg" alt="São Pedro Thermas — estrutura do resort" loading="lazy" width="800" height="600" onclick="openImg(this)">
+  <img src="https://i.imgur.com/5pbb4ba.jpeg" alt="São Pedro Thermas — toboáguas" loading="lazy" width="800" height="600" onclick="openImg(this)">
+  <img src="https://i.imgur.com/uop7Fdo.jpeg" alt="São Pedro Thermas — parque aquático" loading="lazy" width="800" height="600" onclick="openImg(this)">
+  <img src="https://i.imgur.com/JAaWFiz.jpeg" alt="São Pedro Thermas — restaurante e buffet" loading="lazy" width="800" height="600" onclick="openImg(this)">
+  <img src="https://i.imgur.com/61P9R4K.jpeg" alt="São Pedro Thermas — vista aérea do resort" loading="lazy" width="800" height="600" onclick="openImg(this)">
 </div>
 
-<!-- ── PAINEL: FOTOS (10 únicas, sem duplicidade) ─── -->
-<div class="gallery-panel active" id="panel-fotos" role="tabpanel" aria-labelledby="tab-fotos">
-  <div class="gallery">
-    <img src="https://i.imgur.com/pyEKOtQ.jpeg" alt="São Pedro Thermas — vista das piscinas termais" loading="eager" fetchpriority="high" width="800" height="600" onclick="openImg(this)">
-    <img src="https://i.imgur.com/1HeNjKT.jpeg" alt="São Pedro Thermas — área de lazer" loading="lazy" width="800" height="600" onclick="openImg(this)">
-    <img src="https://i.imgur.com/9kgfR2y.jpeg" alt="São Pedro Thermas — piscina aquecida" loading="lazy" width="800" height="600" onclick="openImg(this)">
-    <img src="https://i.imgur.com/2MinAKg.jpeg" alt="São Pedro Thermas — acomodações premium" loading="lazy" width="800" height="600" onclick="openImg(this)">
-    <img src="https://i.imgur.com/1eOkkpi.jpeg" alt="São Pedro Thermas — águas termais" loading="lazy" width="800" height="600" onclick="openImg(this)">
-    <img src="https://i.imgur.com/VNUPsl2.jpeg" alt="São Pedro Thermas — estrutura do resort" loading="lazy" width="800" height="600" onclick="openImg(this)">
-    <img src="https://i.imgur.com/5pbb4ba.jpeg" alt="São Pedro Thermas — toboáguas" loading="lazy" width="800" height="600" onclick="openImg(this)">
-    <img src="https://i.imgur.com/uop7Fdo.jpeg" alt="São Pedro Thermas — parque aquático" loading="lazy" width="800" height="600" onclick="openImg(this)">
-    <img src="https://i.imgur.com/JAaWFiz.jpeg" alt="São Pedro Thermas — restaurante e buffet" loading="lazy" width="800" height="600" onclick="openImg(this)">
-    <img src="https://i.imgur.com/61P9R4K.jpeg" alt="São Pedro Thermas — vista aérea do resort" loading="lazy" width="800" height="600" onclick="openImg(this)">
-  </div>
-</div>
+<!-- ── VÍDEOS HD ──────────────────────────────────── -->
+<p class="sp-section-heading">🎬 Vídeos HD</p>
+<section class="videos-section" aria-label="Galeria de vídeos HD — São Pedro Thermas">
+  <div class="videos-grid">
 
-<!-- ── PAINEL: VÍDEOS HD (3 únicos) ──────────────── -->
-<div class="gallery-panel" id="panel-videos" role="tabpanel" aria-labelledby="tab-videos">
-  <section class="videos-section" aria-label="Galeria de vídeos HD — São Pedro Thermas">
-    <div class="videos-grid">
-
-      <!-- Vídeo 1 -->
-      <div class="video-card">
-        <span class="video-label">♨️ São Pedro Thermas</span>
-        <span class="vm-hd-badge">HD</span>
-        <video controls playsinline preload="metadata"
-               poster="https://i.imgur.com/Vycn9k9.jpg"
-               aria-label="Vídeo 1 — São Pedro Thermas">
-          <source src="https://i.imgur.com/Vycn9k9.mp4" type="video/mp4">
-          Seu navegador não suporta vídeo HTML5.
-        </video>
-        <button class="play-hd-btn"
-                aria-label="Assistir vídeo 1 em HD"
-                data-src="https://i.imgur.com/Vycn9k9.mp4"
-                data-title="São Pedro Thermas — Vídeo 1">
-          <svg class="play-icon" xmlns="http://www.w3.org/2000/svg" width="72" height="72" viewBox="0 0 72 72" aria-hidden="true">
-            <circle cx="36" cy="36" r="36" fill="rgba(0,0,0,0.62)"/>
-            <polygon points="28,22 54,36 28,50" fill="#D4AF37"/>
-          </svg>
-        </button>
-      </div>
-
-      <!-- Vídeo 2 -->
-      <div class="video-card">
-        <span class="video-label">♨️ São Pedro Thermas</span>
-        <span class="vm-hd-badge">HD</span>
-        <video controls playsinline preload="metadata"
-               poster="https://i.imgur.com/lhPr4MB.jpg"
-               aria-label="Vídeo 2 — São Pedro Thermas">
-          <source src="https://i.imgur.com/lhPr4MB.mp4" type="video/mp4">
-          Seu navegador não suporta vídeo HTML5.
-        </video>
-        <button class="play-hd-btn"
-                aria-label="Assistir vídeo 2 em HD"
-                data-src="https://i.imgur.com/lhPr4MB.mp4"
-                data-title="São Pedro Thermas — Vídeo 2">
-          <svg class="play-icon" xmlns="http://www.w3.org/2000/svg" width="72" height="72" viewBox="0 0 72 72" aria-hidden="true">
-            <circle cx="36" cy="36" r="36" fill="rgba(0,0,0,0.62)"/>
-            <polygon points="28,22 54,36 28,50" fill="#D4AF37"/>
-          </svg>
-        </button>
-      </div>
-
-      <!-- Vídeo 3 -->
-      <div class="video-card">
-        <span class="video-label">♨️ São Pedro Thermas</span>
-        <span class="vm-hd-badge">HD</span>
-        <video controls playsinline preload="metadata"
-               poster="https://i.imgur.com/gcoE2p3.jpg"
-               aria-label="Vídeo 3 — São Pedro Thermas">
-          <source src="https://i.imgur.com/gcoE2p3.mp4" type="video/mp4">
-          Seu navegador não suporta vídeo HTML5.
-        </video>
-        <button class="play-hd-btn"
-                aria-label="Assistir vídeo 3 em HD"
-                data-src="https://i.imgur.com/gcoE2p3.mp4"
-                data-title="São Pedro Thermas — Vídeo 3">
-          <svg class="play-icon" xmlns="http://www.w3.org/2000/svg" width="72" height="72" viewBox="0 0 72 72" aria-hidden="true">
-            <circle cx="36" cy="36" r="36" fill="rgba(0,0,0,0.62)"/>
-            <polygon points="28,22 54,36 28,50" fill="#D4AF37"/>
-          </svg>
-        </button>
-      </div>
-
+    <!-- Vídeo 1 -->
+    <div class="video-card">
+      <span class="video-label">♨️ São Pedro Thermas</span>
+      <span class="vm-hd-badge">HD</span>
+      <video controls playsinline preload="metadata"
+             poster="https://i.imgur.com/Vycn9k9.jpg"
+             aria-label="Vídeo 1 — São Pedro Thermas">
+        <source src="https://i.imgur.com/Vycn9k9.mp4" type="video/mp4">
+        Seu navegador não suporta vídeo HTML5.
+      </video>
+      <button class="play-hd-btn"
+              aria-label="Assistir vídeo 1 em HD"
+              data-src="https://i.imgur.com/Vycn9k9.mp4"
+              data-title="São Pedro Thermas — Vídeo 1">
+        <svg class="play-icon" xmlns="http://www.w3.org/2000/svg" width="72" height="72" viewBox="0 0 72 72" aria-hidden="true">
+          <circle cx="36" cy="36" r="36" fill="rgba(0,0,0,0.62)"/>
+          <polygon points="28,22 54,36 28,50" fill="#D4AF37"/>
+        </svg>
+      </button>
     </div>
-  </section>
-</div>
+
+    <!-- Vídeo 2 -->
+    <div class="video-card">
+      <span class="video-label">♨️ São Pedro Thermas</span>
+      <span class="vm-hd-badge">HD</span>
+      <video controls playsinline preload="metadata"
+             poster="https://i.imgur.com/lhPr4MB.jpg"
+             aria-label="Vídeo 2 — São Pedro Thermas">
+        <source src="https://i.imgur.com/lhPr4MB.mp4" type="video/mp4">
+        Seu navegador não suporta vídeo HTML5.
+      </video>
+      <button class="play-hd-btn"
+              aria-label="Assistir vídeo 2 em HD"
+              data-src="https://i.imgur.com/lhPr4MB.mp4"
+              data-title="São Pedro Thermas — Vídeo 2">
+        <svg class="play-icon" xmlns="http://www.w3.org/2000/svg" width="72" height="72" viewBox="0 0 72 72" aria-hidden="true">
+          <circle cx="36" cy="36" r="36" fill="rgba(0,0,0,0.62)"/>
+          <polygon points="28,22 54,36 28,50" fill="#D4AF37"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Vídeo 3 -->
+    <div class="video-card">
+      <span class="video-label">♨️ São Pedro Thermas</span>
+      <span class="vm-hd-badge">HD</span>
+      <video controls playsinline preload="metadata"
+             poster="https://i.imgur.com/gcoE2p3.jpg"
+             aria-label="Vídeo 3 — São Pedro Thermas">
+        <source src="https://i.imgur.com/gcoE2p3.mp4" type="video/mp4">
+        Seu navegador não suporta vídeo HTML5.
+      </video>
+      <button class="play-hd-btn"
+              aria-label="Assistir vídeo 3 em HD"
+              data-src="https://i.imgur.com/gcoE2p3.mp4"
+              data-title="São Pedro Thermas — Vídeo 3">
+        <svg class="play-icon" xmlns="http://www.w3.org/2000/svg" width="72" height="72" viewBox="0 0 72 72" aria-hidden="true">
+          <circle cx="36" cy="36" r="36" fill="rgba(0,0,0,0.62)"/>
+          <polygon points="28,22 54,36 28,50" fill="#D4AF37"/>
+        </svg>
+      </button>
+    </div>
+
+  </div>
+</section>
 
 <!-- ── MODAL DE VÍDEO HD ──────────────────────────── -->
 <div id="video-modal" role="dialog" aria-modal="true" aria-label="Player de vídeo HD — São Pedro Thermas">
@@ -448,37 +413,6 @@
 try {
   sessionStorage.setItem('hospedah_busca_ctx', JSON.stringify({ resort: 'saopedro' }));
 } catch(e) {}
-
-/* ── Abas (WCAG 2.1) ── */
-var tabs   = Array.from(document.querySelectorAll('.gallery-tab'));
-var panels = Array.from(document.querySelectorAll('.gallery-panel'));
-
-function switchTab(name) {
-  tabs.forEach(function(btn) {
-    var isActive = btn.id === 'tab-' + name;
-    btn.classList.toggle('active', isActive);
-    btn.setAttribute('aria-selected', String(isActive));
-    btn.tabIndex = isActive ? 0 : -1;
-  });
-  panels.forEach(function(p) {
-    p.classList.toggle('active', p.id === 'panel-' + name);
-  });
-  if (name !== 'videos') {
-    document.querySelectorAll('video').forEach(function(v) { v.pause(); });
-  }
-  var panel = document.getElementById('panel-' + name);
-  if (panel) panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-}
-
-document.querySelector('[role="tablist"]').addEventListener('keydown', function(e) {
-  var idx = tabs.findIndex(function(t) { return t === document.activeElement; });
-  if (idx === -1) return;
-  if (e.key === 'ArrowRight' && idx < tabs.length - 1) {
-    tabs[idx + 1].focus(); tabs[idx + 1].click(); e.preventDefault();
-  } else if (e.key === 'ArrowLeft' && idx > 0) {
-    tabs[idx - 1].focus(); tabs[idx - 1].click(); e.preventDefault();
-  }
-});
 
 /* ── Modal Vídeo HD ── */
 var videoModal = document.getElementById('video-modal');
