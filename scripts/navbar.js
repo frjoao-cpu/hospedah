@@ -49,6 +49,8 @@
     '.hsh-back-btn { color:#D4AF37; text-decoration:none; font-size:.84em; font-weight:600; padding:6px 14px; border-radius:20px; border:1px solid rgba(212,175,55,.45); white-space:nowrap; transition:background .2s,color .2s; margin-left:auto; }',
     '.hsh-back-btn:hover { background:rgba(212,175,55,.15); }',
     '.hsh-back-btn svg { vertical-align:middle; margin-right:4px; }',
+    '.hsh-resort-back-bar { display:none; }',
+    '@media(max-width:680px){ .hsh-resort-back-bar { display:flex; align-items:center; padding:10px 16px; background:rgba(212,175,55,0.07); border-bottom:1px solid rgba(212,175,55,0.18); } .hsh-resort-back-link { display:inline-flex; align-items:center; gap:6px; color:#D4AF37; text-decoration:none; font-size:0.87em; font-weight:700; padding:6px 14px; border-radius:20px; border:1px solid rgba(212,175,55,0.45); background:rgba(212,175,55,0.10); transition:background .2s; } .hsh-resort-back-link:hover,.hsh-resort-back-link:active { background:rgba(212,175,55,0.25); } .hsh-resort-back-link svg { flex-shrink:0; } }',
   ].join('\n');
 
   function currentPage() {
@@ -102,6 +104,20 @@
       placeholder.outerHTML = headerHTML;
     } else {
       document.body.insertAdjacentHTML('afterbegin', headerHTML);
+    }
+
+    // Inject mobile-only back bar for resort pages
+    if (activePage === 'resort') {
+      var header = document.querySelector('.hsh-header');
+      if (header) {
+        var backBarHTML = '<div class="hsh-resort-back-bar">' +
+          '<a href="/index.html#galeria" class="hsh-resort-back-link" aria-label="Voltar &agrave; galeria de resorts">' +
+          '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>' +
+          'Voltar &agrave; Galeria de Resorts' +
+          '</a>' +
+          '</div>';
+        header.insertAdjacentHTML('afterend', backBarHTML);
+      }
     }
 
     // Inject footer — look for placeholder or append to body
