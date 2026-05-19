@@ -1574,6 +1574,39 @@ thead .col-sticky-right {
 /* ==========================================
    PREVISÃO DE RECEBIMENTOS
 ========================================== */
+/* Alert banner — parcelas em atraso */
+.previsao-atraso-banner {
+  display: flex; align-items: center; gap: 12px;
+  background: rgba(231,76,60,0.10); border: 1px solid rgba(231,76,60,0.4);
+  border-radius: 10px; padding: 12px 16px; margin-bottom: 14px;
+  font-size: 0.85em;
+}
+.previsao-atraso-banner .pab-icon { font-size: 1.5em; flex-shrink: 0; }
+.previsao-atraso-banner .pab-body { flex: 1; }
+.previsao-atraso-banner .pab-title {
+  font-weight: 700; color: var(--vermelho); margin-bottom: 2px;
+}
+.previsao-atraso-banner .pab-detalhe { color: var(--cor-sub); font-size: 0.9em; }
+.previsao-atraso-banner .pab-valor {
+  font-size: 1.05em; font-weight: 700; color: var(--vermelho);
+  white-space: nowrap;
+}
+@keyframes pv-pulse-border {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(231,76,60,0.4); }
+  50%       { box-shadow: 0 0 0 4px rgba(231,76,60,0.12); }
+}
+/* Card com ao menos uma parcela em atraso */
+.previsao-card.has-atraso {
+  border-color: rgba(231,76,60,0.5) !important;
+  animation: pv-pulse-border 2.2s ease-in-out infinite;
+}
+/* Linha individual da parcela em atraso */
+.pv-row.pv-atraso {
+  background: rgba(231,76,60,0.07);
+  border-radius: 4px;
+  padding-left: 4px; padding-right: 4px;
+}
+.pv-row.pv-atraso .pv-row-valor { color: var(--vermelho); }
 .previsao-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
@@ -2826,6 +2859,7 @@ thead .col-sticky-right {
     <div class="section-title">📆 Previsão de Recebimentos de Comissão
       <span style="margin-left:auto;font-size:0.75em;color:var(--cor-sub);font-weight:400;">Por mês de recebimento previsto</span>
     </div>
+    <div id="previsaoAtrasoBanner"></div>
     <div class="previsao-grid" id="previsaoGrid">
       <div style="color: var(--cor-sub); font-size:0.9em; padding:10px;">
         Nenhuma previsão cadastrada. Adicione parcelas de comissão nas reservas.
@@ -6637,14 +6671,54 @@ function atualizarPrevisaoRecebimentos() {
   });
 
   var chaves = Object.keys(meses).sort();
+
+  /* ── Banner de atraso ── */
+  var bannerEl = document.getElementById('previsaoAtrasoBanner');
+  var hojeDate = new Date(); hojeDate.setHours(0, 0, 0, 0);
+  var hoje = _mesKey(new Date());
+  var atrasadoCount = 0, atrasadoTotal = 0;
+
+  chaves.forEach(function (key) {
+    meses[key].parcelas.forEach(function (p) {
+      if (p.status === 'recebida') return;
+      var isLate = false;
+      if (key < hoje) {
+        /* mês inteiro no passado */
+        isLate = true;
+      } else if (p.dia && key === hoje) {
+        /* mês atual: verificar o dia */
+        var parts = key.split('-');
+        var venc = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(p.dia, 10));
+        venc.setHours(0, 0, 0, 0);
+        if (venc < hojeDate) isLate = true;
+      }
+      if (isLate) { atrasadoCount++; atrasadoTotal += p.valor; }
+    });
+  });
+
+  if (bannerEl) {
+    if (atrasadoCount > 0) {
+      var pluralParcela = atrasadoCount === 1 ? 'parcela atrasada' : 'parcelas atrasadas';
+      bannerEl.innerHTML =
+        '<div class="previsao-atraso-banner">' +
+        '<span class="pab-icon">🚨</span>' +
+        '<div class="pab-body">' +
+        '<div class="pab-title">Pagamento(s) em atraso!</div>' +
+        '<div class="pab-detalhe">' + atrasadoCount + ' ' + pluralParcela + ' ainda não recebidas.</div>' +
+        '</div>' +
+        '<span class="pab-valor">' + formatBRL(atrasadoTotal) + '</span>' +
+        '</div>';
+    } else {
+      bannerEl.innerHTML = '';
+    }
+  }
+
   if (chaves.length === 0) {
     grid.innerHTML = '<div style="color: var(--cor-sub); font-size:0.9em; padding:10px;">Nenhuma previsão cadastrada. Adicione parcelas de comissão nas reservas.</div>';
     return;
   }
 
   var html = '';
-  var hoje = _mesKey(new Date());
-  var hojeDate = new Date(); hojeDate.setHours(0, 0, 0, 0);
   chaves.forEach(function (key) {
     var m = meses[key];
     /* "YYYY-MM" lexicographic comparison is reliable across year/month boundaries */
@@ -6653,32 +6727,39 @@ function atualizarPrevisaoRecebimentos() {
     var borderColor = isPast ? 'rgba(231,76,60,0.3)' : isPresent ? 'rgba(212,175,55,0.4)' : 'rgba(77,166,255,0.2)';
     var titleColor  = isPast ? 'var(--vermelho)' : isPresent ? 'var(--dourado)' : '#4da6ff';
     var icon        = isPast ? '🔴' : isPresent ? '🟡' : '📆';
+    var cardHasAtraso = false;
 
-    html += '<div class="previsao-card" style="border-color:' + borderColor + ';">' +
-      '<div class="pv-title" style="color:' + titleColor + ';">' + icon + ' ' + nomeDoMes(key) + '</div>';
-
+    var rowsHtml = '';
     m.parcelas.forEach(function (p) {
       var statusIcon = p.status === 'recebida' ? '✅' : p.status === 'parcial' ? '🔶' : '⏳';
-      /* Late payment alert: show when dia is set, full date is past, and not yet received */
+      /* Late payment: past month OR day within current month already passed */
       var isLate = false;
-      if (p.dia && p.status !== 'recebida') {
-        var parts = key.split('-');
-        var venc = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(p.dia, 10));
-        venc.setHours(0, 0, 0, 0);
-        if (venc < hojeDate) isLate = true;
+      if (p.status !== 'recebida') {
+        if (isPast) {
+          isLate = true;
+        } else if (p.dia && isPresent) {
+          var parts = key.split('-');
+          var venc = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(p.dia, 10));
+          venc.setHours(0, 0, 0, 0);
+          if (venc < hojeDate) isLate = true;
+        }
       }
+      if (isLate) cardHasAtraso = true;
       var diaBadge = p.dia
         ? '<span class="pv-dia' + (isLate ? ' pv-dia-late' : '') + '">' + parseInt(p.dia, 10) + '</span>'
         : '';
       var lateTag = isLate ? '<span class="parcela-atrasada">⚠</span>' : '';
-      html +=
-        '<div class="pv-row">' +
+      rowsHtml +=
+        '<div class="pv-row' + (isLate ? ' pv-atraso' : '') + '">' +
         '<span class="pv-row-left">' + statusIcon + ' ' + diaBadge + lateTag + '</span>' +
         '<span class="pv-row-label" title="' + escapeHtml(p.label) + '">' + escapeHtml(p.label) + '</span>' +
         '<span class="pv-row-valor">' + formatBRL(p.valor) + '</span>' +
         '</div>';
     });
 
+    html += '<div class="previsao-card' + (cardHasAtraso ? ' has-atraso' : '') + '" style="border-color:' + borderColor + ';">' +
+      '<div class="pv-title" style="color:' + titleColor + ';">' + icon + ' ' + nomeDoMes(key) + '</div>';
+    html += rowsHtml;
     html +=
       '<div class="pv-row pv-total">' +
       '<span class="pv-row-left"></span>' +
