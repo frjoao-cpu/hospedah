@@ -1576,28 +1576,45 @@ thead .col-sticky-right {
 ========================================== */
 .previsao-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  gap: 14px;
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  gap: 10px;
   margin-bottom: 32px;
 }
 .previsao-card {
   background: var(--bg2);
   border: 1px solid rgba(77,166,255,0.2);
   border-radius: var(--radius);
-  padding: 16px;
+  padding: 12px 14px;
 }
 .previsao-card .pv-title {
-  font-size: 0.82em; font-weight: 600; color: #4da6ff;
-  margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.5px;
+  font-size: 0.78em; font-weight: 700; color: #4da6ff;
+  margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;
 }
 .previsao-card .pv-row {
-  display: flex; justify-content: space-between; align-items: center;
-  padding: 4px 0; border-bottom: 1px solid rgba(255,255,255,0.04);
-  font-size: 0.82em;
+  display: grid; grid-template-columns: auto 1fr auto;
+  align-items: center; gap: 5px;
+  padding: 3px 0; border-bottom: 1px solid rgba(255,255,255,0.04);
+  font-size: 0.78em;
 }
 .previsao-card .pv-row:last-child { border-bottom: none; }
-.previsao-card .pv-row span:last-child { color: #4da6ff; font-weight: 600; }
-.previsao-card .pv-row.pv-total span:last-child { color: var(--dourado); font-weight: 700; }
+.previsao-card .pv-row.pv-total {
+  padding-top: 5px; margin-top: 4px;
+  border-top: 1px solid rgba(255,255,255,0.07); border-bottom: none;
+}
+.pv-row-left { display: flex; align-items: center; gap: 3px; white-space: nowrap; }
+.pv-dia {
+  display: inline-block; background: rgba(77,166,255,0.15); color: #4da6ff;
+  border-radius: 3px; padding: 0 4px; font-weight: 700; font-size: 0.82em;
+  min-width: 18px; text-align: center;
+}
+.pv-dia.pv-dia-late { background: rgba(231,76,60,0.18); color: var(--vermelho); }
+.pv-row-label {
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  color: var(--cor-sub); font-size: 0.85em;
+}
+.pv-row-valor { color: #4da6ff; font-weight: 600; white-space: nowrap; text-align: right; }
+.pv-row.pv-total .pv-row-label { color: var(--cor-texto); font-weight: 600; font-size: 0.88em; }
+.pv-row.pv-total .pv-row-valor { color: var(--dourado); font-weight: 700; }
 .va-agrup-toggle {
   display: flex; gap: 0;
   border: 1px solid var(--borda);
@@ -5730,7 +5747,7 @@ function adicionarReserva() {
     dataCaptacao:  dataCaptacao,
     obs:           obs,
     criadoEm:      new Date().toISOString(),
-    parcelasComissao:         _parcelasComissao.map(function(p) { return { mes: p.mes, valor: p.valor, recebido: 0, status: 'pendente' }; }),
+    parcelasComissao:         _parcelasComissao.map(function(p) { return { dia: p.dia || null, mes: p.mes, valor: p.valor, recebido: 0, status: 'pendente' }; }),
     dataRecebimentoComissao:  '',
     comissaoRecebida:         0,
     statusComissao:           'pendente'
@@ -6642,29 +6659,31 @@ function atualizarPrevisaoRecebimentos() {
 
     m.parcelas.forEach(function (p) {
       var statusIcon = p.status === 'recebida' ? '✅' : p.status === 'parcial' ? '🔶' : '⏳';
-      var origemTxt  = p.mesVenda ? ' <small style="color:var(--cor-sub);">(venda: ' + nomeDoMes(p.mesVenda) + ')</small>' : '';
       /* Late payment alert: show when dia is set, full date is past, and not yet received */
-      var atrasadoHtml = '';
+      var isLate = false;
       if (p.dia && p.status !== 'recebida') {
         var parts = key.split('-');
         var venc = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(p.dia, 10));
         venc.setHours(0, 0, 0, 0);
-        if (venc < hojeDate) {
-          atrasadoHtml = ' <span class="parcela-atrasada">⚠ ATRASADO</span>';
-        }
+        if (venc < hojeDate) isLate = true;
       }
-      var diaLabel = p.dia ? '<small style="color:var(--cor-sub);margin-right:4px;">dia&nbsp;' + parseInt(p.dia, 10) + '</small>' : '';
+      var diaBadge = p.dia
+        ? '<span class="pv-dia' + (isLate ? ' pv-dia-late' : '') + '">' + parseInt(p.dia, 10) + '</span>'
+        : '';
+      var lateTag = isLate ? '<span class="parcela-atrasada">⚠</span>' : '';
       html +=
         '<div class="pv-row">' +
-        '<span>' + statusIcon + ' ' + escapeHtml(p.label) + origemTxt + diaLabel + atrasadoHtml + '</span>' +
-        '<span>' + formatBRL(p.valor) + '</span>' +
+        '<span class="pv-row-left">' + statusIcon + ' ' + diaBadge + lateTag + '</span>' +
+        '<span class="pv-row-label" title="' + escapeHtml(p.label) + '">' + escapeHtml(p.label) + '</span>' +
+        '<span class="pv-row-valor">' + formatBRL(p.valor) + '</span>' +
         '</div>';
     });
 
     html +=
-      '<div class="pv-row pv-total" style="margin-top:6px;border-top:1px solid rgba(255,255,255,0.08);padding-top:6px;">' +
-      '<span style="font-weight:600;">Total previsto</span>' +
-      '<span>' + formatBRL(m.total) + '</span>' +
+      '<div class="pv-row pv-total">' +
+      '<span class="pv-row-left"></span>' +
+      '<span class="pv-row-label">Total</span>' +
+      '<span class="pv-row-valor" style="color:var(--dourado);font-weight:700;">' + formatBRL(m.total) + '</span>' +
       '</div>' +
       '</div>';
   });
@@ -10951,7 +10970,7 @@ function toggleCalendario() {
 // PREVISÃO DE RECEBIMENTO DAS PARCELAS FUTURAS — Nova Reserva
 // ============================================================
 
-var _parcelasComissao = [];   // { mes: 'YYYY-MM', valor: Number }
+var _parcelasComissao = [];   // { mes: 'YYYY-MM', dia: Number|null, valor: Number }
 
 /** Calcula o total de comissão já computado pelo formulário */
 function getComissaoTotal() {
@@ -11007,7 +11026,7 @@ function adicionarParcelaComissao() {
   var usado   = _parcelasComissao.reduce(function(s, p) { return s + (p.valor || 0); }, 0);
   var saldo   = Math.max(0, +(total - entrada - usado).toFixed(2));
 
-  _parcelasComissao.push({ mes: proxMes, valor: saldo });
+  _parcelasComissao.push({ mes: proxMes, dia: ultimo ? (ultimo.dia || null) : null, valor: saldo });
   renderizarParcelasComissao();
   recalcularSaldoComissao();
 }
@@ -11020,20 +11039,21 @@ function renderizarParcelasComissao() {
 
   _parcelasComissao.forEach(function(parcela, idx) {
     var row = document.createElement('div');
-    row.style.cssText = 'display:flex;align-items:center;gap:8px;margin-bottom:8px;padding:8px 12px;background:rgba(255,255,255,0.03);border:1px solid var(--borda);border-radius:8px;flex-wrap:wrap;';
+    row.style.cssText = 'display:grid;grid-template-columns:18px 54px 1fr 1fr 26px;align-items:center;gap:5px;margin-bottom:4px;padding:5px 8px;background:rgba(255,255,255,0.03);border:1px solid var(--borda);border-radius:6px;';
     row.innerHTML =
-      '<span style="font-size:1em;flex:0 0 auto;">📅</span>' +
-      '<label style="font-size:0.82em;color:var(--cor-sub);white-space:nowrap;flex:0 0 auto;">Mês:</label>' +
+      '<span style="font-size:0.85em;text-align:center;opacity:0.7;">📅</span>' +
+      '<input type="number" min="1" max="31" placeholder="Dia" title="Dia do mês para recebimento" value="' + (parcela.dia || '') + '"' +
+        ' onchange="_parcelasComissao[' + idx + '].dia = parseInt(this.value)||null; recalcularSaldoComissao();"' +
+        ' style="width:100%;padding:4px 5px;background:rgba(255,255,255,0.05);border:1px solid var(--borda);border-radius:5px;color:var(--cor-texto);font-size:0.82em;text-align:center;">' +
       '<input type="month" value="' + escapeHtml(parcela.mes) + '"' +
         ' onchange="_parcelasComissao[' + idx + '].mes = this.value; recalcularSaldoComissao();"' +
-        ' style="flex:2;min-width:140px;background:rgba(255,255,255,0.05);border:1px solid var(--borda);border-radius:6px;padding:8px 11px;color:var(--cor-texto);font-size:0.9em;">' +
-      '<label style="font-size:0.82em;color:var(--cor-sub);white-space:nowrap;flex:0 0 auto;">Valor (R$):</label>' +
-      '<input type="number" min="0" step="0.01" value="' + (parcela.valor || '') + '"' +
+        ' style="width:100%;padding:4px 6px;background:rgba(255,255,255,0.05);border:1px solid var(--borda);border-radius:5px;color:var(--cor-texto);font-size:0.82em;">' +
+      '<input type="number" min="0" step="0.01" placeholder="R$ 0,00" value="' + (parcela.valor || '') + '"' +
         ' onchange="_parcelasComissao[' + idx + '].valor = parseFloat(this.value)||0; recalcularSaldoComissao();"' +
-        ' style="flex:1;min-width:130px;background:rgba(255,255,255,0.05);border:1px solid var(--borda);border-radius:6px;padding:8px 11px;color:var(--cor-texto);font-size:0.9em;">' +
+        ' style="width:100%;padding:4px 6px;background:rgba(255,255,255,0.05);border:1px solid var(--borda);border-radius:5px;color:var(--cor-texto);font-size:0.82em;">' +
       '<button type="button"' +
         ' onclick="_parcelasComissao.splice(' + idx + ',1); renderizarParcelasComissao(); recalcularSaldoComissao();"' +
-        ' style="background:none;border:none;color:#e74c3c;cursor:pointer;font-size:1.1em;padding:0 6px;flex:0 0 auto;"' +
+        ' style="background:rgba(231,76,60,0.12);border:none;border-radius:4px;color:var(--vermelho);cursor:pointer;font-size:0.8em;padding:3px;width:26px;text-align:center;"' +
         ' title="Remover parcela">✕</button>';
     container.appendChild(row);
   });
