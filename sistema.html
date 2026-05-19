@@ -2565,11 +2565,54 @@ thead .col-sticky-right {
         <input type="number" id="c_valor_captacao" min="0" step="0.01" placeholder="Ex.: 300,00" oninput="calcularFormulario()">
       </div>
 
+      <!-- ============================================================
+           PREVISÃO DE RECEBIMENTO DAS PARCELAS FUTURAS
+           ============================================================ -->
       <div class="field-group" style="grid-column: span 2;">
-        <label>📅 Previsão de Recebimento da Comissão <small style="color:var(--cor-sub);font-weight:400;">(parcelas futuras)</small></label>
-        <div class="parcelas-builder" id="c_parcelasBuilder"></div>
-        <button type="button" class="parcelas-add-btn" onclick="adicionarLinhaParcelaForm('c')">+ Adicionar parcela</button>
-        <div class="parcelas-total" id="c_parcelasTotalHint"></div>
+        <div class="form-section" style="margin-top:4px;">
+          <h4 style="color:var(--dourado);margin-bottom:10px;">
+            📅 Previsão de Recebimento das parcelas futuras
+          </h4>
+
+          <!-- Container dinâmico onde as parcelas são renderizadas -->
+          <div id="parcelasComissaoContainer">
+            <!-- parcelas injetadas via JS -->
+          </div>
+
+          <!-- Linha de entrada em dinheiro (entrada imediata) -->
+          <div id="entradaDinheiroRow" style="display:flex;align-items:center;gap:10px;margin-top:8px;padding:10px 14px;background:rgba(212,175,55,0.07);border:1px solid rgba(212,175,55,0.25);border-radius:8px;flex-wrap:wrap;">
+            <span style="font-size:1.1em;">💵</span>
+            <label for="entradaDinheiro" style="flex:0 0 auto;color:var(--cor-sub);font-size:0.85em;white-space:nowrap;">
+              Entrada em dinheiro (à vista):
+            </label>
+            <input
+              type="number"
+              id="entradaDinheiro"
+              min="0"
+              step="0.01"
+              placeholder="R$ 0,00"
+              oninput="recalcularSaldoComissao()"
+              style="flex:1;min-width:130px;background:rgba(255,255,255,0.05);border:1px solid var(--borda);border-radius:6px;padding:8px 11px;color:var(--cor-texto);font-size:0.9em;"
+            >
+            <span style="font-size:0.78em;color:var(--cor-sub);white-space:nowrap;" id="entradaDinheiroLabel"></span>
+          </div>
+
+          <!-- Saldo restante a parcelar -->
+          <div id="saldoComissaoRow" style="margin-top:8px;font-size:0.82em;color:var(--cor-sub);text-align:right;">
+            Saldo a parcelar: <strong id="saldoComissaoValor">R$ 0,00</strong>
+          </div>
+
+          <!-- Botão adicionar parcela -->
+          <button
+            type="button"
+            onclick="adicionarParcelaComissao()"
+            style="margin-top:10px;display:flex;align-items:center;gap:6px;background:rgba(212,175,55,0.10);border:1px dashed rgba(212,175,55,0.4);border-radius:8px;color:var(--dourado);padding:8px 16px;cursor:pointer;font-size:0.85em;font-weight:600;width:100%;justify-content:center;transition:background 0.2s;"
+            onmouseover="this.style.background='rgba(212,175,55,0.18)'"
+            onmouseout="this.style.background='rgba(212,175,55,0.10)'"
+          >
+            ＋ Adicionar parcela
+          </button>
+        </div>
       </div>
     </div>
 
@@ -5511,6 +5554,9 @@ function calcularFormulario(skipTotal) {
     lucroEl.textContent = '—';
     lucroEl.className = 'r-value';
   }
+
+  // Atualiza saldo de parcelas de comissão quando comissão muda
+  if (typeof recalcularSaldoComissao === 'function') recalcularSaldoComissao();
 }
 
 // Recalcula sempre que um campo muda
@@ -5684,7 +5730,7 @@ function adicionarReserva() {
     dataCaptacao:  dataCaptacao,
     obs:           obs,
     criadoEm:      new Date().toISOString(),
-    parcelasComissao:         _getParcelasFromForm('c'),
+    parcelasComissao:         _parcelasComissao.map(function(p) { return { mes: p.mes, valor: p.valor, recebido: 0, status: 'pendente' }; }),
     dataRecebimentoComissao:  '',
     comissaoRecebida:         0,
     statusComissao:           'pendente'
@@ -5842,6 +5888,8 @@ function limparFormulario() {
   document.getElementById('res-comissao').textContent = '—';
   document.getElementById('res-repasse').textContent  = '—';
   document.getElementById('res-lucro').textContent    = '—';
+  /* Reseta parcelas de comissão */
+  if (typeof resetarParcelasComissao === 'function') resetarParcelasComissao();
 }
 
 /* ==========================================
@@ -10897,6 +10945,144 @@ function toggleCalendario() {
     btn.textContent = '▼';
     btn.title = 'Expandir';
   }
+}
+
+// ============================================================
+// PREVISÃO DE RECEBIMENTO DAS PARCELAS FUTURAS — Nova Reserva
+// ============================================================
+
+var _parcelasComissao = [];   // { mes: 'YYYY-MM', valor: Number }
+
+/** Calcula o total de comissão já computado pelo formulário */
+function getComissaoTotal() {
+  var v = parseFloat((document.getElementById('c_comissao_val') || {}).value || 0);
+  return isNaN(v) ? 0 : v;
+}
+
+/** Retorna o valor da entrada em dinheiro informada */
+function getEntradaDinheiro() {
+  var v = parseFloat((document.getElementById('entradaDinheiro') || {}).value || 0);
+  return isNaN(v) ? 0 : v;
+}
+
+/** Recalcula e exibe o saldo restante a parcelar */
+function recalcularSaldoComissao() {
+  var total        = getComissaoTotal();
+  var entrada      = getEntradaDinheiro();
+  var somaParcelas = _parcelasComissao.reduce(function(s, p) { return s + (p.valor || 0); }, 0);
+  var saldo        = Math.max(0, +(total - entrada - somaParcelas).toFixed(2));
+
+  var labelEl = document.getElementById('entradaDinheiroLabel');
+  var saldoEl = document.getElementById('saldoComissaoValor');
+
+  if (labelEl) {
+    labelEl.textContent = entrada > 0
+      ? 'R$ ' + entrada.toLocaleString('pt-BR', { minimumFractionDigits: 2 }) + ' abatidos'
+      : '';
+  }
+  if (saldoEl) {
+    saldoEl.textContent = 'R$ ' + saldo.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+    saldoEl.style.color = saldo > 0 ? 'var(--dourado)' : 'var(--verde, #25d366)';
+  }
+
+  renderizarParcelasComissao();
+}
+
+/** Adiciona uma nova parcela com mês e valor sugeridos automaticamente */
+function adicionarParcelaComissao() {
+  var ultimo = _parcelasComissao.length > 0 ? _parcelasComissao[_parcelasComissao.length - 1] : null;
+  var proxMes;
+  if (ultimo && ultimo.mes) {
+    var d = new Date(ultimo.mes + '-01');
+    d.setMonth(d.getMonth() + 1);
+    proxMes = d.toISOString().slice(0, 7);
+  } else {
+    var hoje = new Date();
+    hoje.setMonth(hoje.getMonth() + 1);
+    proxMes = hoje.toISOString().slice(0, 7);
+  }
+
+  var total   = getComissaoTotal();
+  var entrada = getEntradaDinheiro();
+  var usado   = _parcelasComissao.reduce(function(s, p) { return s + (p.valor || 0); }, 0);
+  var saldo   = Math.max(0, +(total - entrada - usado).toFixed(2));
+
+  _parcelasComissao.push({ mes: proxMes, valor: saldo });
+  renderizarParcelasComissao();
+  recalcularSaldoComissao();
+}
+
+/** Renderiza as linhas de parcelas no container */
+function renderizarParcelasComissao() {
+  var container = document.getElementById('parcelasComissaoContainer');
+  if (!container) return;
+  container.innerHTML = '';
+
+  _parcelasComissao.forEach(function(parcela, idx) {
+    var row = document.createElement('div');
+    row.style.cssText = 'display:flex;align-items:center;gap:8px;margin-bottom:8px;padding:8px 12px;background:rgba(255,255,255,0.03);border:1px solid var(--borda);border-radius:8px;flex-wrap:wrap;';
+    row.innerHTML =
+      '<span style="font-size:1em;flex:0 0 auto;">📅</span>' +
+      '<label style="font-size:0.82em;color:var(--cor-sub);white-space:nowrap;flex:0 0 auto;">Mês:</label>' +
+      '<input type="month" value="' + escapeHtml(parcela.mes) + '"' +
+        ' onchange="_parcelasComissao[' + idx + '].mes = this.value; recalcularSaldoComissao();"' +
+        ' style="flex:2;min-width:140px;background:rgba(255,255,255,0.05);border:1px solid var(--borda);border-radius:6px;padding:8px 11px;color:var(--cor-texto);font-size:0.9em;">' +
+      '<label style="font-size:0.82em;color:var(--cor-sub);white-space:nowrap;flex:0 0 auto;">Valor (R$):</label>' +
+      '<input type="number" min="0" step="0.01" value="' + (parcela.valor || '') + '"' +
+        ' onchange="_parcelasComissao[' + idx + '].valor = parseFloat(this.value)||0; recalcularSaldoComissao();"' +
+        ' style="flex:1;min-width:130px;background:rgba(255,255,255,0.05);border:1px solid var(--borda);border-radius:6px;padding:8px 11px;color:var(--cor-texto);font-size:0.9em;">' +
+      '<button type="button"' +
+        ' onclick="_parcelasComissao.splice(' + idx + ',1); renderizarParcelasComissao(); recalcularSaldoComissao();"' +
+        ' style="background:none;border:none;color:#e74c3c;cursor:pointer;font-size:1.1em;padding:0 6px;flex:0 0 auto;"' +
+        ' title="Remover parcela">✕</button>';
+    container.appendChild(row);
+  });
+}
+
+/** Reseta o estado ao abrir/limpar o modal de Nova Reserva */
+function resetarParcelasComissao() {
+  _parcelasComissao = [];
+  var entEl = document.getElementById('entradaDinheiro');
+  if (entEl) entEl.value = '';
+  renderizarParcelasComissao();
+  recalcularSaldoComissao();
+}
+
+/**
+ * Salva as parcelas no Supabase após inserir a reserva.
+ * Chamar APÓS obter o reservaId retornado pelo INSERT em reservas_hospede.
+ * @param {string} reservaId - UUID da reserva recém-criada
+ */
+async function salvarParcelasComissao(reservaId) {
+  if (!reservaId) return;
+
+  var entrada = getEntradaDinheiro();
+  var todasParcelas = _parcelasComissao.slice();
+
+  if (entrada > 0) {
+    var hoje = new Date().toISOString().slice(0, 7);
+    todasParcelas.unshift({
+      mes: hoje,
+      valor: entrada,
+      status: 'recebida',
+      valor_recebido: entrada
+    });
+  }
+
+  if (!todasParcelas.length) return;
+
+  var rows = todasParcelas.map(function(p) {
+    return {
+      reserva_id:     reservaId,
+      mes_referencia: p.mes + '-01',
+      valor_previsto: p.valor,
+      valor_recebido: p.valor_recebido !== undefined ? p.valor_recebido : 0,
+      status:         p.status || 'pendente'
+    };
+  });
+
+  var result = await _supabase.from('comissao_parcelas').insert(rows);
+  if (result.error) console.error('Erro ao salvar parcelas de comissão:', result.error);
 }
 
 </script>
