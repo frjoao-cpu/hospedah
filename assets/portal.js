@@ -708,14 +708,14 @@
         });
         ['geral', 'regras'].forEach(function (name) {
           var panel = document.getElementById('fid-panel-' + name);
-          if (panel) panel.style.display = name === target ? 'block' : 'none';
-        });
-        /* Mark active panel with class for CSS animation */
-        var activePanel = document.getElementById('fid-panel-' + target);
-        if (activePanel) activePanel.classList.add('active');
-        ['geral', 'regras'].filter(function (n) { return n !== target; }).forEach(function (name) {
-          var p = document.getElementById('fid-panel-' + name);
-          if (p) p.classList.remove('active');
+          if (!panel) return;
+          if (name === target) {
+            panel.classList.remove('active');
+            void panel.offsetHeight; /* force reflow to restart CSS animation */
+            panel.classList.add('active');
+          } else {
+            panel.classList.remove('active');
+          }
         });
       });
     });
