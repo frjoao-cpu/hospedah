@@ -1498,3 +1498,191 @@ DROP POLICY IF EXISTS "instagram_cache_public_read" ON instagram_cache;
 CREATE POLICY "instagram_cache_public_read"
   ON instagram_cache FOR SELECT
   USING (true);
+
+-- ============================================================
+-- PROGRAMA DE FIDELIDADE — Evolução do esquema
+-- Regras: 50 pts por indicação confirmada | 500 pts = cupom R$300
+--         Cupom intransferível, validade 3 meses
+--         Pontos expiram após 12 meses de inatividade
+-- ============================================================
+
+-- Novas colunas em fidelidade (idempotentes)
+ALTER TABLE fidelidade ADD COLUMN IF NOT EXISTS ref_code          text UNIQUE;
+ALTER TABLE fidelidade ADD COLUMN IF NOT EXISTS ultima_atividade  timestamptz DEFAULT now();
+ALTER TABLE fidelidade ADD COLUMN IF NOT EXISTS user_id           uuid REFERENCES auth.users(id) ON DELETE SET NULL;
+
+-- Índice para busca rápida por ref_code
+CREATE INDEX IF NOT EXISTS idx_fidelidade_ref_code ON fidelidade(ref_code);
+
+-- ============================================================
+-- TABELA: indicacoes — rastreamento de cada indicação
+-- ============================================================
+CREATE TABLE IF NOT EXISTS indicacoes (
+  id                uuid          PRIMARY KEY DEFAULT gen_random_uuid(),
+  ref_code          text          NOT NULL,
+  reserva_id        uuid          REFERENCES reservas_hospede(id) ON DELETE SET NULL,
+  status            text          NOT NULL DEFAULT 'pendente'
+                                  CHECK (status IN ('pendente', 'confirmada', 'cancelada')),
+  pontos_creditados boolean       NOT NULL DEFAULT false,
+  criado_em         timestamptz   DEFAULT now(),
+  atualizado_em     timestamptz   DEFAULT now()
+);
+
+ALTER TABLE indicacoes ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "indicacoes_leitura_publica"  ON indicacoes;
+DROP POLICY IF EXISTS "indicacoes_insercao_publica" ON indicacoes;
+
+CREATE POLICY "indicacoes_leitura_publica"
+  ON indicacoes FOR SELECT USING (true);
+
+CREATE POLICY "indicacoes_insercao_publica"
+  ON indicacoes FOR INSERT WITH CHECK (true);
+
+CREATE INDEX IF NOT EXISTS idx_indicacoes_ref_code   ON indicacoes(ref_code);
+CREATE INDEX IF NOT EXISTS idx_indicacoes_reserva_id ON indicacoes(reserva_id);
+
+-- ============================================================
+-- TABELA: cupons_fidelidade — cupons de R$300 gerados a cada 500 pts
+-- ============================================================
+CREATE TABLE IF NOT EXISTS cupons_fidelidade (
+  id              uuid          PRIMARY KEY DEFAULT gen_random_uuid(),
+  hospede_email   text          NOT NULL,
+  codigo          text          NOT NULL UNIQUE
+                                DEFAULT 'HSH-' || upper(substring(replace(gen_random_uuid()::text, '-', ''), 1, 8)),
+  valor_desconto  numeric(10,2) NOT NULL DEFAULT 300.00,
+  gerado_em       timestamptz   DEFAULT now(),
+  expira_em       timestamptz   DEFAULT now() + INTERVAL '3 months',
+  usado_em        timestamptz,
+  reserva_id      uuid          REFERENCES reservas_hospede(id) ON DELETE SET NULL
+);
+
+ALTER TABLE cupons_fidelidade ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "cupons_leitura_publica"  ON cupons_fidelidade;
+DROP POLICY IF EXISTS "cupons_insercao_service" ON cupons_fidelidade;
+
+CREATE POLICY "cupons_leitura_publica"
+  ON cupons_fidelidade FOR SELECT USING (true);
+
+-- Cupons são inseridos apenas via trigger (service role)
+CREATE POLICY "cupons_insercao_service"
+  ON cupons_fidelidade FOR INSERT WITH CHECK (true);
+
+CREATE INDEX IF NOT EXISTS idx_cupons_hospede_email ON cupons_fidelidade(hospede_email);
+CREATE INDEX IF NOT EXISTS idx_cupons_codigo        ON cupons_fidelidade(codigo);
+
+-- ============================================================
+-- TRIGGER A — Creditar 50 pontos ao indicador quando a reserva
+--             do indicado é confirmada
+-- ============================================================
+CREATE OR REPLACE FUNCTION creditar_pontos_indicacao()
+RETURNS TRIGGER LANGUAGE plpgsql AS $$
+BEGIN
+  -- Apenas na transição para 'confirmada' com ref_code preenchido
+  IF NEW.status = 'confirmada'
+     AND (OLD.status IS DISTINCT FROM 'confirmada')
+     AND NEW.ref_code IS NOT NULL THEN
+
+    -- Creditando 50 pts ao indicador (busca por ref_code)
+    UPDATE fidelidade
+    SET pontos           = pontos + 50,
+        ultima_atividade = now(),
+        atualizado_em    = now()
+    WHERE ref_code = NEW.ref_code;
+
+    -- Registrar indicação como confirmada (insere se não existir)
+    INSERT INTO indicacoes (ref_code, reserva_id, status, pontos_creditados)
+    VALUES (NEW.ref_code, NEW.id, 'confirmada', true)
+    ON CONFLICT (reserva_id) DO UPDATE
+      SET status            = 'confirmada',
+          pontos_creditados = true,
+          atualizado_em     = now()
+    WHERE indicacoes.reserva_id IS NOT NULL;
+
+  END IF;
+  RETURN NEW;
+END;
+$$;
+
+DROP TRIGGER IF EXISTS trg_creditar_pontos_indicacao ON reservas_hospede;
+CREATE TRIGGER trg_creditar_pontos_indicacao
+  AFTER UPDATE ON reservas_hospede
+  FOR EACH ROW EXECUTE FUNCTION creditar_pontos_indicacao();
+
+-- ============================================================
+-- TRIGGER B — Gerar cupom de R$300 a cada 500 pontos acumulados
+-- ============================================================
+CREATE OR REPLACE FUNCTION gerar_cupom_fidelidade()
+RETURNS TRIGGER LANGUAGE plpgsql AS $$
+DECLARE
+  old_milestones int;
+  new_milestones int;
+  i int;
+BEGIN
+  old_milestones := COALESCE(OLD.pontos, 0) / 500;
+  new_milestones := NEW.pontos / 500;
+
+  IF new_milestones > old_milestones THEN
+    FOR i IN (old_milestones + 1)..new_milestones LOOP
+      INSERT INTO cupons_fidelidade (hospede_email, valor_desconto, gerado_em, expira_em)
+      VALUES (
+        NEW.email_hospede,
+        300.00,
+        now(),
+        now() + INTERVAL '3 months'
+      );
+    END LOOP;
+  END IF;
+
+  RETURN NEW;
+END;
+$$;
+
+DROP TRIGGER IF EXISTS trg_gerar_cupom_fidelidade ON fidelidade;
+CREATE TRIGGER trg_gerar_cupom_fidelidade
+  AFTER UPDATE OF pontos ON fidelidade
+  FOR EACH ROW EXECUTE FUNCTION gerar_cupom_fidelidade();
+
+-- ============================================================
+-- RPC: get_fidelidade_por_email — leitura pública com SECURITY DEFINER
+--      (contorna RLS para busca por email de WhatsApp)
+-- ============================================================
+CREATE OR REPLACE FUNCTION get_fidelidade_por_email(p_email text)
+RETURNS TABLE(
+  id              uuid,
+  email_hospede   text,
+  pontos          int,
+  nivel           text,
+  total_estadias  int,
+  ref_code        text,
+  ultima_atividade timestamptz
+)
+LANGUAGE sql SECURITY DEFINER SET search_path = public AS $$
+  SELECT id, email_hospede, pontos, nivel, total_estadias, ref_code, ultima_atividade
+  FROM fidelidade
+  WHERE email_hospede = p_email
+  LIMIT 1;
+$$;
+
+GRANT EXECUTE ON FUNCTION get_fidelidade_por_email(text) TO anon, authenticated;
+
+-- ============================================================
+-- RPC: get_indicacoes_por_ref — retorna indicações por ref_code
+-- ============================================================
+CREATE OR REPLACE FUNCTION get_indicacoes_por_ref(p_ref_code text)
+RETURNS TABLE(
+  total_indicacoes bigint,
+  confirmadas      bigint,
+  pendentes        bigint
+)
+LANGUAGE sql SECURITY DEFINER SET search_path = public AS $$
+  SELECT
+    COUNT(*)                                               AS total_indicacoes,
+    COUNT(*) FILTER (WHERE status = 'confirmada')          AS confirmadas,
+    COUNT(*) FILTER (WHERE status != 'confirmada')         AS pendentes
+  FROM indicacoes
+  WHERE ref_code = p_ref_code;
+$$;
+
+GRANT EXECUTE ON FUNCTION get_indicacoes_por_ref(text) TO anon, authenticated;

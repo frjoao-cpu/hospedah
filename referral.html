@@ -161,6 +161,42 @@ body { font-family: 'Poppins', sans-serif; background: var(--bg); color: var(--c
 .toast.success { border-left-color: var(--verde); }
 .toast.error   { border-left-color: #e74c3c; }
 @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+.cupom-progress-wrap { margin-top: 18px; }
+.cupom-progress-title { font-size: .82em; color: var(--cor-sub); margin-bottom: 6px; display: flex; justify-content: space-between; }
+.cupom-progress-bar { background: rgba(255,255,255,.07); border-radius: 6px; height: 10px; overflow: hidden; }
+.cupom-progress-fill { height: 100%; background: var(--dourado); border-radius: 6px; transition: width .5s ease; }
+
+.cupom-list { margin-top: 14px; display: flex; flex-direction: column; gap: 10px; }
+.cupom-item {
+  background: rgba(212,175,55,.07); border: 1px solid rgba(212,175,55,.3);
+  border-radius: 10px; padding: 14px 16px;
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  flex-wrap: wrap;
+}
+.cupom-item .cupom-code { font-family: monospace; font-size: .88em; color: var(--dourado); font-weight: 700; }
+.cupom-item .cupom-val  { font-size: 1.1em; font-weight: 700; color: var(--cor-texto); }
+.cupom-item .cupom-exp  { font-size: .72em; color: var(--cor-sub); }
+.cupom-item .cupom-used { font-size: .72em; color: #e74c3c; font-weight: 600; }
+.cupom-item .btn-copy-cupom {
+  padding: 5px 12px; background: var(--dourado); color: var(--azul);
+  border: none; border-radius: 6px; font-weight: 700; cursor: pointer;
+  font-size: .78em; flex-shrink: 0; transition: background .2s;
+}
+.cupom-item .btn-copy-cupom:hover { background: var(--dourado-hover); }
+
+.indicacoes-list { margin-top: 12px; display: flex; flex-direction: column; gap: 8px; }
+.indicacao-item {
+  display: flex; align-items: center; justify-content: space-between;
+  background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.06);
+  border-radius: 8px; padding: 10px 14px; font-size: .82em;
+}
+.indicacao-item .ind-status {
+  padding: 2px 8px; border-radius: 12px; font-weight: 600; font-size: .85em;
+}
+.ind-confirmada { background: rgba(37,211,102,.15); color: #25D366; }
+.ind-pendente   { background: rgba(255,193,7,.15);  color: #ffc107; }
+.ind-cancelada  { background: rgba(231,76,60,.15);  color: #e74c3c; }
 </style>
 </head>
 <body>
@@ -240,12 +276,43 @@ body { font-family: 'Poppins', sans-serif; background: var(--bg); color: var(--c
           <div class="stat-lbl">Indicações feitas</div>
         </div>
         <div class="stat-card">
+          <div class="stat-val" id="statConfirmadas">0</div>
+          <div class="stat-lbl">Confirmadas</div>
+        </div>
+        <div class="stat-card">
           <div class="stat-val" id="statPontos">0</div>
           <div class="stat-lbl">Pontos acumulados</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-val" id="statCupons">0</div>
+          <div class="stat-lbl">Cupons disponíveis</div>
         </div>
       </div>
       <div style="text-align:center;margin-top:10px;">
         <span class="nivel-badge nivel-bronze" id="nivelBadge">🥉 Bronze</span>
+      </div>
+
+      <!-- Progresso para próximo cupom -->
+      <div class="cupom-progress-wrap" id="cupomProgressWrap">
+        <div class="cupom-progress-title">
+          <span>🎟️ Próximo cupom R$300</span>
+          <span id="cupomProgressLabel">0 / 500 pts</span>
+        </div>
+        <div class="cupom-progress-bar">
+          <div class="cupom-progress-fill" id="cupomProgressFill" style="width:0%"></div>
+        </div>
+      </div>
+
+      <!-- Lista de cupons disponíveis -->
+      <div id="cuponsBox" style="display:none;margin-top:16px;">
+        <p style="color:var(--dourado);font-size:.9em;font-weight:600;margin-bottom:8px;">🎁 Seus cupons de desconto</p>
+        <div class="cupom-list" id="cupomList"></div>
+      </div>
+
+      <!-- Lista de indicações detalhadas -->
+      <div id="indicacoesBox" style="display:none;margin-top:16px;">
+        <p style="color:var(--cor-sub);font-size:.82em;font-weight:600;margin-bottom:8px;text-transform:uppercase;letter-spacing:.4px;">Histórico de indicações</p>
+        <div class="indicacoes-list" id="indicacoesList"></div>
       </div>
     </div>
   </div>
@@ -290,50 +357,120 @@ function gerarLink() {
 
   /* Salvar/atualizar fidelidade no Supabase */
   sb.from('fidelidade')
-    .select('pontos, nivel, total_estadias')
+    .select('pontos, nivel, total_estadias, ref_code')
     .eq('email_hospede', wpp)
     .maybeSingle()
     .then(function (res) {
       if (!res.data) {
-        /* Registrar novo indicador */
+        /* Registrar novo indicador com ref_code */
         sb.from('fidelidade').insert([{
           email_hospede: wpp,
           pontos: 0,
           nivel: 'bronze',
-          total_estadias: 0
+          total_estadias: 0,
+          ref_code: _refCode,
+          ultima_atividade: new Date().toISOString()
         }]).catch(function () {});
+      } else if (!res.data.ref_code) {
+        /* Atualizar ref_code se ausente */
+        sb.from('fidelidade').update({ ref_code: _refCode })
+          .eq('email_hospede', wpp).catch(function () {});
       }
     })
     .catch(function () {});
 }
 
 function carregarEstatisticas(wpp) {
+  var myCode = gerarRefCode(wpp);
+
+  /* Reservas com este ref_code (todas) */
   sb.from('reservas_hospede')
-    .select('id')
-    .eq('ref_code', gerarRefCode(wpp))
+    .select('id, status, criado_em')
+    .eq('ref_code', myCode)
     .then(function (res) {
-      var total = (res.data || []).length;
-      document.getElementById('statIndicacoes').textContent = total;
-      document.getElementById('statPontos').textContent = total * 50;
+      var rows = res.data || [];
+      var confirmadas = rows.filter(function (r) { return r.status === 'confirmada'; }).length;
+      var pendentes   = rows.filter(function (r) { return r.status !== 'confirmada' && r.status !== 'cancelada'; }).length;
+      document.getElementById('statIndicacoes').textContent = rows.length;
+      document.getElementById('statConfirmadas').textContent = confirmadas;
       document.getElementById('statsBox').style.display = 'block';
+
+      /* Histórico de indicações detalhadas */
+      if (rows.length > 0) {
+        var list = document.getElementById('indicacoesList');
+        list.innerHTML = rows.map(function (r) {
+          var statusLabel = r.status === 'confirmada' ? 'Confirmada' :
+                            r.status === 'cancelada'  ? 'Cancelada'  : 'Pendente';
+          var statusClass = r.status === 'confirmada' ? 'ind-confirmada' :
+                            r.status === 'cancelada'  ? 'ind-cancelada'  : 'ind-pendente';
+          var data = r.criado_em ? new Date(r.criado_em).toLocaleDateString('pt-BR') : '—';
+          return '<div class="indicacao-item">' +
+            '<span>Indicação em ' + data + '</span>' +
+            '<span class="ind-status ' + statusClass + '">' + statusLabel + '</span>' +
+            '</div>';
+        }).join('');
+        document.getElementById('indicacoesBox').style.display = 'block';
+      }
     })
     .catch(function () {
       document.getElementById('statsBox').style.display = 'block';
     });
 
-  /* Nível de fidelidade */
+  /* Fidelidade: pontos reais e nível */
   sb.from('fidelidade')
     .select('nivel, pontos')
     .eq('email_hospede', wpp)
     .maybeSingle()
     .then(function (res) {
-      if (!res.data) return;
-      var nivel = res.data.nivel || 'bronze';
-      var badge = document.getElementById('nivelBadge');
-      if (nivel === 'ouro')   { badge.textContent = '🥇 Ouro';   badge.className = 'nivel-badge nivel-ouro'; }
-      else if (nivel === 'prata') { badge.textContent = '🥈 Prata'; badge.className = 'nivel-badge nivel-prata'; }
-      else                    { badge.textContent = '🥉 Bronze'; badge.className = 'nivel-badge nivel-bronze'; }
-      document.getElementById('statPontos').textContent = res.data.pontos || 0;
+      var pontos = 0;
+      if (res.data) {
+        pontos = res.data.pontos || 0;
+        var nivel = res.data.nivel || 'bronze';
+        var badge = document.getElementById('nivelBadge');
+        if (nivel === 'ouro')       { badge.textContent = '🥇 Ouro';   badge.className = 'nivel-badge nivel-ouro'; }
+        else if (nivel === 'prata') { badge.textContent = '🥈 Prata';  badge.className = 'nivel-badge nivel-prata'; }
+        else                        { badge.textContent = '🥉 Bronze'; badge.className = 'nivel-badge nivel-bronze'; }
+      }
+      document.getElementById('statPontos').textContent = pontos;
+
+      /* Progresso para próximo cupom */
+      var ptsNoBloco = pontos % 500;
+      var pct = (ptsNoBloco / 500 * 100).toFixed(1);
+      document.getElementById('cupomProgressFill').style.width = pct + '%';
+      document.getElementById('cupomProgressLabel').textContent = ptsNoBloco + ' / 500 pts';
+    })
+    .catch(function () {});
+
+  /* Cupons disponíveis */
+  sb.from('cupons_fidelidade')
+    .select('codigo, valor_desconto, gerado_em, expira_em, usado_em')
+    .eq('hospede_email', wpp)
+    .order('gerado_em', { ascending: false })
+    .then(function (res) {
+      var cupons = res.data || [];
+      var disponiveis = cupons.filter(function (c) { return !c.usado_em && new Date(c.expira_em) > new Date(); });
+      document.getElementById('statCupons').textContent = disponiveis.length;
+
+      if (cupons.length > 0) {
+        var list = document.getElementById('cupomList');
+        list.innerHTML = cupons.map(function (c) {
+          var usado   = !!c.usado_em;
+          var expirado = new Date(c.expira_em) <= new Date();
+          var expStr  = new Date(c.expira_em).toLocaleDateString('pt-BR');
+          var statusHtml = usado    ? '<span class="cupom-used">Utilizado</span>' :
+                           expirado ? '<span class="cupom-used">Expirado</span>' :
+                           '<button class="btn-copy-cupom" onclick="copiarCupom(this,\'' + c.codigo + '\')">📋 Copiar</button>';
+          return '<div class="cupom-item">' +
+            '<div>' +
+              '<div class="cupom-code">' + c.codigo + '</div>' +
+              '<div class="cupom-val">R$ ' + parseFloat(c.valor_desconto).toFixed(2).replace('.', ',') + '</div>' +
+              '<div class="cupom-exp">Válido até: ' + expStr + '</div>' +
+            '</div>' +
+            statusHtml +
+            '</div>';
+        }).join('');
+        document.getElementById('cuponsBox').style.display = 'block';
+      }
     })
     .catch(function () {});
 }
@@ -347,6 +484,15 @@ function copiarLink() {
       setTimeout(function () { btn.textContent = '📋 Copiar'; }, 2500);
     })
     .catch(function () { toast('Copie manualmente: ' + _refUrl, 'info'); });
+}
+
+function copiarCupom(btn, codigo) {
+  navigator.clipboard.writeText(codigo)
+    .then(function () {
+      btn.textContent = '✅ Copiado!';
+      setTimeout(function () { btn.textContent = '📋 Copiar'; }, 2500);
+    })
+    .catch(function () { toast('Código: ' + codigo, 'info'); });
 }
 
 function compartilharWhatsApp() {

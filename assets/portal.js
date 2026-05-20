@@ -275,8 +275,23 @@
       }
     }
 
-    /* Fidelidade */
-    var points = reservationRows.length * 450;
+    /* Fidelidade — buscar dados reais do DB */
+    var points = reservationRows.length * 450; // fallback calculado
+    var userEmail = user.email || '';
+    var fidData = null;
+
+    try {
+      var fidRes = await client
+        .from('fidelidade')
+        .select('pontos, nivel, total_estadias, ref_code')
+        .eq('email_hospede', userEmail)
+        .maybeSingle();
+      if (!fidRes.error && fidRes.data) {
+        fidData = fidRes.data;
+        points = fidRes.data.pontos || 0;
+      }
+    } catch (e) { /* usa fallback */ }
+
     var tiers = [
       { name: 'Bronze',   icon: '🥉', min: 0,    max: 1199 },
       { name: 'Prata',    icon: '🥈', min: 1200, max: 2499 },
@@ -314,6 +329,75 @@
           '<small>' + tier.min + '+ pts</small>' +
           '</div>';
       }).join('');
+    }
+
+    /* Progresso para próximo cupom R$300 (a cada 500 pts) */
+    var cupomPWrap = document.getElementById('portalCupomProgressWrap');
+    var cupomPFill = document.getElementById('portalCupomProgressFill');
+    var cupomPLabel = document.getElementById('portalCupomProgressLabel');
+    if (cupomPWrap) {
+      var ptsNoBloco = points % 500;
+      var cupomPct = (ptsNoBloco / 500 * 100).toFixed(1);
+      if (cupomPFill)  cupomPFill.style.width = cupomPct + '%';
+      if (cupomPLabel) cupomPLabel.textContent = ptsNoBloco + ' / 500 pts';
+      cupomPWrap.style.display = 'block';
+    }
+
+    /* Cupons de fidelidade */
+    var cuponsWrap = document.getElementById('portalCuponsWrap');
+    var cuponsEl   = document.getElementById('portalCupons');
+    var cuponsDisp = document.getElementById('portalCuponsDisponiveis');
+    if (userEmail && cuponsEl) {
+      try {
+        var cuponsRes = await client
+          .from('cupons_fidelidade')
+          .select('codigo, valor_desconto, gerado_em, expira_em, usado_em')
+          .eq('hospede_email', userEmail)
+          .order('gerado_em', { ascending: false });
+        var cupons = (!cuponsRes.error && cuponsRes.data) ? cuponsRes.data : [];
+        var disponiveis = cupons.filter(function (c) {
+          return !c.usado_em && new Date(c.expira_em) > new Date();
+        });
+        if (cuponsDisp) cuponsDisp.textContent = disponiveis.length;
+        if (cupons.length > 0 && cuponsWrap) {
+          cuponsEl.innerHTML = cupons.slice(0, 5).map(function (c) {
+            var usado    = !!c.usado_em;
+            var expirado = new Date(c.expira_em) <= new Date();
+            var expStr   = new Date(c.expira_em).toLocaleDateString('pt-BR');
+            var statusBadge = usado    ? '<span style="font-size:.72em;color:#e74c3c;font-weight:600;">Utilizado</span>' :
+                              expirado ? '<span style="font-size:.72em;color:#e74c3c;font-weight:600;">Expirado</span>'  :
+                              '<span style="font-size:.72em;color:#25D366;font-weight:600;">Disponível</span>';
+            return '<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;' +
+              'background:rgba(212,175,55,.07);border:1px solid rgba(212,175,55,.25);border-radius:10px;padding:12px 14px;margin-bottom:8px;">' +
+              '<div>' +
+                '<div style="font-family:monospace;font-size:.9em;font-weight:700;color:#D4AF37;">' + escapeAttr(c.codigo) + '</div>' +
+                '<div style="font-size:.85em;font-weight:700;">R$ ' + parseFloat(c.valor_desconto).toFixed(2).replace('.', ',') + '</div>' +
+                '<div style="font-size:.72em;color:#aab4c4;">Válido até: ' + expStr + '</div>' +
+              '</div>' +
+              statusBadge +
+              '</div>';
+          }).join('');
+          cuponsWrap.style.display = 'block';
+        }
+      } catch (e) { /* silencioso */ }
+    }
+
+    /* Indicações do portal */
+    var indWrap = document.getElementById('portalIndicacoesWrap');
+    var indTotal = document.getElementById('portalIndicacoesTotal');
+    var indConf  = document.getElementById('portalIndicacoesConf');
+    if (userEmail && indWrap && fidData && fidData.ref_code) {
+      try {
+        var indRes = await client
+          .from('reservas_hospede')
+          .select('id, status')
+          .eq('ref_code', fidData.ref_code);
+        var indRows = (!indRes.error && indRes.data) ? indRes.data : [];
+        var indConfCount = indRows.filter(function (r) { return r.status === 'confirmada'; }).length;
+        if (indTotal) indTotal.textContent = indRows.length;
+        if (indConf)  indConf.textContent  = indConfCount;
+        indWrap.style.display = 'block';
+      } catch (e) { /* silencioso */ }
     }
 
     /* Vouchers */

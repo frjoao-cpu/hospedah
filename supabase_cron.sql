@@ -322,3 +322,24 @@ SELECT cron.schedule(
   );
   $$
 );
+
+-- ============================================================
+-- 12. EXPIRAÇÃO DE PONTOS DE FIDELIDADE — todo dia às 04:00 UTC
+--     Zera pontos de hóspedes sem atividade há mais de 12 meses.
+--     A coluna ultima_atividade é atualizada sempre que pontos
+--     são creditados (via trigger creditar_pontos_indicacao).
+-- ============================================================
+SELECT cron.unschedule('expirar-pontos-fidelidade')
+WHERE EXISTS (SELECT 1 FROM cron.job WHERE jobname = 'expirar-pontos-fidelidade');
+
+SELECT cron.schedule(
+    'expirar-pontos-fidelidade',
+    '0 4 * * *',
+    $$
+    UPDATE fidelidade
+    SET pontos           = 0,
+        atualizado_em    = now()
+    WHERE ultima_atividade < now() - INTERVAL '12 months'
+      AND pontos > 0;
+    $$
+);
