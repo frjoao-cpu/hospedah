@@ -838,8 +838,8 @@ body {
   border-bottom-color: var(--portal-gold);
   background: var(--portal-gold-dim);
 }
-.fid-tab-panel { display: none; animation: fidFadeIn .25s ease; }
-.fid-tab-panel.active { display: block; }
+.fid-tab-panel { display: none; }
+.fid-tab-panel.active { display: block; animation: fidFadeIn .25s ease; }
 @keyframes fidFadeIn { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }
 
 /* ── FIDELIDADE RULES ── */
