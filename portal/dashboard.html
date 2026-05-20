@@ -52,7 +52,7 @@
       <!-- Fidelidade -->
       <section id="section-fidelidade" class="portal-panel glass hidden" aria-label="Programa de Fidelidade">
         <h2>⭐ Programa de Fidelidade</h2>
-        <p class="portal-panel-desc">Acumule pontos e desbloqueie benefícios exclusivos.</p>
+        <p class="portal-panel-desc">Acumule pontos e desbloqueie benefícios exclusivos. A cada <strong>500 pontos</strong> você ganha um cupom de <strong>R$300</strong>.</p>
         <div class="tier-progress-wrap">
           <div class="tier-points-text">
             <span>Seus pontos: <strong id="tierPoints">0</strong></span>
@@ -63,6 +63,40 @@
           </div>
         </div>
         <div class="tier-track" id="tierTrack"></div>
+
+        <!-- Progresso para próximo cupom R$300 -->
+        <div id="portalCupomProgressWrap" style="margin-top:20px;display:none;">
+          <p style="font-size:.82em;color:var(--hsh-gold,#D4AF37);font-weight:600;margin-bottom:6px;">🎟️ Progresso para próximo cupom R$300</p>
+          <div style="display:flex;justify-content:space-between;font-size:.75em;color:var(--hsh-text-muted,#aab4c4);margin-bottom:6px;">
+            <span id="portalCupomProgressLabel">0 / 500 pts</span>
+            <span>Cupons disponíveis: <strong id="portalCuponsDisponiveis">0</strong></span>
+          </div>
+          <div style="background:rgba(255,255,255,.07);border-radius:6px;height:10px;overflow:hidden;">
+            <div id="portalCupomProgressFill" style="height:100%;background:var(--hsh-gold,#D4AF37);border-radius:6px;transition:width .5s ease;width:0%;"></div>
+          </div>
+        </div>
+
+        <!-- Cupons disponíveis -->
+        <div id="portalCuponsWrap" style="display:none;margin-top:16px;">
+          <p style="font-size:.85em;color:var(--hsh-gold,#D4AF37);font-weight:600;margin-bottom:8px;">🎁 Seus cupons de R$300</p>
+          <div id="portalCupons"></div>
+        </div>
+
+        <!-- Indicações -->
+        <div id="portalIndicacoesWrap" style="display:none;margin-top:16px;">
+          <p style="font-size:.82em;font-weight:600;margin-bottom:6px;">📨 Suas indicações</p>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:8px;">
+            <div style="background:rgba(255,255,255,.04);border:1px solid rgba(212,175,55,.15);border-radius:10px;padding:12px;text-align:center;">
+              <div style="font-size:1.4em;font-weight:700;color:var(--hsh-gold,#D4AF37);" id="portalIndicacoesTotal">0</div>
+              <div style="font-size:.72em;color:var(--hsh-text-muted,#aab4c4);margin-top:4px;">Total</div>
+            </div>
+            <div style="background:rgba(255,255,255,.04);border:1px solid rgba(212,175,55,.15);border-radius:10px;padding:12px;text-align:center;">
+              <div style="font-size:1.4em;font-weight:700;color:#25D366;" id="portalIndicacoesConf">0</div>
+              <div style="font-size:.72em;color:var(--hsh-text-muted,#aab4c4);margin-top:4px;">Confirmadas</div>
+            </div>
+          </div>
+          <a href="/referral.html" style="font-size:.8em;color:var(--hsh-gold,#D4AF37);text-decoration:none;">→ Ver página de indicações</a>
+        </div>
       </section>
 
       <!-- Vouchers -->
