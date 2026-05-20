@@ -53,50 +53,120 @@
       <section id="section-fidelidade" class="portal-panel glass hidden" aria-label="Programa de Fidelidade">
         <h2>⭐ Programa de Fidelidade</h2>
         <p class="portal-panel-desc">Acumule pontos e desbloqueie benefícios exclusivos. A cada <strong>500 pontos</strong> você ganha um cupom de <strong>R$300</strong>.</p>
-        <div class="tier-progress-wrap">
-          <div class="tier-points-text">
-            <span>Seus pontos: <strong id="tierPoints">0</strong></span>
-            <span id="tierNextLabel"></span>
-          </div>
-          <div class="tier-progress-bar">
-            <div class="tier-progress-fill" id="tierProgressFill" style="width:0%"></div>
-          </div>
-        </div>
-        <div class="tier-track" id="tierTrack"></div>
 
-        <!-- Progresso para próximo cupom R$300 -->
-        <div id="portalCupomProgressWrap" style="margin-top:20px;display:none;">
-          <p style="font-size:.82em;color:var(--hsh-gold,#D4AF37);font-weight:600;margin-bottom:6px;">🎟️ Progresso para próximo cupom R$300</p>
-          <div style="display:flex;justify-content:space-between;font-size:.75em;color:var(--hsh-text-muted,#aab4c4);margin-bottom:6px;">
-            <span id="portalCupomProgressLabel">0 / 500 pts</span>
-            <span>Cupons disponíveis: <strong id="portalCuponsDisponiveis">0</strong></span>
-          </div>
-          <div style="background:rgba(255,255,255,.07);border-radius:6px;height:10px;overflow:hidden;">
-            <div id="portalCupomProgressFill" style="height:100%;background:var(--hsh-gold,#D4AF37);border-radius:6px;transition:width .5s ease;width:0%;"></div>
-          </div>
+        <!-- Sub-tabs de fidelidade -->
+        <div class="fid-tab-nav" role="tablist" aria-label="Seções de fidelidade">
+          <button type="button" class="fid-tab-btn active" data-fid-tab="geral" role="tab" aria-selected="true">📊 Visão Geral</button>
+          <button type="button" class="fid-tab-btn" data-fid-tab="regras" role="tab" aria-selected="false">📋 Regras do Programa</button>
         </div>
 
-        <!-- Cupons disponíveis -->
-        <div id="portalCuponsWrap" style="display:none;margin-top:16px;">
-          <p style="font-size:.85em;color:var(--hsh-gold,#D4AF37);font-weight:600;margin-bottom:8px;">🎁 Seus cupons de R$300</p>
-          <div id="portalCupons"></div>
-        </div>
-
-        <!-- Indicações -->
-        <div id="portalIndicacoesWrap" style="display:none;margin-top:16px;">
-          <p style="font-size:.82em;font-weight:600;margin-bottom:6px;">📨 Suas indicações</p>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:8px;">
-            <div style="background:rgba(255,255,255,.04);border:1px solid rgba(212,175,55,.15);border-radius:10px;padding:12px;text-align:center;">
-              <div style="font-size:1.4em;font-weight:700;color:var(--hsh-gold,#D4AF37);" id="portalIndicacoesTotal">0</div>
-              <div style="font-size:.72em;color:var(--hsh-text-muted,#aab4c4);margin-top:4px;">Total</div>
+        <!-- Sub-painel: Visão Geral -->
+        <div id="fid-panel-geral" class="fid-tab-panel active">
+          <div class="tier-progress-wrap">
+            <div class="tier-points-text">
+              <span>Seus pontos: <strong id="tierPoints">0</strong></span>
+              <span id="tierNextLabel"></span>
             </div>
-            <div style="background:rgba(255,255,255,.04);border:1px solid rgba(212,175,55,.15);border-radius:10px;padding:12px;text-align:center;">
-              <div style="font-size:1.4em;font-weight:700;color:#25D366;" id="portalIndicacoesConf">0</div>
-              <div style="font-size:.72em;color:var(--hsh-text-muted,#aab4c4);margin-top:4px;">Confirmadas</div>
+            <div class="tier-progress-bar">
+              <div class="tier-progress-fill" id="tierProgressFill" style="width:0%"></div>
             </div>
           </div>
-          <a href="/referral.html" style="font-size:.8em;color:var(--hsh-gold,#D4AF37);text-decoration:none;">→ Ver página de indicações</a>
-        </div>
+          <div class="tier-track" id="tierTrack"></div>
+
+          <!-- Progresso para próximo cupom R$300 -->
+          <div id="portalCupomProgressWrap" style="margin-top:20px;display:none;">
+            <p style="font-size:.82em;color:var(--hsh-gold,#D4AF37);font-weight:600;margin-bottom:6px;">🎟️ Progresso para próximo cupom R$300</p>
+            <div style="display:flex;justify-content:space-between;font-size:.75em;color:var(--hsh-text-muted,#aab4c4);margin-bottom:6px;">
+              <span id="portalCupomProgressLabel">0 / 500 pts</span>
+              <span>Cupons disponíveis: <strong id="portalCuponsDisponiveis">0</strong></span>
+            </div>
+            <div style="background:rgba(255,255,255,.07);border-radius:6px;height:10px;overflow:hidden;">
+              <div id="portalCupomProgressFill" style="height:100%;background:var(--hsh-gold,#D4AF37);border-radius:6px;transition:width .5s ease;width:0%;"></div>
+            </div>
+          </div>
+
+          <!-- Cupons disponíveis -->
+          <div id="portalCuponsWrap" style="display:none;margin-top:16px;">
+            <p style="font-size:.85em;color:var(--hsh-gold,#D4AF37);font-weight:600;margin-bottom:8px;">🎁 Seus cupons de R$300</p>
+            <div id="portalCupons"></div>
+          </div>
+
+          <!-- Indicações -->
+          <div id="portalIndicacoesWrap" style="display:none;margin-top:16px;">
+            <p style="font-size:.82em;font-weight:600;margin-bottom:6px;">📨 Suas indicações</p>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:8px;">
+              <div style="background:rgba(255,255,255,.04);border:1px solid rgba(212,175,55,.15);border-radius:10px;padding:12px;text-align:center;">
+                <div style="font-size:1.4em;font-weight:700;color:var(--hsh-gold,#D4AF37);" id="portalIndicacoesTotal">0</div>
+                <div style="font-size:.72em;color:var(--hsh-text-muted,#aab4c4);margin-top:4px;">Total</div>
+              </div>
+              <div style="background:rgba(255,255,255,.04);border:1px solid rgba(212,175,55,.15);border-radius:10px;padding:12px;text-align:center;">
+                <div style="font-size:1.4em;font-weight:700;color:#25D366;" id="portalIndicacoesConf">0</div>
+                <div style="font-size:.72em;color:var(--hsh-text-muted,#aab4c4);margin-top:4px;">Confirmadas</div>
+              </div>
+            </div>
+            <a href="/referral.html" style="font-size:.8em;color:var(--hsh-gold,#D4AF37);text-decoration:none;">→ Ver página de indicações</a>
+          </div>
+        </div><!-- /#fid-panel-geral -->
+
+        <!-- Sub-painel: Regras -->
+        <div id="fid-panel-regras" class="fid-tab-panel" style="display:none;">
+          <div class="fid-rules">
+
+            <div class="fid-rule-card">
+              <h3>🎁 Como ganhar pontos</h3>
+              <ul>
+                <li>Cada amigo que reservar usando seu link exclusivo ganha <strong>R$30 de desconto</strong> automático.</li>
+                <li>Quando essa reserva for <strong>confirmada</strong>, você recebe <strong>50 pontos</strong> de fidelidade.</li>
+                <li>Não há limite de indicações — quanto mais você indicar, mais pontos acumula.</li>
+              </ul>
+            </div>
+
+            <div class="fid-rule-card">
+              <h3>🎟️ Geração de cupons</h3>
+              <ul>
+                <li>A cada <strong>500 pontos</strong> acumulados, você recebe automaticamente um cupom de <strong>R$300</strong> de desconto.</li>
+                <li>Os cupons não são transferíveis — apenas o titular da conta pode utilizá-los.</li>
+                <li>Cada cupom tem validade de <strong>3 meses</strong> a partir da data de geração.</li>
+                <li>Os cupons podem ser aplicados em qualquer reserva na HOSPEDAH.</li>
+              </ul>
+            </div>
+
+            <div class="fid-rule-card">
+              <h3>⏳ Validade dos pontos</h3>
+              <ul>
+                <li>Pontos expiram após <strong>12 meses</strong> de inatividade (sem novas indicações confirmadas).</li>
+                <li>Qualquer nova indicação confirmada renova o prazo de expiração de todos os seus pontos.</li>
+              </ul>
+            </div>
+
+            <div class="fid-rule-card">
+              <h3>🏅 Níveis de fidelidade</h3>
+              <div class="fid-tier-grid">
+                <div class="fid-tier-item"><div class="fti-icon">🥉</div><div class="fti-name">Bronze</div><div class="fti-pts">0 – 1.199 pts</div><div class="fti-perk">Cupons R$300</div></div>
+                <div class="fid-tier-item"><div class="fti-icon">🥈</div><div class="fti-name">Prata</div><div class="fti-pts">1.200 – 2.499 pts</div><div class="fti-perk">Atendimento prioritário</div></div>
+                <div class="fid-tier-item"><div class="fti-icon">🥇</div><div class="fti-name">Ouro</div><div class="fti-pts">2.500 – 4.499 pts</div><div class="fti-perk">Upgrades exclusivos</div></div>
+                <div class="fid-tier-item"><div class="fti-icon">💎</div><div class="fti-name">Diamante</div><div class="fti-pts">4.500+ pts</div><div class="fti-perk">Benefícios VIP</div></div>
+              </div>
+            </div>
+
+            <div class="fid-rule-card">
+              <h3>🔒 Regras gerais</h3>
+              <ul>
+                <li>Apenas reservas com status <strong>confirmada</strong> geram pontos.</li>
+                <li>Auto-indicações não são válidas.</li>
+                <li>A HOSPEDAH pode alterar as regras com aviso prévio de 30 dias.</li>
+                <li>Em caso de fraude, os pontos podem ser cancelados.</li>
+              </ul>
+            </div>
+
+            <p style="font-size:.78em;color:var(--hsh-text-muted,#aab4c4);text-align:center;margin-top:4px;line-height:1.6;">
+              Dúvidas? Acesse a
+              <a href="/referral.html" style="color:var(--hsh-gold,#D4AF37);">página de indicações</a>
+              ou fale conosco pelo WhatsApp.
+            </p>
+          </div>
+        </div><!-- /#fid-panel-regras -->
+
       </section>
 
       <!-- Vouchers -->
