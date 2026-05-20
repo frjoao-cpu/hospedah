@@ -30,173 +30,174 @@
   --cor-texto: #e8eaf0;
   --cor-sub: #aab4c4;
   --borda: rgba(212,175,55,0.15);
-  --radius: 12px;
-  --sombra: 0 4px 24px rgba(0,0,0,0.3);
+  --radius: 14px;
+  --sombra: 0 8px 32px rgba(0,0,0,0.35);
 }
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: 'Poppins', sans-serif; background: var(--bg); color: var(--cor-texto); min-height: 100vh; }
 
-.skip-link {
-  position: absolute;
-  top: -999px;
-  left: -999px;
-  background: var(--dourado);
-  color: var(--azul);
-  padding: 10px 18px;
-  border-radius: 8px;
-  font-weight: 700;
-  font-size: 0.9em;
-  z-index: 10000;
-  text-decoration: none;
-}
-.skip-link:focus { top: 12px; left: 12px; }
+.skip-link { position:absolute; top:-999px; left:-999px; background:var(--dourado); color:var(--azul); padding:10px 18px; border-radius:8px; font-weight:700; font-size:.9em; z-index:10000; text-decoration:none; }
+.skip-link:focus { top:12px; left:12px; }
 
+/* ── HERO ── */
 .hero {
-  background: linear-gradient(135deg, var(--azul), var(--azul2));
-  padding: 48px 24px 40px;
+  background: linear-gradient(160deg, #0d1f42 0%, #142850 55%, #0d1b2e 100%);
+  padding: 48px 24px 36px;
   text-align: center;
   border-bottom: 1px solid var(--borda);
+  position: relative;
+  overflow: hidden;
 }
-.hero h1 { font-size: 1.8em; color: var(--dourado); margin-bottom: 10px; }
-.hero p { color: var(--cor-sub); font-size: .95em; max-width: 520px; margin: 0 auto; line-height: 1.6; }
-
-.main {
-  max-width: 860px; margin: 0 auto;
-  padding: 28px 16px 80px;
-  display: grid; grid-template-columns: 1fr 1fr; gap: 20px;
+.hero::before {
+  content: '';
+  position: absolute;
+  top: -60px; left: 50%; transform: translateX(-50%);
+  width: 600px; height: 300px;
+  background: radial-gradient(ellipse, rgba(212,175,55,0.08) 0%, transparent 70%);
+  pointer-events: none;
 }
-@media (max-width: 640px) { .main { grid-template-columns: 1fr; } }
+.hero h1 { font-size: 2em; color: var(--dourado); margin-bottom: 10px; position: relative; }
+.hero > p { color: var(--cor-sub); font-size: .95em; max-width: 520px; margin: 0 auto; line-height: 1.6; position: relative; }
 
+/* Session badge */
+.session-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: rgba(212,175,55,.1); border: 1px solid rgba(212,175,55,.25);
+  border-radius: 20px; padding: 6px 14px; font-size: .82em;
+  color: var(--dourado); margin-bottom: 14px; position: relative;
+}
+.session-badge .dot { width: 8px; height: 8px; border-radius: 50%; background: #25D366; flex-shrink: 0; animation: pulseDot 2s infinite; }
+@keyframes pulseDot { 0%,100% { opacity:1; transform:scale(1); } 50% { opacity:.6; transform:scale(1.25); } }
+.session-badge a { color: inherit; text-decoration: underline; }
+
+/* ── TABS NAV ── */
+.tab-nav {
+  display: flex;
+  background: rgba(11,28,61,0.95);
+  border-bottom: 1px solid var(--borda);
+  position: sticky; top: 0; z-index: 10;
+  overflow-x: auto; scrollbar-width: none;
+}
+.tab-nav::-webkit-scrollbar { display: none; }
+.tab-btn {
+  flex: 1; min-width: 120px; padding: 14px 16px;
+  background: none; border: none; border-bottom: 2px solid transparent;
+  color: var(--cor-sub); font-family: inherit; font-size: .88em; font-weight: 500;
+  cursor: pointer; transition: color .2s, border-color .2s, background .2s;
+  white-space: nowrap; text-align: center;
+}
+.tab-btn:hover { color: var(--dourado); }
+.tab-btn.active { color: var(--dourado); border-bottom-color: var(--dourado); background: rgba(212,175,55,.04); }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; animation: fadeUp .25s ease; }
+@keyframes fadeUp { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+
+/* ── MAIN ── */
+.main { max-width: 900px; margin: 0 auto; padding: 28px 16px 80px; }
+
+/* Two-column grid for link tab */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+@media (max-width: 640px) { .grid-2 { grid-template-columns: 1fr; } }
+
+/* ── CARD ── */
 .card {
-  background: var(--bg2); border: 1px solid var(--borda);
+  background: rgba(16,35,60,.88); border: 1px solid var(--borda);
   border-radius: var(--radius); padding: 24px; box-shadow: var(--sombra);
+  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
 }
-.card h2 { color: var(--dourado); font-size: 1em; margin-bottom: 16px;
-  padding-bottom: 10px; border-bottom: 1px solid var(--borda); }
+.card h2 { color: var(--dourado); font-size: 1em; margin-bottom: 16px; padding-bottom: 10px; border-bottom: 1px solid var(--borda); }
 
+/* ── STEPS ── */
 .step-list { list-style: none; }
-.step-list li {
-  display: flex; align-items: flex-start; gap: 14px;
-  padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,.04);
-  font-size: .88em; color: var(--cor-sub); line-height: 1.5;
-}
+.step-list li { display: flex; align-items: flex-start; gap: 14px; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,.04); font-size: .88em; color: var(--cor-sub); line-height: 1.5; }
 .step-list li:last-child { border-bottom: none; }
-.step-num {
-  width: 30px; height: 30px; border-radius: 50%;
-  background: var(--dourado); color: var(--azul);
-  font-weight: 700; font-size: .85em;
-  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-}
+.step-num { width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, var(--dourado), #b8922a); color: var(--azul); font-weight: 700; font-size: .85em; display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 2px 8px rgba(212,175,55,.3); }
 .step-text strong { color: var(--cor-texto); display: block; margin-bottom: 2px; }
 
+/* ── FORM ── */
 .field-group { display: flex; flex-direction: column; gap: 4px; margin-bottom: 14px; }
 .field-group label { font-size: .75em; color: var(--cor-sub); font-weight: 500; text-transform: uppercase; letter-spacing: .4px; }
-.field-group input {
-  background: rgba(255,255,255,.05); border: 1px solid rgba(212,175,55,.2);
-  border-radius: 8px; color: var(--cor-texto); font-family: inherit; font-size: .9em;
-  padding: 10px 12px; transition: border-color .2s;
-}
-.field-group input:focus { outline: none; border-color: var(--dourado); }
+.field-group input { background: rgba(255,255,255,.05); border: 1px solid rgba(212,175,55,.2); border-radius: 8px; color: var(--cor-texto); font-family: inherit; font-size: .9em; padding: 11px 14px; transition: border-color .2s, box-shadow .2s; }
+.field-group input:focus { outline: none; border-color: var(--dourado); box-shadow: 0 0 0 3px rgba(212,175,55,.1); }
+.field-group input[readonly] { opacity: .7; cursor: default; }
 
-.btn {
-  padding: 11px 20px; border-radius: 8px; border: none;
-  font-family: inherit; font-size: .9em; font-weight: 600;
-  cursor: pointer; width: 100%; transition: all .2s;
-  display: flex; align-items: center; justify-content: center; gap: 6px;
-}
-.btn-primary { background: var(--dourado); color: var(--azul); }
-.btn-primary:hover { background: var(--dourado-hover); }
+/* ── BUTTONS ── */
+.btn { padding: 12px 20px; border-radius: 8px; border: none; font-family: inherit; font-size: .9em; font-weight: 600; cursor: pointer; width: 100%; transition: all .2s; display: flex; align-items: center; justify-content: center; gap: 6px; }
+.btn-primary { background: linear-gradient(135deg, var(--dourado), #b8922a); color: var(--azul); box-shadow: 0 4px 14px rgba(212,175,55,.25); }
+.btn-primary:hover { background: linear-gradient(135deg, var(--dourado-hover), var(--dourado)); transform: translateY(-1px); box-shadow: 0 6px 20px rgba(212,175,55,.35); }
+.btn-primary:active { transform: translateY(0); }
 
-.link-box {
-  display: none; margin-top: 16px;
-  background: rgba(212,175,55,.07); border: 1px solid rgba(212,175,55,.25);
-  border-radius: 10px; padding: 16px;
-}
-.link-box .ref-url {
-  font-family: monospace; font-size: .82em;
-  background: rgba(0,0,0,.3); padding: 8px 10px;
-  border-radius: 6px; color: var(--dourado); word-break: break-all;
-  display: block; margin-bottom: 10px;
-}
-.btn-copy {
-  padding: 8px 18px; background: var(--dourado); color: var(--azul);
-  border: none; border-radius: 6px; font-weight: 700; cursor: pointer;
-  font-size: .82em; transition: background .2s;
-}
+/* ── LINK BOX ── */
+.link-box { display: none; margin-top: 16px; background: rgba(212,175,55,.07); border: 1px solid rgba(212,175,55,.25); border-radius: 10px; padding: 16px; }
+.link-box .ref-url { font-family: monospace; font-size: .82em; background: rgba(0,0,0,.3); padding: 8px 10px; border-radius: 6px; color: var(--dourado); word-break: break-all; display: block; margin-bottom: 10px; }
+.btn-copy { padding: 8px 18px; background: var(--dourado); color: var(--azul); border: none; border-radius: 6px; font-weight: 700; cursor: pointer; font-size: .82em; transition: all .2s; }
 .btn-copy:hover { background: var(--dourado-hover); }
-.btn-share {
-  display: inline-flex; align-items: center; gap: 7px;
-  padding: 8px 18px; background: var(--verde); color: #fff;
-  border: none; border-radius: 6px; font-weight: 700; cursor: pointer;
-  font-size: .82em; margin-left: 6px; transition: background .2s;
-}
+.btn-share { display: inline-flex; align-items: center; gap: 7px; padding: 8px 18px; background: var(--verde); color: #fff; border: none; border-radius: 6px; font-weight: 700; cursor: pointer; font-size: .82em; margin-left: 6px; transition: background .2s; }
 .btn-share:hover { background: #20b857; }
 
+/* ── STATS ── */
 .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px; }
-.stat-card {
-  background: rgba(255,255,255,.04); border: 1px solid var(--borda);
-  border-radius: 10px; padding: 14px; text-align: center;
-}
-.stat-card .stat-val { font-size: 1.6em; font-weight: 700; color: var(--dourado); line-height: 1; }
+.stat-card { background: rgba(255,255,255,.04); border: 1px solid var(--borda); border-radius: 10px; padding: 14px; text-align: center; transition: border-color .2s, transform .2s; }
+.stat-card:hover { border-color: rgba(212,175,55,.3); transform: translateY(-2px); }
+.stat-card .stat-val { font-size: 1.8em; font-weight: 700; color: var(--dourado); line-height: 1; }
 .stat-card .stat-lbl { font-size: .72em; color: var(--cor-sub); margin-top: 4px; }
 
-.nivel-badge {
-  display: inline-block; padding: 3px 10px; border-radius: 20px;
-  font-size: .72em; font-weight: 700; margin-top: 8px;
-}
-.nivel-bronze { background: rgba(180,90,0,.2); color: #cd7f32; border: 1px solid rgba(180,90,0,.3); }
+/* ── BADGES ── */
+.nivel-badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: .75em; font-weight: 700; margin-top: 8px; letter-spacing: .3px; }
+.nivel-bronze { background: rgba(180,90,0,.2);    color: #cd7f32; border: 1px solid rgba(180,90,0,.3); }
 .nivel-prata  { background: rgba(180,180,180,.15); color: #c0c0c0; border: 1px solid rgba(180,180,180,.3); }
-.nivel-ouro   { background: rgba(212,175,55,.15); color: var(--dourado); border: 1px solid rgba(212,175,55,.3); }
+.nivel-ouro   { background: rgba(212,175,55,.15);  color: var(--dourado); border: 1px solid rgba(212,175,55,.3); }
 
-.toast-container {
-  position: fixed; bottom: 24px; right: 20px; z-index: 9999;
-  display: flex; flex-direction: column; gap: 8px;
-}
-.toast {
-  background: var(--azul2); border: 1px solid var(--borda);
-  border-left: 3px solid var(--dourado); border-radius: 8px;
-  padding: 12px 16px; font-size: .85em; max-width: 300px;
-  animation: slideIn .3s ease; box-shadow: var(--sombra);
-}
-.toast.success { border-left-color: var(--verde); }
-.toast.error   { border-left-color: #e74c3c; }
-@keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-
+/* ── PROGRESS BAR ── */
 .cupom-progress-wrap { margin-top: 18px; }
 .cupom-progress-title { font-size: .82em; color: var(--cor-sub); margin-bottom: 6px; display: flex; justify-content: space-between; }
-.cupom-progress-bar { background: rgba(255,255,255,.07); border-radius: 6px; height: 10px; overflow: hidden; }
-.cupom-progress-fill { height: 100%; background: var(--dourado); border-radius: 6px; transition: width .5s ease; }
+.cupom-progress-bar { background: rgba(255,255,255,.07); border-radius: 6px; height: 12px; overflow: hidden; }
+.cupom-progress-fill { height: 100%; background: linear-gradient(90deg, #b8922a, var(--dourado)); border-radius: 6px; transition: width .8s cubic-bezier(.22,1,.36,1); }
 
+/* ── CUPONS ── */
 .cupom-list { margin-top: 14px; display: flex; flex-direction: column; gap: 10px; }
-.cupom-item {
-  background: rgba(212,175,55,.07); border: 1px solid rgba(212,175,55,.3);
-  border-radius: 10px; padding: 14px 16px;
-  display: flex; align-items: center; justify-content: space-between; gap: 12px;
-  flex-wrap: wrap;
-}
+.cupom-item { background: rgba(212,175,55,.07); border: 1px solid rgba(212,175,55,.3); border-radius: 10px; padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
 .cupom-item .cupom-code { font-family: monospace; font-size: .88em; color: var(--dourado); font-weight: 700; }
 .cupom-item .cupom-val  { font-size: 1.1em; font-weight: 700; color: var(--cor-texto); }
 .cupom-item .cupom-exp  { font-size: .72em; color: var(--cor-sub); }
 .cupom-item .cupom-used { font-size: .72em; color: #e74c3c; font-weight: 600; }
-.cupom-item .btn-copy-cupom {
-  padding: 5px 12px; background: var(--dourado); color: var(--azul);
-  border: none; border-radius: 6px; font-weight: 700; cursor: pointer;
-  font-size: .78em; flex-shrink: 0; transition: background .2s;
-}
+.cupom-item .btn-copy-cupom { padding: 5px 12px; background: var(--dourado); color: var(--azul); border: none; border-radius: 6px; font-weight: 700; cursor: pointer; font-size: .78em; flex-shrink: 0; transition: background .2s; }
 .cupom-item .btn-copy-cupom:hover { background: var(--dourado-hover); }
 
+/* ── INDICAÇÕES ── */
 .indicacoes-list { margin-top: 12px; display: flex; flex-direction: column; gap: 8px; }
-.indicacao-item {
-  display: flex; align-items: center; justify-content: space-between;
-  background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.06);
-  border-radius: 8px; padding: 10px 14px; font-size: .82em;
-}
-.indicacao-item .ind-status {
-  padding: 2px 8px; border-radius: 12px; font-weight: 600; font-size: .85em;
-}
+.indicacao-item { display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.06); border-radius: 8px; padding: 10px 14px; font-size: .82em; }
+.indicacao-item .ind-status { padding: 2px 8px; border-radius: 12px; font-weight: 600; font-size: .85em; }
 .ind-confirmada { background: rgba(37,211,102,.15); color: #25D366; }
 .ind-pendente   { background: rgba(255,193,7,.15);  color: #ffc107; }
 .ind-cancelada  { background: rgba(231,76,60,.15);  color: #e74c3c; }
+
+/* ── EMPTY STATE ── */
+.empty-state { text-align: center; padding: 40px 20px; color: var(--cor-sub); }
+.empty-state .empty-icon { font-size: 2.5em; margin-bottom: 12px; }
+.empty-state p { font-size: .88em; line-height: 1.6; }
+
+/* ── RULES TAB ── */
+.rules-wrap { max-width: 680px; margin: 0 auto; }
+.rules-wrap h2 { color: var(--dourado); margin-bottom: 20px; font-size: 1.1em; padding-bottom: 12px; border-bottom: 1px solid var(--borda); }
+.rule-card { background: rgba(255,255,255,.03); border: 1px solid var(--borda); border-radius: 12px; padding: 18px 20px; margin-bottom: 14px; }
+.rule-card h3 { color: var(--cor-texto); font-size: .92em; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+.rule-card p, .rule-card li { color: var(--cor-sub); font-size: .85em; line-height: 1.7; }
+.rule-card ul { padding-left: 18px; margin-top: 6px; }
+.rule-tag { display: inline-block; background: rgba(212,175,55,.12); border: 1px solid rgba(212,175,55,.25); border-radius: 6px; padding: 2px 8px; color: var(--dourado); font-weight: 600; font-size: .85em; }
+.tier-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; margin-top: 12px; }
+.tier-item { background: rgba(255,255,255,.03); border: 1px solid var(--borda); border-radius: 10px; padding: 14px; text-align: center; }
+.tier-item .ti-icon { font-size: 1.5em; margin-bottom: 4px; }
+.tier-item .ti-name { font-size: .85em; font-weight: 600; color: var(--cor-texto); }
+.tier-item .ti-pts  { font-size: .72em; color: var(--cor-sub); margin-top: 2px; }
+.tier-item .ti-perk { font-size: .72em; color: var(--dourado); margin-top: 6px; }
+
+/* ── TOAST ── */
+.toast-container { position: fixed; bottom: 24px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; }
+.toast { background: var(--azul2); border: 1px solid var(--borda); border-left: 3px solid var(--dourado); border-radius: 8px; padding: 12px 16px; font-size: .85em; max-width: 300px; animation: slideIn .3s ease; box-shadow: var(--sombra); }
+.toast.success { border-left-color: var(--verde); }
+.toast.error   { border-left-color: #e74c3c; }
+@keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
 </style>
 </head>
 <body>
@@ -211,66 +212,106 @@ body { font-family: 'Poppins', sans-serif; background: var(--bg); color: var(--c
   <span aria-current="page">🎁 Indicar &amp; Ganhar</span>
 </nav>
 
+<!-- HERO -->
 <div class="hero" id="referral-main">
+  <div id="sessionBadge" style="display:none;" class="session-badge">
+    <span class="dot"></span>
+    <span id="sessionBadgeText">Conectado</span>
+    &nbsp;·&nbsp;
+    <a href="/portal/dashboard.html">Meu Portal</a>
+  </div>
   <h1>🎁 Indique e Ganhe</h1>
   <p>Compartilhe seu link exclusivo. Cada amigo que reservar via seu link ganha <strong>R$30 de desconto</strong> — e você acumula pontos de fidelidade!</p>
 </div>
 
-<div class="main">
+<!-- TABS NAV -->
+<nav class="tab-nav" role="tablist" aria-label="Seções da página de indicação">
+  <button class="tab-btn active" data-tab="link" role="tab" aria-selected="true" aria-controls="tab-link" id="tabBtn-link">🔗 Meu Link</button>
+  <button class="tab-btn" data-tab="resultados" role="tab" aria-selected="false" aria-controls="tab-resultados" id="tabBtn-resultados">📊 Resultados</button>
+  <button class="tab-btn" data-tab="regras" role="tab" aria-selected="false" aria-controls="tab-regras" id="tabBtn-regras">📋 Regras</button>
+</nav>
 
-  <!-- Como funciona -->
-  <div class="card">
-    <h2>📋 Como funciona</h2>
-    <ul class="step-list">
-      <li>
-        <div class="step-num">1</div>
-        <div class="step-text"><strong>Gere seu link</strong> Informe seu WhatsApp e receba um link exclusivo de indicação.</div>
-      </li>
-      <li>
-        <div class="step-num">2</div>
-        <div class="step-text"><strong>Compartilhe</strong> Envie para amigos e família via WhatsApp, Instagram ou onde quiser.</div>
-      </li>
-      <li>
-        <div class="step-num">3</div>
-        <div class="step-text"><strong>Amigo reserva com desconto</strong> Quem usar seu link ganha <strong>R$30 de desconto</strong> automático na reserva.</div>
-      </li>
-      <li>
-        <div class="step-num">4</div>
-        <div class="step-text"><strong>Você ganha pontos</strong> A cada reserva confirmada via seu link, você acumula <strong>50 pontos</strong> de fidelidade — trocáveis por descontos e benefícios.</div>
-      </li>
-    </ul>
-  </div>
+<!-- ===== TAB: MEU LINK ===== -->
+<div id="tab-link" class="tab-panel active" role="tabpanel" aria-labelledby="tabBtn-link">
+  <div class="main">
+    <div class="grid-2">
 
-  <!-- Gerar link -->
-  <div class="card">
-    <h2>🔗 Gere seu link exclusivo</h2>
-    <div class="field-group">
-      <label>Seu WhatsApp (com DDD) *</label>
-      <input type="tel" id="ref_wpp" placeholder="(17) 99999-9999" autocomplete="tel">
-    </div>
-    <div class="field-group">
-      <label>Seu nome (para identificação)</label>
-      <input type="text" id="ref_nome" placeholder="Seu nome" autocomplete="name">
-    </div>
-    <button class="btn btn-primary" onclick="gerarLink()">✨ Gerar meu link de indicação</button>
-
-    <!-- Link gerado -->
-    <div class="link-box" id="linkBox">
-      <p style="color:var(--dourado);font-weight:600;margin-bottom:10px;">🎉 Seu link exclusivo:</p>
-      <span class="ref-url" id="refUrlDisplay"></span>
-      <div style="display:flex;gap:6px;flex-wrap:wrap;">
-        <button class="btn-copy" id="btnCopy" onclick="copiarLink()">📋 Copiar</button>
-        <button class="btn-share" onclick="compartilharWhatsApp()"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="16" height="16" aria-hidden="true" focusable="false"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg> Enviar via WhatsApp</button>
+      <!-- Como funciona -->
+      <div class="card">
+        <h2>📋 Como funciona</h2>
+        <ul class="step-list">
+          <li>
+            <div class="step-num">1</div>
+            <div class="step-text"><strong>Gere seu link</strong> Informe seu WhatsApp e receba seu link exclusivo de indicação.</div>
+          </li>
+          <li>
+            <div class="step-num">2</div>
+            <div class="step-text"><strong>Compartilhe</strong> Envie para amigos e família via WhatsApp, Instagram ou onde quiser.</div>
+          </li>
+          <li>
+            <div class="step-num">3</div>
+            <div class="step-text"><strong>Amigo reserva com desconto</strong> Quem usar seu link ganha <strong>R$30 de desconto</strong> automático na reserva.</div>
+          </li>
+          <li>
+            <div class="step-num">4</div>
+            <div class="step-text"><strong>Você ganha pontos</strong> A cada reserva confirmada via seu link, você acumula <strong>50 pontos</strong> de fidelidade — trocáveis por descontos e benefícios.</div>
+          </li>
+        </ul>
       </div>
-      <p style="font-size:.75em;color:var(--cor-sub);margin-top:10px;line-height:1.5;">
-        Válido por 12 meses. Desconto de R$30 aplicado automaticamente na reserva do seu amigo.
-      </p>
+
+      <!-- Gerar link -->
+      <div class="card">
+        <h2>🔗 Gere seu link exclusivo</h2>
+        <div id="sessionHint" style="display:none;margin-bottom:14px;font-size:.8em;color:var(--dourado);background:rgba(212,175,55,.07);border:1px solid rgba(212,175,55,.2);border-radius:8px;padding:10px 12px;">
+          ✅ Dados preenchidos automaticamente com sua conta.
+        </div>
+        <div class="field-group">
+          <label for="ref_wpp">Seu WhatsApp (com DDD) *</label>
+          <input type="tel" id="ref_wpp" placeholder="(17) 99999-9999" autocomplete="tel">
+        </div>
+        <div class="field-group">
+          <label for="ref_nome">Seu nome (para identificação)</label>
+          <input type="text" id="ref_nome" placeholder="Seu nome" autocomplete="name">
+        </div>
+        <button class="btn btn-primary" id="btnGerarLink" onclick="gerarLink()">✨ Gerar meu link de indicação</button>
+
+        <!-- Link gerado -->
+        <div class="link-box" id="linkBox">
+          <p style="color:var(--dourado);font-weight:600;margin-bottom:10px;">🎉 Seu link exclusivo:</p>
+          <span class="ref-url" id="refUrlDisplay"></span>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;">
+            <button class="btn-copy" id="btnCopy" onclick="copiarLink()">📋 Copiar</button>
+            <button class="btn-share" onclick="compartilharWhatsApp()">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="16" height="16" aria-hidden="true" focusable="false"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg>
+              Enviar via WhatsApp
+            </button>
+          </div>
+          <p style="font-size:.75em;color:var(--cor-sub);margin-top:10px;line-height:1.5;">
+            Válido por 12 meses. Desconto de R$30 aplicado automaticamente na reserva do seu amigo.
+          </p>
+        </div>
+      </div>
+
+    </div><!-- /.grid-2 -->
+  </div><!-- /.main -->
+</div><!-- /#tab-link -->
+
+<!-- ===== TAB: RESULTADOS ===== -->
+<div id="tab-resultados" class="tab-panel" role="tabpanel" aria-labelledby="tabBtn-resultados">
+  <div class="main">
+
+    <!-- Prompt para gerar link se ainda não gerou -->
+    <div id="resultadosPrompt" style="text-align:center;padding:40px 20px;max-width:500px;margin:0 auto;">
+      <div style="font-size:2.5em;margin-bottom:12px;">📊</div>
+      <p style="color:var(--cor-sub);font-size:.9em;line-height:1.6;margin-bottom:20px;">Gere seu link de indicação primeiro para ver seus resultados.</p>
+      <button class="btn btn-primary" onclick="switchTab('link')" style="max-width:240px;">🔗 Gerar meu link</button>
     </div>
 
-    <!-- Estatísticas da indicação -->
-    <div id="statsBox" style="display:none;margin-top:20px;">
-      <h2 style="color:var(--dourado);font-size:1em;margin-bottom:12px;padding-top:12px;border-top:1px solid var(--borda);">📊 Seus resultados</h2>
-      <div class="stat-grid">
+    <!-- Dados carregados -->
+    <div id="resultadosData" style="display:none;">
+
+      <!-- Resumo em 4 blocos -->
+      <div class="stat-grid" style="margin-bottom:20px;">
         <div class="stat-card">
           <div class="stat-val" id="statIndicacoes">0</div>
           <div class="stat-lbl">Indicações feitas</div>
@@ -288,63 +329,213 @@ body { font-family: 'Poppins', sans-serif; background: var(--bg); color: var(--c
           <div class="stat-lbl">Cupons disponíveis</div>
         </div>
       </div>
-      <div style="text-align:center;margin-top:10px;">
-        <span class="nivel-badge nivel-bronze" id="nivelBadge">🥉 Bronze</span>
+
+      <!-- Nível + progresso -->
+      <div class="card" style="margin-bottom:20px;">
+        <h2>🏅 Nível de fidelidade</h2>
+        <div style="text-align:center;margin-bottom:14px;">
+          <span class="nivel-badge nivel-bronze" id="nivelBadge">🥉 Bronze</span>
+        </div>
+        <div class="cupom-progress-wrap">
+          <div class="cupom-progress-title">
+            <span>🎟️ Próximo cupom R$300</span>
+            <span id="cupomProgressLabel">0 / 500 pts</span>
+          </div>
+          <div class="cupom-progress-bar">
+            <div class="cupom-progress-fill" id="cupomProgressFill" style="width:0%"></div>
+          </div>
+        </div>
       </div>
 
-      <!-- Progresso para próximo cupom -->
-      <div class="cupom-progress-wrap" id="cupomProgressWrap">
-        <div class="cupom-progress-title">
-          <span>🎟️ Próximo cupom R$300</span>
-          <span id="cupomProgressLabel">0 / 500 pts</span>
-        </div>
-        <div class="cupom-progress-bar">
-          <div class="cupom-progress-fill" id="cupomProgressFill" style="width:0%"></div>
-        </div>
-      </div>
-
-      <!-- Lista de cupons disponíveis -->
-      <div id="cuponsBox" style="display:none;margin-top:16px;">
-        <p style="color:var(--dourado);font-size:.9em;font-weight:600;margin-bottom:8px;">🎁 Seus cupons de desconto</p>
+      <!-- Cupons -->
+      <div id="cuponsBox" class="card" style="display:none;margin-bottom:20px;">
+        <h2>🎁 Seus cupons de desconto</h2>
         <div class="cupom-list" id="cupomList"></div>
       </div>
 
-      <!-- Lista de indicações detalhadas -->
-      <div id="indicacoesBox" style="display:none;margin-top:16px;">
-        <p style="color:var(--cor-sub);font-size:.82em;font-weight:600;margin-bottom:8px;text-transform:uppercase;letter-spacing:.4px;">Histórico de indicações</p>
-        <div class="indicacoes-list" id="indicacoesList"></div>
+      <!-- Histórico de indicações -->
+      <div class="card">
+        <h2>📨 Histórico de indicações</h2>
+        <div id="indicacoesBox">
+          <div class="empty-state" id="indicacoesEmpty">
+            <div class="empty-icon">📭</div>
+            <p>Nenhuma indicação registrada ainda.<br>Compartilhe seu link e acompanhe aqui!</p>
+          </div>
+          <div class="indicacoes-list" id="indicacoesList" style="display:none;"></div>
+        </div>
       </div>
+
+    </div><!-- /#resultadosData -->
+  </div><!-- /.main -->
+</div><!-- /#tab-resultados -->
+
+<!-- ===== TAB: REGRAS ===== -->
+<div id="tab-regras" class="tab-panel" role="tabpanel" aria-labelledby="tabBtn-regras">
+  <div class="main">
+    <div class="rules-wrap">
+      <h2>📋 Regras do Programa de Fidelidade</h2>
+
+      <div class="rule-card">
+        <h3>🎁 Como ganhar pontos</h3>
+        <ul>
+          <li>Cada amigo que reservar usando seu link exclusivo ganha <span class="rule-tag">R$30 de desconto</span> automático.</li>
+          <li>Quando essa reserva for <strong>confirmada</strong>, você recebe <span class="rule-tag">50 pontos</span> de fidelidade.</li>
+          <li>Não há limite de indicações — quanto mais você indicar, mais pontos acumula.</li>
+        </ul>
+      </div>
+
+      <div class="rule-card">
+        <h3>🎟️ Geração de cupons</h3>
+        <ul>
+          <li>A cada <span class="rule-tag">500 pontos</span> acumulados, você recebe automaticamente um cupom de <span class="rule-tag">R$300</span> de desconto.</li>
+          <li>Os cupons não são transferíveis — apenas o titular da conta pode utilizá-los.</li>
+          <li>Cada cupom tem validade de <span class="rule-tag">3 meses</span> a partir da data de geração.</li>
+          <li>Os cupons podem ser aplicados em qualquer reserva na HOSPEDAH.</li>
+        </ul>
+      </div>
+
+      <div class="rule-card">
+        <h3>⏳ Validade dos pontos</h3>
+        <ul>
+          <li>Pontos expiram após <span class="rule-tag">12 meses</span> de inatividade (sem novas indicações confirmadas).</li>
+          <li>Qualquer nova indicação confirmada renova o prazo de expiração de todos os seus pontos.</li>
+        </ul>
+      </div>
+
+      <div class="rule-card">
+        <h3>🏅 Níveis de fidelidade</h3>
+        <p style="margin-bottom:12px;">Suba de nível acumulando pontos e desbloqueie benefícios exclusivos:</p>
+        <div class="tier-grid">
+          <div class="tier-item">
+            <div class="ti-icon">🥉</div>
+            <div class="ti-name">Bronze</div>
+            <div class="ti-pts">0 – 1.199 pts</div>
+            <div class="ti-perk">Cupons de R$300</div>
+          </div>
+          <div class="tier-item">
+            <div class="ti-icon">🥈</div>
+            <div class="ti-name">Prata</div>
+            <div class="ti-pts">1.200 – 2.499 pts</div>
+            <div class="ti-perk">Prioridade no atendimento</div>
+          </div>
+          <div class="tier-item">
+            <div class="ti-icon">🥇</div>
+            <div class="ti-name">Ouro</div>
+            <div class="ti-pts">2.500 – 4.499 pts</div>
+            <div class="ti-perk">Upgrades exclusivos</div>
+          </div>
+          <div class="tier-item">
+            <div class="ti-icon">💎</div>
+            <div class="ti-name">Diamante</div>
+            <div class="ti-pts">4.500+ pts</div>
+            <div class="ti-perk">Benefícios VIP</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="rule-card">
+        <h3>🔒 Regras gerais</h3>
+        <ul>
+          <li>Apenas reservas com status <strong>confirmada</strong> geram pontos — reservas pendentes ou canceladas não contam.</li>
+          <li>Auto-indicações (usar o próprio link) não são válidas.</li>
+          <li>A HOSPEDAH se reserva o direito de alterar as regras do programa com aviso prévio de 30 dias.</li>
+          <li>Em caso de suspeita de fraude, os pontos podem ser cancelados.</li>
+        </ul>
+      </div>
+
+      <p style="font-size:.78em;color:var(--cor-sub);text-align:center;margin-top:20px;line-height:1.6;">
+        Dúvidas? Entre em contato pelo WhatsApp ou acesse o
+        <a href="/portal/dashboard.html" style="color:var(--dourado);">Portal do Hóspede</a>.
+      </p>
     </div>
   </div>
-
-</div>
+</div><!-- /#tab-regras -->
 
 <div class="toast-container" id="toastContainer"></div>
 
-<!-- Supabase carregado aqui (final do body) para não bloquear o render -->
+<!-- Supabase e configuração centralizada -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/assets/supabase-config.js"></script>
 <script src="assets/auth-guard.js"></script>
 <script>
-var SUPABASE_URL = 'https://ydrmjoppjxtmnwtvtinb.supabase.co';
-var SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlkcm1qb3Bwanh0bW53dHZ0aW5iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYyNzA3MzksImV4cCI6MjA5MTg0NjczOX0.Gp4ed332v62sC5e5GXXbPqOIBNpS4EzMCFawnBJE_Cw';
-var sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+var sb = supabase.createClient(window.HOSPEDAH_SB_URL, window.HOSPEDAH_SB_ANON);
 
-/* Rota pública:
-   página de indicação deve abrir sem login ADM. */
+var _refCode   = null;
+var _refUrl    = null;
+var _userEmail = null; /* e-mail da sessão autenticada (se logado) */
 
-var _refCode = null;
-var _refUrl  = null;
+/* ── Troca de abas ── */
+function switchTab(name) {
+  document.querySelectorAll('.tab-btn').forEach(function (btn) {
+    var active = btn.getAttribute('data-tab') === name;
+    btn.classList.toggle('active', active);
+    btn.setAttribute('aria-selected', active ? 'true' : 'false');
+  });
+  document.querySelectorAll('.tab-panel').forEach(function (p) {
+    p.classList.toggle('active', p.id === 'tab-' + name);
+  });
+}
+document.querySelectorAll('.tab-btn').forEach(function (btn) {
+  btn.addEventListener('click', function () { switchTab(btn.getAttribute('data-tab')); });
+});
 
-function gerarRefCode(wpp) {
-  /* Deriva um código curto a partir do número de WhatsApp */
-  var digits = wpp.replace(/\D/g, '').slice(-9);
+/* ── Detectar sessão autenticada (portal do hóspede) ── */
+(function detectSession() {
+  if (!sb || !sb.auth) return;
+  sb.auth.getSession().then(function (res) {
+    var session = res && res.data && res.data.session;
+    var user    = session && session.user;
+    if (!user) return;
+
+    _userEmail = user.email || '';
+    var nome   = (user.user_metadata && (user.user_metadata.full_name || user.user_metadata.name)) || '';
+
+    /* Mostrar badge de sessão no hero */
+    var badge = document.getElementById('sessionBadge');
+    var badgeText = document.getElementById('sessionBadgeText');
+    if (badge) {
+      badgeText.textContent = 'Conectado como ' + _userEmail;
+      badge.style.display = 'inline-flex';
+    }
+
+    /* Pré-preencher campos com e-mail e nome da sessão */
+    var wppEl  = document.getElementById('ref_wpp');
+    var nomeEl = document.getElementById('ref_nome');
+    var hint   = document.getElementById('sessionHint');
+    if (wppEl && !wppEl.value) {
+      wppEl.value = _userEmail;
+      wppEl.setAttribute('readonly', 'true');
+    }
+    if (nomeEl && nome && !nomeEl.value) {
+      nomeEl.value = nome;
+    }
+    if (hint) hint.style.display = 'block';
+
+    /* Gerar e carregar link+stats automaticamente */
+    _refCode = gerarRefCode(_userEmail);
+    _refUrl  = 'https://hospedah.tur.br/reservas.html?ref=' + _refCode;
+    document.getElementById('refUrlDisplay').textContent = _refUrl;
+    document.getElementById('linkBox').style.display = 'block';
+    carregarEstatisticas(_userEmail);
+    sincronizarFidelidade(_userEmail);
+  }).catch(function () { /* sem sessão — modo público */ });
+})();
+
+/* ── Gerar ref code ── */
+function gerarRefCode(identifier) {
+  var digits = identifier.replace(/\D/g, '').slice(-9);
+  if (digits.length < 4) {
+    /* Fallback para e-mail ou identificador não-numérico */
+    digits = identifier.split('').map(function (c) { return c.charCodeAt(0); }).join('').slice(-9);
+  }
   return btoa(digits).replace(/[^a-zA-Z0-9]/g, '').slice(0, 10);
 }
 
+/* ── Gerar link (clique manual) ── */
 function gerarLink() {
   var wpp  = (document.getElementById('ref_wpp').value  || '').trim();
   var nome = (document.getElementById('ref_nome').value || '').trim();
-  if (!wpp) { toast('Informe seu WhatsApp para gerar o link.', 'error'); return; }
+  if (!wpp) { toast('Informe seu WhatsApp ou e-mail para gerar o link.', 'error'); return; }
 
   _refCode = gerarRefCode(wpp);
   _refUrl  = 'https://hospedah.tur.br/reservas.html?ref=' + _refCode;
@@ -352,19 +543,21 @@ function gerarLink() {
   document.getElementById('refUrlDisplay').textContent = _refUrl;
   document.getElementById('linkBox').style.display = 'block';
 
-  /* Buscar estatísticas de fidelidade */
   carregarEstatisticas(wpp);
+  sincronizarFidelidade(wpp);
+  toast('✅ Link gerado com sucesso!', 'success');
+}
 
-  /* Salvar/atualizar fidelidade no Supabase */
+/* ── Sincronizar registro de fidelidade ── */
+function sincronizarFidelidade(identifier) {
   sb.from('fidelidade')
     .select('pontos, nivel, total_estadias, ref_code')
-    .eq('email_hospede', wpp)
+    .eq('email_hospede', identifier)
     .maybeSingle()
     .then(function (res) {
       if (!res.data) {
-        /* Registrar novo indicador com ref_code */
         sb.from('fidelidade').insert([{
-          email_hospede: wpp,
+          email_hospede: identifier,
           pontos: 0,
           nivel: 'bronze',
           total_estadias: 0,
@@ -372,32 +565,35 @@ function gerarLink() {
           ultima_atividade: new Date().toISOString()
         }]).catch(function () {});
       } else if (!res.data.ref_code) {
-        /* Atualizar ref_code se ausente */
         sb.from('fidelidade').update({ ref_code: _refCode })
-          .eq('email_hospede', wpp).catch(function () {});
+          .eq('email_hospede', identifier).catch(function () {});
       }
     })
     .catch(function () {});
 }
 
-function carregarEstatisticas(wpp) {
-  var myCode = gerarRefCode(wpp);
+/* ── Carregar estatísticas ── */
+function carregarEstatisticas(identifier) {
+  var myCode = gerarRefCode(identifier);
 
-  /* Reservas com este ref_code (todas) */
+  /* Mostrar painel de resultados e ocultar prompt */
+  document.getElementById('resultadosPrompt').style.display = 'none';
+  document.getElementById('resultadosData').style.display   = 'block';
+
+  /* Reservas com este ref_code */
   sb.from('reservas_hospede')
     .select('id, status, criado_em')
     .eq('ref_code', myCode)
     .then(function (res) {
-      var rows = res.data || [];
+      var rows       = res.data || [];
       var confirmadas = rows.filter(function (r) { return r.status === 'confirmada'; }).length;
-      var pendentes   = rows.filter(function (r) { return r.status !== 'confirmada' && r.status !== 'cancelada'; }).length;
-      document.getElementById('statIndicacoes').textContent = rows.length;
-      document.getElementById('statConfirmadas').textContent = confirmadas;
-      document.getElementById('statsBox').style.display = 'block';
+      animarNumero('statIndicacoes', rows.length);
+      animarNumero('statConfirmadas', confirmadas);
 
-      /* Histórico de indicações detalhadas */
+      /* Histórico */
+      var list  = document.getElementById('indicacoesList');
+      var empty = document.getElementById('indicacoesEmpty');
       if (rows.length > 0) {
-        var list = document.getElementById('indicacoesList');
         list.innerHTML = rows.map(function (r) {
           var statusLabel = r.status === 'confirmada' ? 'Confirmada' :
                             r.status === 'cancelada'  ? 'Cancelada'  : 'Pendente';
@@ -409,17 +605,16 @@ function carregarEstatisticas(wpp) {
             '<span class="ind-status ' + statusClass + '">' + statusLabel + '</span>' +
             '</div>';
         }).join('');
-        document.getElementById('indicacoesBox').style.display = 'block';
+        list.style.display  = 'flex';
+        empty.style.display = 'none';
       }
     })
-    .catch(function () {
-      document.getElementById('statsBox').style.display = 'block';
-    });
+    .catch(function () {});
 
-  /* Fidelidade: pontos reais e nível */
+  /* Fidelidade: pontos e nível */
   sb.from('fidelidade')
     .select('nivel, pontos')
-    .eq('email_hospede', wpp)
+    .eq('email_hospede', identifier)
     .maybeSingle()
     .then(function (res) {
       var pontos = 0;
@@ -431,32 +626,30 @@ function carregarEstatisticas(wpp) {
         else if (nivel === 'prata') { badge.textContent = '🥈 Prata';  badge.className = 'nivel-badge nivel-prata'; }
         else                        { badge.textContent = '🥉 Bronze'; badge.className = 'nivel-badge nivel-bronze'; }
       }
-      document.getElementById('statPontos').textContent = pontos;
-
-      /* Progresso para próximo cupom */
+      animarNumero('statPontos', pontos);
       var ptsNoBloco = pontos % 500;
       var pct = (ptsNoBloco / 500 * 100).toFixed(1);
-      document.getElementById('cupomProgressFill').style.width = pct + '%';
+      document.getElementById('cupomProgressFill').style.width  = pct + '%';
       document.getElementById('cupomProgressLabel').textContent = ptsNoBloco + ' / 500 pts';
     })
     .catch(function () {});
 
-  /* Cupons disponíveis */
+  /* Cupons */
   sb.from('cupons_fidelidade')
     .select('codigo, valor_desconto, gerado_em, expira_em, usado_em')
-    .eq('hospede_email', wpp)
+    .eq('hospede_email', identifier)
     .order('gerado_em', { ascending: false })
     .then(function (res) {
       var cupons = res.data || [];
       var disponiveis = cupons.filter(function (c) { return !c.usado_em && new Date(c.expira_em) > new Date(); });
-      document.getElementById('statCupons').textContent = disponiveis.length;
+      animarNumero('statCupons', disponiveis.length);
 
       if (cupons.length > 0) {
         var list = document.getElementById('cupomList');
         list.innerHTML = cupons.map(function (c) {
-          var usado   = !!c.usado_em;
+          var usado    = !!c.usado_em;
           var expirado = new Date(c.expira_em) <= new Date();
-          var expStr  = new Date(c.expira_em).toLocaleDateString('pt-BR');
+          var expStr   = new Date(c.expira_em).toLocaleDateString('pt-BR');
           var statusHtml = usado    ? '<span class="cupom-used">Utilizado</span>' :
                            expirado ? '<span class="cupom-used">Expirado</span>' :
                            '<button class="btn-copy-cupom" onclick="copiarCupom(this,\'' + c.codigo + '\')">📋 Copiar</button>';
@@ -475,6 +668,21 @@ function carregarEstatisticas(wpp) {
     .catch(function () {});
 }
 
+/* ── Animação de número ── */
+function animarNumero(id, target) {
+  var el = document.getElementById(id);
+  if (!el) return;
+  var start  = 0;
+  var dur    = 600;
+  var begin  = performance.now();
+  (function step(now) {
+    var pct = Math.min(1, (now - begin) / dur);
+    el.textContent = Math.round(pct * target);
+    if (pct < 1) requestAnimationFrame(step);
+  })(begin);
+}
+
+/* ── Copiar link ── */
 function copiarLink() {
   if (!_refUrl) return;
   navigator.clipboard.writeText(_refUrl)
@@ -486,6 +694,7 @@ function copiarLink() {
     .catch(function () { toast('Copie manualmente: ' + _refUrl, 'info'); });
 }
 
+/* ── Copiar cupom ── */
 function copiarCupom(btn, codigo) {
   navigator.clipboard.writeText(codigo)
     .then(function () {
@@ -495,6 +704,7 @@ function copiarCupom(btn, codigo) {
     .catch(function () { toast('Código: ' + codigo, 'info'); });
 }
 
+/* ── Compartilhar no WhatsApp ── */
 function compartilharWhatsApp() {
   if (!_refUrl) return;
   var nome = (document.getElementById('ref_nome').value || '').trim() || 'Amigo';
@@ -507,6 +717,7 @@ function compartilharWhatsApp() {
   window.open('https://wa.me/?text=' + msg, '_blank');
 }
 
+/* ── Toast ── */
 function toast(msg, tipo) {
   tipo = tipo || 'info';
   var c = document.getElementById('toastContainer');
@@ -517,7 +728,7 @@ function toast(msg, tipo) {
   setTimeout(function () { t.remove(); }, 4000);
 }
 
-/* Auto-detectar ref code da URL para mostrar ao indicado que ganhou desconto */
+/* ── Auto-detectar ref na URL (indicado recebendo o link) ── */
 (function () {
   var p   = new URLSearchParams(window.location.search);
   var ref = p.get('ref');

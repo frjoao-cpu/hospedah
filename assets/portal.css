@@ -808,3 +808,80 @@ body {
   .portal-grid { grid-template-columns: 1fr; }
   .tier-track  { grid-template-columns: repeat(2, 1fr); }
 }
+
+/* ── FIDELIDADE SUB-TABS ── */
+.fid-tab-nav {
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid var(--portal-border);
+  margin: 16px 0 20px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.fid-tab-nav::-webkit-scrollbar { display: none; }
+.fid-tab-btn {
+  flex: 1;
+  min-width: 140px;
+  padding: 11px 16px;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--portal-sub);
+  font: 500 0.85rem 'Poppins', sans-serif;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color .2s, border-color .2s, background .2s;
+}
+.fid-tab-btn:hover { color: var(--portal-gold); }
+.fid-tab-btn.active {
+  color: var(--portal-gold);
+  border-bottom-color: var(--portal-gold);
+  background: var(--portal-gold-dim);
+}
+.fid-tab-panel { display: none; animation: fidFadeIn .25s ease; }
+.fid-tab-panel.active { display: block; }
+@keyframes fidFadeIn { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }
+
+/* ── FIDELIDADE RULES ── */
+.fid-rules { max-width: 640px; }
+.fid-rule-card {
+  background: rgba(255,255,255,.03);
+  border: 1px solid var(--portal-border);
+  border-radius: var(--portal-radius-sm);
+  padding: 16px 18px;
+  margin-bottom: 12px;
+}
+.fid-rule-card h3 {
+  color: var(--portal-text);
+  font-size: .9em;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.fid-rule-card ul {
+  padding-left: 18px;
+  margin: 0;
+}
+.fid-rule-card li {
+  color: var(--portal-sub);
+  font-size: .83em;
+  line-height: 1.7;
+}
+.fid-tier-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 10px;
+  margin-top: 10px;
+}
+.fid-tier-item {
+  background: rgba(255,255,255,.03);
+  border: 1px solid var(--portal-border);
+  border-radius: var(--portal-radius-sm);
+  padding: 12px;
+  text-align: center;
+}
+.fti-icon { font-size: 1.4em; margin-bottom: 4px; }
+.fti-name { font-size: .83em; font-weight: 600; color: var(--portal-text); }
+.fti-pts  { font-size: .72em; color: var(--portal-sub); margin-top: 2px; }
+.fti-perk { font-size: .72em; color: var(--portal-gold); margin-top: 6px; }
