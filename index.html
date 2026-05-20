@@ -3692,9 +3692,8 @@ function gerarPropostaPDF() {
     .then(function (res) { return res.json(); })
     .then(function (data) { renderPosts(data.posts); })
     .catch(function () {
-      /* Erro silencioso — esconde a seção para não quebrar a página */
-      var section = document.getElementById('instagram');
-      if (section) section.style.display = 'none';
+      /* Falha de rede — exibe estado vazio para o visitante poder acessar o perfil */
+      renderPosts([]);
     });
 }());
 </script>

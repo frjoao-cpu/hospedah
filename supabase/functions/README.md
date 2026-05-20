@@ -6,6 +6,7 @@
 |--------|-------------|-----------|
 | `ai-concierge` | HTTP POST (chat.html) | Concierge IA com Google Gemini 2.0 Flash — responde perguntas fora do FAQ automaticamente |
 | `weather` | HTTP GET | Proxy seguro para OpenWeatherMap (esconde a API key do front-end) |
+| `instagram-feed` | HTTP GET (index.html) | Feed de posts do Instagram com cache automático e renovação de token |
 | `notificacao-reserva` | Database Webhook (INSERT em `reservas_hospede`) | Envia WhatsApp + e-mail ao hóspede e ao admin |
 | `lembrete-checkin` | pg_cron (diário 12:00 UTC) | Lembra hóspedes com check-in amanhã via WhatsApp |
 | `recuperacao-abandono` | Database Webhook (INSERT em `abandono_reserva`) | Agenda push OneSignal 30min após abandono |
@@ -99,6 +100,18 @@ Execute o SQL em `supabase_cron.sql` no SQL Editor do Supabase:
 
 ---
 
+## Configurar banco de dados (instagram-feed)
+
+Execute o SQL em `supabase/migrations/001_instagram.sql` no SQL Editor do Supabase para criar as tabelas necessárias:
+- `instagram_cache` — armazena os posts do feed (TTL 60 min)
+- `instagram_config` — armazena o token renovado automaticamente
+
+O token é renovado pela própria Edge Function 7 dias antes do vencimento.
+Após a renovação o novo token fica salvo na tabela `instagram_config` e tem prioridade
+sobre a variável de ambiente `INSTAGRAM_ACCESS_TOKEN`.
+
+---
+
 ## Testar localmente
 
 ```bash
@@ -107,6 +120,12 @@ supabase functions serve --env-file supabase/functions/.env
 
 # Testar a função weather
 curl "http://localhost:54321/functions/v1/weather?action=weather&lat=-23.5505&lon=-46.6333"
+
+# Testar instagram-feed
+curl "http://localhost:54321/functions/v1/instagram-feed?limit=6"
+
+# Forçar atualização ignorando cache
+curl "http://localhost:54321/functions/v1/instagram-feed?force=1"
 
 # Testar ai-concierge (mock de conversa)
 curl -X POST "http://localhost:54321/functions/v1/ai-concierge" \
