@@ -351,6 +351,7 @@ body {
   border-bottom: 1px solid var(--borda);
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 8px;
 }
 .btn-section-toggle {
@@ -668,6 +669,11 @@ body {
   padding: 20px;
   margin-bottom: 32px;
   overflow-x: auto;
+}
+
+.table-responsive {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 table {
@@ -1263,6 +1269,24 @@ thead .col-sticky-right {
   .nav-dropdown-btn { padding: 5px 11px; font-size: 0.72em; }
   .nav-group-label { font-size: 0.52em; padding: 0 3px 0 8px; }
   .calc-section, .table-wrap { padding: 16px; }
+  /* Botões nas section-titles ficam na linha abaixo quando necessário */
+  .section-title > span[style*="margin-left:auto"],
+  .section-title > span[style*="margin-left: auto"] {
+    margin-left: 0;
+    width: 100%;
+    justify-content: flex-end;
+  }
+  /* Dois cards por linha nos dashboards dentro do caixa */
+  .dashboard-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 440px) {
+  /* Evita overflow causado por grid-column:span 2 quando o grid colapsa para 1 coluna */
+  .calc-grid > * { grid-column: span 1 !important; }
+  /* Parcelas de captação: 1 coluna em telas muito estreitas */
+  .cap-parcelas-wrap.show { grid-template-columns: 1fr; }
+  /* Filtros do caixa: inputs largura completa */
+  #caixa #caixaf_busca { min-width: 0 !important; width: 100%; }
 }
 
 @media (max-width: 400px) {
