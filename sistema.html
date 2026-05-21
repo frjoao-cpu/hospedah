@@ -4475,7 +4475,7 @@ var PROBE_TIMEOUT_MS = 10000; // 10 s para acomodar cold-start de projetos no pl
            pausado/excluído, ou URL incorreta em supabase-config.js. */
         console.warn('Diagnóstico: Supabase inacessível — possível CORS (verifique Autenticação > Configuração de URL em https://supabase.com/dashboard):', probeError);
         var errEl = document.getElementById('lockError');
-        if (errEl && !errEl.textContent.trim()) {
+        if (errEl && errEl.style.display !== 'block') {
           errEl.textContent = '⚠️ Não foi possível conectar ao serviço de autenticação. Verifique: 1) projeto ativo em supabase.com/dashboard e 2) URL do site cadastrada em Autenticação → Configuração de URL.';
           errEl.style.display = 'block';
         }
@@ -4804,6 +4804,8 @@ function tentarLogin() {
         /* O overlay é ocultado apenas após validarAcessoPainelHospedah() confirmar permissão. */
         inicializarSistema()
           .catch(function(e) {
+            _sistemaInicializado = false;
+            document.getElementById('lockOverlay').classList.add('show');
             console.warn('Erro ao inicializar sistema:', e);
             if (btn) { btn.disabled = false; btn.textContent = '🔓 Entrar'; }
             err.textContent = '❌ Erro ao inicializar o sistema. Tente novamente.';
