@@ -2233,6 +2233,44 @@ thead .col-sticky-right {
 .caixa-tipo-entrada { color: var(--verde);   font-weight: 600; }
 .caixa-tipo-saida   { color: var(--vermelho); font-weight: 600; }
 
+/* ── Evolução Caixa: Maximizar ── */
+.chart-card-wrap { position: relative; }
+.chart-card-wrap .caixa-chart-head { padding-right: 132px; }
+.btn-max-chart {
+  position: absolute; top: 12px; right: 14px;
+  background: rgba(212,175,55,.10); border: 1px solid rgba(212,175,55,.30);
+  color: #D4AF37; font-size: .70em; font-weight: 600;
+  padding: 4px 10px; border-radius: 8px; cursor: pointer;
+  display: inline-flex; align-items: center; gap: 4px;
+  transition: background .18s, border-color .18s; z-index: 5;
+}
+.btn-max-chart:hover { background: rgba(212,175,55,.22); border-color: #D4AF37; }
+#modalCaixaMax {
+  display: none; position: fixed; inset: 0; z-index: 9990;
+  background: rgba(5,12,30,.93); backdrop-filter: blur(6px);
+  align-items: center; justify-content: center;
+}
+#modalCaixaMax.aberto { display: flex; }
+.modal-caixa-box {
+  background: #0d1b2e; border: 1px solid rgba(212,175,55,.28);
+  border-radius: 16px; padding: 22px 22px 18px;
+  width: min(95vw,920px); max-height: 88vh;
+  display: flex; flex-direction: column; gap: 12px;
+  box-shadow: 0 0 48px rgba(212,175,55,.10);
+}
+.modal-caixa-hd { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.modal-caixa-hd h3 { color: #D4AF37; font-size: .95em; font-weight: 700; margin: 0; }
+.btn-fechar-caixa-max {
+  background: rgba(212,175,55,.09); border: 1px solid rgba(212,175,55,.28);
+  color: #D4AF37; border-radius: 8px; padding: 4px 12px;
+  font-size: .80em; cursor: pointer; font-family: inherit; transition: background .18s;
+}
+.btn-fechar-caixa-max:hover { background: rgba(212,175,55,.22); }
+#canvasCaixaMax { width: 100% !important; max-height: 60vh; }
+@media (max-width: 820px) {
+  .chart-card-wrap .caixa-chart-head { padding-right: 0; padding-top: 42px; }
+}
+
 #alertSaldoBaixo {
   background: rgba(231,76,60,0.12);
   border-bottom: 1px solid rgba(231,76,60,0.35);
@@ -2588,8 +2626,9 @@ thead .col-sticky-right {
         </div>
       </div>
       <!-- ── GRÁFICO DE ACOMPANHAMENTO DO CAIXA ── -->
-      <div class="table-wrap" id="caixaGraficoWrap" style="margin-bottom:24px;">
-        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:16px;">
+      <div class="table-wrap chart-card-wrap" id="caixaGraficoWrap" style="margin-bottom:24px;">
+        <button class="btn-max-chart" type="button" onclick="abrirCaixaMax()" title="Maximizar gráfico">▼ Maximizar</button>
+        <div class="caixa-chart-head" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:16px;">
           <div class="section-title" style="margin-bottom:0;border:none;padding:0;">
             📈 Evolução do Caixa
           </div>
@@ -11944,6 +11983,7 @@ function toggleFluxoDetalhe(rowId) {
 /* ── GRÁFICO ENTRADAS × SAÍDAS ── */
 var _chartCaixa = null;
 var _caixaChart = null;
+var _caixaMaxChart = null;
 var _caixaGraficoDias = 30;
 
 function setCaixaGraficoPeriodo(dias, btn) {
@@ -12133,7 +12173,90 @@ function renderCaixaGrafico() {
       }
     }
   });
+
+  var modalCaixa = document.getElementById('modalCaixaMax');
+  if (modalCaixa && modalCaixa.classList.contains('aberto')) abrirCaixaMax();
 }
+
+function abrirCaixaMax() {
+  var modal = document.getElementById('modalCaixaMax');
+  if (!modal) return;
+  modal.classList.add('aberto');
+  document.body.style.overflow = 'hidden';
+  if (!_caixaChart || typeof Chart === 'undefined') return;
+  if (_caixaMaxChart) {
+    _caixaMaxChart.destroy();
+    _caixaMaxChart = null;
+  }
+  var ctx = document.getElementById('canvasCaixaMax');
+  if (!ctx) return;
+  _caixaMaxChart = new Chart(ctx, {
+    type: _caixaChart.config.type,
+    data: JSON.parse(JSON.stringify(_caixaChart.data)),
+    options: {
+      responsive: true,
+      maintainAspectRatio: true,
+      interaction: { mode: 'index', intersect: false },
+      animation: { duration: 350 },
+      plugins: {
+        legend: { labels: { color: '#f5f8ff', font: { size: 12 } } },
+        tooltip: {
+          callbacks: {
+            label: function(ctxTooltip) {
+              return ctxTooltip.dataset.label + ': R$ ' + Number(ctxTooltip.raw).toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          ticks: { color: '#dbe5ff', font: { size: 11 } },
+          grid: { color: 'rgba(255,255,255,.05)' }
+        },
+        y: {
+          ticks: {
+            color: '#dbe5ff',
+            font: { size: 11 },
+            callback: function(v) { return 'R$ ' + Number(v).toLocaleString('pt-BR'); }
+          },
+          grid: { color: 'rgba(255,255,255,.05)' },
+          beginAtZero: true
+        },
+        ySaldo: {
+          position: 'right',
+          ticks: {
+            color: '#D4AF37',
+            font: { size: 11 },
+            callback: function(v) { return 'R$ ' + Number(v).toLocaleString('pt-BR'); }
+          },
+          grid: { drawOnChartArea: false }
+        }
+      }
+    }
+  });
+}
+
+function fecharCaixaMax() {
+  var modal = document.getElementById('modalCaixaMax');
+  if (modal) modal.classList.remove('aberto');
+  document.body.style.overflow = '';
+  if (_caixaMaxChart) {
+    _caixaMaxChart.destroy();
+    _caixaMaxChart = null;
+  }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  var modal = document.getElementById('modalCaixaMax');
+  if (modal) {
+    modal.addEventListener('click', function(e) {
+      if (e.target === modal) fecharCaixaMax();
+    });
+  }
+});
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') fecharCaixaMax();
+});
 
 function renderGraficoCaixa() {
   if (typeof Chart === 'undefined') return;
@@ -12396,5 +12519,16 @@ if ('serviceWorker' in navigator) {
   </section>
 
 </main>
+
+<!-- Modal Evolução do Caixa Maximizado -->
+<div id="modalCaixaMax" role="dialog" aria-modal="true" aria-label="Evolução do Caixa expandida">
+  <div class="modal-caixa-box">
+    <div class="modal-caixa-hd">
+      <h3>📈 Evolução do Caixa</h3>
+      <button class="btn-fechar-caixa-max" type="button" onclick="fecharCaixaMax()">✕ Fechar</button>
+    </div>
+    <canvas id="canvasCaixaMax" aria-label="Gráfico Evolução do Caixa expandido"></canvas>
+  </div>
+</div>
 </body>
 </html>
