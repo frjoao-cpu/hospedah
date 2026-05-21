@@ -2587,6 +2587,21 @@ thead .col-sticky-right {
           <div class="dash-value" id="caixa-count-lanc">0</div>
         </div>
       </div>
+      <!-- ── GRÁFICO DE ACOMPANHAMENTO DO CAIXA ── -->
+      <div class="table-wrap" id="caixaGraficoWrap" style="margin-bottom:24px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:16px;">
+          <div class="section-title" style="margin-bottom:0;border:none;padding:0;">
+            📈 Evolução do Caixa
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <button class="dash-period-btn" onclick="setCaixaGraficoPeriodo(7,this)">7 dias</button>
+            <button class="dash-period-btn active" onclick="setCaixaGraficoPeriodo(30,this)">30 dias</button>
+            <button class="dash-period-btn" onclick="setCaixaGraficoPeriodo(90,this)">3 meses</button>
+            <button class="dash-period-btn" onclick="setCaixaGraficoPeriodo(365,this)">1 ano</button>
+          </div>
+        </div>
+        <canvas id="caixaEvolucaoChart" height="90" aria-label="Gráfico de evolução do caixa"></canvas>
+      </div>
       <!-- Saldo mínimo -->
       <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:16px;padding:12px 16px;background:rgba(255,255,255,0.03);border:1px solid var(--borda);border-radius:12px;">
         <span style="font-size:0.82em;color:var(--cor-sub);font-weight:600;">⚠️ Saldo Mínimo:</span>
@@ -4974,6 +4989,7 @@ var MAINT_KEY = 'hospeda_manutencoes';
 var FAQ_KEY   = 'hospeda_faq';
 var AUDIT_KEY = 'hospeda_auditoria';
 var CAIXA_KEY = 'hospeda_caixa';
+var CAIXA_SALDO_MINIMO_KEY = 'hospedah_caixa_saldo_minimo';
 var automacoes = [];
 var onboardingFluxos = [];
 var manutencoes = [];
@@ -8986,9 +9002,8 @@ async function inicializarSistema() {
     renderTabelaCaixa();
     atualizarDashCaixa();
     renderFluxoCaixa();
-    var saldoMinimoSalvo = parseFloat(localStorage.getItem('hospeda_saldo_minimo')) || 0;
-    var inputSaldoMinimoEl = document.getElementById('inputSaldoMinimo');
-    if (inputSaldoMinimoEl) inputSaldoMinimoEl.value = saldoMinimoSalvo > 0 ? saldoMinimoSalvo : '';
+    renderCaixaGrafico();
+    carregarSaldoMinimoCaixa();
     var caixaDataEl = document.getElementById('caixa_data');
     if (caixaDataEl && !caixaDataEl.value) caixaDataEl.value = new Date().toISOString().slice(0, 10);
     var metaSalva = parseFloat(localStorage.getItem('hospeda_meta')) || CONFIG.metaPadrao;
@@ -10444,7 +10459,7 @@ function filtrarPeriodoDash(period) {
   _dashPeriod = period;
 
   /* Atualizar botões ativos */
-  document.querySelectorAll('.dash-period-btn').forEach(function(btn) {
+  document.querySelectorAll('#dashPeriodFilter .dash-period-btn').forEach(function(btn) {
     btn.classList.toggle('active', btn.dataset.period === period && period !== 'custom');
   });
 
@@ -11613,6 +11628,7 @@ function _refreshCaixaViews() {
   atualizarDashCaixa();
   renderFluxoCaixa();
   renderGraficoCaixa();
+  renderCaixaGrafico();
 }
 
 /* ── RENDER TABELA LANÇAMENTOS ── */
@@ -11671,15 +11687,86 @@ function atualizarDashCaixa() {
 }
 
 /* ── ALERTA DE SALDO MÍNIMO ── */
-function salvarSaldoMinimo() {
+function _parseSaldoMinimo(val) {
+  if (typeof val === 'number') return isFinite(val) ? val : 0;
+  if (val && typeof val === 'object' && val.valor !== undefined) {
+    var nObj = Number(val.valor);
+    return isFinite(nObj) ? nObj : 0;
+  }
+  if (typeof val === 'string') {
+    var nStr = Number(val);
+    if (isFinite(nStr)) return nStr;
+    try {
+      var parsed = JSON.parse(val);
+      return _parseSaldoMinimo(parsed);
+    } catch (e) {
+      return 0;
+    }
+  }
+  return 0;
+}
+
+function _getSaldoMinimoLocal() {
+  var raw = localStorage.getItem(CAIXA_SALDO_MINIMO_KEY);
+  if (raw === null) raw = localStorage.getItem('hospeda_saldo_minimo');
+  return Math.max(0, _parseSaldoMinimo(raw));
+}
+
+function _setSaldoMinimoLocal(valor) {
+  var v = Math.max(0, Number(valor) || 0);
+  localStorage.setItem(CAIXA_SALDO_MINIMO_KEY, String(v));
+}
+
+async function carregarSaldoMinimoCaixa() {
+  var inputEl = document.getElementById('inputSaldoMinimo');
+  var localVal = _getSaldoMinimoLocal();
+  if (inputEl) inputEl.value = localVal > 0 ? localVal : '';
+  var sbClient = window._sb || _supabase;
+  if (!sbClient || !sbClient.auth || !sbClient.from) return;
+  try {
+    var userRes = await sbClient.auth.getUser();
+    var uid = userRes && userRes.data && userRes.data.user && userRes.data.user.id;
+    if (!uid) return;
+    var res = await sbClient.from('hospeda_data')
+      .select('valor')
+      .eq('user_id', uid)
+      .eq('chave', 'caixa_saldo_minimo')
+      .maybeSingle();
+    if (res && res.error) throw res.error;
+    if (!res || !res.data) return;
+    var remoto = Math.max(0, _parseSaldoMinimo(res.data.valor));
+    _setSaldoMinimoLocal(remoto);
+    if (inputEl) inputEl.value = remoto > 0 ? remoto : '';
+    atualizarDashboard();
+  } catch (e) {
+    console.warn('Erro ao carregar saldo mínimo do Supabase:', e);
+  }
+}
+
+async function salvarSaldoMinimo() {
   var val = parseFloat((document.getElementById('inputSaldoMinimo') || {}).value) || 0;
-  localStorage.setItem('hospeda_saldo_minimo', val);
+  val = Math.max(0, val);
+  _setSaldoMinimoLocal(val);
   atualizarDashboard();
   mostrarToast('✅ Saldo mínimo salvo: ' + formatBRL(val), 'success');
+  var sbClient = window._sb || _supabase;
+  if (!sbClient || !sbClient.auth || !sbClient.from) return;
+  try {
+    var userRes = await sbClient.auth.getUser();
+    var uid = userRes && userRes.data && userRes.data.user && userRes.data.user.id;
+    if (!uid) return;
+    var upsertRes = await sbClient.from('hospeda_data').upsert(
+      { user_id: uid, chave: 'caixa_saldo_minimo', valor: { valor: val }, atualizado_em: new Date().toISOString() },
+      { onConflict: 'user_id,chave' }
+    );
+    if (upsertRes && upsertRes.error) throw upsertRes.error;
+  } catch (e) {
+    console.warn('Erro ao sincronizar saldo mínimo com Supabase:', e);
+  }
 }
 
 function verificarSaldoBaixoCaixa(saldoAtual) {
-  var saldoMin = parseFloat(localStorage.getItem('hospeda_saldo_minimo')) || 0;
+  var saldoMin = _getSaldoMinimoLocal();
   var alertEl  = document.getElementById('alertSaldoBaixo');
   if (!alertEl) return;
   alertEl.style.display = saldoMin > 0 && saldoAtual < saldoMin ? '' : 'none';
@@ -11695,7 +11782,7 @@ function verificarSaldoBaixoCaixa(saldoAtual) {
 function calcularScoreFinanceiro(saldo, comissaoGerada, comissaoPendente, cobrancasVencidas, metaPct) {
   var score   = 0;
   var fatores = [];
-  var saldoMin = parseFloat(localStorage.getItem('hospeda_saldo_minimo')) || 0;
+  var saldoMin = _getSaldoMinimoLocal();
 
   /* Fator 1 — Saldo */
   if (saldo > 0 && (saldoMin <= 0 || saldo >= saldoMin)) {
@@ -11856,6 +11943,197 @@ function toggleFluxoDetalhe(rowId) {
 
 /* ── GRÁFICO ENTRADAS × SAÍDAS ── */
 var _chartCaixa = null;
+var _caixaChart = null;
+var _caixaGraficoDias = 30;
+
+function setCaixaGraficoPeriodo(dias, btn) {
+  _caixaGraficoDias = dias;
+  document.querySelectorAll('#caixaGraficoWrap .dash-period-btn').forEach(function(b) {
+    b.classList.remove('active');
+  });
+  if (btn) btn.classList.add('active');
+  renderCaixaGrafico();
+}
+
+function renderCaixaGrafico() {
+  var canvas = document.getElementById('caixaEvolucaoChart');
+  if (!canvas || typeof Chart === 'undefined') return;
+
+  var transacoes = window.caixaLancamentos || window.caixaTransacoes || window._caixaTransacoes || [];
+  if (!Array.isArray(transacoes)) transacoes = [];
+
+  var hoje = new Date();
+  var inicio = new Date(hoje);
+  inicio.setDate(hoje.getDate() - _caixaGraficoDias + 1);
+  inicio.setHours(0, 0, 0, 0);
+
+  var filtradas = transacoes.filter(function(t) {
+    var d = new Date(t.data || t.created_at || t.criado_em || t.date);
+    return d >= inicio && d <= hoje;
+  });
+
+  var labels = [];
+  var entradas = [];
+  var saidas = [];
+  var saldos = [];
+  var agrupar = _caixaGraficoDias <= 30 ? 'dia' : (_caixaGraficoDias <= 90 ? 'semana' : 'mes');
+
+  if (agrupar === 'dia') {
+    for (var i = 0; i < _caixaGraficoDias; i++) {
+      var d = new Date(inicio);
+      d.setDate(inicio.getDate() + i);
+      var label = d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+      labels.push(label);
+      var dayStr = d.toISOString().slice(0, 10);
+      var e = 0;
+      var s = 0;
+      filtradas.forEach(function(t) {
+        var td = (t.data || t.created_at || t.criado_em || t.date || '').slice(0, 10);
+        if (td === dayStr) {
+          var v = Number(t.valor || t.value || 0);
+          var tipo = (t.tipo || t.type || '').toLowerCase();
+          if (tipo === 'entrada' || tipo === 'receita' || tipo === 'income') e += v;
+          else if (tipo === 'saida' || tipo === 'saída' || tipo === 'despesa' || tipo === 'expense') s += v;
+        }
+      });
+      entradas.push(e);
+      saidas.push(s);
+    }
+  } else if (agrupar === 'semana') {
+    var semanas = Math.ceil(_caixaGraficoDias / 7);
+    for (var w = 0; w < semanas; w++) {
+      var ws = new Date(inicio);
+      ws.setDate(inicio.getDate() + w * 7);
+      var we = new Date(ws);
+      we.setDate(ws.getDate() + 6);
+      labels.push(ws.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }));
+      var eSem = 0;
+      var sSem = 0;
+      filtradas.forEach(function(t) {
+        var td = new Date(t.data || t.created_at || t.criado_em || t.date);
+        if (td >= ws && td <= we) {
+          var v = Number(t.valor || t.value || 0);
+          var tipo = (t.tipo || t.type || '').toLowerCase();
+          if (tipo === 'entrada' || tipo === 'receita' || tipo === 'income') eSem += v;
+          else if (tipo === 'saida' || tipo === 'saída' || tipo === 'despesa' || tipo === 'expense') sSem += v;
+        }
+      });
+      entradas.push(eSem);
+      saidas.push(sSem);
+    }
+  } else {
+    for (var m = 11; m >= 0; m--) {
+      var md = new Date(hoje.getFullYear(), hoje.getMonth() - m, 1);
+      labels.push(md.toLocaleDateString('pt-BR', { month: 'short', year: '2-digit' }));
+      var eMes = 0;
+      var sMes = 0;
+      filtradas.forEach(function(t) {
+        var td = new Date(t.data || t.created_at || t.criado_em || t.date);
+        if (td.getMonth() === md.getMonth() && td.getFullYear() === md.getFullYear()) {
+          var v = Number(t.valor || t.value || 0);
+          var tipo = (t.tipo || t.type || '').toLowerCase();
+          if (tipo === 'entrada' || tipo === 'receita' || tipo === 'income') eMes += v;
+          else if (tipo === 'saida' || tipo === 'saída' || tipo === 'despesa' || tipo === 'expense') sMes += v;
+        }
+      });
+      entradas.push(eMes);
+      saidas.push(sMes);
+    }
+  }
+
+  var saldoAcum = 0;
+  for (var j = 0; j < entradas.length; j++) {
+    saldoAcum += entradas[j] - saidas[j];
+    saldos.push(saldoAcum);
+  }
+
+  if (_caixaChart) {
+    _caixaChart.destroy();
+    _caixaChart = null;
+  }
+
+  var ctx = canvas.getContext('2d');
+  _caixaChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [
+        {
+          label: 'Entradas',
+          data: entradas,
+          backgroundColor: 'rgba(37,211,102,0.55)',
+          borderColor: '#25D366',
+          borderWidth: 1,
+          borderRadius: 4,
+          order: 2
+        },
+        {
+          label: 'Saídas',
+          data: saidas,
+          backgroundColor: 'rgba(231,76,60,0.50)',
+          borderColor: '#e74c3c',
+          borderWidth: 1,
+          borderRadius: 4,
+          order: 2
+        },
+        {
+          label: 'Saldo Acumulado',
+          data: saldos,
+          type: 'line',
+          borderColor: '#D4AF37',
+          backgroundColor: 'rgba(212,175,55,0.10)',
+          borderWidth: 2,
+          pointBackgroundColor: '#D4AF37',
+          pointRadius: 3,
+          fill: true,
+          tension: 0.35,
+          order: 1,
+          yAxisID: 'ySaldo'
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: {
+          labels: { color: '#e8eaf0', font: { size: 11 } }
+        },
+        tooltip: {
+          callbacks: {
+            label: function(ctxTooltip) {
+              return ctxTooltip.dataset.label + ': R$ ' + Number(ctxTooltip.raw).toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          ticks: { color: '#aab4c4', font: { size: 10 } },
+          grid: { color: 'rgba(255,255,255,0.04)' }
+        },
+        y: {
+          ticks: {
+            color: '#aab4c4',
+            font: { size: 10 },
+            callback: function(v) { return 'R$ ' + Number(v).toLocaleString('pt-BR'); }
+          },
+          grid: { color: 'rgba(255,255,255,0.06)' },
+          beginAtZero: true
+        },
+        ySaldo: {
+          position: 'right',
+          ticks: {
+            color: '#D4AF37',
+            font: { size: 10 },
+            callback: function(v) { return 'R$ ' + Number(v).toLocaleString('pt-BR'); }
+          },
+          grid: { drawOnChartArea: false }
+        }
+      }
+    }
+  });
+}
 
 function renderGraficoCaixa() {
   if (typeof Chart === 'undefined') return;
@@ -11903,6 +12181,7 @@ function renderGraficoCaixa() {
       }
     }
   });
+  renderCaixaGrafico();
 }
 
 /* ── TOGGLE SEÇÕES ── */
