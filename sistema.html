@@ -2247,6 +2247,81 @@ thead .col-sticky-right {
 #dash-card-score { border-width: 2px; transition: border-color 0.4s; }
 #dash-card-score .dash-icon { font-size: 1.6em; }
 #dash-score-detalhe { margin-top: 8px; text-align: left; font-size: 0.72em; line-height: 1.7; }
+
+/* ── Botão Maximizar Gráfico ── */
+.btn-max-chart {
+  position: absolute;
+  top: 12px;
+  right: 14px;
+  background: rgba(212,175,55,0.10);
+  border: 1px solid rgba(212,175,55,0.30);
+  color: #D4AF37;
+  font-size: 0.70em;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: background .18s, border-color .18s;
+  z-index: 5;
+}
+.btn-max-chart:hover {
+  background: rgba(212,175,55,0.22);
+  border-color: #D4AF37;
+}
+
+/* ── Modal fullscreen Evolução do Caixa ── */
+#modalEvolucaoCaixa {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 9990;
+  background: rgba(5,12,30,0.93);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  align-items: center;
+  justify-content: center;
+}
+#modalEvolucaoCaixa.aberto { display: flex; }
+
+.modal-evolucao-box {
+  background: #0d1b2e;
+  border: 1px solid rgba(212,175,55,0.28);
+  border-radius: 16px;
+  padding: 22px 22px 18px;
+  width: min(95vw, 920px);
+  max-height: 88vh;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-shadow: 0 0 48px rgba(212,175,55,0.10);
+}
+.modal-evolucao-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.modal-evolucao-header h3 {
+  color: #D4AF37;
+  font-size: 0.95em;
+  font-weight: 700;
+  margin: 0;
+}
+.btn-fechar-evolucao {
+  background: rgba(212,175,55,0.09);
+  border: 1px solid rgba(212,175,55,0.28);
+  color: #D4AF37;
+  border-radius: 8px;
+  padding: 4px 12px;
+  font-size: 0.80em;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background .18s;
+}
+.btn-fechar-evolucao:hover { background: rgba(212,175,55,0.22); }
+#canvasEvolucaoCaixaModal { width: 100% !important; max-height: 60vh; }
 </style>
 </head>
 
@@ -2588,7 +2663,8 @@ thead .col-sticky-right {
         </div>
       </div>
       <!-- ── GRÁFICO DE ACOMPANHAMENTO DO CAIXA ── -->
-      <div class="table-wrap" id="caixaGraficoWrap" style="margin-bottom:24px;">
+      <div class="table-wrap" id="caixaGraficoWrap" style="margin-bottom:24px;position:relative;">
+        <button class="btn-max-chart" onclick="abrirModalEvolucaoCaixa()" title="Maximizar gráfico">▼ Maximizar</button>
         <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:16px;">
           <div class="section-title" style="margin-bottom:0;border:none;padding:0;">
             📈 Evolução do Caixa
@@ -12135,6 +12211,76 @@ function renderCaixaGrafico() {
   });
 }
 
+/* ── Modal Evolução do Caixa ── */
+var _chartEvolucaoModal = null;
+
+function abrirModalEvolucaoCaixa() {
+  var modal = document.getElementById('modalEvolucaoCaixa');
+  if (!modal) return;
+  modal.classList.add('aberto');
+  document.body.style.overflow = 'hidden';
+  var src = _caixaChart;
+  if (!src) return;
+  if (_chartEvolucaoModal) { _chartEvolucaoModal.destroy(); _chartEvolucaoModal = null; }
+  var ctx = document.getElementById('canvasEvolucaoCaixaModal');
+  if (!ctx) return;
+  _chartEvolucaoModal = new Chart(ctx, {
+    type: src.config.type,
+    data: JSON.parse(JSON.stringify(src.data)),
+    options: {
+      responsive: true,
+      maintainAspectRatio: true,
+      animation: { duration: 350 },
+      plugins: {
+        legend: { labels: { color: '#f5f8ff', font: { size: 12 } } },
+        tooltip: { mode: 'index', intersect: false }
+      },
+      scales: {
+        x: {
+          ticks: { color: '#dbe5ff', font: { size: 11 } },
+          grid: { color: 'rgba(255,255,255,0.05)' }
+        },
+        y: {
+          ticks: {
+            color: '#dbe5ff',
+            font: { size: 11 },
+            callback: function(v) { return 'R$ ' + Number(v).toLocaleString('pt-BR'); }
+          },
+          grid: { color: 'rgba(255,255,255,0.05)' },
+          beginAtZero: true
+        },
+        ySaldo: {
+          position: 'right',
+          ticks: {
+            color: '#D4AF37',
+            font: { size: 11 },
+            callback: function(v) { return 'R$ ' + Number(v).toLocaleString('pt-BR'); }
+          },
+          grid: { drawOnChartArea: false }
+        }
+      }
+    }
+  });
+}
+
+function fecharModalEvolucaoCaixa() {
+  var modal = document.getElementById('modalEvolucaoCaixa');
+  if (modal) modal.classList.remove('aberto');
+  document.body.style.overflow = '';
+  if (_chartEvolucaoModal) { _chartEvolucaoModal.destroy(); _chartEvolucaoModal = null; }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  var m = document.getElementById('modalEvolucaoCaixa');
+  if (m) {
+    m.addEventListener('click', function(e) { if (e.target === m) fecharModalEvolucaoCaixa(); });
+  }
+});
+
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') fecharModalEvolucaoCaixa();
+});
+
 function renderGraficoCaixa() {
   if (typeof Chart === 'undefined') return;
   var hoje   = new Date();
@@ -12394,6 +12540,16 @@ if ('serviceWorker' in navigator) {
       </div>
     </div>
   </section>
+<!-- Modal: Evolução do Caixa Expandida -->
+<div id="modalEvolucaoCaixa" role="dialog" aria-modal="true" aria-label="Evolução do Caixa expandida">
+  <div class="modal-evolucao-box">
+    <div class="modal-evolucao-header">
+      <h3>📈 Evolução do Caixa</h3>
+      <button class="btn-fechar-evolucao" onclick="fecharModalEvolucaoCaixa()">✕ Fechar</button>
+    </div>
+    <canvas id="canvasEvolucaoCaixaModal" aria-label="Gráfico Evolução do Caixa expandido"></canvas>
+  </div>
+</div>
 
 </main>
 </body>
