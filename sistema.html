@@ -2226,6 +2226,27 @@ thead .col-sticky-right {
   max-width: 480px;
   flex-wrap: wrap;
 }
+
+/* ==========================================
+   CONTROLE DE CAIXA
+========================================== */
+.caixa-tipo-entrada { color: var(--verde);   font-weight: 600; }
+.caixa-tipo-saida   { color: var(--vermelho); font-weight: 600; }
+
+#alertSaldoBaixo {
+  background: rgba(231,76,60,0.12);
+  border-bottom: 1px solid rgba(231,76,60,0.35);
+  color: #ff8a7a;
+  padding: 8px 20px;
+  font-size: 0.82em;
+  text-align: center;
+}
+#alertSaldoBaixo a { color: var(--dourado); text-decoration: underline; }
+
+/* Score Financeiro */
+#dash-card-score { border-width: 2px; transition: border-color 0.4s; }
+#dash-card-score .dash-icon { font-size: 1.6em; }
+#dash-score-detalhe { margin-top: 8px; text-align: left; font-size: 0.72em; line-height: 1.7; }
 </style>
 </head>
 
@@ -2329,6 +2350,8 @@ thead .col-sticky-right {
   <nav class="sys-nav">
     <!-- Financeiro -->
     <a href="#dashboard" class="active">📊 Dashboard</a>
+    <a href="#caixa">💵 Caixa</a>
+    <a href="#fluxo-caixa">📊 Fluxo</a>
     <span class="nav-sep"></span>
     <!-- Captação -->
     <span class="nav-group-label">Captação</span>
@@ -2367,6 +2390,7 @@ thead .col-sticky-right {
   </nav>
 </header>
 <div id="syncWarning">⚠️ Dados salvos apenas localmente — sem sincronização com o servidor. Verifique se a tabela <strong>hospeda_data</strong> foi criada no Supabase e se você está logado com o mesmo e-mail em todos os dispositivos.</div>
+<div id="alertSaldoBaixo" style="display:none;">⚠️ Saldo de caixa abaixo do mínimo configurado. <a href="#caixa">Verificar →</a></div>
 
 <!-- MAIN -->
 <main class="sys-main">
@@ -2466,6 +2490,20 @@ thead .col-sticky-right {
         <div class="dash-value" id="dash-visitas-total">—</div>
         <div style="font-size:0.7em;color:var(--cor-sub);margin-top:4px;" id="dash-visitas-hoje">Hoje: —</div>
       </div>
+      <div class="dash-card" id="dash-card-saldo-caixa" style="cursor:pointer;" onclick="document.querySelector('[href=\'#caixa\']').click()">
+        <div class="dash-icon">💵</div>
+        <div class="dash-label">Saldo de Caixa</div>
+        <div class="dash-value" id="dash-saldo-caixa">R$ 0,00</div>
+        <div style="font-size:0.7em;color:var(--cor-sub);margin-top:4px;">Período filtrado</div>
+      </div>
+      <div class="dash-card" id="dash-card-score" style="cursor:pointer;" onclick="toggleScoreDetalhe()" title="Clique para ver os fatores">
+        <div class="dash-icon" id="dash-score-emoji">⚪</div>
+        <div class="dash-label">Score Financeiro</div>
+        <div class="dash-value" id="dash-score-nivel" style="font-size:0.95em;">—</div>
+        <div id="dash-score-detalhe" style="display:none;">
+          <div id="dash-score-fatores"></div>
+        </div>
+      </div>
     </div>
 
     </div><!-- /dashboardContent -->
@@ -2506,6 +2544,201 @@ thead .col-sticky-right {
       <div class="chart-card">
         <div class="chart-card-title">📊 Status das Reservas</div>
         <canvas id="chartStatus"></canvas>
+      </div>
+      <div class="chart-card">
+        <div class="chart-card-title">💵 Entradas × Saídas — Últimos 6 Meses</div>
+        <canvas id="chartCaixa"></canvas>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================
+       CONTROLE DE CAIXA
+  =========================================== -->
+  <section id="caixa" class="calc-section">
+    <div class="section-title">
+      💵 Controle de Caixa
+      <span style="margin-left:auto;display:flex;gap:8px;">
+        <button class="btn btn-secondary btn-sm" onclick="exportarCSVCaixa()">📥 Exportar CSV</button>
+        <button class="btn btn-secondary btn-sm" id="caixaToggleBtn" onclick="toggleCaixa()" title="Minimizar/Expandir">▼ Minimizar</button>
+      </span>
+    </div>
+    <div id="caixaContent">
+      <!-- Mini-dashboard de saldo -->
+      <div class="dashboard-grid" style="margin-bottom:16px;">
+        <div class="dash-card verde">
+          <div class="dash-icon">⬆️</div>
+          <div class="dash-label">Total Entradas</div>
+          <div class="dash-value" id="caixa-total-entradas">R$ 0,00</div>
+        </div>
+        <div class="dash-card vermelho">
+          <div class="dash-icon">⬇️</div>
+          <div class="dash-label">Total Saídas</div>
+          <div class="dash-value" id="caixa-total-saidas">R$ 0,00</div>
+        </div>
+        <div class="dash-card" id="caixa-card-saldo-local">
+          <div class="dash-icon">💵</div>
+          <div class="dash-label">Saldo (tudo)</div>
+          <div class="dash-value" id="caixa-saldo-periodo">R$ 0,00</div>
+        </div>
+        <div class="dash-card">
+          <div class="dash-icon">📊</div>
+          <div class="dash-label">Lançamentos</div>
+          <div class="dash-value" id="caixa-count-lanc">0</div>
+        </div>
+      </div>
+      <!-- Saldo mínimo -->
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:16px;padding:12px 16px;background:rgba(255,255,255,0.03);border:1px solid var(--borda);border-radius:12px;">
+        <span style="font-size:0.82em;color:var(--cor-sub);font-weight:600;">⚠️ Saldo Mínimo:</span>
+        <input type="number" id="inputSaldoMinimo" placeholder="R$ mínimo..." min="0" step="100" style="width:150px;padding:5px 10px;background:rgba(255,255,255,0.05);border:1px solid var(--borda);border-radius:8px;color:var(--cor-texto);font-size:0.85em;">
+        <button class="btn btn-secondary btn-sm" onclick="salvarSaldoMinimo()">✔</button>
+        <span style="font-size:0.78em;color:var(--cor-sub);">Alerta quando o saldo cair abaixo deste valor</span>
+      </div>
+      <!-- Formulário de lançamento -->
+      <div style="background:rgba(255,255,255,0.02);border:1px solid var(--borda);border-radius:12px;padding:16px;margin-bottom:16px;">
+        <div class="section-title" style="font-size:0.95em;margin-bottom:12px;">➕ Novo Lançamento</div>
+        <div class="calc-grid">
+          <div class="field-group">
+            <label>Tipo *</label>
+            <select id="caixa_tipo">
+              <option value="entrada">⬆️ Entrada</option>
+              <option value="saida">⬇️ Saída</option>
+            </select>
+          </div>
+          <div class="field-group">
+            <label>Categoria *</label>
+            <select id="caixa_categoria">
+              <option value="Hospedagem">🏨 Hospedagem</option>
+              <option value="Comissão">🏷️ Comissão</option>
+              <option value="Limpeza">🧹 Limpeza</option>
+              <option value="Manutenção">🔧 Manutenção</option>
+              <option value="Marketing">📢 Marketing</option>
+              <option value="Impostos">📋 Impostos</option>
+              <option value="Taxas">💳 Taxas</option>
+              <option value="Outros">📦 Outros</option>
+            </select>
+          </div>
+          <div class="field-group" style="grid-column:span 2;">
+            <label>Descrição *</label>
+            <input type="text" id="caixa_descricao" placeholder="Descrição do lançamento" autocomplete="off">
+          </div>
+          <div class="field-group">
+            <label>Valor (R$) *</label>
+            <input type="number" id="caixa_valor" min="0.01" step="0.01" placeholder="0,00">
+          </div>
+          <div class="field-group">
+            <label>Data *</label>
+            <input type="date" id="caixa_data">
+          </div>
+          <div class="field-group">
+            <label>Forma de Pagamento</label>
+            <select id="caixa_forma_pagamento">
+              <option value="Pix">⚡ Pix</option>
+              <option value="Transferência">🏦 Transferência</option>
+              <option value="Dinheiro">💵 Dinheiro</option>
+              <option value="Cartão">💳 Cartão</option>
+              <option value="Boleto">📄 Boleto</option>
+            </select>
+          </div>
+          <div class="field-group">
+            <label>Vínculo com Reserva (ID)</label>
+            <input type="text" id="caixa_reserva_id" placeholder="Opcional — ID da reserva" autocomplete="off">
+          </div>
+        </div>
+        <div style="margin-top:12px;display:flex;gap:8px;">
+          <button class="btn btn-primary" onclick="adicionarLancamentoCaixa()">➕ Adicionar</button>
+          <button class="btn btn-secondary" onclick="limparFormCaixa()">🗑️ Limpar</button>
+        </div>
+      </div>
+      <!-- Filtros -->
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;align-items:center;">
+        <input type="text" id="caixaf_busca" placeholder="🔍 Buscar..." oninput="renderTabelaCaixa()" style="padding:6px 12px;background:rgba(255,255,255,0.05);border:1px solid var(--borda);border-radius:8px;color:var(--cor-texto);font-size:0.85em;min-width:160px;">
+        <select id="caixaf_tipo" onchange="renderTabelaCaixa()" style="padding:6px 10px;background:rgba(255,255,255,0.05);border:1px solid var(--borda);border-radius:8px;color:var(--cor-texto);font-size:0.85em;">
+          <option value="">Todos os tipos</option>
+          <option value="entrada">Entrada</option>
+          <option value="saida">Saída</option>
+        </select>
+        <select id="caixaf_categoria" onchange="renderTabelaCaixa()" style="padding:6px 10px;background:rgba(255,255,255,0.05);border:1px solid var(--borda);border-radius:8px;color:var(--cor-texto);font-size:0.85em;">
+          <option value="">Todas categorias</option>
+          <option value="Hospedagem">Hospedagem</option>
+          <option value="Comissão">Comissão</option>
+          <option value="Limpeza">Limpeza</option>
+          <option value="Manutenção">Manutenção</option>
+          <option value="Marketing">Marketing</option>
+          <option value="Impostos">Impostos</option>
+          <option value="Taxas">Taxas</option>
+          <option value="Outros">Outros</option>
+        </select>
+        <input type="date" id="caixaf_de"  onchange="renderTabelaCaixa()" style="padding:6px 10px;background:rgba(255,255,255,0.05);border:1px solid var(--borda);border-radius:8px;color:var(--cor-texto);font-size:0.85em;">
+        <input type="date" id="caixaf_ate" onchange="renderTabelaCaixa()" style="padding:6px 10px;background:rgba(255,255,255,0.05);border:1px solid var(--borda);border-radius:8px;color:var(--cor-texto);font-size:0.85em;">
+        <button class="btn btn-secondary btn-sm" onclick="limparFiltrosCaixa()">✕ Limpar</button>
+      </div>
+      <!-- Tabela -->
+      <div class="table-responsive">
+        <table class="tabela" id="tabelaCaixa">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Tipo</th>
+              <th>Categoria</th>
+              <th>Descrição</th>
+              <th>Valor</th>
+              <th>Data</th>
+              <th>Pagamento</th>
+              <th>Reserva</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody id="caixaTabelaBody">
+            <tr><td colspan="9"><div class="empty-state"><div class="empty-icon">💵</div><div>Nenhum lançamento cadastrado.</div></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================
+       FLUXO DE CAIXA MENSAL
+  =========================================== -->
+  <section id="fluxo-caixa" class="table-wrap">
+    <div class="section-title">
+      📊 Fluxo de Caixa Mensal
+      <span style="margin-left:auto;display:flex;gap:8px;">
+        <button class="btn btn-secondary btn-sm" onclick="exportarCSVFluxoCaixa()">📥 Exportar CSV</button>
+        <button class="btn btn-secondary btn-sm" id="fluxoCaixaToggleBtn" onclick="toggleFluxoCaixa()" title="Minimizar/Expandir">▼ Minimizar</button>
+      </span>
+    </div>
+    <div id="fluxoCaixaContent">
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;align-items:center;">
+        <span style="font-size:0.82em;color:var(--cor-sub);">Filtrar por categoria:</span>
+        <select id="fluxof_categoria" onchange="renderFluxoCaixa()" style="padding:6px 10px;background:rgba(255,255,255,0.05);border:1px solid var(--borda);border-radius:8px;color:var(--cor-texto);font-size:0.85em;">
+          <option value="">Todas</option>
+          <option value="Hospedagem">Hospedagem</option>
+          <option value="Comissão">Comissão</option>
+          <option value="Limpeza">Limpeza</option>
+          <option value="Manutenção">Manutenção</option>
+          <option value="Marketing">Marketing</option>
+          <option value="Impostos">Impostos</option>
+          <option value="Taxas">Taxas</option>
+          <option value="Outros">Outros</option>
+        </select>
+      </div>
+      <div class="table-responsive">
+        <table class="tabela" id="tabelaFluxoCaixa">
+          <thead>
+            <tr>
+              <th>Mês</th>
+              <th>Entradas</th>
+              <th>Saídas</th>
+              <th>Saldo do Mês</th>
+              <th>Saldo Acumulado</th>
+              <th style="text-align:center;">▾</th>
+            </tr>
+          </thead>
+          <tbody id="fluxoCaixaBody">
+            <tr><td colspan="6"><div class="empty-state"><div class="empty-icon">📊</div><div>Nenhum dado disponível.</div></div></td></tr>
+          </tbody>
+        </table>
       </div>
     </div>
   </section>
@@ -4733,16 +4966,18 @@ function salvarReservas(lista) {
 }
 
 var reservas = carregarReservas();
-var AUTO_KEY = 'hospeda_automacoes';
-var ONB_KEY  = 'hospeda_onboarding';
+var AUTO_KEY  = 'hospeda_automacoes';
+var ONB_KEY   = 'hospeda_onboarding';
 var MAINT_KEY = 'hospeda_manutencoes';
-var FAQ_KEY  = 'hospeda_faq';
+var FAQ_KEY   = 'hospeda_faq';
 var AUDIT_KEY = 'hospeda_auditoria';
+var CAIXA_KEY = 'hospeda_caixa';
 var automacoes = [];
 var onboardingFluxos = [];
 var manutencoes = [];
 var faqRespostas = [];
 var auditLogs = [];
+var caixaLancamentos = [];
 var MAX_AUDIT_LOGS = 500;
 var MAX_DISPLAYED_AUDIT_LOGS = 150;
 var AUTO_CHECKIN_WINDOW_DAYS = 2;
@@ -6232,6 +6467,11 @@ function marcarPago(id) {
   if (!r) return;
   r.status = 'pago';
   salvarReservas(reservas);
+  _autoEntradaCaixa(r, 'Hospedagem', 'pago_' + r.id, r.total, new Date().toISOString().slice(0, 10));
+  renderTabelaCaixa();
+  atualizarDashCaixa();
+  renderFluxoCaixa();
+  renderGraficoCaixa();
   renderTabela();
   atualizarDashboard();
   atualizarMensal();
@@ -6277,6 +6517,14 @@ function marcarComissaoRecebidaLote() {
     r.dataRecebimentoComissao = r.dataRecebimentoComissao || hoje;
   });
   salvarReservas(reservas);
+  ids.forEach(function(id) {
+    var rr = reservas.find(function(x) { return x.id === id; });
+    if (rr) _autoEntradaCaixa(rr, 'Comissão', 'com_' + id, rr.comissao, rr.dataRecebimentoComissao);
+  });
+  renderTabelaCaixa();
+  atualizarDashCaixa();
+  renderFluxoCaixa();
+  renderGraficoCaixa();
   renderTabela();
   atualizarDashboard();
   atualizarMensal();
@@ -6423,6 +6671,9 @@ function salvarEdicao() {
   var idx = reservas.findIndex(function (x) { return x.id === id; });
   if (idx === -1) { mostrarToast('Reserva não encontrada.', 'error'); return; }
 
+  var _prevStatusCom = reservas[idx].statusComissao || 'pendente';
+  var _newStatusCom  = document.getElementById('edit_status_comissao').value || 'pendente';
+
   reservas[idx] = Object.assign({}, reservas[idx], {
     cliente:       cliente,
     resort:        resort,
@@ -6444,10 +6695,21 @@ function salvarEdicao() {
     parcelasComissao:        _getParcelasFromForm('edit'),
     comissaoRecebida:        parseFloat(document.getElementById('edit_comissao_recebida').value) || 0,
     dataRecebimentoComissao: document.getElementById('edit_data_recebimento_comissao').value,
-    statusComissao:          document.getElementById('edit_status_comissao').value || 'pendente'
+    statusComissao:          _newStatusCom
   });
 
   salvarReservas(reservas);
+
+  /* Auto-entrada de caixa quando comissão passa a "recebida" */
+  if (_prevStatusCom !== 'recebida' && _newStatusCom === 'recebida') {
+    _autoEntradaCaixa(reservas[idx], 'Comissão', 'com_' + id,
+      reservas[idx].comissao, reservas[idx].dataRecebimentoComissao);
+    renderTabelaCaixa();
+    atualizarDashCaixa();
+    renderFluxoCaixa();
+    renderGraficoCaixa();
+  }
+
   fecharModal();
   renderTabela();
   atualizarDashboard();
@@ -6548,6 +6810,35 @@ function atualizarDashboard() {
     if (pct >= 100) barEl.classList.add('completa');
     else barEl.classList.remove('completa');
   }
+
+  /* ── Saldo de Caixa no período ── */
+  var saldoCaixa = 0;
+  var intervalo  = _computarIntervalo(periodo);
+  var deDash     = intervalo.de;
+  var ateDash    = intervalo.ate;
+  (Array.isArray(caixaLancamentos) ? caixaLancamentos : []).forEach(function(l) {
+    var ts = l.data ? new Date(l.data + 'T00:00:00') : null;
+    if (!ts || isNaN(ts.getTime())) return;
+    if (deDash && ts < deDash) return;
+    if (ateDash && ts > ateDash) return;
+    var v = parseFloat(l.valor) || 0;
+    if (l.tipo === 'entrada') saldoCaixa += v;
+    else if (l.tipo === 'saida') saldoCaixa -= v;
+  });
+  var saldoEl = document.getElementById('dash-saldo-caixa');
+  if (saldoEl) saldoEl.textContent = (saldoCaixa < 0 ? '- ' : '') + formatBRL(Math.abs(saldoCaixa));
+  var saldoCard = document.getElementById('dash-card-saldo-caixa');
+  if (saldoCard) {
+    saldoCard.classList.remove('verde', 'vermelho');
+    saldoCard.classList.add(saldoCaixa >= 0 ? 'verde' : 'vermelho');
+  }
+
+  /* ── Score Financeiro ── */
+  var vencidas = (Array.isArray(cobrancas) ? cobrancas : []).filter(function(c) {
+    return c.statusCobranca === 'vencido';
+  }).length;
+  _atualizarScoreFinanceiro(saldoCaixa, comissao, pendente, vencidas, pct);
+  verificarSaldoBaixoCaixa(saldoCaixa);
 
 }
 
@@ -7163,6 +7454,7 @@ function renderGraficos() {
   renderGraficoStatus();
   renderGraficoCanal();
   renderGraficoLucro12();
+  renderGraficoCaixa();
 }
 
 function renderGraficoReceita() {
@@ -8688,6 +8980,15 @@ async function inicializarSistema() {
     atualizarDashCobrancas();
     verificarCobrancasVencidas();
     verificarRepassesAtrasados();
+    caixaLancamentos = carregarListaStorage(CAIXA_KEY);
+    renderTabelaCaixa();
+    atualizarDashCaixa();
+    renderFluxoCaixa();
+    var saldoMinimoSalvo = parseFloat(localStorage.getItem('hospeda_saldo_minimo')) || 0;
+    var inputSaldoMinimoEl = document.getElementById('inputSaldoMinimo');
+    if (inputSaldoMinimoEl) inputSaldoMinimoEl.value = saldoMinimoSalvo > 0 ? saldoMinimoSalvo : '';
+    var caixaDataEl = document.getElementById('caixa_data');
+    if (caixaDataEl && !caixaDataEl.value) caixaDataEl.value = new Date().toISOString().slice(0, 10);
     var metaSalva = parseFloat(localStorage.getItem('hospeda_meta')) || CONFIG.metaPadrao;
     document.getElementById('inputMeta').value = metaSalva;
     sincronizarAutomacoes(true);
@@ -11184,6 +11485,471 @@ async function salvarParcelasComissao(reservaId) {
 
   var result = await _supabase.from('comissao_parcelas').insert(rows);
   if (result.error) console.error('Erro ao salvar parcelas de comissão:', result.error);
+}
+
+/* ==========================================
+   CONTROLE DE CAIXA
+   Storage key: hospeda_caixa
+   Data model: { id, tipo, categoria, descricao, valor, data, forma_pagamento,
+                 reserva_id, autoRef, criado_em }
+========================================== */
+
+/* ── STORAGE ── */
+function carregarCaixa() {
+  return carregarListaStorage(CAIXA_KEY);
+}
+
+function salvarCaixaStorage(lista) {
+  try {
+    localStorage.setItem(CAIXA_KEY, JSON.stringify(lista));
+  } catch (e) { mostrarToast('Erro ao salvar caixa.', 'error'); }
+}
+
+/* ── AUTO-ENTRADA (integração com reservas) ──
+   Cria um lançamento automático de Entrada somente se ainda não existir
+   outro lançamento com o mesmo autoRef — evita duplicação. */
+function _autoEntradaCaixa(reserva, categoria, autoRef, valor, dataStr) {
+  if (!Array.isArray(caixaLancamentos)) return;
+  if (caixaLancamentos.some(function(l) { return l.autoRef === autoRef; })) return;
+  var lancamento = {
+    id:             gerarId(),
+    tipo:           'entrada',
+    categoria:      categoria,
+    descricao:      'Auto: ' + (reserva.cliente || '') + ' — ' + (reserva.resort || ''),
+    valor:          parseFloat(parseFloat(valor).toFixed(2)) || 0,
+    data:           dataStr || new Date().toISOString().slice(0, 10),
+    forma_pagamento:'Transferência',
+    reserva_id:     reserva.id,
+    autoRef:        autoRef,
+    criado_em:      new Date().toISOString()
+  };
+  caixaLancamentos.push(lancamento);
+  salvarCaixaStorage(caixaLancamentos);
+}
+
+/* ── FILTRO LOCAL DA TABELA DE CAIXA ── */
+function _getFilteredCaixaLocal() {
+  var lista = Array.isArray(caixaLancamentos) ? caixaLancamentos : [];
+  var busca = ((document.getElementById('caixaf_busca')    || {}).value || '').toLowerCase();
+  var fTipo = ((document.getElementById('caixaf_tipo')     || {}).value || '');
+  var fCat  = ((document.getElementById('caixaf_categoria')|| {}).value || '');
+  var fDe   = ((document.getElementById('caixaf_de')       || {}).value || '');
+  var fAte  = ((document.getElementById('caixaf_ate')      || {}).value || '');
+  return lista.filter(function(l) {
+    if (busca && !(l.descricao || '').toLowerCase().includes(busca)) return false;
+    if (fTipo && l.tipo !== fTipo) return false;
+    if (fCat  && l.categoria !== fCat) return false;
+    if (fDe   && l.data < fDe) return false;
+    if (fAte  && l.data > fAte) return false;
+    return true;
+  });
+}
+
+/* ── FORMULÁRIO: ADICIONAR LANÇAMENTO ── */
+function adicionarLancamentoCaixa() {
+  var tipo           = ((document.getElementById('caixa_tipo')            || {}).value || '');
+  var categoria      = ((document.getElementById('caixa_categoria')       || {}).value || 'Outros');
+  var descricao      = ((document.getElementById('caixa_descricao')       || {}).value || '').trim();
+  var valor          = parseFloat((document.getElementById('caixa_valor') || {}).value) || 0;
+  var data           = ((document.getElementById('caixa_data')            || {}).value || '');
+  var formaPagamento = ((document.getElementById('caixa_forma_pagamento') || {}).value || 'Pix');
+  var reservaId      = ((document.getElementById('caixa_reserva_id')      || {}).value || '').trim();
+
+  if (!tipo)      { mostrarToast('⚠️ Selecione o tipo.',           'error'); return; }
+  if (!descricao) { mostrarToast('⚠️ Informe a descrição.',        'error'); return; }
+  if (valor <= 0) { mostrarToast('⚠️ Informe um valor válido.',    'error'); return; }
+  if (!data)      { mostrarToast('⚠️ Informe a data.',             'error'); return; }
+
+  var lancamento = {
+    id:             gerarId(),
+    tipo:           tipo,
+    categoria:      categoria,
+    descricao:      descricao,
+    valor:          parseFloat(valor.toFixed(2)),
+    data:           data,
+    forma_pagamento:formaPagamento,
+    reserva_id:     reservaId || null,
+    criado_em:      new Date().toISOString()
+  };
+  caixaLancamentos.push(lancamento);
+  salvarCaixaStorage(caixaLancamentos);
+  limparFormCaixa();
+  _refreshCaixaViews();
+  atualizarDashboard();
+  mostrarToast('✅ Lançamento adicionado!', 'success');
+}
+
+function limparFormCaixa() {
+  ['caixa_descricao', 'caixa_valor', 'caixa_reserva_id'].forEach(function(id) {
+    var el = document.getElementById(id); if (el) el.value = '';
+  });
+  var dataEl = document.getElementById('caixa_data');
+  if (dataEl) dataEl.value = new Date().toISOString().slice(0, 10);
+}
+
+function excluirLancamentoCaixa(id) {
+  if (!confirm('Excluir este lançamento?')) return;
+  caixaLancamentos = caixaLancamentos.filter(function(l) { return l.id !== id; });
+  salvarCaixaStorage(caixaLancamentos);
+  _refreshCaixaViews();
+  atualizarDashboard();
+  mostrarToast('🗑️ Lançamento excluído.', '');
+}
+
+function limparFiltrosCaixa() {
+  ['caixaf_busca', 'caixaf_de', 'caixaf_ate'].forEach(function(id) {
+    var el = document.getElementById(id); if (el) el.value = '';
+  });
+  var t = document.getElementById('caixaf_tipo');      if (t) t.value = '';
+  var c = document.getElementById('caixaf_categoria'); if (c) c.value = '';
+  renderTabelaCaixa();
+}
+
+/* ── HELPER: atualiza todas as views de caixa de uma vez ── */
+function _refreshCaixaViews() {
+  renderTabelaCaixa();
+  atualizarDashCaixa();
+  renderFluxoCaixa();
+  renderGraficoCaixa();
+}
+
+/* ── RENDER TABELA LANÇAMENTOS ── */
+function renderTabelaCaixa() {
+  var lista  = _getFilteredCaixaLocal();
+  var tbody  = document.getElementById('caixaTabelaBody');
+  if (!tbody) return;
+  if (!lista.length) {
+    tbody.innerHTML =
+      '<tr><td colspan="9"><div class="empty-state">' +
+      '<div class="empty-icon">💵</div>' +
+      '<div>' + (caixaLancamentos.length ? 'Nenhum lançamento corresponde aos filtros.' : 'Nenhum lançamento cadastrado ainda.') + '</div>' +
+      '</div></td></tr>';
+    return;
+  }
+  var formaLabel = { Pix:'⚡ Pix', 'Transferência':'🏦 Transf.', Dinheiro:'💵 Dinheiro', 'Cartão':'💳 Cartão', Boleto:'📄 Boleto' };
+  tbody.innerHTML = lista.slice().sort(function(a, b) {
+    return (b.data || '').localeCompare(a.data || '');
+  }).map(function(l, i) {
+    var tipoClass = l.tipo === 'entrada' ? 'caixa-tipo-entrada' : 'caixa-tipo-saida';
+    var tipoLabel = l.tipo === 'entrada' ? '⬆️ Entrada' : '⬇️ Saída';
+    var autoTag   = l.autoRef ? ' <span title="Criado automaticamente" style="color:var(--cor-sub);font-size:0.75em;">🤖</span>' : '';
+    return '<tr>' +
+      '<td>' + (i + 1) + '</td>' +
+      '<td class="' + tipoClass + '">' + tipoLabel + '</td>' +
+      '<td>' + escapeHtml(l.categoria || '—') + '</td>' +
+      '<td style="max-width:200px;white-space:normal;">' + escapeHtml(l.descricao || '—') + autoTag + '</td>' +
+      '<td class="' + tipoClass + '">' + (l.tipo === 'saida' ? '- ' : '') + formatBRL(l.valor) + '</td>' +
+      '<td>' + formatarData(l.data) + '</td>' +
+      '<td>' + escapeHtml(formaLabel[l.forma_pagamento] || l.forma_pagamento || '—') + '</td>' +
+      '<td>' + (l.reserva_id ? '<span style="font-size:0.8em;color:var(--cor-sub);">' + escapeHtml(l.reserva_id) + '</span>' : '—') + '</td>' +
+      '<td><button class="btn btn-danger btn-sm" onclick="excluirLancamentoCaixa(\'' + l.id + '\')" title="Excluir">🗑️</button></td>' +
+      '</tr>';
+  }).join('');
+}
+
+/* ── MINI-DASHBOARD DA SEÇÃO CAIXA ── */
+function atualizarDashCaixa() {
+  var lista    = Array.isArray(caixaLancamentos) ? caixaLancamentos : [];
+  var totalEnt = 0, totalSai = 0;
+  lista.forEach(function(l) {
+    if (l.tipo === 'entrada') totalEnt += parseFloat(l.valor) || 0;
+    else totalSai += parseFloat(l.valor) || 0;
+  });
+  var saldo = totalEnt - totalSai;
+  function _s(id, v) { var el = document.getElementById(id); if (el) el.textContent = v; }
+  _s('caixa-total-entradas', formatBRL(totalEnt));
+  _s('caixa-total-saidas',   formatBRL(totalSai));
+  _s('caixa-saldo-periodo',  (saldo < 0 ? '- ' : '') + formatBRL(Math.abs(saldo)));
+  _s('caixa-count-lanc',     lista.length);
+  var card = document.getElementById('caixa-card-saldo-local');
+  if (card) {
+    card.classList.remove('verde', 'vermelho');
+    card.classList.add(saldo >= 0 ? 'verde' : 'vermelho');
+  }
+}
+
+/* ── ALERTA DE SALDO MÍNIMO ── */
+function salvarSaldoMinimo() {
+  var val = parseFloat((document.getElementById('inputSaldoMinimo') || {}).value) || 0;
+  localStorage.setItem('hospeda_saldo_minimo', val);
+  atualizarDashboard();
+  mostrarToast('✅ Saldo mínimo salvo: ' + formatBRL(val), 'success');
+}
+
+function verificarSaldoBaixoCaixa(saldoAtual) {
+  var saldoMin = parseFloat(localStorage.getItem('hospeda_saldo_minimo')) || 0;
+  var alertEl  = document.getElementById('alertSaldoBaixo');
+  if (!alertEl) return;
+  alertEl.style.display = saldoMin > 0 && saldoAtual < saldoMin ? '' : 'none';
+}
+
+/* ── SCORE FINANCEIRO ──
+   Fatores (pontuação máx: 5):
+   [0-2] Saldo de Caixa vs. saldo mínimo configurado
+   [0-1] Cobranças vencidas
+   [0-1] Comissão pendente (% sobre total gerado)
+   [0-1] Progresso da meta mensal
+   Verde ≥ 4 | Amarelo ≥ 2 | Vermelho < 2 */
+function calcularScoreFinanceiro(saldo, comissaoGerada, comissaoPendente, cobrancasVencidas, metaPct) {
+  var score   = 0;
+  var fatores = [];
+  var saldoMin = parseFloat(localStorage.getItem('hospeda_saldo_minimo')) || 0;
+
+  /* Fator 1 — Saldo */
+  if (saldo > 0 && (saldoMin <= 0 || saldo >= saldoMin)) {
+    score += 2;
+    fatores.push('✅ Saldo de caixa saudável');
+  } else if (saldo > 0) {
+    score += 1;
+    fatores.push('⚠️ Saldo positivo, abaixo do mínimo');
+  } else if (saldo < 0) {
+    score -= 1;
+    fatores.push('❌ Saldo de caixa negativo');
+  } else {
+    fatores.push('💵 Sem lançamentos de caixa');
+  }
+
+  /* Fator 2 — Cobranças vencidas */
+  if (cobrancasVencidas === 0) {
+    score += 1;
+    fatores.push('✅ Sem cobranças vencidas');
+  } else if (cobrancasVencidas <= 2) {
+    fatores.push('⚠️ ' + cobrancasVencidas + ' cobrança(s) vencida(s)');
+  } else {
+    score -= 1;
+    fatores.push('❌ ' + cobrancasVencidas + ' cobranças vencidas');
+  }
+
+  /* Fator 3 — Comissão pendente */
+  if (comissaoGerada > 0) {
+    var pPct = Math.round((comissaoPendente / comissaoGerada) * 100);
+    if (pPct < 30) {
+      score += 1;
+      fatores.push('✅ Comissão em dia (' + pPct + '% pendente)');
+    } else if (pPct < 70) {
+      fatores.push('⚠️ ' + pPct + '% da comissão pendente');
+    } else {
+      score -= 1;
+      fatores.push('❌ ' + pPct + '% da comissão atrasada');
+    }
+  } else {
+    fatores.push('🏷️ Sem comissões registradas');
+  }
+
+  /* Fator 4 — Meta mensal */
+  if (metaPct >= 80) {
+    score += 1;
+    fatores.push('✅ Meta: ' + metaPct + '% atingida');
+  } else if (metaPct >= 50) {
+    fatores.push('⚠️ Meta: ' + metaPct + '% em progresso');
+  } else {
+    fatores.push('🎯 Meta: ' + metaPct + '%');
+  }
+
+  var nivel, cor, emoji;
+  if (score >= 4) {
+    nivel = 'Saudável';          cor = 'var(--verde)';    emoji = '🟢';
+  } else if (score >= 2) {
+    nivel = 'Atenção';           cor = 'var(--amarelo)';  emoji = '🟡';
+  } else {
+    nivel = 'Risco Operacional'; cor = 'var(--vermelho)'; emoji = '🔴';
+  }
+  return { score: score, nivel: nivel, cor: cor, emoji: emoji, fatores: fatores };
+}
+
+function _atualizarScoreFinanceiro(saldo, comissaoGerada, comissaoPendente, cobrancasVencidas, metaPct) {
+  var r = calcularScoreFinanceiro(saldo, comissaoGerada, comissaoPendente, cobrancasVencidas, metaPct);
+  var emojiEl   = document.getElementById('dash-score-emoji');
+  var nivelEl   = document.getElementById('dash-score-nivel');
+  var card      = document.getElementById('dash-card-score');
+  var fatoresEl = document.getElementById('dash-score-fatores');
+  if (emojiEl) emojiEl.textContent = r.emoji;
+  if (nivelEl) { nivelEl.textContent = r.nivel; nivelEl.style.color = r.cor; }
+  if (card)    { card.style.borderColor = r.cor; }
+  if (fatoresEl) {
+    fatoresEl.innerHTML = r.fatores.map(function(f) {
+      return '<div>' + f + '</div>';
+    }).join('');
+  }
+}
+
+function toggleScoreDetalhe() {
+  var det = document.getElementById('dash-score-detalhe');
+  if (det) det.style.display = det.style.display === 'none' ? '' : 'none';
+}
+
+/* ── FLUXO DE CAIXA MENSAL ── */
+function renderFluxoCaixa() {
+  var fCat   = ((document.getElementById('fluxof_categoria') || {}).value || '');
+  var lista  = Array.isArray(caixaLancamentos) ? caixaLancamentos.slice() : [];
+  if (fCat) lista = lista.filter(function(l) { return l.categoria === fCat; });
+
+  var meses = {};
+  lista.forEach(function(l) {
+    if (!l.data) return;
+    var mes = l.data.slice(0, 7);
+    if (!meses[mes]) meses[mes] = { entradas: 0, saidas: 0, lancamentos: [] };
+    var v = parseFloat(l.valor) || 0;
+    if (l.tipo === 'entrada') meses[mes].entradas += v;
+    else meses[mes].saidas += v;
+    meses[mes].lancamentos.push(l);
+  });
+
+  var chaves = Object.keys(meses).sort();
+  var tbody  = document.getElementById('fluxoCaixaBody');
+  if (!tbody) return;
+
+  if (!chaves.length) {
+    tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state"><div class="empty-icon">📊</div><div>Nenhum lançamento cadastrado.</div></div></td></tr>';
+    return;
+  }
+
+  var saldoAcum = 0;
+  var html = '';
+  chaves.forEach(function(key) {
+    var m        = meses[key];
+    var saldoMes = m.entradas - m.saidas;
+    saldoAcum   += saldoMes;
+    var smColor  = saldoMes   >= 0 ? 'var(--verde)' : 'var(--vermelho)';
+    var saColor  = saldoAcum  >= 0 ? 'var(--verde)' : 'var(--vermelho)';
+    var rowId    = 'fluxo-det-' + key.replace('-', '');
+
+    html += '<tr style="cursor:pointer;" onclick="toggleFluxoDetalhe(\'' + rowId + '\')">' +
+      '<td><strong>📅 ' + nomeDoMes(key) + '</strong></td>' +
+      '<td style="color:var(--verde);">'  + formatBRL(m.entradas)  + '</td>' +
+      '<td style="color:var(--vermelho);">'+ formatBRL(m.saidas)   + '</td>' +
+      '<td style="color:' + smColor + ';font-weight:700;">' + (saldoMes  < 0 ? '▼ ' : '▲ ') + formatBRL(Math.abs(saldoMes))  + '</td>' +
+      '<td style="color:' + saColor + ';font-weight:700;">' + (saldoAcum < 0 ? '▼ ' : '▲ ') + formatBRL(Math.abs(saldoAcum)) + '</td>' +
+      '<td style="text-align:center;color:var(--cor-sub);">▾</td>' +
+      '</tr>';
+
+    var detalheRows = m.lancamentos.slice().sort(function(a, b) {
+      return (a.data || '').localeCompare(b.data || '');
+    }).map(function(l) {
+      var tc = l.tipo === 'entrada' ? 'caixa-tipo-entrada' : 'caixa-tipo-saida';
+      return '<tr>' +
+        '<td>' + formatarData(l.data) + '</td>' +
+        '<td class="' + tc + '">' + (l.tipo === 'entrada' ? '⬆️ Entrada' : '⬇️ Saída') + '</td>' +
+        '<td>' + escapeHtml(l.categoria || '—') + '</td>' +
+        '<td>' + escapeHtml(l.descricao  || '—') + '</td>' +
+        '<td>' + escapeHtml(l.forma_pagamento || '—') + '</td>' +
+        '<td class="' + tc + '">' + (l.tipo === 'saida' ? '- ' : '') + formatBRL(l.valor) + '</td>' +
+        '</tr>';
+    }).join('');
+
+    html += '<tr id="' + rowId + '" style="display:none;">' +
+      '<td colspan="6" style="padding:0;">' +
+      '<table style="width:100%;background:rgba(255,255,255,0.02);font-size:0.82em;">' +
+      '<thead><tr><th>Data</th><th>Tipo</th><th>Categoria</th><th>Descrição</th><th>Pagamento</th><th>Valor</th></tr></thead>' +
+      '<tbody>' + detalheRows + '</tbody></table></td></tr>';
+  });
+
+  tbody.innerHTML = html;
+}
+
+function toggleFluxoDetalhe(rowId) {
+  var row = document.getElementById(rowId);
+  if (row) row.style.display = row.style.display === 'none' ? '' : 'none';
+}
+
+/* ── GRÁFICO ENTRADAS × SAÍDAS ── */
+var _chartCaixa = null;
+
+function renderGraficoCaixa() {
+  if (typeof Chart === 'undefined') return;
+  var hoje   = new Date();
+  var labels = [], dadosEnt = [], dadosSai = [];
+  for (var i = 5; i >= 0; i--) {
+    var d   = new Date(hoje.getFullYear(), hoje.getMonth() - i, 1);
+    var key = _mesKey(d);
+    labels.push(d.toLocaleDateString('pt-BR', { month: 'short', year: '2-digit' }));
+    var ent = 0, sai = 0;
+    (Array.isArray(caixaLancamentos) ? caixaLancamentos : []).forEach(function(l) {
+      if (!l.data || l.data.slice(0, 7) !== key) return;
+      var v = parseFloat(l.valor) || 0;
+      if (l.tipo === 'entrada') ent += v; else sai += v;
+    });
+    dadosEnt.push(ent);
+    dadosSai.push(sai);
+  }
+  var ctx = document.getElementById('chartCaixa');
+  if (!ctx) return;
+  if (_chartCaixa) _chartCaixa.destroy();
+  _chartCaixa = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [
+        { label: 'Entradas', data: dadosEnt, backgroundColor: 'rgba(37,211,102,0.55)', borderColor: '#25D366', borderWidth: 1 },
+        { label: 'Saídas',   data: dadosSai, backgroundColor: 'rgba(231,76,60,0.50)',  borderColor: '#e74c3c', borderWidth: 1 }
+      ]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { labels: { color: '#aab4c4', font: { family: 'Poppins' } } } },
+      scales: {
+        x: { ticks: { color: '#aab4c4' }, grid: { color: 'rgba(255,255,255,0.04)' } },
+        y: {
+          ticks: {
+            color: '#aab4c4',
+            callback: function(v) {
+              return 'R$\u202F' + v.toLocaleString('pt-BR', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+            }
+          },
+          grid: { color: 'rgba(255,255,255,0.04)' }
+        }
+      }
+    }
+  });
+}
+
+/* ── TOGGLE SEÇÕES ── */
+function toggleCaixa() {
+  var content = document.getElementById('caixaContent');
+  var btn     = document.getElementById('caixaToggleBtn');
+  if (!content || !btn) return;
+  var collapsed = content.style.display === 'none';
+  content.style.display = collapsed ? '' : 'none';
+  btn.textContent = collapsed ? '▼ Minimizar' : '▲ Expandir';
+}
+
+function toggleFluxoCaixa() {
+  var content = document.getElementById('fluxoCaixaContent');
+  var btn     = document.getElementById('fluxoCaixaToggleBtn');
+  if (!content || !btn) return;
+  var collapsed = content.style.display === 'none';
+  content.style.display = collapsed ? '' : 'none';
+  btn.textContent = collapsed ? '▼ Minimizar' : '▲ Expandir';
+}
+
+/* ── EXPORTAR CSV ── */
+function exportarCSVCaixa() {
+  var lista = Array.isArray(caixaLancamentos) ? caixaLancamentos : [];
+  if (!lista.length) { alert('Nenhum lançamento para exportar.'); return; }
+  _downloadCaixaCSV(lista);
+}
+
+function exportarCSVFluxoCaixa() {
+  exportarCSVCaixa();
+}
+
+function _downloadCaixaCSV(lista) {
+  var cols = ['Data', 'Tipo', 'Categoria', 'Descrição', 'Valor (R$)', 'Forma de Pagamento', 'ID Reserva'];
+  var rows = lista.slice().sort(function(a, b) {
+    return (a.data || '').localeCompare(b.data || '');
+  }).map(function(l) {
+    return [l.data || '', l.tipo || '', l.categoria || '', l.descricao || '',
+            l.valor || '', l.forma_pagamento || '', l.reserva_id || '']
+      .map(function(v) { return '"' + String(v).replace(/"/g, '""') + '"'; }).join(',');
+  });
+  var csv  = [cols.map(function(c) { return '"' + c + '"'; }).join(',')].concat(rows).join('\r\n');
+  var blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+  var url  = URL.createObjectURL(blob);
+  var a    = document.createElement('a');
+  a.href   = url;
+  a.download = 'hospedah_caixa_' + new Date().toISOString().slice(0, 10) + '.csv';
+  a.click();
+  URL.revokeObjectURL(url);
 }
 
 </script>
