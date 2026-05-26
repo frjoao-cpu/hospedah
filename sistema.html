@@ -11949,6 +11949,7 @@ function _parseSaldoMinimo(val) {
 
 function _getSaldoMinimoLocal() {
   var raw = localStorage.getItem(CAIXA_SALDO_MINIMO_KEY);
+  if (raw === null) raw = localStorage.getItem('caixa_saldo_minimo'); // chave sincronizada por sincronizarDoSupabase()
   if (raw === null) raw = localStorage.getItem('hospeda_saldo_minimo');
   return Math.max(0, _parseSaldoMinimo(raw));
 }
