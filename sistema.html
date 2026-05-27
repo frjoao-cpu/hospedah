@@ -11972,7 +11972,7 @@ async function carregarSaldoMinimoCaixa() {
     var res = await sbClient.from('hospeda_data')
       .select('valor')
       .eq('user_id', uid)
-      .eq('chave', 'caixa_saldo_minimo')
+      .eq('chave', CAIXA_SALDO_MINIMO_KEY)
       .maybeSingle();
     if (res && res.error) throw res.error;
     if (!res || !res.data) return;
@@ -11985,26 +11985,13 @@ async function carregarSaldoMinimoCaixa() {
   }
 }
 
-async function salvarSaldoMinimo() {
+function salvarSaldoMinimo() {
   var val = parseFloat((document.getElementById('inputSaldoMinimo') || {}).value) || 0;
   val = Math.max(0, val);
   _setSaldoMinimoLocal(val);
   atualizarDashboard();
   mostrarToast('✅ Saldo mínimo salvo: ' + formatBRL(val), 'success');
-  var sbClient = window._sb || _supabase;
-  if (!sbClient || !sbClient.auth || !sbClient.from) return;
-  try {
-    var userRes = await sbClient.auth.getUser();
-    var uid = userRes && userRes.data && userRes.data.user && userRes.data.user.id;
-    if (!uid) return;
-    var upsertRes = await sbClient.from('hospeda_data').upsert(
-      { user_id: uid, chave: 'caixa_saldo_minimo', valor: { valor: val }, atualizado_em: new Date().toISOString() },
-      { onConflict: 'user_id,chave' }
-    );
-    if (upsertRes && upsertRes.error) throw upsertRes.error;
-  } catch (e) {
-    console.warn('Erro ao sincronizar saldo mínimo com Supabase:', e);
-  }
+  salvarNoSupabase(CAIXA_SALDO_MINIMO_KEY, val);
 }
 
 function verificarSaldoBaixoCaixa(saldoAtual) {
