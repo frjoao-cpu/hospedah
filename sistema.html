@@ -1648,7 +1648,7 @@ thead .col-sticky-right {
   margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;
 }
 .previsao-card .pv-row {
-  display: grid; grid-template-columns: auto 1fr auto;
+  display: grid; grid-template-columns: auto 1fr auto auto;
   align-items: center; gap: 5px;
   padding: 3px 0; border-bottom: 1px solid rgba(255,255,255,0.04);
   font-size: 0.78em;
@@ -1672,6 +1672,13 @@ thead .col-sticky-right {
 .pv-row-valor { color: #4da6ff; font-weight: 600; white-space: nowrap; text-align: right; }
 .pv-row.pv-total .pv-row-label { color: var(--cor-texto); font-weight: 600; font-size: 0.88em; }
 .pv-row.pv-total .pv-row-valor { color: var(--dourado); font-weight: 700; }
+.pv-btn-baixa {
+  font-size: 0.75em; padding: 2px 6px; line-height: 1.4;
+  background: rgba(46,204,113,0.15); color: #2ecc71;
+  border: 1px solid rgba(46,204,113,0.3); border-radius: 5px;
+  cursor: pointer; white-space: nowrap;
+}
+.pv-btn-baixa:hover { background: rgba(46,204,113,0.3); }
 .va-agrup-toggle {
   display: flex; gap: 0;
   border: 1px solid var(--borda);
@@ -7053,16 +7060,19 @@ function atualizarPrevisaoRecebimentos() {
     var label = (r.cliente || '—') + ' / ' + (r.resort || '—');
     var mesVenda = r.criadoEm ? r.criadoEm.slice(0, 7) : null;
 
-    (r.parcelasComissao || []).forEach(function (p) {
+    (r.parcelasComissao || []).forEach(function (p, idxP) {
       if (!p.mes || parseFloat(p.valor) <= 0) return;
       if (!meses[p.mes]) meses[p.mes] = { total: 0, parcelas: [] };
       meses[p.mes].total += parseFloat(p.valor);
       meses[p.mes].parcelas.push({
-        label:     label,
-        valor:     parseFloat(p.valor),
-        mesVenda:  mesVenda,
-        dia:       p.dia || null,
-        status:    p.status || 'pendente'
+        label:      label,
+        valor:      parseFloat(p.valor),
+        recebido:   parseFloat(p.recebido) || 0,
+        mesVenda:   mesVenda,
+        dia:        p.dia || null,
+        status:     p.status || 'pendente',
+        reservaId:  r.id,
+        parcelIdx:  idxP
       });
     });
 
@@ -7158,11 +7168,16 @@ function atualizarPrevisaoRecebimentos() {
         ? '<span class="pv-dia' + (isLate ? ' pv-dia-late' : '') + '">' + parseInt(p.dia, 10) + '</span>'
         : '';
       var lateTag = isLate ? '<span class="parcela-atrasada">⚠</span>' : '';
+      var labelEsc = p.label ? p.label.replace(/\\/g, '\\\\').replace(/'/g, "\\'") : '';
+      var btnBaixa = p.status !== 'recebida' && p.reservaId != null
+        ? '<button class="btn btn-sm pv-btn-baixa" onclick="abrirModalBaixaLocal(\'' + escapeHtml(String(p.reservaId)) + '\',' + p.parcelIdx + ',\'' + labelEsc + '\',\'' + key + '\',' + p.valor + ',' + (p.recebido || 0) + ')" title="Dar Baixa">💳</button>'
+        : '';
       rowsHtml +=
         '<div class="pv-row' + (isLate ? ' pv-atraso' : '') + '">' +
         '<span class="pv-row-left">' + statusIcon + ' ' + diaBadge + lateTag + '</span>' +
         '<span class="pv-row-label" title="' + escapeHtml(p.label) + '">' + escapeHtml(p.label) + '</span>' +
         '<span class="pv-row-valor">' + formatBRL(p.valor) + '</span>' +
+        btnBaixa +
         '</div>';
     });
 
@@ -7183,57 +7198,89 @@ function atualizarPrevisaoRecebimentos() {
 }
 
 // ── BAIXA EM PARCELAS DE COMISSÃO ───────────────────────────
-var _parcelaIdAtual = null;
+var _parcelaIdAtual  = null;
+var _modalBaixaTipo  = 'supabase'; /* 'supabase' | 'local' */
+var _parcelaLocalCtx = null;       /* { reservaId, parcelIdx } */
 
-async function carregarParcelasAtraso() {
+function carregarParcelasAtraso() {
   var tbody = document.getElementById('bodyParcelasAtraso');
-  if (!tbody || !_supabase || !_supabase.from) return;
+  if (!tbody) return;
 
-  var hoje = new Date().toISOString().slice(0, 10);
+  var hojeDate = new Date(); hojeDate.setHours(0, 0, 0, 0);
+  var hoje = _mesKey(new Date());
+  var parcelas = [];
 
-  var result = await _supabase
-    .from('comissao_parcelas')
-    .select('id, mes_referencia, valor_previsto, valor_recebido, status, reservas_hospede ( nome_hospede, resort_nome )')
-    .in('status', ['pendente', 'parcial'])
-    .lt('mes_referencia', hoje)
-    .order('mes_referencia', { ascending: true });
+  reservas.forEach(function (r) {
+    if ((r.status || '').toLowerCase() === 'cancelado') return;
+    var label = (r.cliente || '—') + ' / ' + (r.resort || '—');
 
-  var data = result && result.data;
-  var error = result && result.error;
+    (r.parcelasComissao || []).forEach(function (p, idxP) {
+      if (!p.mes || parseFloat(p.valor) <= 0) return;
+      if ((p.status || 'pendente') === 'recebida') return;
 
-  if (error) {
-    console.error('Erro ao carregar parcelas em atraso:', error);
-    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#e57373;">Erro ao carregar dados.</td></tr>';
-    return;
-  }
+      var isLate = false;
+      if (p.mes < hoje) {
+        isLate = true;
+      } else if (p.dia && p.mes === hoje) {
+        var parts = p.mes.split('-');
+        var venc = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(p.dia, 10));
+        venc.setHours(0, 0, 0, 0);
+        if (venc < hojeDate) isLate = true;
+      }
+      if (!isLate) return;
 
-  if (!data || !data.length) {
+      parcelas.push({
+        reservaId: r.id,
+        parcelIdx: idxP,
+        label:     label,
+        mes:       p.mes,
+        valor:     parseFloat(p.valor),
+        recebido:  parseFloat(p.recebido) || 0,
+        status:    p.status || 'pendente'
+      });
+    });
+
+    /* Suporte legado: dataPrevistaComissao sem parcelasComissao */
+    if ((!r.parcelasComissao || r.parcelasComissao.length === 0) && r.dataPrevistaComissao) {
+      var mes = r.dataPrevistaComissao.slice(0, 7);
+      if (mes < hoje && (r.statusComissao || 'pendente') !== 'recebida') {
+        var pendente = _comissaoPendente(r.comissao, r.comissaoRecebida);
+        if (pendente > 0) {
+          parcelas.push({
+            reservaId: r.id,
+            parcelIdx: -1,
+            label:     label,
+            mes:       mes,
+            valor:     (parseFloat(r.comissao) || 0),
+            recebido:  parseFloat(r.comissaoRecebida) || 0,
+            status:    r.statusComissao || 'pendente'
+          });
+        }
+      }
+    }
+  });
+
+  parcelas.sort(function (a, b) { return a.mes < b.mes ? -1 : a.mes > b.mes ? 1 : 0; });
+
+  if (!parcelas.length) {
     tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--cor-sub);">✅ Nenhuma parcela em atraso</td></tr>';
     return;
   }
 
-  tbody.innerHTML = data.map(function(p) {
-    var valorPrevisto = parseFloat(p.valor_previsto) || 0;
-    var valorRecebido = parseFloat(p.valor_recebido) || 0;
-    var restante = Math.max(0, valorPrevisto - valorRecebido);
-    var nomHospede = (p.reservas_hospede && p.reservas_hospede.nome_hospede) ? p.reservas_hospede.nome_hospede : '—';
-    var nomResort  = (p.reservas_hospede && p.reservas_hospede.resort_nome)  ? p.reservas_hospede.resort_nome  : '';
-    var nomeHospedeEsc = nomHospede.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
-    var mesRef = p.mes_referencia || '';
-    var status = p.status || 'pendente';
-
+  tbody.innerHTML = parcelas.map(function (p) {
+    var restante = Math.max(0, p.valor - p.recebido);
+    var labelEsc = p.label ? p.label.replace(/\\/g, '\\\\').replace(/'/g, "\\'") : '';
+    var btnBaixa = p.parcelIdx >= 0
+      ? '<button class="btn btn-success btn-sm" onclick="abrirModalBaixaLocal(\'' + escapeHtml(String(p.reservaId)) + '\',' + p.parcelIdx + ',\'' + labelEsc + '\',\'' + p.mes + '\',' + p.valor + ',' + p.recebido + ')">💳 Dar Baixa</button>'
+      : '';
     return '<tr>'
-      + '<td data-label="Hóspede / Resort">'
-      + esc(nomHospede) + (nomResort ? '<br><small style="color:var(--cor-sub);">' + esc(nomResort) + '</small>' : '')
-      + '</td>'
-      + '<td data-label="Mês Ref.">' + fmtMesRef(mesRef) + '</td>'
-      + '<td data-label="Previsto">' + fmtMoney(valorPrevisto) + '</td>'
-      + '<td data-label="Recebido">' + fmtMoney(valorRecebido) + '</td>'
+      + '<td data-label="Hóspede / Resort">' + esc(p.label) + '</td>'
+      + '<td data-label="Mês Ref.">' + fmtMesRef(p.mes) + '</td>'
+      + '<td data-label="Previsto">' + fmtMoney(p.valor) + '</td>'
+      + '<td data-label="Recebido">' + fmtMoney(p.recebido) + '</td>'
       + '<td data-label="Restante" style="color:#e57373;font-weight:600;">' + fmtMoney(restante) + '</td>'
-      + '<td data-label="Status"><span class="status-badge s-' + esc(status) + '">' + esc(status) + '</span></td>'
-      + '<td data-label="Dar Baixa">'
-      + '<button class="btn btn-success btn-sm" onclick="abrirModalBaixa(\'' + p.id + '\',' + valorPrevisto + ',' + valorRecebido + ',\'' + nomeHospedeEsc + '\',\'' + mesRef + '\')">💳 Dar Baixa</button>'
-      + '</td>'
+      + '<td data-label="Status"><span class="status-badge s-' + esc(p.status) + '">' + esc(p.status) + '</span></td>'
+      + '<td data-label="Dar Baixa">' + btnBaixa + '</td>'
       + '</tr>';
   }).join('');
 }
@@ -7245,6 +7292,8 @@ function fmtMesRef(dateStr) {
 }
 
 function abrirModalBaixa(id, valorPrevisto, valorRecebido, nomeHospede, mesRef) {
+  _modalBaixaTipo  = 'supabase';
+  _parcelaLocalCtx = null;
   _parcelaIdAtual = id;
   var restante = (parseFloat(valorPrevisto) || 0) - (parseFloat(valorRecebido) || 0);
   document.getElementById('modalBaixaDesc').textContent =
@@ -7259,7 +7308,88 @@ function abrirModalBaixa(id, valorPrevisto, valorRecebido, nomeHospede, mesRef) 
 function fecharModalBaixa() {
   var modal = document.getElementById('modalBaixaParcela');
   if (modal) modal.style.display = 'none';
-  _parcelaIdAtual = null;
+  _parcelaIdAtual  = null;
+  _parcelaLocalCtx = null;
+}
+
+function abrirModalBaixaLocal(reservaId, parcelIdx, label, mesKey, valorPrevisto, valorRecebido) {
+  _modalBaixaTipo  = 'local';
+  _parcelaLocalCtx = { reservaId: reservaId, parcelIdx: parcelIdx };
+  _parcelaIdAtual  = null;
+  var restante = Math.max(0, (parseFloat(valorPrevisto) || 0) - (parseFloat(valorRecebido) || 0));
+  document.getElementById('modalBaixaDesc').textContent =
+    label + ' · Mês: ' + fmtMesRef(mesKey) + ' · Restante: ' + fmtMoney(restante);
+  document.getElementById('inputValorBaixa').value = restante > 0 ? restante.toFixed(2) : '';
+  document.getElementById('inputDataBaixa').value  = new Date().toISOString().slice(0, 10);
+  document.getElementById('inputObsBaixa').value   = '';
+  var modal = document.getElementById('modalBaixaParcela');
+  if (modal) modal.style.display = 'flex';
+}
+
+function _despacharConfirmarBaixa() {
+  if (_modalBaixaTipo === 'local') {
+    confirmarBaixaParcelaLocal();
+  } else {
+    confirmarBaixaParcela();
+  }
+}
+
+async function confirmarBaixaParcelaLocal() {
+  var valorBaixa = parseFloat((document.getElementById('inputValorBaixa') || {}).value);
+  if (!valorBaixa || valorBaixa <= 0) {
+    alert('Informe um valor válido maior que zero.');
+    return;
+  }
+  if (!_parcelaLocalCtx) return;
+
+  var reserva = reservas.find(function (r) { return r.id === _parcelaLocalCtx.reservaId; });
+  if (!reserva) {
+    alert('Reserva não encontrada.');
+    return;
+  }
+
+  var parcelas = reserva.parcelasComissao;
+
+  if (!parcelas || parcelas.length === 0) {
+    /* Suporte legado sem parcelasComissao */
+    var pendente = _comissaoPendente(reserva.comissao, reserva.comissaoRecebida);
+    if (valorBaixa > pendente + 0.0001) {
+      alert('O valor informado excede o restante da comissão (' + fmtMoney(pendente) + ').');
+      return;
+    }
+    reserva.comissaoRecebida = parseFloat(((parseFloat(reserva.comissaoRecebida) || 0) + valorBaixa).toFixed(2));
+    var totalComissao = parseFloat(reserva.comissao) || 0;
+    reserva.statusComissao = reserva.comissaoRecebida >= totalComissao ? 'recebida' : 'parcial';
+  } else {
+    var parcela = parcelas[_parcelaLocalCtx.parcelIdx];
+    if (!parcela) {
+      alert('Parcela não encontrada.');
+      return;
+    }
+    var valorAtual    = parseFloat(parcela.valor) || 0;
+    var recebidoAtual = parseFloat(parcela.recebido) || 0;
+    var restante      = Math.max(0, valorAtual - recebidoAtual);
+    if (valorBaixa > restante + 0.0001) {
+      alert('O valor informado excede o restante da parcela (' + fmtMoney(restante) + ').');
+      return;
+    }
+    var novoRecebido  = parseFloat((recebidoAtual + valorBaixa).toFixed(2));
+    parcela.recebido  = novoRecebido;
+    parcela.status    = novoRecebido >= valorAtual ? 'recebida' : 'parcial';
+
+    /* Sincronizar comissaoRecebida e statusComissao na reserva */
+    var somaRec    = parcelas.reduce(function (acc, p) { return acc + (parseFloat(p.recebido) || 0); }, 0);
+    var somaPrev   = parcelas.reduce(function (acc, p) { return acc + (parseFloat(p.valor) || 0); }, 0);
+    reserva.comissaoRecebida = parseFloat(somaRec.toFixed(2));
+    reserva.statusComissao   = reserva.comissaoRecebida >= somaPrev ? 'recebida' : 'parcial';
+  }
+
+  fecharModalBaixa();
+  salvarReservas(reservas);
+  if (typeof showToast === 'function') showToast('✅ Baixa de ' + fmtMoney(valorBaixa) + ' registrada!', 'success');
+  atualizarPrevisaoRecebimentos();
+  if (typeof atualizarDashboard === 'function') atualizarDashboard();
+  if (typeof atualizarMensal    === 'function') atualizarMensal();
 }
 
 async function confirmarBaixaParcela() {
@@ -7313,7 +7443,7 @@ async function confirmarBaixaParcela() {
   if (typeof showToast === 'function') {
     showToast('✅ Baixa de ' + fmtMoney(valorBaixa) + ' registrada com sucesso!', 'success');
   }
-  carregarParcelasAtraso();
+  atualizarPrevisaoRecebimentos();
 }
 
 document.addEventListener('click', function (e) {
@@ -11985,13 +12115,35 @@ async function carregarSaldoMinimoCaixa() {
   }
 }
 
-function salvarSaldoMinimo() {
+async function salvarSaldoMinimo() {
   var val = parseFloat((document.getElementById('inputSaldoMinimo') || {}).value) || 0;
   val = Math.max(0, val);
   _setSaldoMinimoLocal(val);
   atualizarDashboard();
-  mostrarToast('✅ Saldo mínimo salvo: ' + formatBRL(val), 'success');
-  salvarNoSupabase(CAIXA_SALDO_MINIMO_KEY, val);
+
+  var sbClient = window._sb || _supabase;
+  if (!sbClient || !sbClient.auth || !sbClient.from) {
+    mostrarToast('✅ Saldo mínimo salvo localmente: ' + formatBRL(val), 'success');
+    return;
+  }
+
+  try {
+    var userRes = await sbClient.auth.getUser();
+    var uid = userRes && userRes.data && userRes.data.user && userRes.data.user.id;
+    if (!uid) {
+      mostrarToast('✅ Saldo mínimo salvo localmente: ' + formatBRL(val), 'success');
+      return;
+    }
+    var res = await sbClient.from('hospeda_data').upsert(
+      { user_id: uid, chave: CAIXA_SALDO_MINIMO_KEY, valor: val, atualizado_em: new Date().toISOString() },
+      { onConflict: 'user_id,chave' }
+    );
+    if (res && res.error) throw res.error;
+    mostrarToast('✅ Saldo mínimo salvo: ' + formatBRL(val), 'success');
+  } catch (e) {
+    console.warn('Erro ao salvar saldo mínimo no servidor:', e);
+    mostrarToast('⚠️ Saldo mínimo salvo apenas neste dispositivo: ' + formatBRL(val), 'warning');
+  }
 }
 
 function verificarSaldoBaixoCaixa(saldoAtual) {
@@ -12747,7 +12899,7 @@ if ('serviceWorker' in navigator) {
     <input type="text" id="inputObsBaixa" class="form-control" placeholder="Ex: PIX recebido, depósito bancário..." style="width:100%;margin-bottom:20px;">
 
     <div style="display:flex;gap:10px;">
-      <button class="btn btn-success" onclick="confirmarBaixaParcela()">✅ Confirmar Baixa</button>
+      <button class="btn btn-success" onclick="_despacharConfirmarBaixa()">✅ Confirmar Baixa</button>
       <button class="btn btn-ghost" onclick="fecharModalBaixa()">Cancelar</button>
     </div>
   </div>
