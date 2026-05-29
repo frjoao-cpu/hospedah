@@ -2675,8 +2675,8 @@ thead .col-sticky-right {
       <!-- Saldo mínimo -->
       <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:16px;padding:12px 16px;background:rgba(255,255,255,0.03);border:1px solid var(--borda);border-radius:12px;">
         <span style="font-size:0.82em;color:var(--cor-sub);font-weight:600;">⚠️ Saldo Mínimo:</span>
-        <input type="number" id="inputSaldoMinimo" placeholder="R$ mínimo..." min="0" step="100" style="width:150px;padding:5px 10px;background:rgba(255,255,255,0.05);border:1px solid var(--borda);border-radius:8px;color:var(--cor-texto);font-size:0.85em;">
-        <button class="btn btn-secondary btn-sm" onclick="salvarSaldoMinimo()">✔</button>
+        <input type="number" id="inputSaldoMinimo" placeholder="R$ mínimo..." min="0" step="100" style="width:150px;padding:5px 10px;background:rgba(255,255,255,0.05);border:1px solid var(--borda);border-radius:8px;color:var(--cor-texto);font-size:0.85em;" onchange="salvarSaldoMinimo()" onkeydown="if(event.key==='Enter'){event.preventDefault();salvarSaldoMinimo();}">
+        <button type="button" class="btn btn-secondary btn-sm" onclick="salvarSaldoMinimo()">✔</button>
         <span style="font-size:0.78em;color:var(--cor-sub);">Alerta quando o saldo cair abaixo deste valor</span>
       </div>
       <!-- Formulário de lançamento -->
