@@ -1575,6 +1575,18 @@ thead .col-sticky-right {
 }
 .va-prev-ant .va-ant-icon { font-size: 0.88em; opacity: 0.8; }
 
+.dash-comissao-ant {
+  display: inline-flex; align-items: center;
+  font-size: 0.68em; font-weight: 600;
+  color: rgba(255,255,255,0.55);
+  background: rgba(77,166,255,0.10);
+  border: 1px solid rgba(77,166,255,0.22);
+  border-radius: 10px;
+  padding: 2px 8px;
+  margin-top: 5px;
+  white-space: nowrap;
+}
+
 /* ==========================================
    PARCELAS DE COMISSÃO (PREVISÃO FUTURA)
 ========================================== */
@@ -2519,6 +2531,7 @@ thead .col-sticky-right {
         <div class="dash-icon">🏷️</div>
         <div class="dash-label">Comissão Gerada</div>
         <div class="dash-value" id="dash-comissao">R$ 0,00</div>
+        <div id="dash-comissao-ant" class="dash-comissao-ant" style="display:none;"></div>
       </div>
       <div class="dash-card verde">
         <div class="dash-icon">✅</div>
@@ -6915,6 +6928,31 @@ function atualizarDashboard() {
   document.getElementById('dash-noites').textContent     = noites;
   document.getElementById('dash-canceladas').textContent = canceladas;
   document.getElementById('dash-lucro').textContent      = formatBRL(lucroTotal);
+
+  /* Carry-over: parcelas de vendas de meses anteriores previstas para o mês atual */
+  var antEl = document.getElementById('dash-comissao-ant');
+  if (antEl) {
+    var mesAtualKey = _mesKey(new Date());
+    if (periodo === 'month') {
+      var carryOver = 0;
+      (typeof reservas !== 'undefined' ? reservas : []).forEach(function (r) {
+        if ((r.status || '').toLowerCase() === 'cancelado') return;
+        var saleMes = r.criadoEm ? r.criadoEm.slice(0, 7) : null;
+        if (!saleMes || saleMes >= mesAtualKey) return;
+        (r.parcelasComissao || []).forEach(function (p) {
+          if (p.mes === mesAtualKey) carryOver += parseFloat(p.valor) || 0;
+        });
+      });
+      if (carryOver > 0) {
+        antEl.textContent = '↩ ' + formatBRL(carryOver) + ' de meses ant.';
+        antEl.style.display = '';
+      } else {
+        antEl.style.display = 'none';
+      }
+    } else {
+      antEl.style.display = 'none';
+    }
+  }
   document.getElementById('dash-avaliacao').textContent  = countAval > 0 ? (somaAval / countAval).toFixed(1) + ' ⭐' : '—';
 
   /* Badge de contagem do período */
