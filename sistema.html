@@ -1560,6 +1560,20 @@ thead .col-sticky-right {
 .va-lucro-neg  { color: var(--vermelho); font-weight: 600; }
 .va-tag-atual  { font-size: 0.68em; opacity: 0.65; font-weight: 400; margin-left: 4px; }
 .va-previsao   { color: #4da6ff; font-weight: 600; }
+.va-prev-cell  { display: flex; flex-direction: column; align-items: flex-end; gap: 3px; }
+.va-prev-total { color: #4da6ff; font-weight: 600; }
+.va-prev-ant   {
+  display: inline-flex; align-items: center; gap: 3px;
+  font-size: 0.73em; font-weight: 600;
+  color: rgba(255,255,255,0.42);
+  background: rgba(77,166,255,0.10);
+  border: 1px solid rgba(77,166,255,0.22);
+  border-radius: 10px;
+  padding: 1px 6px;
+  letter-spacing: 0.2px;
+  white-space: nowrap;
+}
+.va-prev-ant .va-ant-icon { font-size: 0.88em; opacity: 0.8; }
 
 /* ==========================================
    PARCELAS DE COMISSÃO (PREVISÃO FUTURA)
@@ -7496,7 +7510,7 @@ function atualizarVendasAnuais() {
   /* inicializa acumuladores para o ano selecionado e para o ano anterior (YoY) */
   var totais = {}, antAno = {};
   for (var m = 1; m <= 12; m++) {
-    totais[m] = { reservas: 0, noites: 0, venda: 0, comissao: 0, captacao: 0, lucro: 0, comissaoVenda: 0, parcelasReceber: 0 };
+    totais[m] = { reservas: 0, noites: 0, venda: 0, comissao: 0, captacao: 0, lucro: 0, comissaoVenda: 0, parcelasReceber: 0, parcelasDeAnteriores: 0 };
     antAno[m] = { venda: 0 };
   }
 
@@ -7538,7 +7552,18 @@ function atualizarVendasAnuais() {
       var pAno = parseInt(pParts[0], 10);
       var pMes = parseInt(pParts[1], 10);
       if (pAno === ano && pMes >= 1 && pMes <= 12) {
-        totais[pMes].parcelasReceber += parseFloat(p.valor) || 0;
+        var valor = parseFloat(p.valor) || 0;
+        totais[pMes].parcelasReceber += valor;
+        /* Se a venda foi realizada num mês diferente do recebimento → carry-over */
+        var saleMesStr = r.criadoEm ? r.criadoEm.slice(0, 7) : null;
+        if (saleMesStr) {
+          var sParts = saleMesStr.split('-');
+          var sAno = parseInt(sParts[0], 10);
+          var sMes = parseInt(sParts[1], 10);
+          if (sAno !== pAno || sMes !== pMes) {
+            totais[pMes].parcelasDeAnteriores += valor;
+          }
+        }
       }
     });
   });
@@ -7548,21 +7573,24 @@ function atualizarVendasAnuais() {
   for (var m = 1; m <= 12; m++) { if (totais[m].captacao > 0) { temCaptacao = true; break; } }
   var temParcelas = false;
   for (var m = 1; m <= 12; m++) { if (totais[m].parcelasReceber > 0) { temParcelas = true; break; } }
+  var temAnterior = false;
+  for (var m = 1; m <= 12; m++) { if (totais[m].parcelasDeAnteriores > 0) { temAnterior = true; break; } }
 
   /* máximo de venda mensal → barra de desempenho relativa */
   var maxVenda = 0;
   for (var m = 1; m <= 12; m++) { if (totais[m].venda > maxVenda) maxVenda = totais[m].venda; }
 
   /* totais anuais */
-  var totAno = { reservas: 0, noites: 0, venda: 0, comissao: 0, captacao: 0, lucro: 0, comissaoVenda: 0 };
+  var totAno = { reservas: 0, noites: 0, venda: 0, comissao: 0, captacao: 0, lucro: 0, comissaoVenda: 0, parcelasDeAnteriores: 0 };
   for (var m = 1; m <= 12; m++) {
-    totAno.reservas      += totais[m].reservas;
-    totAno.noites        += totais[m].noites;
-    totAno.venda         += totais[m].venda;
-    totAno.comissao      += totais[m].comissao;
-    totAno.captacao      += totais[m].captacao;
-    totAno.lucro         += totais[m].lucro;
-    totAno.comissaoVenda += totais[m].comissaoVenda;
+    totAno.reservas             += totais[m].reservas;
+    totAno.noites               += totais[m].noites;
+    totAno.venda                += totais[m].venda;
+    totAno.comissao             += totais[m].comissao;
+    totAno.captacao             += totais[m].captacao;
+    totAno.lucro                += totais[m].lucro;
+    totAno.comissaoVenda        += totais[m].comissaoVenda;
+    totAno.parcelasDeAnteriores += totais[m].parcelasDeAnteriores;
   }
 
   var mesAtual = new Date().getMonth() + 1;
@@ -7616,9 +7644,21 @@ function atualizarVendasAnuais() {
       ? '<td>' + (t.captacao > 0 ? formatBRL(t.captacao) : '<span class="va-pct">—</span>') + '</td>' +
         '<td class="' + (t.captacao > 0 ? lucroClass : '') + '">' + (t.captacao > 0 ? formatBRL(t.lucro) : '<span class="va-pct">—</span>') + '</td>'
       : '';
-    var parcelasCell = temParcelas
-      ? '<td class="va-previsao">' + ((t.parcelasReceber || 0) > 0 ? formatBRL(t.parcelasReceber) : '<span class="va-pct">—</span>') + '</td>'
-      : '';
+
+    /* Célula de recebimentos previstos com destaque de carry-over */
+    var parcelasCell = '';
+    if (temParcelas) {
+      var recTotal = t.parcelasReceber || 0;
+      var antPart  = t.parcelasDeAnteriores || 0;
+      var antLabel = (temAnterior && antPart > 0)
+        ? '<span class="va-prev-ant" title="Comissão de vendas realizadas em meses anteriores que está sendo recebida agora">' +
+            '<span class="va-ant-icon">↩</span> ' + formatBRL(antPart) + ' ant.' +
+          '</span>'
+        : '';
+      parcelasCell = recTotal > 0
+        ? '<td style="vertical-align:top;"><div class="va-prev-cell"><span class="va-prev-total">' + formatBRL(recTotal) + '</span>' + antLabel + '</div></td>'
+        : '<td><span class="va-pct">—</span></td>';
+    }
 
     html +=
       '<tr class="' + (atual ? 'va-atual' : '') + (vazio ? ' va-vazio' : '') + '">' +
@@ -7653,8 +7693,18 @@ function atualizarVendasAnuais() {
     ? '<td>' + formatBRL(totAno.captacao / 12) + '</td>' +
       '<td>' + formatBRL(totAno.lucro    / 12) + '</td>'
     : '';
-  var parcelasTotCell = temParcelas ? '<td class="va-previsao">' + formatBRL(totParcelasAno) + '</td>' : '';
-  var parcelasMedCell = temParcelas ? '<td class="va-previsao">' + formatBRL(totParcelasAno / 12) + '</td>' : '';
+
+  var antTotLabel = (temAnterior && totAno.parcelasDeAnteriores > 0)
+    ? '<span class="va-prev-ant" title="Comissão de vendas de meses anteriores recebida ao longo do ano">' +
+        '<span class="va-ant-icon">↩</span> ' + formatBRL(totAno.parcelasDeAnteriores) + ' ant.' +
+      '</span>'
+    : '';
+  var parcelasTotCell = temParcelas
+    ? '<td><div class="va-prev-cell"><span class="va-prev-total">' + formatBRL(totParcelasAno) + '</span>' + antTotLabel + '</div></td>'
+    : '';
+  var parcelasMedCell = temParcelas
+    ? '<td><span class="va-prev-total" style="font-weight:400;">' + formatBRL(totParcelasAno / 12) + '</span></td>'
+    : '';
 
   rodape.innerHTML =
     '<tr>' +
@@ -7694,7 +7744,7 @@ function exportarVendasAnuaisCSV() {
 
   var totais = {};
   for (var m = 1; m <= 12; m++) {
-    totais[m] = { reservas: 0, noites: 0, venda: 0, comissao: 0, captacao: 0, lucro: 0 };
+    totais[m] = { reservas: 0, noites: 0, venda: 0, comissao: 0, captacao: 0, lucro: 0, parcelasReceber: 0, parcelasDeAnteriores: 0 };
   }
   reservas.forEach(function (r) {
     if ((r.status || '').toLowerCase() === 'cancelado') return;
@@ -7713,15 +7763,41 @@ function exportarVendasAnuaisCSV() {
     t.comissao += parseFloat(r.comissao || 0);
     t.captacao += cap;
     t.lucro    += cap > 0 ? venda - cap : 0;
+    /* parcelas carry-over */
+    (r.parcelasComissao || []).forEach(function (p) {
+      if (!p.mes) return;
+      var pp = p.mes.split('-');
+      var pAno = parseInt(pp[0], 10);
+      var pMes = parseInt(pp[1], 10);
+      if (pAno === ano && pMes >= 1 && pMes <= 12) {
+        var valor = parseFloat(p.valor) || 0;
+        totais[pMes].parcelasReceber += valor;
+        var saleMesStr = r.criadoEm ? r.criadoEm.slice(0, 7) : null;
+        if (saleMesStr) {
+          var sp = saleMesStr.split('-');
+          if (parseInt(sp[0], 10) !== pAno || parseInt(sp[1], 10) !== pMes) {
+            totais[pMes].parcelasDeAnteriores += valor;
+          }
+        }
+      }
+    });
   });
 
   var temCaptacao = false;
   for (var m = 1; m <= 12; m++) { if (totais[m].captacao > 0) { temCaptacao = true; break; } }
+  var temParcelas = false;
+  for (var m = 1; m <= 12; m++) { if (totais[m].parcelasReceber > 0) { temParcelas = true; break; } }
+  var temAnteriorCSV = false;
+  for (var m = 1; m <= 12; m++) { if (totais[m].parcelasDeAnteriores > 0) { temAnteriorCSV = true; break; } }
 
   var agrupLabel = _agrupVendas === 'criado' ? 'Por Cadastro' : 'Por Check-in';
   var cols = ['Mês', 'Reservas', 'Noites', 'Venda Total (R$)', '% do Ano'];
   if (temCaptacao) cols.push('Captação (R$)', 'Lucro (R$)');
   cols.push('Comissão (R$)');
+  if (temParcelas) {
+    cols.push('Rec. Previsto (R$)');
+    if (temAnteriorCSV) cols.push('  — de meses ant. (R$)');
+  }
 
   var totalVenda = 0;
   for (var m = 1; m <= 12; m++) totalVenda += totais[m].venda;
@@ -7734,6 +7810,10 @@ function exportarVendasAnuaisCSV() {
     var row = [_NOMES_MESES[i - 1], t.reservas, t.noites, fmtN(t.venda), pct + '%'];
     if (temCaptacao) row.push(fmtN(t.captacao), fmtN(t.lucro));
     row.push(fmtN(t.comissao));
+    if (temParcelas) {
+      row.push(fmtN(t.parcelasReceber));
+      if (temAnteriorCSV) row.push(fmtN(t.parcelasDeAnteriores));
+    }
     linhas.push(row.join(';'));
   }
 
