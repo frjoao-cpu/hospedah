@@ -18,8 +18,8 @@ GRANT USAGE ON SCHEMA cron TO postgres;
 -- 1. LEMBRETE DE CHECK-IN — todo dia às 12:00 UTC (09:00 BRT)
 --    Chama a Edge Function lembrete-checkin
 --
--- IMPORTANTE: Substitua '<SERVICE_ROLE_KEY>' pela Service Role Key
--- do seu projeto Supabase antes de executar.
+-- Pré-requisito: configure a Service Role Key via:
+--   ALTER DATABASE postgres SET app.service_role_key = '<sua_key>';
 -- Encontre em: Dashboard → Settings → API → service_role key
 -- ============================================================
 SELECT cron.unschedule('lembrete-checkin-diario')
@@ -31,7 +31,10 @@ SELECT cron.schedule(
     $$
     SELECT net.http_post(
         url     := 'https://ydrmjoppjxtmnwtvtinb.supabase.co/functions/v1/lembrete-checkin',
-        headers := '{"Content-Type":"application/json","Authorization":"Bearer <SERVICE_ROLE_KEY>"}'::jsonb,
+        headers := jsonb_build_object(
+            'Content-Type',  'application/json',
+            'Authorization', 'Bearer ' || current_setting('app.service_role_key', true)
+        ),
         body    := '{}'::jsonb
     );
     $$
@@ -316,7 +319,7 @@ SELECT cron.schedule(
     url     := current_setting('app.supabase_url') || '/functions/v1/nurturing-email',
     headers := jsonb_build_object(
       'Content-Type',  'application/json',
-      'Authorization', 'Bearer ' || current_setting('app.anon_key')
+      'Authorization', 'Bearer ' || current_setting('app.service_role_key', true)
     ),
     body    := '{}'::jsonb
   );
