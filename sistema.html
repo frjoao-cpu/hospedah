@@ -505,6 +505,40 @@ body {
 }
 .prop-alert-icon { font-size: 1.4em; flex-shrink: 0; }
 
+/* ALERTAS DE PAGAMENTO — CAPTAÇÕES CONFIRMADAS */
+.cap-alerta-grupo { margin-bottom: 18px; }
+.cap-alerta-grupo-titulo {
+  font-size: 0.78em; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;
+  color: var(--cor-sub); margin-bottom: 8px; display: flex; align-items: center; gap: 8px;
+}
+.cap-alerta-badge {
+  background: var(--vermelho, #e74c3c); color: #fff; border-radius: 20px;
+  padding: 1px 8px; font-size: 0.85em; font-weight: 700;
+}
+.cap-alerta-badge-venc {
+  background: rgba(231,76,60,0.15); color: var(--vermelho,#e74c3c);
+  border: 1px solid rgba(231,76,60,0.35); border-radius: 12px;
+  padding: 2px 10px; font-size: 0.8em; font-weight: 600; white-space: nowrap;
+}
+.cap-alerta-item {
+  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+  padding: 12px 14px; border-radius: 10px; margin-bottom: 7px;
+  border: 1px solid transparent; transition: background 0.18s;
+}
+.cap-alerta-item.vencida  { background: rgba(231,76,60,0.09);  border-color: rgba(231,76,60,0.30); }
+.cap-alerta-item.hoje     { background: rgba(231,149,36,0.10); border-color: rgba(231,149,36,0.35); }
+.cap-alerta-item.proxima-7  { background: rgba(241,196,15,0.08); border-color: rgba(241,196,15,0.30); }
+.cap-alerta-item.proxima-30 { background: rgba(212,175,55,0.06); border-color: rgba(212,175,55,0.20); }
+.cap-alerta-item.sem-data   { background: rgba(255,255,255,0.03); border-color: var(--borda); }
+.cap-alerta-item-main  { flex: 1; min-width: 160px; }
+.cap-alerta-prop       { display: block; font-weight: 700; font-size: 0.9em; color: var(--cor-texto); }
+.cap-alerta-owner      { display: block; font-size: 0.78em; color: var(--cor-sub); margin-top: 2px; }
+.cap-alerta-item-meta  { display: flex; flex-direction: column; align-items: flex-end; gap: 3px; min-width: 120px; }
+.cap-alerta-valor      { font-weight: 700; font-size: 0.95em; color: var(--dourado); }
+.cap-alerta-data       { font-size: 0.75em; color: var(--cor-sub); text-align: right; }
+.cap-alerta-data em    { font-style: normal; font-weight: 600; }
+.cap-alerta-item-actions { display: flex; gap: 5px; flex-shrink: 0; }
+
 .calc-section {
   background: var(--bg2);
   border: 1px solid var(--borda);
@@ -2450,6 +2484,7 @@ thead .col-sticky-right {
         🏡 Captação <span class="nav-dropdown-arrow">▾</span>
       </button>
       <div class="nav-dropdown-menu">
+        <a href="#sec-alertas-captacao" onclick="fecharNavDropdown('navCaptacaoDropdown')">🔔 Alertas de Pagamento</a>
         <a href="#captacao-resumo" onclick="fecharNavDropdown('navCaptacaoDropdown')">🏡 Captações — Resumo</a>
         <a href="#captacao"        onclick="fecharNavDropdown('navCaptacaoDropdown')">➕ Nova Captação</a>
         <a href="#captacoes"       onclick="fecharNavDropdown('navCaptacaoDropdown')">🏡 Captações Cadastradas</a>
@@ -3476,6 +3511,23 @@ thead .col-sticky-right {
   <!-- ==========================================
        CAPTAÇÃO — RESUMO
   =========================================== -->
+  <!-- ==========================================
+       ALERTAS DE PAGAMENTO — CAPTAÇÕES CONFIRMADAS
+  =========================================== -->
+  <section id="sec-alertas-captacao" class="calc-section" style="border-color:rgba(212,175,55,0.40);">
+    <div class="section-title" style="align-items:center;flex-wrap:wrap;gap:10px;">
+      🔔 Alertas de Pagamento — Captações Confirmadas
+      <span id="alertas-captacao-badge" style="display:none;background:var(--vermelho,#e74c3c);color:#fff;border-radius:20px;padding:1px 10px;font-size:0.78em;font-weight:700;"></span>
+      <span id="alertas-captacao-badge-venc" class="cap-alerta-badge-venc" style="display:none;"></span>
+      <span style="margin-left:auto;">
+        <button class="btn btn-secondary btn-sm" onclick="renderAlertasPagamentoCaptacao()" title="Atualizar alertas">🔄 Atualizar</button>
+      </span>
+    </div>
+    <div id="alertas-captacao-container">
+      <p style="color:var(--cor-sub);font-size:0.85em;">Carregando alertas...</p>
+    </div>
+  </section>
+
   <section id="captacao-resumo">
     <div class="section-title">🏡 Captações — Resumo</div>
     <div class="dashboard-grid" id="adminDashGrid">
@@ -9283,11 +9335,186 @@ function atualizarDashboardCaptacao() {
       if (icon) icon.textContent = '⚠️';
     }
   }
+  renderAlertasPagamentoCaptacao();
 }
 
 /* ==========================================
-   CAPTAÇÃO — EXPORTAR CSV
+   CAPTAÇÃO — ALERTAS DE PAGAMENTO
 ========================================== */
+function renderAlertasPagamentoCaptacao() {
+  var container = document.getElementById('alertas-captacao-container');
+  if (!container) return;
+
+  var hoje    = new Date(); hoje.setHours(0, 0, 0, 0);
+  var alertas = [];
+
+  (captacoes || []).forEach(function (c) {
+    if (c.statusReserva !== 'sim') return;
+
+    var parcelas = Array.isArray(c.parcelasCapPag) ? c.parcelasCapPag : [];
+
+    if (parcelas.length > 0) {
+      parcelas.forEach(function (p, idx) {
+        if ((p.status || 'pendente') === 'pago') return;
+        var valor = (p.valor || 0) - (p.recebido || 0);
+        if (valor <= 0) return;
+
+        var dataVenc = null;
+        if (p.mes) {
+          var dia = p.dia ? String(p.dia).padStart(2, '0') : '01';
+          dataVenc = new Date(p.mes + '-' + dia + 'T00:00:00');
+        }
+
+        var diasDiff = dataVenc ? Math.round((dataVenc - hoje) / 86400000) : null;
+        var tipo;
+        if (diasDiff === null)   { tipo = 'sem-data'; }
+        else if (diasDiff < 0)   { tipo = 'vencida'; }
+        else if (diasDiff === 0) { tipo = 'hoje'; }
+        else if (diasDiff <= 7)  { tipo = 'proxima-7'; }
+        else if (diasDiff <= 30) { tipo = 'proxima-30'; }
+        else { return; }
+
+        alertas.push({ cap: c, parcelaIdx: idx, valor: valor, dataVenc: dataVenc, diasDiff: diasDiff, tipo: tipo });
+      });
+    } else {
+      if ((c.valorAberto || 0) <= 0) return;
+      var dataVencFallback = c.dataPag ? new Date(c.dataPag + 'T00:00:00') : null;
+      var diasDiffFallback = dataVencFallback ? Math.round((dataVencFallback - hoje) / 86400000) : null;
+      var tipoFallback;
+      if (diasDiffFallback === null)   { tipoFallback = 'sem-data'; }
+      else if (diasDiffFallback < 0)   { tipoFallback = 'vencida'; }
+      else if (diasDiffFallback === 0) { tipoFallback = 'hoje'; }
+      else if (diasDiffFallback <= 7)  { tipoFallback = 'proxima-7'; }
+      else if (diasDiffFallback <= 30) { tipoFallback = 'proxima-30'; }
+      else { return; }
+
+      alertas.push({ cap: c, parcelaIdx: null, valor: c.valorAberto, dataVenc: dataVencFallback, diasDiff: diasDiffFallback, tipo: tipoFallback });
+    }
+  });
+
+  /* Update header badges */
+  var totalVencidas = alertas.filter(function (a) { return a.tipo === 'vencida'; }).length;
+  var badge = document.getElementById('alertas-captacao-badge');
+  if (badge) {
+    badge.textContent = alertas.length;
+    badge.style.display = alertas.length ? '' : 'none';
+  }
+  var badgeVenc = document.getElementById('alertas-captacao-badge-venc');
+  if (badgeVenc) {
+    badgeVenc.textContent = totalVencidas > 0 ? totalVencidas + (totalVencidas === 1 ? ' vencida' : ' vencidas') : '';
+    badgeVenc.style.display = totalVencidas > 0 ? '' : 'none';
+  }
+
+  if (!alertas.length) {
+    container.innerHTML = '<div style="color:var(--verde);font-size:0.88em;padding:10px 0;">✅ Nenhum pagamento pendente nos próximos 30 dias para captações confirmadas.</div>';
+    return;
+  }
+
+  /* Sort by date ascending (overdue first) */
+  alertas.sort(function (a, b) {
+    var da = a.dataVenc ? a.dataVenc.getTime() : 9999999999999;
+    var db = b.dataVenc ? b.dataVenc.getTime() : 9999999999999;
+    return da - db;
+  });
+
+  var ORDEM   = ['vencida', 'hoje', 'proxima-7', 'proxima-30', 'sem-data'];
+  var TITULOS = {
+    'vencida':    '🔴 Pagamentos Vencidos',
+    'hoje':       '🟠 Vence Hoje',
+    'proxima-7':  '🟡 Próximos 7 Dias',
+    'proxima-30': '📅 Próximos 30 Dias',
+    'sem-data':   '⚪ Sem Data Definida'
+  };
+
+  var grupos = {};
+  alertas.forEach(function (a) {
+    if (!grupos[a.tipo]) grupos[a.tipo] = [];
+    grupos[a.tipo].push(a);
+  });
+
+  var formaLabel = { pix: '⚡ Pix', cartao: '💳 Cartão', boleto: '📄 Boleto', transferencia: '🏦 Transf.', dinheiro: '💵 Dinheiro' };
+  var html = '';
+
+  ORDEM.forEach(function (tipo) {
+    if (!grupos[tipo] || !grupos[tipo].length) return;
+    html += '<div class="cap-alerta-grupo">';
+    html += '<div class="cap-alerta-grupo-titulo">' + TITULOS[tipo] +
+      ' <span class="cap-alerta-badge">' + grupos[tipo].length + '</span></div>';
+
+    grupos[tipo].forEach(function (a) {
+      var c        = a.cap;
+      var dataStr  = a.dataVenc ? a.dataVenc.toLocaleDateString('pt-BR') : '—';
+      var diasTxt  = '';
+      if (a.diasDiff !== null) {
+        if (a.diasDiff < 0)      diasTxt = Math.abs(a.diasDiff) + 'd em atraso';
+        else if (a.diasDiff === 0) diasTxt = 'hoje';
+        else                     diasTxt = 'em ' + a.diasDiff + 'd';
+      }
+      var parcInfo = a.parcelaIdx !== null ? ' · Parcela ' + (a.parcelaIdx + 1) : '';
+      var formaStr = (c.formaPag ? (formaLabel[c.formaPag] || c.formaPag) : '');
+      var telLink  = c.telefone
+        ? '<a href="https://wa.me/55' + c.telefone.replace(/\D/g,'') + '" target="_blank" style="color:var(--verde);">📱</a>'
+        : '';
+      var pagarBtn = a.parcelaIdx !== null
+        ? '<button class="btn btn-success btn-sm" onclick="marcarParcelaCapPaga(\'' + escapeHtml(c.id) + '\',' + a.parcelaIdx + ')" title="Marcar parcela como paga">✅ Pago</button>'
+        : '<button class="btn btn-success btn-sm" onclick="marcarCaptacaoQuitada(\'' + escapeHtml(c.id) + '\')" title="Marcar captação como quitada">✅ Quitar</button>';
+
+      html += '<div class="cap-alerta-item ' + tipo + '">' +
+        '<div class="cap-alerta-item-main">' +
+          '<span class="cap-alerta-prop">' + escapeHtml(c.nome) + '</span>' +
+          '<span class="cap-alerta-owner">👤 ' + escapeHtml(c.proprietario) + escapeHtml(parcInfo) +
+            (formaStr ? ' · ' + formaStr : '') + '</span>' +
+        '</div>' +
+        '<div class="cap-alerta-item-meta">' +
+          '<span class="cap-alerta-valor">' + formatBRL(a.valor) + '</span>' +
+          '<span class="cap-alerta-data">📅 ' + dataStr + (diasTxt ? ' · <em>' + diasTxt + '</em>' : '') + '</span>' +
+        '</div>' +
+        '<div class="cap-alerta-item-actions">' + pagarBtn + ' ' + telLink + '</div>' +
+        '</div>';
+    });
+
+    html += '</div>';
+  });
+
+  container.innerHTML = html;
+}
+
+/* Marca uma parcela de captação como paga e recalcula valores */
+function marcarParcelaCapPaga(capId, parcelaIdx) {
+  var c = captacoes.find(function (x) { return x.id === capId; });
+  if (!c || !Array.isArray(c.parcelasCapPag) || !c.parcelasCapPag[parcelaIdx]) return;
+  var p = c.parcelasCapPag[parcelaIdx];
+  p.status   = 'pago';
+  p.recebido = p.valor;
+  _recalcularValoresCaptacao(c);
+  salvarCaptacoes(captacoes);
+  renderTabelaCaptacao();
+  atualizarDashboardCaptacao();
+  registrarAuditoria('Parcela captação paga', c.proprietario + ' • ' + c.nome + ' · parcela ' + (parcelaIdx + 1));
+  mostrarToast('✅ Parcela marcada como paga!', 'success');
+}
+
+/* Marca captação sem parcelas como quitada */
+function marcarCaptacaoQuitada(capId) {
+  var c = captacoes.find(function (x) { return x.id === capId; });
+  if (!c) return;
+  c.valorPago   = c.valorPeriodo;
+  c.valorAberto = 0;
+  salvarCaptacoes(captacoes);
+  renderTabelaCaptacao();
+  atualizarDashboardCaptacao();
+  registrarAuditoria('Captação quitada', c.proprietario + ' • ' + c.nome);
+  mostrarToast('✅ Captação marcada como quitada!', 'success');
+}
+
+/* Recalcula valorPago e valorAberto a partir das parcelas */
+function _recalcularValoresCaptacao(c) {
+  if (!Array.isArray(c.parcelasCapPag) || !c.parcelasCapPag.length) return;
+  var totalRecebido = (c.entradaCapPag || 0) +
+    c.parcelasCapPag.reduce(function (s, p) { return s + (p.recebido || 0); }, 0);
+  c.valorPago   = parseFloat(Math.min(totalRecebido, c.valorPeriodo).toFixed(2));
+  c.valorAberto = parseFloat(Math.max(0, c.valorPeriodo - c.valorPago).toFixed(2));
+}
 function exportarCSVCaptacao() {
   if (!captacoes.length) { mostrarToast('Nenhuma captação para exportar.', 'error'); return; }
 
