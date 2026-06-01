@@ -2526,7 +2526,9 @@ thead .col-sticky-right {
   <section id="dashboard">
     <div class="section-title">
       📊 Resumo Geral
-      <span style="margin-left:auto;">
+      <span id="dash-sync-time" style="font-size:0.65em;font-weight:400;color:var(--cor-sub);margin-left:10px;letter-spacing:0;"></span>
+      <span style="margin-left:auto;display:flex;gap:6px;align-items:center;">
+        <button class="btn btn-secondary btn-sm" onclick="atualizarDashboard()" title="Atualizar resumo agora" style="font-size:0.75em;">🔄</button>
         <button class="btn btn-secondary btn-sm" id="dashboardToggleBtn" onclick="toggleDashboard()" title="Minimizar/Expandir seção">▼ Minimizar</button>
       </span>
     </div>
@@ -7159,6 +7161,13 @@ function atualizarDashboard() {
   _atualizarScoreFinanceiro(saldoCaixa, comissao, pendente, vencidas, pct);
   verificarSaldoBaixoCaixa(saldoCaixa);
 
+  /* ── Timestamp de última atualização ── */
+  var syncEl = document.getElementById('dash-sync-time');
+  if (syncEl) {
+    var agora = new Date();
+    syncEl.textContent = '📡 ' + agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  }
+
 }
 
 /* ==========================================
@@ -9810,6 +9819,7 @@ async function inicializarSistema() {
     reservas = carregarReservas();
     captacoes = carregarCaptacoes();
     cobrancas = carregarCobrancas();
+    caixaLancamentos = carregarListaStorage(CAIXA_KEY);   /* carregado antes do primeiro atualizarDashboard() */
     automacoes = carregarListaStorage(AUTO_KEY);
     onboardingFluxos = carregarListaStorage(ONB_KEY);
     manutencoes = carregarListaStorage(MAINT_KEY);
@@ -9834,7 +9844,6 @@ async function inicializarSistema() {
     atualizarDashCobrancas();
     verificarCobrancasVencidas();
     verificarRepassesAtrasados();
-    caixaLancamentos = carregarListaStorage(CAIXA_KEY);
     renderTabelaCaixa();
     atualizarDashCaixa();
     renderFluxoCaixa();
@@ -9846,6 +9855,8 @@ async function inicializarSistema() {
     document.getElementById('inputMeta').value = metaSalva;
     sincronizarAutomacoes(true);
     carregarAiConfig();
+    /* Atualização final do Resumo Geral após todos os dados estarem carregados */
+    atualizarDashboard();
   });
 }
 
