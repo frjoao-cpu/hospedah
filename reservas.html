@@ -1731,14 +1731,35 @@ function _checkDadosForWizard() {
 // RASTREIO DE VISITAS — contador simples de acessos
 // ============================================================
 // Registra uma visita na tabela visitas_site do Supabase (uma por sessão).
+// Visitas de usuários com role 'admin' ou 'proprietario' são ignoradas para
+// não distorcer as métricas reais de acesso ao site.
 // Consulte os dados no painel do Supabase:
 //   SELECT pagina, COUNT(*) AS visitas FROM visitas_site GROUP BY pagina ORDER BY visitas DESC;
 (function registrarVisita() {
   var key = 'hospedah_visited_reservas';
   if (sessionStorage.getItem(key)) return; // já registrado nesta sessão
   try {
-    sb.from('visitas_site').insert([{ pagina: 'reservas' }]).then(function() {
-      sessionStorage.setItem(key, '1');
+    sb.auth.getSession().then(function(res) {
+      var uid = res && res.data && res.data.session && res.data.session.user && res.data.session.user.id;
+      if (!uid) {
+        // Visitante não autenticado — registrar visita normalmente
+        return sb.from('visitas_site').insert([{ pagina: 'reservas' }]).then(function() {
+          sessionStorage.setItem(key, '1');
+        }).catch(function(){});
+      }
+      // Verificar se é admin ou proprietário para não contabilizar seus próprios acessos
+      return sb.from('profiles').select('role').eq('id', uid).maybeSingle().then(function(profileRes) {
+        var role = profileRes && profileRes.data && profileRes.data.role;
+        if (role === 'admin' || role === 'proprietario') return; // não contabilizar visita do proprietário
+        return sb.from('visitas_site').insert([{ pagina: 'reservas' }]).then(function() {
+          sessionStorage.setItem(key, '1');
+        }).catch(function(){});
+      }).catch(function() {
+        // Em caso de erro ao verificar role, registrar visita normalmente
+        sb.from('visitas_site').insert([{ pagina: 'reservas' }]).then(function() {
+          sessionStorage.setItem(key, '1');
+        }).catch(function(){});
+      });
     }).catch(function(){});
   } catch (_) {}
 })();
