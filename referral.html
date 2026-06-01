@@ -549,26 +549,10 @@ function gerarLink() {
 
 /* ── Sincronizar registro de fidelidade ── */
 function sincronizarFidelidade(identifier) {
-  sb.from('fidelidade')
-    .select('pontos, nivel, total_estadias, ref_code')
-    .eq('email_hospede', identifier)
-    .maybeSingle()
-    .then(function (res) {
-      if (!res.data) {
-        sb.from('fidelidade').insert([{
-          email_hospede: identifier,
-          pontos: 0,
-          nivel: 'bronze',
-          total_estadias: 0,
-          ref_code: _refCode,
-          ultima_atividade: new Date().toISOString()
-        }]).catch(function () {});
-      } else if (!res.data.ref_code) {
-        sb.from('fidelidade').update({ ref_code: _refCode })
-          .eq('email_hospede', identifier).catch(function () {});
-      }
-    })
-    .catch(function () {});
+  sb.rpc('registrar_ref_code_fidelidade', {
+    p_email_hospede: identifier,
+    p_ref_code:      _refCode
+  }).catch(function () {});
 }
 
 /* ── Carregar estatísticas ── */

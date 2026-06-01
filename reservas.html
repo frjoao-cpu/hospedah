@@ -1505,15 +1505,13 @@ async function registrarPontosLoyalty(email, noites) {
   if (!email || noites <= 0) return null;
   const pontosGanhos = noites * 10;
   try {
-    const { data: existing } = await sb.from('fidelidade').select('*').eq('email_hospede', email).maybeSingle();
-    if (existing) {
-      const novosPontos  = (existing.pontos || 0) + pontosGanhos;
-      const novasEstadias = (existing.total_estadias || 0) + 1;
-      const nivel = novasEstadias >= 3 ? 'ouro' : novasEstadias >= 2 ? 'prata' : 'bronze';
-      await sb.from('fidelidade').update({ pontos: novosPontos, total_estadias: novasEstadias, nivel, atualizado_em: new Date().toISOString() }).eq('email_hospede', email);
-      return { pontos: novosPontos, pontosGanhos, nivel };
-    }
-    await sb.from('fidelidade').insert([{ email_hospede: email, pontos: pontosGanhos, total_estadias: 1, nivel: 'bronze' }]);
+    await sb.rpc('creditar_pontos_fidelidade', {
+      p_email_hospede: email,
+      p_pontos:        pontosGanhos,
+      p_estadias_inc:  1
+    });
+    const { data } = await sb.from('fidelidade').select('pontos, nivel').eq('email_hospede', email).maybeSingle();
+    if (data) return { pontos: data.pontos, pontosGanhos, nivel: data.nivel };
     return { pontos: pontosGanhos, pontosGanhos, nivel: 'bronze' };
   } catch (_) { return null; }
 }

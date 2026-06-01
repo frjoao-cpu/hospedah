@@ -63,19 +63,9 @@
     document.head.appendChild(script);
   }
 
-  function initBackgroundSync() {
-    if (!('serviceWorker' in navigator) || !('SyncManager' in window)) return;
-    window.addEventListener('online', function () {
-      navigator.serviceWorker.ready.then(function (registration) {
-        return registration.sync.register('hospedah-sync');
-      }).catch(function () {});
-    });
-  }
-
   registerServiceWorker();
   document.addEventListener('DOMContentLoaded', function () {
     initInstallBanner();
     initConditionalOneSignal();
-    initBackgroundSync();
   });
 })();
