@@ -3281,8 +3281,8 @@ thead .col-sticky-right {
       📊 Resultados de Vendas por Ano
       <span style="margin-left:auto;display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
         <div class="va-agrup-toggle">
-          <button class="va-agrup-btn active" id="vaAgrupEntrada" onclick="setAgrupVendas('entrada')">Por check-in</button>
-          <button class="va-agrup-btn" id="vaAgrupCriado" onclick="setAgrupVendas('criado')">Por cadastro</button>
+          <button class="va-agrup-btn" id="vaAgrupEntrada" onclick="setAgrupVendas('entrada')">Por check-in</button>
+          <button class="va-agrup-btn active" id="vaAgrupCriado" onclick="setAgrupVendas('criado')">Por cadastro</button>
         </div>
         <button class="btn btn-secondary btn-sm" onclick="mudarAnoVendas(-1)">◀</button>
         <span id="vendas-ano-label" style="font-size:1.1em;font-weight:700;color:var(--dourado);min-width:52px;text-align:center;">2026</span>
@@ -7086,7 +7086,7 @@ function atualizarDashboard() {
       var carryOver = 0;
       (typeof reservas !== 'undefined' ? reservas : []).forEach(function (r) {
         if ((r.status || '').toLowerCase() === 'cancelado') return;
-        var saleMes = r.criadoEm ? r.criadoEm.slice(0, 7) : null;
+        var saleMes = (r.dataCaptacao || r.criadoEm) ? (r.dataCaptacao || r.criadoEm).slice(0, 7) : null;
         if (!saleMes || saleMes >= mesAtualKey) return;
         (r.parcelasComissao || []).forEach(function (p) {
           if (p.mes === mesAtualKey) carryOver += parseFloat(p.valor) || 0;
@@ -7117,8 +7117,9 @@ function atualizarDashboard() {
     var mesAtual = _mesKey(new Date());
     metaBase = 0;
     lista.forEach(function(r) {
+      var dtVenda = r.dataCaptacao || r.criadoEm || r.entrada;
       if ((r.status || '').toLowerCase() !== 'cancelado' &&
-          r.entrada && r.entrada.slice(0, 7) === mesAtual) {
+          dtVenda && dtVenda.slice(0, 7) === mesAtual) {
         metaBase += parseFloat(r.total || 0);
       }
     });
@@ -7665,7 +7666,7 @@ document.addEventListener('click', function (e) {
    RESULTADOS DE VENDAS POR ANO (UNIFICADO)
 ========================================== */
 var _anoVendasAtual = new Date().getFullYear();
-var _agrupVendas    = 'entrada'; /* 'entrada' = por check-in | 'criado' = por cadastro */
+var _agrupVendas    = 'criado'; /* 'entrada' = por check-in | 'criado' = por cadastro/captação */
 
 var _NOMES_MESES = [
   'Janeiro','Fevereiro','Março','Abril','Maio','Junho',
@@ -8136,7 +8137,8 @@ function renderGraficoReceita() {
     labels.push(d.toLocaleDateString('pt-BR', { month: 'short', year: '2-digit' }));
     var rec = 0, com = 0;
     reservas.forEach(function (r) {
-      if ((r.status || '').toLowerCase() !== 'cancelado' && r.entrada && r.entrada.slice(0, 7) === key) {
+      var dtVenda = r.dataCaptacao || r.criadoEm || r.entrada;
+      if ((r.status || '').toLowerCase() !== 'cancelado' && dtVenda && dtVenda.slice(0, 7) === key) {
         rec += parseFloat(r.total    || 0);
         com += parseFloat(r.comissao || 0);
       }
@@ -8253,7 +8255,8 @@ function renderGraficoLucro12() {
     labels.push(d.toLocaleDateString('pt-BR', { month: 'short', year: '2-digit' }));
     var rec = 0, cap = 0;
     reservas.forEach(function (r) {
-      if ((r.status || '').toLowerCase() !== 'cancelado' && r.entrada && r.entrada.slice(0, 7) === key) {
+      var dtVenda = r.dataCaptacao || r.criadoEm || r.entrada;
+      if ((r.status || '').toLowerCase() !== 'cancelado' && dtVenda && dtVenda.slice(0, 7) === key) {
         rec += parseFloat(r.total || 0);
         cap += parseFloat(r.valorCaptacao || 0);
       }
@@ -8465,7 +8468,8 @@ function gerarInsightsIA() {
     var mes = d.toLocaleDateString('pt-BR', { month: 'short', year: '2-digit' });
     var rec = 0, cap = 0;
     reservas.forEach(function (r) {
-      if ((r.status || '').toLowerCase() !== 'cancelado' && r.entrada && r.entrada.slice(0, 7) === key) {
+      var dtVenda = r.dataCaptacao || r.criadoEm || r.entrada;
+      if ((r.status || '').toLowerCase() !== 'cancelado' && dtVenda && dtVenda.slice(0, 7) === key) {
         rec += parseFloat(r.total || 0);
         cap += parseFloat(r.valorCaptacao || 0);
       }
@@ -11303,8 +11307,8 @@ function _getFilteredReservas(period) {
   var ate = intervalo.ate;
 
   return todas.filter(function(r) {
-    /* Usa o campo `entrada` como referência canônica; aceita formatos ISO e DD/MM/YYYY */
-    var ts = _parseDateField(r.entrada || '');
+    /* Usa dataCaptacao como referência canônica (data da venda); fallback criadoEm e entrada */
+    var ts = _parseDateField(r.dataCaptacao || r.criadoEm || r.entrada || '');
     if (!ts || isNaN(ts.getTime())) return false;
     if (de  && ts < de)  return false;
     if (ate && ts > ate) return false;
