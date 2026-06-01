@@ -3644,6 +3644,56 @@ thead .col-sticky-right {
         <label>Observações</label>
         <input type="text" id="cap_obs" placeholder="Notas adicionais sobre a captação ou propriedade">
       </div>
+
+      <!-- ============================================================
+           PREVISÃO DE PAGAMENTO DAS PARCELAS FUTURAS (CAPTAÇÃO)
+           ============================================================ -->
+      <div class="field-group" style="grid-column: span 2;">
+        <div class="form-section" style="margin-top:4px;">
+          <h4 style="color:var(--dourado);margin-bottom:10px;">
+            📅 Previsão de pagamento das parcelas
+          </h4>
+
+          <!-- Container dinâmico onde as parcelas são renderizadas -->
+          <div id="capPagParcelasContainer">
+            <!-- parcelas injetadas via JS -->
+          </div>
+
+          <!-- Linha de entrada em dinheiro (pagamento à vista) -->
+          <div id="capEntradaDinheiroRow" style="display:flex;align-items:center;gap:10px;margin-top:8px;padding:10px 14px;background:rgba(212,175,55,0.07);border:1px solid rgba(212,175,55,0.25);border-radius:8px;flex-wrap:wrap;">
+            <span style="font-size:1.1em;">💵</span>
+            <label for="capEntradaDinheiro" style="flex:0 0 auto;color:var(--cor-sub);font-size:0.85em;white-space:nowrap;">
+              Entrada em dinheiro (à vista):
+            </label>
+            <input
+              type="number"
+              id="capEntradaDinheiro"
+              min="0"
+              step="0.01"
+              placeholder="R$ 0,00"
+              oninput="recalcularSaldoCapPag()"
+              style="flex:1;min-width:130px;background:rgba(255,255,255,0.05);border:1px solid var(--borda);border-radius:6px;padding:8px 11px;color:var(--cor-texto);font-size:0.9em;"
+            >
+            <span style="font-size:0.78em;color:var(--cor-sub);white-space:nowrap;" id="capEntradaDinheiroLabel"></span>
+          </div>
+
+          <!-- Saldo restante a parcelar -->
+          <div id="capSaldoPagRow" style="margin-top:8px;font-size:0.82em;color:var(--cor-sub);text-align:right;">
+            Saldo a parcelar: <strong id="capSaldoPagValor">R$ 0,00</strong>
+          </div>
+
+          <!-- Botão adicionar parcela -->
+          <button
+            type="button"
+            onclick="adicionarParcelaCapPag()"
+            style="margin-top:10px;display:flex;align-items:center;gap:6px;background:rgba(212,175,55,0.10);border:1px dashed rgba(212,175,55,0.4);border-radius:8px;color:var(--dourado);padding:8px 16px;cursor:pointer;font-size:0.85em;font-weight:600;width:100%;justify-content:center;transition:background 0.2s;"
+            onmouseover="this.style.background='rgba(212,175,55,0.18)'"
+            onmouseout="this.style.background='rgba(212,175,55,0.10)'"
+          >
+            ＋ Adicionar parcela
+          </button>
+        </div>
+      </div>
     </div>
 
     <div class="btn-row">
@@ -4430,6 +4480,44 @@ thead .col-sticky-right {
       <div class="field-group" style="grid-column: span 2;">
         <label>Observações</label>
         <input type="text" id="editCap_obs">
+      </div>
+
+      <!-- Previsão de pagamento das parcelas (edição) -->
+      <div class="field-group" style="grid-column: span 2;">
+        <div class="form-section" style="margin-top:4px;">
+          <h4 style="color:var(--dourado);margin-bottom:10px;">
+            📅 Previsão de pagamento das parcelas
+          </h4>
+          <div id="editCapPagParcelasContainer"></div>
+          <div id="editCapEntradaDinheiroRow" style="display:flex;align-items:center;gap:10px;margin-top:8px;padding:10px 14px;background:rgba(212,175,55,0.07);border:1px solid rgba(212,175,55,0.25);border-radius:8px;flex-wrap:wrap;">
+            <span style="font-size:1.1em;">💵</span>
+            <label for="editCapEntradaDinheiro" style="flex:0 0 auto;color:var(--cor-sub);font-size:0.85em;white-space:nowrap;">
+              Entrada em dinheiro (à vista):
+            </label>
+            <input
+              type="number"
+              id="editCapEntradaDinheiro"
+              min="0"
+              step="0.01"
+              placeholder="R$ 0,00"
+              oninput="recalcularSaldoEditCapPag()"
+              style="flex:1;min-width:130px;background:rgba(255,255,255,0.05);border:1px solid var(--borda);border-radius:6px;padding:8px 11px;color:var(--cor-texto);font-size:0.9em;"
+            >
+            <span style="font-size:0.78em;color:var(--cor-sub);white-space:nowrap;" id="editCapEntradaDinheiroLabel"></span>
+          </div>
+          <div style="margin-top:8px;font-size:0.82em;color:var(--cor-sub);text-align:right;">
+            Saldo a parcelar: <strong id="editCapSaldoPagValor">R$ 0,00</strong>
+          </div>
+          <button
+            type="button"
+            onclick="adicionarParcelaEditCapPag()"
+            style="margin-top:10px;display:flex;align-items:center;gap:6px;background:rgba(212,175,55,0.10);border:1px dashed rgba(212,175,55,0.4);border-radius:8px;color:var(--dourado);padding:8px 16px;cursor:pointer;font-size:0.85em;font-weight:600;width:100%;justify-content:center;transition:background 0.2s;"
+            onmouseover="this.style.background='rgba(212,175,55,0.18)'"
+            onmouseout="this.style.background='rgba(212,175,55,0.10)'"
+          >
+            ＋ Adicionar parcela
+          </button>
+        </div>
       </div>
     </div>
     <div class="btn-row">
@@ -8713,6 +8801,7 @@ function calcularAbertoCaptacao() {
   var pago      = parseFloat(document.getElementById('cap_valor_pago').value)    || 0;
   document.getElementById('cap_valor_aberto').value =
     statusRes === 'sim' ? Math.max(0, periodo - pago).toFixed(2) : '0.00';
+  if (typeof recalcularSaldoCapPag === 'function') recalcularSaldoCapPag();
 }
 
 function onFormaPagCaptacao() {
@@ -8771,6 +8860,8 @@ function adicionarCaptacao() {
     numParcelas:   numParcelas,
     parcelaAtual:  parcelaAtual,
     statusReserva: statusRes,
+    entradaCapPag: (parseFloat((document.getElementById('capEntradaDinheiro') || {}).value) || 0),
+    parcelasCapPag: _parcelasCapPag.slice(),
     criadoEm:      new Date().toISOString()
   };
 
@@ -8802,6 +8893,7 @@ function limparFormCaptacao() {
   document.getElementById('cap_num_parcelas').value    = '1';
   document.getElementById('cap_parcela_atual').value   = '1';
   document.getElementById('capParcelasWrap').classList.remove('show');
+  if (typeof resetarParcelasCapPag === 'function') resetarParcelasCapPag();
 }
 
 /* ==========================================
@@ -8989,6 +9081,13 @@ function editarCaptacao(id) {
     wrap.classList.remove('show');
   }
 
+  /* Carregar parcelas de pagamento salvas */
+  _parcelasEditCapPag = Array.isArray(c.parcelasCapPag) ? c.parcelasCapPag.slice() : [];
+  var editEntEl = document.getElementById('editCapEntradaDinheiro');
+  if (editEntEl) editEntEl.value = c.entradaCapPag > 0 ? c.entradaCapPag : '';
+  renderizarParcelasEditCapPag();
+  recalcularSaldoEditCapPag();
+
   document.getElementById('editModalCaptacao').classList.add('open');
 }
 
@@ -9013,6 +9112,7 @@ function calcEditAbertoCaptacao() {
   var pago      = parseFloat(document.getElementById('editCap_valor_pago').value)    || 0;
   document.getElementById('editCap_valor_aberto').value =
     statusRes === 'sim' ? Math.max(0, periodo - pago).toFixed(2) : '0.00';
+  if (typeof recalcularSaldoEditCapPag === 'function') recalcularSaldoEditCapPag();
 }
 
 function onEditFormaPagCaptacao() {
@@ -9068,7 +9168,9 @@ function salvarEdicaoCaptacao() {
     formaPag:      formaPag,
     numParcelas:   numParcelas,
     parcelaAtual:  parcelaAtual,
-    statusReserva: statusRes
+    statusReserva: statusRes,
+    entradaCapPag: (parseFloat((document.getElementById('editCapEntradaDinheiro') || {}).value) || 0),
+    parcelasCapPag: _parcelasEditCapPag.slice()
   });
 
   salvarCaptacoes(captacoes);
@@ -11956,6 +12058,187 @@ function resetarParcelasComissao() {
   recalcularSaldoComissao();
 }
 
+/* ==========================================
+   PARCELAS DE PAGAMENTO — CAPTAÇÃO (Nova e Edição)
+   Estado para o formulário Nova Captação
+========================================== */
+var _parcelasCapPag = [];     /* { mes: 'YYYY-MM', dia: Number|null, valor: Number } */
+var _parcelasEditCapPag = []; /* mesma estrutura para o modal de edição */
+
+function _getCapPagTotal() {
+  var v = parseFloat((document.getElementById('cap_valor_aberto') || {}).value || 0);
+  return isNaN(v) ? 0 : v;
+}
+
+function _getCapEntradaDinheiro() {
+  var v = parseFloat((document.getElementById('capEntradaDinheiro') || {}).value || 0);
+  return isNaN(v) ? 0 : v;
+}
+
+function recalcularSaldoCapPag() {
+  var total        = _getCapPagTotal();
+  var entrada      = _getCapEntradaDinheiro();
+  var somaParcelas = _parcelasCapPag.reduce(function(s, p) { return s + (p.valor || 0); }, 0);
+  var saldo        = Math.max(0, +(total - entrada - somaParcelas).toFixed(2));
+
+  var labelEl = document.getElementById('capEntradaDinheiroLabel');
+  var saldoEl = document.getElementById('capSaldoPagValor');
+
+  if (labelEl) {
+    labelEl.textContent = entrada > 0
+      ? 'R$ ' + entrada.toLocaleString('pt-BR', { minimumFractionDigits: 2 }) + ' abatidos'
+      : '';
+  }
+  if (saldoEl) {
+    saldoEl.textContent = 'R$ ' + saldo.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+    saldoEl.style.color = saldo > 0 ? 'var(--dourado)' : 'var(--verde, #25d366)';
+  }
+
+  renderizarParcelasCapPag();
+}
+
+function adicionarParcelaCapPag() {
+  var ultimo = _parcelasCapPag.length > 0 ? _parcelasCapPag[_parcelasCapPag.length - 1] : null;
+  var proxMes;
+  if (ultimo && ultimo.mes) {
+    var d = new Date(ultimo.mes + '-01');
+    d.setMonth(d.getMonth() + 1);
+    proxMes = d.toISOString().slice(0, 7);
+  } else {
+    var hoje = new Date();
+    hoje.setMonth(hoje.getMonth() + 1);
+    proxMes = hoje.toISOString().slice(0, 7);
+  }
+
+  var total  = _getCapPagTotal();
+  var ent    = _getCapEntradaDinheiro();
+  var usado  = _parcelasCapPag.reduce(function(s, p) { return s + (p.valor || 0); }, 0);
+  var saldo  = Math.max(0, +(total - ent - usado).toFixed(2));
+
+  _parcelasCapPag.push({ mes: proxMes, dia: ultimo ? (ultimo.dia || null) : null, valor: saldo });
+  renderizarParcelasCapPag();
+  recalcularSaldoCapPag();
+}
+
+function renderizarParcelasCapPag() {
+  var container = document.getElementById('capPagParcelasContainer');
+  if (!container) return;
+  container.innerHTML = '';
+
+  _parcelasCapPag.forEach(function(parcela, idx) {
+    var row = document.createElement('div');
+    row.style.cssText = 'display:grid;grid-template-columns:18px 54px 1fr 1fr 26px;align-items:center;gap:5px;margin-bottom:4px;padding:5px 8px;background:rgba(255,255,255,0.03);border:1px solid var(--borda);border-radius:6px;';
+    row.innerHTML =
+      '<span style="font-size:0.85em;text-align:center;opacity:0.7;">📅</span>' +
+      '<input type="number" min="1" max="31" placeholder="Dia" title="Dia do mês para pagamento" value="' + (parcela.dia || '') + '"' +
+        ' onchange="_parcelasCapPag[' + idx + '].dia = parseInt(this.value)||null; recalcularSaldoCapPag();"' +
+        ' style="width:100%;padding:4px 5px;background:rgba(255,255,255,0.05);border:1px solid var(--borda);border-radius:5px;color:var(--cor-texto);font-size:0.82em;text-align:center;">' +
+      '<input type="month" value="' + escapeHtml(parcela.mes) + '"' +
+        ' onchange="_parcelasCapPag[' + idx + '].mes = this.value; recalcularSaldoCapPag();"' +
+        ' style="width:100%;padding:4px 6px;background:rgba(255,255,255,0.05);border:1px solid var(--borda);border-radius:5px;color:var(--cor-texto);font-size:0.82em;">' +
+      '<input type="number" min="0" step="0.01" placeholder="R$ 0,00" value="' + (parcela.valor || '') + '"' +
+        ' onchange="_parcelasCapPag[' + idx + '].valor = parseFloat(this.value)||0; recalcularSaldoCapPag();"' +
+        ' style="width:100%;padding:4px 6px;background:rgba(255,255,255,0.05);border:1px solid var(--borda);border-radius:5px;color:var(--cor-texto);font-size:0.82em;">' +
+      '<button type="button"' +
+        ' onclick="_parcelasCapPag.splice(' + idx + ',1); renderizarParcelasCapPag(); recalcularSaldoCapPag();"' +
+        ' style="background:rgba(231,76,60,0.12);border:none;border-radius:4px;color:var(--vermelho);cursor:pointer;font-size:0.8em;padding:3px;width:26px;text-align:center;"' +
+        ' title="Remover parcela">✕</button>';
+    container.appendChild(row);
+  });
+}
+
+function resetarParcelasCapPag() {
+  _parcelasCapPag = [];
+  var entEl = document.getElementById('capEntradaDinheiro');
+  if (entEl) entEl.value = '';
+  renderizarParcelasCapPag();
+  recalcularSaldoCapPag();
+}
+
+/* ── Variante para o modal de edição de captação ── */
+
+function _getEditCapPagTotal() {
+  var v = parseFloat((document.getElementById('editCap_valor_aberto') || {}).value || 0);
+  return isNaN(v) ? 0 : v;
+}
+
+function _getEditCapEntradaDinheiro() {
+  var v = parseFloat((document.getElementById('editCapEntradaDinheiro') || {}).value || 0);
+  return isNaN(v) ? 0 : v;
+}
+
+function recalcularSaldoEditCapPag() {
+  var total        = _getEditCapPagTotal();
+  var entrada      = _getEditCapEntradaDinheiro();
+  var somaParcelas = _parcelasEditCapPag.reduce(function(s, p) { return s + (p.valor || 0); }, 0);
+  var saldo        = Math.max(0, +(total - entrada - somaParcelas).toFixed(2));
+
+  var labelEl = document.getElementById('editCapEntradaDinheiroLabel');
+  var saldoEl = document.getElementById('editCapSaldoPagValor');
+
+  if (labelEl) {
+    labelEl.textContent = entrada > 0
+      ? 'R$ ' + entrada.toLocaleString('pt-BR', { minimumFractionDigits: 2 }) + ' abatidos'
+      : '';
+  }
+  if (saldoEl) {
+    saldoEl.textContent = 'R$ ' + saldo.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+    saldoEl.style.color = saldo > 0 ? 'var(--dourado)' : 'var(--verde, #25d366)';
+  }
+
+  renderizarParcelasEditCapPag();
+}
+
+function adicionarParcelaEditCapPag() {
+  var ultimo = _parcelasEditCapPag.length > 0 ? _parcelasEditCapPag[_parcelasEditCapPag.length - 1] : null;
+  var proxMes;
+  if (ultimo && ultimo.mes) {
+    var d = new Date(ultimo.mes + '-01');
+    d.setMonth(d.getMonth() + 1);
+    proxMes = d.toISOString().slice(0, 7);
+  } else {
+    var hoje = new Date();
+    hoje.setMonth(hoje.getMonth() + 1);
+    proxMes = hoje.toISOString().slice(0, 7);
+  }
+
+  var total  = _getEditCapPagTotal();
+  var ent    = _getEditCapEntradaDinheiro();
+  var usado  = _parcelasEditCapPag.reduce(function(s, p) { return s + (p.valor || 0); }, 0);
+  var saldo  = Math.max(0, +(total - ent - usado).toFixed(2));
+
+  _parcelasEditCapPag.push({ mes: proxMes, dia: ultimo ? (ultimo.dia || null) : null, valor: saldo });
+  renderizarParcelasEditCapPag();
+  recalcularSaldoEditCapPag();
+}
+
+function renderizarParcelasEditCapPag() {
+  var container = document.getElementById('editCapPagParcelasContainer');
+  if (!container) return;
+  container.innerHTML = '';
+
+  _parcelasEditCapPag.forEach(function(parcela, idx) {
+    var row = document.createElement('div');
+    row.style.cssText = 'display:grid;grid-template-columns:18px 54px 1fr 1fr 26px;align-items:center;gap:5px;margin-bottom:4px;padding:5px 8px;background:rgba(255,255,255,0.03);border:1px solid var(--borda);border-radius:6px;';
+    row.innerHTML =
+      '<span style="font-size:0.85em;text-align:center;opacity:0.7;">📅</span>' +
+      '<input type="number" min="1" max="31" placeholder="Dia" title="Dia do mês para pagamento" value="' + (parcela.dia || '') + '"' +
+        ' onchange="_parcelasEditCapPag[' + idx + '].dia = parseInt(this.value)||null; recalcularSaldoEditCapPag();"' +
+        ' style="width:100%;padding:4px 5px;background:rgba(255,255,255,0.05);border:1px solid var(--borda);border-radius:5px;color:var(--cor-texto);font-size:0.82em;text-align:center;">' +
+      '<input type="month" value="' + escapeHtml(parcela.mes) + '"' +
+        ' onchange="_parcelasEditCapPag[' + idx + '].mes = this.value; recalcularSaldoEditCapPag();"' +
+        ' style="width:100%;padding:4px 6px;background:rgba(255,255,255,0.05);border:1px solid var(--borda);border-radius:5px;color:var(--cor-texto);font-size:0.82em;">' +
+      '<input type="number" min="0" step="0.01" placeholder="R$ 0,00" value="' + (parcela.valor || '') + '"' +
+        ' onchange="_parcelasEditCapPag[' + idx + '].valor = parseFloat(this.value)||0; recalcularSaldoEditCapPag();"' +
+        ' style="width:100%;padding:4px 6px;background:rgba(255,255,255,0.05);border:1px solid var(--borda);border-radius:5px;color:var(--cor-texto);font-size:0.82em;">' +
+      '<button type="button"' +
+        ' onclick="_parcelasEditCapPag.splice(' + idx + ',1); renderizarParcelasEditCapPag(); recalcularSaldoEditCapPag();"' +
+        ' style="background:rgba(231,76,60,0.12);border:none;border-radius:4px;color:var(--vermelho);cursor:pointer;font-size:0.8em;padding:3px;width:26px;text-align:center;"' +
+        ' title="Remover parcela">✕</button>';
+    container.appendChild(row);
+  });
+}
+
 /**
  * Salva as parcelas no Supabase após inserir a reserva.
  * Chamar APÓS obter o reservaId retornado pelo INSERT em reservas_hospede.
@@ -12279,6 +12562,11 @@ function verificarSaldoBaixoCaixa(saldoAtual) {
    [0-1] Progresso da meta mensal
    Verde ≥ 4 | Amarelo ≥ 2 | Vermelho < 2 */
 function calcularScoreFinanceiro(saldo, comissaoGerada, comissaoPendente, cobrancasVencidas, metaPct) {
+  /* Sem dados: sistema ainda vazio, não há base para calcular risco */
+  if (saldo === 0 && comissaoGerada === 0 && cobrancasVencidas === 0) {
+    return { score: 0, nivel: 'Sem dados', cor: 'var(--cor-sub)', emoji: '⚪', fatores: ['ℹ️ Nenhum dado financeiro registrado ainda'] };
+  }
+
   var score   = 0;
   var fatores = [];
   var saldoMin = _getSaldoMinimoLocal();
