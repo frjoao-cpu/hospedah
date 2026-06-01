@@ -2762,6 +2762,7 @@ thead .col-sticky-right {
               <option value="Marketing">📢 Marketing</option>
               <option value="Impostos">📋 Impostos</option>
               <option value="Taxas">💳 Taxas</option>
+              <option value="Captação">🏡 Captação</option>
               <option value="Outros">📦 Outros</option>
             </select>
           </div>
@@ -2814,6 +2815,7 @@ thead .col-sticky-right {
           <option value="Marketing">Marketing</option>
           <option value="Impostos">Impostos</option>
           <option value="Taxas">Taxas</option>
+          <option value="Captação">Captação</option>
           <option value="Outros">Outros</option>
         </select>
         <input type="date" id="caixaf_de"  onchange="renderTabelaCaixa()" style="padding:6px 10px;background:rgba(255,255,255,0.05);border:1px solid var(--borda);border-radius:8px;color:var(--cor-texto);font-size:0.85em;">
@@ -2867,6 +2869,7 @@ thead .col-sticky-right {
           <option value="Marketing">Marketing</option>
           <option value="Impostos">Impostos</option>
           <option value="Taxas">Taxas</option>
+          <option value="Captação">Captação</option>
           <option value="Outros">Outros</option>
         </select>
       </div>
@@ -8919,6 +8922,12 @@ function adicionarCaptacao() {
 
   captacoes.push(cap);
   salvarCaptacoes(captacoes);
+  /* Lança saída automática no caixa se já houver valor pago ao proprietário */
+  if (cap.valorPago > 0) {
+    _autoSaidaCaixaCaptacao(cap, 'cap_inicial_' + cap.id, cap.valorPago, cap.dataPag || cap.criadoEm.slice(0, 10));
+    _refreshCaixaViews();
+    atualizarDashboard();
+  }
   limparFormCaptacao();
   renderTabelaCaptacao();
   atualizarDashboardCaptacao();
@@ -9488,6 +9497,11 @@ function marcarParcelaCapPaga(capId, parcelaIdx) {
   p.recebido = p.valor;
   _recalcularValoresCaptacao(c);
   salvarCaptacoes(captacoes);
+  /* Lança saída automática no caixa para esta parcela */
+  var dataParc = p.mes ? (p.mes + '-' + (p.dia ? String(p.dia).padStart(2, '0') : '01')) : new Date().toISOString().slice(0, 10);
+  _autoSaidaCaixaCaptacao(c, 'cap_parcela_' + capId + '_' + parcelaIdx, p.valor, dataParc);
+  _refreshCaixaViews();
+  atualizarDashboard();
   renderTabelaCaptacao();
   atualizarDashboardCaptacao();
   registrarAuditoria('Parcela captação paga', c.proprietario + ' • ' + c.nome + ' · parcela ' + (parcelaIdx + 1));
@@ -9501,6 +9515,10 @@ function marcarCaptacaoQuitada(capId) {
   c.valorPago   = c.valorPeriodo;
   c.valorAberto = 0;
   salvarCaptacoes(captacoes);
+  /* Lança saída automática no caixa pelo valor total da quitação */
+  _autoSaidaCaixaCaptacao(c, 'cap_quit_' + capId, c.valorPeriodo, c.dataPag || new Date().toISOString().slice(0, 10));
+  _refreshCaixaViews();
+  atualizarDashboard();
   renderTabelaCaptacao();
   atualizarDashboardCaptacao();
   registrarAuditoria('Captação quitada', c.proprietario + ' • ' + c.nome);
@@ -12536,6 +12554,29 @@ function _autoEntradaCaixa(reserva, categoria, autoRef, valor, dataStr) {
     data:           dataStr || new Date().toISOString().slice(0, 10),
     forma_pagamento:'Transferência',
     reserva_id:     reserva.id,
+    autoRef:        autoRef,
+    criado_em:      new Date().toISOString()
+  };
+  caixaLancamentos.push(lancamento);
+  salvarCaixaStorage(caixaLancamentos);
+}
+
+/* ── AUTO-SAÍDA (integração com captações) ──
+   Cria um lançamento automático de Saída ao quitar/pagar uma captação,
+   evitando duplicação pelo autoRef. */
+function _autoSaidaCaixaCaptacao(captacao, autoRef, valor, dataStr) {
+  if (!Array.isArray(caixaLancamentos)) return;
+  if (caixaLancamentos.some(function(l) { return l.autoRef === autoRef; })) return;
+  var formaMap = { pix: 'Pix', cartao: 'Cartão', boleto: 'Boleto', transferencia: 'Transferência', dinheiro: 'Dinheiro' };
+  var lancamento = {
+    id:             gerarId(),
+    tipo:           'saida',
+    categoria:      'Captação',
+    descricao:      'Auto: ' + (captacao.proprietario || '') + ' — ' + (captacao.nome || ''),
+    valor:          parseFloat(parseFloat(valor).toFixed(2)) || 0,
+    data:           dataStr || new Date().toISOString().slice(0, 10),
+    forma_pagamento: formaMap[captacao.formaPag] || 'Transferência',
+    reserva_id:     captacao.id,
     autoRef:        autoRef,
     criado_em:      new Date().toISOString()
   };
