@@ -16,7 +16,7 @@
   },
   "overrides": [
     {
-      "files": ["scripts/generate-resorts.js"],
+      "files": ["scripts/generate-resorts.js", "playwright.config.js", "tests/**/*.js"],
       "env": {
         "node": true,
         "browser": false

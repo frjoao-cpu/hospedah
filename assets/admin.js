@@ -16,11 +16,6 @@
   var bookingsChart;
   var leadSourceChart;
   var BOOKED_STATUSES = ['booked', 'reservado'];
-  var FALLBACK_LEADS = [
-    { name: 'Maria Souza', email: 'maria@example.com', phone: '(17) 99999-0001', source: 'WhatsApp', status: 'reservado', created_at: new Date().toISOString(), revenue: 5400 },
-    { name: 'Pedro Lima', email: 'pedro@example.com', phone: '(11) 98888-0002', source: 'Site', status: 'novo', created_at: new Date().toISOString(), revenue: 0 },
-    { name: 'Carla Nunes', email: 'carla@example.com', phone: '(21) 97777-0003', source: 'Instagram', status: 'negociação', created_at: new Date().toISOString(), revenue: 0 }
-  ];
 
   function money(value) {
     return (value || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
@@ -34,6 +29,10 @@
   function renderCrmTable(rows) {
     var tbody = document.getElementById('crmTableBody');
     if (!tbody) return;
+    if (!rows.length) {
+      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--cor-sub,#aab4c4);padding:24px">Nenhum lead encontrado.</td></tr>';
+      return;
+    }
     tbody.innerHTML = rows.map(function (lead) {
       return '<tr>' +
         '<td>' + (lead.name || '-') + '</td>' +
@@ -150,7 +149,7 @@
     }
 
     if (!rows.length) {
-      rows = leadsCache || FALLBACK_LEADS;
+      rows = leadsCache || [];
     }
 
     leadsCache = rows;
