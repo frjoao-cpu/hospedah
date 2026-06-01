@@ -7182,8 +7182,9 @@ function atualizarMensal() {
 
   reservas.forEach(function (r) {
     if ((r.status || '').toLowerCase() === 'cancelado') return;
-    /* Agrupa pelo mês de venda (criadoEm), não pelo check-in */
-    var mes = r.criadoEm ? r.criadoEm.slice(0, 7) : (r.entrada ? r.entrada.slice(0, 7) : 'desconhecido');
+    /* Agrupa pelo mês de venda (dataCaptacao quando disponível, senão criadoEm), não pelo check-in */
+    var dataVenda = r.dataCaptacao || r.criadoEm;
+    var mes = dataVenda ? dataVenda.slice(0, 7) : (r.entrada ? r.entrada.slice(0, 7) : 'desconhecido');
     if (!meses[mes]) {
       meses[mes] = { reservas: 0, receita: 0, comissao: 0, comissaoRecebida: 0, repasse: 0, noites: 0, captacao: 0, lucro: 0, parcelasFuturas: {} };
     }
@@ -7266,7 +7267,7 @@ function atualizarPrevisaoRecebimentos() {
   reservas.forEach(function (r) {
     if ((r.status || '').toLowerCase() === 'cancelado') return;
     var label = (r.cliente || '—') + ' / ' + (r.resort || '—');
-    var mesVenda = r.criadoEm ? r.criadoEm.slice(0, 7) : null;
+    var mesVenda = (r.dataCaptacao || r.criadoEm) ? (r.dataCaptacao || r.criadoEm).slice(0, 7) : null;
 
     (r.parcelasComissao || []).forEach(function (p, idxP) {
       if (!p.mes || parseFloat(p.valor) <= 0) return;
@@ -7710,7 +7711,10 @@ function atualizarVendasAnuais() {
 
   reservas.forEach(function (r) {
     if ((r.status || '').toLowerCase() === 'cancelado') return;
-    var dt = r[campoData] ? r[campoData].slice(0, 7) : null;
+    /* Usa dataCaptacao como data da venda quando disponível (lançamentos retroativos);
+       senão cai para criadoEm. Para agrupamento por check-in usa r.entrada normalmente. */
+    var rawDt = (campoData === 'criadoEm' && r.dataCaptacao) ? r.dataCaptacao : r[campoData];
+    var dt = rawDt ? rawDt.slice(0, 7) : null;
     if (!dt) return;
     var partes = dt.split('-');
     var rAno   = parseInt(partes[0], 10);
@@ -7729,8 +7733,9 @@ function atualizarVendasAnuais() {
     } else if (rAno === ano - 1) {
       antAno[rMes].venda += venda;
     }
-    /* comissão sempre pela data de venda (criadoEm), independente do agrupamento */
-    var dtCriado = r.criadoEm ? r.criadoEm.slice(0, 7) : null;
+    /* comissão sempre pela data de venda (dataCaptacao quando disponível, senão criadoEm), independente do agrupamento */
+    var dtVendaStr = r.dataCaptacao || r.criadoEm;
+    var dtCriado = dtVendaStr ? dtVendaStr.slice(0, 7) : null;
     if (dtCriado) {
       var pCriado = dtCriado.split('-');
       var anoCriado = parseInt(pCriado[0], 10);
@@ -7749,7 +7754,7 @@ function atualizarVendasAnuais() {
         var valor = parseFloat(p.valor) || 0;
         totais[pMes].parcelasReceber += valor;
         /* Se a venda foi realizada num mês diferente do recebimento → carry-over */
-        var saleMesStr = r.criadoEm ? r.criadoEm.slice(0, 7) : null;
+        var saleMesStr = (r.dataCaptacao || r.criadoEm) ? (r.dataCaptacao || r.criadoEm).slice(0, 7) : null;
         if (saleMesStr) {
           var sParts = saleMesStr.split('-');
           var sAno = parseInt(sParts[0], 10);
@@ -7942,7 +7947,8 @@ function exportarVendasAnuaisCSV() {
   }
   reservas.forEach(function (r) {
     if ((r.status || '').toLowerCase() === 'cancelado') return;
-    var dt = r[campoData] ? r[campoData].slice(0, 7) : null;
+    var rawDt = (campoData === 'criadoEm' && r.dataCaptacao) ? r.dataCaptacao : r[campoData];
+    var dt = rawDt ? rawDt.slice(0, 7) : null;
     if (!dt) return;
     var partes = dt.split('-');
     if (parseInt(partes[0], 10) !== ano) return;
@@ -7966,7 +7972,7 @@ function exportarVendasAnuaisCSV() {
       if (pAno === ano && pMes >= 1 && pMes <= 12) {
         var valor = parseFloat(p.valor) || 0;
         totais[pMes].parcelasReceber += valor;
-        var saleMesStr = r.criadoEm ? r.criadoEm.slice(0, 7) : null;
+        var saleMesStr = (r.dataCaptacao || r.criadoEm) ? (r.dataCaptacao || r.criadoEm).slice(0, 7) : null;
         if (saleMesStr) {
           var sp = saleMesStr.split('-');
           if (parseInt(sp[0], 10) !== pAno || parseInt(sp[1], 10) !== pMes) {
