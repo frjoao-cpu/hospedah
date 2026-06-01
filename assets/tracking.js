@@ -1,13 +1,44 @@
 // ============================================================
 // HOSPEDAH — Inicialização de rastreamento (GTM, Clarity, Meta
-// Pixel, OneSignal). Carregado somente após consentimento LGPD.
+// Pixel, OneSignal, Sentry). Carregado somente após consentimento LGPD.
 //
 // A função window.initTracking() é chamada:
 //   • imediatamente, se o consentimento já foi registrado;
 //   • pelo banner de cookies, quando o usuário clica "Aceitar".
+//
+// Sentry (monitoramento de erros):
+//   Para ativar, defina window.HOSPEDAH_SENTRY_DSN com o DSN do seu
+//   projeto Sentry antes de carregar este script, ou configure a
+//   constante SENTRY_DSN abaixo.
+//   Obtenha um DSN gratuito em: https://sentry.io
 // ============================================================
 
+// DSN do projeto Sentry (substitua pelo DSN real do seu projeto)
+var SENTRY_DSN = window.HOSPEDAH_SENTRY_DSN || '';
+
+function initSentry() {
+  if (!SENTRY_DSN) return;
+  var script = document.createElement('script');
+  script.src = 'https://browser.sentry-cdn.com/7.112.2/bundle.tracing.min.js';
+  script.crossOrigin = 'anonymous';
+  script.onload = function () {
+    if (!window.Sentry) return;
+    window.Sentry.init({
+      dsn: SENTRY_DSN,
+      environment: window.location.hostname === 'hospedah.tur.br' ? 'production' : 'development',
+      tracesSampleRate: 0.1,
+      ignoreErrors: [
+        'ResizeObserver loop limit exceeded',
+        'Non-Error promise rejection captured'
+      ]
+    });
+  };
+  document.head.appendChild(script);
+}
+
 function initTracking() {
+  // Sentry — monitoramento de erros (carregado antes dos demais)
+  initSentry();
   // Google Tag Manager
   (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
   new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
