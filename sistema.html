@@ -3377,8 +3377,8 @@ thead .col-sticky-right {
       📊 Resultados de Vendas por Ano
       <span style="margin-left:auto;display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
         <div class="va-agrup-toggle">
-          <button class="va-agrup-btn" id="vaAgrupEntrada" onclick="setAgrupVendas('entrada')">Por check-in</button>
-          <button class="va-agrup-btn active" id="vaAgrupCriado" onclick="setAgrupVendas('criado')">Por cadastro</button>
+          <button class="va-agrup-btn active" id="vaAgrupEntrada" onclick="setAgrupVendas('entrada')">Por check-in</button>
+          <button class="va-agrup-btn" id="vaAgrupCriado" onclick="setAgrupVendas('criado')">Por cadastro</button>
         </div>
         <button class="btn btn-secondary btn-sm" onclick="mudarAnoVendas(-1)">◀</button>
         <span id="vendas-ano-label" style="font-size:1.1em;font-weight:700;color:var(--dourado);min-width:52px;text-align:center;">2026</span>
@@ -7770,7 +7770,7 @@ document.addEventListener('click', function (e) {
    RESULTADOS DE VENDAS POR ANO (UNIFICADO)
 ========================================== */
 var _anoVendasAtual = new Date().getFullYear();
-var _agrupVendas    = 'criado'; /* 'entrada' = por check-in | 'criado' = por cadastro/captação */
+var _agrupVendas    = 'entrada'; /* 'entrada' = por check-in | 'criado' = por cadastro/captação */
 
 var _NOMES_MESES = [
   'Janeiro','Fevereiro','Março','Abril','Maio','Junho',
