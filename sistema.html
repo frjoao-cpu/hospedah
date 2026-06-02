@@ -8057,6 +8057,87 @@ function atualizarVendasAnuais() {
         '<td></td>' +
         '</tr>'
       : '');
+
+  /* ---- Comissões Futuras — cards por mês ---- */
+  var hoje    = new Date();
+  var hojeStr = hoje.getFullYear() + '-' + String(hoje.getMonth() + 1).padStart(2, '0');
+
+  /* Mapeia cada mês futuro do ano visualizado com suas parcelas pendentes */
+  var futurasMap = {}; /* "YYYY-MM" → { total, parcelas: [{label, valor}] } */
+  reservas.forEach(function (r) {
+    if ((r.status || '').toLowerCase() === 'cancelado') return;
+    (r.parcelasComissao || []).forEach(function (p) {
+      if (!p.mes) return;
+      if ((p.status || 'pendente') === 'recebida') return;
+      var pp   = p.mes.split('-');
+      var pAno = parseInt(pp[0], 10);
+      var pMes = parseInt(pp[1], 10);
+      if (pAno !== ano || pMes < 1 || pMes > 12) return;
+      if (p.mes <= hojeStr) return; /* apenas meses estritamente futuros */
+      var pendente = Math.max(0, (parseFloat(p.valor) || 0) - (parseFloat(p.recebido) || 0));
+      var valor    = pendente > 0 ? pendente : (parseFloat(p.valor) || 0);
+      if (valor <= 0) return;
+      if (!futurasMap[p.mes]) futurasMap[p.mes] = { total: 0, parcelas: [] };
+      futurasMap[p.mes].total += valor;
+      futurasMap[p.mes].parcelas.push({
+        label: (r.cliente || '—') + ' / ' + (r.resort || '—'),
+        valor: valor
+      });
+    });
+    /* Suporte legado: dataPrevistaComissao sem parcelasComissao */
+    if ((!r.parcelasComissao || r.parcelasComissao.length === 0) && r.dataPrevistaComissao) {
+      var legKey   = r.dataPrevistaComissao.slice(0, 7);
+      var legParts = legKey.split('-');
+      var legAnoF  = parseInt(legParts[0], 10);
+      var legMesF  = parseInt(legParts[1], 10);
+      if (legAnoF === ano && legMesF >= 1 && legMesF <= 12 && legKey > hojeStr) {
+        var legPend = _comissaoPendente(r.comissao, r.comissaoRecebida);
+        if (legPend > 0) {
+          if (!futurasMap[legKey]) futurasMap[legKey] = { total: 0, parcelas: [] };
+          futurasMap[legKey].total += legPend;
+          futurasMap[legKey].parcelas.push({
+            label: (r.cliente || '—') + ' / ' + (r.resort || '—'),
+            valor: legPend
+          });
+        }
+      }
+    }
+  });
+
+  var vaWrap   = document.getElementById('vaFuturasWrap');
+  var vaGrid   = document.getElementById('vaFuturasGrid');
+  var vaLabel  = document.getElementById('vaFuturasAnoLabel');
+  if (!vaWrap || !vaGrid) return;
+
+  if (vaLabel) vaLabel.textContent = '— ' + String(ano);
+
+  var futurasKeys = Object.keys(futurasMap).sort();
+  if (futurasKeys.length === 0) {
+    vaWrap.style.display = 'none';
+  } else {
+    vaWrap.style.display = '';
+    var gridHtml = '';
+    futurasKeys.forEach(function (key) {
+      var fd      = futurasMap[key];
+      var mesNome = nomeDoMes(key);
+      gridHtml += '<div class="va-futura-card">';
+      gridHtml += '<div class="va-futura-mes">📅 ' + mesNome + '</div>';
+      fd.parcelas.forEach(function (par) {
+        gridHtml +=
+          '<div class="va-futura-parcela">' +
+          '<span>' + par.label + '</span>' +
+          '<span>' + formatBRL(par.valor) + '</span>' +
+          '</div>';
+      });
+      gridHtml +=
+        '<div class="va-futura-total-row">' +
+        '<span>Total previsto</span>' +
+        '<span>' + formatBRL(fd.total) + '</span>' +
+        '</div>' +
+        '</div>';
+    });
+    vaGrid.innerHTML = gridHtml;
+  }
 }
 
 /* ==========================================
