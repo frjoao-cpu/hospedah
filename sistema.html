@@ -1609,6 +1609,102 @@ thead .col-sticky-right {
 }
 .va-prev-ant .va-ant-icon { font-size: 0.88em; opacity: 0.8; }
 
+/* ==========================================
+   COMISSÕES FUTURAS — cards por mês
+========================================== */
+.va-futuras-wrap {
+  margin-top: 20px;
+  border-top: 1px solid rgba(77,166,255,0.18);
+  padding-top: 16px;
+}
+.va-futuras-titulo {
+  font-size: 0.83em;
+  font-weight: 700;
+  color: #4da6ff;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.va-futuras-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 14px;
+}
+.va-futura-card {
+  background: rgba(77,166,255,0.05);
+  border: 1px solid rgba(77,166,255,0.22);
+  border-radius: 10px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.va-futura-mes {
+  font-size: 1em;
+  font-weight: 700;
+  color: #4da6ff;
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.va-futura-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.82em;
+  color: var(--cor-sub);
+  padding: 2px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+.va-futura-row:last-child { border-bottom: none; }
+.va-futura-row .va-futura-val {
+  font-weight: 600;
+  color: var(--cor-texto);
+  white-space: nowrap;
+}
+.va-futura-row .va-futura-val.azul { color: #4da6ff; }
+.va-futura-row .va-futura-val.verde { color: #25D366; }
+.va-futura-divider {
+  border: none;
+  border-top: 1px dashed rgba(77,166,255,0.18);
+  margin: 2px 0;
+}
+.va-futura-sub-label {
+  font-size: 0.75em;
+  color: rgba(255,255,255,0.32);
+  font-style: italic;
+  padding: 1px 0 1px 8px;
+}
+.va-futura-parcela {
+  font-size: 0.78em;
+  color: rgba(255,255,255,0.55);
+  display: flex;
+  justify-content: space-between;
+  padding: 1px 0 1px 12px;
+}
+.va-futura-parcela span:last-child { color: #4da6ff; font-weight: 600; }
+.va-futura-total-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.88em;
+  font-weight: 700;
+  color: #4da6ff;
+  border-top: 1px solid rgba(77,166,255,0.22);
+  padding-top: 6px;
+  margin-top: 4px;
+}
+.va-futuras-vazio {
+  font-size: 0.85em;
+  color: var(--cor-sub);
+  padding: 8px 0;
+  font-style: italic;
+}
+
 .dash-comissao-ant {
   display: inline-flex; align-items: center;
   font-size: 0.68em; font-weight: 600;
@@ -3299,6 +3395,10 @@ thead .col-sticky-right {
         </tbody>
         <tfoot id="rodapeVendasAnuais"></tfoot>
       </table>
+      <div class="va-futuras-wrap" id="vaFuturasWrap" style="display:none;">
+        <div class="va-futuras-titulo">📅 Comissões Futuras <span id="vaFuturasAnoLabel" style="font-weight:400;opacity:0.7;"></span></div>
+        <div class="va-futuras-grid" id="vaFuturasGrid"></div>
+      </div>
     </div>
   </section>
 
