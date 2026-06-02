@@ -7712,6 +7712,55 @@ function atualizarVendasAnuais() {
 
   reservas.forEach(function (r) {
     if ((r.status || '').toLowerCase() === 'cancelado') return;
+    /* comissão sempre pela data de venda (dataCaptacao quando disponível, senão criadoEm), independente do agrupamento */
+    var dtVendaStr = r.dataCaptacao || r.criadoEm;
+    var dtCriado = dtVendaStr ? dtVendaStr.slice(0, 7) : null;
+    if (dtCriado) {
+      var pCriado = dtCriado.split('-');
+      var anoCriado = parseInt(pCriado[0], 10);
+      var mesCriado = parseInt(pCriado[1], 10);
+      if (anoCriado === ano && mesCriado >= 1 && mesCriado <= 12) {
+        totais[mesCriado].comissaoVenda += parseFloat(r.comissao || 0);
+      }
+    }
+    /* Acumula parcelas previstas para cada mês de recebimento (todas as reservas, independente do agrupamento) */
+    (r.parcelasComissao || []).forEach(function (p) {
+      if (!p.mes) return;
+      var pParts = p.mes.split('-');
+      var pAno = parseInt(pParts[0], 10);
+      var pMes = parseInt(pParts[1], 10);
+      if (pAno === ano && pMes >= 1 && pMes <= 12) {
+        var valor = parseFloat(p.valor) || 0;
+        totais[pMes].parcelasReceber += valor;
+        /* Se a venda foi realizada num mês diferente do recebimento → carry-over */
+        var saleMesStr = (r.dataCaptacao || r.criadoEm) ? (r.dataCaptacao || r.criadoEm).slice(0, 7) : null;
+        if (saleMesStr) {
+          var sParts = saleMesStr.split('-');
+          var sAno = parseInt(sParts[0], 10);
+          var sMes = parseInt(sParts[1], 10);
+          if (sAno !== pAno || sMes !== pMes) {
+            totais[pMes].parcelasDeAnteriores += valor;
+          }
+        }
+      }
+    });
+    /* Suporte legado: dataPrevistaComissao sem parcelasComissao */
+    if ((!r.parcelasComissao || r.parcelasComissao.length === 0) && r.dataPrevistaComissao) {
+      var legMes = r.dataPrevistaComissao.slice(0, 7);
+      var legParts = legMes.split('-');
+      var legAno = parseInt(legParts[0], 10);
+      var legMesNum = parseInt(legParts[1], 10);
+      if (legAno === ano && legMesNum >= 1 && legMesNum <= 12) {
+        var legPendente = _comissaoPendente(r.comissao, r.comissaoRecebida);
+        if (legPendente > 0) {
+          totais[legMesNum].parcelasReceber += legPendente;
+          var legSaleMes = (r.dataCaptacao || r.criadoEm) ? (r.dataCaptacao || r.criadoEm).slice(0, 7) : null;
+          if (legSaleMes && legSaleMes !== legMes) {
+            totais[legMesNum].parcelasDeAnteriores += legPendente;
+          }
+        }
+      }
+    }
     /* Usa dataCaptacao como data da venda quando disponível (lançamentos retroativos);
        senão cai para criadoEm. Para agrupamento por check-in usa r.entrada normalmente. */
     var rawDt = (campoData === 'criadoEm' && r.dataCaptacao) ? r.dataCaptacao : r[campoData];
@@ -7734,38 +7783,6 @@ function atualizarVendasAnuais() {
     } else if (rAno === ano - 1) {
       antAno[rMes].venda += venda;
     }
-    /* comissão sempre pela data de venda (dataCaptacao quando disponível, senão criadoEm), independente do agrupamento */
-    var dtVendaStr = r.dataCaptacao || r.criadoEm;
-    var dtCriado = dtVendaStr ? dtVendaStr.slice(0, 7) : null;
-    if (dtCriado) {
-      var pCriado = dtCriado.split('-');
-      var anoCriado = parseInt(pCriado[0], 10);
-      var mesCriado = parseInt(pCriado[1], 10);
-      if (anoCriado === ano && mesCriado >= 1 && mesCriado <= 12) {
-        totais[mesCriado].comissaoVenda += parseFloat(r.comissao || 0);
-      }
-    }
-    /* Acumula parcelas previstas para cada mês de recebimento */
-    (r.parcelasComissao || []).forEach(function (p) {
-      if (!p.mes) return;
-      var pParts = p.mes.split('-');
-      var pAno = parseInt(pParts[0], 10);
-      var pMes = parseInt(pParts[1], 10);
-      if (pAno === ano && pMes >= 1 && pMes <= 12) {
-        var valor = parseFloat(p.valor) || 0;
-        totais[pMes].parcelasReceber += valor;
-        /* Se a venda foi realizada num mês diferente do recebimento → carry-over */
-        var saleMesStr = (r.dataCaptacao || r.criadoEm) ? (r.dataCaptacao || r.criadoEm).slice(0, 7) : null;
-        if (saleMesStr) {
-          var sParts = saleMesStr.split('-');
-          var sAno = parseInt(sParts[0], 10);
-          var sMes = parseInt(sParts[1], 10);
-          if (sAno !== pAno || sMes !== pMes) {
-            totais[pMes].parcelasDeAnteriores += valor;
-          }
-        }
-      }
-    });
   });
 
   /* flags para colunas opcionais */
@@ -7948,23 +7965,7 @@ function exportarVendasAnuaisCSV() {
   }
   reservas.forEach(function (r) {
     if ((r.status || '').toLowerCase() === 'cancelado') return;
-    var rawDt = (campoData === 'criadoEm' && r.dataCaptacao) ? r.dataCaptacao : r[campoData];
-    var dt = rawDt ? rawDt.slice(0, 7) : null;
-    if (!dt) return;
-    var partes = dt.split('-');
-    if (parseInt(partes[0], 10) !== ano) return;
-    var mes   = parseInt(partes[1], 10);
-    if (mes < 1 || mes > 12) return;
-    var venda = parseFloat(r.total || 0);
-    var cap   = parseFloat(r.valorCaptacao || 0);
-    var t     = totais[mes];
-    t.reservas++;
-    t.noites   += parseInt(r.noites || 0, 10);
-    t.venda    += venda;
-    t.comissao += parseFloat(r.comissao || 0);
-    t.captacao += cap;
-    t.lucro    += cap > 0 ? venda - cap : 0;
-    /* parcelas carry-over */
+    /* parcelas carry-over: processar todas as reservas independente do ano de venda */
     (r.parcelasComissao || []).forEach(function (p) {
       if (!p.mes) return;
       var pp = p.mes.split('-');
@@ -7982,6 +7983,40 @@ function exportarVendasAnuaisCSV() {
         }
       }
     });
+    /* Suporte legado: dataPrevistaComissao sem parcelasComissao */
+    if ((!r.parcelasComissao || r.parcelasComissao.length === 0) && r.dataPrevistaComissao) {
+      var legMes = r.dataPrevistaComissao.slice(0, 7);
+      var legPp = legMes.split('-');
+      var legAno = parseInt(legPp[0], 10);
+      var legMesNum = parseInt(legPp[1], 10);
+      if (legAno === ano && legMesNum >= 1 && legMesNum <= 12) {
+        var legPendente = _comissaoPendente(r.comissao, r.comissaoRecebida);
+        if (legPendente > 0) {
+          totais[legMesNum].parcelasReceber += legPendente;
+          var legSaleMes = (r.dataCaptacao || r.criadoEm) ? (r.dataCaptacao || r.criadoEm).slice(0, 7) : null;
+          if (legSaleMes && legSaleMes !== legMes) {
+            totais[legMesNum].parcelasDeAnteriores += legPendente;
+          }
+        }
+      }
+    }
+    /* estatísticas de venda: apenas reservas do ano selecionado */
+    var rawDt = (campoData === 'criadoEm' && r.dataCaptacao) ? r.dataCaptacao : r[campoData];
+    var dt = rawDt ? rawDt.slice(0, 7) : null;
+    if (!dt) return;
+    var partes = dt.split('-');
+    if (parseInt(partes[0], 10) !== ano) return;
+    var mes   = parseInt(partes[1], 10);
+    if (mes < 1 || mes > 12) return;
+    var venda = parseFloat(r.total || 0);
+    var cap   = parseFloat(r.valorCaptacao || 0);
+    var t     = totais[mes];
+    t.reservas++;
+    t.noites   += parseInt(r.noites || 0, 10);
+    t.venda    += venda;
+    t.comissao += parseFloat(r.comissao || 0);
+    t.captacao += cap;
+    t.lucro    += cap > 0 ? venda - cap : 0;
   });
 
   var temCaptacao = false;
