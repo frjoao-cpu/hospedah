@@ -7598,8 +7598,9 @@ async function confirmarBaixaParcelaLocal() {
   salvarReservas(reservas);
   if (typeof showToast === 'function') showToast('✅ Baixa de ' + fmtMoney(valorBaixa) + ' registrada!', 'success');
   atualizarPrevisaoRecebimentos();
-  if (typeof atualizarDashboard === 'function') atualizarDashboard();
-  if (typeof atualizarMensal    === 'function') atualizarMensal();
+  if (typeof atualizarDashboard   === 'function') atualizarDashboard();
+  if (typeof atualizarMensal      === 'function') atualizarMensal();
+  if (typeof atualizarVendasAnuais === 'function') atualizarVendasAnuais();
 }
 
 async function confirmarBaixaParcela() {
@@ -7654,6 +7655,9 @@ async function confirmarBaixaParcela() {
     showToast('✅ Baixa de ' + fmtMoney(valorBaixa) + ' registrada com sucesso!', 'success');
   }
   atualizarPrevisaoRecebimentos();
+  if (typeof atualizarDashboard   === 'function') atualizarDashboard();
+  if (typeof atualizarMensal      === 'function') atualizarMensal();
+  if (typeof atualizarVendasAnuais === 'function') atualizarVendasAnuais();
 }
 
 document.addEventListener('click', function (e) {
@@ -7726,11 +7730,14 @@ function atualizarVendasAnuais() {
     /* Acumula parcelas previstas para cada mês de recebimento (todas as reservas, independente do agrupamento) */
     (r.parcelasComissao || []).forEach(function (p) {
       if (!p.mes) return;
+      if ((p.status || 'pendente') === 'recebida') return; /* já recebida: não conta como previsto */
       var pParts = p.mes.split('-');
       var pAno = parseInt(pParts[0], 10);
       var pMes = parseInt(pParts[1], 10);
       if (pAno === ano && pMes >= 1 && pMes <= 12) {
-        var valor = parseFloat(p.valor) || 0;
+        /* Para parcelas parciais: mostra apenas o saldo restante */
+        var pendente = Math.max(0, (parseFloat(p.valor) || 0) - (parseFloat(p.recebido) || 0));
+        var valor = pendente > 0 ? pendente : (parseFloat(p.valor) || 0);
         totais[pMes].parcelasReceber += valor;
         /* Se a venda foi realizada num mês diferente do recebimento → carry-over */
         var saleMesStr = (r.dataCaptacao || r.criadoEm) ? (r.dataCaptacao || r.criadoEm).slice(0, 7) : null;
@@ -7968,11 +7975,14 @@ function exportarVendasAnuaisCSV() {
     /* parcelas carry-over: processar todas as reservas independente do ano de venda */
     (r.parcelasComissao || []).forEach(function (p) {
       if (!p.mes) return;
+      if ((p.status || 'pendente') === 'recebida') return; /* já recebida: não conta como previsto */
       var pp = p.mes.split('-');
       var pAno = parseInt(pp[0], 10);
       var pMes = parseInt(pp[1], 10);
       if (pAno === ano && pMes >= 1 && pMes <= 12) {
-        var valor = parseFloat(p.valor) || 0;
+        /* Para parcelas parciais: mostra apenas o saldo restante */
+        var pendente = Math.max(0, (parseFloat(p.valor) || 0) - (parseFloat(p.recebido) || 0));
+        var valor = pendente > 0 ? pendente : (parseFloat(p.valor) || 0);
         totais[pMes].parcelasReceber += valor;
         var saleMesStr = (r.dataCaptacao || r.criadoEm) ? (r.dataCaptacao || r.criadoEm).slice(0, 7) : null;
         if (saleMesStr) {
