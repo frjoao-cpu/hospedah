@@ -3797,6 +3797,11 @@ thead .col-sticky-right {
         </select>
       </div>
 
+      <div class="field-group">
+        <label>Data da Captação</label>
+        <input type="date" id="cap_data_captacao">
+      </div>
+
       <div class="field-group" style="grid-column: span 2;">
         <label>Observações</label>
         <input type="text" id="cap_obs" placeholder="Notas adicionais sobre a captação ou propriedade">
@@ -4638,6 +4643,11 @@ thead .col-sticky-right {
           <option value="13">13</option>
         </select>
       </div>
+      <div class="field-group">
+        <label>Data da Captação</label>
+        <input type="date" id="editCap_data_captacao">
+      </div>
+
       <div class="field-group" style="grid-column: span 2;">
         <label>Observações</label>
         <input type="text" id="editCap_obs">
@@ -9139,6 +9149,7 @@ function adicionarCaptacao() {
   var numParcelas  = parseInt(document.getElementById('cap_num_parcelas').value) || 1;
   var parcelaAtual = parseInt(document.getElementById('cap_parcela_atual').value) || 1;
   var statusRes    = document.getElementById('cap_status_reserva').value;
+  var dataCaptacao = document.getElementById('cap_data_captacao').value;
 
   if (!proprietario) { mostrarToast('⚠️ Informe o nome do proprietário.', 'error'); return; }
   if (!nome)         { mostrarToast('⚠️ Informe o nome da propriedade.', 'error'); return; }
@@ -9164,6 +9175,7 @@ function adicionarCaptacao() {
     numParcelas:   numParcelas,
     parcelaAtual:  parcelaAtual,
     statusReserva: statusRes,
+    dataCaptacao:  dataCaptacao,
     entradaCapPag: (parseFloat((document.getElementById('capEntradaDinheiro') || {}).value) || 0),
     parcelasCapPag: _parcelasCapPag.slice(),
     criadoEm:      new Date().toISOString()
@@ -9188,7 +9200,7 @@ function adicionarCaptacao() {
 function limparFormCaptacao() {
   ['cap_proprietario','cap_telefone','cap_obs','cap_data_ini',
    'cap_data_fim','cap_dias','cap_valor_periodo','cap_valor_pago',
-   'cap_valor_aberto','cap_data_pag'].forEach(function (id) {
+   'cap_valor_aberto','cap_data_pag','cap_data_captacao'].forEach(function (id) {
     var el = document.getElementById(id);
     if (el) el.value = '';
   });
@@ -9383,6 +9395,7 @@ function editarCaptacao(id) {
   document.getElementById('editCap_num_parcelas').value = c.numParcelas  || 1;
   document.getElementById('editCap_parcela_atual').value= c.parcelaAtual || 1;
   document.getElementById('editCap_status_reserva').value = c.statusReserva || 'nao';
+  document.getElementById('editCap_data_captacao').value  = c.dataCaptacao  || '';
 
   var wrap = document.getElementById('editCapParcelasWrap');
   if (c.formaPag === 'cartao' || c.formaPag === 'boleto') {
@@ -9454,6 +9467,7 @@ function salvarEdicaoCaptacao() {
   var numParcelas  = parseInt(document.getElementById('editCap_num_parcelas').value)  || 1;
   var parcelaAtual = parseInt(document.getElementById('editCap_parcela_atual').value) || 1;
   var statusRes    = document.getElementById('editCap_status_reserva').value;
+  var dataCaptacao = document.getElementById('editCap_data_captacao').value;
 
   if (!proprietario) { mostrarToast('⚠️ Informe o nome do proprietário.', 'error'); return; }
   if (!nome)         { mostrarToast('⚠️ Informe o nome da propriedade.', 'error');  return; }
@@ -9479,6 +9493,7 @@ function salvarEdicaoCaptacao() {
     numParcelas:   numParcelas,
     parcelaAtual:  parcelaAtual,
     statusReserva: statusRes,
+    dataCaptacao:  dataCaptacao,
     entradaCapPag: (parseFloat((document.getElementById('editCapEntradaDinheiro') || {}).value) || 0),
     parcelasCapPag: _parcelasEditCapPag.slice()
   });
