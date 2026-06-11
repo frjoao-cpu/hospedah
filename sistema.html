@@ -7221,7 +7221,7 @@ function atualizarDashboard() {
     countEl.textContent = naoCancel + (naoCancel === 1 ? ' reserva' : ' reservas');
   }
 
-  /* Meta: para período específico usa receita filtrada; para "todos" usa o mês atual */
+  /* Meta: para período específico usa comissão filtrada; para "todos" usa o mês atual */
   var metaBase;
   if (!periodo || periodo === 'all') {
     var mesAtual = _mesKey(new Date());
@@ -7230,11 +7230,11 @@ function atualizarDashboard() {
       var dtVenda = r.dataCaptacao || r.criadoEm || r.entrada;
       if ((r.status || '').toLowerCase() !== 'cancelado' &&
           dtVenda && dtVenda.slice(0, 7) === mesAtual) {
-        metaBase += parseFloat(r.total || 0);
+        metaBase += parseFloat(r.comissao || 0);
       }
     });
   } else {
-    metaBase = receita;
+    metaBase = comissao;
   }
 
   var meta = parseFloat(localStorage.getItem('hospeda_meta')) || CONFIG.metaPadrao;
