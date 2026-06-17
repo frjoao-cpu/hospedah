@@ -3874,7 +3874,7 @@ thead .col-sticky-right {
         <button class="btn btn-secondary btn-sm" onclick="exportarCSVCaptacao()">📥 Exportar CSV</button>
         <button class="btn btn-secondary btn-sm" onclick="window.print()">🖨️ Imprimir</button>
         <button class="btn btn-secondary btn-sm" id="captacoesAvancadoBtn" onclick="toggleModoAvancadoCaptacao()" title="Alternar Modo Avançado" aria-label="Alternar Modo Avançado">🔬 Modo Avançado</button>
-        <button class="btn btn-secondary btn-sm" id="captacoesToggleBtn" onclick="toggleCaptacoes()" title="Minimizar/Expandir tabela">▼ Minimizar</button>
+        <button class="btn btn-secondary btn-sm" id="captacoesToggleBtn" onclick="toggleCaptacoes()" title="Minimizar/Expandir tabela">▼ Maximizar</button>
       </span>
     </div>
 
@@ -11143,7 +11143,7 @@ function toggleCaptacoes() {
   if (!content || !btn) return;
   var collapsed = content.style.display === 'none';
   content.style.display = collapsed ? '' : 'none';
-  btn.textContent = collapsed ? '▼ Minimizar' : '▲ Expandir';
+  btn.textContent = collapsed ? '▼ Maximizar' : '▲ Minimizar';
 }
 
 function toggleVisitasSite() {
