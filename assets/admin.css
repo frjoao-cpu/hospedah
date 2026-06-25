@@ -136,3 +136,216 @@ body {
   color: var(--admin-gold);
   font-weight: 600;
 }
+
+/* ── Ações na tabela de reservas ── */
+.acoes-cell {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.admin-btn-sm {
+  padding: 5px 9px;
+  font-size: .8rem;
+  border-radius: 7px;
+}
+
+.admin-btn-danger {
+  background: rgba(220, 60, 60, .85);
+  color: #fff;
+}
+
+.admin-btn-gold {
+  background: var(--admin-gold);
+  color: var(--admin-navy);
+}
+
+.wpp-link {
+  color: #3ec97b;
+  text-decoration: none;
+  font-size: .85rem;
+}
+
+/* ── Badges de status ── */
+.status-badge {
+  display: inline-block;
+  border-radius: 20px;
+  padding: 2px 10px;
+  font-size: .75rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.status-pendente      { background: rgba(255,180,30,.15); color: #ffcc55; border: 1px solid rgba(255,180,30,.3); }
+.status-confirmada    { background: rgba(30,190,100,.15); color: #6effc3; border: 1px solid rgba(30,190,100,.3); }
+.status-cancelada     { background: rgba(220,60,60,.15);  color: #ffaaaa; border: 1px solid rgba(220,60,60,.3);  }
+.status-aceita        { background: rgba(212,175,55,.18); color: #D4AF37; border: 1px solid rgba(212,175,55,.4); }
+.status-enviada       { background: rgba(62,166,255,.15); color: #8dd4ff; border: 1px solid rgba(62,166,255,.3); }
+.status-contraproposta{ background: rgba(200,100,255,.15);color: #dda0ff; border: 1px solid rgba(200,100,255,.3);}
+.status-concluida     { background: rgba(50,200,150,.15); color: #5de8b8; border: 1px solid rgba(50,200,150,.3); }
+
+/* ── Modal: Oferta Especial ── */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.72);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 16px;
+  overflow-y: auto;
+}
+
+.modal-box {
+  width: 100%;
+  max-width: 640px;
+  padding: 28px 24px;
+  max-height: 92vh;
+  overflow-y: auto;
+  border-radius: 20px;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 4px;
+}
+
+.modal-header h2 {
+  margin: 0;
+  font-size: 1.2rem;
+  color: var(--admin-gold);
+}
+
+.modal-fechar {
+  background: rgba(255,255,255,.1);
+  border: 0;
+  color: #fff;
+  font-size: 1.3rem;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  cursor: pointer;
+  line-height: 1;
+  flex-shrink: 0;
+}
+.modal-fechar:hover { background: rgba(255,255,255,.2); }
+
+.modal-subtitulo {
+  margin: 0 0 20px;
+  font-size: .88rem;
+  color: rgba(245,248,255,.6);
+}
+
+.modal-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.modal-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.modal-group-full { grid-column: 1 / -1; }
+
+.modal-group label {
+  font-size: .78rem;
+  color: rgba(245,248,255,.6);
+  text-transform: uppercase;
+  letter-spacing: .05em;
+}
+
+.modal-group input,
+.modal-group textarea {
+  background: rgba(255,255,255,.07);
+  border: 1px solid rgba(255,255,255,.15);
+  border-radius: 9px;
+  color: #f5f8ff;
+  font: inherit;
+  font-size: .9rem;
+  padding: 9px 11px;
+  width: 100%;
+  box-sizing: border-box;
+}
+.modal-group input:focus,
+.modal-group textarea:focus {
+  outline: none;
+  border-color: var(--admin-gold);
+}
+.modal-group textarea { resize: vertical; min-height: 72px; }
+
+.modal-valor-final {
+  background: rgba(212,175,55,.12);
+  border: 1px solid rgba(212,175,55,.3);
+  border-radius: 9px;
+  padding: 9px 11px;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--admin-gold);
+}
+
+.modal-link-wrap {
+  margin-bottom: 16px;
+}
+
+.modal-link-wrap label {
+  display: block;
+  font-size: .78rem;
+  color: rgba(245,248,255,.6);
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  margin-bottom: 6px;
+}
+
+.modal-link-row {
+  display: flex;
+  gap: 8px;
+}
+
+.modal-link-row input {
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.14);
+  border-radius: 9px;
+  color: #D4AF37;
+  font: .85rem 'Poppins', monospace;
+  padding: 9px 11px;
+  flex: 1;
+  min-width: 0;
+}
+
+.modal-acoes {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.modal-btn-wpp {
+  background: #25D366;
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.modal-btn-wpp:hover { opacity: .9; }
+
+.modal-msg {
+  margin-top: 12px;
+  padding: 10px 14px;
+  border-radius: 9px;
+  font-size: .88rem;
+}
+.modal-msg-ok   { background: rgba(30,190,100,.12); border: 1px solid rgba(30,190,100,.3); color: #6effc3; }
+.modal-msg-erro { background: rgba(220,60,60,.12);  border: 1px solid rgba(220,60,60,.3);  color: #ffaaaa; }
+
+@media (max-width: 500px) {
+  .modal-grid { grid-template-columns: 1fr; }
+  .modal-group-full { grid-column: auto; }
+  .acoes-cell { flex-wrap: wrap; }
+}

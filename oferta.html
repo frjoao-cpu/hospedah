@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png" sizes="180x180">
+  <link rel="icon" type="image/svg+xml" href="/assets/logo-favicon.svg" sizes="any">
+  <meta name="theme-color" content="#D4AF37">
+  <title>Sua Oferta Exclusiva | HOSPEDAH</title>
+  <meta name="robots" content="noindex,nofollow">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap">
+  <link rel="stylesheet" href="/assets/mobile-first.css">
+  <link rel="stylesheet" href="/assets/style.css">
+  <style>
+    /* ── Layout base ── */
+    body {
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(160deg, #0B1C3D, #09182f 60%, #030b18);
+      color: #f5f8ff;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 24px 16px 48px;
+    }
+
+    /* ── Estado de carregamento / erro ── */
+    #ofertaLoading,
+    #ofertaErro,
+    #ofertaExpirada,
+    #ofertaJaAceita {
+      display: none;
+      text-align: center;
+      padding: 64px 24px;
+      max-width: 480px;
+    }
+    #ofertaLoading { display: block; }
+
+    .estado-icone { font-size: 3rem; margin-bottom: 12px; }
+    .estado-titulo { font-size: 1.5rem; font-weight: 700; margin: 0 0 8px; color: #D4AF37; }
+    .estado-sub { color: rgba(245,248,255,.7); margin: 0; }
+
+    /* ── Spinner ── */
+    .spinner {
+      width: 44px; height: 44px;
+      border: 4px solid rgba(212,175,55,.2);
+      border-top-color: #D4AF37;
+      border-radius: 50%;
+      animation: spin .8s linear infinite;
+      margin: 0 auto 16px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Card principal da oferta ── */
+    #ofertaCard {
+      display: none;
+      width: 100%;
+      max-width: 560px;
+    }
+
+    /* Logo */
+    .oferta-logo {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .oferta-logo img { height: 40px; }
+    .oferta-logo span {
+      display: block;
+      font-size: .8rem;
+      color: rgba(245,248,255,.6);
+      margin-top: 4px;
+      letter-spacing: .05em;
+    }
+
+    /* Foto do resort */
+    .oferta-foto {
+      width: 100%;
+      aspect-ratio: 16/9;
+      object-fit: cover;
+      border-radius: 18px 18px 0 0;
+      display: block;
+      background: rgba(10,24,52,.5);
+    }
+    .oferta-foto-placeholder {
+      width: 100%;
+      aspect-ratio: 16/9;
+      border-radius: 18px 18px 0 0;
+      background: linear-gradient(135deg, #0d2654, #1a3a70);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3rem;
+    }
+
+    /* Corpo do card */
+    .oferta-body {
+      background: rgba(10,24,52,.85);
+      border: 1px solid rgba(255,255,255,.14);
+      backdrop-filter: blur(14px);
+      border-radius: 0 0 18px 18px;
+      padding: 24px 20px;
+      box-shadow: 0 24px 56px rgba(0,0,0,.4);
+    }
+
+    .oferta-tag {
+      display: inline-block;
+      background: rgba(212,175,55,.15);
+      color: #D4AF37;
+      border: 1px solid rgba(212,175,55,.35);
+      border-radius: 20px;
+      font-size: .75rem;
+      font-weight: 600;
+      letter-spacing: .06em;
+      padding: 3px 12px;
+      margin-bottom: 12px;
+      text-transform: uppercase;
+    }
+
+    .oferta-resort-nome {
+      font-size: 1.55rem;
+      font-weight: 700;
+      margin: 0 0 16px;
+      line-height: 1.25;
+    }
+
+    /* Grade de detalhes */
+    .oferta-detalhes {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .detalhe-item {
+      background: rgba(255,255,255,.06);
+      border-radius: 10px;
+      padding: 10px 12px;
+    }
+    .detalhe-label {
+      font-size: .72rem;
+      color: rgba(245,248,255,.55);
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      margin-bottom: 3px;
+    }
+    .detalhe-valor {
+      font-size: .95rem;
+      font-weight: 600;
+    }
+
+    /* Bloco de preço */
+    .oferta-preco {
+      background: rgba(212,175,55,.08);
+      border: 1px solid rgba(212,175,55,.22);
+      border-radius: 14px;
+      padding: 16px;
+      margin-bottom: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .preco-original {
+      font-size: .9rem;
+      color: rgba(245,248,255,.5);
+      text-decoration: line-through;
+    }
+    .preco-final {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #D4AF37;
+      line-height: 1;
+    }
+    .preco-economia {
+      background: #1a7a4e;
+      color: #6effc3;
+      font-size: .8rem;
+      font-weight: 700;
+      border-radius: 8px;
+      padding: 4px 10px;
+    }
+
+    /* Observações */
+    .oferta-obs {
+      background: rgba(255,255,255,.05);
+      border-left: 3px solid #D4AF37;
+      border-radius: 0 10px 10px 0;
+      padding: 12px 14px;
+      font-size: .88rem;
+      color: rgba(245,248,255,.8);
+      margin-bottom: 20px;
+      white-space: pre-wrap;
+    }
+
+    /* Contador regressivo */
+    .oferta-validade {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .validade-label {
+      font-size: .75rem;
+      color: rgba(245,248,255,.55);
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      margin-bottom: 6px;
+    }
+    .countdown {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+    }
+    .count-bloco {
+      background: rgba(255,255,255,.07);
+      border-radius: 10px;
+      padding: 8px 14px;
+      min-width: 52px;
+      text-align: center;
+    }
+    .count-num {
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: #D4AF37;
+      line-height: 1;
+    }
+    .count-unit {
+      font-size: .68rem;
+      color: rgba(245,248,255,.5);
+      text-transform: uppercase;
+    }
+    .countdown-expirado { color: #ff6b6b; font-weight: 600; font-size: .9rem; }
+
+    /* Botões de ação */
+    .oferta-acoes {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .btn-aceitar {
+      background: linear-gradient(135deg, #D4AF37, #b8902a);
+      color: #0B1C3D;
+      border: 0;
+      border-radius: 12px;
+      padding: 15px;
+      font: 600 1rem 'Poppins', sans-serif;
+      cursor: pointer;
+      width: 100%;
+      transition: opacity .2s, transform .1s;
+    }
+    .btn-aceitar:hover { opacity: .9; transform: translateY(-1px); }
+    .btn-aceitar:active { transform: translateY(0); }
+    .btn-aceitar:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+
+    .btn-alterar {
+      background: rgba(255,255,255,.08);
+      color: #f5f8ff;
+      border: 1px solid rgba(255,255,255,.2);
+      border-radius: 12px;
+      padding: 13px;
+      font: 500 .95rem 'Poppins', sans-serif;
+      cursor: pointer;
+      width: 100%;
+      transition: background .2s;
+    }
+    .btn-alterar:hover { background: rgba(255,255,255,.13); }
+
+    /* Formulário de contra-proposta */
+    #formContraproposta {
+      display: none;
+      margin-top: 20px;
+      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 14px;
+      padding: 20px;
+    }
+    #formContraproposta h3 {
+      margin: 0 0 16px;
+      font-size: 1rem;
+      color: #D4AF37;
+    }
+    .cp-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .cp-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .cp-group.full { grid-column: 1 / -1; }
+    .cp-group label {
+      font-size: .78rem;
+      color: rgba(245,248,255,.6);
+    }
+    .cp-group input,
+    .cp-group textarea {
+      background: rgba(255,255,255,.07);
+      border: 1px solid rgba(255,255,255,.15);
+      border-radius: 8px;
+      color: #f5f8ff;
+      font: inherit;
+      font-size: .9rem;
+      padding: 9px 11px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .cp-group textarea { resize: vertical; min-height: 80px; }
+    .cp-group input:focus,
+    .cp-group textarea:focus {
+      outline: none;
+      border-color: #D4AF37;
+    }
+    .btn-cp-enviar {
+      margin-top: 12px;
+      background: rgba(212,175,55,.15);
+      color: #D4AF37;
+      border: 1px solid rgba(212,175,55,.35);
+      border-radius: 10px;
+      padding: 11px 20px;
+      font: 600 .9rem 'Poppins', sans-serif;
+      cursor: pointer;
+      width: 100%;
+    }
+    .btn-cp-enviar:hover { background: rgba(212,175,55,.25); }
+    .btn-cp-enviar:disabled { opacity: .5; cursor: not-allowed; }
+
+    /* Mensagem de feedback */
+    .oferta-msg {
+      display: none;
+      text-align: center;
+      padding: 12px;
+      border-radius: 10px;
+      font-size: .9rem;
+      margin-top: 12px;
+    }
+    .oferta-msg.sucesso {
+      background: rgba(30,190,100,.12);
+      border: 1px solid rgba(30,190,100,.3);
+      color: #6effc3;
+    }
+    .oferta-msg.erro {
+      background: rgba(255,80,80,.1);
+      border: 1px solid rgba(255,80,80,.25);
+      color: #ffaaaa;
+    }
+
+    /* Rodapé */
+    .oferta-footer {
+      text-align: center;
+      margin-top: 20px;
+      font-size: .78rem;
+      color: rgba(245,248,255,.4);
+    }
+    .oferta-footer a { color: #D4AF37; text-decoration: none; }
+
+    @media (max-width: 440px) {
+      .oferta-detalhes { grid-template-columns: 1fr; }
+      .cp-grid { grid-template-columns: 1fr; }
+      .cp-group.full { grid-column: auto; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Estado: carregando -->
+  <div id="ofertaLoading">
+    <div class="spinner"></div>
+    <p style="color:rgba(245,248,255,.6)">Carregando sua oferta…</p>
+  </div>
+
+  <!-- Estado: erro / token inválido -->
+  <div id="ofertaErro">
+    <div class="estado-icone">❌</div>
+    <h2 class="estado-titulo">Oferta não encontrada</h2>
+    <p class="estado-sub">Este link é inválido ou a oferta foi removida. Entre em contato com a equipe HOSPEDAH.</p>
+    <a href="/" style="display:inline-block;margin-top:20px;color:#D4AF37;text-decoration:none;font-weight:600">← Voltar ao site</a>
+  </div>
+
+  <!-- Estado: expirada -->
+  <div id="ofertaExpirada">
+    <div class="estado-icone">⏰</div>
+    <h2 class="estado-titulo">Oferta Expirada</h2>
+    <p class="estado-sub">O prazo desta oferta encerrou. Entre em contato com a equipe HOSPEDAH para uma nova proposta.</p>
+    <a href="/" style="display:inline-block;margin-top:20px;color:#D4AF37;text-decoration:none;font-weight:600">← Voltar ao site</a>
+  </div>
+
+  <!-- Estado: já aceita -->
+  <div id="ofertaJaAceita">
+    <div class="estado-icone">🎉</div>
+    <h2 class="estado-titulo">Reserva Confirmada!</h2>
+    <p class="estado-sub">Esta oferta já foi aceita. Em breve a equipe HOSPEDAH entrará em contato para confirmar os detalhes da sua estadia.</p>
+    <a href="/" style="display:inline-block;margin-top:20px;color:#D4AF37;text-decoration:none;font-weight:600">← Voltar ao site</a>
+  </div>
+
+  <!-- Card principal da oferta -->
+  <div id="ofertaCard">
+    <div class="oferta-logo">
+      <img src="/assets/logo-favicon.svg" alt="HOSPEDAH" onerror="this.style.display='none'">
+      <span>OFERTA EXCLUSIVA PARA VOCÊ</span>
+    </div>
+
+    <div id="ofertaFotoWrap"></div>
+
+    <div class="oferta-body">
+      <span class="oferta-tag">✦ Oferta Personalizada</span>
+      <h1 class="oferta-resort-nome" id="ofertaResortNome"></h1>
+
+      <div class="oferta-detalhes">
+        <div class="detalhe-item">
+          <div class="detalhe-label">Check-in</div>
+          <div class="detalhe-valor" id="ofertaCheckin"></div>
+        </div>
+        <div class="detalhe-item">
+          <div class="detalhe-label">Check-out</div>
+          <div class="detalhe-valor" id="ofertaCheckout"></div>
+        </div>
+        <div class="detalhe-item">
+          <div class="detalhe-label">Hóspedes</div>
+          <div class="detalhe-valor" id="ofertaCapacidade"></div>
+        </div>
+        <div class="detalhe-item">
+          <div class="detalhe-label">Acomodação</div>
+          <div class="detalhe-valor" id="ofertaAcomodacao"></div>
+        </div>
+      </div>
+
+      <div class="oferta-preco">
+        <div>
+          <div class="preco-original" id="ofertaPrecoOriginal"></div>
+          <div class="preco-final" id="ofertaPrecoFinal"></div>
+        </div>
+        <div class="preco-economia" id="ofertaEconomia" style="display:none"></div>
+      </div>
+
+      <div class="oferta-obs" id="ofertaObs" style="display:none"></div>
+
+      <div class="oferta-validade">
+        <div class="validade-label">Esta oferta expira em</div>
+        <div class="countdown" id="countdown"></div>
+      </div>
+
+      <div class="oferta-acoes">
+        <button type="button" class="btn-aceitar" id="btnAceitar">✓ ACEITAR OFERTA</button>
+        <button type="button" class="btn-alterar" id="btnAlterar">✎ Solicitar Alteração</button>
+      </div>
+
+      <div class="oferta-msg" id="ofertaMsg"></div>
+
+      <!-- Formulário de contra-proposta -->
+      <form id="formContraproposta" novalidate>
+        <h3>Solicitar Alteração</h3>
+        <div class="cp-grid">
+          <div class="cp-group">
+            <label for="cpCheckin">Nova data de Check-in</label>
+            <input type="date" id="cpCheckin" name="cpCheckin">
+          </div>
+          <div class="cp-group">
+            <label for="cpCheckout">Nova data de Check-out</label>
+            <input type="date" id="cpCheckout" name="cpCheckout">
+          </div>
+          <div class="cp-group">
+            <label for="cpResort">Outro resort</label>
+            <input type="text" id="cpResort" name="cpResort" placeholder="Nome do resort">
+          </div>
+          <div class="cp-group">
+            <label for="cpAcomoda">Outro tipo de acomodação</label>
+            <input type="text" id="cpAcomoda" name="cpAcomoda" placeholder="Ex: Suite, Chalé…">
+          </div>
+          <div class="cp-group full">
+            <label for="cpObs">Observações</label>
+            <textarea id="cpObs" name="cpObs" placeholder="Descreva o que deseja ajustar…"></textarea>
+          </div>
+        </div>
+        <button type="submit" class="btn-cp-enviar" id="btnCpEnviar">Enviar Solicitação</button>
+      </form>
+    </div>
+
+    <div class="oferta-footer">
+      <p>Oferta enviada pela equipe <a href="/">HOSPEDAH</a> · Proposta exclusiva e intransferível</p>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="/assets/supabase-config.js"></script>
+  <script src="/assets/oferta.js"></script>
+</body>
+</html>
