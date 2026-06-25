@@ -4810,6 +4810,84 @@ thead .col-sticky-right {
   </div>
 </div>
 
+<!-- ==========================================
+     MODAL OFERTA ESPECIAL PERSONALIZADA
+=========================================== -->
+<div class="modal-overlay" id="modalOferta">
+  <div class="modal-box" style="max-width:640px;">
+    <button class="modal-close" onclick="fecharModalOferta()" aria-label="Fechar">✕</button>
+    <h3>🎁 Oferta Especial Personalizada</h3>
+    <input type="hidden" id="of_reserva_id">
+    <div class="modal-grid">
+      <div class="field-group">
+        <label>Nome do Hóspede *</label>
+        <input type="text" id="of_nome_hospede" placeholder="Nome completo">
+      </div>
+      <div class="field-group">
+        <label>E-mail do Hóspede *</label>
+        <input type="email" id="of_email_hospede" placeholder="email@exemplo.com">
+      </div>
+      <div class="field-group">
+        <label>WhatsApp</label>
+        <input type="tel" id="of_telefone" placeholder="(11) 99999-9999">
+      </div>
+      <div class="field-group">
+        <label>Resort *</label>
+        <input type="text" id="of_resort_nome" placeholder="Nome do resort">
+      </div>
+      <div class="field-group">
+        <label>Tipo de Acomodação</label>
+        <input type="text" id="of_acomodacao_tipo" placeholder="Ex.: Suíte, Chalé, Studio…">
+      </div>
+      <div class="field-group">
+        <label>Hóspedes *</label>
+        <input type="number" id="of_capacidade" min="1" max="20" value="2">
+      </div>
+      <div class="field-group">
+        <label>Check-in *</label>
+        <input type="date" id="of_checkin">
+      </div>
+      <div class="field-group">
+        <label>Check-out *</label>
+        <input type="date" id="of_checkout">
+      </div>
+      <div class="field-group">
+        <label>Valor Original (R$) *</label>
+        <input type="number" id="of_valor_original" min="0" step="0.01" placeholder="0,00" oninput="calcOfertaDesconto()">
+      </div>
+      <div class="field-group">
+        <label>Desconto (R$)</label>
+        <input type="number" id="of_desconto_valor" min="0" step="0.01" placeholder="0,00" oninput="calcOfertaDesconto()">
+      </div>
+      <div class="field-group">
+        <label>Valor Final (R$)</label>
+        <input type="number" id="of_valor_final" min="0" step="0.01" readonly style="background:rgba(255,255,255,.04);cursor:not-allowed;">
+      </div>
+      <div class="field-group">
+        <label>Validade da Oferta *</label>
+        <input type="datetime-local" id="of_validade">
+      </div>
+      <div class="field-group" style="grid-column: span 2;">
+        <label>Observações / Mensagem ao Hóspede</label>
+        <textarea id="of_observacoes" rows="3" placeholder="Detalhes adicionais, benefícios inclusos, condições especiais…" style="width:100%;background:var(--azul3);border:1px solid var(--borda);border-radius:var(--radius);color:var(--cor-texto);font:inherit;font-size:.9em;padding:9px 11px;box-sizing:border-box;resize:vertical;"></textarea>
+      </div>
+    </div>
+    <!-- Link da oferta gerada -->
+    <div id="ofertaLinkWrap" style="display:none; margin-bottom:14px;">
+      <label style="font-size:.82em; color:var(--dourado); font-weight:600;">🔗 Link para enviar ao hóspede:</label>
+      <div style="display:flex; gap:8px; align-items:stretch; margin-top:6px;">
+        <input type="text" id="ofertaLinkInput" readonly style="flex:1; font-size:.8em; background:rgba(255,255,255,.05); border:1px solid var(--borda); border-radius:8px; color:var(--cor-texto); padding:8px 10px;">
+        <button class="btn btn-secondary btn-sm" onclick="copiarLinkOferta()" title="Copiar link">📋 Copiar</button>
+        <a id="ofertaWhatsappLink" href="#" target="_blank"><button type="button" class="btn btn-secondary btn-sm" title="Enviar via WhatsApp">💬 WA</button></a>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" id="btnSalvarOferta" onclick="salvarOferta()">🎁 Gerar Oferta</button>
+      <button class="btn btn-secondary" onclick="fecharModalOferta()">Cancelar</button>
+    </div>
+  </div>
+</div>
+
 <!-- Scripts carregados aqui (final do body) para não bloquear o render -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
@@ -7134,6 +7212,7 @@ document.addEventListener('keydown', function (e) {
   if (e.key === 'Escape') {
     fecharModal();
     fecharModalBaixa();
+    fecharModalOferta();
   }
 });
 
@@ -10239,10 +10318,11 @@ async function carregarReservasHospede() {
           (new Date(r.data_saida + 'T00:00:00Z') - new Date(r.data_entrada + 'T00:00:00Z')) / 86400000
         );
       }
-      var statusBadge = r.status === 'pendente'   ? '<span class="badge badge-pendente">⏳ Pendente</span>'
-                       : r.status === 'confirmada' ? '<span class="badge badge-pago">✅ Confirmada</span>'
-                       : r.status === 'cancelada'  ? '<span class="badge badge-cancelado">❌ Cancelada</span>'
-                       :                             '<span class="badge">✔️ Concluída</span>';
+      var statusBadge = r.status === 'pendente'      ? '<span class="badge badge-pendente">⏳ Pendente</span>'
+                       : r.status === 'confirmada'  ? '<span class="badge badge-pago">✅ Confirmada</span>'
+                       : r.status === 'cancelada'   ? '<span class="badge badge-cancelado">❌ Cancelada</span>'
+                       : r.status === 'oferta_aceita' ? '<span class="badge badge-pago">🎁 Oferta Aceita</span>'
+                       :                               '<span class="badge">✔️ Concluída</span>';
       var dtCriado = r.criado_em ? new Date(r.criado_em).toLocaleDateString('pt-BR') : '—';
       var fmtVal   = r.valor_total ? 'R$ ' + parseFloat(r.valor_total).toLocaleString('pt-BR', { minimumFractionDigits: 2 }) : '—';
 
@@ -10262,6 +10342,7 @@ async function carregarReservasHospede() {
         + '<td><div class="actions">'
         + (r.status === 'pendente' ? '<button class="btn btn-success btn-sm" onclick="atualizarStatusRH(\'' + r.id + '\',\'confirmada\')">✅ Confirmar</button>' : '')
         + (r.status !== 'cancelada' && r.status !== 'concluida' ? '<button class="btn btn-danger btn-sm" onclick="atualizarStatusRH(\'' + r.id + '\',\'cancelada\')">❌</button>' : '')
+        + (r.status !== 'cancelada' ? '<button class="btn btn-secondary btn-sm" onclick="abrirModalOferta(\'' + r.id + '\',\'' + esc(r.nome_hospede) + '\',\'' + esc(r.email_hospede||'') + '\',\'' + esc(r.telefone||'') + '\',\'' + esc(r.resort_nome||'') + '\',\'' + (r.data_entrada||'') + '\',\'' + (r.data_saida||'') + '\',' + (r.num_hospedes||1) + ',' + (r.valor_total||0) + ')" title="Gerar Oferta Especial">🎁 Oferta</button>' : '')
         + (r.telefone ? '<a href="https://wa.me/55' + r.telefone.replace(/\D/g,'') + '?text=' + encodeURIComponent('Olá ' + r.nome_hospede + '! Sobre sua reserva no ' + (r.resort_nome||'') + '...') + '" target="_blank"><button class="btn btn-secondary btn-sm">💬 WA</button></a>' : '')
         + '</div></td>'
         + '</tr>';
@@ -10282,6 +10363,147 @@ async function atualizarStatusRH(id, novoStatus) {
     carregarReservasHospede();
   } catch(e) {
     toastSistema('Erro ao atualizar status.', 'error');
+  }
+}
+
+// ──────────────────────────────────────────────────────────
+// OFERTA ESPECIAL PERSONALIZADA
+// ──────────────────────────────────────────────────────────
+function abrirModalOferta(reservaId, nome, email, telefone, resort, checkin, checkout, numHospedes, valorTotal) {
+  document.getElementById('of_reserva_id').value    = reservaId || '';
+  document.getElementById('of_nome_hospede').value  = nome || '';
+  document.getElementById('of_email_hospede').value = email || '';
+  document.getElementById('of_telefone').value      = telefone || '';
+  document.getElementById('of_resort_nome').value   = resort || '';
+  document.getElementById('of_acomodacao_tipo').value = '';
+  document.getElementById('of_checkin').value       = checkin || '';
+  document.getElementById('of_checkout').value      = checkout || '';
+  document.getElementById('of_capacidade').value    = numHospedes || 2;
+  document.getElementById('of_valor_original').value = valorTotal ? parseFloat(valorTotal).toFixed(2) : '';
+  document.getElementById('of_desconto_valor').value = '';
+  document.getElementById('of_valor_final').value   = valorTotal ? parseFloat(valorTotal).toFixed(2) : '';
+  document.getElementById('of_observacoes').value   = '';
+
+  // Validade padrão: 48h a partir de agora
+  var v = new Date(Date.now() + 48 * 3600000);
+  var pad = function(n) { return String(n).padStart(2,'0'); };
+  document.getElementById('of_validade').value =
+    v.getFullYear() + '-' + pad(v.getMonth()+1) + '-' + pad(v.getDate())
+    + 'T' + pad(v.getHours()) + ':' + pad(v.getMinutes());
+
+  document.getElementById('ofertaLinkWrap').style.display = 'none';
+  document.getElementById('ofertaLinkInput').value = '';
+  document.getElementById('btnSalvarOferta').disabled = false;
+  document.getElementById('btnSalvarOferta').textContent = '🎁 Gerar Oferta';
+
+  document.getElementById('modalOferta').classList.add('open');
+}
+
+function fecharModalOferta() {
+  document.getElementById('modalOferta').classList.remove('open');
+}
+
+function calcOfertaDesconto() {
+  var orig     = parseFloat(document.getElementById('of_valor_original').value) || 0;
+  var desconto = parseFloat(document.getElementById('of_desconto_valor').value) || 0;
+  var final    = Math.max(0, orig - desconto);
+  document.getElementById('of_valor_final').value = final.toFixed(2);
+}
+
+function gerarTokenOferta() {
+  var arr = new Uint8Array(18);
+  window.crypto.getRandomValues(arr);
+  return Array.from(arr, function(b) { return b.toString(16).padStart(2,'0'); }).join('');
+}
+
+function copiarLinkOferta() {
+  var inp = document.getElementById('ofertaLinkInput');
+  if (!inp || !inp.value) return;
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(inp.value).then(function() {
+      toastSistema('Link copiado!', 'success');
+    });
+  } else {
+    inp.select();
+    document.execCommand('copy');
+    toastSistema('Link copiado!', 'success');
+  }
+}
+
+async function salvarOferta() {
+  var nome      = document.getElementById('of_nome_hospede').value.trim();
+  var email     = document.getElementById('of_email_hospede').value.trim();
+  var resort    = document.getElementById('of_resort_nome').value.trim();
+  var checkin   = document.getElementById('of_checkin').value;
+  var checkout  = document.getElementById('of_checkout').value;
+  var capacidade = parseInt(document.getElementById('of_capacidade').value, 10) || 1;
+  var valOriginal = parseFloat(document.getElementById('of_valor_original').value) || 0;
+  var desconto  = parseFloat(document.getElementById('of_desconto_valor').value) || 0;
+  var validadeStr = document.getElementById('of_validade').value;
+
+  if (!nome || !email || !resort || !checkin || !checkout || !valOriginal || !validadeStr) {
+    toastSistema('Preencha os campos obrigatórios (*).', 'error');
+    return;
+  }
+  if (new Date(checkout) <= new Date(checkin)) {
+    toastSistema('Check-out deve ser posterior ao Check-in.', 'error');
+    return;
+  }
+  if (new Date(validadeStr) <= new Date()) {
+    toastSistema('A validade deve ser uma data futura.', 'error');
+    return;
+  }
+
+  var btn = document.getElementById('btnSalvarOferta');
+  btn.disabled = true;
+  btn.textContent = 'Gerando…';
+
+  try {
+    var token = gerarTokenOferta();
+    var payload = {
+      reserva_id:      document.getElementById('of_reserva_id').value || null,
+      nome_hospede:    nome,
+      email_hospede:   email,
+      telefone:        document.getElementById('of_telefone').value.trim() || null,
+      resort_nome:     resort,
+      acomodacao_tipo: document.getElementById('of_acomodacao_tipo').value.trim() || null,
+      checkin:         checkin,
+      checkout:        checkout,
+      capacidade:      capacidade,
+      valor_original:  valOriginal,
+      desconto_valor:  desconto,
+      observacoes:     document.getElementById('of_observacoes').value.trim() || null,
+      token:           token,
+      validade:        new Date(validadeStr).toISOString()
+    };
+
+    var { error } = await _supabase.from('ofertas_especiais').insert([payload]);
+    if (error) throw error;
+
+    var baseUrl = window.location.origin;
+    var link = baseUrl + '/oferta.html?t=' + token;
+
+    var inp = document.getElementById('ofertaLinkInput');
+    inp.value = link;
+    document.getElementById('ofertaLinkWrap').style.display = 'block';
+
+    var telefone = document.getElementById('of_telefone').value.replace(/\D/g,'');
+    var waLink = document.getElementById('ofertaWhatsappLink');
+    if (telefone) {
+      var msg = 'Olá ' + nome + '! Preparamos uma oferta especial para você: ' + link;
+      waLink.href = 'https://wa.me/55' + telefone + '?text=' + encodeURIComponent(msg);
+      waLink.style.display = '';
+    } else {
+      waLink.style.display = 'none';
+    }
+
+    btn.textContent = '✅ Oferta Gerada!';
+    toastSistema('Oferta especial criada! Copie o link e envie ao hóspede.', 'success');
+    carregarReservasHospede();
+  } catch(e) {
+    btn.disabled = false;
+    btn.textContent = '🎁 Gerar Oferta';
+    toastSistema('Erro ao criar oferta: ' + (e.message || 'verifique se a migration 005 foi executada.'), 'error');
   }
 }
 
