@@ -67,7 +67,108 @@
         </table>
       </div>
     </section>
+
+    <!-- ── Solicitações de Reserva ── -->
+    <section class="admin-card glass">
+      <div class="admin-table-head">
+        <h2>Solicitações de Reserva</h2>
+        <button type="button" id="reloadReservas" class="admin-btn admin-btn-secondary">↻ Atualizar</button>
+      </div>
+      <div class="admin-realtime" id="reservasStatus">Carregando solicitações…</div>
+      <div class="admin-table-wrap">
+        <table class="admin-table" id="reservasTable">
+          <thead>
+            <tr>
+              <th>Nome</th>
+              <th>WhatsApp</th>
+              <th>E-mail</th>
+              <th>Resort</th>
+              <th>Check-in</th>
+              <th>Hóspedes</th>
+              <th>Status</th>
+              <th>Data</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody id="reservasTableBody"></tbody>
+        </table>
+      </div>
+    </section>
   </main>
+
+  <!-- ── Modal: Oferta Especial ── -->
+  <div id="modalOferta" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modalOfertaTitulo" style="display:none">
+    <div class="modal-box glass">
+      <div class="modal-header">
+        <h2 id="modalOfertaTitulo">✦ Oferta Especial Personalizada</h2>
+        <button type="button" id="modalFechar" class="modal-fechar" aria-label="Fechar">&times;</button>
+      </div>
+      <p class="modal-subtitulo" id="modalClienteNome"></p>
+
+      <form id="formOferta" novalidate>
+        <input type="hidden" id="ofReservaId">
+
+        <div class="modal-grid">
+          <div class="modal-group">
+            <label for="ofResort">Resort / Empreendimento</label>
+            <input type="text" id="ofResort" required placeholder="Nome do resort">
+          </div>
+          <div class="modal-group">
+            <label for="ofAcomoda">Tipo de Acomodação</label>
+            <input type="text" id="ofAcomoda" placeholder="Ex: Suite, Chalé, Studio…">
+          </div>
+          <div class="modal-group">
+            <label for="ofCheckin">Check-in</label>
+            <input type="date" id="ofCheckin" required>
+          </div>
+          <div class="modal-group">
+            <label for="ofCheckout">Check-out</label>
+            <input type="date" id="ofCheckout" required>
+          </div>
+          <div class="modal-group">
+            <label for="ofCapacidade">Nº de Hóspedes</label>
+            <input type="number" id="ofCapacidade" min="1" value="2">
+          </div>
+          <div class="modal-group">
+            <label for="ofValidade">Validade da Oferta</label>
+            <input type="datetime-local" id="ofValidade" required>
+          </div>
+          <div class="modal-group">
+            <label for="ofValorOriginal">Valor Original (R$)</label>
+            <input type="number" id="ofValorOriginal" min="0" step="0.01" placeholder="0,00">
+          </div>
+          <div class="modal-group">
+            <label for="ofDesconto">Desconto (R$)</label>
+            <input type="number" id="ofDesconto" min="0" step="0.01" value="0" placeholder="0,00">
+          </div>
+          <div class="modal-group">
+            <label>Valor Final (R$)</label>
+            <div class="modal-valor-final" id="ofValorFinalDisplay">R$ 0,00</div>
+          </div>
+          <div class="modal-group modal-group-full">
+            <label for="ofObs">Observações para o cliente</label>
+            <textarea id="ofObs" rows="3" placeholder="Descreva condições especiais, inclua itens…"></textarea>
+          </div>
+        </div>
+
+        <div class="modal-link-wrap" id="modalLinkWrap" style="display:none">
+          <label>Link da Oferta</label>
+          <div class="modal-link-row">
+            <input type="text" id="ofLinkGerado" readonly>
+            <button type="button" id="btnCopiarLink" class="admin-btn admin-btn-secondary">Copiar</button>
+          </div>
+        </div>
+
+        <div class="modal-acoes">
+          <button type="submit" class="admin-btn" id="btnGerarOferta">Gerar Oferta e Link</button>
+          <button type="button" id="btnEnviarWhatsapp" class="admin-btn modal-btn-wpp" style="display:none">
+            <span>📲</span> Enviar via WhatsApp
+          </button>
+        </div>
+        <div class="modal-msg" id="modalMsg" style="display:none"></div>
+      </form>
+    </div>
+  </div>
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
