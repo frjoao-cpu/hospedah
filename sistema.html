@@ -10491,8 +10491,10 @@ async function salvarOferta() {
     var waLink = document.getElementById('ofertaWhatsappLink');
     if (telefone) {
       var msg = 'Olá ' + nome + '! Preparamos uma oferta especial para você: ' + link;
-      waLink.href = 'https://wa.me/55' + telefone + '?text=' + encodeURIComponent(msg);
+      var waUrl = 'https://wa.me/55' + telefone + '?text=' + encodeURIComponent(msg);
+      waLink.href = waUrl;
       waLink.style.display = '';
+      window.open(waUrl, '_blank', 'noopener');
     } else {
       waLink.style.display = 'none';
     }
