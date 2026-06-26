@@ -297,7 +297,8 @@ body {
   backdrop-filter: blur(18px);
   -webkit-backdrop-filter: blur(18px);
 }
-.nav-dropdown.open .nav-dropdown-menu {
+.nav-dropdown.open .nav-dropdown-menu,
+.nav-dropdown-menu.is-open {
   display: flex;
   flex-direction: column;
   gap: 2px;
@@ -11413,6 +11414,12 @@ function toggleNavDropdown(id) {
   // Close any open dropdowns first
   document.querySelectorAll('.nav-dropdown.open').forEach(function(dd) {
     dd.classList.remove('open');
+    var m = dd._detachedMenu;
+    if (m) {
+      m.classList.remove('is-open');
+      dd.appendChild(m);
+      delete dd._detachedMenu;
+    }
   });
   if (!isOpen) {
     var btn = el.querySelector('.nav-dropdown-btn');
@@ -11421,6 +11428,9 @@ function toggleNavDropdown(id) {
       var rect = btn.getBoundingClientRect();
       menu.style.top  = (rect.bottom + 6) + 'px';
       menu.style.left = rect.left + 'px';
+      el._detachedMenu = menu;
+      document.body.appendChild(menu);
+      menu.classList.add('is-open');
     }
     el.classList.add('open');
   }
@@ -11428,7 +11438,15 @@ function toggleNavDropdown(id) {
 
 function fecharNavDropdown(id) {
   var el = document.getElementById(id);
-  if (el) el.classList.remove('open');
+  if (el) {
+    el.classList.remove('open');
+    var m = el._detachedMenu;
+    if (m) {
+      m.classList.remove('is-open');
+      el.appendChild(m);
+      delete el._detachedMenu;
+    }
+  }
 }
 
 async function deletarPrecoDinamico(id) {
@@ -11723,7 +11741,15 @@ document.addEventListener('DOMContentLoaded', function() {
   // Fechar dropdowns de nav ao clicar fora
   document.addEventListener('click', function(e) {
     document.querySelectorAll('.nav-dropdown.open').forEach(function(dd) {
-      if (!dd.contains(e.target)) dd.classList.remove('open');
+      var menu = dd._detachedMenu;
+      if (!dd.contains(e.target) && !(menu && menu.contains(e.target))) {
+        dd.classList.remove('open');
+        if (menu) {
+          menu.classList.remove('is-open');
+          dd.appendChild(menu);
+          delete dd._detachedMenu;
+        }
+      }
     });
   });
 });
