@@ -2583,7 +2583,7 @@ thead .col-sticky-right {
         <a href="#sec-alertas-captacao" onclick="fecharNavDropdown('navCaptacaoDropdown')">🔔 Alertas de Pagamento</a>
         <a href="#captacao-resumo" onclick="fecharNavDropdown('navCaptacaoDropdown')">🏡 Captações — Resumo</a>
         <a href="#captacao"        onclick="fecharNavDropdown('navCaptacaoDropdown')">➕ Nova Captação</a>
-        <a href="#captacoes"       onclick="fecharNavDropdown('navCaptacaoDropdown')">🏡 Captações Cadastradas</a>
+        <a href="#captacoes"       onclick="fecharNavDropdown('navCaptacaoDropdown'); expandirCaptacoes()">🏡 Captações Cadastradas</a>
       </div>
     </div>
     <span class="nav-sep"></span>
@@ -11367,7 +11367,16 @@ function toggleCaptacoes() {
   if (!content || !btn) return;
   var collapsed = content.style.display === 'none';
   content.style.display = collapsed ? '' : 'none';
-  btn.textContent = collapsed ? '▼ Maximizar' : '▲ Minimizar';
+  btn.textContent = collapsed ? '▲ Minimizar' : '▼ Maximizar';
+}
+
+function expandirCaptacoes() {
+  var content = document.getElementById('captacoesContent');
+  var btn = document.getElementById('captacoesToggleBtn');
+  if (content && content.style.display === 'none') {
+    content.style.display = '';
+    if (btn) btn.textContent = '▲ Minimizar';
+  }
 }
 
 function toggleVisitasSite() {
