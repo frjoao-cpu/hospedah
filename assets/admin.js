@@ -246,6 +246,8 @@
 
       showModalMsg('Oferta gerada com sucesso! Copie o link ou envie via WhatsApp.', 'ok');
 
+      enviarWhatsapp();
+
       await loadReservas();
 
     } catch (err) {
