@@ -9,6 +9,9 @@ Este diretório contém as migrations **incrementais** do banco de dados.
 | `001_instagram.sql` | Cache e configuração do feed do Instagram |
 | `002_security_rls_fixes.sql` | Correções de RLS: reservas, mensagens, disponibilidade, preços |
 | `003_storage_buckets.sql` | Buckets de armazenamento (Supabase Storage) para imagens dos resorts |
+| `004_security_rls_fixes2.sql` | Correções adicionais de RLS e RPC `registrar_ref_code_fidelidade` |
+| `005_oferta_especial.sql` | Ofertas especiais personalizadas e contrapropostas |
+| `006_fidelidade_cpf.sql` | Adiciona coluna `cpf` à tabela `fidelidade` |
 
 ## Como aplicar
 
