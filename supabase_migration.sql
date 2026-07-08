@@ -1510,6 +1510,7 @@ CREATE POLICY "instagram_cache_public_read"
 ALTER TABLE fidelidade ADD COLUMN IF NOT EXISTS ref_code          text UNIQUE;
 ALTER TABLE fidelidade ADD COLUMN IF NOT EXISTS ultima_atividade  timestamptz DEFAULT now();
 ALTER TABLE fidelidade ADD COLUMN IF NOT EXISTS user_id           uuid REFERENCES auth.users(id) ON DELETE SET NULL;
+ALTER TABLE fidelidade ADD COLUMN IF NOT EXISTS cpf               text;
 
 -- Índice para busca rápida por ref_code
 CREATE INDEX IF NOT EXISTS idx_fidelidade_ref_code ON fidelidade(ref_code);
