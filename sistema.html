@@ -3998,6 +3998,7 @@ thead .col-sticky-right {
       🛎️ Solicitações de Reserva (Hóspedes)
       <span style="margin-left:auto; display:flex; gap:8px;">
         <button class="btn btn-secondary btn-sm" onclick="carregarReservasHospede()">🔄 Atualizar</button>
+        <button class="btn btn-secondary btn-sm" onclick="limparSolicitacoesReserva()">🗑️ Limpar</button>
         <a href="reservas.html" target="_blank"><button class="btn btn-secondary btn-sm">🔗 Página pública</button></a>
       </span>
     </div>
@@ -6139,12 +6140,36 @@ function limparAuditoria() {
   mostrarToast('✅ Log de auditoria limpo.', 'success');
 }
 
-function limparMensagens() {
-  if (!confirm('Deseja ocultar as mensagens recebidas? Elas não aparecerão novamente. Novas mensagens continuarão sendo exibidas.')) return;
-  localStorage.setItem('msgClearedAt', new Date().toISOString());
-  var body = document.getElementById('msgBody');
-  if (body) body.innerHTML = '<tr><td colspan="6"><div class="empty-state"><div class="empty-icon">💬</div><div>Nenhuma mensagem ainda.</div></div></td></tr>';
-  mostrarToast('✅ Mensagens ocultadas.', 'success');
+async function limparMensagens() {
+  if (!confirm('Deseja excluir todas as mensagens recebidas? Esta ação não pode ser desfeita.')) return;
+  try {
+    var { error } = await _supabase
+      .from('mensagens')
+      .delete()
+      .eq('remetente', 'hospede');
+    if (error) throw error;
+    localStorage.removeItem('msgClearedAt');
+    var body = document.getElementById('msgBody');
+    if (body) body.innerHTML = '<tr><td colspan="6"><div class="empty-state"><div class="empty-icon">💬</div><div>Nenhuma mensagem ainda.</div></div></td></tr>';
+    mostrarToast('✅ Mensagens excluídas.', 'success');
+  } catch(e) {
+    mostrarToast('❌ Erro ao excluir mensagens.', 'error');
+  }
+}
+
+async function excluirMensagem(id) {
+  if (!confirm('Excluir esta mensagem permanentemente?')) return;
+  try {
+    var { error } = await _supabase
+      .from('mensagens')
+      .delete()
+      .eq('id', id);
+    if (error) throw error;
+    mostrarToast('✅ Mensagem excluída.', 'success');
+    carregarMensagens();
+  } catch(e) {
+    mostrarToast('❌ Erro ao excluir mensagem.', 'error');
+  }
 }
 
 function atualizarDashAutomacoes() {
@@ -10440,6 +10465,21 @@ async function excluirReservaHospede(id) {
   }
 }
 
+async function limparSolicitacoesReserva() {
+  if (!confirm('Deseja excluir TODAS as solicitações de reserva permanentemente? Esta ação não pode ser desfeita.')) return;
+  try {
+    var { error } = await _supabase
+      .from('reservas_hospede')
+      .delete()
+      .neq('id', '00000000-0000-0000-0000-000000000000');
+    if (error) throw error;
+    toastSistema('✅ Todas as solicitações foram excluídas.', 'success');
+    carregarReservasHospede();
+  } catch(e) {
+    toastSistema('Erro ao limpar solicitações.', 'error');
+  }
+}
+
 // ──────────────────────────────────────────────────────────
 // OFERTA ESPECIAL PERSONALIZADA
 // ──────────────────────────────────────────────────────────
@@ -11567,7 +11607,8 @@ async function carregarMensagens() {
         + '<td>' + esc(r.nome_remetente) + '</td>'
         + '<td style="max-width:280px; white-space:normal; font-size:0.85em;">' + esc(r.conteudo) + '</td>'
         + '<td>' + dtHr + '</td>'
-        + '<td><a href="chat.html" target="_blank"><button class="btn btn-secondary btn-sm">💬 Responder</button></a></td>'
+        + '<td><a href="chat.html" target="_blank"><button class="btn btn-secondary btn-sm">💬 Responder</button></a>'
+        + '<button class="btn btn-danger btn-sm" onclick="excluirMensagem(\'' + esc(r.id) + '\')" title="Excluir mensagem">🗑️</button></td>'
         + '</tr>';
     }).join('');
   } catch(e) {
