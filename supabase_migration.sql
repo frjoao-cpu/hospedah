@@ -87,6 +87,8 @@ ALTER TABLE reservas_hospede ENABLE ROW LEVEL SECURITY;
 
 DROP POLICY IF EXISTS "reservas_hospede_insercao_publica" ON reservas_hospede;
 DROP POLICY IF EXISTS "reservas_hospede_leitura_owner" ON reservas_hospede;
+DROP POLICY IF EXISTS "reservas_hospede_exclusao_owner" ON reservas_hospede;
+DROP POLICY IF EXISTS "reservas_hospede_atualizacao_owner" ON reservas_hospede;
 
 -- Qualquer visitante pode criar uma solicitação de reserva
 CREATE POLICY "reservas_hospede_insercao_publica"
@@ -95,6 +97,14 @@ CREATE POLICY "reservas_hospede_insercao_publica"
 -- Apenas donos autenticados lêem todas; hóspede pode ver a própria pelo id
 CREATE POLICY "reservas_hospede_leitura_owner"
   ON reservas_hospede FOR SELECT TO authenticated USING (true);
+
+-- Apenas usuários autenticados podem atualizar solicitações (ex.: confirmar, cancelar)
+CREATE POLICY "reservas_hospede_atualizacao_owner"
+  ON reservas_hospede FOR UPDATE TO authenticated USING (true) WITH CHECK (true);
+
+-- Apenas usuários autenticados podem excluir solicitações
+CREATE POLICY "reservas_hospede_exclusao_owner"
+  ON reservas_hospede FOR DELETE TO authenticated USING (true);
 
 -- ============================================================
 -- 4. DISPONIBILIDADE — datas bloqueadas por acomodação
@@ -187,12 +197,17 @@ ALTER TABLE mensagens ENABLE ROW LEVEL SECURITY;
 
 DROP POLICY IF EXISTS "mensagens_insercao_publica" ON mensagens;
 DROP POLICY IF EXISTS "mensagens_leitura_conversa" ON mensagens;
+DROP POLICY IF EXISTS "mensagens_exclusao_owner" ON mensagens;
 
 CREATE POLICY "mensagens_insercao_publica"
   ON mensagens FOR INSERT WITH CHECK (true);
 
 CREATE POLICY "mensagens_leitura_conversa"
   ON mensagens FOR SELECT USING (true);
+
+-- Apenas usuários autenticados podem excluir mensagens
+CREATE POLICY "mensagens_exclusao_owner"
+  ON mensagens FOR DELETE TO authenticated USING (true);
 
 -- Habilitar Realtime para a tabela mensagens (idempotente)
 DO $$
