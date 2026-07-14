@@ -11682,6 +11682,7 @@ async function pontuarHospedeManual() {
     document.getElementById('fid_obs').value    = '';
     carregarFidelidadeAdmin();
   } catch(e) {
+    console.error('[pontuarHospedeManual] erro:', e);
     toastSistema('Erro ao pontuar hóspede. Verifique a migração SQL.', 'error');
   }
 }

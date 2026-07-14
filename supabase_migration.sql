@@ -390,12 +390,16 @@ CREATE POLICY "atividade_insercao_publica"
 -- 12. FIDELIDADE — pontos de lealdade por hóspede
 -- ============================================================
 CREATE TABLE IF NOT EXISTS fidelidade (
-  id              uuid          PRIMARY KEY DEFAULT gen_random_uuid(),
-  email_hospede   text          NOT NULL UNIQUE,
-  pontos          int           NOT NULL DEFAULT 0,
-  nivel           text          NOT NULL DEFAULT 'bronze' CHECK (nivel IN ('bronze', 'prata', 'ouro')),
-  total_estadias  int           NOT NULL DEFAULT 0,
-  atualizado_em   timestamptz   DEFAULT now()
+  id               uuid          PRIMARY KEY DEFAULT gen_random_uuid(),
+  email_hospede    text          NOT NULL UNIQUE,
+  pontos           int           NOT NULL DEFAULT 0,
+  nivel            text          NOT NULL DEFAULT 'bronze' CHECK (nivel IN ('bronze', 'prata', 'ouro')),
+  total_estadias   int           NOT NULL DEFAULT 0,
+  atualizado_em    timestamptz   DEFAULT now(),
+  cpf              text,
+  ultima_atividade timestamptz   DEFAULT now(),
+  ref_code         text          UNIQUE,
+  user_id          uuid          REFERENCES auth.users(id) ON DELETE SET NULL
 );
 
 ALTER TABLE fidelidade ENABLE ROW LEVEL SECURITY;
