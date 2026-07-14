@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>HOSPEDAH-SISTEMA | Gestão Financeira</title>
+<title>🏆 Programa de Fidelidade | HOSPEDAH-SISTEMA</title>
 <meta name="robots" content="noindex, nofollow">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://ydrmjoppjxtmnwtvtinb.supabase.co wss://ydrmjoppjxtmnwtvtinb.supabase.co; img-src 'self' data:; object-src 'none'; base-uri 'self';">
 <link rel="manifest" href="/manifest.json">
@@ -4371,31 +4371,82 @@ thead .col-sticky-right {
       </span>
     </div>
 
-    <!-- Formulário de pontuação manual -->
+    <!-- Stats bar -->
+    <div id="fidStats" style="display:flex; gap:12px; flex-wrap:wrap; margin-bottom:16px;"></div>
+
+    <!-- Painel de controle do hóspede -->
     <div class="calc-section" style="margin-bottom:20px; background:var(--fundo-card); border-radius:10px; padding:18px; border:1px solid var(--borda);">
-      <div style="font-size:0.9em; font-weight:600; color:var(--dourado); margin-bottom:14px;">➕ Pontuar Hóspede Manualmente</div>
-      <div style="display:grid; grid-template-columns:1fr 1fr 1fr auto; gap:10px; align-items:end; flex-wrap:wrap;">
+      <div style="font-size:0.9em; font-weight:600; color:var(--dourado); margin-bottom:14px;">🔍 Consultar / Gerenciar Hóspede</div>
+
+      <!-- Linha 1: busca -->
+      <div style="display:grid; grid-template-columns:1fr 1fr auto; gap:10px; align-items:end; margin-bottom:12px;">
         <div>
-          <label style="font-size:0.78em; color:var(--cor-sub); display:block; margin-bottom:4px;">CPF do Hóspede *</label>
+          <label style="font-size:0.78em; color:var(--cor-sub); display:block; margin-bottom:4px;">CPF do Hóspede</label>
           <input type="text" id="fid_cpf" placeholder="000.000.000-00" maxlength="14" oninput="mascararCPFFid(this)" autocomplete="off" style="width:100%;">
         </div>
         <div>
           <label style="font-size:0.78em; color:var(--cor-sub); display:block; margin-bottom:4px;">E-mail do Hóspede *</label>
-          <input type="email" id="fid_email" placeholder="hospede@email.com" autocomplete="off" style="width:100%;">
+          <input type="email" id="fid_email" placeholder="hospede@email.com" autocomplete="off" style="width:100%;" oninput="fidLimparInfo()">
         </div>
         <div>
-          <label style="font-size:0.78em; color:var(--cor-sub); display:block; margin-bottom:4px;">Pontos a Adicionar *</label>
+          <button class="btn btn-secondary" onclick="consultarSaldoFid()" style="white-space:nowrap;">🔍 Consultar Saldo</button>
+        </div>
+      </div>
+
+      <!-- Painel de saldo atual (oculto até consulta) -->
+      <div id="fidInfoPanel" style="display:none; background:linear-gradient(135deg,rgba(212,175,55,0.12),rgba(212,175,55,0.04)); border:1px solid rgba(212,175,55,0.35); border-radius:8px; padding:12px 16px; margin-bottom:12px;">
+        <div style="display:flex; align-items:center; gap:18px; flex-wrap:wrap;">
+          <div>
+            <span style="font-size:0.75em; color:var(--cor-sub);">Hóspede encontrado</span><br>
+            <strong id="fidInfoEmail" style="font-size:0.9em;"></strong>
+          </div>
+          <div style="text-align:center;">
+            <span style="font-size:0.75em; color:var(--cor-sub);">Saldo Atual</span><br>
+            <strong id="fidInfoPontos" style="font-size:1.3em; color:var(--dourado);"></strong> <span style="font-size:0.75em; color:var(--cor-sub);">pts</span>
+          </div>
+          <div style="text-align:center;">
+            <span style="font-size:0.75em; color:var(--cor-sub);">Nível</span><br>
+            <strong id="fidInfoNivel" style="font-size:0.95em;"></strong>
+          </div>
+          <div style="text-align:center;">
+            <span style="font-size:0.75em; color:var(--cor-sub);">Estadias</span><br>
+            <strong id="fidInfoEstadias" style="font-size:0.95em;"></strong>
+          </div>
+        </div>
+      </div>
+
+      <!-- Linha 2: ações de pontos -->
+      <div style="display:grid; grid-template-columns:1fr 1fr auto auto; gap:10px; align-items:end; margin-bottom:10px;">
+        <div>
+          <label style="font-size:0.78em; color:var(--cor-sub); display:block; margin-bottom:4px;">Pontos a Adicionar ➕</label>
           <input type="number" id="fid_pontos" placeholder="Ex.: 50" min="1" max="9999" style="width:100%;">
         </div>
-        <div style="display:flex; gap:8px; flex-wrap:wrap;">
-          <button class="btn btn-primary" onclick="pontuarHospedeManual()" style="white-space:nowrap;">🏅 Pontuar</button>
-          <button class="btn btn-danger" onclick="excluirPontuacaoHospede()" style="white-space:nowrap;">🗑️ Excluir</button>
+        <div>
+          <label style="font-size:0.78em; color:var(--cor-sub); display:block; margin-bottom:4px;">Pontos a Subtrair ➖</label>
+          <input type="number" id="fid_pontos_sub" placeholder="Ex.: 20" min="1" max="9999" style="width:100%;">
+        </div>
+        <div>
+          <button class="btn btn-primary" onclick="pontuarHospedeManual()" style="white-space:nowrap;">🏅 Adicionar</button>
+        </div>
+        <div>
+          <button class="btn btn-warning" onclick="subtrairPontuacaoHospede()" style="white-space:nowrap; background:rgba(243,156,18,0.18); border:1px solid rgba(243,156,18,0.5); color:#f39c12;">➖ Subtrair</button>
         </div>
       </div>
-      <div style="margin-top:10px;">
-        <label style="font-size:0.78em; color:var(--cor-sub); display:block; margin-bottom:4px;">Observação (opcional)</label>
-        <input type="text" id="fid_obs" placeholder="Ex.: Reserva avulsa — Resort Camburi" style="width:100%; max-width:500px;" autocomplete="off">
+
+      <!-- Linha 3: observação + excluir tudo -->
+      <div style="display:flex; gap:10px; align-items:flex-end; flex-wrap:wrap;">
+        <div style="flex:1; min-width:200px;">
+          <label style="font-size:0.78em; color:var(--cor-sub); display:block; margin-bottom:4px;">Observação (opcional)</label>
+          <input type="text" id="fid_obs" placeholder="Ex.: Reserva avulsa — Resort Camburi" style="width:100%;" autocomplete="off">
+        </div>
+        <button class="btn btn-danger" onclick="excluirPontuacaoHospede()" style="white-space:nowrap;">🗑️ Excluir Tudo</button>
       </div>
+    </div>
+
+    <!-- Filtro da tabela -->
+    <div style="margin-bottom:10px; display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+      <input type="search" id="fidFiltro" placeholder="🔍 Filtrar por CPF, e-mail ou nível…" oninput="filtrarTabelaFid()" style="flex:1; min-width:200px; max-width:420px;">
+      <button class="btn btn-danger btn-sm" onclick="excluirTodosFidelidade()" style="white-space:nowrap; margin-left:auto;">🗑️ Excluir Todos</button>
     </div>
 
     <!-- Tabela de hóspedes fidelizados -->
@@ -11629,6 +11680,43 @@ function mascararCPFFid(el) {
   el.value = v;
 }
 
+function fidLimparInfo() {
+  var p = document.getElementById('fidInfoPanel');
+  if (p) p.style.display = 'none';
+}
+
+async function consultarSaldoFid() {
+  var email = (document.getElementById('fid_email').value || '').trim().toLowerCase();
+  if (!email) { toastSistema('Informe o e-mail do hóspede para consultar.', 'error'); return; }
+  try {
+    var { data, error } = await _supabase
+      .from('fidelidade')
+      .select('id, cpf, email_hospede, pontos, nivel, total_estadias')
+      .eq('email_hospede', email)
+      .maybeSingle();
+    if (error) throw error;
+    var panel = document.getElementById('fidInfoPanel');
+    if (!data) {
+      if (panel) panel.style.display = 'none';
+      toastSistema('Nenhum registro encontrado para ' + email, 'error');
+      return;
+    }
+    var nivelEmoji = { bronze: '🥉', prata: '🥈', ouro: '🥇' };
+    var nv = data.nivel || 'bronze';
+    document.getElementById('fidInfoEmail').textContent    = data.email_hospede;
+    document.getElementById('fidInfoPontos').textContent   = data.pontos || 0;
+    document.getElementById('fidInfoNivel').textContent    = (nivelEmoji[nv] || '') + ' ' + nv.charAt(0).toUpperCase() + nv.slice(1);
+    document.getElementById('fidInfoEstadias').textContent = data.total_estadias || 0;
+    if (panel) panel.style.display = 'block';
+    if (data.cpf && !document.getElementById('fid_cpf').value) {
+      document.getElementById('fid_cpf').value = data.cpf;
+    }
+  } catch(e) {
+    console.error('[consultarSaldoFid] erro:', e);
+    toastSistema('Erro ao consultar saldo do hóspede.', 'error');
+  }
+}
+
 async function pontuarHospedeManual() {
   var cpf    = (document.getElementById('fid_cpf').value    || '').trim();
   var email  = (document.getElementById('fid_email').value  || '').trim().toLowerCase();
@@ -11639,7 +11727,6 @@ async function pontuarHospedeManual() {
   if (!pontos || pontos < 1) { toastSistema('Informe uma quantidade válida de pontos.', 'error'); return; }
 
   try {
-    // Buscar registro existente pelo email
     var { data: existente, error: errBusca } = await _supabase
       .from('fidelidade')
       .select('id, pontos, total_estadias, cpf')
@@ -11682,6 +11769,7 @@ async function pontuarHospedeManual() {
     document.getElementById('fid_email').value  = '';
     document.getElementById('fid_pontos').value = '';
     document.getElementById('fid_obs').value    = '';
+    fidLimparInfo();
     carregarFidelidadeAdmin();
   } catch(e) {
     console.error('[pontuarHospedeManual] erro:', e);
@@ -11689,10 +11777,43 @@ async function pontuarHospedeManual() {
   }
 }
 
+async function subtrairPontuacaoHospede() {
+  var email  = (document.getElementById('fid_email').value   || '').trim().toLowerCase();
+  var pontos = parseInt(document.getElementById('fid_pontos_sub').value || '0', 10);
+  if (!email)            { toastSistema('Informe o e-mail do hóspede.', 'error'); return; }
+  if (!pontos || pontos < 1) { toastSistema('Informe uma quantidade válida de pontos a subtrair.', 'error'); return; }
+  try {
+    var { data: existente, error: errBusca } = await _supabase
+      .from('fidelidade')
+      .select('id, pontos, nivel')
+      .eq('email_hospede', email)
+      .maybeSingle();
+    if (errBusca) throw errBusca;
+    if (!existente) { toastSistema('Nenhum registro encontrado para ' + email, 'error'); return; }
+
+    var novosPontos = Math.max(0, existente.pontos - pontos);
+    var nivel = novosPontos >= 1500 ? 'ouro' : novosPontos >= 500 ? 'prata' : 'bronze';
+
+    var { error: errUpd } = await _supabase
+      .from('fidelidade')
+      .update({ pontos: novosPontos, nivel: nivel, atualizado_em: new Date().toISOString() })
+      .eq('id', existente.id);
+    if (errUpd) throw errUpd;
+
+    toastSistema('✅ ' + pontos + ' ponto(s) subtraído(s) de ' + email + '. Saldo: ' + novosPontos, 'success');
+    document.getElementById('fid_pontos_sub').value = '';
+    fidLimparInfo();
+    carregarFidelidadeAdmin();
+  } catch(e) {
+    console.error('[subtrairPontuacaoHospede] erro:', e);
+    toastSistema('Erro ao subtrair pontos do hóspede.', 'error');
+  }
+}
+
 async function excluirPontuacaoHospede() {
   var email = (document.getElementById('fid_email').value || '').trim().toLowerCase();
   if (!email) { toastSistema('Informe o e-mail do hóspede para excluir.', 'error'); return; }
-  if (!confirm('Excluir toda a pontuação de ' + email + '? Esta ação não pode ser desfeita.')) return;
+  if (!confirm('Excluir toda a pontuação de ' + email + '?\n\nEsta ação não pode ser desfeita.')) return;
   try {
     var { error } = await _supabase
       .from('fidelidade')
@@ -11700,10 +11821,12 @@ async function excluirPontuacaoHospede() {
       .eq('email_hospede', email);
     if (error) throw error;
     toastSistema('🗑️ Pontuação de ' + email + ' excluída com sucesso.', 'success');
-    document.getElementById('fid_cpf').value    = '';
-    document.getElementById('fid_email').value  = '';
-    document.getElementById('fid_pontos').value = '';
-    document.getElementById('fid_obs').value    = '';
+    document.getElementById('fid_cpf').value         = '';
+    document.getElementById('fid_email').value        = '';
+    document.getElementById('fid_pontos').value       = '';
+    document.getElementById('fid_pontos_sub').value   = '';
+    document.getElementById('fid_obs').value          = '';
+    fidLimparInfo();
     carregarFidelidadeAdmin();
   } catch(e) {
     console.error('[excluirPontuacaoHospede] erro:', e);
@@ -11712,7 +11835,7 @@ async function excluirPontuacaoHospede() {
 }
 
 async function excluirPontuacaoHospedeById(id, email) {
-  if (!confirm('Excluir toda a pontuação de ' + email + '? Esta ação não pode ser desfeita.')) return;
+  if (!confirm('Excluir toda a pontuação de ' + email + '?\n\nEsta ação não pode ser desfeita.')) return;
   try {
     var { error } = await _supabase
       .from('fidelidade')
@@ -11727,37 +11850,106 @@ async function excluirPontuacaoHospedeById(id, email) {
   }
 }
 
+async function excluirTodosFidelidade() {
+  if (!confirm('⚠️ ATENÇÃO: Excluir TODOS os registros do programa de fidelidade?\n\nEsta ação é irreversível e apagará os pontos de todos os hóspedes.')) return;
+  if (!confirm('Confirme novamente: deseja realmente excluir todos os registros?')) return;
+  try {
+    var { error } = await _supabase
+      .from('fidelidade')
+      .delete()
+      .neq('id', '00000000-0000-0000-0000-000000000000');
+    if (error) throw error;
+    toastSistema('🗑️ Todos os registros do programa de fidelidade foram excluídos.', 'success');
+    carregarFidelidadeAdmin();
+  } catch(e) {
+    console.error('[excluirTodosFidelidade] erro:', e);
+    toastSistema('Erro ao excluir registros do programa de fidelidade.', 'error');
+  }
+}
+
+var _fidDados = [];
+
+function filtrarTabelaFid() {
+  var q = (document.getElementById('fidFiltro').value || '').toLowerCase();
+  var body = document.getElementById('fidBody');
+  if (!q) { renderizarTabelaFid(_fidDados); return; }
+  renderizarTabelaFid(_fidDados.filter(function(r) {
+    return (r.cpf || '').toLowerCase().includes(q)
+        || (r.email_hospede || '').toLowerCase().includes(q)
+        || (r.nivel || '').toLowerCase().includes(q);
+  }));
+}
+
+function renderizarTabelaFid(lista) {
+  var body = document.getElementById('fidBody');
+  if (!lista || lista.length === 0) {
+    body.innerHTML = '<tr><td colspan="8"><div class="empty-state"><div class="empty-icon">🏆</div><div>Nenhum hóspede no programa ainda.</div></div></td></tr>';
+    return;
+  }
+  var nivelEmoji = { bronze: '🥉', prata: '🥈', ouro: '🥇' };
+  body.innerHTML = lista.map(function(r, i) {
+    var dt = r.atualizado_em ? new Date(r.atualizado_em).toLocaleDateString('pt-BR') : '—';
+    var nv = r.nivel || 'bronze';
+    return '<tr>'
+      + '<td>' + (i + 1) + '</td>'
+      + '<td>' + esc(r.cpf || '—') + '</td>'
+      + '<td>' + esc(r.email_hospede) + '</td>'
+      + '<td>' + (nivelEmoji[nv] || '') + ' ' + nv.charAt(0).toUpperCase() + nv.slice(1) + '</td>'
+      + '<td><strong>' + (r.pontos || 0) + '</strong></td>'
+      + '<td>' + (r.total_estadias || 0) + '</td>'
+      + '<td>' + dt + '</td>'
+      + '<td style="display:flex;gap:4px;flex-wrap:wrap;">'
+      + '<button class="btn btn-secondary btn-sm" onclick="preencherFormFid(' + JSON.stringify(esc(r.email_hospede)) + ',' + JSON.stringify(esc(r.cpf||'')) + ')" title="Carregar no painel" style="white-space:nowrap;">✏️ Editar</button>'
+      + '<button class="btn btn-danger btn-sm" onclick="excluirPontuacaoHospedeById(' + JSON.stringify(r.id) + ',' + JSON.stringify(esc(r.email_hospede)) + ')" style="white-space:nowrap;" title="Excluir registro">🗑️</button>'
+      + '</td>'
+      + '</tr>';
+  }).join('');
+}
+
+function preencherFormFid(email, cpf) {
+  document.getElementById('fid_email').value = email;
+  if (cpf) document.getElementById('fid_cpf').value = cpf;
+  document.getElementById('fid_pontos').value = '';
+  document.getElementById('fid_pontos_sub').value = '';
+  consultarSaldoFid();
+  var sec = document.getElementById('fidelidade-admin');
+  if (sec) sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
 async function carregarFidelidadeAdmin() {
   try {
     var { data, error } = await _supabase
       .from('fidelidade')
       .select('id, cpf, email_hospede, pontos, nivel, total_estadias, atualizado_em')
       .order('pontos', { ascending: false })
-      .limit(100);
+      .limit(200);
     if (error) throw error;
 
-    var body = document.getElementById('fidBody');
-    var lista = data || [];
-    if (lista.length === 0) {
-      body.innerHTML = '<tr><td colspan="7"><div class="empty-state"><div class="empty-icon">🏆</div><div>Nenhum hóspede no programa ainda.</div></div></td></tr>';
-      return;
+    _fidDados = data || [];
+
+    // Stats bar
+    var statsEl = document.getElementById('fidStats');
+    if (statsEl) {
+      var totalPts   = _fidDados.reduce(function(s, r) { return s + (r.pontos || 0); }, 0);
+      var qtdOuro    = _fidDados.filter(function(r) { return r.nivel === 'ouro'; }).length;
+      var qtdPrata   = _fidDados.filter(function(r) { return r.nivel === 'prata'; }).length;
+      var qtdBronze  = _fidDados.filter(function(r) { return r.nivel === 'bronze'; }).length;
+      statsEl.innerHTML = [
+        { label: '👤 Total', val: _fidDados.length + ' hóspedes' },
+        { label: '⭐ Pontos Emitidos', val: totalPts.toLocaleString('pt-BR') },
+        { label: '🥇 Ouro', val: qtdOuro },
+        { label: '🥈 Prata', val: qtdPrata },
+        { label: '🥉 Bronze', val: qtdBronze }
+      ].map(function(s) {
+        return '<div style="background:var(--fundo-card);border:1px solid var(--borda);border-radius:8px;padding:8px 14px;min-width:100px;">'
+          + '<div style="font-size:0.72em;color:var(--cor-sub);">' + s.label + '</div>'
+          + '<div style="font-size:1em;font-weight:700;">' + s.val + '</div>'
+          + '</div>';
+      }).join('');
     }
 
-    var nivelEmoji = { bronze: '🥉', prata: '🥈', ouro: '🥇' };
-    body.innerHTML = lista.map(function(r, i) {
-      var dt = r.atualizado_em ? new Date(r.atualizado_em).toLocaleDateString('pt-BR') : '—';
-      var nv = r.nivel || 'bronze';
-      return '<tr>'
-        + '<td>' + (i + 1) + '</td>'
-        + '<td>' + esc(r.cpf || '—') + '</td>'
-        + '<td>' + esc(r.email_hospede) + '</td>'
-        + '<td>' + (nivelEmoji[nv] || '') + ' ' + nv.charAt(0).toUpperCase() + nv.slice(1) + '</td>'
-        + '<td><strong>' + (r.pontos || 0) + '</strong></td>'
-        + '<td>' + (r.total_estadias || 0) + '</td>'
-        + '<td>' + dt + '</td>'
-        + '<td><button class="btn btn-danger btn-sm" onclick="excluirPontuacaoHospedeById(' + r.id + ', ' + JSON.stringify(esc(r.email_hospede)) + ')" style="white-space:nowrap;">🗑️ Excluir</button></td>'
-        + '</tr>';
-    }).join('');
+    var q = (document.getElementById('fidFiltro') || {}).value || '';
+    if (q) filtrarTabelaFid(); else renderizarTabelaFid(_fidDados);
   } catch(e) {
     toastSistema('Erro ao carregar programa de fidelidade.', 'error');
   }
