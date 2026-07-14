@@ -4387,8 +4387,9 @@ thead .col-sticky-right {
           <label style="font-size:0.78em; color:var(--cor-sub); display:block; margin-bottom:4px;">Pontos a Adicionar *</label>
           <input type="number" id="fid_pontos" placeholder="Ex.: 50" min="1" max="9999" style="width:100%;">
         </div>
-        <div>
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
           <button class="btn btn-primary" onclick="pontuarHospedeManual()" style="white-space:nowrap;">🏅 Pontuar</button>
+          <button class="btn btn-danger" onclick="excluirPontuacaoHospede()" style="white-space:nowrap;">🗑️ Excluir</button>
         </div>
       </div>
       <div style="margin-top:10px;">
@@ -4408,10 +4409,11 @@ thead .col-sticky-right {
           <th>Pontos</th>
           <th>Estadias</th>
           <th>Última Atualização</th>
+          <th>Ações</th>
         </tr>
       </thead>
       <tbody id="fidBody">
-        <tr><td colspan="7"><div class="empty-state"><div class="empty-icon">🏆</div><div>Nenhum hóspede no programa ainda.</div></div></td></tr>
+        <tr><td colspan="8"><div class="empty-state"><div class="empty-icon">🏆</div><div>Nenhum hóspede no programa ainda.</div></div></td></tr>
       </tbody>
     </table>
   </section>
@@ -11687,6 +11689,44 @@ async function pontuarHospedeManual() {
   }
 }
 
+async function excluirPontuacaoHospede() {
+  var email = (document.getElementById('fid_email').value || '').trim().toLowerCase();
+  if (!email) { toastSistema('Informe o e-mail do hóspede para excluir.', 'error'); return; }
+  if (!confirm('Excluir toda a pontuação de ' + email + '? Esta ação não pode ser desfeita.')) return;
+  try {
+    var { error } = await _supabase
+      .from('fidelidade')
+      .delete()
+      .eq('email_hospede', email);
+    if (error) throw error;
+    toastSistema('🗑️ Pontuação de ' + email + ' excluída com sucesso.', 'success');
+    document.getElementById('fid_cpf').value    = '';
+    document.getElementById('fid_email').value  = '';
+    document.getElementById('fid_pontos').value = '';
+    document.getElementById('fid_obs').value    = '';
+    carregarFidelidadeAdmin();
+  } catch(e) {
+    console.error('[excluirPontuacaoHospede] erro:', e);
+    toastSistema('Erro ao excluir pontuação do hóspede.', 'error');
+  }
+}
+
+async function excluirPontuacaoHospedeById(id, email) {
+  if (!confirm('Excluir toda a pontuação de ' + email + '? Esta ação não pode ser desfeita.')) return;
+  try {
+    var { error } = await _supabase
+      .from('fidelidade')
+      .delete()
+      .eq('id', id);
+    if (error) throw error;
+    toastSistema('🗑️ Pontuação de ' + email + ' excluída com sucesso.', 'success');
+    carregarFidelidadeAdmin();
+  } catch(e) {
+    console.error('[excluirPontuacaoHospedeById] erro:', e);
+    toastSistema('Erro ao excluir pontuação do hóspede.', 'error');
+  }
+}
+
 async function carregarFidelidadeAdmin() {
   try {
     var { data, error } = await _supabase
@@ -11715,6 +11755,7 @@ async function carregarFidelidadeAdmin() {
         + '<td><strong>' + (r.pontos || 0) + '</strong></td>'
         + '<td>' + (r.total_estadias || 0) + '</td>'
         + '<td>' + dt + '</td>'
+        + '<td><button class="btn btn-danger btn-sm" onclick="excluirPontuacaoHospedeById(' + r.id + ', ' + JSON.stringify(esc(r.email_hospede)) + ')" style="white-space:nowrap;">🗑️ Excluir</button></td>'
         + '</tr>';
     }).join('');
   } catch(e) {
