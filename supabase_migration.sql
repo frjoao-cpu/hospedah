@@ -407,6 +407,7 @@ ALTER TABLE fidelidade ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "fidelidade_leitura_publica"      ON fidelidade;
 DROP POLICY IF EXISTS "fidelidade_insercao_publica"     ON fidelidade;
 DROP POLICY IF EXISTS "fidelidade_atualizacao_publica"  ON fidelidade;
+DROP POLICY IF EXISTS "fidelidade_exclusao_publica"     ON fidelidade;
 
 CREATE POLICY "fidelidade_leitura_publica"
   ON fidelidade FOR SELECT USING (true);
@@ -416,6 +417,9 @@ CREATE POLICY "fidelidade_insercao_publica"
 
 CREATE POLICY "fidelidade_atualizacao_publica"
   ON fidelidade FOR UPDATE WITH CHECK (true);
+
+CREATE POLICY "fidelidade_exclusao_publica"
+  ON fidelidade FOR DELETE USING (true);
 
 -- ============================================================
 -- 13. TICKETS DE PÓS-VENDA — ocorrências e chamados
