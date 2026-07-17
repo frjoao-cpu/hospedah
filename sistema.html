@@ -3355,6 +3355,9 @@ thead .col-sticky-right {
           <thead>
             <tr>
               <th>Hóspede / Resort</th>
+              <th>Canal</th>
+              <th>Check-in</th>
+              <th>Check-out</th>
               <th>Mês Ref.</th>
               <th>Previsto</th>
               <th>Recebido</th>
@@ -3364,7 +3367,7 @@ thead .col-sticky-right {
             </tr>
           </thead>
           <tbody id="bodyParcelasAtraso">
-            <tr><td colspan="7" class="loading-spinner"><div class="spinner"></div> Carregando...</td></tr>
+            <tr><td colspan="10" class="loading-spinner"><div class="spinner"></div> Carregando...</td></tr>
           </tbody>
         </table>
       </div>
@@ -7747,7 +7750,10 @@ function carregarParcelasAtraso() {
 
   reservas.forEach(function (r) {
     if ((r.status || '').toLowerCase() === 'cancelado') return;
-    var label = (r.cliente || '—') + ' / ' + (r.resort || '—');
+    var label   = (r.cliente || '—') + ' / ' + (r.resort || '—');
+    var canal   = r.canal || 'Direta';
+    var entrada = r.entrada || null;
+    var saida   = r.saida   || null;
 
     (r.parcelasComissao || []).forEach(function (p, idxP) {
       if (!p.mes || parseFloat(p.valor) <= 0) return;
@@ -7768,6 +7774,9 @@ function carregarParcelasAtraso() {
         reservaId: r.id,
         parcelIdx: idxP,
         label:     label,
+        canal:     canal,
+        entrada:   entrada,
+        saida:     saida,
         mes:       p.mes,
         valor:     parseFloat(p.valor),
         recebido:  parseFloat(p.recebido) || 0,
@@ -7785,6 +7794,9 @@ function carregarParcelasAtraso() {
             reservaId: r.id,
             parcelIdx: -1,
             label:     label,
+            canal:     canal,
+            entrada:   entrada,
+            saida:     saida,
             mes:       mes,
             valor:     (parseFloat(r.comissao) || 0),
             recebido:  parseFloat(r.comissaoRecebida) || 0,
@@ -7798,7 +7810,7 @@ function carregarParcelasAtraso() {
   parcelas.sort(function (a, b) { return a.mes < b.mes ? -1 : a.mes > b.mes ? 1 : 0; });
 
   if (!parcelas.length) {
-    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--cor-sub);">✅ Nenhuma parcela em atraso</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;color:var(--cor-sub);">✅ Nenhuma parcela em atraso</td></tr>';
     return;
   }
 
@@ -7810,6 +7822,9 @@ function carregarParcelasAtraso() {
       : '';
     return '<tr>'
       + '<td data-label="Hóspede / Resort">' + esc(p.label) + '</td>'
+      + '<td data-label="Canal"><small>' + esc(p.canal) + '</small></td>'
+      + '<td data-label="Check-in">' + formatarData(p.entrada) + '</td>'
+      + '<td data-label="Check-out">' + formatarData(p.saida) + '</td>'
       + '<td data-label="Mês Ref.">' + fmtMesRef(p.mes) + '</td>'
       + '<td data-label="Previsto">' + fmtMoney(p.valor) + '</td>'
       + '<td data-label="Recebido">' + fmtMoney(p.recebido) + '</td>'
