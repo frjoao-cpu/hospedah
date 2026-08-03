@@ -539,6 +539,15 @@ body {
 .cap-alerta-data       { font-size: 0.75em; color: var(--cor-sub); text-align: right; }
 .cap-alerta-data em    { font-style: normal; font-weight: 600; }
 .cap-alerta-item-actions { display: flex; gap: 5px; flex-shrink: 0; }
+.cap-alerta-item-extra  { width: 100%; margin-top: 6px; font-size: 0.78em; color: var(--cor-sub); display: flex; flex-wrap: wrap; gap: 8px 18px; }
+.cap-alerta-item-extra span { white-space: nowrap; }
+.cap-alerta-parcial     { width: 100%; margin-top: 8px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.cap-alerta-parcial input[type=number] {
+  width: 130px; padding: 5px 8px; border-radius: 7px;
+  border: 1px solid var(--borda); background: var(--bg3,#1e1e1e);
+  color: var(--cor-texto); font-size: 0.85em;
+}
+.cap-alerta-parcial label { font-size: 0.78em; color: var(--cor-sub); white-space: nowrap; }
 
 .calc-section {
   background: var(--bg2);
@@ -9953,7 +9962,9 @@ function renderAlertasPagamentoCaptacao() {
         else if (a.diasDiff === 0) diasTxt = 'hoje';
         else                     diasTxt = 'em ' + a.diasDiff + 'd';
       }
-      var parcInfo = a.parcelaIdx !== null ? ' · Parcela ' + (a.parcelaIdx + 1) : '';
+      var numParc  = c.numParcelas > 0 ? c.numParcelas : 1;
+      var parcNum  = a.parcelaIdx !== null ? (a.parcelaIdx + 1) : null;
+      var parcInfo = parcNum !== null ? ' · Parcela ' + parcNum + '/' + numParc : '';
       var formaStr = (c.formaPag ? (formaLabel[c.formaPag] || c.formaPag) : '');
       var telLink  = c.telefone
         ? '<a href="https://wa.me/55' + c.telefone.replace(/\D/g,'') + '" target="_blank" style="color:var(--verde);">📱</a>'
@@ -9961,6 +9972,24 @@ function renderAlertasPagamentoCaptacao() {
       var pagarBtn = a.parcelaIdx !== null
         ? '<button class="btn btn-success btn-sm" onclick="marcarParcelaCapPaga(\'' + escapeHtml(c.id) + '\',' + a.parcelaIdx + ')" title="Marcar parcela como paga">✅ Pago</button>'
         : '<button class="btn btn-success btn-sm" onclick="marcarCaptacaoQuitada(\'' + escapeHtml(c.id) + '\')" title="Marcar captação como quitada">✅ Quitar</button>';
+
+      /* Extra info: check-in/out and plan */
+      var periodoStr = (c.dataIni && c.dataFim)
+        ? '📆 ' + formatarData(c.dataIni) + ' → ' + formatarData(c.dataFim)
+        : '';
+      var planoStr   = c.valorPeriodo > 0
+        ? '💰 Total: ' + formatBRL(c.valorPeriodo) + (numParc > 1 ? ' (' + numParc + 'x de ' + formatBRL(c.valorPeriodo / numParc) + ')' : '')
+        : '';
+
+      /* Partial payment input */
+      var inputId    = 'cap-parcial-' + escapeHtml(c.id) + (a.parcelaIdx !== null ? '-' + a.parcelaIdx : '-q');
+      var parcialRow = '<div class="cap-alerta-parcial">' +
+        '<label for="' + inputId + '">💲 Abater valor diferente:</label>' +
+        '<input type="number" id="' + inputId + '" min="0.01" step="0.01" placeholder="R$ 0,00" style="width:130px;">' +
+        (a.parcelaIdx !== null
+          ? '<button class="btn btn-secondary btn-sm" onclick="pagarValorParcialCap(\'' + escapeHtml(c.id) + '\',' + a.parcelaIdx + ',\'' + inputId + '\')" title="Registrar pagamento parcial">💳 Abater</button>'
+          : '<button class="btn btn-secondary btn-sm" onclick="pagarValorParcialCapSemParcela(\'' + escapeHtml(c.id) + '\',\'' + inputId + '\')" title="Registrar pagamento parcial">💳 Abater</button>'
+        ) + '</div>';
 
       html += '<div class="cap-alerta-item ' + tipo + '">' +
         '<div class="cap-alerta-item-main">' +
@@ -9973,6 +10002,13 @@ function renderAlertasPagamentoCaptacao() {
           '<span class="cap-alerta-data">📅 ' + dataStr + (diasTxt ? ' · <em>' + diasTxt + '</em>' : '') + '</span>' +
         '</div>' +
         '<div class="cap-alerta-item-actions">' + pagarBtn + ' ' + telLink + '</div>' +
+        (periodoStr || planoStr
+          ? '<div class="cap-alerta-item-extra">' +
+              (periodoStr ? '<span>' + periodoStr + '</span>' : '') +
+              (planoStr   ? '<span>' + planoStr   + '</span>' : '') +
+            '</div>'
+          : '') +
+        parcialRow +
         '</div>';
     });
 
@@ -10017,6 +10053,53 @@ function marcarCaptacaoQuitada(capId) {
   atualizarDashboardCaptacao();
   registrarAuditoria('Captação quitada', c.proprietario + ' • ' + c.nome);
   mostrarToast('✅ Captação marcada como quitada!', 'success');
+}
+
+/* Registra pagamento parcial em uma parcela de captação */
+function pagarValorParcialCap(capId, parcelaIdx, inputId) {
+  var c = captacoes.find(function (x) { return x.id === capId; });
+  if (!c || !Array.isArray(c.parcelasCapPag) || !c.parcelasCapPag[parcelaIdx]) return;
+  var p = c.parcelasCapPag[parcelaIdx];
+  var inputEl = document.getElementById(inputId);
+  var valorAbater = inputEl ? parseFloat(inputEl.value) : NaN;
+  if (!valorAbater || valorAbater <= 0) { mostrarToast('⚠️ Informe um valor válido para abater.', 'error'); return; }
+  var saldo = (p.valor || 0) - (p.recebido || 0);
+  if (valorAbater > saldo + 0.001) { mostrarToast('⚠️ O valor informado é maior que o saldo da parcela (' + formatBRL(saldo) + ').', 'error'); return; }
+  p.recebido = parseFloat(((p.recebido || 0) + valorAbater).toFixed(2));
+  if (p.recebido >= p.valor - 0.005) { p.recebido = p.valor; p.status = 'pago'; }
+  _recalcularValoresCaptacao(c);
+  salvarCaptacoes(captacoes);
+  var dataParc = p.mes ? (p.mes + '-' + (p.dia ? String(p.dia).padStart(2, '0') : '01')) : new Date().toISOString().slice(0, 10);
+  _autoSaidaCaixaCaptacao(c, 'cap_parcial_' + capId + '_' + parcelaIdx + '_' + Date.now(), valorAbater, dataParc);
+  _refreshCaixaViews();
+  atualizarDashboard();
+  renderTabelaCaptacao();
+  atualizarDashboardCaptacao();
+  registrarAuditoria('Pagamento parcial captação', c.proprietario + ' • ' + c.nome + ' · parcela ' + (parcelaIdx + 1) + ' · ' + formatBRL(valorAbater));
+  mostrarToast('💲 Abatimento de ' + formatBRL(valorAbater) + ' registrado!', 'success');
+  renderAlertasPagamentoCaptacao();
+}
+
+/* Registra pagamento parcial em captação sem parcelas */
+function pagarValorParcialCapSemParcela(capId, inputId) {
+  var c = captacoes.find(function (x) { return x.id === capId; });
+  if (!c) return;
+  var inputEl = document.getElementById(inputId);
+  var valorAbater = inputEl ? parseFloat(inputEl.value) : NaN;
+  if (!valorAbater || valorAbater <= 0) { mostrarToast('⚠️ Informe um valor válido para abater.', 'error'); return; }
+  var saldo = c.valorAberto || 0;
+  if (valorAbater > saldo + 0.001) { mostrarToast('⚠️ O valor informado é maior que o saldo em aberto (' + formatBRL(saldo) + ').', 'error'); return; }
+  c.valorPago   = parseFloat(Math.min((c.valorPago || 0) + valorAbater, c.valorPeriodo).toFixed(2));
+  c.valorAberto = parseFloat(Math.max(0, c.valorPeriodo - c.valorPago).toFixed(2));
+  salvarCaptacoes(captacoes);
+  _autoSaidaCaixaCaptacao(c, 'cap_parcial_' + capId + '_' + Date.now(), valorAbater, c.dataPag || new Date().toISOString().slice(0, 10));
+  _refreshCaixaViews();
+  atualizarDashboard();
+  renderTabelaCaptacao();
+  atualizarDashboardCaptacao();
+  registrarAuditoria('Pagamento parcial captação', c.proprietario + ' • ' + c.nome + ' · ' + formatBRL(valorAbater));
+  mostrarToast('💲 Abatimento de ' + formatBRL(valorAbater) + ' registrado!', 'success');
+  renderAlertasPagamentoCaptacao();
 }
 
 /* Recalcula valorPago e valorAberto a partir das parcelas */
