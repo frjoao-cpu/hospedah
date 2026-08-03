@@ -549,6 +549,45 @@ body {
 }
 .cap-alerta-parcial label { font-size: 0.78em; color: var(--cor-sub); white-space: nowrap; }
 
+/* ── Modal Baixa: diferença em aberto ───────────────────── */
+.baixa-resumo-linha {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 5px 0; font-size: .85em; border-bottom: 1px solid var(--borda);
+}
+.baixa-resumo-linha:last-child { border-bottom: none; }
+.baixa-resumo-linha .bl-label { color: var(--cor-sub); }
+.baixa-resumo-linha .bl-val   { font-weight: 600; }
+.baixa-resumo-linha .bl-val.vermelho { color: var(--vermelho, #e57373); }
+.baixa-resumo-linha .bl-val.verde    { color: var(--verde, #25d366); }
+.baixa-diferenca-box {
+  background: rgba(231,76,60,.08); border: 1px solid rgba(231,76,60,.35);
+  border-radius: 10px; padding: 14px 16px; margin-top: 14px;
+  display: none; /* shown via JS */
+}
+.baixa-diferenca-box.visible { display: block; }
+.baixa-diferenca-titulo {
+  font-size: .83em; font-weight: 700; color: var(--vermelho,#e57373);
+  margin-bottom: 10px; display: flex; align-items: center; gap: 6px;
+}
+.baixa-diferenca-opcoes { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; }
+.baixa-dif-radio { display: flex; align-items: center; gap: 8px; font-size: .84em; cursor: pointer; }
+.baixa-dif-radio input[type=radio] { accent-color: var(--dourado,#f0c040); width: 16px; height: 16px; flex-shrink: 0; }
+.baixa-dif-detalhes { margin-top: 8px; display: flex; flex-direction: column; gap: 8px; }
+.baixa-dif-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: .83em; }
+.baixa-dif-row label { color: var(--cor-sub); white-space: nowrap; min-width: 90px; }
+.baixa-dif-row input, .baixa-dif-row select {
+  flex: 1; min-width: 120px; padding: 5px 8px; border-radius: 7px;
+  border: 1px solid var(--borda); background: var(--bg3,#1e1e1e);
+  color: var(--cor-texto); font-size: .85em;
+}
+.baixa-forma-row { margin-top: 6px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: .84em; }
+.baixa-forma-row label { color: var(--cor-sub); white-space: nowrap; min-width: 90px; }
+.baixa-forma-row select {
+  flex: 1; min-width: 120px; padding: 5px 8px; border-radius: 7px;
+  border: 1px solid var(--borda); background: var(--bg3,#1e1e1e);
+  color: var(--cor-texto); font-size: .85em;
+}
+
 .calc-section {
   background: var(--bg2);
   border: 1px solid var(--borda);
@@ -7853,13 +7892,19 @@ function fmtMesRef(dateStr) {
 function abrirModalBaixa(id, valorPrevisto, valorRecebido, nomeHospede, mesRef) {
   _modalBaixaTipo  = 'supabase';
   _parcelaLocalCtx = null;
-  _parcelaIdAtual = id;
-  var restante = (parseFloat(valorPrevisto) || 0) - (parseFloat(valorRecebido) || 0);
+  _parcelaIdAtual  = id;
+  var prev    = parseFloat(valorPrevisto) || 0;
+  var rec     = parseFloat(valorRecebido) || 0;
+  var restante = Math.max(0, prev - rec);
   document.getElementById('modalBaixaDesc').textContent =
-    'Hóspede: ' + nomeHospede + ' · Mês: ' + fmtMesRef(mesRef) + ' · Restante: ' + fmtMoney(restante);
+    'Hóspede: ' + nomeHospede + ' · Mês: ' + fmtMesRef(mesRef);
+  _preencherResumoModal(prev, rec, restante);
   document.getElementById('inputValorBaixa').value = restante > 0 ? restante.toFixed(2) : '';
-  document.getElementById('inputDataBaixa').value = new Date().toISOString().slice(0, 10);
-  document.getElementById('inputObsBaixa').value = '';
+  document.getElementById('inputDataBaixa').value  = new Date().toISOString().slice(0, 10);
+  document.getElementById('inputObsBaixa').value   = '';
+  document.getElementById('inputFormaPagBaixa').value = '';
+  _resetarDifOpcao();
+  _atualizarDiferencaModal();
   var modal = document.getElementById('modalBaixaParcela');
   if (modal) modal.style.display = 'flex';
 }
@@ -7869,18 +7914,101 @@ function fecharModalBaixa() {
   if (modal) modal.style.display = 'none';
   _parcelaIdAtual  = null;
   _parcelaLocalCtx = null;
+  _modalBaixaRestante = 0;
+}
+
+/* Valores do modal armazenados para cálculo dinâmico */
+var _modalBaixaRestante = 0;
+
+function _preencherResumoModal(valorParcela, jaRecebido, saldoRestante) {
+  _modalBaixaRestante = saldoRestante;
+  var elP = document.getElementById('blValorParcela');
+  var elR = document.getElementById('blJaRecebido');
+  var elS = document.getElementById('blSaldoRestante');
+  if (elP) elP.textContent = fmtMoney(valorParcela);
+  if (elR) elR.textContent = fmtMoney(jaRecebido);
+  if (elS) elS.textContent = fmtMoney(saldoRestante);
+}
+
+function _atualizarDiferencaModal() {
+  var valor = parseFloat((document.getElementById('inputValorBaixa') || {}).value) || 0;
+  var diferenca = Math.max(0, _modalBaixaRestante - valor);
+  var box = document.getElementById('baixaDiferencaBox');
+  var elD = document.getElementById('blDiferencaValor');
+  if (!box) return;
+  if (diferenca > 0.005 && valor > 0) {
+    if (elD) elD.textContent = fmtMoney(diferenca);
+    box.classList.add('visible');
+    /* Sugere próximo mês como nova data */
+    var inputNovaData = document.getElementById('inputDifNovaData');
+    if (inputNovaData && !inputNovaData.value) {
+      var proxMes = new Date(); proxMes.setMonth(proxMes.getMonth() + 1);
+      inputNovaData.value = proxMes.toISOString().slice(0, 10);
+    }
+  } else {
+    box.classList.remove('visible');
+  }
+}
+
+function _resetarDifOpcao() {
+  var radios = document.querySelectorAll('input[name="baixaDifOpcao"]');
+  radios.forEach(function (r) { r.checked = r.value === 'nova_parcela'; });
+  _atualizarDifOpcao();
+  var inputNovaData = document.getElementById('inputDifNovaData');
+  if (inputNovaData) inputNovaData.value = '';
+  var inputNovaForma = document.getElementById('inputDifNovaForma');
+  if (inputNovaForma) inputNovaForma.value = '';
+  var inputNovaObs = document.getElementById('inputDifNovaObs');
+  if (inputNovaObs) inputNovaObs.value = '';
+  var inputSaldoObs = document.getElementById('inputDifSaldoObs');
+  if (inputSaldoObs) inputSaldoObs.value = '';
+}
+
+function _atualizarDifOpcao() {
+  var opcao = 'nova_parcela';
+  var radios = document.querySelectorAll('input[name="baixaDifOpcao"]');
+  radios.forEach(function (r) { if (r.checked) opcao = r.value; });
+  var elNova  = document.getElementById('baixaDifNovaParcela');
+  var elSaldo = document.getElementById('baixaDifSaldoAberto');
+  if (elNova)  elNova.style.display  = opcao === 'nova_parcela' ? 'flex' : 'none';
+  if (elSaldo) elSaldo.style.display = opcao === 'saldo_aberto' ? 'flex' : 'none';
+}
+
+/* Lê opção de diferença escolhida no modal */
+function _lerOpcaoDiferenca() {
+  var valor = parseFloat((document.getElementById('inputValorBaixa') || {}).value) || 0;
+  var diferenca = parseFloat((_modalBaixaRestante - valor).toFixed(2));
+  if (diferenca <= 0.005) return null; /* sem diferença */
+  var opcao = 'nova_parcela';
+  var radios = document.querySelectorAll('input[name="baixaDifOpcao"]');
+  radios.forEach(function (r) { if (r.checked) opcao = r.value; });
+  var result = { diferenca: diferenca, opcao: opcao };
+  if (opcao === 'nova_parcela') {
+    result.novaData   = (document.getElementById('inputDifNovaData')  || {}).value || '';
+    result.novaForma  = (document.getElementById('inputDifNovaForma') || {}).value || '';
+    result.novaObs    = (document.getElementById('inputDifNovaObs')   || {}).value || '';
+  } else {
+    result.saldoObs   = (document.getElementById('inputDifSaldoObs')  || {}).value || '';
+  }
+  return result;
 }
 
 function abrirModalBaixaLocal(reservaId, parcelIdx, label, mesKey, valorPrevisto, valorRecebido) {
   _modalBaixaTipo  = 'local';
   _parcelaLocalCtx = { reservaId: reservaId, parcelIdx: parcelIdx };
   _parcelaIdAtual  = null;
-  var restante = Math.max(0, (parseFloat(valorPrevisto) || 0) - (parseFloat(valorRecebido) || 0));
+  var prev     = parseFloat(valorPrevisto) || 0;
+  var rec      = parseFloat(valorRecebido) || 0;
+  var restante = Math.max(0, prev - rec);
   document.getElementById('modalBaixaDesc').textContent =
-    label + ' · Mês: ' + fmtMesRef(mesKey) + ' · Restante: ' + fmtMoney(restante);
+    label + ' · Mês: ' + fmtMesRef(mesKey);
+  _preencherResumoModal(prev, rec, restante);
   document.getElementById('inputValorBaixa').value = restante > 0 ? restante.toFixed(2) : '';
   document.getElementById('inputDataBaixa').value  = new Date().toISOString().slice(0, 10);
   document.getElementById('inputObsBaixa').value   = '';
+  document.getElementById('inputFormaPagBaixa').value = '';
+  _resetarDifOpcao();
+  _atualizarDiferencaModal();
   var modal = document.getElementById('modalBaixaParcela');
   if (modal) modal.style.display = 'flex';
 }
@@ -7896,24 +8024,26 @@ function _despacharConfirmarBaixa() {
 async function confirmarBaixaParcelaLocal() {
   var valorBaixa = parseFloat((document.getElementById('inputValorBaixa') || {}).value);
   if (!valorBaixa || valorBaixa <= 0) {
-    alert('Informe um valor válido maior que zero.');
+    mostrarToast('⚠️ Informe um valor válido maior que zero.', 'error');
     return;
   }
   if (!_parcelaLocalCtx) return;
 
   var reserva = reservas.find(function (r) { return r.id === _parcelaLocalCtx.reservaId; });
   if (!reserva) {
-    alert('Reserva não encontrada.');
+    mostrarToast('⚠️ Reserva não encontrada.', 'error');
     return;
   }
 
-  var parcelas = reserva.parcelasComissao;
+  var formaPag  = (document.getElementById('inputFormaPagBaixa') || {}).value || '';
+  var difOpcao  = _lerOpcaoDiferenca();
+  var parcelas  = reserva.parcelasComissao;
 
   if (!parcelas || parcelas.length === 0) {
     /* Suporte legado sem parcelasComissao */
     var pendente = _comissaoPendente(reserva.comissao, reserva.comissaoRecebida);
     if (valorBaixa > pendente + 0.0001) {
-      alert('O valor informado excede o restante da comissão (' + fmtMoney(pendente) + ').');
+      mostrarToast('⚠️ O valor informado excede o restante da comissão (' + fmtMoney(pendente) + ').', 'error');
       return;
     }
     reserva.comissaoRecebida = parseFloat(((parseFloat(reserva.comissaoRecebida) || 0) + valorBaixa).toFixed(2));
@@ -7922,54 +8052,97 @@ async function confirmarBaixaParcelaLocal() {
   } else {
     var parcela = parcelas[_parcelaLocalCtx.parcelIdx];
     if (!parcela) {
-      alert('Parcela não encontrada.');
+      mostrarToast('⚠️ Parcela não encontrada.', 'error');
       return;
     }
     var valorAtual    = parseFloat(parcela.valor) || 0;
     var recebidoAtual = parseFloat(parcela.recebido) || 0;
     var restante      = Math.max(0, valorAtual - recebidoAtual);
     if (valorBaixa > restante + 0.0001) {
-      alert('O valor informado excede o restante da parcela (' + fmtMoney(restante) + ').');
+      mostrarToast('⚠️ O valor informado excede o restante da parcela (' + fmtMoney(restante) + ').', 'error');
       return;
     }
     var novoRecebido  = parseFloat((recebidoAtual + valorBaixa).toFixed(2));
     parcela.recebido  = novoRecebido;
+    if (formaPag) parcela.formaPagamento = formaPag;
     parcela.status    = novoRecebido >= valorAtual ? 'recebida' : 'parcial';
 
+    /* ── Tratar diferença em aberto ── */
+    if (difOpcao && difOpcao.diferenca > 0.005) {
+      if (difOpcao.opcao === 'nova_parcela') {
+        /* Valida nova data */
+        if (!difOpcao.novaData) {
+          mostrarToast('⚠️ Informe a nova data de vencimento para a diferença.', 'error');
+          return;
+        }
+        var mesNova = difOpcao.novaData.slice(0, 7);
+        var diaNova = parseInt(difOpcao.novaData.slice(8, 10), 10);
+        var novaParcelaObj = {
+          mes:           mesNova,
+          dia:           diaNova || null,
+          valor:         parseFloat(difOpcao.diferenca.toFixed(2)),
+          recebido:      0,
+          status:        'pendente',
+          label:         (parcela.label || 'Diferença reagendada') + ' (saldo reagendado)',
+          formaPagamento: difOpcao.novaForma || '',
+          obs:           difOpcao.novaObs   || 'Saldo reagendado do pagamento parcial em ' + new Date().toLocaleDateString('pt-BR')
+        };
+        parcelas.push(novaParcelaObj);
+        registrarAuditoria('Diferença reagendada', 'Reserva ' + reserva.id + ' · R$ ' + formatBRL(difOpcao.diferenca) + ' → ' + difOpcao.novaData);
+      } else {
+        /* Mantém como saldo em aberto — status já ficou 'parcial', registra obs */
+        if (difOpcao.saldoObs) {
+          parcela.obsSaldoAberto = difOpcao.saldoObs;
+        }
+        registrarAuditoria('Saldo em aberto mantido', 'Reserva ' + reserva.id + ' · R$ ' + formatBRL(difOpcao.diferenca));
+      }
+    }
+
     /* Sincronizar comissaoRecebida e statusComissao na reserva */
-    var somaRec    = parcelas.reduce(function (acc, p) { return acc + (parseFloat(p.recebido) || 0); }, 0);
-    var somaPrev   = parcelas.reduce(function (acc, p) { return acc + (parseFloat(p.valor) || 0); }, 0);
+    var somaRec  = parcelas.reduce(function (acc, p) { return acc + (parseFloat(p.recebido) || 0); }, 0);
+    var somaPrev = parcelas.reduce(function (acc, p) { return acc + (parseFloat(p.valor)    || 0); }, 0);
     reserva.comissaoRecebida = parseFloat(somaRec.toFixed(2));
     reserva.statusComissao   = reserva.comissaoRecebida >= somaPrev ? 'recebida' : 'parcial';
   }
 
   fecharModalBaixa();
   salvarReservas(reservas);
-  if (typeof showToast === 'function') showToast('✅ Baixa de ' + fmtMoney(valorBaixa) + ' registrada!', 'success');
+  var msgExtra = difOpcao && difOpcao.diferenca > 0.005
+    ? (difOpcao.opcao === 'nova_parcela'
+        ? ' · Diferença de ' + fmtMoney(difOpcao.diferenca) + ' reagendada para ' + new Date(difOpcao.novaData + 'T12:00:00').toLocaleDateString('pt-BR')
+        : ' · Diferença de ' + fmtMoney(difOpcao.diferenca) + ' mantida em aberto')
+    : '';
+  if (typeof mostrarToast === 'function') mostrarToast('✅ Baixa de ' + fmtMoney(valorBaixa) + ' registrada!' + msgExtra, 'success');
   atualizarPrevisaoRecebimentos();
-  if (typeof atualizarDashboard   === 'function') atualizarDashboard();
-  if (typeof atualizarMensal      === 'function') atualizarMensal();
+  if (typeof atualizarDashboard    === 'function') atualizarDashboard();
+  if (typeof atualizarMensal       === 'function') atualizarMensal();
   if (typeof atualizarVendasAnuais === 'function') atualizarVendasAnuais();
 }
 
 async function confirmarBaixaParcela() {
   var valorBaixa = parseFloat((document.getElementById('inputValorBaixa') || {}).value);
   if (!valorBaixa || valorBaixa <= 0) {
-    alert('Informe um valor válido maior que zero.');
+    mostrarToast('⚠️ Informe um valor válido maior que zero.', 'error');
     return;
   }
   if (!_parcelaIdAtual) return;
 
+  var difOpcao = _lerOpcaoDiferenca();
+  if (difOpcao && difOpcao.opcao === 'nova_parcela' && !difOpcao.novaData) {
+    mostrarToast('⚠️ Informe a nova data de vencimento para a diferença.', 'error');
+    return;
+  }
+
   var fetchRes = await _supabase
     .from('comissao_parcelas')
-    .select('valor_previsto, valor_recebido')
+    .select('valor_previsto, valor_recebido, reserva_id')
     .eq('id', _parcelaIdAtual)
     .single();
 
-  var parcela = fetchRes && fetchRes.data;
+  var parcela  = fetchRes && fetchRes.data;
   var errFetch = fetchRes && fetchRes.error;
   if (errFetch || !parcela) {
-    alert('Erro ao buscar parcela: ' + (errFetch ? errFetch.message : 'não encontrada'));
+    mostrarToast('⚠️ Erro ao buscar parcela: ' + (errFetch ? errFetch.message : 'não encontrada'), 'error');
     return;
   }
 
@@ -7977,35 +8150,62 @@ async function confirmarBaixaParcela() {
   var recebidoAtual = parseFloat(parcela.valor_recebido) || 0;
   var restanteAtual = Math.max(0, previstoAtual - recebidoAtual);
   if (valorBaixa > restanteAtual + 0.0001) {
-    alert('O valor informado excede o restante da parcela (' + fmtMoney(restanteAtual) + ').');
+    mostrarToast('⚠️ O valor informado excede o restante da parcela (' + fmtMoney(restanteAtual) + ').', 'error');
     return;
   }
 
   var novoRecebido = parseFloat((recebidoAtual + valorBaixa).toFixed(2));
   var novoStatus   = novoRecebido >= previstoAtual ? 'recebida' : 'parcial';
+  var formaPag     = (document.getElementById('inputFormaPagBaixa') || {}).value || '';
+
+  var updPayload = { valor_recebido: novoRecebido, status: novoStatus, atualizado_em: new Date().toISOString() };
+  if (formaPag) updPayload.forma_pagamento = formaPag;
 
   var updRes = await _supabase
     .from('comissao_parcelas')
-    .update({
-      valor_recebido: novoRecebido,
-      status: novoStatus,
-      atualizado_em: new Date().toISOString()
-    })
+    .update(updPayload)
     .eq('id', _parcelaIdAtual);
 
   var error = updRes && updRes.error;
   if (error) {
-    alert('Erro ao registrar baixa: ' + error.message);
+    mostrarToast('⚠️ Erro ao registrar baixa: ' + error.message, 'error');
     return;
   }
 
+  /* Reagendar diferença como nova parcela no Supabase */
+  if (difOpcao && difOpcao.diferenca > 0.005 && difOpcao.opcao === 'nova_parcela') {
+    var mesNova = difOpcao.novaData.slice(0, 7);
+    var diaNova = parseInt(difOpcao.novaData.slice(8, 10), 10);
+    var insPayload = {
+      reserva_id:     parcela.reserva_id,
+      mes:            mesNova,
+      dia:            diaNova || null,
+      valor_previsto: parseFloat(difOpcao.diferenca.toFixed(2)),
+      valor_recebido: 0,
+      status:         'pendente',
+      forma_pagamento: difOpcao.novaForma || '',
+      obs:            difOpcao.novaObs || 'Saldo reagendado do pagamento parcial em ' + new Date().toLocaleDateString('pt-BR'),
+      criado_em:      new Date().toISOString(),
+      atualizado_em:  new Date().toISOString()
+    };
+    var insRes = await _supabase.from('comissao_parcelas').insert(insPayload);
+    if (insRes && insRes.error) {
+      mostrarToast('⚠️ Baixa registrada, mas erro ao criar parcela reagendada: ' + insRes.error.message, 'error');
+    }
+  }
+
   fecharModalBaixa();
-  if (typeof showToast === 'function') {
-    showToast('✅ Baixa de ' + fmtMoney(valorBaixa) + ' registrada com sucesso!', 'success');
+  var msgExtra = difOpcao && difOpcao.diferenca > 0.005
+    ? (difOpcao.opcao === 'nova_parcela'
+        ? ' · Diferença de ' + fmtMoney(difOpcao.diferenca) + ' reagendada'
+        : ' · Diferença de ' + fmtMoney(difOpcao.diferenca) + ' mantida em aberto')
+    : '';
+  if (typeof mostrarToast === 'function') {
+    mostrarToast('✅ Baixa de ' + fmtMoney(valorBaixa) + ' registrada!' + msgExtra, 'success');
   }
   atualizarPrevisaoRecebimentos();
-  if (typeof atualizarDashboard   === 'function') atualizarDashboard();
-  if (typeof atualizarMensal      === 'function') atualizarMensal();
+  if (typeof atualizarDashboard    === 'function') atualizarDashboard();
+  if (typeof atualizarMensal       === 'function') atualizarMensal();
   if (typeof atualizarVendasAnuais === 'function') atualizarVendasAnuais();
 }
 
@@ -14635,20 +14835,93 @@ if ('serviceWorker' in navigator) {
 
 <!-- Modal: Dar Baixa em Parcela -->
 <div id="modalBaixaParcela" class="modal" style="display:none;position:fixed;inset:0;z-index:9999;align-items:center;justify-content:center;background:rgba(0,0,0,0.6);" role="dialog" aria-modal="true" aria-labelledby="modalBaixaTitulo">
-  <div class="modal-box" style="max-width:440px;width:90%;background:var(--glass,#1a1f2e);border:1px solid var(--borda,rgba(255,255,255,0.1));border-radius:16px;padding:28px;">
+  <div class="modal-box" style="max-width:480px;width:94%;background:var(--glass,#1a1f2e);border:1px solid var(--borda,rgba(255,255,255,0.1));border-radius:16px;padding:28px;max-height:92vh;overflow-y:auto;">
     <h3 id="modalBaixaTitulo" style="color:var(--dourado,#f0c040);margin-bottom:8px;">💰 Registrar Recebimento</h3>
-    <p id="modalBaixaDesc" style="font-size:.88em;color:var(--cor-sub,#aab4c4);margin-bottom:20px;line-height:1.5;"></p>
+    <p id="modalBaixaDesc" style="font-size:.88em;color:var(--cor-sub,#aab4c4);margin-bottom:16px;line-height:1.5;"></p>
 
-    <label style="display:block;font-size:.85em;margin-bottom:4px;color:var(--cor-sub);">Valor Recebido (R$) *</label>
-    <input type="number" id="inputValorBaixa" class="form-control" min="0.01" step="0.01" placeholder="0,00" style="width:100%;margin-bottom:14px;">
+    <!-- Resumo financeiro da parcela -->
+    <div id="modalBaixaResumo" style="background:rgba(255,255,255,.04);border:1px solid var(--borda);border-radius:8px;padding:10px 14px;margin-bottom:14px;">
+      <div class="baixa-resumo-linha"><span class="bl-label">Valor da parcela</span><span class="bl-val" id="blValorParcela">—</span></div>
+      <div class="baixa-resumo-linha"><span class="bl-label">Já recebido</span><span class="bl-val verde" id="blJaRecebido">—</span></div>
+      <div class="baixa-resumo-linha"><span class="bl-label">Saldo restante</span><span class="bl-val vermelho" id="blSaldoRestante">—</span></div>
+    </div>
+
+    <label style="display:block;font-size:.85em;margin-bottom:4px;color:var(--cor-sub);">💲 Valor a Receber agora (R$) *</label>
+    <input type="number" id="inputValorBaixa" class="form-control" min="0.01" step="0.01" placeholder="0,00"
+      oninput="_atualizarDiferencaModal()" style="width:100%;margin-bottom:10px;">
+
+    <!-- Forma de pagamento do valor recebido agora -->
+    <div class="baixa-forma-row" style="margin-bottom:14px;">
+      <label for="inputFormaPagBaixa">💳 Forma de pagamento</label>
+      <select id="inputFormaPagBaixa" class="form-control">
+        <option value="">— Selecionar —</option>
+        <option value="pix">⚡ Pix</option>
+        <option value="dinheiro">💵 Dinheiro</option>
+        <option value="cartao_credito">💳 Cartão de Crédito</option>
+        <option value="cartao_debito">💳 Cartão de Débito</option>
+        <option value="transferencia">🏦 Transferência</option>
+        <option value="boleto">📄 Boleto</option>
+        <option value="cheque">📝 Cheque</option>
+      </select>
+    </div>
 
     <label style="display:block;font-size:.85em;margin-bottom:4px;color:var(--cor-sub);">Data do Recebimento</label>
     <input type="date" id="inputDataBaixa" class="form-control" style="width:100%;margin-bottom:14px;">
 
     <label style="display:block;font-size:.85em;margin-bottom:4px;color:var(--cor-sub);">Observação (opcional)</label>
-    <input type="text" id="inputObsBaixa" class="form-control" placeholder="Ex: PIX recebido, depósito bancário..." style="width:100%;margin-bottom:20px;">
+    <input type="text" id="inputObsBaixa" class="form-control" placeholder="Ex: PIX recebido, depósito bancário..." style="width:100%;margin-bottom:10px;">
 
-    <div style="display:flex;gap:10px;">
+    <!-- ── Seção: Diferença em Aberto (aparece quando valor < restante) ── -->
+    <div id="baixaDiferencaBox" class="baixa-diferenca-box">
+      <div class="baixa-diferenca-titulo">⚠️ Diferença em Aberto: <span id="blDiferencaValor" style="margin-left:4px;">R$ 0,00</span></div>
+      <p style="font-size:.8em;color:var(--cor-sub);margin-bottom:10px;">O valor informado é menor que o saldo da parcela. Como deseja tratar a diferença?</p>
+
+      <div class="baixa-diferenca-opcoes">
+        <label class="baixa-dif-radio">
+          <input type="radio" name="baixaDifOpcao" value="nova_parcela" checked onchange="_atualizarDifOpcao()">
+          📅 Reagendar como nova parcela (nova data de vencimento)
+        </label>
+        <label class="baixa-dif-radio">
+          <input type="radio" name="baixaDifOpcao" value="saldo_aberto" onchange="_atualizarDifOpcao()">
+          🗂️ Manter como saldo em aberto (sem nova data)
+        </label>
+      </div>
+
+      <!-- Detalhes para "nova parcela" -->
+      <div id="baixaDifNovaParcela" class="baixa-dif-detalhes">
+        <div class="baixa-dif-row">
+          <label for="inputDifNovaData">📅 Nova data de vencimento</label>
+          <input type="date" id="inputDifNovaData" class="form-control">
+        </div>
+        <div class="baixa-dif-row" style="margin-top:6px;">
+          <label for="inputDifNovaForma">💳 Forma de pagamento</label>
+          <select id="inputDifNovaForma" class="form-control">
+            <option value="">— Selecionar —</option>
+            <option value="pix">⚡ Pix</option>
+            <option value="dinheiro">💵 Dinheiro</option>
+            <option value="cartao_credito">💳 Cartão de Crédito</option>
+            <option value="cartao_debito">💳 Cartão de Débito</option>
+            <option value="transferencia">🏦 Transferência</option>
+            <option value="boleto">📄 Boleto</option>
+            <option value="cheque">📝 Cheque</option>
+          </select>
+        </div>
+        <div class="baixa-dif-row" style="margin-top:6px;">
+          <label for="inputDifNovaObs">📝 Observação (opcional)</label>
+          <input type="text" id="inputDifNovaObs" class="form-control" placeholder="Ex: renegociação, acordo...">
+        </div>
+      </div>
+
+      <!-- Detalhes para "saldo em aberto" (sem nova data) -->
+      <div id="baixaDifSaldoAberto" class="baixa-dif-detalhes" style="display:none;">
+        <div class="baixa-dif-row">
+          <label for="inputDifSaldoObs">📝 Observação</label>
+          <input type="text" id="inputDifSaldoObs" class="form-control" placeholder="Ex: aguardando confirmação, pendente de acordo...">
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:10px;margin-top:18px;">
       <button class="btn btn-success" onclick="_despacharConfirmarBaixa()">✅ Confirmar Baixa</button>
       <button class="btn btn-ghost" onclick="fecharModalBaixa()">Cancelar</button>
     </div>
