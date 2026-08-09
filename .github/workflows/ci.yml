@@ -246,7 +246,7 @@ jobs:
           echo "✅ assets/ai-config.js gerado (chave permanece exclusivamente no servidor)"
 
       - name: Configurar GitHub Pages
-        uses: actions/configure-pages@v4
+        uses: actions/configure-pages@v6
 
       - name: Fazer upload dos arquivos estáticos
         uses: actions/upload-pages-artifact@v3
