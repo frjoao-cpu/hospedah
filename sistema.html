@@ -1503,6 +1503,45 @@ thead .col-sticky-right {
 .rel-hist-table tbody td.val-verde { color: #25D366; font-weight: 600; }
 .rel-hist-table tbody td.val-vermelho { color: var(--vermelho); font-weight: 600; }
 
+/* ---- Venda de Cotas ---- */
+.cota-status-badge {
+  display: inline-block;
+  padding: 2px 9px;
+  border-radius: 99px;
+  font-size: 0.78em;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+}
+.cota-status-negociacao { background: rgba(251,191,36,0.18); color: #fbbf24; }
+.cota-status-contrato   { background: rgba(77,166,255,0.18); color: #4da6ff; }
+.cota-status-concluida  { background: rgba(37,211,102,0.18); color: #25D366; }
+.cota-status-cancelada  { background: rgba(239,68,68,0.18);  color: #ef4444; }
+.cota-margem-pos { color: #25D366; font-weight: 700; }
+.cota-margem-neg { color: #ef4444; font-weight: 700; }
+.cota-dash-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 14px;
+  margin-bottom: 22px;
+}
+.cota-dash-card {
+  background: var(--glass);
+  border: 1px solid var(--borda);
+  border-radius: 12px;
+  padding: 16px 18px;
+}
+.cota-dash-card .cota-dash-label {
+  font-size: 0.75em;
+  color: var(--cor-sub);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 6px;
+}
+.cota-dash-card .cota-dash-val {
+  font-size: 1.35em;
+  font-weight: 700;
+  color: var(--dourado);
+}
 /* ---- Tabela Unificada de Vendas Anuais ---- */
 .vendas-anuais-table {
   width: 100%;
@@ -2488,6 +2527,18 @@ thead .col-sticky-right {
         <a href="#captacao-resumo" onclick="fecharNavDropdown('navCaptacaoDropdown')">🏡 Captações — Resumo</a>
         <a href="#captacao"        onclick="fecharNavDropdown('navCaptacaoDropdown')">➕ Nova Captação</a>
         <a href="#captacoes"       onclick="fecharNavDropdown('navCaptacaoDropdown')">🏡 Captações Cadastradas</a>
+      </div>
+    </div>
+    <span class="nav-sep"></span>
+    <!-- Cotas -->
+    <span class="nav-group-label">Cotas</span>
+    <div class="nav-dropdown" id="navCotasDropdown">
+      <button class="nav-dropdown-btn" onclick="toggleNavDropdown('navCotasDropdown')" title="Vendas de Cotas">
+        🏷️ Cotas <span class="nav-dropdown-arrow">▾</span>
+      </button>
+      <div class="nav-dropdown-menu">
+        <a href="#nova-cota-venda" onclick="fecharNavDropdown('navCotasDropdown')">➕ Nova Venda de Cota</a>
+        <a href="#cotas-vendas"    onclick="fecharNavDropdown('navCotasDropdown')">📋 Cotas Vendidas</a>
       </div>
     </div>
     <span class="nav-sep"></span>
@@ -3884,8 +3935,190 @@ thead .col-sticky-right {
   </section>
 
   <!-- ==========================================
-       SOLICITAÇÕES DE RESERVA (Hóspedes)
+       VENDA DE COTAS — NOVA VENDA
   =========================================== -->
+  <section id="nova-cota-venda" class="calc-section">
+    <div class="section-title">🏷️ Nova Venda de Cota</div>
+
+    <div class="calc-grid">
+
+      <!-- Resort / Unidade -->
+      <div class="field-group" style="grid-column: span 2;">
+        <label>Resort / Unidade *</label>
+        <select id="cv_resort" onchange="onCvResortChange()">
+          <option value="">— Selecione o resort —</option>
+          <option value="Hot Beach Suites — 01 Dormitório">🏖️ Hot Beach Suites — 01 Dormitório</option>
+          <option value="Hot Beach Suites — 02 Dormitórios">🏖️ Hot Beach Suites — 02 Dormitórios</option>
+          <option value="Olimpia Park Resort — 01 Dormitório">🎢 Olimpia Park Resort — 01 Dormitório</option>
+          <option value="Olimpia Park Resort — 02 Dormitórios">🎢 Olimpia Park Resort — 02 Dormitórios</option>
+          <option value="Solar das Águas Resort — 01 Dormitório">☀️ Solar das Águas Resort — 01 Dormitório</option>
+          <option value="Solar das Águas Resort — 02 Dormitórios">☀️ Solar das Águas Resort — 02 Dormitórios</option>
+          <option value="Thermas de São Pedro — 01 Dormitório">♨️ Thermas de São Pedro — 01 Dormitório</option>
+          <option value="Wyndham Royal — 01 Dormitório">👑 Wyndham Royal — 01 Dormitório</option>
+          <option value="outro">✏️ Outras opções (informar)</option>
+        </select>
+        <input type="text" id="cv_resort_outro" placeholder="Informe o nome do resort ou casa" autocomplete="off"
+               style="display:none; margin-top:6px;">
+      </div>
+
+      <!-- Observação da unidade -->
+      <div class="field-group" style="grid-column: span 2;">
+        <label>Observação da Unidade</label>
+        <input type="text" id="cv_obs_unidade" placeholder="Ex.: Cota 07 Semana B, andar alto, vista piscina…" autocomplete="off">
+      </div>
+
+      <!-- Data da venda -->
+      <div class="field-group">
+        <label>Data da Venda *</label>
+        <input type="date" id="cv_data_venda">
+      </div>
+
+      <!-- Status -->
+      <div class="field-group">
+        <label>Status</label>
+        <select id="cv_status">
+          <option value="negociacao">🤝 Negociação</option>
+          <option value="contrato">📄 Contrato Assinado</option>
+          <option value="concluida">✅ Concluída</option>
+          <option value="cancelada">❌ Cancelada</option>
+        </select>
+      </div>
+
+      <!-- Dados do comprador -->
+      <div class="field-group" style="grid-column: span 2; border-top:1px solid var(--borda); padding-top:14px; margin-top:4px;">
+        <label style="color:var(--dourado); font-weight:700; font-size:0.95em;">👤 Dados do Comprador</label>
+      </div>
+
+      <div class="field-group" style="grid-column: span 2;">
+        <label>Nome do Comprador *</label>
+        <input type="text" id="cv_comprador_nome" placeholder="Nome completo do comprador" autocomplete="off">
+      </div>
+
+      <div class="field-group">
+        <label>E-mail do Comprador</label>
+        <input type="email" id="cv_comprador_email" placeholder="email@exemplo.com" autocomplete="off">
+      </div>
+
+      <div class="field-group">
+        <label>Telefone / WhatsApp do Comprador</label>
+        <input type="tel" id="cv_comprador_telefone" placeholder="(00) 00000-0000">
+      </div>
+
+      <!-- Valores -->
+      <div class="field-group" style="grid-column: span 2; border-top:1px solid var(--borda); padding-top:14px; margin-top:4px;">
+        <label style="color:var(--dourado); font-weight:700; font-size:0.95em;">💰 Valores</label>
+      </div>
+
+      <div class="field-group">
+        <label>Valor de Compra (R$) *</label>
+        <input type="number" id="cv_valor_compra" min="0" step="0.01" placeholder="Ex.: 25000,00"
+               oninput="calcularMargemCota()">
+      </div>
+
+      <div class="field-group">
+        <label>Valor de Venda (R$) *</label>
+        <input type="number" id="cv_valor_venda" min="0" step="0.01" placeholder="Ex.: 32000,00"
+               oninput="calcularMargemCota()">
+      </div>
+
+      <div class="field-group">
+        <label>Margem de Ganho (R$) — calculada</label>
+        <input type="number" id="cv_margem" min="0" step="0.01" placeholder="Calculado automaticamente" readonly
+               style="background:rgba(212,175,55,0.07); font-weight:700;">
+      </div>
+
+      <div class="field-group">
+        <label>Margem (%)</label>
+        <input type="text" id="cv_margem_pct" placeholder="—" readonly
+               style="background:rgba(212,175,55,0.07); font-weight:700;">
+      </div>
+
+      <!-- Forma de pagamento -->
+      <div class="field-group">
+        <label>Forma de Pagamento</label>
+        <select id="cv_forma_pag">
+          <option value="pix">⚡ Pix</option>
+          <option value="cartao">💳 Cartão de Crédito</option>
+          <option value="boleto">📄 Boleto</option>
+          <option value="transferencia">🏦 Transferência Bancária</option>
+          <option value="financiamento">🏦 Financiamento</option>
+          <option value="dinheiro">💵 Dinheiro</option>
+        </select>
+      </div>
+
+      <!-- Observações gerais -->
+      <div class="field-group" style="grid-column: span 2;">
+        <label>Observações Gerais</label>
+        <input type="text" id="cv_obs" placeholder="Anotações adicionais sobre a venda…" autocomplete="off">
+      </div>
+
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="adicionarCotaVenda()">🏷️ Registrar Venda de Cota</button>
+      <button class="btn btn-secondary" onclick="limparFormCotaVenda()">🗑️ Limpar</button>
+    </div>
+  </section>
+
+  <!-- ==========================================
+       VENDA DE COTAS — TABELA
+  =========================================== -->
+  <section id="cotas-vendas" class="table-wrap">
+    <div class="section-title">
+      🏷️ Cotas Vendidas
+      <span style="margin-left:auto; display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
+        <button class="btn btn-secondary btn-sm" onclick="exportarCSVCotasVendas()">📥 Exportar CSV</button>
+        <button class="btn btn-secondary btn-sm" id="cotasVendasToggleBtn" onclick="toggleCotasVendas()">▼ Minimizar</button>
+      </span>
+    </div>
+
+    <!-- Cards de resumo -->
+    <div class="cota-dash-grid" id="cotasDashGrid">
+      <div class="cota-dash-card">
+        <div class="cota-dash-label">Total de Vendas</div>
+        <div class="cota-dash-val" id="cvd-total">0</div>
+      </div>
+      <div class="cota-dash-card">
+        <div class="cota-dash-label">💰 Venda Bruta</div>
+        <div class="cota-dash-val" id="cvd-venda">R$ 0,00</div>
+      </div>
+      <div class="cota-dash-card">
+        <div class="cota-dash-label">🛒 Custo de Compra</div>
+        <div class="cota-dash-val" id="cvd-compra">R$ 0,00</div>
+      </div>
+      <div class="cota-dash-card">
+        <div class="cota-dash-label">📈 Margem Total</div>
+        <div class="cota-dash-val" id="cvd-margem">R$ 0,00</div>
+      </div>
+    </div>
+
+    <div id="cotasVendasContent">
+      <div class="table-wrap" style="padding:0; border:none;">
+        <table class="data-table" id="tabelaCotasVendas">
+          <thead>
+            <tr>
+              <th>Data</th>
+              <th>Resort / Unidade</th>
+              <th>Obs. Unidade</th>
+              <th>Comprador</th>
+              <th>Contato</th>
+              <th>Compra (R$)</th>
+              <th>Venda (R$)</th>
+              <th>Margem (R$)</th>
+              <th>Margem %</th>
+              <th>Pagamento</th>
+              <th>Status</th>
+              <th>Obs.</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody id="bodyCotasVendas">
+            <tr><td colspan="13" class="loading-spinner"><div class="spinner"></div> Carregando...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
   <section id="reservas-hospede" class="table-wrap">
     <div class="section-title">
       🛎️ Solicitações de Reserva (Hóspedes)
@@ -7186,7 +7419,8 @@ function atualizarMensal() {
     var dataVenda = r.dataCaptacao || r.criadoEm;
     var mes = dataVenda ? dataVenda.slice(0, 7) : (r.entrada ? r.entrada.slice(0, 7) : 'desconhecido');
     if (!meses[mes]) {
-      meses[mes] = { reservas: 0, receita: 0, comissao: 0, comissaoRecebida: 0, repasse: 0, noites: 0, captacao: 0, lucro: 0, parcelasFuturas: {} };
+      meses[mes] = { reservas: 0, receita: 0, comissao: 0, comissaoRecebida: 0, repasse: 0, noites: 0, captacao: 0, lucro: 0, parcelasFuturas: {},
+                     cotasQtd: 0, cotasVenda: 0, cotasCompra: 0, cotasMargem: 0 };
     }
     meses[mes].reservas++;
     meses[mes].receita          += parseFloat(r.total    || 0);
@@ -7203,6 +7437,20 @@ function atualizarMensal() {
       if (!meses[mes].parcelasFuturas[p.mes]) meses[mes].parcelasFuturas[p.mes] = 0;
       meses[mes].parcelasFuturas[p.mes] += parseFloat(p.valor) || 0;
     });
+  });
+
+  /* Acumula vendas de cotas por mês */
+  (Array.isArray(cotasVendas) ? cotasVendas : []).forEach(function (c) {
+    if (c.status === 'cancelada') return;
+    var mes = c.dataVenda ? c.dataVenda.slice(0, 7) : (c.criadoEm ? c.criadoEm.slice(0, 7) : 'desconhecido');
+    if (!meses[mes]) {
+      meses[mes] = { reservas: 0, receita: 0, comissao: 0, comissaoRecebida: 0, repasse: 0, noites: 0, captacao: 0, lucro: 0, parcelasFuturas: {},
+                     cotasQtd: 0, cotasVenda: 0, cotasCompra: 0, cotasMargem: 0 };
+    }
+    meses[mes].cotasQtd    += 1;
+    meses[mes].cotasVenda  += parseFloat(c.valorVenda  || 0);
+    meses[mes].cotasCompra += parseFloat(c.valorCompra || 0);
+    meses[mes].cotasMargem += parseFloat(c.margem      || 0);
   });
 
   var chaves = Object.keys(meses).sort().reverse();
@@ -7233,6 +7481,20 @@ function atualizarMensal() {
         '<span style="color:#4da6ff;">' + formatBRL(m.parcelasFuturas[mf]) + '</span></div>';
     });
 
+    /* Bloco de cotas vendidas no mês */
+    var cotasHtml = '';
+    if (m.cotasQtd > 0) {
+      var cotasMargemColor = m.cotasMargem >= 0 ? '#25D366' : 'var(--vermelho)';
+      cotasHtml =
+        '<div style="border-top:1px dashed rgba(212,175,55,0.25);margin:6px 0 4px;"></div>' +
+        '<div class="month-row" style="font-weight:700;color:var(--dourado);">' +
+          '<span>🏷️ Cotas Vendidas</span><span>' + m.cotasQtd + ' cota' + (m.cotasQtd !== 1 ? 's' : '') + '</span>' +
+        '</div>' +
+        '<div class="month-row"><span>💵 Venda de Cotas</span><span>' + formatBRL(m.cotasVenda) + '</span></div>' +
+        (m.cotasCompra > 0 ? '<div class="month-row"><span>🛒 Custo de Cotas</span><span>' + formatBRL(m.cotasCompra) + '</span></div>' : '') +
+        '<div class="month-row"><span>📈 Margem Cotas</span><span style="color:' + cotasMargemColor + ';font-weight:700;">' + formatBRL(m.cotasMargem) + '</span></div>';
+    }
+
     html +=
       '<div class="month-card">' +
       '<div class="month-name">📅 ' + nomeMes.charAt(0).toUpperCase() + nomeMes.slice(1) + '</div>' +
@@ -7245,6 +7507,7 @@ function atualizarMensal() {
       '<div class="month-row"><span style="color:#25D366;">✅ Comissão Recebida</span><span style="color:#25D366;">' + formatBRL(m.comissaoRecebida) + '</span></div>' +
       (comissaoPendente > 0 ? '<div class="month-row"><span style="color:#fbbf24;">⏳ Comissão Pendente</span><span style="color:#fbbf24;">' + formatBRL(comissaoPendente) + '</span></div>' : '') +
       parcelasFuturasHtml +
+      cotasHtml +
       '<div class="month-row"><span>📤 Repasse</span><span>' + formatBRL(m.repasse) + '</span></div>' +
       '</div>';
   });
@@ -7765,6 +8028,26 @@ function atualizarVendasAnuais() {
         }
       }
     });
+  });
+
+  /* Acumula vendas de cotas no resultado anual */
+  (Array.isArray(cotasVendas) ? cotasVendas : []).forEach(function (c) {
+    if (c.status === 'cancelada') return;
+    var dt = c.dataVenda ? c.dataVenda.slice(0, 7) : (c.criadoEm ? c.criadoEm.slice(0, 7) : null);
+    if (!dt) return;
+    var partes = dt.split('-');
+    var cAno = parseInt(partes[0], 10);
+    var cMes = parseInt(partes[1], 10);
+    if (cMes < 1 || cMes > 12) return;
+    var cotaVendaVal = parseFloat(c.valorVenda || 0);
+    var cotaComprVal = parseFloat(c.valorCompra || 0);
+    if (cAno === ano) {
+      totais[cMes].venda    += cotaVendaVal;
+      totais[cMes].captacao += cotaComprVal;
+      totais[cMes].lucro    += cotaComprVal > 0 ? cotaVendaVal - cotaComprVal : 0;
+    } else if (cAno === ano - 1) {
+      antAno[cMes].venda += cotaVendaVal;
+    }
   });
 
   /* flags para colunas opcionais */
@@ -8656,6 +8939,7 @@ function exportarBackup() {
     exportadoEm: new Date().toISOString(),
     reservas: reservas,
     captacoes: captacoes,
+    cotasVendas: cotasVendas,
     automacoes: automacoes,
     onboardingFluxos: onboardingFluxos,
     manutencoes: manutencoes,
@@ -8699,6 +8983,11 @@ function importarBackup() {
           salvarCaptacoes(captacoes);
           renderTabelaCaptacao();
           atualizarDashboardCaptacao();
+        }
+        if (dados.cotasVendas && Array.isArray(dados.cotasVendas)) {
+          cotasVendas = dados.cotasVendas;
+          salvarCotasVendas(cotasVendas);
+          renderTabelaCotasVendas();
         }
         if (dados.automacoes && Array.isArray(dados.automacoes)) {
           automacoes = dados.automacoes;
@@ -9588,8 +9877,342 @@ function exportarCSVCaptacao() {
 }
 
 /* ==========================================
-   CALCULADORA FLUTUANTE
+   VENDA DE COTAS — STORAGE & DATA
 ========================================== */
+var VCOTAS_KEY  = 'hospeda_cotas_vendas';
+var cotasVendas = [];
+
+function carregarCotasVendas() {
+  return carregarListaStorage(VCOTAS_KEY);
+}
+
+function salvarCotasVendas(lista) {
+  salvarListaStorage(VCOTAS_KEY, lista);
+}
+
+/* ==========================================
+   VENDA DE COTAS — FORM HELPERS
+========================================== */
+function onCvResortChange() {
+  var sel  = document.getElementById('cv_resort');
+  var inp  = document.getElementById('cv_resort_outro');
+  if (!sel || !inp) return;
+  if (sel.value === 'outro') { inp.style.display = ''; inp.focus(); }
+  else { inp.style.display = 'none'; inp.value = ''; }
+}
+
+function onEditCvResortChange() {
+  var sel = document.getElementById('editCv_resort');
+  var inp = document.getElementById('editCv_resort_outro');
+  if (!sel || !inp) return;
+  if (sel.value === 'outro') { inp.style.display = ''; inp.focus(); }
+  else { inp.style.display = 'none'; inp.value = ''; }
+}
+
+function _cvResortNome(selId, inputId) {
+  var sel = document.getElementById(selId);
+  if (!sel) return '';
+  if (sel.value === 'outro') {
+    var inp = document.getElementById(inputId);
+    return inp ? inp.value.trim() : '';
+  }
+  return sel.value;
+}
+
+function calcularMargemCota() {
+  var compra = parseFloat(document.getElementById('cv_valor_compra').value) || 0;
+  var venda  = parseFloat(document.getElementById('cv_valor_venda').value)  || 0;
+  var margem = venda - compra;
+  var pct    = compra > 0 ? ((margem / compra) * 100).toFixed(1) + '%' : '—';
+  document.getElementById('cv_margem').value     = margem.toFixed(2);
+  document.getElementById('cv_margem_pct').value = pct;
+}
+
+function calcularMargemCotaEdit() {
+  var compra = parseFloat(document.getElementById('editCv_valor_compra').value) || 0;
+  var venda  = parseFloat(document.getElementById('editCv_valor_venda').value)  || 0;
+  var margem = venda - compra;
+  document.getElementById('editCv_margem').value = margem.toFixed(2);
+}
+
+function limparFormCotaVenda() {
+  ['cv_resort_outro','cv_obs_unidade','cv_data_venda',
+   'cv_comprador_nome','cv_comprador_email','cv_comprador_telefone',
+   'cv_valor_compra','cv_valor_venda','cv_margem','cv_margem_pct','cv_obs'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+  var sel = document.getElementById('cv_resort');
+  if (sel) sel.value = '';
+  var inp = document.getElementById('cv_resort_outro');
+  if (inp) inp.style.display = 'none';
+  var st = document.getElementById('cv_status');
+  if (st) st.value = 'negociacao';
+  var fp = document.getElementById('cv_forma_pag');
+  if (fp) fp.value = 'pix';
+}
+
+/* ==========================================
+   VENDA DE COTAS — CRUD
+========================================== */
+function adicionarCotaVenda() {
+  var resort     = _cvResortNome('cv_resort', 'cv_resort_outro');
+  var obsUnidade = (document.getElementById('cv_obs_unidade').value || '').trim();
+  var dataVenda  = (document.getElementById('cv_data_venda').value || '').trim();
+  var status     = document.getElementById('cv_status').value;
+  var nome       = (document.getElementById('cv_comprador_nome').value || '').trim();
+  var email      = (document.getElementById('cv_comprador_email').value || '').trim();
+  var telefone   = (document.getElementById('cv_comprador_telefone').value || '').trim();
+  var compra     = parseFloat(document.getElementById('cv_valor_compra').value) || 0;
+  var venda      = parseFloat(document.getElementById('cv_valor_venda').value)  || 0;
+  var margem     = venda - compra;
+  var formaPag   = document.getElementById('cv_forma_pag').value;
+  var obs        = (document.getElementById('cv_obs').value || '').trim();
+
+  if (!resort)    { mostrarToast('⚠️ Selecione ou informe o resort / unidade.', 'error'); return; }
+  if (!nome)      { mostrarToast('⚠️ Informe o nome do comprador.', 'error'); return; }
+  if (!dataVenda) { mostrarToast('⚠️ Informe a data da venda.', 'error'); return; }
+  if (compra <= 0 && venda <= 0) { mostrarToast('⚠️ Informe ao menos o valor de venda.', 'error'); return; }
+
+  var item = {
+    id:              gerarId(),
+    resort:          resort,
+    obsUnidade:      obsUnidade,
+    dataVenda:       dataVenda,
+    status:          status,
+    compradorNome:   nome,
+    compradorEmail:  email,
+    compradorTel:    telefone,
+    valorCompra:     parseFloat(compra.toFixed(2)),
+    valorVenda:      parseFloat(venda.toFixed(2)),
+    margem:          parseFloat(margem.toFixed(2)),
+    formaPag:        formaPag,
+    obs:             obs,
+    criadoEm:        new Date().toISOString()
+  };
+
+  cotasVendas.push(item);
+  salvarCotasVendas(cotasVendas);
+  limparFormCotaVenda();
+  renderTabelaCotasVendas();
+  atualizarMensal();
+  atualizarVendasAnuais();
+  registrarAuditoria('Cota vendida registrada', nome + ' • ' + resort);
+  mostrarToast('✅ Venda de cota registrada com sucesso!', 'success');
+  document.getElementById('cotas-vendas').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function _labelStatusCota(status) {
+  var map = {
+    negociacao: '<span class="cota-status-badge cota-status-negociacao">🤝 Negociação</span>',
+    contrato:   '<span class="cota-status-badge cota-status-contrato">📄 Contrato</span>',
+    concluida:  '<span class="cota-status-badge cota-status-concluida">✅ Concluída</span>',
+    cancelada:  '<span class="cota-status-badge cota-status-cancelada">❌ Cancelada</span>'
+  };
+  return map[status] || status;
+}
+
+function _labelFormaPagCota(fp) {
+  var map = {
+    pix: '⚡ Pix', cartao: '💳 Cartão', boleto: '📄 Boleto',
+    transferencia: '🏦 Transferência', financiamento: '🏦 Financiamento', dinheiro: '💵 Dinheiro'
+  };
+  return map[fp] || fp;
+}
+
+function renderTabelaCotasVendas() {
+  var tbody = document.getElementById('bodyCotasVendas');
+  if (!tbody) return;
+
+  /* cards de resumo */
+  var totalCotas = 0, totalVenda = 0, totalCompra = 0, totalMargem = 0;
+  cotasVendas.forEach(function(c) {
+    if (c.status === 'cancelada') return;
+    totalCotas++;
+    totalVenda  += c.valorVenda  || 0;
+    totalCompra += c.valorCompra || 0;
+    totalMargem += c.margem      || 0;
+  });
+  var cvdTotal  = document.getElementById('cvd-total');
+  var cvdVenda  = document.getElementById('cvd-venda');
+  var cvdCompra = document.getElementById('cvd-compra');
+  var cvdMargem = document.getElementById('cvd-margem');
+  if (cvdTotal)  cvdTotal.textContent  = totalCotas;
+  if (cvdVenda)  cvdVenda.textContent  = formatBRL(totalVenda);
+  if (cvdCompra) cvdCompra.textContent = formatBRL(totalCompra);
+  if (cvdMargem) {
+    cvdMargem.textContent = formatBRL(totalMargem);
+    cvdMargem.style.color = totalMargem >= 0 ? '#25D366' : '#ef4444';
+  }
+
+  if (!cotasVendas.length) {
+    tbody.innerHTML = '<tr><td colspan="13"><div class="empty-state">Nenhuma venda de cota registrada.</div></td></tr>';
+    return;
+  }
+
+  var lista = cotasVendas.slice().sort(function(a, b) {
+    return (b.dataVenda || b.criadoEm || '').localeCompare(a.dataVenda || a.criadoEm || '');
+  });
+
+  var html = '';
+  lista.forEach(function(c) {
+    var margemCls = (c.margem || 0) >= 0 ? 'cota-margem-pos' : 'cota-margem-neg';
+    var pct = c.valorCompra > 0
+      ? ((c.margem / c.valorCompra) * 100).toFixed(1) + '%'
+      : '—';
+    html +=
+      '<tr>' +
+      '<td>' + (c.dataVenda ? c.dataVenda.slice(0, 10).split('-').reverse().join('/') : '—') + '</td>' +
+      '<td style="font-weight:600;">' + (c.resort || '—') + '</td>' +
+      '<td style="color:var(--cor-sub);font-size:0.82em;">' + (c.obsUnidade || '—') + '</td>' +
+      '<td>' +
+        '<div style="font-weight:600;">' + (c.compradorNome || '—') + '</div>' +
+        (c.compradorEmail ? '<div style="font-size:0.78em;color:var(--cor-sub);">📧 ' + c.compradorEmail + '</div>' : '') +
+      '</td>' +
+      '<td style="white-space:nowrap;">' + (c.compradorTel ? '📞 ' + c.compradorTel : '—') + '</td>' +
+      '<td style="text-align:right;">' + (c.valorCompra > 0 ? formatBRL(c.valorCompra) : '—') + '</td>' +
+      '<td style="text-align:right;font-weight:700;">' + formatBRL(c.valorVenda) + '</td>' +
+      '<td style="text-align:right;" class="' + margemCls + '">' + formatBRL(c.margem) + '</td>' +
+      '<td style="text-align:right;" class="' + margemCls + '">' + pct + '</td>' +
+      '<td>' + _labelFormaPagCota(c.formaPag) + '</td>' +
+      '<td>' + _labelStatusCota(c.status) + '</td>' +
+      '<td style="font-size:0.82em;color:var(--cor-sub);">' + (c.obs || '—') + '</td>' +
+      '<td style="white-space:nowrap;">' +
+        '<button class="btn btn-secondary btn-sm" style="padding:3px 9px;font-size:0.75em;" onclick="abrirModalEditCotaVenda(\'' + c.id + '\')">✏️</button> ' +
+        '<button class="btn btn-ghost btn-sm" style="padding:3px 9px;font-size:0.75em;color:#ef4444;" onclick="excluirCotaVenda(\'' + c.id + '\')">🗑️</button>' +
+      '</td>' +
+      '</tr>';
+  });
+  tbody.innerHTML = html;
+}
+
+function excluirCotaVenda(id) {
+  var alvo = cotasVendas.find(function(c) { return c.id === id; });
+  if (!alvo) return;
+  if (!confirm('Excluir venda de cota de ' + (alvo.compradorNome || '?') + ' — ' + (alvo.resort || '') + '?')) return;
+  cotasVendas = cotasVendas.filter(function(c) { return c.id !== id; });
+  salvarCotasVendas(cotasVendas);
+  renderTabelaCotasVendas();
+  atualizarMensal();
+  atualizarVendasAnuais();
+  registrarAuditoria('Cota venda excluída', (alvo.compradorNome || '') + ' • ' + (alvo.resort || ''));
+  mostrarToast('🗑️ Venda de cota excluída.', 'success');
+}
+
+function abrirModalEditCotaVenda(id) {
+  var c = cotasVendas.find(function(x) { return x.id === id; });
+  if (!c) return;
+  document.getElementById('editCv_id').value             = id;
+  var resSel = document.getElementById('editCv_resort');
+  var resInp = document.getElementById('editCv_resort_outro');
+  var knownResorts = [
+    'Hot Beach Suites — 01 Dormitório', 'Hot Beach Suites — 02 Dormitórios',
+    'Olimpia Park Resort — 01 Dormitório', 'Olimpia Park Resort — 02 Dormitórios',
+    'Solar das Águas Resort — 01 Dormitório', 'Solar das Águas Resort — 02 Dormitórios',
+    'Thermas de São Pedro — 01 Dormitório', 'Wyndham Royal — 01 Dormitório'
+  ];
+  if (c.resort && knownResorts.indexOf(c.resort) >= 0) {
+    resSel.value = c.resort;
+    resInp.style.display = 'none'; resInp.value = '';
+  } else if (c.resort) {
+    resSel.value = 'outro';
+    resInp.style.display = ''; resInp.value = c.resort;
+  } else {
+    resSel.value = ''; resInp.style.display = 'none'; resInp.value = '';
+  }
+  document.getElementById('editCv_obs_unidade').value       = c.obsUnidade || '';
+  document.getElementById('editCv_data_venda').value        = c.dataVenda  || '';
+  document.getElementById('editCv_status').value            = c.status     || 'negociacao';
+  document.getElementById('editCv_comprador_nome').value    = c.compradorNome  || '';
+  document.getElementById('editCv_comprador_email').value   = c.compradorEmail || '';
+  document.getElementById('editCv_comprador_telefone').value= c.compradorTel   || '';
+  document.getElementById('editCv_valor_compra').value      = c.valorCompra != null ? c.valorCompra : '';
+  document.getElementById('editCv_valor_venda').value       = c.valorVenda  != null ? c.valorVenda  : '';
+  document.getElementById('editCv_margem').value            = c.margem      != null ? c.margem      : '';
+  document.getElementById('editCv_forma_pag').value         = c.formaPag    || 'pix';
+  document.getElementById('editCv_obs').value               = c.obs         || '';
+  var modal = document.getElementById('modalEditCotaVenda');
+  modal.style.display = 'flex';
+}
+
+function fecharModalEditCotaVenda() {
+  var modal = document.getElementById('modalEditCotaVenda');
+  if (modal) modal.style.display = 'none';
+}
+
+function salvarEdicaoCotaVenda() {
+  var id = document.getElementById('editCv_id').value;
+  var idx = cotasVendas.findIndex(function(x) { return x.id === id; });
+  if (idx < 0) { mostrarToast('Registro não encontrado.', 'error'); return; }
+  var resort = _cvResortNome('editCv_resort', 'editCv_resort_outro');
+  var nome   = (document.getElementById('editCv_comprador_nome').value || '').trim();
+  if (!resort) { mostrarToast('⚠️ Selecione o resort.', 'error'); return; }
+  if (!nome)   { mostrarToast('⚠️ Informe o nome do comprador.', 'error'); return; }
+  var compra = parseFloat(document.getElementById('editCv_valor_compra').value) || 0;
+  var venda  = parseFloat(document.getElementById('editCv_valor_venda').value)  || 0;
+  var margem = venda - compra;
+  cotasVendas[idx] = Object.assign({}, cotasVendas[idx], {
+    resort:         resort,
+    obsUnidade:     (document.getElementById('editCv_obs_unidade').value || '').trim(),
+    dataVenda:      (document.getElementById('editCv_data_venda').value || '').trim(),
+    status:         document.getElementById('editCv_status').value,
+    compradorNome:  nome,
+    compradorEmail: (document.getElementById('editCv_comprador_email').value || '').trim(),
+    compradorTel:   (document.getElementById('editCv_comprador_telefone').value || '').trim(),
+    valorCompra:    parseFloat(compra.toFixed(2)),
+    valorVenda:     parseFloat(venda.toFixed(2)),
+    margem:         parseFloat(margem.toFixed(2)),
+    formaPag:       document.getElementById('editCv_forma_pag').value,
+    obs:            (document.getElementById('editCv_obs').value || '').trim()
+  });
+  salvarCotasVendas(cotasVendas);
+  fecharModalEditCotaVenda();
+  renderTabelaCotasVendas();
+  atualizarMensal();
+  atualizarVendasAnuais();
+  registrarAuditoria('Cota venda editada', nome + ' • ' + resort);
+  mostrarToast('✅ Venda de cota atualizada!', 'success');
+}
+
+/* Minimizar/expandir tabela */
+function toggleCotasVendas() {
+  var content = document.getElementById('cotasVendasContent');
+  var btn     = document.getElementById('cotasVendasToggleBtn');
+  if (!content) return;
+  var hidden = content.style.display === 'none';
+  content.style.display = hidden ? '' : 'none';
+  if (btn) btn.textContent = hidden ? '▼ Minimizar' : '▶ Expandir';
+}
+
+/* Exportar CSV */
+function exportarCSVCotasVendas() {
+  if (!cotasVendas.length) { mostrarToast('Nenhuma venda de cota para exportar.', 'error'); return; }
+  var cols = ['Data Venda','Resort','Obs. Unidade','Comprador','E-mail','Telefone',
+              'Valor Compra (R$)','Valor Venda (R$)','Margem (R$)','Margem (%)','Pagamento','Status','Obs'];
+  var rows = cotasVendas.slice().sort(function(a,b) {
+    return (b.dataVenda||'').localeCompare(a.dataVenda||'');
+  }).map(function(c) {
+    var pct = c.valorCompra > 0 ? ((c.margem / c.valorCompra)*100).toFixed(1)+'%' : '';
+    return [
+      c.dataVenda, c.resort, c.obsUnidade, c.compradorNome, c.compradorEmail, c.compradorTel,
+      c.valorCompra, c.valorVenda, c.margem, pct, c.formaPag, c.status, c.obs
+    ].map(function(v) { return '"' + String(v == null ? '' : v).replace(/"/g,'""') + '"'; }).join(',');
+  });
+  var csv  = '\uFEFF' + cols.join(',') + '\n' + rows.join('\n');
+  var blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  var url  = URL.createObjectURL(blob);
+  var a    = document.createElement('a');
+  a.href = url; a.download = 'cotas-vendas-' + new Date().toISOString().slice(0,10) + '.csv';
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a); URL.revokeObjectURL(url);
+  mostrarToast('📥 CSV de cotas vendidas exportado!', 'success');
+}
+
+/* Fecha modal ao clicar fora */
+document.addEventListener('click', function(e) {
+  var modal = document.getElementById('modalEditCotaVenda');
+  if (modal && e.target === modal) fecharModalEditCotaVenda();
+});
 (function () {
   var _calcExpr    = '';
   var _calcCurrent = '0';
@@ -9828,6 +10451,7 @@ async function inicializarSistema() {
   }).then(function() {
     reservas = carregarReservas();
     captacoes = carregarCaptacoes();
+    cotasVendas = carregarCotasVendas();
     cobrancas = carregarCobrancas();
     caixaLancamentos = carregarListaStorage(CAIXA_KEY);   /* carregado antes do primeiro atualizarDashboard() */
     automacoes = carregarListaStorage(AUTO_KEY);
@@ -9844,6 +10468,7 @@ async function inicializarSistema() {
     renderRelatorioDesempenho();
     renderTabelaCaptacao();
     atualizarDashboardCaptacao();
+    renderTabelaCotasVendas();
     renderTabelaAutomacoes();
     renderTabelaOnboarding();
     renderTabelaManutencao();
@@ -13599,5 +14224,92 @@ if ('serviceWorker' in navigator) {
     </div>
   </div>
 </div>
+<!-- Modal: Editar Venda de Cota -->
+<div id="modalEditCotaVenda" class="modal" style="display:none;position:fixed;inset:0;z-index:9999;align-items:center;justify-content:center;background:rgba(0,0,0,0.65);" role="dialog" aria-modal="true" aria-labelledby="modalEditCotaVendaTitulo">
+  <div class="modal-box" style="max-width:680px;width:94%;background:var(--glass,#1a1f2e);border:1px solid var(--borda,rgba(255,255,255,0.1));border-radius:16px;padding:28px;max-height:90vh;overflow-y:auto;">
+    <h3 id="modalEditCotaVendaTitulo" style="color:var(--dourado,#f0c040);margin-bottom:18px;">✏️ Editar Venda de Cota</h3>
+    <input type="hidden" id="editCv_id">
+    <div class="calc-grid">
+      <div class="field-group" style="grid-column:span 2;">
+        <label>Resort / Unidade *</label>
+        <select id="editCv_resort" onchange="onEditCvResortChange()">
+          <option value="">— Selecione o resort —</option>
+          <option value="Hot Beach Suites — 01 Dormitório">🏖️ Hot Beach Suites — 01 Dormitório</option>
+          <option value="Hot Beach Suites — 02 Dormitórios">🏖️ Hot Beach Suites — 02 Dormitórios</option>
+          <option value="Olimpia Park Resort — 01 Dormitório">🎢 Olimpia Park Resort — 01 Dormitório</option>
+          <option value="Olimpia Park Resort — 02 Dormitórios">🎢 Olimpia Park Resort — 02 Dormitórios</option>
+          <option value="Solar das Águas Resort — 01 Dormitório">☀️ Solar das Águas Resort — 01 Dormitório</option>
+          <option value="Solar das Águas Resort — 02 Dormitórios">☀️ Solar das Águas Resort — 02 Dormitórios</option>
+          <option value="Thermas de São Pedro — 01 Dormitório">♨️ Thermas de São Pedro — 01 Dormitório</option>
+          <option value="Wyndham Royal — 01 Dormitório">👑 Wyndham Royal — 01 Dormitório</option>
+          <option value="outro">✏️ Outras opções (informar)</option>
+        </select>
+        <input type="text" id="editCv_resort_outro" placeholder="Informe o nome do resort ou casa" autocomplete="off"
+               style="display:none;margin-top:6px;">
+      </div>
+      <div class="field-group" style="grid-column:span 2;">
+        <label>Observação da Unidade</label>
+        <input type="text" id="editCv_obs_unidade" placeholder="Ex.: Cota 07 Semana B…" autocomplete="off">
+      </div>
+      <div class="field-group">
+        <label>Data da Venda *</label>
+        <input type="date" id="editCv_data_venda">
+      </div>
+      <div class="field-group">
+        <label>Status</label>
+        <select id="editCv_status">
+          <option value="negociacao">🤝 Negociação</option>
+          <option value="contrato">📄 Contrato Assinado</option>
+          <option value="concluida">✅ Concluída</option>
+          <option value="cancelada">❌ Cancelada</option>
+        </select>
+      </div>
+      <div class="field-group" style="grid-column:span 2;">
+        <label>Nome do Comprador *</label>
+        <input type="text" id="editCv_comprador_nome" placeholder="Nome completo" autocomplete="off">
+      </div>
+      <div class="field-group">
+        <label>E-mail</label>
+        <input type="email" id="editCv_comprador_email" placeholder="email@exemplo.com" autocomplete="off">
+      </div>
+      <div class="field-group">
+        <label>Telefone</label>
+        <input type="tel" id="editCv_comprador_telefone" placeholder="(00) 00000-0000">
+      </div>
+      <div class="field-group">
+        <label>Valor de Compra (R$)</label>
+        <input type="number" id="editCv_valor_compra" min="0" step="0.01" oninput="calcularMargemCotaEdit()">
+      </div>
+      <div class="field-group">
+        <label>Valor de Venda (R$)</label>
+        <input type="number" id="editCv_valor_venda" min="0" step="0.01" oninput="calcularMargemCotaEdit()">
+      </div>
+      <div class="field-group">
+        <label>Margem (R$) — calculada</label>
+        <input type="number" id="editCv_margem" readonly style="background:rgba(212,175,55,0.07);font-weight:700;">
+      </div>
+      <div class="field-group">
+        <label>Forma de Pagamento</label>
+        <select id="editCv_forma_pag">
+          <option value="pix">⚡ Pix</option>
+          <option value="cartao">💳 Cartão de Crédito</option>
+          <option value="boleto">📄 Boleto</option>
+          <option value="transferencia">🏦 Transferência Bancária</option>
+          <option value="financiamento">🏦 Financiamento</option>
+          <option value="dinheiro">💵 Dinheiro</option>
+        </select>
+      </div>
+      <div class="field-group" style="grid-column:span 2;">
+        <label>Observações Gerais</label>
+        <input type="text" id="editCv_obs" placeholder="Anotações…" autocomplete="off">
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:18px;">
+      <button class="btn btn-primary" onclick="salvarEdicaoCotaVenda()">💾 Salvar</button>
+      <button class="btn btn-ghost" onclick="fecharModalEditCotaVenda()">Cancelar</button>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
