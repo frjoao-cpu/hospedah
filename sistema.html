@@ -4153,13 +4153,38 @@ thead .col-sticky-right {
       </div>
 
       <div class="field-group">
+        <label>CPF do Comprador</label>
+        <input type="text" id="cv_comprador_cpf" placeholder="000.000.000-00" maxlength="14" oninput="mascararCPFCota(this)" autocomplete="off">
+      </div>
+
+      <div class="field-group">
         <label>E-mail do Comprador</label>
         <input type="email" id="cv_comprador_email" placeholder="email@exemplo.com" autocomplete="off">
       </div>
 
-      <div class="field-group">
+      <div class="field-group" style="grid-column: span 2;">
         <label>Telefone / WhatsApp do Comprador</label>
         <input type="tel" id="cv_comprador_telefone" placeholder="(00) 00000-0000">
+      </div>
+
+      <!-- Dados do vendedor -->
+      <div class="field-group" style="grid-column: span 2; border-top:1px solid var(--borda); padding-top:14px; margin-top:4px;">
+        <label style="color:var(--dourado); font-weight:700; font-size:0.95em;">🧑‍💼 Dados do Vendedor</label>
+      </div>
+
+      <div class="field-group" style="grid-column: span 2;">
+        <label>Nome do Vendedor</label>
+        <input type="text" id="cv_vendedor_nome" placeholder="Nome do vendedor responsável" autocomplete="off">
+      </div>
+
+      <div class="field-group">
+        <label>Telefone / WhatsApp do Vendedor</label>
+        <input type="tel" id="cv_vendedor_telefone" placeholder="(00) 00000-0000">
+      </div>
+
+      <div class="field-group">
+        <label>E-mail do Vendedor</label>
+        <input type="email" id="cv_vendedor_email" placeholder="email@exemplo.com" autocomplete="off">
       </div>
 
       <!-- Valores -->
@@ -4259,7 +4284,9 @@ thead .col-sticky-right {
               <th>Resort / Unidade</th>
               <th>Obs. Unidade</th>
               <th>Comprador</th>
+              <th>CPF</th>
               <th>Contato</th>
+              <th>Vendedor</th>
               <th>Compra (R$)</th>
               <th>Venda (R$)</th>
               <th>Margem (R$)</th>
@@ -7676,6 +7703,12 @@ function atualizarDashboard() {
     }
   });
 
+  /* Inclui margem de cotas vendidas (não canceladas) em Comissão Gerada */
+  (Array.isArray(cotasVendas) ? cotasVendas : []).forEach(function (c) {
+    if (c.status === 'cancelada') return;
+    comissao += parseFloat(c.margem || 0);
+  });
+
   var pendente = _comissaoPendente(comissao, comissaoRecebida);
 
   document.getElementById('dash-total').textContent      = total;
@@ -10695,7 +10728,8 @@ function calcularMargemCotaEdit() {
 
 function limparFormCotaVenda() {
   ['cv_resort_outro','cv_obs_unidade','cv_data_venda',
-   'cv_comprador_nome','cv_comprador_email','cv_comprador_telefone',
+   'cv_comprador_nome','cv_comprador_cpf','cv_comprador_email','cv_comprador_telefone',
+   'cv_vendedor_nome','cv_vendedor_telefone','cv_vendedor_email',
    'cv_valor_compra','cv_valor_venda','cv_margem','cv_margem_pct','cv_obs'].forEach(function(id) {
     var el = document.getElementById(id);
     if (el) el.value = '';
@@ -10719,8 +10753,12 @@ function adicionarCotaVenda() {
   var dataVenda  = (document.getElementById('cv_data_venda').value || '').trim();
   var status     = document.getElementById('cv_status').value;
   var nome       = (document.getElementById('cv_comprador_nome').value || '').trim();
+  var cpf        = (document.getElementById('cv_comprador_cpf').value || '').trim();
   var email      = (document.getElementById('cv_comprador_email').value || '').trim();
   var telefone   = (document.getElementById('cv_comprador_telefone').value || '').trim();
+  var vendNome   = (document.getElementById('cv_vendedor_nome').value || '').trim();
+  var vendTel    = (document.getElementById('cv_vendedor_telefone').value || '').trim();
+  var vendEmail  = (document.getElementById('cv_vendedor_email').value || '').trim();
   var compra     = parseFloat(document.getElementById('cv_valor_compra').value) || 0;
   var venda      = parseFloat(document.getElementById('cv_valor_venda').value)  || 0;
   var margem     = venda - compra;
@@ -10739,8 +10777,12 @@ function adicionarCotaVenda() {
     dataVenda:       dataVenda,
     status:          status,
     compradorNome:   nome,
+    compradorCpf:    cpf,
     compradorEmail:  email,
     compradorTel:    telefone,
+    vendedorNome:    vendNome,
+    vendedorTel:     vendTel,
+    vendedorEmail:   vendEmail,
     valorCompra:     parseFloat(compra.toFixed(2)),
     valorVenda:      parseFloat(venda.toFixed(2)),
     margem:          parseFloat(margem.toFixed(2)),
@@ -10804,7 +10846,7 @@ function renderTabelaCotasVendas() {
   }
 
   if (!cotasVendas.length) {
-    tbody.innerHTML = '<tr><td colspan="13"><div class="empty-state">Nenhuma venda de cota registrada.</div></td></tr>';
+    tbody.innerHTML = '<tr><td colspan="15"><div class="empty-state">Nenhuma venda de cota registrada.</div></td></tr>';
     return;
   }
 
@@ -10827,7 +10869,13 @@ function renderTabelaCotasVendas() {
         '<div style="font-weight:600;">' + (c.compradorNome || '—') + '</div>' +
         (c.compradorEmail ? '<div style="font-size:0.78em;color:var(--cor-sub);">📧 ' + c.compradorEmail + '</div>' : '') +
       '</td>' +
+      '<td style="white-space:nowrap;font-size:0.82em;">' + (c.compradorCpf || '—') + '</td>' +
       '<td style="white-space:nowrap;">' + (c.compradorTel ? '📞 ' + c.compradorTel : '—') + '</td>' +
+      '<td>' +
+        (c.vendedorNome ? '<div style="font-weight:600;">' + c.vendedorNome + '</div>' : '<span style="color:var(--cor-sub);">—</span>') +
+        (c.vendedorTel   ? '<div style="font-size:0.78em;color:var(--cor-sub);">📞 ' + c.vendedorTel + '</div>' : '') +
+        (c.vendedorEmail ? '<div style="font-size:0.78em;color:var(--cor-sub);">📧 ' + c.vendedorEmail + '</div>' : '') +
+      '</td>' +
       '<td style="text-align:right;">' + (c.valorCompra > 0 ? formatBRL(c.valorCompra) : '—') + '</td>' +
       '<td style="text-align:right;font-weight:700;">' + formatBRL(c.valorVenda) + '</td>' +
       '<td style="text-align:right;" class="' + margemCls + '">' + formatBRL(c.margem) + '</td>' +
@@ -10882,8 +10930,12 @@ function abrirModalEditCotaVenda(id) {
   document.getElementById('editCv_data_venda').value        = c.dataVenda  || '';
   document.getElementById('editCv_status').value            = c.status     || 'negociacao';
   document.getElementById('editCv_comprador_nome').value    = c.compradorNome  || '';
+  document.getElementById('editCv_comprador_cpf').value     = c.compradorCpf   || '';
   document.getElementById('editCv_comprador_email').value   = c.compradorEmail || '';
   document.getElementById('editCv_comprador_telefone').value= c.compradorTel   || '';
+  document.getElementById('editCv_vendedor_nome').value     = c.vendedorNome   || '';
+  document.getElementById('editCv_vendedor_telefone').value = c.vendedorTel    || '';
+  document.getElementById('editCv_vendedor_email').value    = c.vendedorEmail  || '';
   document.getElementById('editCv_valor_compra').value      = c.valorCompra != null ? c.valorCompra : '';
   document.getElementById('editCv_valor_venda').value       = c.valorVenda  != null ? c.valorVenda  : '';
   document.getElementById('editCv_margem').value            = c.margem      != null ? c.margem      : '';
@@ -10915,8 +10967,12 @@ function salvarEdicaoCotaVenda() {
     dataVenda:      (document.getElementById('editCv_data_venda').value || '').trim(),
     status:         document.getElementById('editCv_status').value,
     compradorNome:  nome,
+    compradorCpf:   (document.getElementById('editCv_comprador_cpf').value || '').trim(),
     compradorEmail: (document.getElementById('editCv_comprador_email').value || '').trim(),
     compradorTel:   (document.getElementById('editCv_comprador_telefone').value || '').trim(),
+    vendedorNome:   (document.getElementById('editCv_vendedor_nome').value || '').trim(),
+    vendedorTel:    (document.getElementById('editCv_vendedor_telefone').value || '').trim(),
+    vendedorEmail:  (document.getElementById('editCv_vendedor_email').value || '').trim(),
     valorCompra:    parseFloat(compra.toFixed(2)),
     valorVenda:     parseFloat(venda.toFixed(2)),
     margem:         parseFloat(margem.toFixed(2)),
@@ -10945,14 +11001,16 @@ function toggleCotasVendas() {
 /* Exportar CSV */
 function exportarCSVCotasVendas() {
   if (!cotasVendas.length) { mostrarToast('Nenhuma venda de cota para exportar.', 'error'); return; }
-  var cols = ['Data Venda','Resort','Obs. Unidade','Comprador','E-mail','Telefone',
+  var cols = ['Data Venda','Resort','Obs. Unidade','Comprador','CPF Comprador','E-mail','Telefone',
+              'Vendedor','Tel. Vendedor','E-mail Vendedor',
               'Valor Compra (R$)','Valor Venda (R$)','Margem (R$)','Margem (%)','Pagamento','Status','Obs'];
   var rows = cotasVendas.slice().sort(function(a,b) {
     return (b.dataVenda||'').localeCompare(a.dataVenda||'');
   }).map(function(c) {
     var pct = c.valorCompra > 0 ? ((c.margem / c.valorCompra)*100).toFixed(1)+'%' : '';
     return [
-      c.dataVenda, c.resort, c.obsUnidade, c.compradorNome, c.compradorEmail, c.compradorTel,
+      c.dataVenda, c.resort, c.obsUnidade, c.compradorNome, c.compradorCpf, c.compradorEmail, c.compradorTel,
+      c.vendedorNome, c.vendedorTel, c.vendedorEmail,
       c.valorCompra, c.valorVenda, c.margem, pct, c.formaPag, c.status, c.obs
     ].map(function(v) { return '"' + String(v == null ? '' : v).replace(/"/g,'""') + '"'; }).join(',');
   });
@@ -12601,6 +12659,10 @@ function mascararCPFFid(el) {
   else if (v.length > 6) v = v.replace(/(\d{3})(\d{3})(\d{1,3})/, '$1.$2.$3');
   else if (v.length > 3) v = v.replace(/(\d{3})(\d{1,3})/, '$1.$2');
   el.value = v;
+}
+
+function mascararCPFCota(el) {
+  mascararCPFFid(el);
 }
 
 function fidLimparInfo() {
@@ -15597,12 +15659,31 @@ if ('serviceWorker' in navigator) {
         <input type="text" id="editCv_comprador_nome" placeholder="Nome completo" autocomplete="off">
       </div>
       <div class="field-group">
+        <label>CPF do Comprador</label>
+        <input type="text" id="editCv_comprador_cpf" placeholder="000.000.000-00" maxlength="14" oninput="mascararCPFCota(this)" autocomplete="off">
+      </div>
+      <div class="field-group">
         <label>E-mail</label>
         <input type="email" id="editCv_comprador_email" placeholder="email@exemplo.com" autocomplete="off">
       </div>
-      <div class="field-group">
+      <div class="field-group" style="grid-column:span 2;">
         <label>Telefone</label>
         <input type="tel" id="editCv_comprador_telefone" placeholder="(00) 00000-0000">
+      </div>
+      <div class="field-group" style="grid-column:span 2; border-top:1px solid var(--borda); padding-top:14px; margin-top:4px;">
+        <label style="color:var(--dourado); font-weight:700; font-size:0.95em;">🧑‍💼 Dados do Vendedor</label>
+      </div>
+      <div class="field-group" style="grid-column:span 2;">
+        <label>Nome do Vendedor</label>
+        <input type="text" id="editCv_vendedor_nome" placeholder="Nome do vendedor responsável" autocomplete="off">
+      </div>
+      <div class="field-group">
+        <label>Telefone / WhatsApp do Vendedor</label>
+        <input type="tel" id="editCv_vendedor_telefone" placeholder="(00) 00000-0000">
+      </div>
+      <div class="field-group">
+        <label>E-mail do Vendedor</label>
+        <input type="email" id="editCv_vendedor_email" placeholder="email@exemplo.com" autocomplete="off">
       </div>
       <div class="field-group">
         <label>Valor de Compra (R$)</label>
