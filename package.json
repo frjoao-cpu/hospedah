@@ -6,9 +6,14 @@
   "scripts": {
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
-    "serve": "npx serve . -p 4000 -s"
+    "test:e2e:reservas": "playwright test tests/e2e/reservas.spec.js",
+    "test:e2e:busca": "playwright test tests/e2e/busca.spec.js",
+    "test:a11y": "playwright test tests/e2e/accessibility.spec.js",
+    "serve": "npx serve . -p 4000 -s",
+    "size-check": "node scripts/size-check.js"
   },
   "devDependencies": {
-    "@playwright/test": "^1.44.0"
+    "@playwright/test": "^1.44.0",
+    "axe-playwright": "^2.2.2"
   }
 }
