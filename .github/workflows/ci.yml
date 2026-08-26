@@ -338,6 +338,62 @@ jobs:
   # ──────────────────────────────────────────────
   # 9. Smoke tests pós-deploy (somente na main)
   # ──────────────────────────────────────────────
+  # Bundle size — controla tamanho das assets críticas
+  # ──────────────────────────────────────────────
+  bundle-size:
+    name: Verificação de Tamanho de Assets
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verificar tamanho das assets principais
+        run: |
+          set -e
+          # Limite em KB para cada asset crítica
+          declare -A LIMITS=(
+            ["script.js"]=150
+            ["sw.js"]=50
+            ["assets/style.css"]=120
+            ["assets/index.css"]=80
+            ["assets/mobile-first.css"]=60
+            ["assets/admin.js"]=500
+          )
+
+          FAILED=0
+          for FILE in "${!LIMITS[@]}"; do
+            if [ -f "$FILE" ]; then
+              SIZE_BYTES=$(wc -c < "$FILE")
+              SIZE_KB=$(( SIZE_BYTES / 1024 ))
+              LIMIT_KB=${LIMITS[$FILE]}
+              if [ "$SIZE_KB" -gt "$LIMIT_KB" ]; then
+                echo "❌ $FILE: ${SIZE_KB} KB > limite de ${LIMIT_KB} KB"
+                FAILED=$((FAILED + 1))
+              else
+                echo "✅ $FILE: ${SIZE_KB} KB (limite: ${LIMIT_KB} KB)"
+              fi
+            else
+              echo "⚠️  $FILE não encontrado — ignorando"
+            fi
+          done
+
+          # Relatório total (HTML + CSS + JS)
+          TOTAL_HTML=$(find . -name "*.html" -not -path "./.git/*" -exec wc -c {} + 2>/dev/null | awk '/total/{print $1}')
+          TOTAL_CSS=$(find . -name "*.css" -not -path "./.git/*" -exec wc -c {} + 2>/dev/null | awk '/total/{print $1}')
+          TOTAL_JS=$(find . -name "*.js" -not -path "./.git/*" -not -path "./node_modules/*" -exec wc -c {} + 2>/dev/null | awk '/total/{print $1}')
+          echo ""
+          echo "📦 Totais do projeto:"
+          echo "   HTML: $(( TOTAL_HTML / 1024 )) KB"
+          echo "   CSS:  $(( TOTAL_CSS  / 1024 )) KB"
+          echo "   JS:   $(( TOTAL_JS   / 1024 )) KB"
+
+          if [ "$FAILED" -gt 0 ]; then
+            echo ""
+            echo "⚠️  $FAILED asset(s) excederam o limite de tamanho. Considere comprimir ou dividir o arquivo."
+            exit 1
+          fi
+
   # ──────────────────────────────────────────────
   # E2E — Playwright (smoke tests locais)
   # ──────────────────────────────────────────────
@@ -366,12 +422,35 @@ jobs:
           CI: true
 
       - name: Publicar relatório de testes
-        if: failure()
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: playwright-report
           path: playwright-report/
-          retention-days: 7
+          retention-days: 14
+
+  # ──────────────────────────────────────────────
+  # npm audit — segurança das dependências
+  # ──────────────────────────────────────────────
+  dependency-audit:
+    name: Auditoria de Dependências (npm audit)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Instalar dependências
+        run: npm ci
+
+      - name: Executar npm audit
+        # Falha apenas em vulnerabilidades de alto ou crítico impacto
+        run: npm audit --audit-level=high
 
   smoke-test:
     name: Smoke Tests
