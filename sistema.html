@@ -8757,7 +8757,7 @@ function atualizarVendasAnuais() {
       '<td>' +
         '<div class="va-bar-wrap">' +
           '<div class="va-bar-bg"><div class="va-bar-fill" style="width:' + barPct + '%"></div></div>' +
-          formatBRL(t.venda) +
+          (t.venda > 0 ? formatBRL(t.venda) : '<span class="va-pct">—</span>') +
         '</div>' +
       '</td>' +
       '<td><span class="va-pct">' + (t.venda > 0 ? pct + '%' : '—') + '</span></td>' +
