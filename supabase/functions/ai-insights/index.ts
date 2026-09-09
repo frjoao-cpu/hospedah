@@ -64,6 +64,21 @@ interface Lucro12Mes {
   lucro: number;
 }
 
+interface MensalAnual {
+  mes: string;
+  venda: number;
+  comissao: number;
+  reservas: number;
+}
+
+interface ContextoAnual {
+  ano: number;
+  agrupamento: string;
+  mensal: MensalAnual[];
+  melhorMes: string;
+  metaAnual: number | null;
+}
+
 interface InsightsPayload {
   totalVenda: number;
   totalCaptacao: number;
@@ -77,6 +92,7 @@ interface InsightsPayload {
   countAval: number;
   canais: CanalData[];
   lucro12meses: Lucro12Mes[];
+  contextoAnual?: ContextoAnual;
 }
 
 function formatBRL(valor: number): string {
@@ -121,6 +137,32 @@ function buildUserPrompt(data: InsightsPayload): string {
     data.lucro12meses.forEach((m) => {
       linhas.push(`- ${m.mes}: ${formatBRL(m.lucro)}`);
     });
+    linhas.push('');
+  }
+
+  if (data.contextoAnual && typeof data.contextoAnual.ano === 'number') {
+    const ctx = data.contextoAnual;
+    linhas.push(`**Contexto Anual — Resultados de ${ctx.ano} (${ctx.agrupamento}):**`);
+    if (ctx.metaAnual) {
+      const ating = data.totalVenda > 0 ? ((data.totalVenda / ctx.metaAnual) * 100).toFixed(1) : '0';
+      linhas.push(`- Meta anual: ${formatBRL(ctx.metaAnual)} · Atingido: ${ating}%`);
+    }
+    linhas.push(`- Melhor mês do ano: ${ctx.melhorMes}`);
+    if (ctx.mensal && ctx.mensal.length > 0) {
+      linhas.push('- Vendas por mês:');
+      ctx.mensal.forEach((mm) => {
+        if (mm.venda > 0 || mm.reservas > 0) {
+          linhas.push(
+            `  - ${mm.mes}: ${formatBRL(mm.venda)} · ${mm.reservas} reservas · comissão ${formatBRL(mm.comissao)}`,
+          );
+        }
+      });
+    }
+    linhas.push('');
+    linhas.push(
+      `Foque a análise na evolução do ano de ${ctx.ano}: sazonalidade, meses fortes/fracos, ` +
+      'ritmo em relação à meta (se houver) e ações para melhorar os próximos meses.',
+    );
     linhas.push('');
   }
 
