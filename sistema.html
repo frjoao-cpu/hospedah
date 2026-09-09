@@ -1936,6 +1936,73 @@ thead .col-sticky-right {
 }
 .va-agrup-btn.active { background: rgba(212,175,55,0.18); color: var(--dourado); font-weight: 600; }
 .va-agrup-btn:hover:not(.active) { background: rgba(255,255,255,0.05); color: var(--cor-texto); }
+
+/* ---- Vendas anuais: gráfico, alertas, heatmap, metas ---- */
+.va-chart-toolbar {
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  margin: 4px 0 10px;
+}
+.va-chip {
+  padding: 3px 10px; border-radius: 14px;
+  border: 1px solid var(--borda); background: rgba(255,255,255,0.03);
+  color: var(--cor-sub); cursor: pointer;
+  font-size: 0.72em; font-family: inherit;
+  transition: background .15s, color .15s, border-color .15s;
+}
+.va-chip:hover:not(.active) { background: rgba(255,255,255,0.06); color: var(--cor-texto); }
+.va-chip.active { background: rgba(212,175,55,0.18); border-color: rgba(212,175,55,0.4); color: var(--dourado); font-weight: 600; }
+.va-chart-toolbar .va-chip-sep { width: 1px; height: 16px; background: var(--borda); flex-shrink: 0; }
+.va-chart-box { position: relative; height: 260px; margin-bottom: 6px; }
+.va-chart-box canvas { cursor: pointer; }
+.va-anom-badge {
+  display: inline-flex; align-items: center;
+  font-size: 0.68em; font-weight: 700;
+  color: #f39c12; background: rgba(243,156,18,0.12);
+  border: 1px solid rgba(243,156,18,0.3);
+  border-radius: 9px; padding: 0 5px; margin-left: 5px;
+  vertical-align: middle;
+}
+.va-alertas-wrap { display: flex; flex-direction: column; gap: 6px; margin: 10px 0 4px; }
+.va-alerta {
+  display: flex; align-items: center; gap: 9px; flex-wrap: wrap;
+  border-radius: 8px; padding: 8px 12px;
+  font-size: 0.8em; color: var(--cor-texto);
+  border-left: 3px solid transparent;
+}
+.va-alerta-warn  { background: rgba(243,156,18,0.08); border-left-color: #f39c12; }
+.va-alerta-info  { background: rgba(77,166,255,0.08); border-left-color: #4da6ff; }
+.va-alerta-success { background: rgba(37,211,102,0.08); border-left-color: #25D366; }
+.va-alerta .va-alerta-acoes { margin-left: auto; display: flex; gap: 6px; }
+.va-meta-bar-wrap {
+  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+  margin: 8px 0 4px; font-size: 0.8em; color: var(--cor-sub);
+}
+.va-meta-progress { flex: 1; min-width: 160px; height: 8px; background: rgba(255,255,255,0.07); border-radius: 5px; overflow: hidden; }
+.va-meta-progress-fill {
+  height: 100%; border-radius: 5px;
+  background: linear-gradient(90deg, rgba(37,211,102,0.7), #25D366);
+  transition: width .45s ease;
+}
+.va-meta-progress-fill.va-meta-risco { background: linear-gradient(90deg, rgba(243,156,18,0.7), #f39c12); }
+.va-meta-val { color: var(--dourado); font-weight: 700; }
+.va-heatmap-wrap { margin-top: 16px; }
+.va-heatmap-title { font-size: 0.82em; color: var(--cor-sub); margin-bottom: 8px; font-weight: 600; }
+.va-heatmap { border-collapse: collapse; width: 100%; }
+.va-heatmap th, .va-heatmap td { padding: 4px 5px; text-align: center; font-size: 0.72em; }
+.va-heatmap th { color: var(--cor-sub); font-weight: 600; white-space: nowrap; }
+.va-heatmap th:first-child, .va-heatmap td:first-child { text-align: left; color: var(--dourado); font-weight: 600; white-space: nowrap; }
+.va-heatmap td.va-hm-cell { border-radius: 4px; min-width: 34px; cursor: default; color: rgba(255,255,255,0.85); }
+.va-heatmap td.va-hm-vazio { background: transparent !important; }
+.va-drill-row { cursor: pointer; }
+.va-drill-list { display: flex; flex-direction: column; gap: 0; font-size: 0.85em; }
+.va-drill-item {
+  display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap;
+  padding: 8px 2px; border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+.va-drill-item:last-child { border-bottom: none; }
+.va-drill-item .va-drill-label { color: var(--cor-texto); }
+.va-drill-item .va-drill-sub { color: var(--cor-sub); font-size: 0.82em; }
+.va-drill-item .va-drill-val { color: var(--dourado); font-weight: 600; white-space: nowrap; }
 .charts-section-3 {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -3488,20 +3555,45 @@ thead .col-sticky-right {
         <span id="vendas-ano-label" style="font-size:1.1em;font-weight:700;color:var(--dourado);min-width:52px;text-align:center;">2026</span>
         <button class="btn btn-secondary btn-sm" onclick="mudarAnoVendas(1)">▶</button>
         <button class="btn btn-secondary btn-sm" onclick="exportarVendasAnuaisCSV()" title="Exportar tabela em CSV">📥 CSV</button>
+        <button class="btn btn-secondary btn-sm" onclick="abrirModalMetaAnual()" title="Configurar meta anual de vendas">🎯 Meta</button>
+        <button class="btn btn-secondary btn-sm" onclick="gerarInsightsIAAnual()" title="Análise do ano por IA" style="display:flex;align-items:center;gap:5px;">✨ IA</button>
         <button class="va-min-btn" id="vaMinBtn" onclick="toggleVendasAnuais()" title="Minimizar / Expandir tabela">▲</button>
       </span>
     </div>
-    <div class="va-table-wrap" id="vaTableWrap" style="overflow-x:auto;">
-      <table id="tabelaVendasAnuais" class="vendas-anuais-table">
-        <thead id="cabecalhoVendasAnuais"></thead>
-        <tbody id="corpoVendasAnuais">
-          <tr><td colspan="8" style="padding:12px 14px;color:var(--cor-sub);">Carregando…</td></tr>
-        </tbody>
-        <tfoot id="rodapeVendasAnuais"></tfoot>
-      </table>
-      <div class="va-futuras-wrap" id="vaFuturasWrap" style="display:none;">
-        <div class="va-futuras-titulo">📅 Comissões Futuras <span id="vaFuturasAnoLabel" style="font-weight:400;opacity:0.7;"></span></div>
-        <div class="va-futuras-grid" id="vaFuturasGrid"></div>
+    <div id="vaAlertasWrap" class="va-alertas-wrap" style="display:none;"></div>
+    <div id="vaConteudoWrap">
+      <div class="va-chart-toolbar">
+        <span style="font-size:0.72em;color:var(--cor-sub);">Métrica:</span>
+        <button class="va-chip active" id="vaMetVenda"    onclick="setMetricaVendasChart('venda')">💵 Venda</button>
+        <button class="va-chip" id="vaMetComissao" onclick="setMetricaVendasChart('comissao')">🏷️ Comissão</button>
+        <button class="va-chip" id="vaMetLucro"    onclick="setMetricaVendasChart('lucro')">📈 Lucro</button>
+        <button class="va-chip" id="vaMetNoites"   onclick="setMetricaVendasChart('noites')">🌙 Noites</button>
+        <span class="va-chip-sep"></span>
+        <button class="va-chip" id="vaModoAcumulado" onclick="toggleModoAcumuladoVendas()" title="Comparar valores acumulados no ano (YTD)">∑ Acumulado</button>
+        <button class="va-chip" id="vaProjecao" onclick="toggleProjecaoVendas()" title="Projetar meses futuros com os recebimentos previstos">🔮 Projeção</button>
+        <button class="va-chip" id="vaMultiAno" onclick="toggleMultiAnoVendas()" title="Sobrepor anos anteriores no gráfico">📚 Multi-ano</button>
+      </div>
+      <div class="va-chart-box"><canvas id="chartVendasAnual"></canvas></div>
+      <div class="va-meta-bar-wrap" id="vaMetaBarWrap" style="display:none;"></div>
+      <div class="va-table-wrap" id="vaTableWrap" style="overflow-x:auto;">
+        <table id="tabelaVendasAnuais" class="vendas-anuais-table">
+          <thead id="cabecalhoVendasAnuais"></thead>
+          <tbody id="corpoVendasAnuais">
+            <tr><td colspan="8" style="padding:12px 14px;color:var(--cor-sub);">Carregando…</td></tr>
+          </tbody>
+          <tfoot id="rodapeVendasAnuais"></tfoot>
+        </table>
+        <div class="va-futuras-wrap" id="vaFuturasWrap" style="display:none;">
+          <div class="va-futuras-titulo">📅 Comissões Futuras <span id="vaFuturasAnoLabel" style="font-weight:400;opacity:0.7;"></span></div>
+          <div class="va-futuras-grid" id="vaFuturasGrid"></div>
+        </div>
+      </div>
+      <div class="va-heatmap-wrap" id="vaHeatmapWrap" style="display:none;">
+        <div class="va-heatmap-title">🌡️ Sazonalidade — Vendas por mês × ano</div>
+        <div style="overflow-x:auto;"><table class="va-heatmap" id="vaHeatmapTable"></table></div>
+      </div>
+      <div class="ai-insights-wrap">
+        <div id="vaAiInsightsResult" style="display:none;" class="ai-insights-card"></div>
       </div>
     </div>
   </section>
@@ -5268,6 +5360,33 @@ thead .col-sticky-right {
       <button class="btn btn-primary" id="btnSalvarOferta" onclick="salvarOferta()">🎁 Gerar Oferta</button>
       <button class="btn btn-secondary" onclick="fecharModalOferta()">Cancelar</button>
     </div>
+  </div>
+</div>
+
+<!-- Modal: Meta anual de vendas -->
+<div class="modal-overlay" id="modalMetaAnual">
+  <div class="modal-box" style="max-width:420px;">
+    <button class="modal-close" onclick="fecharModalMetaAnual()" aria-label="Fechar">✕</button>
+    <h3>🎯 Meta Anual de Vendas</h3>
+    <div class="field-group" style="margin-bottom:16px;">
+      <label>Meta para <span id="vaMetaAnoLabel" style="color:var(--dourado);font-weight:700;"></span> (R$)</label>
+      <input type="number" id="inputMetaAnual" min="0" step="100" placeholder="Ex.: 250000" style="width:100%;box-sizing:border-box;">
+      <span style="font-size:0.76em;color:var(--cor-sub);display:block;margin-top:6px;">Deixe em branco ou 0 para remover a meta. A meta fica salva por ano.</span>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="salvarMetaAnual()">💾 Salvar meta</button>
+      <button class="btn btn-secondary" onclick="fecharModalMetaAnual()">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Drill-down de reservas do mês (Vendas por Ano) -->
+<div class="modal-overlay" id="modalVendasMes">
+  <div class="modal-box" style="max-width:560px;">
+    <button class="modal-close" onclick="fecharModalVendasMes()" aria-label="Fechar">✕</button>
+    <h3 id="vaDrillTitulo">📅 Detalhes do mês</h3>
+    <div id="vaDrillResumo" style="font-size:0.82em;color:var(--cor-sub);margin-bottom:12px;"></div>
+    <div id="vaDrillLista" class="va-drill-list"></div>
   </div>
 </div>
 
@@ -7620,12 +7739,18 @@ document.addEventListener('keydown', function (e) {
     fecharModal();
     fecharModalBaixa();
     fecharModalOferta();
+    if (typeof fecharModalMetaAnual === 'function') fecharModalMetaAnual();
+    if (typeof fecharModalVendasMes === 'function') fecharModalVendasMes();
   }
 });
 
 // Fechar modal clicando fora
 document.getElementById('editModal').addEventListener('click', function (e) {
   if (e.target === this) fecharModal();
+});
+['modalMetaAnual', 'modalVendasMes'].forEach(function (mid) {
+  var el = document.getElementById(mid);
+  if (el) el.addEventListener('click', function (e) { if (e.target === el) el.classList.remove('open'); });
 });
 
 /* ==========================================
@@ -8474,8 +8599,44 @@ document.addEventListener('click', function (e) {
 /* ==========================================
    RESULTADOS DE VENDAS POR ANO (UNIFICADO)
 ========================================== */
-var _anoVendasAtual = new Date().getFullYear();
-var _agrupVendas    = 'entrada'; /* 'entrada' = por check-in | 'criado' = por cadastro/captação */
+var _VA_PREFS_KEY   = 'hospeda_va_prefs';
+var _VA_METAS_KEY   = 'hospeda_metas_anuais';
+var _VA_RESUMO_KEY  = 'hospeda_va_ultimo_resumo';
+var _VA_EXPORT_KEY  = 'hospeda_va_ultimo_export';
+var _VA_ALERTAS_KEY = 'hospeda_va_alertas';
+
+function _vaCarregarPrefs() {
+  try { return JSON.parse(localStorage.getItem(_VA_PREFS_KEY) || '{}') || {}; }
+  catch (e) { return {}; }
+}
+function _vaSalvarPrefs() {
+  try {
+    localStorage.setItem(_VA_PREFS_KEY, JSON.stringify({
+      ano: _anoVendasAtual, agrup: _agrupVendas, metrica: _vaMetrica,
+      acumulado: _vaModoAcumulado, projecao: _vaProjecao,
+      multiAno: _vaMultiAno, colapsado: _vaColapsado
+    }));
+  } catch (e) { /* storage indisponível */ }
+}
+
+var _vaPrefsInit     = _vaCarregarPrefs();
+var _anoVendasAtual  = (typeof _vaPrefsInit.ano === 'number' && _vaPrefsInit.ano >= 2000 && _vaPrefsInit.ano <= 2100)
+  ? _vaPrefsInit.ano : new Date().getFullYear();
+var _agrupVendas    = (_vaPrefsInit.agrup === 'criado') ? 'criado' : 'entrada'; /* 'entrada' = por check-in | 'criado' = por cadastro/captação */
+var _vaMetrica      = ['venda','comissao','lucro','noites'].indexOf(_vaPrefsInit.metrica) >= 0 ? _vaPrefsInit.metrica : 'venda';
+var _vaModoAcumulado = _vaPrefsInit.acumulado === true;
+var _vaProjecao      = _vaPrefsInit.projecao === true;
+var _vaMultiAno      = _vaPrefsInit.multiAno === true;
+var _vaColapsado     = _vaPrefsInit.colapsado === true;
+var _vaChart         = null;
+var _vaDrillCache    = [];
+
+var _VA_METRICAS = {
+  venda:    { label: 'Venda Total', campo: 'total',    cor: '#D4AF37', dinheiro: true },
+  comissao: { label: 'Comissão',    campo: 'comissao', cor: '#25D366', dinheiro: true },
+  lucro:    { label: 'Lucro',       campo: 'lucro',    cor: '#4da6ff', dinheiro: true },
+  noites:   { label: 'Noites',      campo: 'noites',   cor: '#9b59b6', dinheiro: false }
+};
 
 var _NOMES_MESES = [
   'Janeiro','Fevereiro','Março','Abril','Maio','Junho',
@@ -8484,6 +8645,7 @@ var _NOMES_MESES = [
 
 function mudarAnoVendas(delta) {
   _anoVendasAtual += delta;
+  _vaSalvarPrefs();
   atualizarVendasAnuais();
 }
 
@@ -8493,16 +8655,109 @@ function setAgrupVendas(modo) {
   var btnC = document.getElementById('vaAgrupCriado');
   if (btnE) btnE.classList.toggle('active', modo === 'entrada');
   if (btnC) btnC.classList.toggle('active', modo === 'criado');
+  _vaSalvarPrefs();
+  atualizarVendasAnuais();
+}
+
+function setMetricaVendasChart(metrica) {
+  if (!_VA_METRICAS[metrica]) return;
+  _vaMetrica = metrica;
+  ['venda','comissao','lucro','noites'].forEach(function (mk) {
+    var btn = document.getElementById('vaMet' + mk.charAt(0).toUpperCase() + mk.slice(1));
+    if (btn) btn.classList.toggle('active', mk === metrica);
+  });
+  _vaSalvarPrefs();
+  atualizarVendasAnuais();
+}
+
+function toggleModoAcumuladoVendas() {
+  _vaModoAcumulado = !_vaModoAcumulado;
+  var btn = document.getElementById('vaModoAcumulado');
+  if (btn) btn.classList.toggle('active', _vaModoAcumulado);
+  _vaSalvarPrefs();
+  atualizarVendasAnuais();
+}
+
+function toggleProjecaoVendas() {
+  _vaProjecao = !_vaProjecao;
+  var btn = document.getElementById('vaProjecao');
+  if (btn) btn.classList.toggle('active', _vaProjecao);
+  _vaSalvarPrefs();
+  atualizarVendasAnuais();
+}
+
+function toggleMultiAnoVendas() {
+  _vaMultiAno = !_vaMultiAno;
+  var btn = document.getElementById('vaMultiAno');
+  if (btn) btn.classList.toggle('active', _vaMultiAno);
+  _vaSalvarPrefs();
   atualizarVendasAnuais();
 }
 
 function toggleVendasAnuais() {
-  var wrap = document.getElementById('vaTableWrap');
+  var wrap = document.getElementById('vaConteudoWrap');
   var btn  = document.getElementById('vaMinBtn');
   if (!wrap || !btn) return;
   var collapsed = wrap.classList.toggle('va-collapsed');
+  _vaColapsado = collapsed;
   btn.classList.toggle('va-collapsed', collapsed);
   btn.title = collapsed ? 'Expandir tabela' : 'Minimizar tabela';
+  _vaSalvarPrefs();
+}
+
+function _vaAplicarEstadoInicialUI() {
+  var btnE = document.getElementById('vaAgrupEntrada');
+  var btnC = document.getElementById('vaCriadoBtn') || document.getElementById('vaAgrupCriado');
+  if (btnE) btnE.classList.toggle('active', _agrupVendas === 'entrada');
+  if (btnC) btnC.classList.toggle('active', _agrupVendas === 'criado');
+  ['venda','comissao','lucro','noites'].forEach(function (mk) {
+    var btn = document.getElementById('vaMet' + mk.charAt(0).toUpperCase() + mk.slice(1));
+    if (btn) btn.classList.toggle('active', mk === _vaMetrica);
+  });
+  var bAcum = document.getElementById('vaModoAcumulado');
+  if (bAcum) bAcum.classList.toggle('active', _vaModoAcumulado);
+  var bProj = document.getElementById('vaProjecao');
+  if (bProj) bProj.classList.toggle('active', _vaProjecao);
+  var bMulti = document.getElementById('vaMultiAno');
+  if (bMulti) bMulti.classList.toggle('active', _vaMultiAno);
+  var wrap = document.getElementById('vaConteudoWrap');
+  var btnMin = document.getElementById('vaMinBtn');
+  if (wrap && btnMin && _vaColapsado) {
+    wrap.classList.add('va-collapsed');
+    btnMin.classList.add('va-collapsed');
+    btnMin.title = 'Expandir tabela';
+  }
+}
+
+/* Ano automático inteligente: se o ano corrente ainda não tem nenhuma venda
+   e o ano anterior tem, abre a visão no ano anterior (ex.: início de janeiro). */
+function _vaAjustarAnoAutomatico() {
+  var anoAtual = new Date().getFullYear();
+  if (_anoVendasAtual !== anoAtual) return; /* usuário já havia escolhido outro ano */
+  if (new Date().getMonth() > 5) return; /* só faz sentido no 1º semestre */
+  function temVendaNoAno(ano) {
+    var i, dt;
+    for (i = 0; i < reservas.length; i++) {
+      var r = reservas[i];
+      if ((r.status || '').toLowerCase() === 'cancelado') continue;
+      dt = r.dataCaptacao || r.criadoEm || r.entrada;
+      if (dt && parseInt(String(dt).slice(0, 4), 10) === ano) return true;
+    }
+    var cv = Array.isArray(cotasVendas) ? cotasVendas : [];
+    for (i = 0; i < cv.length; i++) {
+      if (cv[i].status === 'cancelada') continue;
+      dt = cv[i].dataVenda || cv[i].criadoEm;
+      if (dt && parseInt(String(dt).slice(0, 4), 10) === ano) return true;
+    }
+    return false;
+  }
+  if (!temVendaNoAno(anoAtual) && temVendaNoAno(anoAtual - 1)) {
+    _anoVendasAtual = anoAtual - 1;
+    _vaSalvarPrefs();
+    if (typeof mostrarToast === 'function') {
+      mostrarToast('📅 Sem vendas em ' + anoAtual + ' ainda — exibindo ' + (anoAtual - 1) + '.', 'info');
+    }
+  }
 }
 
 function atualizarVendasAnuais() {
@@ -8668,6 +8923,27 @@ function atualizarVendasAnuais() {
   var rodape = document.getElementById('rodapeVendasAnuais');
   if (!corpo) return;
 
+  /* ---- Detecção de anomalias (3σ) sobre as vendas mensais do ano ---- */
+  var _vaVendasVals = [];
+  for (var am = 1; am <= 12; am++) { if (totais[am].venda > 0) _vaVendasVals.push(totais[am].venda); }
+  var _vaAnomalia = {};
+  if (_vaVendasVals.length >= 4) {
+    var _somaV = 0;
+    _vaVendasVals.forEach(function (v) { _somaV += v; });
+    var _mediaV = _somaV / _vaVendasVals.length;
+    var _somaSq = 0;
+    _vaVendasVals.forEach(function (v) { _somaSq += (v - _mediaV) * (v - _mediaV); });
+    var _stdV = Math.sqrt(_somaSq / _vaVendasVals.length);
+    if (_stdV > 0) {
+      for (var am2 = 1; am2 <= 12; am2++) {
+        var _z = (totais[am2].venda - _mediaV) / _stdV;
+        if (Math.abs(_z) >= 2 && totais[am2].venda > 0) {
+          _vaAnomalia[am2] = { z: _z, alta: _z > 0 };
+        }
+      }
+    }
+  }
+
   var html = '';
   for (var i = 1; i <= 12; i++) {
     var t   = totais[i];
@@ -8709,9 +8985,19 @@ function atualizarVendasAnuais() {
         : '<td><span class="va-pct">—</span></td>';
     }
 
+    /* Badge de anomalia (outlier 3σ/2σ) */
+    var anomBadge = '';
+    if (_vaAnomalia[i]) {
+      var _an = _vaAnomalia[i];
+      anomBadge = '<span class="va-anom-badge" title="Mês atípico: venda ' + (_an.alta ? 'muito acima' : 'muito abaixo') +
+        ' da média do ano (desvio de ' + Math.abs(_an.z).toFixed(1) + 'σ)">' +
+        (_an.alta ? '⚡ pico' : '⚠️ queda') + '</span>';
+    }
+
     html +=
-      '<tr class="' + (atual ? 'va-atual' : '') + (vazio ? ' va-vazio' : '') + '">' +
-      '<td>' + _NOMES_MESES[i - 1] + (atual ? '<span class="va-tag-atual">◀ atual</span>' : '') + '</td>' +
+      '<tr class="va-drill-row ' + (atual ? 'va-atual' : '') + (vazio ? ' va-vazio' : '') + '"' +
+        (!vazio ? ' onclick="abrirModalVendasMes(' + i + ')" title="Clique para ver as reservas do mês"' : '') + '>' +
+      '<td>' + _NOMES_MESES[i - 1] + anomBadge + (atual ? '<span class="va-tag-atual">◀ atual</span>' : '') + '</td>' +
       '<td>' + (t.reservas > 0 ? t.reservas : '<span class="va-pct">—</span>') + '</td>' +
       '<td>' + (t.noites   > 0 ? t.noites   : '<span class="va-pct">—</span>') + '</td>' +
       '<td>' +
@@ -8862,6 +9148,803 @@ function atualizarVendasAnuais() {
         '</div>';
     });
     vaGrid.innerHTML = gridHtml;
+  }
+
+  /* ---- Novos recursos: gráfico, metas, alertas, heatmap, automações ---- */
+  _vaRenderGrafico(totais, antAno, ano, _vaAnomalia);
+  _vaRenderMetaBarra(totAno, ano);
+  _vaRenderAlertas(totais, antAno, ano, totAno);
+  _vaRenderHeatmap(ano);
+  _vaVerificarAutomacoes(ano, totAno);
+}
+
+/* ==========================================
+   VENDAS ANUAIS — GRÁFICO, METAS, ALERTAS,
+   HEATMAP, DRILL-DOWN, IA E AUTOMAÇÕES
+========================================== */
+
+/* Série mensal de uma métrica para um ano qualquer (mesma regra de agrupamento da tabela) */
+function _vaSerieMensalAno(ano, metrica) {
+  var campoData = _agrupVendas === 'criado' ? 'criadoEm' : 'entrada';
+  var dados = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+  reservas.forEach(function (r) {
+    if ((r.status || '').toLowerCase() === 'cancelado') return;
+    var rawDt = (campoData === 'criadoEm' && r.dataCaptacao) ? r.dataCaptacao : r[campoData];
+    var dt = rawDt ? String(rawDt).slice(0, 7) : null;
+    if (!dt) return;
+    var partes = dt.split('-');
+    if (parseInt(partes[0], 10) !== ano) return;
+    var mes = parseInt(partes[1], 10);
+    if (mes < 1 || mes > 12) return;
+    if (metrica === 'noites') {
+      dados[mes - 1] += parseInt(r.noites || 0, 10);
+    } else if (metrica === 'lucro') {
+      var cap = parseFloat(r.valorCaptacao || 0);
+      dados[mes - 1] += cap > 0 ? parseFloat(r.total || 0) - cap : 0;
+    } else {
+      dados[mes - 1] += parseFloat(r[_VA_METRICAS[metrica].campo] || 0);
+    }
+  });
+  if (metrica === 'venda' || metrica === 'lucro') {
+    (Array.isArray(cotasVendas) ? cotasVendas : []).forEach(function (c) {
+      if (c.status === 'cancelada') return;
+      var dt = c.dataVenda ? String(c.dataVenda).slice(0, 7) : (c.criadoEm ? String(c.criadoEm).slice(0, 7) : null);
+      if (!dt) return;
+      var partes = dt.split('-');
+      if (parseInt(partes[0], 10) !== ano) return;
+      var mes = parseInt(partes[1], 10);
+      if (mes < 1 || mes > 12) return;
+      var vv = parseFloat(c.valorVenda || 0);
+      var vc = parseFloat(c.valorCompra || 0);
+      dados[mes - 1] += metrica === 'venda' ? vv : (vc > 0 ? vv - vc : 0);
+    });
+  }
+  return dados;
+}
+
+function _vaRenderGrafico(totais, antAno, ano, anomalias) {
+  var ctx = document.getElementById('chartVendasAnual');
+  if (!ctx || typeof Chart === 'undefined') return;
+
+  var met     = _VA_METRICAS[_vaMetrica];
+  var dinheiro = met.dinheiro;
+  var cor     = met.cor;
+  var labels  = _NOMES_MESES.map(function (m) { return m.slice(0, 3); });
+
+  var dadosAtual = [], dadosAnt = [], projecao = [];
+  var m, v;
+  for (m = 1; m <= 12; m++) {
+    v = totais[m][met.campo] || 0;
+    dadosAtual.push(Math.round(v * 100) / 100);
+    dadosAnt.push(Math.round((antAno[m].venda || 0) * 100) / 100);
+    projecao.push(met.campo === 'venda' ? Math.round((totais[m].parcelasReceber || 0) * 100) / 100 : 0);
+  }
+  /* série YoY respeita a métrica selecionada (venda já vem pronta de antAno) */
+  if (_vaMetrica !== 'venda') dadosAnt = _vaSerieMensalAno(ano - 1, _vaMetrica);
+
+  if (_vaModoAcumulado) {
+    var accA = 0, accB = 0, accP = 0;
+    dadosAtual = dadosAtual.map(function (x) { accA += x; return Math.round(accA * 100) / 100; });
+    dadosAnt   = dadosAnt.map(function (x)   { accB += x; return Math.round(accB * 100) / 100; });
+    projecao   = projecao.map(function (x)   { accP += x; return Math.round(accP * 100) / 100; });
+  }
+
+  var anoAtual = new Date().getFullYear();
+  var mesAtual = new Date().getMonth() + 1;
+
+  /* cores das barras: destaca anomalias */
+  var bgCores = [], bdCores = [];
+  for (m = 1; m <= 12; m++) {
+    var baseBg = 'rgba(' + _vaHexToRgb(cor) + ',0.55)';
+    var baseBd = cor;
+    if (anomalias && anomalias[m]) {
+      baseBd = anomalias[m].alta ? '#f39c12' : '#e74c3c';
+      baseBg = anomalias[m].alta ? 'rgba(243,156,18,0.6)' : 'rgba(231,76,60,0.55)';
+    }
+    bgCores.push(baseBg);
+    bdCores.push(baseBd);
+  }
+
+  var datasets = [];
+  datasets.push({
+    type: 'bar',
+    label: met.label + ' ' + ano,
+    data: dadosAtual,
+    backgroundColor: bgCores,
+    borderColor: bdCores,
+    borderWidth: 1,
+    order: 2
+  });
+  datasets.push({
+    type: 'line',
+    label: (ano - 1) + ' (anterior)',
+    data: dadosAnt,
+    borderColor: 'rgba(170,180,196,0.85)',
+    backgroundColor: 'rgba(170,180,196,0.85)',
+    borderWidth: 2,
+    pointRadius: 2,
+    fill: false,
+    tension: 0.3,
+    order: 1
+  });
+
+  /* Projeção: meses futuros com recebimentos previstos (apenas ano corrente) */
+  if (_vaProjecao && ano === anoAtual) {
+    var dadosProj = projecao.map(function (val, idx) {
+      return (idx + 1) > mesAtual && val > 0 ? val : null;
+    });
+    if (dadosProj.some(function (x) { return x !== null; })) {
+      datasets.push({
+        type: 'bar',
+        label: '🔮 Previsto (comissões a receber)',
+        data: dadosProj,
+        backgroundColor: 'rgba(77,166,255,0.18)',
+        borderColor: 'rgba(77,166,255,0.9)',
+        borderWidth: 1.5,
+        borderDash: [5, 4],
+        order: 3
+      });
+    }
+  }
+
+  /* Multi-ano: sobrepõe até 2 anos anteriores extras */
+  var _vaCoresAnos = ['rgba(155,89,182,0.9)', 'rgba(243,156,18,0.9)'];
+  if (_vaMultiAno) {
+    for (var off = 2; off <= 3; off++) {
+      var serie = _vaSerieMensalAno(ano - off, _vaMetrica);
+      if (_vaModoAcumulado) {
+        var acc = 0;
+        serie = serie.map(function (x) { acc += x; return Math.round(acc * 100) / 100; });
+      }
+      if (!serie.some(function (x) { return x > 0; })) continue;
+      datasets.push({
+        type: 'line',
+        label: String(ano - off),
+        data: serie,
+        borderColor: _vaCoresAnos[off - 2],
+        backgroundColor: _vaCoresAnos[off - 2],
+        borderWidth: 1.5,
+        borderDash: [6, 4],
+        pointRadius: 0,
+        fill: false,
+        tension: 0.3,
+        order: 4
+      });
+    }
+  }
+
+  /* Meta anual: linha de referência (proporcional no modo acumulado) */
+  var metaAnual = _vaGetMetaAnual(ano);
+  if (metaAnual > 0 && dinheiro) {
+    var metaData = [];
+    for (m = 1; m <= 12; m++) {
+      metaData.push(_vaModoAcumulado ? Math.round(metaAnual / 12 * m * 100) / 100 : Math.round(metaAnual / 12 * 100) / 100);
+    }
+    datasets.push({
+      type: 'line',
+      label: '🎯 Meta ' + (_vaModoAcumulado ? '(proporcional)' : '(média mensal)'),
+      data: metaData,
+      borderColor: 'rgba(37,211,102,0.75)',
+      backgroundColor: 'rgba(37,211,102,0.75)',
+      borderWidth: 1.5,
+      borderDash: [3, 4],
+      pointRadius: 0,
+      fill: false,
+      order: 0
+    });
+  }
+
+  if (_vaChart) { _vaChart.destroy(); _vaChart = null; }
+  _vaChart = new Chart(ctx, {
+    data: { labels: labels, datasets: datasets },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      onClick: function (evt, elements) {
+        if (elements && elements.length > 0) {
+          var mesIdx = elements[0].index + 1;
+          var tm = totais[mesIdx];
+          if (tm && (tm.reservas > 0 || tm.venda > 0 || (tm.parcelasReceber || 0) > 0)) {
+            abrirModalVendasMes(mesIdx);
+          }
+        }
+      },
+      plugins: {
+        legend: { labels: { color: '#aab4c4', font: { family: 'Poppins' }, boxWidth: 14 } },
+        tooltip: {
+          callbacks: {
+            title: function (items) {
+              if (!items.length) return '';
+              return _NOMES_MESES[items[0].dataIndex] + ' de ' + ano;
+            },
+            afterTitle: function (items) {
+              if (!items.length) return '';
+              var mi = items[0].dataIndex + 1;
+              var t = totais[mi] || {};
+              var linhas = [];
+              if ((t.reservas || 0) > 0) {
+                linhas.push('Reservas: ' + t.reservas + ' · Noites: ' + (t.noites || 0));
+                linhas.push('Ticket médio: ' + formatBRL((t.venda || 0) / t.reservas));
+              }
+              if ((t.venda || 0) > 0) linhas.push('Venda: ' + formatBRL(t.venda));
+              if ((t.comissao || 0) > 0) linhas.push('Comissão: ' + formatBRL(t.comissao));
+              if ((t.captacao || 0) > 0) {
+                linhas.push('Lucro: ' + formatBRL(t.lucro || 0) +
+                  ' (margem ' + (t.venda > 0 ? ((t.lucro / t.venda) * 100).toFixed(1) : '0') + '%)');
+              }
+              if ((t.parcelasReceber || 0) > 0) linhas.push('Rec. previsto: ' + formatBRL(t.parcelasReceber));
+              return linhas;
+            },
+            label: function (item) {
+              var val = item.parsed.y;
+              if (val === null || val === undefined) return null;
+              var txt = dinheiro ? formatBRL(val) : String(val);
+              return ' ' + (item.dataset.label || '') + ': ' + txt;
+            }
+          }
+        }
+      },
+      scales: {
+        x: { ticks: { color: '#aab4c4' }, grid: { color: 'rgba(255,255,255,0.04)' } },
+        y: {
+          ticks: {
+            color: '#aab4c4',
+            callback: function (v) {
+              if (!dinheiro) return v;
+              if (Math.abs(v) >= 1000) return 'R$ ' + (v / 1000).toLocaleString('pt-BR', { maximumFractionDigits: 1 }) + 'k';
+              return 'R$ ' + v.toLocaleString('pt-BR', { maximumFractionDigits: 0 });
+            }
+          },
+          grid: { color: 'rgba(255,255,255,0.04)' }
+        }
+      }
+    }
+  });
+}
+
+function _vaHexToRgb(hex) {
+  var h = hex.replace('#', '');
+  return parseInt(h.slice(0, 2), 16) + ',' + parseInt(h.slice(2, 4), 16) + ',' + parseInt(h.slice(4, 6), 16);
+}
+
+/* ---------- Metas anuais ---------- */
+function _vaGetMetas() {
+  try { return JSON.parse(localStorage.getItem(_VA_METAS_KEY) || '{}') || {}; }
+  catch (e) { return {}; }
+}
+function _vaGetMetaAnual(ano) {
+  return parseFloat(_vaGetMetas()[ano]) || 0;
+}
+function abrirModalMetaAnual() {
+  var lbl = document.getElementById('vaMetaAnoLabel');
+  if (lbl) lbl.textContent = String(_anoVendasAtual);
+  var inp = document.getElementById('inputMetaAnual');
+  var meta = _vaGetMetaAnual(_anoVendasAtual);
+  if (inp) inp.value = meta > 0 ? meta : '';
+  var modal = document.getElementById('modalMetaAnual');
+  if (modal) modal.classList.add('open');
+}
+function fecharModalMetaAnual() {
+  var modal = document.getElementById('modalMetaAnual');
+  if (modal) modal.classList.remove('open');
+}
+function salvarMetaAnual() {
+  var val = parseFloat((document.getElementById('inputMetaAnual') || {}).value) || 0;
+  var metas = _vaGetMetas();
+  if (val > 0) metas[_anoVendasAtual] = val; else delete metas[_anoVendasAtual];
+  try {
+    localStorage.setItem(_VA_METAS_KEY, JSON.stringify(metas));
+    if (typeof salvarNoSupabase === 'function') salvarNoSupabase(_VA_METAS_KEY, metas);
+  } catch (e) { /* storage indisponível */ }
+  if (typeof registrarAuditoria === 'function') {
+    registrarAuditoria('Meta anual atualizada', _anoVendasAtual + ': ' + (val > 0 ? formatBRL(val) : 'removida'));
+  }
+  if (typeof mostrarToast === 'function') {
+    mostrarToast(val > 0 ? '🎯 Meta de ' + _anoVendasAtual + ': ' + formatBRL(val) : '🎯 Meta de ' + _anoVendasAtual + ' removida.', 'success');
+  }
+  fecharModalMetaAnual();
+  atualizarVendasAnuais();
+}
+
+function _vaRenderMetaBarra(totAno, ano) {
+  var wrap = document.getElementById('vaMetaBarWrap');
+  if (!wrap) return;
+  var meta = _vaGetMetaAnual(ano);
+  if (meta <= 0) { wrap.style.display = 'none'; wrap.innerHTML = ''; return; }
+  var ating = Math.min(100, (totAno.venda / meta) * 100);
+  var anoAtual = new Date().getFullYear();
+  var mesAtual = new Date().getMonth() + 1;
+  var esperado = (ano === anoAtual) ? (mesAtual / 12) * 100 : (ano < anoAtual ? 100 : 0);
+  var emRisco = ano === anoAtual && ating < esperado * 0.85;
+  wrap.style.display = '';
+  wrap.innerHTML =
+    '<span>🎯 Meta ' + ano + ': <span class="va-meta-val">' + formatBRL(meta) + '</span></span>' +
+    '<div class="va-meta-progress"><div class="va-meta-progress-fill' + (emRisco ? ' va-meta-risco' : '') +
+      '" style="width:' + ating.toFixed(1) + '%"></div></div>' +
+    '<span>' + formatBRL(totAno.venda) + ' (' + ((totAno.venda / meta) * 100).toFixed(1) + '%)' +
+      (ano === anoAtual ? ' · esperado p/ ' + _NOMES_MESES[mesAtual - 1] + ': ' + esperado.toFixed(0) + '%' : '') +
+      (emRisco ? ' ⚠️' : '') + '</span>';
+}
+
+/* ---------- Alertas automáticos ---------- */
+function _vaAlertaDispensado(id) {
+  try {
+    var d = JSON.parse(localStorage.getItem(_VA_ALERTAS_KEY) || '{}') || {};
+    return d[id] === true;
+  } catch (e) { return false; }
+}
+function dispensarAlertaVA(id) {
+  try {
+    var d = JSON.parse(localStorage.getItem(_VA_ALERTAS_KEY) || '{}') || {};
+    d[id] = true;
+    localStorage.setItem(_VA_ALERTAS_KEY, JSON.stringify(d));
+  } catch (e) { /* storage indisponível */ }
+  atualizarVendasAnuais();
+}
+
+function _vaRenderAlertas(totais, antAno, ano, totAno) {
+  var wrap = document.getElementById('vaAlertasWrap');
+  if (!wrap) return;
+  var hoje = new Date();
+  var anoAtual = hoje.getFullYear();
+  var mesAtual = hoje.getMonth() + 1;
+  var alertas = [];
+
+  /* 1) Meses fechados com YoY negativo (só no ano corrente) */
+  if (ano === anoAtual) {
+    var quedas = [];
+    for (var m = 1; m < mesAtual; m++) {
+      var ant = antAno[m].venda || 0;
+      var atual = totais[m].venda || 0;
+      if (ant > 0 && atual < ant) {
+        quedas.push({ mes: m, pct: ((atual - ant) / ant) * 100 });
+      }
+    }
+    if (quedas.length > 0) {
+      var pior = quedas.reduce(function (a, b) { return a.pct < b.pct ? a : b; });
+      alertas.push({
+        id: 'yoy_neg_' + ano + '_' + mesAtual,
+        tipo: 'warn',
+        txt: '📉 ' + quedas.length + ' mês(es) de ' + ano + ' abaixo de ' + (ano - 1) +
+          ' — pior: ' + _NOMES_MESES[pior.mes - 1] + ' (' + pior.pct.toFixed(0) + '%).'
+      });
+    }
+  }
+
+  /* 2) Meta em risco (ano corrente) */
+  var meta = _vaGetMetaAnual(ano);
+  if (meta > 0 && ano === anoAtual) {
+    var esperado = (mesAtual / 12) * meta;
+    if (totAno.venda < esperado * 0.85) {
+      alertas.push({
+        id: 'meta_risco_' + ano + '_' + mesAtual,
+        tipo: 'warn',
+        txt: '🎯 Meta de ' + ano + ' em risco: realizado ' + formatBRL(totAno.venda) +
+          ' vs. esperado ' + formatBRL(esperado) + ' até ' + _NOMES_MESES[mesAtual - 1] + '.'
+      });
+    }
+  }
+
+  /* 3) Cancelamentos com comissão prevista pendente (perda de recebimento) */
+  var perdidos = 0;
+  reservas.forEach(function (r) {
+    if ((r.status || '').toLowerCase() !== 'cancelado') return;
+    (r.parcelasComissao || []).forEach(function (p) {
+      if (!p.mes || (p.status || 'pendente') === 'recebida') return;
+      var pp = p.mes.split('-');
+      if (parseInt(pp[0], 10) !== ano) return;
+      perdidos += Math.max(0, (parseFloat(p.valor) || 0) - (parseFloat(p.recebido) || 0)) || (parseFloat(p.valor) || 0);
+    });
+    if ((!r.parcelasComissao || r.parcelasComissao.length === 0) && r.dataPrevistaComissao) {
+      if (parseInt(String(r.dataPrevistaComissao).slice(0, 4), 10) === ano) {
+        perdidos += _comissaoPendente(r.comissao, r.comissaoRecebida);
+      }
+    }
+  });
+  if (perdidos > 0) {
+    alertas.push({
+      id: 'cancel_prev_' + ano + '_' + mesAtual + '_' + Math.round(perdidos),
+      tipo: 'warn',
+      txt: '⚠️ ' + formatBRL(perdidos) + ' em comissões previstas de ' + ano +
+        ' estão ligadas a reservas canceladas — revise os recebimentos.'
+    });
+  }
+
+  /* 4) Lembrete de resumo mensal (dia 1º, com dados do mês anterior) */
+  var resumoKey = anoAtual + '-' + String(mesAtual).padStart(2, '0');
+  if (ano === anoAtual && hoje.getDate() === 1 && !_vaAlertaDispensado('resumo_' + resumoKey)) {
+    var dAnt = new Date(hoje.getFullYear(), hoje.getMonth() - 1, 1);
+    var mesAntKey = dAnt.getFullYear() + '-' + String(dAnt.getMonth() + 1).padStart(2, '0');
+    var snap = _vaSnapshotMes(mesAntKey);
+    if (snap.reservas > 0) {
+      alertas.push({
+        id: 'resumo_' + resumoKey,
+        tipo: 'info',
+        txt: '📬 Fechamento de ' + nomeDoMes(mesAntKey) + ': ' + snap.reservas + ' reservas · ' +
+          formatBRL(snap.venda) + ' em vendas · ' + formatBRL(snap.comissao) + ' de comissão.',
+        whatsapp: mesAntKey
+      });
+    }
+  }
+
+  /* 5) Lembrete de exportação (fim de mês/ano) */
+  var ultimoDia = new Date(anoAtual, mesAtual, 0).getDate();
+  var exportKey = anoAtual + '-' + String(mesAtual).padStart(2, '0');
+  if (ano === anoAtual && hoje.getDate() >= ultimoDia && !_vaAlertaDispensado('export_' + exportKey)) {
+    var ehDez = mesAtual === 12;
+    alertas.push({
+      id: 'export_' + exportKey,
+      tipo: 'info',
+      txt: '📥 Fim de ' + _NOMES_MESES[mesAtual - 1] + (ehDez ? ' (fechamento do ano)' : '') +
+        ': exporte o CSV de resultados para o seu arquivo.',
+      exportar: true
+    });
+  }
+
+  if (alertas.length === 0) { wrap.style.display = 'none'; wrap.innerHTML = ''; return; }
+  wrap.style.display = '';
+  wrap.innerHTML = alertas.map(function (a) {
+    var acoes = '';
+    if (a.whatsapp) acoes += '<button class="btn btn-secondary btn-sm" onclick="enviarResumoMensalWhatsApp(\'' + a.whatsapp + '\')">💬 Enviar resumo</button>';
+    if (a.exportar) acoes += '<button class="btn btn-secondary btn-sm" onclick="dispensarAlertaVA(\'' + a.id + '\');exportarVendasAnuaisCSV();">📥 Exportar agora</button>';
+    acoes += '<button class="btn btn-secondary btn-sm" onclick="dispensarAlertaVA(\'' + a.id + '\')" title="Dispensar">✕</button>';
+    return '<div class="va-alerta va-alerta-' + a.tipo + '"><span>' + a.txt + '</span>' +
+      '<span class="va-alerta-acoes">' + acoes + '</span></div>';
+  }).join('');
+}
+
+/* Snapshot de um mês (reservas + vendas de cotas) pela data de captação/venda */
+function _vaSnapshotMes(mesKey) {
+  var snap = { reservas: 0, venda: 0, comissao: 0, lucro: 0 };
+  reservas.forEach(function (r) {
+    if ((r.status || '').toLowerCase() === 'cancelado') return;
+    var dt = r.dataCaptacao || r.criadoEm;
+    if (!dt || String(dt).slice(0, 7) !== mesKey) return;
+    snap.reservas++;
+    snap.venda    += parseFloat(r.total || 0);
+    snap.comissao += parseFloat(r.comissao || 0);
+    var cap = parseFloat(r.valorCaptacao || 0);
+    if (cap > 0) snap.lucro += parseFloat(r.total || 0) - cap;
+  });
+  (Array.isArray(cotasVendas) ? cotasVendas : []).forEach(function (c) {
+    if (c.status === 'cancelada') return;
+    var dt = c.dataVenda || c.criadoEm;
+    if (!dt || String(dt).slice(0, 7) !== mesKey) return;
+    snap.venda += parseFloat(c.valorVenda || 0);
+    var vc = parseFloat(c.valorCompra || 0);
+    if (vc > 0) snap.lucro += parseFloat(c.valorVenda || 0) - vc;
+  });
+  return snap;
+}
+
+/* Resumo mensal automático: monta a mensagem e abre no WhatsApp */
+function enviarResumoMensalWhatsApp(mesKey) {
+  var snap = _vaSnapshotMes(mesKey);
+  if (snap.reservas === 0 && snap.venda === 0) {
+    if (typeof mostrarToast === 'function') mostrarToast('Sem dados em ' + nomeDoMes(mesKey) + ' para resumir.', 'error');
+    return;
+  }
+  var msg =
+    '📊 *Resumo de Vendas — ' + nomeDoMes(mesKey) + '*\n\n' +
+    '🛎️ *Reservas:* ' + snap.reservas + '\n' +
+    '💵 *Venda total:* ' + formatBRL(snap.venda) + '\n' +
+    '🏷️ *Comissão gerada:* ' + formatBRL(snap.comissao) + '\n' +
+    (snap.lucro !== 0 ? '📈 *Lucro (com captação):* ' + formatBRL(snap.lucro) + '\n' : '') +
+    '\n_HOSPEDAH — Resorts e Experiências Exclusivas_';
+  var base = CONFIG.whatsappNumero ? 'https://wa.me/' + CONFIG.whatsappNumero : 'https://api.whatsapp.com/send';
+  window.open(base + '?text=' + encodeURIComponent(msg), '_blank');
+  try { localStorage.setItem(_VA_RESUMO_KEY, new Date().toISOString().slice(0, 7)); } catch (e) { /* noop */ }
+}
+
+/* ---------- Heatmap de sazonalidade (mês × ano) ---------- */
+function _vaRenderHeatmap(anoSelecionado) {
+  var wrap  = document.getElementById('vaHeatmapWrap');
+  var table = document.getElementById('vaHeatmapTable');
+  if (!wrap || !table) return;
+
+  var anosMap = {}; /* ano → [12 vendas] */
+  function addVenda(dtStr, valor) {
+    if (!dtStr) return;
+    var a = parseInt(String(dtStr).slice(0, 4), 10);
+    var m = parseInt(String(dtStr).slice(5, 7), 10);
+    if (!a || m < 1 || m > 12) return;
+    if (!anosMap[a]) anosMap[a] = [0,0,0,0,0,0,0,0,0,0,0,0];
+    anosMap[a][m - 1] += valor;
+  }
+  reservas.forEach(function (r) {
+    if ((r.status || '').toLowerCase() === 'cancelado') return;
+    addVenda(r.dataCaptacao || r.criadoEm || r.entrada, parseFloat(r.total || 0));
+  });
+  (Array.isArray(cotasVendas) ? cotasVendas : []).forEach(function (c) {
+    if (c.status === 'cancelada') return;
+    addVenda(c.dataVenda || c.criadoEm, parseFloat(c.valorVenda || 0));
+  });
+
+  var anos = Object.keys(anosMap).map(Number).sort(function (a, b) { return b - a; }).slice(0, 6);
+  if (anos.length === 0) { wrap.style.display = 'none'; return; }
+
+  var maxV = 0;
+  anos.forEach(function (a) { anosMap[a].forEach(function (v) { if (v > maxV) maxV = v; }); });
+
+  var html = '<thead><tr><th>Ano</th>' +
+    _NOMES_MESES.map(function (m) { return '<th>' + m.slice(0, 3) + '</th>'; }).join('') + '</tr></thead><tbody>';
+  anos.forEach(function (a) {
+    html += '<tr><td' + (a === anoSelecionado ? ' style="text-decoration:underline;"' : '') + '>' + a + '</td>';
+    anosMap[a].forEach(function (v, mi) {
+      if (v <= 0 || maxV <= 0) {
+        html += '<td class="va-hm-cell va-hm-vazio">—</td>';
+        return;
+      }
+      var intens = v / maxV;
+      var alpha  = (0.12 + intens * 0.78).toFixed(2);
+      html += '<td class="va-hm-cell" style="background:rgba(212,175,55,' + alpha + ');"' +
+        ' title="' + _NOMES_MESES[mi] + ' de ' + a + ': ' + formatBRL(v) + '"' +
+        ' onclick="_vaIrParaAnoMes(' + a + ',' + (mi + 1) + ')">' +
+        (intens >= 0.35 ? '<b>' + Math.round(v / 1000) + 'k</b>' : Math.round(v / 1000) + 'k') + '</td>';
+    });
+    html += '</tr>';
+  });
+  html += '</tbody>';
+  table.innerHTML = html;
+  wrap.style.display = '';
+}
+
+function _vaIrParaAnoMes(ano, mes) {
+  if (ano !== _anoVendasAtual) {
+    _anoVendasAtual = ano;
+    _vaSalvarPrefs();
+    atualizarVendasAnuais();
+  }
+  abrirModalVendasMes(mes);
+}
+
+/* ---------- Drill-down: reservas e cotas do mês ---------- */
+function abrirModalVendasMes(mes) {
+  if (mes < 1 || mes > 12) return;
+  var ano = _anoVendasAtual;
+  var campoData = _agrupVendas === 'criado' ? 'criadoEm' : 'entrada';
+  var itens = [];
+
+  reservas.forEach(function (r) {
+    if ((r.status || '').toLowerCase() === 'cancelado') return;
+    var rawDt = (campoData === 'criadoEm' && r.dataCaptacao) ? r.dataCaptacao : r[campoData];
+    var dt = rawDt ? String(rawDt).slice(0, 7) : null;
+    if (!dt) return;
+    var partes = dt.split('-');
+    if (parseInt(partes[0], 10) !== ano || parseInt(partes[1], 10) !== mes) return;
+    itens.push({
+      tipo: 'reserva',
+      label: (r.cliente || '—') + ' / ' + (r.resort || '—'),
+      sub: (r.canal || 'Direta') + ' · ' + (r.noites || 0) + ' noites' + (r.entrada ? ' · check-in ' + formatarData(r.entrada) : ''),
+      venda: parseFloat(r.total || 0),
+      comissao: parseFloat(r.comissao || 0)
+    });
+  });
+  (Array.isArray(cotasVendas) ? cotasVendas : []).forEach(function (c) {
+    if (c.status === 'cancelada') return;
+    var dt = c.dataVenda ? String(c.dataVenda).slice(0, 7) : (c.criadoEm ? String(c.criadoEm).slice(0, 7) : null);
+    if (!dt) return;
+    var partes = dt.split('-');
+    if (parseInt(partes[0], 10) !== ano || parseInt(partes[1], 10) !== mes) return;
+    itens.push({
+      tipo: 'cota',
+      label: (c.compradorNome || '—') + ' / ' + (c.resort || '—'),
+      sub: 'Venda de cota' + (c.dataVenda ? ' · ' + formatarData(c.dataVenda) : ''),
+      venda: parseFloat(c.valorVenda || 0),
+      comissao: 0
+    });
+  });
+
+  itens.sort(function (a, b) { return b.venda - a.venda; });
+  _vaDrillCache = itens;
+
+  var titulo = document.getElementById('vaDrillTitulo');
+  if (titulo) titulo.textContent = '📅 ' + _NOMES_MESES[mes - 1] + ' de ' + ano +
+    (_agrupVendas === 'criado' ? ' (por cadastro)' : ' (por check-in)');
+
+  var totVenda = 0, totCom = 0;
+  itens.forEach(function (it) { totVenda += it.venda; totCom += it.comissao; });
+  var resumo = document.getElementById('vaDrillResumo');
+  if (resumo) {
+    resumo.textContent = itens.length + ' registro(s) · Venda: ' + formatBRL(totVenda) +
+      (totCom > 0 ? ' · Comissão: ' + formatBRL(totCom) : '');
+  }
+
+  var lista = document.getElementById('vaDrillLista');
+  if (lista) {
+    lista.innerHTML = itens.length === 0
+      ? '<div style="color:var(--cor-sub);padding:8px 0;">Nenhum registro neste mês.</div>'
+      : itens.map(function (it) {
+          return '<div class="va-drill-item">' +
+            '<div><div class="va-drill-label">' + (it.tipo === 'cota' ? '🎟️ ' : '🛎️ ') + escapeHtml(it.label) + '</div>' +
+            '<div class="va-drill-sub">' + escapeHtml(it.sub) + '</div></div>' +
+            '<div class="va-drill-val">' + formatBRL(it.venda) + '</div>' +
+            '</div>';
+        }).join('');
+  }
+
+  var modal = document.getElementById('modalVendasMes');
+  if (modal) modal.classList.add('open');
+}
+function fecharModalVendasMes() {
+  var modal = document.getElementById('modalVendasMes');
+  if (modal) modal.classList.remove('open');
+}
+
+/* ---------- Insights de IA específicos do quadro anual ---------- */
+function gerarInsightsIAAnual() {
+  var result = document.getElementById('vaAiInsightsResult');
+  if (!result) return;
+  var ano = _anoVendasAtual;
+  var campoData = _agrupVendas === 'criado' ? 'criadoEm' : 'entrada';
+
+  var canaisMap = {};
+  var mensal = [];
+  var m;
+  for (m = 1; m <= 12; m++) mensal.push({ mes: _NOMES_MESES[m - 1], venda: 0, comissao: 0, reservas: 0 });
+
+  var totalVenda = 0, totalCaptacao = 0, lucroTotal = 0, reservasAtivas = 0, reservasComCaptacao = 0;
+  var somaAval = 0, countAval = 0;
+
+  reservas.forEach(function (r) {
+    if ((r.status || '').toLowerCase() === 'cancelado') return;
+    if (r.avaliacao !== null && r.avaliacao !== undefined && !isNaN(r.avaliacao)) {
+      somaAval += parseFloat(r.avaliacao); countAval++;
+    }
+    var rawDt = (campoData === 'criadoEm' && r.dataCaptacao) ? r.dataCaptacao : r[campoData];
+    var dt = rawDt ? String(rawDt).slice(0, 7) : null;
+    if (!dt) return;
+    var partes = dt.split('-');
+    if (parseInt(partes[0], 10) !== ano) return;
+    var mes = parseInt(partes[1], 10);
+    if (mes < 1 || mes > 12) return;
+    reservasAtivas++;
+    var v = parseFloat(r.total || 0);
+    var cap = parseFloat(r.valorCaptacao || 0);
+    totalVenda += v; totalCaptacao += cap; lucroTotal += v - cap;
+    if (cap > 0) reservasComCaptacao++;
+    mensal[mes - 1].venda += v;
+    mensal[mes - 1].comissao += parseFloat(r.comissao || 0);
+    mensal[mes - 1].reservas++;
+    var c = r.canal || 'Direta';
+    if (!canaisMap[c]) canaisMap[c] = { count: 0, receita: 0, avaliacao: 0, countAval: 0 };
+    canaisMap[c].count++;
+    canaisMap[c].receita += v;
+  });
+  (Array.isArray(cotasVendas) ? cotasVendas : []).forEach(function (c) {
+    if (c.status === 'cancelada') return;
+    var dt = c.dataVenda ? String(c.dataVenda).slice(0, 7) : (c.criadoEm ? String(c.criadoEm).slice(0, 7) : null);
+    if (!dt) return;
+    var partes = dt.split('-');
+    if (parseInt(partes[0], 10) !== ano) return;
+    var mes = parseInt(partes[1], 10);
+    if (mes < 1 || mes > 12) return;
+    var vv = parseFloat(c.valorVenda || 0);
+    var vc = parseFloat(c.valorCompra || 0);
+    totalVenda += vv; totalCaptacao += vc; lucroTotal += vv - vc;
+    mensal[mes - 1].venda += vv;
+    if (!canaisMap['Cotas']) canaisMap['Cotas'] = { count: 0, receita: 0, avaliacao: 0, countAval: 0 };
+    canaisMap['Cotas'].count++;
+    canaisMap['Cotas'].receita += vv;
+  });
+
+  /* lucro12meses terminando em dezembro do ano selecionado */
+  var lucro12 = [];
+  for (var i = 0; i < 12; i++) {
+    var d = new Date(ano, i, 1);
+    var key = ano + '-' + String(i + 1).padStart(2, '0');
+    var mesLbl = d.toLocaleDateString('pt-BR', { month: 'short', year: '2-digit' });
+    var rec = 0, cap2 = 0;
+    reservas.forEach(function (r) {
+      var dtVenda = r.dataCaptacao || r.criadoEm || r.entrada;
+      if ((r.status || '').toLowerCase() !== 'cancelado' && dtVenda && String(dtVenda).slice(0, 7) === key) {
+        rec += parseFloat(r.total || 0);
+        cap2 += parseFloat(r.valorCaptacao || 0);
+      }
+    });
+    lucro12.push({ mes: mesLbl, lucro: rec - cap2 });
+  }
+
+  var canalKeys = Object.keys(canaisMap).sort(function (a, b) { return canaisMap[b].count - canaisMap[a].count; });
+  var canaisArr = canalKeys.map(function (c) {
+    var dd = canaisMap[c];
+    return {
+      nome: c, count: dd.count,
+      pct: reservasAtivas > 0 ? parseFloat(((dd.count / reservasAtivas) * 100).toFixed(0)) : 0,
+      receita: dd.receita,
+      receitaPct: totalVenda > 0 ? parseFloat(((dd.receita / totalVenda) * 100).toFixed(0)) : 0,
+      avalMedia: null
+    };
+  });
+
+  var melhorMes = mensal.reduce(function (best, cur) { return cur.venda > best.venda ? cur : best; }, mensal[0]);
+  var payload = {
+    totalVenda: totalVenda,
+    totalCaptacao: totalCaptacao,
+    lucroTotal: lucroTotal,
+    margemLucro: totalVenda > 0 ? ((lucroTotal / totalVenda) * 100) : null,
+    ticketMedio: reservasAtivas > 0 ? (totalVenda / reservasAtivas) : 0,
+    reservasAtivas: reservasAtivas,
+    reservasComCaptacao: reservasComCaptacao,
+    rentabilidadeCaptacao: totalCaptacao > 0 ? ((lucroTotal / totalCaptacao) * 100) : null,
+    avalMedia: countAval > 0 ? (somaAval / countAval).toFixed(1) : null,
+    countAval: countAval,
+    canais: canaisArr,
+    lucro12meses: lucro12,
+    contextoAnual: {
+      ano: ano,
+      agrupamento: _agrupVendas === 'criado' ? 'por cadastro' : 'por check-in',
+      mensal: mensal,
+      melhorMes: melhorMes.mes + ' (' + formatBRL(melhorMes.venda) + ')',
+      metaAnual: _vaGetMetaAnual(ano) || null
+    }
+  };
+
+  result.style.display = 'block';
+  result.innerHTML = '<span class="ai-insights-spinner"></span> Analisando resultados de ' + ano + '…';
+
+  fetch(SUPABASE_URL + '/functions/v1/ai-insights', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  })
+    .then(function (res) { return res.json(); })
+    .then(function (data) {
+      if (data.insights) {
+        result.innerHTML = '<strong style="display:block;margin-bottom:8px;">✨ Análise IA — Resultados de ' + ano + '</strong>' +
+          String(data.insights)
+            .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+            .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+      } else {
+        result.textContent = '⚠️ ' + (data.error || 'Não foi possível gerar a análise agora.');
+      }
+    })
+    .catch(function () {
+      result.textContent = '⚠️ Falha de comunicação com o serviço de IA. Tente novamente.';
+    });
+}
+
+/* ---------- Automações recorrentes da seção ---------- */
+var _vaAutosUltimaExec = 0;
+function _vaVerificarAutomacoes(anoVisualizado, totAno) {
+  var agora = Date.now();
+  if (agora - _vaAutosUltimaExec < 60000) return; /* no máximo 1x por minuto */
+  _vaAutosUltimaExec = agora;
+
+  var hoje = new Date();
+  var mesKeyAtual = hoje.getFullYear() + '-' + String(hoje.getMonth() + 1).padStart(2, '0');
+
+  /* Resumo mensal automático: no dia 1º, notifica que o fechamento está pronto */
+  if (hoje.getDate() === 1) {
+    var ultimoResumo = '';
+    try { ultimoResumo = localStorage.getItem(_VA_RESUMO_KEY) || ''; } catch (e) { /* noop */ }
+    if (ultimoResumo !== mesKeyAtual) {
+      try { localStorage.setItem(_VA_RESUMO_KEY, mesKeyAtual); } catch (e) { /* noop */ }
+      var dAnt = new Date(hoje.getFullYear(), hoje.getMonth() - 1, 1);
+      var mesAntKey = dAnt.getFullYear() + '-' + String(dAnt.getMonth() + 1).padStart(2, '0');
+      var snap = _vaSnapshotMes(mesAntKey);
+      if (snap.reservas > 0 && typeof mostrarToast === 'function') {
+        mostrarToast('📬 Fechamento de ' + nomeDoMes(mesAntKey) + ' pronto: ' + formatBRL(snap.venda) +
+          ' em vendas. Veja o alerta em Resultados de Vendas.', 'info');
+      }
+      if (typeof registrarAuditoria === 'function' && snap.reservas > 0) {
+        registrarAuditoria('Resumo mensal automático', nomeDoMes(mesAntKey) + ': ' + snap.reservas +
+          ' reservas, ' + formatBRL(snap.venda) + ' em vendas');
+      }
+    }
+  }
+
+  /* Exportação CSV: lembrete automático no último dia do mês */
+  var ultimoDia = new Date(hoje.getFullYear(), hoje.getMonth() + 1, 0).getDate();
+  if (hoje.getDate() === ultimoDia) {
+    var ultimoExport = '';
+    try { ultimoExport = localStorage.getItem(_VA_EXPORT_KEY) || ''; } catch (e) { /* noop */ }
+    if (ultimoExport !== mesKeyAtual) {
+      try { localStorage.setItem(_VA_EXPORT_KEY, mesKeyAtual); } catch (e) { /* noop */ }
+      if (typeof mostrarToast === 'function') {
+        mostrarToast('📥 Último dia do mês: exporte o CSV em "Resultados de Vendas por Ano".', 'info');
+      }
+    }
   }
 }
 
@@ -11234,6 +12317,8 @@ async function inicializarSistema() {
     atualizarDashboard();
     atualizarMensal();
     atualizarPrevisaoRecebimentos();
+    if (typeof _vaAjustarAnoAutomatico === 'function') _vaAjustarAnoAutomatico();
+    if (typeof _vaAplicarEstadoInicialUI === 'function') _vaAplicarEstadoInicialUI();
     atualizarVendasAnuais();
     renderGraficos();
     renderRelatorioDesempenho();
