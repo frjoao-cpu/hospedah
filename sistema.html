@@ -6693,6 +6693,234 @@ function _comissaoPendente(comissaoGerada, comissaoRecebida) {
 }
 
 /* ==========================================
+   DETECÇÃO DE DUPLICIDADE E ANOMALIAS — HELPERS
+========================================== */
+
+/* Normaliza texto para comparações tolerantes: minúsculas, sem acentos e
+   sem espaços/pontuação excedentes. */
+function _normalizarTexto(s) {
+  return String(s == null ? '' : s)
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+/* Remove tudo que não é dígito (CPF/telefone) para comparações. */
+function _normalizarDigitos(s) {
+  return String(s == null ? '' : s).replace(/\D/g, '');
+}
+
+/* Checa sobreposição de períodos 'YYYY-MM-DD' (inclusive nas pontas). */
+function _periodosSobrepostos(ini1, fim1, ini2, fim2) {
+  if (!ini1 || !fim1 || !ini2 || !fim2) return false;
+  return ini1 <= fim2 && ini2 <= fim1;
+}
+
+/* Exibe os avisos de anomalia/duplicidade provável e pergunta se o usuário
+   deseja prosseguir. Retorna true para prosseguir. */
+function _confirmarAnomalias(avisos) {
+  if (!avisos || !avisos.length) return true;
+  var msg = '⚠️ Foram detectadas possíveis anomalias/duplicidades:\n\n' +
+    avisos.map(function(a) { return '• ' + a; }).join('\n') +
+    '\n\nDeseja prosseguir mesmo assim?';
+  return confirm(msg);
+}
+
+/* Registra na auditoria quando o usuário confirma um cadastro com anomalias. */
+function _auditarAnomalias(tipo, avisos, detalhes) {
+  if (!avisos || !avisos.length) return;
+  registrarAuditoria(tipo + ' salvo com anomalia confirmada',
+    (detalhes ? detalhes + ' • ' : '') + avisos.join(' | '));
+}
+
+/* ── Reservas ── */
+function _verificarDuplicidadeReserva(dados, ignorarId) {
+  var bloqueios = [];
+  var avisos    = [];
+  var cliente = _normalizarTexto(dados.cliente);
+  var resort  = _normalizarTexto(dados.resort);
+  var mesmasDatas = [];
+  var sobrepostas = [];
+
+  reservas.forEach(function(r) {
+    if (ignorarId && r.id === ignorarId) return;
+    if ((r.status || '').toLowerCase() === 'cancelado') return;
+    if (_normalizarTexto(r.cliente) !== cliente || _normalizarTexto(r.resort) !== resort) return;
+    if (r.entrada === dados.entrada && r.saida === dados.saida) {
+      mesmasDatas.push(r);
+    } else if (_periodosSobrepostos(r.entrada, r.saida, dados.entrada, dados.saida)) {
+      sobrepostas.push(r);
+    }
+  });
+
+  if (mesmasDatas.length) {
+    bloqueios.push('já existe reserva de "' + dados.cliente + '" no ' + dados.resort +
+      ' para ' + formatarData(dados.entrada) + ' a ' + formatarData(dados.saida) +
+      ' (cadastrada em ' + formatarData((mesmasDatas[0].criadoEm || '').slice(0, 10)) + ').');
+  }
+  if (sobrepostas.length) {
+    avisos.push('período se sobrepõe a outra reserva de "' + dados.cliente + '" no ' + dados.resort +
+      ' (' + formatarData(sobrepostas[0].entrada) + ' a ' + formatarData(sobrepostas[0].saida) + ').');
+  }
+
+  /* Anomalia: valor/noite muito fora do padrão do mesmo resort (3× a média) */
+  var noites = reservas.filter(function(r) {
+    return !ignorarId || r.id !== ignorarId;
+  }).filter(function(r) {
+    return _normalizarTexto(r.resort) === resort &&
+      (r.status || '').toLowerCase() !== 'cancelado' &&
+      (parseFloat(r.valorNoite) || 0) > 0;
+  }).map(function(r) { return parseFloat(r.valorNoite); });
+  if (noites.length >= 2 && dados.valorNoite > 0) {
+    var media = noites.reduce(function(a, b) { return a + b; }, 0) / noites.length;
+    if (media > 0 && (dados.valorNoite > media * 3 || dados.valorNoite < media / 3)) {
+      avisos.push('valor por noite (' + formatBRL(dados.valorNoite) + ') está muito fora da média do ' +
+        dados.resort + ' (' + formatBRL(media) + ').');
+    }
+  }
+
+  /* Anomalia: comissão fora da faixa usual (0–30%) */
+  if (dados.comissaoPct < 5 || dados.comissaoPct > 30) {
+    avisos.push('comissão de ' + dados.comissaoPct + '% está fora da faixa usual (5%–30%).');
+  }
+
+  /* Anomalia: check-in mais de 30 dias no passado */
+  var hoje = new Date(); hoje.setHours(0, 0, 0, 0);
+  var dtEntrada = new Date(dados.entrada + 'T00:00:00');
+  if ((hoje - dtEntrada) / 86400000 > 30) {
+    avisos.push('check-in está mais de 30 dias no passado (' + formatarData(dados.entrada) + ').');
+  }
+
+  return { bloqueios: bloqueios, avisos: avisos };
+}
+
+/* ── Captações ── */
+function _verificarDuplicidadeCaptacao(dados, ignorarId) {
+  var bloqueios = [];
+  var avisos    = [];
+  var prop  = _normalizarTexto(dados.proprietario);
+  var nome  = _normalizarTexto(dados.nome);
+  var mesmoPeriodo = [];
+  var sobrepostas  = [];
+  var mesmoValor   = [];
+
+  captacoes.forEach(function(c) {
+    if (ignorarId && c.id === ignorarId) return;
+    var mesmoProp = _normalizarTexto(c.proprietario) === prop;
+    var mesmoNome = _normalizarTexto(c.nome) === nome;
+    if (mesmoProp && mesmoNome && c.dataIni === dados.dataIni && c.dataFim === dados.dataFim) {
+      mesmoPeriodo.push(c);
+    } else if (mesmoNome && _periodosSobrepostos(c.dataIni, c.dataFim, dados.dataIni, dados.dataFim)) {
+      sobrepostas.push(c);
+    } else if (mesmoProp && mesmoNome && dados.valorPeriodo > 0 &&
+               Math.abs((parseFloat(c.valorPeriodo) || 0) - dados.valorPeriodo) < 0.01) {
+      mesmoValor.push(c);
+    }
+  });
+
+  if (mesmoPeriodo.length) {
+    bloqueios.push('já existe captação de "' + dados.proprietario + '" • ' + dados.nome +
+      ' para o período ' + formatarData(dados.dataIni) + ' a ' + formatarData(dados.dataFim) + '.');
+  }
+  if (sobrepostas.length) {
+    avisos.push('o período se sobrepõe a outra captação da propriedade "' + dados.nome +
+      '" (' + formatarData(sobrepostas[0].dataIni) + ' a ' + formatarData(sobrepostas[0].dataFim) + ').');
+  }
+  if (mesmoValor.length) {
+    avisos.push('já existe captação de "' + dados.proprietario + '" • ' + dados.nome +
+      ' com o mesmo valor de período (' + formatBRL(dados.valorPeriodo) + ').');
+  }
+
+  /* Anomalias financeiras */
+  if (dados.valorPeriodo > 0 && dados.valorPago > dados.valorPeriodo) {
+    avisos.push('valor pago (' + formatBRL(dados.valorPago) + ') é maior que o valor do período (' +
+      formatBRL(dados.valorPeriodo) + ').');
+  }
+  if (dados.valorPeriodo <= 0 && dados.valorPago > 0) {
+    avisos.push('há valor pago (' + formatBRL(dados.valorPago) + ') sem valor de período informado.');
+  }
+  if (dados.dataPag && dados.statusReserva !== 'sim') {
+    avisos.push('há data de pagamento (' + formatarData(dados.dataPag) +
+      ') sem reserva confirmada (status = "Não").');
+  }
+
+  return { bloqueios: bloqueios, avisos: avisos };
+}
+
+/* ── Vendas de cotas ── */
+function _verificarDuplicidadeCotaVenda(dados, ignorarId) {
+  var bloqueios = [];
+  var avisos    = [];
+  var nome   = _normalizarTexto(dados.compradorNome);
+  var cpf    = _normalizarDigitos(dados.compradorCpf);
+  var resort = _normalizarTexto(dados.resort);
+  var exata = [];
+  var cpfOutra = [];
+  var unidadeDup = [];
+
+  cotasVendas.forEach(function(c) {
+    if (ignorarId && c.id === ignorarId) return;
+    var mesmoComprador = _normalizarTexto(c.compradorNome) === nome ||
+      (cpf && _normalizarDigitos(c.compradorCpf) === cpf);
+    if (mesmoComprador && _normalizarTexto(c.resort) === resort && c.dataVenda === dados.dataVenda) {
+      exata.push(c);
+      return;
+    }
+    if (cpf && _normalizarDigitos(c.compradorCpf) === cpf &&
+        (_normalizarTexto(c.resort) !== resort || c.dataVenda !== dados.dataVenda)) {
+      cpfOutra.push(c);
+    }
+    if (c.status !== 'cancelada' && _normalizarTexto(c.resort) === resort &&
+        dados.obsUnidade && _normalizarTexto(c.obsUnidade) === _normalizarTexto(dados.obsUnidade)) {
+      unidadeDup.push(c);
+    }
+  });
+
+  if (exata.length) {
+    bloqueios.push('já existe venda para "' + dados.compradorNome + '" no ' + dados.resort +
+      ' na data ' + formatarData(dados.dataVenda) + '.');
+  }
+  if (cpfOutra.length) {
+    avisos.push('o CPF ' + dados.compradorCpf + ' já consta em outra venda (' +
+      (cpfOutra[0].resort || '—') + ' • ' + formatarData(cpfOutra[0].dataVenda) + ').');
+  }
+  if (unidadeDup.length) {
+    avisos.push('a unidade "' + dados.obsUnidade + '" do ' + dados.resort +
+      ' já foi vendida para ' + (unidadeDup[0].compradorNome || 'outro comprador') +
+      ' em ' + formatarData(unidadeDup[0].dataVenda) + ' (sem cancelamento).');
+  }
+
+  /* Anomalia: margem negativa */
+  if (dados.valorCompra > 0 && dados.valorVenda > 0 && dados.valorVenda < dados.valorCompra) {
+    avisos.push('valor de venda (' + formatBRL(dados.valorVenda) + ') é menor que o valor de compra (' +
+      formatBRL(dados.valorCompra) + ') — margem negativa.');
+  }
+
+  return { bloqueios: bloqueios, avisos: avisos };
+}
+
+/* ── Lançamentos de caixa ── */
+function _verificarDuplicidadeCaixa(dados, ignorarId) {
+  var avisos = [];
+  var desc = _normalizarTexto(dados.descricao);
+  var iguais = caixaLancamentos.filter(function(l) {
+    if (ignorarId && l.id === ignorarId) return false;
+    return l.tipo === dados.tipo &&
+      _normalizarTexto(l.descricao) === desc &&
+      Math.abs((parseFloat(l.valor) || 0) - dados.valor) < 0.01 &&
+      (l.data || '') === dados.data;
+  });
+  if (iguais.length) {
+    avisos.push('já existe um lançamento de ' + (dados.tipo === 'entrada' ? 'entrada' : 'saída') +
+      ' com a mesma descrição, valor (' + formatBRL(dados.valor) + ') e data (' +
+      formatarData(dados.data) + ') — possível lançamento em duplicidade.');
+  }
+  return { bloqueios: [], avisos: avisos };
+}
+
+/* ==========================================
    PARCELAS DE COMISSÃO — HELPERS DE FORMULÁRIO
 ========================================== */
 
@@ -7006,6 +7234,17 @@ function adicionarReserva() {
 
   if (isNaN(comPct) || comPct < 0 || comPct > 100) comPct = 15;
 
+  /* ── Verificação de duplicidade/anomalias ── */
+  var _dupRes = _verificarDuplicidadeReserva({
+    cliente: cliente, resort: resort, entrada: entrada, saida: saida,
+    valorNoite: valorNoite, comissaoPct: comPct
+  });
+  if (_dupRes.bloqueios.length) {
+    mostrarToast('⚠️ Possível duplicidade: ' + _dupRes.bloqueios[0], 'error');
+    return;
+  }
+  if (!_confirmarAnomalias(_dupRes.avisos)) return;
+
   var total    = noites * valorNoite;
   var comissao = total * (comPct / 100);
   var repasse  = total - comissao;
@@ -7047,6 +7286,7 @@ function adicionarReserva() {
   renderRelatorioDesempenho();
   sincronizarAutomacoes();
   registrarAuditoria('Reserva criada', cliente + ' • ' + resort + ' • ' + formatarData(entrada));
+  _auditarAnomalias('Reserva', _dupRes.avisos, cliente + ' • ' + resort);
   mostrarToast('✅ Reserva adicionada com sucesso!', 'success');
 
   // Rola para a tabela
@@ -7093,7 +7333,14 @@ async function importarReservasSite() {
     }
 
     var novasIds = [];
+    var _dupsImport = [];
     novos.forEach(function(r) {
+      var dup = reservas.some(function(rv) {
+        return _normalizarTexto(rv.cliente) === _normalizarTexto(r.nome_hospede || '') &&
+          _normalizarTexto(rv.resort) === _normalizarTexto(r.resort_nome || '') &&
+          rv.entrada === (r.data_entrada || '') && rv.saida === (r.data_saida || '');
+      });
+      if (dup) _dupsImport.push(r.nome_hospede || '—');
       var noites = calcularNoites(r.data_entrada, r.data_saida);
       var total  = parseFloat(r.valor_total) || 0;
       var valorNoite = noites > 0 && total > 0 ? parseFloat((total / noites).toFixed(2)) : 0;
@@ -7147,6 +7394,11 @@ async function importarReservasSite() {
     atualizarPrevisaoRecebimentos();
     renderRelatorioDesempenho();
     registrarAuditoria('Importação do site', novos.length + ' reserva(s) importada(s) de reservas_hospede');
+    if (_dupsImport.length) {
+      registrarAuditoria('Importação com possível duplicidade',
+        _dupsImport.length + ' reserva(s) coincidem com registros manuais: ' + _dupsImport.join(', '));
+      mostrarToast('⚠️ ' + _dupsImport.length + ' reserva(s) importada(s) já existiam como lançamento manual — verifique a planilha.', 'error');
+    }
     mostrarToast('✅ ' + novos.length + ' reserva(s) importada(s) com sucesso!', 'success');
     document.getElementById('reservas').scrollIntoView({ behavior: 'smooth', block: 'start' });
   } catch(e) {
@@ -7686,12 +7938,23 @@ function salvarEdicao() {
 
   if (isNaN(comPct) || comPct < 0 || comPct > 100) comPct = 15;
 
+  var idx = reservas.findIndex(function (x) { return x.id === id; });
+  if (idx === -1) { mostrarToast('Reserva não encontrada.', 'error'); return; }
+
+  /* ── Verificação de duplicidade/anomalias (ignora o próprio registro) ── */
+  var _dupRes = _verificarDuplicidadeReserva({
+    cliente: cliente, resort: resort, entrada: entrada, saida: saida,
+    valorNoite: valorNoite, comissaoPct: comPct
+  }, id);
+  if (_dupRes.bloqueios.length) {
+    mostrarToast('⚠️ Possível duplicidade: ' + _dupRes.bloqueios[0], 'error');
+    return;
+  }
+  if (!_confirmarAnomalias(_dupRes.avisos)) return;
+
   var total    = noites * valorNoite;
   var comissao = total * (comPct / 100);
   var repasse  = total - comissao;
-
-  var idx = reservas.findIndex(function (x) { return x.id === id; });
-  if (idx === -1) { mostrarToast('Reserva não encontrada.', 'error'); return; }
 
   var _prevStatusCom = reservas[idx].statusComissao || 'pendente';
   var _newStatusCom  = document.getElementById('edit_status_comissao').value || 'pendente';
@@ -7741,6 +8004,7 @@ function salvarEdicao() {
   renderRelatorioDesempenho();
   sincronizarAutomacoes();
   registrarAuditoria('Reserva atualizada', cliente + ' • ' + resort);
+  _auditarAnomalias('Reserva', _dupRes.avisos, cliente + ' • ' + resort);
   mostrarToast('✅ Reserva atualizada com sucesso!', 'success');
 }
 
@@ -10971,6 +11235,17 @@ function adicionarCaptacao() {
   if (!dataIni)      { mostrarToast('⚠️ Informe a data inicial.', 'error'); return; }
   if (!dataFim)      { mostrarToast('⚠️ Informe a data final.', 'error'); return; }
 
+  /* ── Verificação de duplicidade/anomalias ── */
+  var _dupCap = _verificarDuplicidadeCaptacao({
+    proprietario: proprietario, nome: nome, dataIni: dataIni, dataFim: dataFim,
+    valorPeriodo: valorPeriodo, valorPago: valorPago, dataPag: dataPag, statusReserva: statusRes
+  });
+  if (_dupCap.bloqueios.length) {
+    mostrarToast('⚠️ Possível duplicidade: ' + _dupCap.bloqueios[0], 'error');
+    return;
+  }
+  if (!_confirmarAnomalias(_dupCap.avisos)) return;
+
   var cap = {
     id:            gerarId(),
     proprietario:  proprietario,
@@ -11008,6 +11283,7 @@ function adicionarCaptacao() {
   renderTabelaCaptacao();
   atualizarDashboardCaptacao();
   registrarAuditoria('Captação criada', proprietario + ' • ' + nome);
+  _auditarAnomalias('Captação', _dupCap.avisos, proprietario + ' • ' + nome);
   mostrarToast('✅ Captação adicionada com sucesso!', 'success');
   document.getElementById('captacoes').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
@@ -11286,6 +11562,17 @@ function salvarEdicaoCaptacao() {
   var idx = captacoes.findIndex(function (x) { return x.id === id; });
   if (idx === -1) { mostrarToast('Captação não encontrada.', 'error'); return; }
 
+  /* ── Verificação de duplicidade/anomalias (ignora o próprio registro) ── */
+  var _dupCap = _verificarDuplicidadeCaptacao({
+    proprietario: proprietario, nome: nome, dataIni: dataIni, dataFim: dataFim,
+    valorPeriodo: valorPeriodo, valorPago: valorPago, dataPag: dataPag, statusReserva: statusRes
+  }, id);
+  if (_dupCap.bloqueios.length) {
+    mostrarToast('⚠️ Possível duplicidade: ' + _dupCap.bloqueios[0], 'error');
+    return;
+  }
+  if (!_confirmarAnomalias(_dupCap.avisos)) return;
+
   captacoes[idx] = Object.assign({}, captacoes[idx], {
     proprietario:  proprietario,
     telefone:      telefone,
@@ -11314,6 +11601,7 @@ function salvarEdicaoCaptacao() {
   renderTabelaCaptacao();
   atualizarDashboardCaptacao();
   registrarAuditoria('Captação atualizada', proprietario + ' • ' + nome);
+  _auditarAnomalias('Captação', _dupCap.avisos, proprietario + ' • ' + nome);
   mostrarToast('✅ Captação atualizada!', 'success');
 }
 
@@ -11820,6 +12108,17 @@ function adicionarCotaVenda() {
   if (!dataVenda) { mostrarToast('⚠️ Informe a data da venda.', 'error'); return; }
   if (compra <= 0 && venda <= 0) { mostrarToast('⚠️ Informe ao menos o valor de venda.', 'error'); return; }
 
+  /* ── Verificação de duplicidade/anomalias ── */
+  var _dupCv = _verificarDuplicidadeCotaVenda({
+    compradorNome: nome, compradorCpf: cpf, resort: resort, obsUnidade: obsUnidade,
+    dataVenda: dataVenda, valorCompra: compra, valorVenda: venda
+  });
+  if (_dupCv.bloqueios.length) {
+    mostrarToast('⚠️ Possível duplicidade: ' + _dupCv.bloqueios[0], 'error');
+    return;
+  }
+  if (!_confirmarAnomalias(_dupCv.avisos)) return;
+
   var item = {
     id:              gerarId(),
     resort:          resort,
@@ -11848,6 +12147,7 @@ function adicionarCotaVenda() {
   atualizarMensal();
   atualizarVendasAnuais();
   registrarAuditoria('Cota vendida registrada', nome + ' • ' + resort);
+  _auditarAnomalias('Cota venda', _dupCv.avisos, nome + ' • ' + resort);
   mostrarToast('✅ Venda de cota registrada com sucesso!', 'success');
   document.getElementById('cotas-vendas').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
@@ -12011,6 +12311,24 @@ function salvarEdicaoCotaVenda() {
   var compra = parseFloat(document.getElementById('editCv_valor_compra').value) || 0;
   var venda  = parseFloat(document.getElementById('editCv_valor_venda').value)  || 0;
   var margem = venda - compra;
+
+  /* ── Verificação de duplicidade/anomalias (ignora o próprio registro) ── */
+  var _editCvDados = {
+    compradorNome:  nome,
+    compradorCpf:   (document.getElementById('editCv_comprador_cpf').value || '').trim(),
+    resort:         resort,
+    obsUnidade:     (document.getElementById('editCv_obs_unidade').value || '').trim(),
+    dataVenda:      (document.getElementById('editCv_data_venda').value || '').trim(),
+    valorCompra:    compra,
+    valorVenda:     venda
+  };
+  var _dupCv = _verificarDuplicidadeCotaVenda(_editCvDados, id);
+  if (_dupCv.bloqueios.length) {
+    mostrarToast('⚠️ Possível duplicidade: ' + _dupCv.bloqueios[0], 'error');
+    return;
+  }
+  if (!_confirmarAnomalias(_dupCv.avisos)) return;
+
   cotasVendas[idx] = Object.assign({}, cotasVendas[idx], {
     resort:         resort,
     obsUnidade:     (document.getElementById('editCv_obs_unidade').value || '').trim(),
@@ -12035,6 +12353,7 @@ function salvarEdicaoCotaVenda() {
   atualizarMensal();
   atualizarVendasAnuais();
   registrarAuditoria('Cota venda editada', nome + ' • ' + resort);
+  _auditarAnomalias('Cota venda', _dupCv.avisos, nome + ' • ' + resort);
   mostrarToast('✅ Venda de cota atualizada!', 'success');
 }
 
@@ -15632,6 +15951,12 @@ function adicionarLancamentoCaixa() {
   if (valor <= 0) { mostrarToast('⚠️ Informe um valor válido.',    'error'); return; }
   if (!data)      { mostrarToast('⚠️ Informe a data.',             'error'); return; }
 
+  /* ── Verificação de duplicidade (avisar; comum em duplo clique/reenvio) ── */
+  var _dupCx = _verificarDuplicidadeCaixa({
+    tipo: tipo, descricao: descricao, valor: parseFloat(valor.toFixed(2)), data: data
+  });
+  if (!_confirmarAnomalias(_dupCx.avisos)) return;
+
   var lancamento = {
     id:             gerarId(),
     tipo:           tipo,
@@ -15648,6 +15973,7 @@ function adicionarLancamentoCaixa() {
   limparFormCaixa();
   _refreshCaixaViews();
   atualizarDashboard();
+  _auditarAnomalias('Lançamento de caixa', _dupCx.avisos, descricao + ' • ' + formatBRL(lancamento.valor));
   mostrarToast('✅ Lançamento adicionado!', 'success');
 }
 
