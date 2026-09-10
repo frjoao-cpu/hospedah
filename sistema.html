@@ -7196,9 +7196,10 @@ function limparFormulario() {
    FILTROS
 ========================================== */
 /* Critério oficial: a competência de vendas/comissões do mês é a DATA DA VENDA
-   (dataCaptacao; fallback criadoEm). Helper único usado por filtro, planilha e resumos. */
+   (dataCaptacao → criadoEm; fallback final: check-in, para registros antigos sem data de venda).
+   Helper único usado por filtro, planilha e resumos. */
 function _mesVendaReserva(r) {
-  var dt = r.dataCaptacao || r.criadoEm;
+  var dt = r.dataCaptacao || r.criadoEm || r.entrada;
   return dt ? String(dt).slice(0, 7) : '';
 }
 
