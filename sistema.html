@@ -3352,6 +3352,7 @@ thead .col-sticky-right {
   <section id="reservas" class="table-wrap">
     <div class="section-title">
       📋 Planilha de Reservas
+      <span style="font-size:0.68em;color:var(--cor-sub);font-weight:400;margin-left:8px;">agrupada pelo mês da venda</span>
       <span style="margin-left:auto; display:flex; gap:8px;">
         <button class="btn btn-secondary btn-sm" id="toggleTodosBtn" onclick="toggleTodosGrupos()" title="Expandir ou recolher todos os meses" style="display:none;">⊞ Expandir todos</button>
         <button class="btn btn-secondary btn-sm" onclick="exportarCSV()">📥 Exportar CSV</button>
@@ -3493,7 +3494,9 @@ thead .col-sticky-right {
        RESUMO MENSAL
   =========================================== -->
   <section id="mensal">
-    <div class="section-title">📅 Resumo por Mês</div>
+    <div class="section-title">📅 Resumo por Mês
+      <span style="font-size:0.68em;color:var(--cor-sub);font-weight:400;margin-left:8px;">competência = data da venda</span>
+    </div>
     <div class="monthly-grid" id="monthlyGrid">
       <div style="color: var(--cor-sub); font-size:0.9em; padding:10px;">
         Nenhum dado disponível. Adicione reservas para ver o resumo mensal.
@@ -3547,9 +3550,9 @@ thead .col-sticky-right {
     <div class="section-title">
       📊 Resultados de Vendas por Ano
       <span style="margin-left:auto;display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
-        <div class="va-agrup-toggle">
-          <button class="va-agrup-btn active" id="vaAgrupEntrada" onclick="setAgrupVendas('entrada')">Por check-in</button>
-          <button class="va-agrup-btn" id="vaAgrupCriado" onclick="setAgrupVendas('criado')">Por cadastro</button>
+        <div class="va-agrup-toggle" title="Critério de competência: a data da venda prevalece para vendas e comissões do mês">
+          <button class="va-agrup-btn active" id="vaAgrupCriado" onclick="setAgrupVendas('criado')">Por venda</button>
+          <button class="va-agrup-btn" id="vaAgrupEntrada" onclick="setAgrupVendas('entrada')">Por check-in</button>
         </div>
         <button class="btn btn-secondary btn-sm" onclick="mudarAnoVendas(-1)">◀</button>
         <span id="vendas-ano-label" style="font-size:1.1em;font-weight:700;color:var(--dourado);min-width:52px;text-align:center;">2026</span>
@@ -7192,6 +7195,13 @@ function limparFormulario() {
 /* ==========================================
    FILTROS
 ========================================== */
+/* Critério oficial: a competência de vendas/comissões do mês é a DATA DA VENDA
+   (dataCaptacao; fallback criadoEm). Helper único usado por filtro, planilha e resumos. */
+function _mesVendaReserva(r) {
+  var dt = r.dataCaptacao || r.criadoEm;
+  return dt ? String(dt).slice(0, 7) : '';
+}
+
 function limparFiltros() {
   document.getElementById('f_busca').value  = '';
   document.getElementById('f_resort').value = '';
@@ -7216,8 +7226,8 @@ function getReservasFiltradas() {
     if (status && r.status !== status) return false;
     if (canal  && (r.canal || 'Direta') !== canal) return false;
     if (mes) {
-      var mesEntrada = r.entrada ? r.entrada.slice(0, 7) : '';
-      if (mesEntrada !== mes) return false;
+      /* filtra pelo mês da venda (critério oficial), não pelo check-in */
+      if (_mesVendaReserva(r) !== mes) return false;
     }
     if (cobFilt) {
       var cobList = (typeof cobrancas !== 'undefined' ? cobrancas : []).filter(function(c){ return c.origemId === r.id && c.origemTipo === 'reserva'; });
@@ -7343,10 +7353,10 @@ function renderTabela() {
     return;
   }
 
-  // Group by month (YYYY-MM from r.entrada)
+  // Group by sale month (YYYY-MM from dataCaptacao/criadoEm — critério oficial)
   var grupos = {};
   lista.forEach(function (r) {
-    var key = r.entrada ? r.entrada.slice(0, 7) : '0000-00';
+    var key = _mesVendaReserva(r) || '0000-00';
     if (!grupos[key]) grupos[key] = [];
     grupos[key].push(r);
   });
@@ -8622,7 +8632,8 @@ function _vaSalvarPrefs() {
 var _vaPrefsInit     = _vaCarregarPrefs();
 var _anoVendasAtual  = (typeof _vaPrefsInit.ano === 'number' && _vaPrefsInit.ano >= 2000 && _vaPrefsInit.ano <= 2100)
   ? _vaPrefsInit.ano : new Date().getFullYear();
-var _agrupVendas    = (_vaPrefsInit.agrup === 'criado') ? 'criado' : 'entrada'; /* 'entrada' = por check-in | 'criado' = por cadastro/captação */
+/* 'criado' = por data da venda (padrão oficial) | 'entrada' = por check-in */
+var _agrupVendas    = (_vaPrefsInit.agrup === 'entrada') ? 'entrada' : 'criado';
 var _vaMetrica      = ['venda','comissao','lucro','noites'].indexOf(_vaPrefsInit.metrica) >= 0 ? _vaPrefsInit.metrica : 'venda';
 var _vaModoAcumulado = _vaPrefsInit.acumulado === true;
 var _vaProjecao      = _vaPrefsInit.projecao === true;
