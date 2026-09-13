@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png" sizes="180x180">
+<link rel="icon" type="image/svg+xml" href="/assets/logo-favicon.svg" sizes="any">
+<meta name="theme-color" content="#D4AF37">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://www.googletagmanager.com https://www.clarity.ms https://connect.facebook.net https://cdn.onesignal.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://ydrmjoppjxtmnwtvtinb.supabase.co https://formspree.io https://www.google-analytics.com https://stats.g.doubleclick.net https://www.googletagmanager.com; img-src 'self' data: https://i.imgur.com https://www.facebook.com https://www.googletagmanager.com; frame-src https://www.googletagmanager.com; worker-src 'self' blob:; object-src 'none'; base-uri 'self';">
+<title>Cadastre sua Multipropriedade | HOSPEDAH</title>
+<meta name="description" content="Cadastre seu imóvel em multipropriedade na HOSPEDAH: gestão e comercialização estratégica das suas semanas, sem burocracia.">
+<link rel="canonical" href="https://hospedah.tur.br/multipropriedade.html">
+<meta property="og:title" content="Cadastre sua Multipropriedade | HOSPEDAH">
+<meta property="og:description" content="Transforme suas semanas de multipropriedade em renda. Cadastro rápido, atendimento direto.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://hospedah.tur.br/multipropriedade.html">
+<link rel="preconnect" href="https://www.googletagmanager.com">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<!-- Google Fonts — carregado de forma não-bloqueante -->
+<link rel="preload" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap"></noscript>
+<link rel="stylesheet" href="/assets/mobile-first.css">
+<link rel="stylesheet" href="/assets/navbar-shared.css">
+
+<!-- Google Tag Manager, Clarity, Meta Pixel, OneSignal — carregados somente após consentimento LGPD -->
+<script>
+function initTracking() {
+  // Google Tag Manager
+  (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+  new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+  j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+  'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+  })(window,document,'script','dataLayer','GTM-1258221909856324');
+  // Microsoft Clarity
+  (function(c,l,a,r,i,t,y){c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+  t=l.createElement(r);t.async=1;t.src='https://www.clarity.ms/tag/'+i;
+  y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+  })(window,document,'clarity','script','s5xr9k4m2p');
+  // Meta Pixel
+  !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+  n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+  n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+  t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
+  document,'script','https://connect.facebook.net/en_US/fbevents.js');
+  fbq('init','189867599448495');
+  fbq('track','PageView');
+  // OneSignal Web Push
+  window.OneSignalDeferred = window.OneSignalDeferred || [];
+  OneSignalDeferred.push(function(OneSignal) {
+    OneSignal.init({ appId: 'd60b7815-e4c5-4cad-85e1-052aabc794bd', allowLocalhostAsSecureOrigin: true });
+  });
+  var _os = document.createElement('script');
+  _os.src = 'https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js';
+  _os.defer = true;
+  document.head.appendChild(_os);
+}
+if (localStorage.getItem('hospedah_consent') === 'accepted') { initTracking(); }
+</script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
+
+:root{
+--azul:#0B1C3D;
+--dourado:#D4AF37;
+}
+
+body{
+background:linear-gradient(135deg,#0B1C3D,#142850);
+color:#fff;
+min-height:100vh;
+}
+
+/* SKIP LINK */
+.skip-link{position:absolute;top:-999px;left:-999px;background:var(--dourado);color:var(--azul);padding:10px 18px;border-radius:8px;font-weight:700;font-size:.9em;z-index:10000;text-decoration:none;}
+.skip-link:focus{top:12px;left:12px;}
+
+/* HERO */
+.hero{
+text-align:center;
+padding:60px 20px 26px;
+}
+
+.hero h1{
+font-size:32px;
+color:var(--dourado);
+margin-bottom:10px;
+}
+
+.hero p{
+opacity:.8;
+max-width:600px;
+margin:auto;
+font-size:15px;
+}
+
+/* BENEFÍCIOS */
+.beneficios{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+gap:14px;
+max-width:760px;
+margin:26px auto 0;
+padding:0 20px;
+}
+
+.beneficio{
+background:rgba(255,255,255,0.05);
+border:1px solid rgba(212,175,55,0.18);
+border-radius:14px;
+padding:18px 16px;
+text-align:center;
+font-size:13px;
+line-height:1.5;
+}
+
+.beneficio .b-icon{
+font-size:1.7em;
+display:block;
+margin-bottom:8px;
+}
+
+.beneficio strong{color:var(--dourado);display:block;margin-bottom:4px;font-size:1.02em;}
+
+/* FORMULÁRIO */
+.form-wrap{
+max-width:680px;
+margin:40px auto 60px;
+padding:0 20px;
+}
+
+.form-box{
+background:rgba(255,255,255,0.06);
+border:1px solid rgba(212,175,55,0.2);
+border-radius:18px;
+padding:36px 32px;
+}
+
+.form-box h2{
+color:var(--dourado);
+margin-bottom:24px;
+font-size:1.15em;
+}
+
+.form-group{
+margin-bottom:18px;
+}
+
+.form-group label{
+display:block;
+font-size:13px;
+opacity:.8;
+margin-bottom:6px;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea{
+width:100%;
+background:rgba(255,255,255,0.08);
+border:1px solid rgba(255,255,255,0.15);
+border-radius:10px;
+padding:12px 14px;
+color:#fff;
+font-size:14px;
+font-family:'Poppins',sans-serif;
+transition:border-color .2s;
+}
+
+.form-group input::placeholder,
+.form-group textarea::placeholder{
+color:rgba(255,255,255,0.4);
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus{
+outline:none;
+border-color:var(--dourado);
+}
+
+.form-group select option{
+background:#0B1C3D;
+color:#fff;
+}
+
+.form-group textarea{
+resize:vertical;
+min-height:90px;
+}
+
+.form-row{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:14px;
+}
+
+@media(max-width:540px){
+.form-row{grid-template-columns:1fr;}
+.form-box{padding:24px 18px;}
+.hero h1{font-size:26px;}
+}
+
+.btn-enviar{
+width:100%;
+padding:14px;
+background:var(--dourado);
+color:var(--azul);
+border:none;
+border-radius:12px;
+font-size:16px;
+font-weight:600;
+cursor:pointer;
+margin-top:8px;
+transition:background .2s,transform .1s;
+}
+
+.btn-enviar:hover{
+background:#c49b2a;
+transform:translateY(-1px);
+}
+
+.aviso{
+text-align:center;
+font-size:12px;
+opacity:.6;
+margin-top:14px;
+}
+
+/* SUCESSO — animação */
+.mensagem-ok{
+display:none;
+background:rgba(37,211,102,0.1);
+border:1px solid rgba(37,211,102,0.3);
+border-radius:12px;
+padding:20px;
+text-align:center;
+margin-top:20px;
+color:#25D366;
+font-weight:600;
+animation:successPop .45s cubic-bezier(.22,1.2,.46,1) both;
+}
+@keyframes successPop{
+  from{opacity:0;transform:scale(.88) translateY(12px);}
+  to  {opacity:1;transform:scale(1)   translateY(0);}
+}
+
+/* VALIDAÇÃO PROGRESSIVA */
+.form-group .field-error{
+display:none;
+color:#f87171;
+font-size:12px;
+margin-top:4px;
+animation:fadeIn .2s ease;
+}
+@keyframes fadeIn{from{opacity:0;transform:translateY(-4px);}to{opacity:1;transform:none;}}
+.form-group input.invalid,
+.form-group select.invalid,
+.form-group textarea.invalid{
+border-color:#f87171 !important;
+}
+.form-group input.valid,
+.form-group select.valid,
+.form-group textarea.valid{
+border-color:#25D366 !important;
+}
+
+/* BOTÃO COM LOADING */
+.btn-enviar:disabled{
+opacity:.7;cursor:not-allowed;transform:none !important;
+}
+.btn-spinner{
+display:inline-block;width:14px;height:14px;border:2px solid var(--azul);
+border-top-color:transparent;border-radius:50%;
+animation:spin .7s linear infinite;vertical-align:middle;margin-right:6px;
+}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+/* LGPD Banner */
+#cookie-banner-multi{
+display:none;position:fixed;bottom:0;left:0;right:0;z-index:9999;
+background:rgba(11,28,61,.97);color:#fff;padding:16px 20px;
+border-top:1px solid rgba(212,175,55,.3);font-size:13px;line-height:1.5;
+}
+#cookie-banner-multi.visible{display:block;}
+#cookie-banner-multi p{margin-bottom:10px;opacity:.9;}
+#cookie-banner-multi a{color:var(--dourado);}
+.multi-cookie-btns{display:flex;gap:10px;flex-wrap:wrap;}
+.btn-multi-accept{background:#D4AF37;color:#0B1C3D;border:none;padding:8px 18px;border-radius:8px;font-weight:700;cursor:pointer;font-family:inherit;font-size:13px;}
+.btn-multi-decline{background:transparent;color:rgba(255,255,255,.55);border:1px solid rgba(255,255,255,.2);padding:8px 14px;border-radius:8px;cursor:pointer;font-family:inherit;font-size:13px;}
+</style>
+</head>
+
+<body>
+
+<!-- Skip to main content (acessibilidade) -->
+<a class="skip-link" href="#multi-main">Ir para o conteúdo principal</a>
+
+<!-- LGPD Banner -->
+<div id="cookie-banner-multi">
+  <p>🍪 Usamos cookies, Google Tag Manager, Microsoft Clarity, Meta Pixel e notificações push para melhorar sua experiência, nos termos da <strong>LGPD</strong>. <a href="privacidade.html">Política de Privacidade</a>.</p>
+  <div class="multi-cookie-btns">
+    <button class="btn-multi-accept" id="btnMultiAccept">✓ Aceitar</button>
+    <button class="btn-multi-decline" id="btnMultiDecline">Recusar</button>
+  </div>
+</div>
+
+<!-- GTM noscript -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-1258221909856324"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+
+<!-- TOPO — injetado via navbar.js -->
+
+<!-- BREADCRUMB -->
+<nav class="breadcrumb-bar" aria-label="Navegação estrutural">
+  <a href="index.html">🏠 Início</a>
+  <span aria-hidden="true">›</span>
+  <span aria-current="page">💎 Cadastrar Multipropriedade</span>
+</nav>
+
+<!-- HERO -->
+<div class="hero" id="multi-main">
+<h1>💎 Cadastre sua Multipropriedade</h1>
+<p>Transforme suas semanas em renda. Gestão e comercialização estratégica do seu imóvel em multipropriedade — sem burocracia, direto com quem resolve.</p>
+</div>
+
+<!-- BENEFÍCIOS -->
+<div class="beneficios">
+  <div class="beneficio"><span class="b-icon">📈</span><strong>Renda recorrente</strong>Comercialização das suas semanas com estratégia de temporada.</div>
+  <div class="beneficio"><span class="b-icon">🤝</span><strong>Atendimento direto</strong>Sem espera e sem intermediários — você fala com quem resolve.</div>
+  <div class="beneficio"><span class="b-icon">⚡</span><strong>Cadastro em 1 minuto</strong>Preencha e envie: nossa equipe retorna pelo seu WhatsApp.</div>
+</div>
+
+<!-- FORMULÁRIO -->
+<div class="form-wrap">
+<div class="form-box">
+<h2>📋 Dados da sua Fração / Imóvel</h2>
+
+<form id="formMulti" onsubmit="enviarMultiCadastro(event)">
+
+  <div class="form-group">
+    <label>Nome do empreendimento *</label>
+    <input type="text" id="multi_nome" placeholder="Ex.: Hot Beach Resort — Suíte 402" required autocomplete="organization" aria-describedby="err-multi_nome">
+    <span class="field-error" id="err-multi_nome">Por favor, informe o nome do empreendimento.</span>
+  </div>
+
+  <div class="form-row">
+    <div class="form-group">
+      <label>Seu nome (proprietário) *</label>
+      <input type="text" id="multi_proprietario" placeholder="Nome completo" required autocomplete="name" aria-describedby="err-multi_proprietario">
+      <span class="field-error" id="err-multi_proprietario">Informe o nome do proprietário.</span>
+    </div>
+    <div class="form-group">
+      <label>WhatsApp (com DDD) *</label>
+      <input type="tel" id="multi_tel" placeholder="Ex.: (17) 98200-6382" required autocomplete="tel" inputmode="tel" aria-describedby="err-multi_tel">
+      <span class="field-error" id="err-multi_tel">Informe um WhatsApp válido (mín. 10 dígitos).</span>
+    </div>
+  </div>
+
+  <div class="form-row">
+    <div class="form-group">
+      <label>Nº de dormitórios *</label>
+      <select id="multi_dorm" required aria-describedby="err-multi_dorm">
+        <option value="">Selecione...</option>
+        <option value="1">1 dormitório</option>
+        <option value="2">2 dormitórios</option>
+        <option value="3">3 dormitórios</option>
+        <option value="4">4+ dormitórios</option>
+      </select>
+      <span class="field-error" id="err-multi_dorm">Selecione o número de dormitórios.</span>
+    </div>
+    <div class="form-group">
+      <label>Andar *</label>
+      <input type="text" id="multi_andar" placeholder="Ex.: 4º andar" required aria-describedby="err-multi_andar">
+      <span class="field-error" id="err-multi_andar">Informe o andar da unidade.</span>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label>Vista da fachada *</label>
+    <input type="text" id="multi_vista" placeholder="Ex.: Vista piscina, vista mar, vista jardim..." required aria-describedby="err-multi_vista">
+    <span class="field-error" id="err-multi_vista">Informe a vista da unidade.</span>
+  </div>
+
+  <div class="form-row">
+    <div class="form-group">
+      <label>Temporada das suas semanas *</label>
+      <select id="multi_temporada" required aria-describedby="err-multi_temporada">
+        <option value="">Selecione...</option>
+        <option value="Altíssima">Altíssima</option>
+        <option value="Alta">Alta</option>
+        <option value="Média">Média</option>
+      </select>
+      <span class="field-error" id="err-multi_temporada">Selecione a temporada.</span>
+    </div>
+    <div class="form-group">
+      <label>Quantas semanas *</label>
+      <input type="number" id="multi_semanas" placeholder="Ex.: 2" min="1" required aria-describedby="err-multi_semanas">
+      <span class="field-error" id="err-multi_semanas">Informe a quantidade de semanas (mín. 1).</span>
+    </div>
+  </div>
+
+  <div class="form-row">
+    <div class="form-group">
+      <label>Fração quitada? *</label>
+      <select id="multi_quitada" required aria-describedby="err-multi_quitada">
+        <option value="">Selecione...</option>
+        <option value="Sim">Sim</option>
+        <option value="Não">Não</option>
+      </select>
+      <span class="field-error" id="err-multi_quitada">Informe se a fração está quitada.</span>
+    </div>
+    <div class="form-group">
+      <label>Valor pretendido (R$) *</label>
+      <input type="number" id="multi_valor" placeholder="Ex.: 45000" min="0" required aria-describedby="err-multi_valor">
+      <span class="field-error" id="err-multi_valor">Informe o valor pretendido.</span>
+    </div>
+  </div>
+
+  <button type="submit" class="btn-enviar" id="btnEnviarMulti">📲 Enviar Cadastro via WhatsApp</button>
+  <p class="aviso">Ao enviar, você será redirecionado ao WhatsApp para confirmar o cadastro com nossa equipe.</p>
+
+</form>
+
+<div class="mensagem-ok" id="msgOk">
+  ✅ Redirecionando para o WhatsApp... Aguarde!
+</div>
+
+</div>
+</div>
+
+<script>
+/* UTM Tracking */
+var _utmStr = (function () {
+  try {
+    var p = new URLSearchParams(location.search);
+    var keys = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term'];
+    var parts = keys.filter(function (k) { return p.get(k); })
+                    .map(function (k) { return k + '=' + p.get(k); });
+    if (parts.length) sessionStorage.setItem('hospedah_utm', parts.join('&'));
+  } catch (ex) {}
+  return sessionStorage.getItem('hospedah_utm') || '';
+})();
+
+function getUtmSuffix() {
+  if (!_utmStr) return '';
+  return '\n📊 Origem: ' + _utmStr.replace(/utm_/g,'').replace(/=/g,': ').replace(/&/g,' | ');
+}
+
+/* LGPD Banner */
+(function () {
+  var banner  = document.getElementById('cookie-banner-multi');
+  var consent = localStorage.getItem('hospedah_consent');
+  if (consent === 'accepted' || consent === 'declined') { return; }
+  banner.classList.add('visible');
+  document.getElementById('btnMultiAccept').addEventListener('click', function () {
+    localStorage.setItem('hospedah_consent', 'accepted');
+    banner.classList.remove('visible');
+    initTracking();
+  });
+  document.getElementById('btnMultiDecline').addEventListener('click', function () {
+    localStorage.setItem('hospedah_consent', 'declined');
+    banner.classList.remove('visible');
+  });
+})();
+
+/* ── MÁSCARA DE WHATSAPP ── */
+(function () {
+  var tel = document.getElementById('multi_tel');
+  if (!tel) return;
+  tel.addEventListener('input', function () {
+    var d = tel.value.replace(/\D/g, '').slice(0, 11);
+    if (d.length > 6) {
+      tel.value = '(' + d.slice(0, 2) + ') ' + d.slice(2, d.length > 10 ? 7 : 6) + '-' + d.slice(d.length > 10 ? 7 : 6);
+    } else if (d.length > 2) {
+      tel.value = '(' + d.slice(0, 2) + ') ' + d.slice(2);
+    } else if (d.length > 0) {
+      tel.value = '(' + d;
+    }
+  });
+})();
+
+/* ── VALIDAÇÃO PROGRESSIVA ── */
+var VALIDATORS = {
+  multi_nome:        function (v) { return v.trim().length >= 3; },
+  multi_proprietario:function (v) { return v.trim().length >= 3; },
+  multi_tel:         function (v) { return /^\d{10,11}$/.test(v.replace(/\D/g,'')); },
+  multi_dorm:        function (v) { return v !== ''; },
+  multi_andar:       function (v) { return v.trim().length >= 1; },
+  multi_vista:       function (v) { return v.trim().length >= 2; },
+  multi_temporada:   function (v) { return v !== ''; },
+  multi_semanas:     function (v) { return Number(v) >= 1; },
+  multi_quitada:     function (v) { return v !== ''; },
+  multi_valor:       function (v) { return v !== '' && Number(v) >= 0; }
+};
+
+function validateField(id) {
+  var el  = document.getElementById(id);
+  var errEl = document.getElementById('err-' + id);
+  if (!el || !VALIDATORS[id]) return true;
+  var ok = VALIDATORS[id](el.value);
+  el.classList.toggle('valid',   ok);
+  el.classList.toggle('invalid', !ok);
+  if (errEl) errEl.style.display = ok ? 'none' : 'block';
+  return ok;
+}
+
+/* Attach blur/change listeners */
+document.addEventListener('DOMContentLoaded', function () {
+  Object.keys(VALIDATORS).forEach(function (id) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    var evt = (el.tagName === 'SELECT') ? 'change' : 'blur';
+    el.addEventListener(evt, function () { validateField(id); });
+    /* Also validate on input for text fields after first blur */
+    if (el.tagName !== 'SELECT') {
+      el.addEventListener('input', function () {
+        if (el.classList.contains('invalid') || el.classList.contains('valid')) {
+          validateField(id);
+        }
+      });
+    }
+  });
+});
+
+/* ── ENVIO COM LOADING STATE ── */
+function setBtnLoading(loading) {
+  var btn = document.getElementById('btnEnviarMulti');
+  if (!btn) return;
+  btn.disabled = loading;
+  btn.innerHTML = loading
+    ? '<span class="btn-spinner"></span> Abrindo WhatsApp…'
+    : '📲 Enviar Cadastro via WhatsApp';
+}
+
+function enviarMultiCadastro(e) {
+  e.preventDefault();
+
+  /* Valida todos os campos */
+  var allOk = Object.keys(VALIDATORS).reduce(function (acc, id) {
+    return validateField(id) && acc;
+  }, true);
+
+  if (!allOk) {
+    var firstInvalid = document.querySelector('.invalid');
+    if (firstInvalid) firstInvalid.focus();
+    return;
+  }
+
+  var nome         = document.getElementById('multi_nome').value.trim();
+  var proprietario = document.getElementById('multi_proprietario').value.trim();
+  var tel          = document.getElementById('multi_tel').value.trim();
+  var dorm         = document.getElementById('multi_dorm').value;
+  var andar        = document.getElementById('multi_andar').value.trim();
+  var vista        = document.getElementById('multi_vista').value.trim();
+  var temporada    = document.getElementById('multi_temporada').value;
+  var semanas      = document.getElementById('multi_semanas').value;
+  var quitada      = document.getElementById('multi_quitada').value;
+  var valor        = document.getElementById('multi_valor').value;
+
+  /* Loading state */
+  setBtnLoading(true);
+
+  /* Meta Pixel — evento de conversão */
+  if (typeof fbq === 'function') fbq('track', 'Lead', { content_name: 'multipropriedade' });
+  if (window.dataLayer) dataLayer.push({ event: 'cadastro_multipropriedade' });
+
+  /* Envio paralelo via Formspree — notifica equipe e alimenta CRM */
+  fetch('https://formspree.io/f/mzdoavpo', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+    body: JSON.stringify({
+      tipo: 'gestao_multipropriedade', empreendimento: nome, proprietario: proprietario,
+      telefone: tel, dormitorios: dorm, andar: andar, vista: vista,
+      temporada: temporada, semanas: semanas, quitada: quitada,
+      valor: 'R$ ' + Number(valor).toLocaleString('pt-BR'), utm: _utmStr,
+      origem: 'multipropriedade.html'
+    })
+  }).catch(function() { /* falha silenciosa — WhatsApp ainda envia */ });
+
+  var msg =
+    '💎 *Gestão | Multipropriedades — HOSPEDAH*\n\n' +
+    '🏢 *Empreendimento:* '   + nome         + '\n' +
+    '👤 *Proprietário:* '     + proprietario + '\n' +
+    '📞 *Telefone:* '         + tel          + '\n' +
+    '🛏️ *Dormitórios:* '      + dorm         + '\n' +
+    '🏬 *Andar:* '            + andar        + '\n' +
+    '🌅 *Vista da fachada:* ' + vista        + '\n' +
+    '📅 *Temporada:* '        + temporada    + '\n' +
+    '📆 *Semanas:* '          + semanas      + '\n' +
+    '✅ *Quitada:* '          + quitada      + '\n' +
+    '💰 *Valor:* R$ '         + Number(valor).toLocaleString('pt-BR') + '\n' +
+    getUtmSuffix();
+
+  var msgOk = document.getElementById('msgOk');
+  msgOk.style.display = 'block';
+
+  setTimeout(function () {
+    setBtnLoading(false);
+    window.open(
+      'https://wa.me/5517982006382?text=' + encodeURIComponent(msg),
+      '_blank'
+    );
+  }, 800);
+}
+</script>
+
+<!-- SECURITY SEAL -->
+<div class="security-seal" aria-label="Site seguro">🔒 <strong>Site Seguro</strong> &nbsp;·&nbsp; SSL Criptografado &nbsp;·&nbsp; 🛡️ Dados Protegidos</div>
+
+<script src="/scripts/navbar.js" data-page="cadastro"></script>
+</body>
+</html>
