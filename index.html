@@ -8,6 +8,15 @@
 <meta name="description" content="Hospede-se com qualidade nos melhores resorts e tenha experiências exclusivas. Orçamento premium, atendimento digital e profissionais à disposição.">
 <link rel="canonical" href="https://hospedah.tur.br/">
 
+<!-- Google Analytics 4 -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-Y6FZYPFRST"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-Y6FZYPFRST');
+</script>
+
 <!-- PWA -->
 <link rel="manifest" href="/manifest.json">
 <meta name="theme-color" content="#D4AF37">
@@ -24,6 +33,7 @@
 <meta property="og:title"       content="HOSPEDAH | Resorts e Experiências Exclusivas">
 <meta property="og:description" content="Hospede-se com qualidade nos melhores resorts. Orçamento premium, atendimento digital e profissionais à disposição.">
 <meta property="og:image"       content="https://i.imgur.com/AmFSwwd.jpeg">
+<!-- og:image oficial 1200x630 pendente: substituir pela arte institucional final da HOSPEDAH -->
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:locale"      content="pt_BR">
@@ -46,6 +56,12 @@
 <link rel="preload" as="image" href="https://i.imgur.com/AmFSwwd.jpeg" fetchpriority="high">
 
 <!-- Google Tag Manager & Microsoft Clarity — carregados somente após consentimento LGPD -->
+<!-- Meta Pixel (placeholder):
+<script>
+  // fbq('init', 'SEU_PIXEL_ID');
+  // fbq('track', 'PageView');
+</script>
+-->
 <script src="/assets/tracking.js"></script>
 
 <!-- Google Fonts — carregado de forma não-bloqueante para evitar atraso no render -->
@@ -165,6 +181,50 @@
 {"@context":"https://schema.org","@type":"TravelAgency","name":"HOSPEDAH","url":"https://hospedah.tur.br"}
 </script>
 <link rel="stylesheet" href="/assets/index.css">
+<style>
+.score-how-wrap { background:#fff; border-radius:22px; box-shadow:0 18px 50px rgba(11,28,61,.10); padding:26px; }
+.score-how-intro { text-align:center; color:var(--muted,#687386); margin:0 auto 16px; max-width:820px; }
+.score-how-scale { display:flex; align-items:center; gap:10px; justify-content:center; font-weight:700; color:var(--navy,#0B1C3D); margin-bottom:16px; }
+.score-how-scale-bar { width:min(720px,100%); height:12px; border-radius:999px; background:linear-gradient(90deg,#d5dbe5,#D4AF37); }
+.score-how-pillars { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; margin-bottom:16px; }
+.score-how-card { background:#fff; border:1px solid rgba(11,28,61,.10); border-radius:18px; box-shadow:0 8px 24px rgba(11,28,61,.08); padding:16px; }
+.score-how-card h3 { margin:0 0 8px; color:var(--navy,#0B1C3D); display:flex; justify-content:space-between; gap:8px; font-size:1.02rem; }
+.score-how-card h3 small { color:var(--muted,#687386); font-size:.8rem; }
+.score-how-card ul { margin:0; padding-left:20px; color:var(--text,#172033); }
+.score-how-bands { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:10px; margin-bottom:16px; }
+.score-how-bands span { background:#fff; border:1px solid rgba(11,28,61,.10); border-radius:999px; padding:9px 12px; text-align:center; font-weight:700; color:var(--navy,#0B1C3D); }
+.score-how-bands .is-gold { border-color:#D4AF37; color:#8a6704; box-shadow:0 10px 25px rgba(212,175,55,.26); }
+.score-how-steps { margin:0 0 16px; padding-left:20px; color:var(--text,#172033); }
+.score-how-panel { background:#0B1C3D; color:#fff; border-radius:18px; padding:16px; margin-bottom:16px; }
+.score-how-search-grid { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:10px; }
+.score-how-search-grid select, .score-how-search-grid button { border-radius:14px; border:1px solid rgba(11,28,61,.15); min-height:44px; padding:0 12px; }
+.score-how-owner-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
+.score-how-owner-card { display:block; text-decoration:none; background:#fff; border:1px solid rgba(11,28,61,.10); border-radius:16px; box-shadow:0 8px 22px rgba(11,28,61,.08); padding:14px; color:var(--text,#172033); }
+.score-how-owner-card strong { display:block; margin-bottom:4px; color:var(--navy,#0B1C3D); }
+.score-how-op-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; }
+.score-op-card { background:#fff; border:1px solid rgba(11,28,61,.10); border-radius:22px; overflow:hidden; box-shadow:0 12px 34px rgba(11,28,61,.12); }
+.score-op-card img { width:100%; height:220px; object-fit:cover; display:block; }
+.score-op-body { padding:14px; }
+.score-op-body h3 { margin:0 0 8px; color:var(--navy,#0B1C3D); display:flex; justify-content:space-between; gap:8px; }
+.score-op-body p { margin:0 0 8px; color:var(--muted,#687386); }
+.score-op-price { font-size:1.05rem; color:#8a6704 !important; font-weight:800; }
+.resort-maps { display:inline-flex; align-items:center; text-decoration:none; background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.28); color:var(--gold-light,#F4D77A); padding:6px 11px; border-radius:999px; font-size:12px; font-weight:800; line-height:1; backdrop-filter:blur(6px); margin-bottom:10px; }
+.resort-maps:hover { background:rgba(255,255,255,.28); }
+@media (max-width: 900px) {
+  #mainNav { display:none; position:absolute; top:76px; left:0; right:0; padding:15px; background:#fff; flex-direction:column; box-shadow:0 18px 50px rgba(11,28,61,.10); z-index:30; }
+  #mainNav.nav-open { display:flex; }
+  #mainNav li { list-style:none; }
+  #mainNav a { color:#172033; }
+  .score-how-pillars, .score-how-op-grid, .score-how-owner-grid { grid-template-columns:1fr; }
+  .score-how-search-grid { grid-template-columns:1fr; }
+  .score-how-bands { grid-template-columns:1fr 1fr; }
+}
+@media (max-width: 600px) {
+  .score-how-wrap { border-radius:16px; padding:18px; }
+  .score-op-card { border-radius:16px; }
+  .score-how-bands { grid-template-columns:1fr; }
+}
+</style>
 </head>
 <body>
 
@@ -236,7 +296,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <span class="logo-wordmark">HOSPEDAH</span>
   </a>
 
-  <ul class="nav-links" role="list">
+  <ul class="nav-links" id="mainNav" role="list">
     <li><a href="#topo" data-i18n="nav.home">🏠 Início</a></li>
     <li><a href="busca.html" data-i18n="nav.search">🔍 Buscar</a></li>
     <li><a href="reservas.html" data-i18n="nav.reserve">📅 Reservar</a></li>
@@ -449,7 +509,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       <h2>🏠 Cadastro | Imóveis para Locação</h2>
       <form id="formCadastroEmp" onsubmit="enviarCadastroEmp(event)">
         <input id="empNome"      placeholder="Nome do empreendimento" required autocomplete="organization">
-        <select id="empTipo" required>
+        <select id="empTipo" required aria-label="Tipo de imóvel">
           <option value="">Tipo de imóvel</option>
           <option value="Resort">Resort</option>
           <option value="Hotel">Hotel</option>
@@ -459,7 +519,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           <option value="Casa de temporada">Casa de temporada</option>
           <option value="Outro">Outro</option>
         </select>
-        <select id="empDorm" required>
+        <select id="empDorm" required aria-label="Dormitórios do imóvel">
           <option value="">Dormitórios</option>
           <option value="1">1 dormitório</option>
           <option value="2">2 dormitórios</option>
@@ -494,23 +554,28 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <!-- Busca Cliente -->
     <div class="panel-box">
       <h2>🔎 Encontre sua hospedagem</h2>
-      <input id="clienteNome"    placeholder="Seu nome completo" autocomplete="name">
+      <input id="clienteNome" placeholder="Seu nome completo" autocomplete="name">
       <input id="clienteContato" placeholder="Seu WhatsApp (com DDD)" autocomplete="tel">
-      <label>Data de entrada</label>
-      <input type="date" id="entrada">
-      <label>Data de saída</label>
-      <input type="date" id="saida">
-      <input type="number" id="pessoas" placeholder="Nº de pessoas" min="1">
-      <select id="filtroDorm">
-        <option value="">N° de dormitórios</option>
-        <option value="1">1 dormitório</option>
-        <option value="2">2 dormitórios</option>
-        <option value="3">3 dormitórios</option>
-        <option value="4">4+ dormitórios</option>
+      <label for="destinoHospedagem">Destino / Resort</label>
+      <select id="destinoHospedagem">
+        <option value="">Todos os resorts</option>
+        <option value="hotbeach">Hot Beach Suites</option>
+        <option value="saopedro">São Pedro Thermas</option>
+        <option value="olimpia">Olimpia Park Resort</option>
+        <option value="solar">Solar das Águas</option>
+        <option value="wyndham">Wyndham Royal Resort</option>
+        <option value="juquehy">Praia de Juquehy</option>
+        <option value="ipioca">Ipioca Beach Resort</option>
+        <option value="portoi2">Porto 2 Life</option>
       </select>
+      <label for="checkin">Data de entrada</label>
+      <input type="date" id="checkin">
+      <label for="checkout">Data de saída</label>
+      <input type="date" id="checkout">
+      <input type="number" id="pessoas" placeholder="Nº de pessoas" min="1">
       <label>Observações</label>
       <textarea id="clienteObs" placeholder="Ex.: prefiro piscina aquecida, viagem em família, aniversário..."></textarea>
-      <button class="btn-painel" onclick="buscar()">🔍 Buscar opções</button>
+      <button class="btn-painel" onclick="buscarHospedagem()">🔍 Buscar opções</button>
       <div id="resultado"></div>
     </div>
   </div>
@@ -596,6 +661,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <div class="resort-title">Hot Beach Suites</div>
     <div class="resort-reservas-badge">🔥 <strong>847</strong> reservas confirmadas</div>
     <a href="resorts/hotbeach.html" class="resort-link" target="_blank" rel="noopener">Ver página exclusiva →</a>
+    <a class="resort-maps" href="https://www.google.com/maps/search/?api=1&query=Hot+Beach+Su%C3%ADtes+Ol%C3%ADmpia+SP" target="_blank" rel="noopener">📍 Como chegar</a>
     <a href="https://wa.me/5517982006382?text=Ol%C3%A1%21+Tenho+interesse+no+Hot+Beach+Suites.+Pode+me+enviar+mais+informa%C3%A7%C3%B5es%3F" class="resort-wpp-btn" target="_blank" rel="noopener"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="16" height="16" aria-hidden="true" focusable="false"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg> Orçamento Hot Beach Suites</a>
     <div class="gallery">
       <img src="https://i.imgur.com/AmFSwwd.jpeg" alt="Piscina principal do Hot Beach Suites em Olímpia SP" loading="lazy" decoding="async" width="800" height="600" tabindex="0">
@@ -615,6 +681,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <div class="resort-title">São Pedro Thermas</div>
     <div class="resort-reservas-badge">🔥 <strong>512</strong> reservas confirmadas</div>
     <a href="resorts/saopedro.html" class="resort-link" target="_blank" rel="noopener">Ver página exclusiva →</a>
+    <a class="resort-maps" href="https://www.google.com/maps/search/?api=1&query=S%C3%A3o+Pedro+Thermas+Resort+S%C3%A3o+Pedro+SP" target="_blank" rel="noopener">📍 Como chegar</a>
     <a href="https://wa.me/5517982006382?text=Ol%C3%A1%21+Tenho+interesse+no+S%C3%A3o+Pedro+Thermas.+Pode+me+enviar+mais+informa%C3%A7%C3%B5es%3F" class="resort-wpp-btn" target="_blank" rel="noopener"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="16" height="16" aria-hidden="true" focusable="false"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg> Orçamento São Pedro</a>
     <!-- Abas Fotos / Vídeos HD -->
     <div class="sp-gallery-tabs" role="tablist" aria-label="Galeria São Pedro Thermas">
@@ -748,6 +815,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <div class="resort-title">Wyndham Royal Resort</div>
     <div class="resort-reservas-badge">🔥 <strong>271</strong> reservas confirmadas</div>
     <a href="resorts/wyndham.html" class="resort-link" target="_blank" rel="noopener">Ver página exclusiva →</a>
+    <a class="resort-maps" href="https://www.google.com/maps/search/?api=1&query=Wyndham+Gramado+RS" target="_blank" rel="noopener">📍 Como chegar</a>
     <a href="https://wa.me/5517982006382?text=Ol%C3%A1%21+Tenho+interesse+no+Wyndham+Royal+Resort.+Pode+me+enviar+mais+informa%C3%A7%C3%B5es%3F" class="resort-wpp-btn" target="_blank" rel="noopener"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="16" height="16" aria-hidden="true" focusable="false"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg> Orçamento Wyndham Royal</a>
     <div class="gallery">
       <img src="https://i.imgur.com/iDMQ2XA.jpeg" alt="Piscina principal do Wyndham Royal Resort em Olímpia SP" loading="lazy" decoding="async" width="800" height="600" tabindex="0">
@@ -780,6 +848,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <div class="resort-title">Ipioca Beach Resort</div>
     <div class="resort-reservas-badge">🔥 <strong>156</strong> reservas confirmadas</div>
     <a href="resorts/ipioca.html" class="resort-link" target="_blank" rel="noopener">Ver página exclusiva →</a>
+    <a class="resort-maps" href="https://www.google.com/maps/search/?api=1&query=Ipioca+Beach+Residence+Macei%C3%B3+AL" target="_blank" rel="noopener">📍 Como chegar</a>
     <a href="https://wa.me/5517982006382?text=Ol%C3%A1%21+Tenho+interesse+no+Ipioca+Beach+Resort.+Pode+me+enviar+mais+informa%C3%A7%C3%B5es%3F" class="resort-wpp-btn" target="_blank" rel="noopener"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="16" height="16" aria-hidden="true" focusable="false"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg> Orçamento Ipioca Beach</a>
     <div class="gallery">
       <img src="https://i.imgur.com/o4Esa54.jpg" alt="Piscina principal do Ipioca Beach Resort em Maceió AL" loading="lazy" decoding="async" width="800" height="600" tabindex="0">
@@ -1129,6 +1198,197 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   </div>
 </section>
 
+<section class="section" id="score-radar" aria-labelledby="score-radar-titulo" style="max-width:1180px;margin:0 auto;padding:26px 24px 8px;">
+  <p class="section-kicker">Radar HOSPEDAH</p>
+  <h2 id="score-radar-titulo" class="section-title" style="margin-bottom:10px;">HOSPEDAH Score nas cotas em destaque</h2>
+  <p style="max-width:760px;margin:0 auto 16px;text-align:center;color:var(--muted,#687386);">Selecionamos oportunidades com metodologia própria para facilitar sua decisão com mais segurança.</p>
+  <div style="text-align:center;">
+    <a href="#como-funciona-score" class="btn btn-gold">Como funciona</a>
+  </div>
+</section>
+
+<section class="section" id="como-funciona-score" aria-labelledby="titulo-como-funciona-score" style="max-width:1180px;margin:0 auto;padding:18px 24px 20px;">
+  <div class="score-how-wrap">
+    <p class="section-kicker">Transparência HOSPEDAH</p>
+    <h2 id="titulo-como-funciona-score" class="section-title" style="margin-bottom:10px;">Como funciona o HOSPEDAH Score</h2>
+    <p class="score-how-intro">O HOSPEDAH Score é um indicador de 0 a 100, baseado em 4 pilares avaliados antes de selecionar cotas para o Radar.</p>
+
+    <div class="score-how-scale" aria-label="Escala do HOSPEDAH Score de 0 até 100">
+      <span>0</span>
+      <div class="score-how-scale-bar" aria-hidden="true"></div>
+      <span>100</span>
+    </div>
+
+    <div class="score-how-pillars">
+      <article class="score-how-card">
+        <h3>📍 Localização <small>Peso: 25%</small></h3>
+        <ul>
+          <li>Proximidade de parques, praias e atrativos</li>
+          <li>Infraestrutura da cidade e acessos</li>
+          <li>Valorização histórica</li>
+          <li>Segurança e serviços no entorno</li>
+        </ul>
+      </article>
+      <article class="score-how-card">
+        <h3>🏨 Estrutura <small>Peso: 25%</small></h3>
+        <ul>
+          <li>Conservação e padrão do resort</li>
+          <li>Lazer (piscinas, gastronomia, recreação)</li>
+          <li>Conservação e mobília da unidade</li>
+          <li>Gestão e reputação da administradora</li>
+        </ul>
+      </article>
+      <article class="score-how-card">
+        <h3>📈 Demanda <small>Peso: 25%</small></h3>
+        <ul>
+          <li>Ocupação histórica do destino</li>
+          <li>Temporada da semana (alta, média ou baixa)</li>
+          <li>Facilidade de intercâmbio e permuta</li>
+          <li>Potencial de locação da semana</li>
+        </ul>
+      </article>
+      <article class="score-how-card">
+        <h3>💰 Custo-benefício <small>Peso: 25%</small></h3>
+        <ul>
+          <li>Preço da cota versus cotas similares</li>
+          <li>Custo anual versus diárias do mesmo resort</li>
+          <li>Taxas de manutenção e condomínio</li>
+          <li>Situação financeira (quitada ou financiada)</li>
+        </ul>
+      </article>
+    </div>
+
+    <div class="score-how-bands">
+      <span class="is-gold">90–100 Excelente</span>
+      <span>75–89 Muito boa</span>
+      <span>60–74 Boa</span>
+      <span>&lt;60 Não recomendada (não entra no Radar)</span>
+    </div>
+
+    <ol class="score-how-steps">
+      <li><strong>Visita técnica:</strong> análise presencial da cota e do empreendimento.</li>
+      <li><strong>Pontuação:</strong> cada pilar recebe nota de 0 a 100.</li>
+      <li><strong>Cálculo:</strong> média ponderada dos 4 pilares.</li>
+      <li><strong>Publicação:</strong> apenas Score 60+ entra no Radar.</li>
+    </ol>
+
+    <div class="score-how-panel">
+      O HOSPEDAH Score é um apoio à decisão, não uma garantia de valorização ou rentabilidade.
+      Multipropriedade é qualidade de vida com custo previsível.
+    </div>
+
+    <div style="text-align:center;">
+      <p style="margin:0 0 10px;font-weight:700;">Quer saber o Score de uma cota específica — inclusive a sua?</p>
+      <button type="button" class="btn btn-gold" onclick="openWhatsApp('score')">Falar com especialista do Score</button>
+    </div>
+  </div>
+</section>
+
+<section class="section" style="max-width:1180px;margin:0 auto;padding:8px 24px 24px;" aria-labelledby="titulo-cotas-inteligente">
+  <h2 id="titulo-cotas-inteligente" class="section-title" style="margin-bottom:8px;">🔎 Encontre uma cota ideal</h2>
+  <p style="text-align:center;color:var(--muted,#687386);margin:0 0 16px;">Filtre sua busca e fale direto com o especialista.</p>
+  <div class="score-how-search-grid">
+    <select id="cotaDestino" aria-label="Destino da cota">
+      <option value="">Destino</option>
+      <option>Olímpia/SP</option>
+      <option>São Pedro/SP</option>
+      <option>Gramado/RS</option>
+      <option>Maceió/AL</option>
+    </select>
+    <select id="cotaDormitorios" aria-label="Dormitórios">
+      <option value="">Dormitórios</option>
+      <option value="1">1 dormitório</option>
+      <option value="2">2 dormitórios</option>
+      <option value="3">3 dormitórios</option>
+      <option value="4+">4+ dormitórios</option>
+    </select>
+    <select id="cotaSemanas" aria-label="Semanas por ano">
+      <option value="">Semanas por ano</option>
+      <option value="1">1 semana</option>
+      <option value="2">2 semanas</option>
+      <option value="3">3 semanas</option>
+      <option value="4">4+ semanas</option>
+    </select>
+    <select id="cotaTemporada" aria-label="Temporada">
+      <option value="">Temporada</option>
+      <option>Altíssima</option>
+      <option>Alta</option>
+      <option>Média</option>
+      <option>Baixa</option>
+    </select>
+    <button type="button" class="btn btn-gold" onclick="buscarCota()">Buscar cota no WhatsApp</button>
+  </div>
+
+  <div class="score-how-owner-grid" style="margin-top:16px;">
+    <a href="#" class="score-how-owner-card" onclick="openWhatsApp('vender');return false;">
+      <strong>💼 Quero vender minha cota</strong>
+      <span>Receba apoio na estratégia de venda.</span>
+    </a>
+    <a href="#" class="score-how-owner-card" onclick="openWhatsApp('anunciar');return false;">
+      <strong>📣 Quero anunciar minha cota</strong>
+      <span>Coloque sua cota no Radar HOSPEDAH.</span>
+    </a>
+    <a href="#" class="score-how-owner-card" onclick="openWhatsApp('avaliar');return false;">
+      <strong>📊 Quero avaliar meu Score</strong>
+      <span>Entenda o potencial da sua semana.</span>
+    </a>
+    <a href="#" class="score-how-owner-card" onclick="openWhatsApp('gestao');return false;">
+      <strong>🤝 Quero gestão especializada</strong>
+      <span>Cuidamos da operação da sua cota.</span>
+    </a>
+  </div>
+
+  <div style="text-align:center;margin-top:16px;">
+    <button type="button" class="btn" onclick="abrirChatIA()">Conversar com a HOSPEDAH IA</button>
+  </div>
+</section>
+
+<section class="section" id="oportunidades" aria-labelledby="titulo-oportunidades" style="max-width:1180px;margin:0 auto;padding:8px 24px 24px;">
+  <h2 id="titulo-oportunidades" class="section-title">🔥 Oportunidades de cota no Radar</h2>
+  <div class="score-how-op-grid">
+    <article class="score-op-card">
+      <img src="https://i.imgur.com/AmFSwwd.jpeg" alt="Cota de multipropriedade no Hot Beach Suítes, Olímpia SP" loading="lazy" decoding="async" width="640" height="420">
+      <div class="score-op-body">
+        <h3>Hot Beach Suítes <small>Score 92</small></h3>
+        <p>Olímpia/SP · 2 dormitórios · 1 semana alta temporada</p>
+        <p class="score-op-price">R$ XXX.XXX</p>
+        <a class="resort-maps" href="https://www.google.com/maps/search/?api=1&query=Hot+Beach+Su%C3%ADtes+Ol%C3%ADmpia+SP" target="_blank" rel="noopener">📍 Como chegar</a>
+        <button type="button" class="btn btn-gold" onclick="openWhatsApp('oportunidade','Hot Beach Suítes','92')">Ver oportunidade</button>
+      </div>
+    </article>
+    <article class="score-op-card">
+      <img src="https://i.imgur.com/pyEKOtQ.jpeg" alt="Cota de multipropriedade no São Pedro Thermas Resort, São Pedro SP" loading="lazy" decoding="async" width="640" height="420">
+      <div class="score-op-body">
+        <h3>São Pedro Thermas <small>Score 88</small></h3>
+        <p>São Pedro/SP · 2 dormitórios · 1 semana média temporada</p>
+        <p class="score-op-price">R$ XXX.XXX</p>
+        <a class="resort-maps" href="https://www.google.com/maps/search/?api=1&query=S%C3%A3o+Pedro+Thermas+Resort+S%C3%A3o+Pedro+SP" target="_blank" rel="noopener">📍 Como chegar</a>
+        <button type="button" class="btn btn-gold" onclick="openWhatsApp('oportunidade','São Pedro Thermas','88')">Ver oportunidade</button>
+      </div>
+    </article>
+    <article class="score-op-card">
+      <img src="https://i.imgur.com/iDMQ2XA.jpeg" alt="Cota de multipropriedade no Wyndham Gramado, Rio Grande do Sul" loading="lazy" decoding="async" width="640" height="420">
+      <div class="score-op-body">
+        <h3>Wyndham Gramado <small>Score 85</small></h3>
+        <p>Gramado/RS · 1 dormitório · 1 semana alta temporada</p>
+        <p class="score-op-price">R$ XXX.XXX</p>
+        <a class="resort-maps" href="https://www.google.com/maps/search/?api=1&query=Wyndham+Gramado+RS" target="_blank" rel="noopener">📍 Como chegar</a>
+        <button type="button" class="btn btn-gold" onclick="openWhatsApp('oportunidade','Wyndham Gramado','85')">Ver oportunidade</button>
+      </div>
+    </article>
+    <article class="score-op-card">
+      <img src="https://i.imgur.com/o4Esa54.jpg" alt="Cota de multipropriedade no Ipioca Beach Residence, Maceió AL" loading="lazy" decoding="async" width="640" height="420">
+      <div class="score-op-body">
+        <h3>Ipioca Beach Residence <small>Score 81</small></h3>
+        <p>Maceió/AL · 2 dormitórios · 2 semanas média temporada</p>
+        <p class="score-op-price">R$ XXX.XXX</p>
+        <a class="resort-maps" href="https://www.google.com/maps/search/?api=1&query=Ipioca+Beach+Residence+Macei%C3%B3+AL" target="_blank" rel="noopener">📍 Como chegar</a>
+        <button type="button" class="btn btn-gold" onclick="openWhatsApp('oportunidade','Ipioca Beach Residence','81')">Ver oportunidade</button>
+      </div>
+    </article>
+  </div>
+</section>
+
 <!-- ==========================================
      CADASTRE SEU EMPREENDIMENTO
 =========================================== -->
@@ -1142,7 +1402,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       <input type="text"   id="multi_nome"        placeholder="Nome do empreendimento"      required autocomplete="organization">
       <input type="text"   id="multi_proprietario" placeholder="Nome do proprietário"       required autocomplete="name">
       <input type="tel"    id="multi_tel"          placeholder="Telefone (com DDD)"         required autocomplete="tel">
-      <select id="multi_dorm" required>
+      <select id="multi_dorm" required aria-label="Dormitórios da multipropriedade">
         <option value="">Quantos dormitórios</option>
         <option value="1">1 dormitório</option>
         <option value="2">2 dormitórios</option>
@@ -1151,14 +1411,14 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       </select>
       <input type="text"   id="multi_andar"        placeholder="Qual andar"                 required>
       <input type="text"   id="multi_vista"        placeholder="Vista da fachada"           required>
-      <select id="multi_temporada" required>
+      <select id="multi_temporada" required aria-label="Temporada da multipropriedade">
         <option value="">Temporada</option>
         <option value="Altíssima">Altíssima</option>
         <option value="Alta">Alta</option>
         <option value="Média">Média</option>
       </select>
       <input type="number" id="multi_semanas"      placeholder="Quantas semanas"  min="1"  required>
-      <select id="multi_quitada" required>
+      <select id="multi_quitada" required aria-label="Situação de quitação da cota">
         <option value="">Quitada</option>
         <option value="Sim">Sim</option>
         <option value="Não">Não</option>
@@ -1212,28 +1472,21 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   <div class="section-wrap" style="padding-top:0;">
     <h2 class="section-title" id="titulo-calc">💰 Calculadora de Economia</h2>
     <p style="text-align:center;opacity:.75;font-size:.9em;margin-bottom:28px;max-width:600px;margin-left:auto;margin-right:auto;">
-      Veja quanto você pode economizar reservando com a HOSPEDAH em vez de direto no resort.
+      Hospede-se com até <strong id="economiaPercent">20%</strong> de economia nas condições HOSPEDAH. Simule abaixo.
     </p>
     <div class="calc-wrap">
       <div class="calc-box">
         <div class="calc-field-group">
-          <label for="calc_resort">🏨 Resort</label>
-          <select id="calc_resort" onchange="calcularEconomia()">
-            <option value="470">Hot Beach Suites (R$ 470/noite)</option>
-            <option value="540">São Pedro Thermas (R$ 540/noite)</option>
-            <option value="320">Olimpia Park Resort (R$ 320/noite)</option>
-            <option value="480">Solar das Águas (R$ 480/noite)</option>
-            <option value="600">Wyndham Royal Resort (R$ 600/noite)</option>
-            <option value="380">Praia de Juquehy (R$ 380/noite)</option>
-          </select>
+          <label for="diaria">💵 VALOR MÉDIO DA DIÁRIA (R$)</label>
+          <input type="number" id="diaria" value="800" min="1" oninput="calcularEconomia()" onchange="calcularEconomia()">
         </div>
         <div class="calc-field-group">
           <label for="calc_noites">🌙 Número de noites</label>
-          <input type="number" id="calc_noites" value="3" min="1" max="30" oninput="calcularEconomia()">
+          <input type="number" id="calc_noites" value="3" min="1" max="30" oninput="calcularEconomia()" onchange="calcularEconomia()">
         </div>
         <div class="calc-field-group">
           <label for="calc_pessoas">👥 Número de pessoas</label>
-          <input type="number" id="calc_pessoas" value="2" min="1" max="12" oninput="calcularEconomia()">
+          <input type="number" id="calc_pessoas" value="2" min="1" max="12" oninput="calcularEconomia()" onchange="calcularEconomia()">
         </div>
       </div>
       <div class="calc-result" id="calcResult" aria-live="polite">
@@ -1250,7 +1503,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           <span class="calc-label">🎉 Sua economia estimada</span>
           <span class="calc-value dourado" id="calcEconomia">R$ 141,00</span>
         </div>
-        <div class="calc-disclaimer">* Estimativa com 10% de desconto médio negociado pela HOSPEDAH. O valor real é confirmado no orçamento.</div>
+        <div class="calc-disclaimer">* Estimativa baseada no percentual médio negociado pela HOSPEDAH. O valor real é confirmado no orçamento.</div>
         <a href="#orcamento" class="calc-cta-btn">📩 Solicitar orçamento agora →</a>
       </div>
     </div>
@@ -1388,8 +1641,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <footer>
   &copy; 2026 <strong>HOSPEDAH</strong> — Todos os direitos reservados.
   <br><small>
-    <a href="https://wa.me/5517982006382" target="_blank" rel="noopener">WhatsApp Flávio</a> &nbsp;|&nbsp;
-    <a href="https://wa.me/5517992068296" target="_blank" rel="noopener">WhatsApp Juliana</a> &nbsp;|&nbsp;
+    <a href="https://wa.me/5517982006382" target="_blank" rel="noopener" onclick="if (window.openWhatsApp) { openWhatsApp('flavio'); return false; }">WhatsApp Flávio</a> &nbsp;|&nbsp;
+    <a href="https://wa.me/5517992068296" target="_blank" rel="noopener" onclick="if (window.openWhatsApp) { openWhatsApp('juliana'); return false; }">WhatsApp Juliana</a> &nbsp;|&nbsp;
+    <a href="https://www.instagram.com/julianasilvaoliveira.joao" target="_blank" rel="noopener" onclick="if (window.CONFIG) { window.open(CONFIG.instagram, '_blank'); return false; }">Instagram</a> &nbsp;|&nbsp;
+    <a href="https://hospedah.tur.br/reservas.html" target="_blank" rel="noopener" onclick="if (window.CONFIG) { window.open(CONFIG.reservasUrl, '_blank'); return false; }">Reservas</a> &nbsp;|&nbsp;
     <a href="privacidade.html">Política de Privacidade</a>
   </small>
   <div class="security-seal" aria-label="Site seguro">🔒 <strong>Site Seguro</strong> &nbsp;·&nbsp; SSL Criptografado &nbsp;·&nbsp; 🛡️ Dados Protegidos</div>
@@ -1441,27 +1696,94 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <script>
 'use strict';
 
-/* =====================
-   💰 CALCULADORA DE ECONOMIA
-===================== */
-var ECONOMIA_DESCONTO = 0.10; // desconto médio estimado negociado pela HOSPEDAH
+const CONFIG = {
+  whatsapp: {
+    flavio: '5517982006382',
+    juliana: '5517992068296'
+  },
+  iaChatUrl: 'https://hospedah.tur.br/chat.html',
+  reservasUrl: 'https://hospedah.tur.br/reservas.html',
+  instagram: 'https://www.instagram.com/julianasilvaoliveira.joao',
+  economiaDesconto: 0.20
+};
+window.CONFIG = CONFIG;
+
+const WA_MESSAGES = {
+  hospedagem: 'Olá! Quero viajar e preciso de ajuda para encontrar a melhor hospedagem com a HOSPEDAH.',
+  juliana: 'Olá, Juliana! Quero ajuda para escolher hospedagem e datas da minha viagem.',
+  cota: function (destino, dormitorios, semanas, temporada) {
+    return 'Olá! Tenho interesse em *ter uma cota* com a HOSPEDAH.\n' +
+      'Destino: ' + (destino || 'a definir') + '\n' +
+      'Dormitórios: ' + (dormitorios || 'a definir') + '\n' +
+      'Semanas: ' + (semanas || 'a definir') + '\n' +
+      'Temporada: ' + (temporada || 'a definir');
+  },
+  oportunidade: function (nome, score) {
+    return 'Olá! Vi a cota *' + nome + '* (HOSPEDAH Score ' + score + ') no site HOSPEDAH e quero mais informações.';
+  },
+  score: 'Olá! Quero saber o *HOSPEDAH Score* de uma cota específica, inclusive da minha.',
+  vender: 'Olá! Sou proprietário e quero *vender minha cota* com apoio da HOSPEDAH.',
+  anunciar: 'Olá! Sou proprietário e quero *anunciar minha cota* no Radar HOSPEDAH.',
+  avaliar: 'Olá! Sou proprietário e quero *avaliar o Score* da minha cota.',
+  gestao: 'Olá! Sou proprietário e quero conhecer a *gestão especializada* da HOSPEDAH para minha cota.',
+  especialista: 'Olá! Quero falar com um *especialista HOSPEDAH* sobre cotas e oportunidades.',
+  flavio: 'Olá, Flávio! Quero falar sobre cotas, oportunidades e suporte para proprietários.'
+};
+
+const WA_ROUTING = {
+  hospedagem: 'juliana',
+  juliana: 'juliana'
+};
+
+function trackEvent(nome, parametros) {
+  if (typeof gtag === 'function') {
+    gtag('event', nome, parametros || {});
+  }
+}
+
+function openExternalUrl(url) {
+  var newWindow = window.open(url, '_blank', 'noopener,noreferrer');
+  if (newWindow) {
+    newWindow.opener = null;
+  } else {
+    window.location.href = url;
+  }
+}
+
+function openWhatsApp(key) {
+  var args = Array.prototype.slice.call(arguments, 1);
+  var atendente = WA_ROUTING[key] || 'flavio';
+  var numero = CONFIG.whatsapp[atendente];
+  var template = WA_MESSAGES[key] || WA_MESSAGES.especialista;
+  var mensagem = typeof template === 'function' ? template.apply(null, args) : template;
+  trackEvent('whatsapp_click', { event_category: 'conversao', event_label: key, atendente: atendente });
+  openExternalUrl('https://wa.me/' + numero + '?text=' + encodeURIComponent(mensagem));
+}
+
+function atualizarTextoEconomia() {
+  var el = document.getElementById('economiaPercent');
+  if (el) el.textContent = Math.round(CONFIG.economiaDesconto * 100) + '%';
+}
 
 function calcularEconomia() {
-  var precoNoite = parseFloat(document.getElementById('calc_resort').value) || 470;
-  var noites     = parseInt(document.getElementById('calc_noites').value, 10) || 3;
-  var pessoas    = parseInt(document.getElementById('calc_pessoas').value, 10) || 2;
+  var diaria = parseFloat(document.getElementById('diaria').value) || 800;
+  var noites = parseInt(document.getElementById('calc_noites').value, 10) || 3;
+  if (diaria < 1) diaria = 1;
   if (noites < 1) noites = 1;
   if (noites > 30) noites = 30;
-  var totalHospedah = precoNoite * noites;
-  var totalDireto   = totalHospedah * 1.30;
-  var economia      = totalDireto - totalHospedah;
+  var totalDireto = noites * diaria;
+  var economia = noites * diaria * CONFIG.economiaDesconto;
+  var totalHospedah = totalDireto - economia;
   var fmt = function(v) { return 'R$ ' + v.toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.'); };
-  document.getElementById('calcDireto').textContent   = fmt(totalDireto);
+  document.getElementById('calcDireto').textContent = fmt(totalDireto);
   document.getElementById('calcHospedah').textContent = fmt(totalHospedah);
   document.getElementById('calcEconomia').textContent = fmt(economia);
 }
-// Inicializa ao carregar
-document.addEventListener('DOMContentLoaded', calcularEconomia);
+
+document.addEventListener('DOMContentLoaded', function () {
+  atualizarTextoEconomia();
+  calcularEconomia();
+});
 
 /* =====================
    TEMA
@@ -1482,32 +1804,44 @@ document.addEventListener('DOMContentLoaded', calcularEconomia);
 })();
 
 /* =====================
-   ✅ MENU SANDUÍCHE
+   ✅ MENU MOBILE
 ===================== */
-var hamburger  = document.getElementById('hamburger');
-var navDrawer  = document.getElementById('navDrawer');
+var hamburger = document.getElementById('hamburger');
+var mainNav = document.getElementById('mainNav');
+var navDrawer = document.getElementById('navDrawer');
 var navOverlay = document.getElementById('navOverlay');
 
-function openDrawer() {
-  hamburger.classList.add('open');
-  navDrawer.classList.add('open');
-  navOverlay.classList.add('open');
-  hamburger.setAttribute('aria-expanded', 'true');
-  document.body.style.overflow = 'hidden';
-}
 function closeDrawer() {
-  hamburger.classList.remove('open');
-  navDrawer.classList.remove('open');
-  navOverlay.classList.remove('open');
-  hamburger.setAttribute('aria-expanded', 'false');
+  if (mainNav) mainNav.classList.remove('nav-open');
+  if (hamburger) {
+    hamburger.setAttribute('aria-expanded', 'false');
+    hamburger.setAttribute('aria-label', 'Abrir menu');
+  }
   document.body.style.overflow = '';
 }
-hamburger.addEventListener('click', function () {
-  navDrawer.classList.contains('open') ? closeDrawer() : openDrawer();
+
+function toggleMenu() {
+  if (!mainNav || !hamburger) return;
+  mainNav.classList.toggle('nav-open');
+  var aberto = mainNav.classList.contains('nav-open');
+  hamburger.setAttribute('aria-expanded', aberto ? 'true' : 'false');
+  hamburger.setAttribute('aria-label', aberto ? 'Fechar menu' : 'Abrir menu');
+  document.body.style.overflow = aberto ? 'hidden' : '';
+}
+
+if (hamburger) {
+  hamburger.addEventListener('click', function () {
+    toggleMenu();
+    if (navDrawer) navDrawer.classList.remove('open');
+    if (navOverlay) navOverlay.classList.remove('open');
+  });
+}
+
+document.querySelectorAll('#mainNav a').forEach(function (link) {
+  link.addEventListener('click', closeDrawer);
 });
-navOverlay.addEventListener('click', closeDrawer);
-document.addEventListener('keydown', function (e) {
-  if (e.key === 'Escape') closeDrawer();
+document.addEventListener('keydown', function (event) {
+  if (event.key === 'Escape') closeDrawer();
 });
 
 
@@ -1562,27 +1896,76 @@ document.addEventListener('keydown', function (e) {
 })();
 
 /* =====================
-   ✅ BUSCA DO HERO → WhatsApp
+   ✅ BUSCA DE HOSPEDAGEM E COTAS
 ===================== */
-function heroSearch() {
-  var resort  = document.getElementById('hs_resort').value  || '';
-  var entrada = document.getElementById('hs_entrada').value || '';
-  var saida   = document.getElementById('hs_saida').value   || '';
-  var pessoas = document.getElementById('hs_pessoas').value || '';
+function formatarData(valor) {
+  if (!valor) return 'a definir';
+  return new Date(valor + 'T12:00:00').toLocaleDateString('pt-BR');
+}
 
-  // ✅ Dispara evento de conversão Meta Pixel
-  if (typeof fbq === 'function') fbq('track', 'Search', { search_string: resort });
-  // ✅ Dispara evento GTM
-  if (window.dataLayer) dataLayer.push({ event: 'hero_search', resort: resort });
+function getReservasUrlBase() {
+  var host = window.location.hostname;
+  if (host === 'localhost' || host === '127.0.0.1') return 'reservas.html';
+  return CONFIG.reservasUrl;
+}
 
-  // Redirecionar para página de busca com parâmetros
+function navigateTo(url) {
+  window.location.assign(url);
+}
+
+function buildHospedagemBuscaUrl() {
+  var destino = (document.getElementById('destinoHospedagem') || {}).value || '';
+  var entrada = (document.getElementById('checkin') || {}).value || '';
+  var saida = (document.getElementById('checkout') || {}).value || '';
+  var pessoas = (document.getElementById('pessoas') || {}).value || '';
+  var cliente = (document.getElementById('clienteNome') || {}).value || '';
+  var contato = (document.getElementById('clienteContato') || {}).value || '';
+  var obs = (document.getElementById('clienteObs') || {}).value || '';
   var params = new URLSearchParams();
-  if (resort)  params.set('destino', resort);
+  if (destino) params.set('resort', destino);
   if (entrada) params.set('entrada', entrada);
-  if (saida)   params.set('saida', saida);
+  if (saida) params.set('saida', saida);
   if (pessoas) params.set('hospedes', pessoas);
+  if (cliente) params.set('nome', cliente);
+  if (contato) params.set('contato', contato);
+  if (obs) params.set('obs', obs);
+  return getReservasUrlBase() + (params.toString() ? '?' + params.toString() : '');
+}
 
-  window.location.href = 'busca.html' + (params.toString() ? '?' + params.toString() : '');
+function buscarHospedagem() {
+  var destino = (document.getElementById('destinoHospedagem') || {}).value || '';
+  trackEvent('busca', { event_category: 'engajamento', event_label: 'hospedagem', destino: destino || 'todos' });
+  navigateTo(buildHospedagemBuscaUrl());
+}
+
+function buscarCota() {
+  var destino = (document.getElementById('cotaDestino') || {}).value || '';
+  var dormitorios = (document.getElementById('cotaDormitorios') || {}).value || '';
+  var semanas = (document.getElementById('cotaSemanas') || {}).value || '';
+  var temporada = (document.getElementById('cotaTemporada') || {}).value || '';
+  trackEvent('busca', { event_category: 'engajamento', event_label: 'cota', destino: destino || 'a definir' });
+  var op = document.getElementById('oportunidades');
+  if (op) op.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  openWhatsApp('cota', destino, dormitorios, semanas, temporada);
+}
+
+function abrirChatIA() {
+  trackEvent('ia_click', { event_category: 'engajamento' });
+  openExternalUrl(CONFIG.iaChatUrl);
+}
+
+function heroSearch() {
+  var resort = document.getElementById('hs_resort').value || '';
+  var entrada = document.getElementById('hs_entrada').value || '';
+  var saida = document.getElementById('hs_saida').value || '';
+  var pessoas = document.getElementById('hs_pessoas').value || '';
+  var params = new URLSearchParams();
+  if (resort) params.set('resort', resort);
+  if (entrada) params.set('entrada', entrada);
+  if (saida) params.set('saida', saida);
+  if (pessoas) params.set('hospedes', pessoas);
+  trackEvent('busca', { event_category: 'engajamento', event_label: 'hospedagem', destino: resort || 'todos' });
+  navigateTo(getReservasUrlBase() + (params.toString() ? '?' + params.toString() : ''));
 }
 
 // ============================================================
@@ -1818,46 +2201,16 @@ function enviarCadastroEmp(e) {
 }
 
 function buscar() {
-  var cliente = document.getElementById('clienteNome').value.trim();
-  var contato = document.getElementById('clienteContato').value.trim();
-  var entrada = document.getElementById('entrada').value;
-  var saida   = document.getElementById('saida').value;
-  var pessoas = document.getElementById('pessoas').value;
-  var dorm    = document.getElementById('filtroDorm').value;
-  var obs     = document.getElementById('clienteObs').value.trim();
-  var div     = document.getElementById('resultado');
-  if (!cliente || !contato) {
-    div.innerHTML = '<p style="margin-top:12px;color:#f87;font-size:13px;">⚠️ Preencha seu nome e WhatsApp antes de buscar.</p>';
-    return;
-  }
-  if (typeof fbq === 'function') fbq('track', 'Lead');
-  if (window.dataLayer) dataLayer.push({ event: 'busca_hospedagem' });
-  div.innerHTML = '<p style="margin-top:12px;color:#25D366;font-size:13px;">✅ Redirecionando para o WhatsApp...</p>';
-  var msg = encodeURIComponent(
-    'Olá! Gostaria de consultar disponibilidade:\n\n' +
-    '👤 Nome: '        + cliente + '\n' +
-    '📞 Contato: '     + contato + '\n' +
-    '📅 Entrada: '     + (entrada || 'A definir') + '\n' +
-    '📅 Saída: '       + (saida   || 'A definir') + '\n' +
-    '👥 Pessoas: '     + (pessoas || 'A definir') + '\n' +
-    '🛏️ Dormitórios: ' + (dorm    || 'Qualquer')  + '\n' +
-    (obs ? '📝 Observações: ' + obs + '\n' : '') +
-    getUtmSuffix()
-  );
-  var waBuscarUrl = 'https://wa.me/5517982006382?text=' + msg;
-  /* Abre na mesma chamada do clique — setTimeout bloqueia o popup no navegador */
-  var waBuscarWin = window.open(waBuscarUrl, '_blank');
-  if (!waBuscarWin) {
-    window.location.href = waBuscarUrl;
-  }
+  buscarHospedagem();
 }
 function consultar(nome, preco) {
   var cliente = document.getElementById('clienteNome').value.trim();
   var contato = document.getElementById('clienteContato').value.trim();
-  var entrada = document.getElementById('entrada').value;
-  var saida   = document.getElementById('saida').value;
+  var entrada = (document.getElementById('checkin') || document.getElementById('entrada')).value;
+  var saida   = (document.getElementById('checkout') || document.getElementById('saida')).value;
   var pessoas = document.getElementById('pessoas').value;
-  var dorm    = document.getElementById('filtroDorm').value;
+  var dormEl  = document.getElementById('filtroDorm') || document.getElementById('cotaDormitorios');
+  var dorm    = dormEl ? dormEl.value : '';
   if (!cliente || !contato) { alert('Preencha seu nome e WhatsApp.'); return; }
 
   // ✅ Evento de conversão Meta Pixel
