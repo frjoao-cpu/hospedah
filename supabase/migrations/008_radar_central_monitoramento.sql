@@ -569,3 +569,13 @@ create trigger radar_capturas_touch
 before update on public.radar_capturas
 for each row
 execute function public.radar_touch_atualizado_em();
+
+
+-- ============================================================
+-- 10. SCHEMA CACHE — PostgREST
+--     Sem o reload, as colunas novas continuam invisíveis
+--     para a API e o insert falha com PGRST204
+--     ("Could not find the 'x' column ... in the schema
+--     cache").
+-- ============================================================
+notify pgrst, 'reload schema';

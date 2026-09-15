@@ -178,6 +178,56 @@ function migrationDe(tabela: string): string {
 }
 
 
+// Colunas adicionadas pela migration 008 em
+// radar_oportunidades. Se o banco ainda está na 007 (ou o
+// schema cache do PostgREST não foi recarregado), a gravação
+// é refeita sem elas em vez de falhar a análise inteira.
+const COLUNAS_008_OPORTUNIDADES = [
+    "alvo_id",
+    "captura_id",
+    "motivo_selecao",
+    "negociacao_status",
+];
+
+
+// PGRST204: "Could not find the 'x' column of 'y' in the
+// schema cache". 42703: 'column "x" of relation "y" does not
+// exist'.
+function ehColunaAusente(e: unknown): boolean {
+    const err = e as { code?: string; message?: string };
+
+    const code = String(err?.code || "");
+    const msg = String(err?.message || "");
+
+    return code === "42703" ||
+        code === "PGRST204" ||
+        /could not find the .+ column/i.test(msg) ||
+        /column .+ does not exist/i.test(msg);
+}
+
+
+function colunaAusente(msg: string): string | null {
+    const m = msg.match(/'([^']+)' column/i) ||
+        msg.match(/column "([^"]+)"/i);
+
+    return m ? m[1] : null;
+}
+
+
+// Cópia do registro sem as colunas da migration 008.
+function semColunas008(
+    registro: Record<string, unknown>,
+): Record<string, unknown> {
+    const copia = { ...registro };
+
+    for (const coluna of COLUNAS_008_OPORTUNIDADES) {
+        delete copia[coluna];
+    }
+
+    return copia;
+}
+
+
 // Traduz erros do PostgREST/Postgres em mensagens acionáveis
 // (a causa mais comum do antigo "Erro interno" era a migration
 // não aplicada ou RLS).
@@ -189,6 +239,24 @@ function erroBanco(e: unknown, tabela: string): AppError {
 
     const migration = migrationDe(tabela);
 
+    // A checagem de coluna vem antes da de tabela: o erro 42703
+    // ("column ... does not exist") também casa com /does not
+    // exist/ e cairia na mensagem errada.
+    if (ehColunaAusente(e)) {
+        const coluna = colunaAusente(msg);
+
+        return new AppError(
+            "Estrutura da tabela " + tabela +
+                " desatualizada" +
+                (coluna ? " (coluna " + coluna + " ausente)" :
+                    " (coluna ausente)") +
+                ". Reaplique a migration " + migration +
+                " e recarregue o schema cache do PostgREST " +
+                "(notify pgrst, 'reload schema').",
+            500,
+        );
+    }
+
     if (
         code === "42P01" ||
         code === "PGRST205" ||
@@ -198,15 +266,6 @@ function erroBanco(e: unknown, tabela: string): AppError {
             "Tabela " + tabela +
                 " não encontrada no banco. " +
                 "Aplique a migration " + migration + ".",
-            500,
-        );
-    }
-
-    if (code === "42703") {
-        return new AppError(
-            "Estrutura da tabela " + tabela +
-                " desatualizada (coluna ausente). " +
-                "Reaplique a migration " + migration + ".",
             500,
         );
     }
@@ -593,11 +652,27 @@ async function gravarOportunidade(
     ai: Record<string, unknown>,
     modelo: string,
 ) {
-    const { data: opp, error: e1 } = await supabase
+    let { data: opp, error: e1 } = await supabase
         .from("radar_oportunidades")
         .insert(registro)
         .select()
         .single();
+
+    // Banco ainda sem as colunas da 008 (ou schema cache
+    // desatualizado): grava o essencial em vez de perder a
+    // análise já paga ao Gemini.
+    if (e1 && ehColunaAusente(e1)) {
+        console.error(
+            "[radar-ia] coluna ausente em radar_oportunidades:",
+            e1,
+        );
+
+        ({ data: opp, error: e1 } = await supabase
+            .from("radar_oportunidades")
+            .insert(semColunas008(registro))
+            .select()
+            .single());
+    }
 
     if (e1) throw erroBanco(e1, "radar_oportunidades");
 
@@ -1038,12 +1113,27 @@ Deno.serve(async (req) => {
             delete registro.status;
             delete registro.negociacao_status;
 
-            const { data: opp, error: eUp } = await supabase
+            let { data: opp, error: eUp } = await supabase
                 .from("radar_oportunidades")
                 .update(registro)
                 .eq("id", id)
                 .select()
                 .single();
+
+            if (eUp && ehColunaAusente(eUp)) {
+                console.error(
+                    "[radar-ia] coluna ausente em " +
+                        "radar_oportunidades:",
+                    eUp,
+                );
+
+                ({ data: opp, error: eUp } = await supabase
+                    .from("radar_oportunidades")
+                    .update(semColunas008(registro))
+                    .eq("id", id)
+                    .select()
+                    .single());
+            }
 
             if (eUp) throw erroBanco(eUp, "radar_oportunidades");
 
