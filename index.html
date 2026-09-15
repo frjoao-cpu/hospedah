@@ -210,11 +210,97 @@
 .score-op-price { font-size:1.05rem; color:#8a6704 !important; font-weight:800; }
 .resort-maps { display:inline-flex; align-items:center; text-decoration:none; background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.28); color:var(--gold-light,#F4D77A); padding:6px 11px; border-radius:999px; font-size:12px; font-weight:800; line-height:1; backdrop-filter:blur(6px); margin-bottom:10px; }
 .resort-maps:hover { background:rgba(255,255,255,.28); }
+/* ── DROPDOWN MAIS ── */
+.nav-dropdown-wrap { position:relative; }
+.nav-more-btn {
+  background:none; border:none; color:rgba(232,234,240,.85); font-family:inherit; font-size:.84em; font-weight:500;
+  padding:6px 14px; border-radius:20px; border:1px solid rgba(212,175,55,.18); cursor:pointer;
+  transition:background .2s, color .2s, border-color .2s, box-shadow .2s;
+}
+.nav-more-btn:hover { background:rgba(212,175,55,.15); color:#D4AF37; border-color:rgba(212,175,55,.45); }
+.nav-dropdown {
+  display:none; position:absolute; top:100%; right:0; min-width:220px; margin-top:8px;
+  background:rgba(11,28,61,.97); border:1px solid rgba(212,175,55,.25); border-radius:14px;
+  padding:8px 0; list-style:none; box-shadow:0 12px 40px rgba(0,0,0,.4); backdrop-filter:blur(12px); z-index:1001;
+}
+.nav-dropdown.open { display:block; }
+.nav-dropdown li a {
+  display:block; padding:10px 18px; color:rgba(232,234,240,.9); text-decoration:none; font-size:.86em;
+  transition:background .15s, color .15s;
+}
+.nav-dropdown li a:hover { background:rgba(212,175,55,.12); color:#D4AF37; }
+html[data-theme="light"] .nav-more-btn { color:rgba(11,28,61,.85); border-color:rgba(11,28,61,.12); }
+html[data-theme="light"] .nav-dropdown { background:rgba(255,255,255,.98); border-color:rgba(11,28,61,.12); }
+html[data-theme="light"] .nav-dropdown li a { color:#172033; }
+/* ── DESIGN SYSTEM: BOTÕES PREMIUM ── */
+.btn,
+.btn-gold,
+.btn-painel,
+.hs-btn,
+.orc-btn-next,
+.orc-btn-submit,
+.calc-cta-btn,
+.dif-cta,
+.emocional-cta,
+.como-cta,
+.ep-btn,
+.btn-cookie-accept,
+.btn-multi-accept {
+  font-family:'Poppins',sans-serif;
+  font-weight:700;
+  letter-spacing:.02em;
+  border-radius:12px;
+  transition:transform .15s ease, box-shadow .15s ease, background .2s ease;
+}
+
+.btn-gold,
+.hs-btn,
+.orc-btn-next,
+.orc-btn-submit,
+.calc-cta-btn,
+.dif-cta,
+.ep-btn,
+.btn-cookie-accept,
+.btn-multi-accept {
+  background:linear-gradient(135deg,#F5D060 0%,#D4AF37 45%,#b8961e 100%);
+  color:#0B1C3D;
+  border:none;
+  box-shadow:0 4px 20px rgba(212,175,55,.25);
+}
+
+.btn-gold:hover,
+.hs-btn:hover,
+.orc-btn-next:hover,
+.orc-btn-submit:hover,
+.calc-cta-btn:hover,
+.dif-cta:hover,
+.ep-btn:hover,
+.btn-cookie-accept:hover,
+.btn-multi-accept:hover {
+  transform:translateY(-2px);
+  box-shadow:0 8px 30px rgba(212,175,55,.4);
+}
+
+.btn-gold:active,
+.hs-btn:active,
+.orc-btn-next:active,
+.orc-btn-submit:active,
+.calc-cta-btn:active,
+.dif-cta:active,
+.ep-btn:active,
+.btn-cookie-accept:active,
+.btn-multi-accept:active {
+  transform:translateY(0);
+}
 @media (max-width: 900px) {
   #mainNav { display:none; position:absolute; top:76px; left:0; right:0; padding:15px; background:#fff; flex-direction:column; box-shadow:0 18px 50px rgba(11,28,61,.10); z-index:30; }
   #mainNav.nav-open { display:flex; }
   #mainNav li { list-style:none; }
   #mainNav a { color:#172033; }
+  .nav-dropdown-wrap { width:100%; }
+  .nav-more-btn { width:100%; color:#172033; }
+  .nav-dropdown { position:static; right:auto; min-width:0; width:100%; margin-top:8px; box-shadow:none; background:rgba(11,28,61,.06); border-color:rgba(11,28,61,.1); }
+  .nav-dropdown li a { color:#172033; }
   .score-how-pillars, .score-how-op-grid, .score-how-owner-grid { grid-template-columns:1fr; }
   .score-how-search-grid { grid-template-columns:1fr; }
   .score-how-bands { grid-template-columns:1fr 1fr; }
@@ -300,14 +386,23 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <li><a href="#topo" data-i18n="nav.home">🏠 Início</a></li>
     <li><a href="busca.html" data-i18n="nav.search">🔍 Buscar</a></li>
     <li><a href="reservas.html" data-i18n="nav.reserve">📅 Reservar</a></li>
-    <li><a href="avaliacoes.html" data-i18n="nav.reviews">⭐ Avaliações</a></li>
+    <li><a href="#oportunidades">🔥 Oportunidades</a></li>
     <li><a href="#orcamento" data-i18n="nav.budget">💰 Orçamento</a></li>
-    <li><a href="/portal/index.html" data-i18n="nav.account">👤 Minha Conta</a></li>
-    <li><a href="chat.html" data-i18n="nav.chat">🤖 Chat IA</a></li>
-    <li><a href="referral.html" data-i18n="nav.referral">🎁 Indicar</a></li>
-    <li><a href="jornal.html" data-i18n="nav.news">📰 Jornal</a></li>
-    <li><a href="#galeria">🖼️ Galeria</a></li>
-    <li><a href="#multi">💎 Gestão | Multipropriedades</a></li>
+    <li class="nav-dropdown-wrap">
+      <button type="button" class="nav-more-btn" id="navMoreBtn" aria-expanded="false" aria-haspopup="true" aria-controls="navMoreMenu">
+        Mais ▾
+      </button>
+      <ul class="nav-dropdown" id="navMoreMenu" role="menu">
+        <li><a href="avaliacoes.html" role="menuitem">⭐ Avaliações</a></li>
+        <li><a href="/portal/index.html" role="menuitem">👤 Minha Conta</a></li>
+        <li><a href="chat.html" role="menuitem">🤖 Chat IA</a></li>
+        <li><a href="referral.html" role="menuitem">🎁 Indicar</a></li>
+        <li><a href="jornal.html" role="menuitem">📰 Jornal</a></li>
+        <li><a href="#galeria" role="menuitem">🖼️ Galeria</a></li>
+        <li><a href="#multi" role="menuitem">💎 Gestão | Multipropriedades</a></li>
+        <li><a href="#faq" role="menuitem">❓ FAQ</a></li>
+      </ul>
+    </li>
   </ul>
 
   <div class="nav-right">
@@ -331,6 +426,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   <a href="reservas.html"   onclick="closeDrawer()" data-i18n="nav.reserve">📅 Reservar</a>
   <a href="avaliacoes.html" onclick="closeDrawer()" data-i18n="nav.reviews">⭐ Avaliações</a>
   <a href="#orcamento"      onclick="closeDrawer()" data-i18n="nav.budget">💰 Orçamento</a>
+  <a href="#oportunidades"  onclick="closeDrawer()">🔥 Oportunidades</a>
   <a href="/portal/index.html" onclick="closeDrawer()" data-i18n="nav.account">👤 Minha Conta</a>
   <a href="chat.html"       onclick="closeDrawer()" data-i18n="nav.chat">🤖 Chat IA</a>
   <a href="referral.html"   onclick="closeDrawer()" data-i18n="nav.referral">🎁 Indicar</a>
@@ -1347,43 +1443,36 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   <h2 id="titulo-oportunidades" class="section-title">🔥 Oportunidades de cota no Radar</h2>
   <div class="score-how-op-grid">
     <article class="score-op-card">
-      <img src="https://i.imgur.com/AmFSwwd.jpeg" alt="Cota de multipropriedade no Hot Beach Suítes, Olímpia SP" loading="lazy" decoding="async" width="640" height="420">
+      <img src="https://i.imgur.com/iDMQ2XA.jpeg" alt="Cota de multipropriedade no Wyndham Royal Olímpia, Olímpia SP" loading="lazy" decoding="async" width="640" height="420">
       <div class="score-op-body">
-        <h3>Hot Beach Suítes <small>Score 92</small></h3>
-        <p>Olímpia/SP · 2 dormitórios · 1 semana alta temporada</p>
-        <p class="score-op-price">R$ XXX.XXX</p>
-        <a class="resort-maps" href="https://www.google.com/maps/search/?api=1&query=Hot+Beach+Su%C3%ADtes+Ol%C3%ADmpia+SP" target="_blank" rel="noopener">📍 Como chegar</a>
-        <button type="button" class="btn btn-gold" onclick="openWhatsApp('oportunidade','Hot Beach Suítes','92')">Ver oportunidade</button>
+        <h3>Wyndham Royal Olímpia</h3>
+        <p>Olímpia/SP · 1 dormitório · até 5 pessoas · 4 semanas</p>
+        <p>Propriedade hereditária · Quitada ✅ · Próximo ao Thermas dos Laranjais 🎢</p>
+        <p class="score-op-price">R$ 40.000</p>
+        <a class="resort-maps" href="https://www.google.com/maps/search/?api=1&query=Wyndham+Royal+Ol%C3%ADmpia+SP" target="_blank" rel="noopener">📍 Como chegar</a>
+        <button type="button" class="btn btn-gold" onclick="openWhatsApp('oportunidade','Wyndham Royal Olímpia — 1 dormitório até 5 pessoas (4 semanas, R$ 40.000)','—')">Ver oportunidade</button>
       </div>
     </article>
     <article class="score-op-card">
       <img src="https://i.imgur.com/pyEKOtQ.jpeg" alt="Cota de multipropriedade no São Pedro Thermas Resort, São Pedro SP" loading="lazy" decoding="async" width="640" height="420">
       <div class="score-op-body">
-        <h3>São Pedro Thermas <small>Score 88</small></h3>
-        <p>São Pedro/SP · 2 dormitórios · 1 semana média temporada</p>
-        <p class="score-op-price">R$ XXX.XXX</p>
+        <h3>São Pedro Thermas Resort</h3>
+        <p>São Pedro/SP · 1 dormitório · 2º andar · Vista parque aquático 🎢 · 2 semanas (01 Altíssima / 01 Alta / 02 Média)</p>
+        <p>Propriedade hereditária · Quitada ✅ · Acesso livre ao parque aquático 🎢</p>
+        <p class="score-op-price">R$ 48.000</p>
         <a class="resort-maps" href="https://www.google.com/maps/search/?api=1&query=S%C3%A3o+Pedro+Thermas+Resort+S%C3%A3o+Pedro+SP" target="_blank" rel="noopener">📍 Como chegar</a>
-        <button type="button" class="btn btn-gold" onclick="openWhatsApp('oportunidade','São Pedro Thermas','88')">Ver oportunidade</button>
+        <button type="button" class="btn btn-gold" onclick="openWhatsApp('oportunidade','São Pedro Thermas Resort — 1 dormitório 2º andar vista parque (2 semanas, R$ 48.000)','—')">Ver oportunidade</button>
       </div>
     </article>
     <article class="score-op-card">
-      <img src="https://i.imgur.com/iDMQ2XA.jpeg" alt="Cota de multipropriedade no Wyndham Gramado, Rio Grande do Sul" loading="lazy" decoding="async" width="640" height="420">
+      <img src="https://i.imgur.com/AseZPzL.jpeg" alt="Cota de multipropriedade no Olímpia Park Resort, Olímpia SP" loading="lazy" decoding="async" width="640" height="420">
       <div class="score-op-body">
-        <h3>Wyndham Gramado <small>Score 85</small></h3>
-        <p>Gramado/RS · 1 dormitório · 1 semana alta temporada</p>
-        <p class="score-op-price">R$ XXX.XXX</p>
-        <a class="resort-maps" href="https://www.google.com/maps/search/?api=1&query=Wyndham+Gramado+RS" target="_blank" rel="noopener">📍 Como chegar</a>
-        <button type="button" class="btn btn-gold" onclick="openWhatsApp('oportunidade','Wyndham Gramado','85')">Ver oportunidade</button>
-      </div>
-    </article>
-    <article class="score-op-card">
-      <img src="https://i.imgur.com/o4Esa54.jpg" alt="Cota de multipropriedade no Ipioca Beach Residence, Maceió AL" loading="lazy" decoding="async" width="640" height="420">
-      <div class="score-op-body">
-        <h3>Ipioca Beach Residence <small>Score 81</small></h3>
-        <p>Maceió/AL · 2 dormitórios · 2 semanas média temporada</p>
-        <p class="score-op-price">R$ XXX.XXX</p>
-        <a class="resort-maps" href="https://www.google.com/maps/search/?api=1&query=Ipioca+Beach+Residence+Macei%C3%B3+AL" target="_blank" rel="noopener">📍 Como chegar</a>
-        <button type="button" class="btn btn-gold" onclick="openWhatsApp('oportunidade','Ipioca Beach Residence','81')">Ver oportunidade</button>
+        <h3>Olímpia Park Resort</h3>
+        <p>Olímpia/SP · 1 dormitório · Vista piscina 🏊 · 4 semanas — 28 dias</p>
+        <p>Propriedade hereditária · Quitada ✅ · Próximo ao Thermas dos Laranjais 🎢</p>
+        <p class="score-op-price">R$ 22.000</p>
+        <a class="resort-maps" href="https://www.google.com/maps/search/?api=1&query=Ol%C3%ADmpia+Park+Resort+Ol%C3%ADmpia+SP" target="_blank" rel="noopener">📍 Como chegar</a>
+        <button type="button" class="btn btn-gold" onclick="openWhatsApp('oportunidade','Olímpia Park Resort — 1 dormitório vista piscina (4 semanas, R$ 22.000)','—')">Ver oportunidade</button>
       </div>
     </article>
     <article class="score-op-card">
@@ -1398,14 +1487,14 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       </div>
     </article>
     <article class="score-op-card">
-      <img src="https://i.imgur.com/AmFSwwd.jpeg" alt="Cota de multipropriedade no Hot Beach Suítes, Olímpia SP" loading="lazy" decoding="async" width="640" height="420">
+      <img src="https://i.imgur.com/o4Esa54.jpg" alt="Cota de multipropriedade no Ipioca Beach Park Maceió, Maceió AL" loading="lazy" decoding="async" width="640" height="420">
       <div class="score-op-body">
-        <h3>Hot Beach Suítes</h3>
-        <p>Olímpia/SP · 1 dormitório · Vista pôr do sol 🌅 · 1 semana média temporada</p>
-        <p>Propriedade hereditária · Quitada ✅ · Acesso livre ao parque aquático 🎢</p>
-        <p class="score-op-price">R$ 17.000</p>
-        <a class="resort-maps" href="https://www.google.com/maps/search/?api=1&query=Hot+Beach+Su%C3%ADtes+Ol%C3%ADmpia+SP" target="_blank" rel="noopener">📍 Como chegar</a>
-        <button type="button" class="btn btn-gold" onclick="openWhatsApp('oportunidade','Hot Beach Suítes — 1 dormitório vista pôr do sol (1 semana, R$ 17.000)','—')">Ver oportunidade</button>
+        <h3>Ipioca Beach Park Maceió</h3>
+        <p>Maceió/AL · 1 dormitório · 4 adultos + 1 criança até 11 anos · 2 semanas</p>
+        <p>Propriedade hereditária · Quitada ✅</p>
+        <p class="score-op-price">R$ 42.000</p>
+        <a class="resort-maps" href="https://www.google.com/maps/search/?api=1&query=Ipioca+Beach+Park+Macei%C3%B3+AL" target="_blank" rel="noopener">📍 Como chegar</a>
+        <button type="button" class="btn btn-gold" onclick="openWhatsApp('oportunidade','Ipioca Beach Park Maceió — 1 dormitório 4 adultos + 1 criança (2 semanas, R$ 42.000)','—')">Ver oportunidade</button>
       </div>
     </article>
   </div>
@@ -1835,6 +1924,10 @@ var navOverlay = document.getElementById('navOverlay');
 
 function closeDrawer() {
   if (mainNav) mainNav.classList.remove('nav-open');
+  var navMoreBtn = document.getElementById('navMoreBtn');
+  var navMoreMenu = document.getElementById('navMoreMenu');
+  if (navMoreMenu) navMoreMenu.classList.remove('open');
+  if (navMoreBtn) navMoreBtn.setAttribute('aria-expanded', 'false');
   if (hamburger) {
     hamburger.setAttribute('aria-expanded', 'false');
     hamburger.setAttribute('aria-label', 'Abrir menu');
@@ -1865,6 +1958,33 @@ document.querySelectorAll('#mainNav a').forEach(function (link) {
 document.addEventListener('keydown', function (event) {
   if (event.key === 'Escape') closeDrawer();
 });
+
+/* ── DROPDOWN MAIS ── */
+(function () {
+  var btn = document.getElementById('navMoreBtn');
+  var menu = document.getElementById('navMoreMenu');
+  if (!btn || !menu) return;
+
+  btn.addEventListener('click', function (e) {
+    e.stopPropagation();
+    var open = menu.classList.toggle('open');
+    btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+  });
+
+  document.addEventListener('click', function (e) {
+    if (!menu.contains(e.target) && e.target !== btn) {
+      menu.classList.remove('open');
+      btn.setAttribute('aria-expanded', 'false');
+    }
+  });
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') {
+      menu.classList.remove('open');
+      btn.setAttribute('aria-expanded', 'false');
+    }
+  });
+})();
 
 
 /* =====================
