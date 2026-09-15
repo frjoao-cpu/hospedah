@@ -1,0 +1,1619 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>HOSPEDAH • Radar IA</title>
+<meta name="description" content="Radar de oportunidades em multipropriedades da HOSPEDAH">
+
+<style>
+:root{
+  --navy:#0B1C3D;
+  --navy2:#142850;
+  --gold:#D4AF37;
+  --gold2:#FFD700;
+  --bg:#F5F7FB;
+  --card:#FFFFFF;
+  --text:#172033;
+  --muted:#667085;
+  --line:#E5E7EB;
+  --green:#138A5B;
+  --red:#C83B4A;
+}
+
+*{
+  box-sizing:border-box;
+}
+
+body{
+  margin:0;
+  font-family:Inter,Arial,sans-serif;
+  background:var(--bg);
+  color:var(--text);
+}
+
+header{
+  background:linear-gradient(135deg,var(--navy),#102B5E);
+  color:#fff;
+  padding:22px 5%;
+  position:sticky;
+  top:0;
+  z-index:10;
+  box-shadow:0 5px 25px #0002;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+  flex-wrap:wrap;
+}
+
+.brand{
+  display:flex;
+  align-items:center;
+  gap:14px;
+}
+
+.logo{
+  width:48px;
+  height:48px;
+  border:2px solid var(--gold);
+  border-radius:14px;
+  display:grid;
+  place-items:center;
+  color:var(--gold);
+  font-size:24px;
+  font-weight:800;
+}
+
+.brand h1{
+  font-size:21px;
+  margin:0;
+}
+
+.brand small{
+  opacity:.7;
+}
+
+.container{
+  max-width:1450px;
+  margin:auto;
+  padding:28px 5%;
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:1.05fr 1.95fr;
+  gap:22px;
+}
+
+.card{
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:20px;
+  padding:22px;
+  box-shadow:0 8px 30px #1020400a;
+}
+
+h2{
+  margin:0 0 16px;
+  font-size:19px;
+}
+
+.sub{
+  color:var(--muted);
+  font-size:13px;
+  margin-top:-8px;
+  margin-bottom:18px;
+}
+
+label{
+  display:block;
+  font-size:12px;
+  font-weight:700;
+  margin:13px 0 6px;
+  color:#344054;
+}
+
+input,
+textarea,
+select{
+  width:100%;
+  border:1px solid #D9DEE8;
+  border-radius:12px;
+  padding:12px;
+  font:inherit;
+  background:#fff;
+  outline:none;
+}
+
+input:focus,
+textarea:focus,
+select:focus{
+  border-color:var(--gold);
+}
+
+textarea{
+  min-height:190px;
+  resize:vertical;
+}
+
+.btn{
+  border:0;
+  border-radius:12px;
+  padding:12px 16px;
+  font-weight:800;
+  cursor:pointer;
+}
+
+.primary{
+  background:var(--gold);
+  color:#111;
+}
+
+.dark{
+  background:var(--navy);
+  color:#fff;
+}
+
+.light{
+  background:#EEF2F7;
+  color:var(--navy);
+}
+
+.danger{
+  background:#FFF0F1;
+  color:var(--red);
+}
+
+.success{
+  background:#EAF8F1;
+  color:var(--green);
+}
+
+.actions{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  margin-top:15px;
+}
+
+.stats{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:12px;
+  margin-bottom:22px;
+}
+
+.stat{
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:16px;
+  padding:15px;
+}
+
+.stat b{
+  font-size:25px;
+  display:block;
+  color:var(--navy);
+}
+
+.stat span{
+  font-size:12px;
+  color:var(--muted);
+}
+
+.toolbar{
+  display:grid;
+  grid-template-columns:1fr 160px 170px 150px 140px;
+  gap:10px;
+  margin-bottom:14px;
+}
+
+.list{
+  display:grid;
+  gap:12px;
+}
+
+.opp{
+  border:1px solid var(--line);
+  border-radius:16px;
+  padding:16px;
+  background:#fff;
+  cursor:pointer;
+}
+
+.opp:hover{
+  border-color:#C8A62F;
+}
+
+.opp-top{
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+}
+
+.opp-title{
+  font-weight:800;
+  color:var(--navy);
+}
+
+.badge{
+  font-size:11px;
+  font-weight:800;
+  padding:5px 8px;
+  border-radius:999px;
+  background:#EEF2F7;
+  white-space:nowrap;
+}
+
+.badge.aprovada{
+  background:#EAF8F1;
+  color:var(--green);
+}
+
+.badge.descartada{
+  background:#FFF0F1;
+  color:var(--red);
+}
+
+.score{
+  color:var(--green);
+  font-weight:900;
+}
+
+.meta{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  margin-top:9px;
+  color:#596579;
+  font-size:12px;
+}
+
+.empty{
+  padding:35px;
+  text-align:center;
+  color:var(--muted);
+  border:1px dashed #CDD4DF;
+  border-radius:16px;
+}
+
+.result{
+  margin-top:18px;
+  border:1px solid #DFE4EC;
+  border-radius:16px;
+  padding:17px;
+  background:#FBFCFE;
+}
+
+.result h3{
+  margin:0 0 8px;
+  color:var(--navy);
+}
+
+.kv{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:9px;
+}
+
+.kv div{
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:10px;
+  padding:9px;
+}
+
+.kv small{
+  display:block;
+  color:var(--muted);
+  font-size:10px;
+}
+
+.kv strong{
+  font-size:13px;
+}
+
+#login{
+  position:fixed;
+  inset:0;
+  background:linear-gradient(135deg,var(--navy),#183B78);
+  display:grid;
+  place-items:center;
+  z-index:99;
+}
+
+.loginbox{
+  background:#fff;
+  width:min(420px,92vw);
+  padding:28px;
+  border-radius:22px;
+}
+
+.hidden{
+  display:none!important;
+}
+
+.notice{
+  padding:12px 14px;
+  border-radius:12px;
+  font-size:12px;
+  margin:10px 0;
+}
+
+.notice.warn{
+  background:#FFF8DF;
+  color:#705500;
+}
+
+.notice.ok{
+  background:#EAF8F1;
+  color:#126441;
+}
+
+pre{
+  white-space:pre-wrap;
+  background:#101828;
+  color:#E6EDF5;
+  padding:14px;
+  border-radius:12px;
+  font-size:11px;
+  max-height:300px;
+  overflow:auto;
+}
+
+@media(max-width:950px){
+
+  .grid{
+    grid-template-columns:1fr;
+  }
+
+  .stats{
+    grid-template-columns:repeat(2,1fr);
+  }
+
+  .toolbar{
+    grid-template-columns:1fr 1fr;
+  }
+
+  .toolbar input{
+    grid-column:1/-1;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div id="login">
+
+  <form class="loginbox" onsubmit="login(event)">
+
+    <h2>HOSPEDAH • Radar IA</h2>
+
+    <p class="sub">
+      Acesso administrativo
+    </p>
+
+    <label for="email">E-mail</label>
+
+    <input
+      id="email"
+      type="email"
+      autocomplete="username"
+      placeholder="seu e-mail"
+    >
+
+    <label for="password">Senha</label>
+
+    <input
+      id="password"
+      type="password"
+      autocomplete="current-password"
+      placeholder="••••••••"
+    >
+
+    <button
+      class="btn primary"
+      style="width:100%;margin-top:16px"
+      type="submit"
+    >
+      ENTRAR NO RADAR
+    </button>
+
+    <div id="loginMsg"></div>
+
+  </form>
+
+</div>
+
+<header>
+
+  <div class="brand">
+
+    <div class="logo">
+      H
+    </div>
+
+    <div>
+
+      <h1>
+        HOSPEDAH • RADAR IA
+      </h1>
+
+      <small>
+        Inteligência para Multipropriedades
+      </small>
+
+    </div>
+
+  </div>
+
+  <button
+    class="btn light"
+    onclick="logout()"
+  >
+    SAIR
+  </button>
+
+</header>
+
+<main class="container">
+
+  <div class="stats">
+
+    <div class="stat">
+      <b id="sTotal">0</b>
+      <span>Total de oportunidades</span>
+    </div>
+
+    <div class="stat">
+      <b id="sExceptional">0</b>
+      <span>Excepcionais (90+)</span>
+    </div>
+
+    <div class="stat">
+      <b id="sHigh">0</b>
+      <span>Alta oportunidade (70+)</span>
+    </div>
+
+    <div class="stat">
+      <b id="sValidate">0</b>
+      <span>Aguardando validação</span>
+    </div>
+
+  </div>
+
+  <div class="grid">
+
+    <section class="card">
+
+      <h2>
+        🤖 Nova captura
+      </h2>
+
+      <p class="sub">
+        Cole uma publicação, mensagem ou anúncio.
+        A IA transforma o conteúdo em uma oportunidade estruturada.
+      </p>
+
+      <div class="notice warn">
+
+        Instagram/Facebook: esta versão está preparada
+        para receber conteúdo via API oficial/webhook.
+        Não faz scraping nem usa senha de rede social.
+
+      </div>
+
+      <label for="fonte">
+        Fonte
+      </label>
+
+      <select id="fonte">
+
+        <option>Manual</option>
+        <option>Instagram</option>
+        <option>Facebook</option>
+        <option>Site</option>
+        <option>WhatsApp</option>
+        <option>Indicação</option>
+
+      </select>
+
+      <label for="url">
+        URL original (opcional)
+      </label>
+
+      <input
+        id="url"
+        type="url"
+        placeholder="https://..."
+      >
+
+      <label for="conteudo">
+        Conteúdo da publicação / anúncio
+      </label>
+
+      <textarea
+        id="conteudo"
+        placeholder="Ex.: Ipioca Beach Maceió, 01 dormitório, 2 semanas, acomoda 4 adultos + 1 criança, cota quitada, hereditária, R$ 42.000..."
+      ></textarea>
+
+      <div class="actions">
+
+        <button
+          class="btn primary"
+          id="btnAnalisar"
+          onclick="analisar()"
+        >
+          ✨ ANALISAR COM IA
+        </button>
+
+        <button
+          class="btn light"
+          onclick="limpar()"
+        >
+          LIMPAR
+        </button>
+
+      </div>
+
+      <div id="result"></div>
+
+    </section>
+
+    <section class="card">
+
+      <h2>
+        📡 Oportunidades detectadas
+      </h2>
+
+      <p class="sub">
+        Ordenadas por potencial.
+        Clique em uma oportunidade para visualizar os dados.
+      </p>
+
+      <div class="toolbar">
+
+        <input
+          id="busca"
+          placeholder="Buscar resort, cidade, tipo, anunciante..."
+          oninput="render()"
+        >
+
+        <select
+          id="filtroStatus"
+          onchange="render()"
+        >
+
+          <option value="">
+            Todos os status
+          </option>
+
+          <option>
+            VALIDAR
+          </option>
+
+          <option>
+            APROVADA
+          </option>
+
+          <option>
+            DESCARTADA
+          </option>
+
+        </select>
+
+        <select
+          id="filtroEmp"
+          onchange="render()"
+        >
+
+          <option value="">
+            Todos empreendimentos
+          </option>
+
+        </select>
+
+        <select
+          id="filtroTipo"
+          onchange="render()"
+        >
+
+          <option value="">
+            Todos os tipos
+          </option>
+
+        </select>
+
+        <select
+          id="ordem"
+          onchange="render()"
+        >
+
+          <option value="score">
+            Maior score
+          </option>
+
+          <option value="periodo">
+            Período
+          </option>
+
+          <option value="recente">
+            Mais recente
+          </option>
+
+        </select>
+
+      </div>
+
+      <div id="lista" class="list"></div>
+
+    </section>
+
+  </div>
+
+</main>
+
+<script>
+
+const CONFIG={
+
+  supabaseUrl:
+    "https://ydrmjoppjxtmnwtvtinb.supabase.co",
+
+  supabaseAnonKey:
+    "COLE_AQUI_SUA_PUBLISHABLE_OU_ANON_KEY",
+
+  functionName:
+    "radar-ia"
+
+};
+
+const TOKEN_KEY=
+  "hospedah_radar_token";
+
+let token=
+  localStorage.getItem(TOKEN_KEY)||"";
+
+let oportunidades=[];
+
+
+function api(path,opts={}){
+
+  opts.headers=Object.assign({
+
+    "apikey":
+      CONFIG.supabaseAnonKey,
+
+    "Content-Type":
+      "application/json"
+
+  },opts.headers||{});
+
+  if(token){
+
+    opts.headers.Authorization=
+      "Bearer "+token;
+
+  }
+
+  return fetch(
+    CONFIG.supabaseUrl+path,
+    opts
+  );
+
+}
+
+
+async function login(ev){
+
+  if(ev)
+
+    ev.preventDefault();
+
+  const msg=
+    document.getElementById("loginMsg");
+
+  msg.innerHTML="";
+
+  if(
+    CONFIG.supabaseAnonKey
+      .startsWith("COLE_")
+  ){
+
+    msg.innerHTML=
+      '<div class="notice warn">'+
+      'Configure primeiro a Publishable/Anon Key do Supabase no CONFIG.'+
+      '</div>';
+
+    return;
+
+  }
+
+  try{
+
+    const r=await fetch(
+
+      CONFIG.supabaseUrl+
+      "/auth/v1/token?grant_type=password",
+
+      {
+
+        method:"POST",
+
+        headers:{
+          "apikey":
+            CONFIG.supabaseAnonKey,
+
+          "Content-Type":
+            "application/json"
+        },
+
+        body:JSON.stringify({
+
+          email:
+            email.value,
+
+          password:
+            password.value
+
+        })
+
+      }
+
+    );
+
+    const d=
+      await r.json();
+
+    if(!r.ok)
+
+      throw new Error(
+        d.error_description||
+        d.msg||
+        "Falha no login"
+      );
+
+    token=
+      d.access_token;
+
+    localStorage.setItem(
+      TOKEN_KEY,
+      token
+    );
+
+    document
+      .getElementById("login")
+      .classList.add("hidden");
+
+    load();
+
+  }catch(e){
+
+    msg.innerHTML=
+      '<div class="notice warn">'+
+      esc(e.message)+
+      '</div>';
+
+  }
+
+}
+
+
+function logout(){
+
+  token="";
+
+  localStorage.removeItem(
+    TOKEN_KEY
+  );
+
+  location.reload();
+
+}
+
+
+function sessaoExpirada(){
+
+  token="";
+
+  localStorage.removeItem(
+    TOKEN_KEY
+  );
+
+  document
+    .getElementById("login")
+    .classList.remove("hidden");
+
+  document.getElementById(
+    "loginMsg"
+  ).innerHTML=
+
+    '<div class="notice warn">'+
+    'Sessão expirada. Entre novamente.'+
+    '</div>';
+
+}
+
+
+async function load(){
+
+  const r=await api(
+
+    "/rest/v1/radar_oportunidades"+
+    "?select=*"+
+    "&order=score_oportunidade.desc,criado_em.desc"+
+    "&limit=500"
+
+  );
+
+  if(r.status===401||r.status===403){
+
+    sessaoExpirada();
+
+    return;
+
+  }
+
+  if(r.ok)
+
+    oportunidades=
+      await r.json();
+
+  else
+
+    oportunidades=[];
+
+  popularFiltros();
+
+  render();
+
+  stats();
+
+}
+
+
+async function analisar(){
+
+  const content=
+    document
+      .getElementById("conteudo")
+      .value
+      .trim();
+
+  if(!content){
+
+    alert(
+      "Cole o conteúdo que deseja analisar."
+    );
+
+    return;
+
+  }
+
+  const btn=
+    document.getElementById(
+      "btnAnalisar"
+    );
+
+  btn.disabled=true;
+
+  const box=
+    document.getElementById("result");
+
+  box.innerHTML=
+    '<div class="notice ok">'+
+    '🤖 Analisando com a IA...'+
+    '</div>';
+
+  try{
+
+    const r=await api(
+
+      "/functions/v1/"+
+      CONFIG.functionName,
+
+      {
+
+        method:"POST",
+
+        body:JSON.stringify({
+
+          fonte:
+            fonte.value,
+
+          url_original:
+            url.value,
+
+          texto_original:
+            content
+
+        })
+
+      }
+
+    );
+
+    if(
+      r.status===401||
+      r.status===403
+    ){
+
+      sessaoExpirada();
+
+      return;
+
+    }
+
+    const d=
+      await r.json();
+
+    if(!r.ok)
+
+      throw new Error(
+        d.error||
+        d.message||
+        "Erro na função"
+      );
+
+    mostrarResultado(
+      d.oportunidade||d
+    );
+
+    await load();
+
+  }catch(e){
+
+    box.innerHTML=
+      '<div class="notice warn">'+
+      'Erro: '+
+      esc(e.message)+
+      '</div>';
+
+  }finally{
+
+    btn.disabled=false;
+
+  }
+
+}
+
+
+async function setStatus(id,status){
+
+  const r=await api(
+
+    "/rest/v1/radar_oportunidades"+
+    "?id=eq."+
+    encodeURIComponent(id),
+
+    {
+
+      method:"PATCH",
+
+      headers:{
+        "Prefer":"return=minimal"
+      },
+
+      body:JSON.stringify({
+        status:status
+      })
+
+    }
+
+  );
+
+  if(r.status===401||r.status===403){
+
+    sessaoExpirada();
+
+    return;
+
+  }
+
+  if(!r.ok){
+
+    alert(
+      "Não foi possível atualizar o status."
+    );
+
+    return;
+
+  }
+
+  await load();
+
+  document.getElementById(
+    "result"
+  ).innerHTML="";
+
+}
+
+
+function acoes(o){
+
+  if(!o.id)
+
+    return "";
+
+  if(o.status==="APROVADA")
+
+    return '<button class="btn danger" onclick="setStatus(\''+o.id+'\',\'DESCARTADA\')">DESCARTAR</button>';
+
+  if(o.status==="DESCARTADA")
+
+    return '<button class="btn success" onclick="setStatus(\''+o.id+'\',\'APROVADA\')">APROVAR</button>';
+
+  return (
+    '<button class="btn success" onclick="setStatus(\''+o.id+'\',\'APROVADA\')">APROVAR</button>'+
+    '<button class="btn danger" onclick="setStatus(\''+o.id+'\',\'DESCARTADA\')">DESCARTAR</button>'
+  );
+
+}
+
+
+function mostrarResultado(o){
+
+  const campos=[
+
+    [
+      "Empreendimento",
+      o.empreendimento
+    ],
+
+    [
+      "Tipo",
+      o.tipo_oportunidade
+    ],
+
+    [
+      "Período",
+      periodo(
+        o.periodo_inicio,
+        o.periodo_fim
+      )
+    ],
+
+    [
+      "Valor",
+      money(o.valor_anunciado)
+    ],
+
+    [
+      "Dormitórios",
+      o.dormitorios
+    ],
+
+    [
+      "Capacidade",
+      cap(o)
+    ],
+
+    [
+      "Local",
+      local(o)
+    ],
+
+    [
+      "Confiança",
+      o.score_confianca!=null
+        ?o.score_confianca+"%"
+        :""
+    ],
+
+    [
+      "Score oportunidade",
+      o.score_oportunidade??""
+    ],
+
+    [
+      "Status",
+      o.status
+    ]
+
+  ];
+
+  document.getElementById("result").innerHTML=
+
+    '<div class="result">'+
+
+    '<h3>Resultado da IA</h3>'+
+
+    '<div class="kv">'+
+
+    campos.map(x=>
+
+      '<div>'+
+      '<small>'+
+      x[0]+
+      '</small>'+
+      '<strong>'+
+      esc(
+        x[1]??"Não identificado"
+      )+
+      '</strong>'+
+      '</div>'
+
+    ).join("")+
+
+    '</div>'+
+
+    '<p><b>Resumo:</b> '+
+    esc(o.resumo_ia||"")+
+    '</p>'+
+
+    '<div class="actions">'+
+    acoes(o)+
+    '</div>'+
+
+    '<details>'+
+
+    '<summary>JSON estruturado</summary>'+
+
+    '<pre>'+
+    esc(
+      JSON.stringify(
+        o,
+        null,
+        2
+      )
+    )+
+    '</pre>'+
+
+    '</details>'+
+
+    '</div>';
+
+}
+
+
+function popularFiltros(){
+
+  const emp=
+    document.getElementById(
+      "filtroEmp"
+    );
+
+  const tipo=
+    document.getElementById(
+      "filtroTipo"
+    );
+
+  const empAtual=emp.value;
+  const tipoAtual=tipo.value;
+
+  const emps=[
+    ...new Set(
+      oportunidades
+        .map(o=>o.empreendimento)
+        .filter(Boolean)
+    )
+  ].sort();
+
+  const tipos=[
+    ...new Set(
+      oportunidades
+        .map(o=>o.tipo_oportunidade)
+        .filter(Boolean)
+    )
+  ].sort();
+
+  emp.innerHTML=
+    '<option value="">Todos empreendimentos</option>'+
+    emps.map(e=>
+      '<option>'+esc(e)+'</option>'
+    ).join("");
+
+  tipo.innerHTML=
+    '<option value="">Todos os tipos</option>'+
+    tipos.map(t=>
+      '<option>'+esc(t)+'</option>'
+    ).join("");
+
+  emp.value=empAtual;
+  tipo.value=tipoAtual;
+
+}
+
+
+function render(){
+
+  const q=
+    document
+      .getElementById("busca")
+      .value
+      .toLowerCase();
+
+  const st=
+    document
+      .getElementById("filtroStatus")
+      .value;
+
+  const fEmp=
+    document
+      .getElementById("filtroEmp")
+      .value;
+
+  const fTipo=
+    document
+      .getElementById("filtroTipo")
+      .value;
+
+  const ord=
+    document
+      .getElementById("ordem")
+      .value;
+
+  let a=
+    oportunidades
+
+      .filter(o=>
+        !st||
+        o.status===st
+      )
+
+      .filter(o=>
+        !fEmp||
+        o.empreendimento===fEmp
+      )
+
+      .filter(o=>
+        !fTipo||
+        o.tipo_oportunidade===fTipo
+      )
+
+      .filter(o=>
+        JSON
+          .stringify(o)
+          .toLowerCase()
+          .includes(q)
+      );
+
+  if(ord==="score")
+
+    a.sort((x,y)=>
+      (y.score_oportunidade||0)-
+      (x.score_oportunidade||0)
+    );
+
+  if(ord==="periodo")
+
+    a.sort((x,y)=>
+      (x.periodo_inicio||"9999")
+      .localeCompare(
+        y.periodo_inicio||"9999"
+      )
+    );
+
+  if(ord==="recente")
+
+    a.sort((x,y)=>
+      (y.criado_em||"")
+      .localeCompare(
+        x.criado_em||""
+      )
+    );
+
+  const el=
+    document.getElementById("lista");
+
+  if(!a.length){
+
+    el.innerHTML=
+      '<div class="empty">'+
+      'Nenhuma oportunidade encontrada.'+
+      '</div>';
+
+    return;
+
+  }
+
+  el.innerHTML=
+
+    a.map(o=>{
+
+      const idx=
+        oportunidades.indexOf(o);
+
+      const stClass=
+        (o.status==="APROVADA")
+          ?" aprovada"
+          :(o.status==="DESCARTADA")
+            ?" descartada"
+            :"";
+
+      return `
+
+      <div
+        class="opp"
+        data-idx="${idx}"
+      >
+
+        <div class="opp-top">
+
+          <div class="opp-title">
+            ${esc(
+              o.empreendimento||
+              "Empreendimento não identificado"
+            )}
+          </div>
+
+          <span class="badge${stClass}">
+            ${esc(
+              o.status||"VALIDAR"
+            )}
+          </span>
+
+        </div>
+
+        <div class="meta">
+
+          <span>
+            🎯
+            <b class="score">
+              ${o.score_oportunidade??0}
+            </b>
+          </span>
+
+          <span>
+            📅
+            ${esc(
+              periodo(
+                o.periodo_inicio,
+                o.periodo_fim
+              )
+            )}
+          </span>
+
+          <span>
+            💰
+            ${esc(
+              money(
+                o.valor_anunciado
+              )
+            )}
+          </span>
+
+          <span>
+            🏷️
+            ${esc(
+              o.tipo_oportunidade||""
+            )}
+          </span>
+
+        </div>
+
+        <div class="meta">
+
+          <span>
+            🛏️
+            ${esc(
+              o.dormitorios??"-"
+            )}
+            dorm.
+          </span>
+
+          <span>
+            👥
+            ${esc(cap(o))}
+          </span>
+
+          <span>
+            📍
+            ${esc(local(o))}
+          </span>
+
+          <span>
+            📲
+            ${esc(o.fonte||"")}
+          </span>
+
+        </div>
+
+      </div>
+
+    `;
+
+    }).join("");
+
+}
+
+
+function stats(){
+
+  document.getElementById(
+    "sTotal"
+  ).textContent=
+    oportunidades.length;
+
+  document.getElementById(
+    "sExceptional"
+  ).textContent=
+    oportunidades.filter(
+      o=>
+        (o.score_oportunidade||0)>=90
+    ).length;
+
+  document.getElementById(
+    "sHigh"
+  ).textContent=
+    oportunidades.filter(
+      o=>
+        (o.score_oportunidade||0)>=70
+    ).length;
+
+  document.getElementById(
+    "sValidate"
+  ).textContent=
+    oportunidades.filter(
+      o=>
+        o.status==="VALIDAR"
+    ).length;
+
+}
+
+
+function limpar(){
+
+  conteudo.value="";
+  url.value="";
+
+  document.getElementById(
+    "result"
+  ).innerHTML="";
+
+}
+
+
+function periodo(a,b){
+
+  if(!a&&!b)
+
+    return "Não identificado";
+
+  if(a&&b)
+
+    return fmt(a)+" → "+fmt(b);
+
+  return fmt(a||b);
+
+}
+
+
+function fmt(x){
+
+  try{
+
+    return new Date(
+      x+"T00:00:00"
+    ).toLocaleDateString(
+      "pt-BR"
+    );
+
+  }catch{
+
+    return x;
+
+  }
+
+}
+
+
+function money(x){
+
+  if(x==null||x==="")
+
+    return "Não informado";
+
+  return new Intl.NumberFormat(
+    "pt-BR",
+    {
+      style:"currency",
+      currency:"BRL"
+    }
+  ).format(
+    Number(x)
+  );
+
+}
+
+
+function cap(o){
+
+  let a=
+    o.capacidade_adultos;
+
+  let c=
+    o.capacidade_criancas;
+
+  if(a==null&&c==null)
+
+    return "Não informado";
+
+  return `${
+    a??"-"
+  } adultos + ${
+    c??"-"
+  } crianças`;
+
+}
+
+
+function local(o){
+
+  return [
+    o.cidade,
+    o.estado
+  ]
+  .filter(Boolean)
+  .join("/")||
+  "Não identificado";
+
+}
+
+
+function esc(x){
+
+  return String(
+    x??""
+  ).replace(
+    /[&<>"']/g,
+    m=>({
+
+      "&":"&amp;",
+      "<":"&lt;",
+      ">":"&gt;",
+      '"':"&quot;",
+      "'":"&#39;"
+
+    }[m])
+  );
+
+}
+
+
+document
+  .getElementById("lista")
+  .addEventListener(
+    "click",
+    function(ev){
+
+      const card=
+        ev.target.closest(
+          "[data-idx]"
+        );
+
+      if(!card)
+
+        return;
+
+      const o=
+        oportunidades[
+          Number(card.dataset.idx)
+        ];
+
+      if(o)
+
+        mostrarResultado(o);
+
+    }
+  );
+
+
+if(token){
+
+  document
+    .getElementById("login")
+    .classList
+    .add("hidden");
+
+  load();
+
+}
+
+</script>
+
+</body>
+</html>
