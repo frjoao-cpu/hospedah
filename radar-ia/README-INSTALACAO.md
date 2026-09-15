@@ -94,6 +94,16 @@ O modelo pode ser alterado pelo secret:
 
 GEMINI_MODEL
 
+Modelos alternativos, tentados
+automaticamente (em ordem) quando o
+modelo principal está indisponível
+para a chave (erro 404):
+
+GEMINI_FALLBACK_MODELS
+(padrão: gemini-2.0-flash,
+gemini-2.0-flash-lite,
+gemini-1.5-flash)
+
 Crie uma chave da API do Google Gemini.
 
 NÃO coloque essa chave no index.html.
@@ -111,6 +121,13 @@ Opcional:
 
 GEMINI_MODEL
 (padrão: gemini-2.0-flash)
+
+GEMINI_FALLBACK_MODELS
+(tentados em ordem se o modelo
+principal retornar 404; padrão:
+gemini-2.0-flash,
+gemini-2.0-flash-lite,
+gemini-1.5-flash)
 
 A chave de acesso ao banco é
 injetada automaticamente pelo
@@ -512,13 +529,17 @@ Verifique nesta ordem:
 
    Se o log da função mostrar
    erro 404 ou "model not found",
+   a função tenta automaticamente
+   os modelos de
+   GEMINI_FALLBACK_MODELS antes
+   de falhar. Se todos falharem,
    defina:
 
-   GEMINI_MODEL=gemini-2.0-flash
+   GEMINI_MODEL=gemini-1.5-flash
 
-   O código usa gemini-2.0-flash
-   por padrão, que está disponível
-   no nível gratuito da API.
+   ou ajuste GEMINI_FALLBACK_MODELS
+   com um modelo disponível para
+   a sua chave.
 
 4. LOGS DA FUNÇÃO
 

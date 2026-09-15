@@ -37,6 +37,22 @@ const MODEL =
   "gemini-2.0-flash";
 
 
+// Modelos alternativos, tentados em
+// ordem quando o principal retorna 404
+// (indisponível para a chave). Configurável
+// via secret GEMINI_FALLBACK_MODELS
+// (separados por vírgula).
+const FALLBACK_MODELS = (
+  Deno.env.get("GEMINI_FALLBACK_MODELS") ||
+  "gemini-2.0-flash," +
+    "gemini-2.0-flash-lite," +
+    "gemini-1.5-flash"
+)
+  .split(",")
+  .map((m) => m.trim())
+  .filter((m) => m && m !== MODEL);
+
+
 // Timeout da chamada ao Gemini para evitar
 // que a Edge Function trave indefinidamente
 // e o browser aborte com "Failed to fetch".
@@ -468,11 +484,12 @@ Deno.serve(
 
 
       const geminiUrl =
-        "https://generativelanguage.googleapis.com" +
-        "/v1beta/models/" +
-        MODEL +
-        ":generateContent?key=" +
-        GEMINI;
+        (m: string) =>
+          "https://generativelanguage.googleapis.com" +
+          "/v1beta/models/" +
+          m +
+          ":generateContent?key=" +
+          GEMINI;
 
 
       const geminiBody =
@@ -543,13 +560,54 @@ Deno.serve(
 
 
       let gr;
+      let modeloUsado = MODEL;
 
       try{
 
         gr =
           await chamarGemini(
-            geminiUrl
+            geminiUrl(MODEL)
           );
+
+        // Se o modelo principal estiver
+        // indisponível para esta chave
+        // (404), tenta os fallbacks em
+        // ordem antes de desistir.
+        if(
+          gr.status === 404 &&
+          FALLBACK_MODELS.length
+        ){
+
+          // Descarta o corpo antes de
+          // reusar a conexão.
+          await gr.text();
+
+          for(const m of FALLBACK_MODELS){
+
+            console.warn(
+              "[radar-ia] Modelo " +
+              modeloUsado +
+              " indisponível (404) — " +
+              "tentando " + m
+            );
+
+            gr =
+              await chamarGemini(
+                geminiUrl(m)
+              );
+
+            if(gr.status !== 404){
+
+              modeloUsado = m;
+              break;
+
+            }
+
+            await gr.text();
+
+          }
+
+        }
 
       }catch(err){
 
@@ -610,10 +668,17 @@ Deno.serve(
 
           throw new Error(
             "Modelo " + MODEL +
-            " indisponível para esta chave. " +
-            "Defina o secret GEMINI_MODEL " +
+            " indisponível para esta chave" +
+            (
+              FALLBACK_MODELS.length
+                ? " (tentei também: " +
+                  FALLBACK_MODELS.join(", ") +
+                  ")"
+                : ""
+            ) +
+            ". Defina o secret GEMINI_MODEL " +
             "com um modelo válido (ex.: " +
-            "gemini-2.0-flash) na Edge Function."
+            "gemini-1.5-flash) na Edge Function."
           );
 
         if(gr.status === 429)
@@ -868,7 +933,7 @@ Deno.serve(
             opp.id,
 
           modelo:
-            MODEL,
+            modeloUsado,
 
           prompt_version:
             "1.1",
