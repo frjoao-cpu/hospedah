@@ -389,15 +389,19 @@ $$;
 -- ============================================================
 -- 7. ÍNDICES
 -- ============================================================
+-- Índice unique TOTAL (sem WHERE): índice
+-- parcial não é inferido pelo ON CONFLICT
+-- (fonte_id, external_id) usado pelo upsert
+-- do PostgREST. Linhas com external_id nulo
+-- nunca conflitam entre si (NULL <> NULL),
+-- então o comportamento é o mesmo.
 create unique index if not exists
 radar_capturas_dedupe_idx
 
 on public.radar_capturas(
   fonte_id,
   external_id
-)
-
-where external_id is not null;
+);
 
 
 create index if not exists radar_capturas_estado_idx
