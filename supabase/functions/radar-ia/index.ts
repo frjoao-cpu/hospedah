@@ -29,12 +29,13 @@ const headers = {
 
 
 // Modelo configurável via secret GEMINI_MODEL.
-// Padrão: gemini-2.0-flash (estável e disponível
-// no nível gratuito). gemini-2.5-flash pode não
-// estar habilitado em todas as chaves/projetos.
+// Padrão: gemini-2.5-flash. Os modelos
+// gemini-2.0-flash e gemini-1.5-flash foram
+// descontinuados pelo Google e podem retornar
+// 404 para chaves/projetos novos.
 const MODEL =
   Deno.env.get("GEMINI_MODEL") ||
-  "gemini-2.0-flash";
+  "gemini-2.5-flash";
 
 
 // Modelos alternativos, tentados em
@@ -44,8 +45,8 @@ const MODEL =
 // (separados por vírgula).
 const FALLBACK_MODELS = (
   Deno.env.get("GEMINI_FALLBACK_MODELS") ||
-  "gemini-2.0-flash," +
-    "gemini-2.0-flash-lite," +
+  "gemini-2.5-flash-lite," +
+    "gemini-2.0-flash," +
     "gemini-1.5-flash"
 )
   .split(",")
@@ -863,7 +864,7 @@ Deno.serve(
             ) +
             ". Defina o secret GEMINI_MODEL " +
             "com um modelo válido (ex.: " +
-            "gemini-1.5-flash) na Edge Function.",
+            "gemini-2.5-flash) na Edge Function.",
             502
           );
 
