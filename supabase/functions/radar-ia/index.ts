@@ -141,6 +141,105 @@ status
 `;
 
 
+// Erro operacional: mensagem já revisada e
+// segura para exibir ao usuário final, com
+// o status HTTP adequado. Qualquer erro que
+// não seja AppError vira mensagem genérica.
+class AppError extends Error {
+
+  status: number;
+
+  constructor(
+    message: string,
+    status = 500
+  ){
+
+    super(message);
+
+    this.name = "AppError";
+
+    this.status = status;
+
+  }
+
+}
+
+
+// Traduz erros do PostgREST/Postgres em
+// mensagens acionáveis (a causa mais comum
+// do antigo "Erro interno" era a migration
+// 007_radar_ia.sql não aplicada ou RLS).
+function erroBanco(
+  e: unknown,
+  tabela: string
+): AppError {
+
+  const err =
+    e as {
+      code?: string;
+      message?: string;
+    };
+
+  const code =
+    String(err?.code || "");
+
+  const msg =
+    String(err?.message || "");
+
+
+  if(
+    code === "42P01" ||
+    code === "PGRST205" ||
+    /does not exist/i.test(msg)
+  )
+
+    return new AppError(
+      "Tabela " + tabela +
+      " não encontrada no banco. " +
+      "Aplique a migration " +
+      "supabase/migrations/007_radar_ia.sql.",
+      500
+    );
+
+
+  if(code === "42703")
+
+    return new AppError(
+      "Estrutura da tabela " + tabela +
+      " desatualizada (coluna ausente). " +
+      "Reaplique a migration " +
+      "supabase/migrations/007_radar_ia.sql.",
+      500
+    );
+
+
+  if(
+    code === "42501" ||
+    code === "PGRST301" ||
+    /row-level security|permission denied/i
+      .test(msg)
+  )
+
+    return new AppError(
+      "Sem permissão para gravar em " +
+      tabela + " (RLS). Verifique as " +
+      "policies da migration 007 e o secret " +
+      "SUPABASE_SECRET_KEY da Edge Function.",
+      500
+    );
+
+
+  return new AppError(
+    "Falha ao gravar no banco (" +
+    tabela + ")" +
+    (code ? " — código " + code : "") +
+    ".",
+    500
+  );
+
+}
+
+
 function json(
   body: unknown,
   status = 200
@@ -320,8 +419,9 @@ function parseAiJson(
 
     }
 
-    throw new Error(
-      "A IA não retornou um JSON válido"
+    throw new AppError(
+      "A IA não retornou um JSON válido",
+      502
     );
 
   }
@@ -370,7 +470,7 @@ Deno.serve(
       const SUPABASE_URL =
         Deno.env.get(
           "SUPABASE_URL"
-        )!;
+        );
 
 
       // Chave legada SUPABASE_SERVICE_ROLE_KEY
@@ -378,6 +478,21 @@ Deno.serve(
       // (JWT Signing Keys) com fallback legado.
       const SERVICE =
         getSupabaseSecretKey();
+
+
+      if(!SUPABASE_URL || !SERVICE){
+
+        return json(
+          {
+            error:
+              "Edge Function sem credenciais " +
+              "do Supabase. Defina os secrets " +
+              "SUPABASE_URL e SUPABASE_SECRET_KEY."
+          },
+          500
+        );
+
+      }
 
 
       const GEMINI =
@@ -442,7 +557,25 @@ Deno.serve(
 
 
       const body =
-        await req.json();
+        await req.json()
+          .catch(() => null);
+
+
+      if(
+        !body ||
+        typeof body !== "object"
+      ){
+
+        return json(
+          {
+            error:
+              "Corpo da requisição inválido " +
+              "(esperado JSON)"
+          },
+          400
+        );
+
+      }
 
 
       if(
@@ -616,15 +749,17 @@ Deno.serve(
           err.name === "AbortError"
         )
 
-          throw new Error(
+          throw new AppError(
             "A IA demorou demais " +
             "para responder " +
-            "(timeout). Tente novamente."
+            "(timeout). Tente novamente.",
+            504
           );
 
-        throw new Error(
+        throw new AppError(
           "Falha de rede ao chamar " +
-          "a API do Gemini"
+          "a API do Gemini",
+          502
         );
 
       }
@@ -649,24 +784,26 @@ Deno.serve(
           /API key not valid|API_KEY_INVALID/i
             .test(geminiMsg))
 
-          throw new Error(
+          throw new AppError(
             "GEMINI_API_KEY inválida. " +
-            "Revise o secret na Edge Function."
+            "Revise o secret na Edge Function.",
+            500
           );
 
         if(gr.status === 403)
 
-          throw new Error(
+          throw new AppError(
             "API do Gemini sem permissão. " +
             "Verifique a GEMINI_API_KEY e se " +
-            "a Generative Language API está ativa."
+            "a Generative Language API está ativa.",
+            500
           );
 
         if(gr.status === 404 ||
           /not found|not supported/i
             .test(geminiMsg))
 
-          throw new Error(
+          throw new AppError(
             "Modelo " + MODEL +
             " indisponível para esta chave" +
             (
@@ -678,18 +815,22 @@ Deno.serve(
             ) +
             ". Defina o secret GEMINI_MODEL " +
             "com um modelo válido (ex.: " +
-            "gemini-1.5-flash) na Edge Function."
+            "gemini-1.5-flash) na Edge Function.",
+            502
           );
 
         if(gr.status === 429)
 
-          throw new Error(
+          throw new AppError(
             "Limite de uso da IA atingido. " +
-            "Aguarde e tente novamente."
+            "Aguarde e tente novamente.",
+            429
           );
 
-        throw new Error(
-          geminiMsg
+        throw new AppError(
+          "Erro na API do Gemini: " +
+          geminiMsg,
+          502
         );
 
       }
@@ -704,8 +845,9 @@ Deno.serve(
 
       if(!text){
 
-        throw new Error(
-          "A IA não retornou conteúdo"
+        throw new AppError(
+          "A IA não retornou conteúdo",
+          502
         );
 
       }
@@ -732,7 +874,8 @@ Deno.serve(
       if(empreendimento){
 
         const {
-          data: emps
+          data: emps,
+          error: eEmp
         } = await supabase
 
           .from(
@@ -744,6 +887,17 @@ Deno.serve(
           )
 
           .eq("ativo", true);
+
+
+        // Falha no cadastro auxiliar não
+        // deve abortar a análise: apenas
+        // segue sem normalizar o nome.
+        if(eEmp)
+
+          console.error(
+            "[radar-ia] radar_empreendimentos:",
+            eEmp
+          );
 
 
         const alvo =
@@ -916,7 +1070,19 @@ Deno.serve(
 
       if(e1)
 
-        throw e1;
+        throw erroBanco(
+          e1,
+          "radar_oportunidades"
+        );
+
+
+      if(!opp?.id)
+
+        throw new AppError(
+          "A oportunidade não pôde ser " +
+          "gravada no banco.",
+          500
+        );
 
 
       const {
@@ -961,46 +1127,45 @@ Deno.serve(
 
     }catch(e){
 
-      console.error(e);
-
-      // Mensagens operacionais (criadas por
-      // este arquivo) são seguras para o
-      // cliente; qualquer outro erro interno
-      // recebe mensagem genérica para não
-      // expor stack trace/internals.
-      const msg =
-        e instanceof Error
-          ? e.message
-          : "";
+      // Id curto de rastreio: aparece no log
+      // da função e na resposta, permitindo
+      // correlacionar o erro visto pelo
+      // usuário com o stack trace real.
+      const traceId =
+        crypto.randomUUID()
+          .slice(0, 8);
 
 
-      const segura =
-        [
-          "timeout",
-          "Tente novamente",
-          "GEMINI_API_KEY",
-          "GEMINI_MODEL",
-          "Gemini",
-          "Limite de uso",
-          "JSON válido",
-          "não retornou conteúdo",
-          "Falha de rede"
-        ].some(
-          (p) => msg.includes(p)
+      console.error(
+        "[radar-ia]",
+        traceId,
+        e
+      );
+
+
+      if(e instanceof AppError)
+
+        return json(
+          {
+            error: e.message,
+            trace_id: traceId
+          },
+          e.status
         );
 
 
+      // Erros inesperados não expõem
+      // detalhes internos ao cliente.
       return json(
-
         {
           error:
-            segura && msg
-              ? msg
-              : "Erro interno ao processar a análise"
+            "Erro interno ao processar a " +
+            "análise (ref. " + traceId + "). " +
+            "Consulte os logs da Edge Function " +
+            "radar-ia no Supabase.",
+          trace_id: traceId
         },
-
         500
-
       );
 
     }
