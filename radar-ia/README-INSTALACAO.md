@@ -4,6 +4,22 @@ Sistema de inteligência artificial da HOSPEDAH
 para identificação e organização de oportunidades
 em multipropriedades.
 
+O Radar é uma CENTRAL DE MONITORAMENTO:
+
+o robô encontra
+↓
+a IA entende
+↓
+o Radar seleciona
+↓
+a HOSPEDAH negocia
+
+Você define ALVOS (quais resorts, períodos,
+tipos de negócio, faixa de valor e score mínimo
+o robô deve procurar) e FONTES (onde procurar).
+A camada de captura grava tudo em radar_capturas
+e a IA processa a fila.
+
 ---
 
 # 1. ESTRUTURA
@@ -17,9 +33,14 @@ radar-ia/
 supabase/
     migrations/
         007_radar_ia.sql
+        008_radar_central_monitoramento.sql
 
     functions/
+        _shared/
+            radar.ts
         radar-ia/
+            index.ts
+        radar-captura/
             index.ts
 
 A interface fica publicada pelo GitHub Pages em:
@@ -64,6 +85,41 @@ e radar_empreendimentos,
 com índices, RLS e o trigger
 que mantém atualizado_em atualizado.
 
+Em seguida, na MESMA ORDEM, cole e
+execute também:
+
+supabase/migrations/008_radar_central_monitoramento.sql
+
+A 008 é aditiva (não altera a 007) e cria:
+
+radar_alvos
+(o que monitorar: resorts, períodos,
+tipos de negócio, faixa de valor,
+capacidade, score mínimo, cadência)
+
+radar_fontes
+(onde procurar: INSTAGRAM_GRAPH,
+FACEBOOK_GRAPH, MANUAL, IMPORT)
+
+radar_alvo_fontes
+(vínculo N:N entre alvos e fontes)
+
+radar_capturas
+(fila crua do que o robô encontrou,
+com dedupe por external_id e estado
+PENDENTE / ANALISADO / DESCARTADO / ERRO)
+
+radar_execucoes
+(log de cada varredura — base da aba
+"Saúde do robô")
+
+e as colunas aditivas de
+radar_oportunidades:
+alvo_id, captura_id, motivo_selecao,
+negociacao_status e responsavel.
+
+A ordem importa: 007 antes da 008.
+
 ---
 
 # 3. USUÁRIO ADMINISTRADOR
@@ -88,7 +144,7 @@ Não coloque essa senha no código.
 
 A Edge Function utiliza por padrão:
 
-gemini-2.0-flash
+gemini-2.5-flash
 
 O modelo pode ser alterado pelo secret:
 
@@ -100,8 +156,8 @@ modelo principal está indisponível
 para a chave (erro 404):
 
 GEMINI_FALLBACK_MODELS
-(padrão: gemini-2.0-flash,
-gemini-2.0-flash-lite,
+(padrão: gemini-2.5-flash-lite,
+gemini-2.0-flash,
 gemini-1.5-flash)
 
 Crie uma chave da API do Google Gemini.
@@ -120,13 +176,13 @@ GEMINI_API_KEY
 Opcional:
 
 GEMINI_MODEL
-(padrão: gemini-2.0-flash)
+(padrão: gemini-2.5-flash)
 
 GEMINI_FALLBACK_MODELS
 (tentados em ordem se o modelo
 principal retornar 404; padrão:
+gemini-2.5-flash-lite,
 gemini-2.0-flash,
-gemini-2.0-flash-lite,
 gemini-1.5-flash)
 
 A chave de acesso ao banco é
@@ -152,25 +208,86 @@ Essas informações são secretas.
 Nunca coloque essas chaves
 em um repositório público.
 
+# 5.1 SECRETS DA META (CAPTURA)
+
+A função radar-captura usa APENAS as
+APIs oficiais da Meta. Configure em
+Edge Functions → Secrets:
+
+INSTAGRAM_ACCESS_TOKEN
+(token da Graph API do Instagram)
+
+INSTAGRAM_USER_ID
+(id da conta Instagram Business;
+também pode ser definido por fonte,
+no campo config → ig_user_id)
+
+FACEBOOK_PAGE_ACCESS_TOKEN
+(token da Página; se ausente, o
+adaptador tenta INSTAGRAM_ACCESS_TOKEN)
+
+Enquanto o token/permissão não estiver
+liberado pela Meta, o adaptador devolve
+"Fonte não configurada", registra o
+motivo em radar_execucoes e NÃO derruba
+o resto do pipeline — as fontes MANUAL
+e IMPORT continuam funcionando.
+
 ---
 
-# 6. EDGE FUNCTION
+# 6. EDGE FUNCTIONS
 
-Nome da função:
+São duas funções:
+
+radar-captura
+(o robô encontra)
+supabase/functions/radar-captura/index.ts
 
 radar-ia
-
-Arquivo:
-
+(a IA entende + o Radar seleciona)
 supabase/functions/radar-ia/index.ts
 
-A função valida o token do usuário
-antes de chamar a IA, normaliza o
-empreendimento usando o cadastro de
-aliases e grava o histórico de cada
-análise em radar_analises.
+Ambas compartilham
+supabase/functions/_shared/radar.ts
+(pré-filtro, coerções e a seleção pelos
+critérios do alvo).
 
-O deploy da Edge Function é feito
+radar-captura aceita as ações:
+
+varrer
+(percorre as fontes ativas dos alvos
+ativos e grava capturas PENDENTES)
+
+capturar_manual
+(um texto colado pelo operador)
+
+importar_lote
+(vários anúncios de uma vez)
+
+descartar
+(marca a captura como DESCARTADA)
+
+salvar_fonte / remover_fonte
+(cadastro das fontes)
+
+radar-ia aceita as ações:
+
+analisar_texto
+(padrão — é o que acontece quando
+"acao" não é informada, mantendo a
+compatibilidade com a tela antiga)
+
+processar_pendentes
+(lê N capturas PENDENTES, roda a IA,
+aplica a seleção pelos critérios do
+alvo e cria a oportunidade ou marca a
+captura como DESCARTADA com motivo)
+
+reavaliar
+(reprocessa uma oportunidade sem
+reabrir o funil de negociação)
+
+O deploy das Edge Functions é feito
 automaticamente pelo CI
 (.github/workflows/ci.yml)
 a cada push na branch main.
@@ -179,8 +296,26 @@ Para fazer o deploy manual com
 Supabase CLI:
 
 supabase functions deploy radar-ia --no-verify-jwt
+supabase functions deploy radar-captura --no-verify-jwt
 
 Depois configure os Secrets.
+
+# 6.1 AGENDAMENTO (CRON)
+
+O arquivo supabase_cron.sql (seção 13)
+cria dois jobs:
+
+radar-captura-varredura
+(de hora em hora, acao "varrer")
+
+radar-ia-processar-pendentes
+(10 minutos depois, acao
+"processar_pendentes")
+
+Execute o supabase_cron.sql no SQL
+Editor e garanta que
+app.service_role_key esteja definido,
+como nos demais jobs do projeto.
 
 ---
 
@@ -226,25 +361,78 @@ no HTML.
 
 # 8. FUNCIONAMENTO
 
-O fluxo será:
+O fluxo é:
 
-Usuário
+Alvos e fontes cadastrados no painel
 ↓
-HOSPEDAH Radar IA
+radar-captura (APIs oficiais / manual)
 ↓
-Supabase Auth
+radar_capturas (PENDENTE)
 ↓
-Edge Function
+radar-ia (Gemini entende e extrai)
 ↓
-Gemini
+Seleção pelos critérios do alvo
 ↓
-Extração dos dados
+radar_oportunidades (com motivo_selecao)
 ↓
-Score
-↓
-Supabase
-↓
-Dashboard
+Funil de negociação da HOSPEDAH
+
+# 8.1 AS ABAS DO PAINEL
+
+MONITORAMENTO
+Cadastro dos alvos: nome, resorts
+(multi-seleção vinda de
+radar_empreendimentos), cidades/estados,
+tipos de negócio aceitos, janela de
+período (datas ou "próximos N dias") e
+semanas, faixa de valor, dormitórios e
+capacidade mínima, score mínimo,
+prioridade, cadência e fontes vinculadas.
+É aqui que você define o que o robô
+deve procurar. Alvos podem ser
+ativados/pausados.
+
+CAPTURAS
+A fila do que o robô encontrou, com
+estado, permalink e as ações
+"analisar agora" e "descartar".
+A análise manual também entra por aqui:
+ela cria uma captura de fonte MANUAL e
+segue o mesmo caminho do robô.
+
+OPORTUNIDADES
+A lista de sempre, agora filtrável por
+alvo, com o motivo_selecao visível e o
+funil de negociação
+NOVA → EM_NEGOCIACAO → GANHA/PERDIDA,
+além do status existente
+(VALIDAR / APROVADA / DESCARTADA).
+
+SAÚDE DO ROBÔ
+Últimas execuções, contadores
+(capturado / analisado / aprovado),
+status das fontes e credenciais e o
+último erro — para saber se o pipeline
+está vivo.
+
+---
+
+# 8.2 NEGOCIAÇÃO
+
+Além do status da oportunidade, o campo
+negociacao_status acompanha o trabalho
+comercial:
+
+NOVA
+
+EM_NEGOCIACAO
+
+GANHA
+
+PERDIDA
+
+O campo responsavel registra quem está
+conduzindo.
 
 ---
 
@@ -346,30 +534,42 @@ exibidos nos detalhes da oportunidade.
 
 # 13. FONTES
 
-O sistema aceita:
+As fontes ficam em radar_fontes e são
+cadastradas na aba MONITORAMENTO
+(bloco "Fontes"). Tipos suportados:
 
-Manual
+INSTAGRAM_GRAPH
+(Graph API oficial do Instagram)
 
-Instagram
+FACEBOOK_GRAPH
+(Graph API oficial do Facebook;
+identificador = id da Página)
 
-Facebook
+MANUAL
+(texto colado pelo operador)
 
-Site
+IMPORT
+(importação de lote)
 
-WhatsApp
+A migration 008 já cria as fontes
+"Manual" e "Importação em lote", então
+o pipeline funciona desde o primeiro dia,
+mesmo sem token da Meta.
 
-Indicação
+Cada fonte guarda o status da credencial,
+o último cursor de paginação e se está
+ativa. A escrita em radar_fontes e
+radar_capturas é feita apenas pelas Edge
+Functions (service role); o painel só lê.
 
 ---
 
 # 14. INSTAGRAM E FACEBOOK
 
-A interface está preparada para receber
-conteúdo de Instagram e Facebook.
-
-A captura automática deve ser feita
-através das APIs oficiais da Meta
-e/ou Webhooks autorizados.
+A captura automática é feita
+EXCLUSIVAMENTE através das APIs
+oficiais da Meta (Graph API) e/ou
+Webhooks autorizados.
 
 Não utilizar:
 
@@ -381,23 +581,27 @@ Senha do Facebook
 
 Métodos para contornar permissões
 
-A arquitetura futura será:
+Qualquer coleta fora dos termos da Meta
+está fora do escopo deste projeto e não
+deve ser adicionada ao radar-captura.
+
+A arquitetura é:
 
 Instagram/Facebook
 ↓
-API oficial
+API oficial (radar-captura)
 ↓
-Webhook
+radar_capturas
 ↓
-Edge Function
-↓
-Radar IA
+radar-ia
 ↓
 Gemini
 ↓
+Seleção pelo alvo
+↓
 Supabase
 ↓
-Dashboard
+Central de Monitoramento
 
 ---
 
@@ -444,6 +648,32 @@ ANALISAR COM IA
 A IA deverá estruturar
 as informações e salvar
 a oportunidade no Supabase.
+
+A captura correspondente aparece na aba
+CAPTURAS (fonte MANUAL, estado
+ANALISADO), provando que a análise
+manual usa o mesmo pipeline do robô.
+
+Para testar o fluxo completo:
+
+1. Aba MONITORAMENTO → crie um alvo
+   (ex.: resort "Ipioca Beach",
+   tipo VENDA_COTA, score mínimo 40)
+   e vincule a fonte Manual.
+
+2. Aba CAPTURAS → cole o anúncio.
+
+3. Clique em ANALISAR AGORA.
+
+4. Aba OPORTUNIDADES → a oportunidade
+   deve aparecer com o motivo_selecao
+   preenchido. Se os critérios do alvo
+   não baterem, a captura vira
+   DESCARTADA com o motivo — de
+   propósito, nada some.
+
+5. Aba SAÚDE DO ROBÔ → confira a
+   execução registrada.
 
 ---
 
@@ -523,7 +753,7 @@ Verifique nesta ordem:
    Opcional:
 
    GEMINI_MODEL
-   (padrão: gemini-2.0-flash)
+   (padrão: gemini-2.5-flash)
 
 3. MODELO GEMINI
 
@@ -585,6 +815,13 @@ diretamente na tela:
    aplique a migration
    supabase/migrations/007_radar_ia.sql
    no SQL Editor do Supabase.
+   Se a tabela ausente for
+   radar_alvos, radar_fontes,
+   radar_capturas ou radar_execucoes,
+   aplique
+   supabase/migrations/008_radar_central_monitoramento.sql
+   (a mensagem da função já indica
+   qual migration aplicar).
 
 2. "Estrutura da tabela ...
    desatualizada (coluna ausente)" →

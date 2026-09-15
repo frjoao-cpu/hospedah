@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="robots" content="noindex, nofollow">
-<title>HOSPEDAH • Radar IA</title>
-<meta name="description" content="Radar de oportunidades em multipropriedades da HOSPEDAH">
+<title>HOSPEDAH • Radar IA — Central de Monitoramento</title>
+<meta name="description" content="Central de Monitoramento de oportunidades em multipropriedades da HOSPEDAH">
 
 <style>
 :root{
@@ -138,12 +138,21 @@ textarea{
   resize:vertical;
 }
 
+select[multiple]{
+  min-height:120px;
+}
+
 .btn{
   border:0;
   border-radius:12px;
   padding:12px 16px;
   font-weight:800;
   cursor:pointer;
+}
+
+.btn.small{
+  padding:8px 11px;
+  font-size:12px;
 }
 
 .primary{
@@ -178,6 +187,36 @@ textarea{
   margin-top:15px;
 }
 
+.tabs{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  margin-bottom:22px;
+}
+
+.tab{
+  border:1px solid var(--line);
+  background:#fff;
+  color:var(--navy);
+  border-radius:999px;
+  padding:11px 18px;
+  font-weight:800;
+  font-size:13px;
+  cursor:pointer;
+}
+
+.tab.on{
+  background:var(--navy);
+  color:#fff;
+  border-color:var(--navy);
+}
+
+.flow{
+  color:var(--muted);
+  font-size:12px;
+  margin:0 0 18px;
+}
+
 .stats{
   display:grid;
   grid-template-columns:repeat(4,1fr);
@@ -205,9 +244,21 @@ textarea{
 
 .toolbar{
   display:grid;
-  grid-template-columns:1fr 160px 170px 150px 140px;
+  grid-template-columns:1fr 160px 170px 150px 160px 140px;
   gap:10px;
   margin-bottom:14px;
+}
+
+.cols2{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+}
+
+.cols3{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:12px;
 }
 
 .list{
@@ -220,10 +271,13 @@ textarea{
   border-radius:16px;
   padding:16px;
   background:#fff;
+}
+
+.opp.click{
   cursor:pointer;
 }
 
-.opp:hover{
+.opp.click:hover{
   border-color:#C8A62F;
 }
 
@@ -247,14 +301,21 @@ textarea{
   white-space:nowrap;
 }
 
-.badge.aprovada{
+.badge.aprovada,
+.badge.ok{
   background:#EAF8F1;
   color:var(--green);
 }
 
-.badge.descartada{
+.badge.descartada,
+.badge.erro{
   background:#FFF0F1;
   color:var(--red);
+}
+
+.badge.pendente{
+  background:#FFF8DF;
+  color:#705500;
 }
 
 .score{
@@ -269,6 +330,23 @@ textarea{
   margin-top:9px;
   color:#596579;
   font-size:12px;
+}
+
+.motivo{
+  margin-top:9px;
+  font-size:12px;
+  color:#475467;
+  background:#F7F9FC;
+  border:1px solid var(--line);
+  border-radius:10px;
+  padding:8px 10px;
+}
+
+.texto{
+  margin-top:9px;
+  font-size:13px;
+  color:#344054;
+  white-space:pre-wrap;
 }
 
 .empty{
@@ -365,7 +443,9 @@ pre{
 
 @media(max-width:950px){
 
-  .grid{
+  .grid,
+  .cols2,
+  .cols3{
     grid-template-columns:1fr;
   }
 
@@ -439,11 +519,11 @@ pre{
     <div>
 
       <h1>
-        HOSPEDAH • RADAR IA
+        HOSPEDAH • CENTRAL DE MONITORAMENTO
       </h1>
 
       <small>
-        Inteligência para Multipropriedades
+        Radar IA para Multipropriedades
       </small>
 
     </div>
@@ -461,21 +541,64 @@ pre{
 
 <main class="container">
 
+  <p class="flow">
+    o robô encontra → a IA entende → o Radar seleciona →
+    a HOSPEDAH negocia
+  </p>
+
+  <div id="avisoMigration"></div>
+
+  <div class="tabs">
+
+    <button
+      class="tab on"
+      id="tabBtnMonitoramento"
+      onclick="abrirAba('monitoramento')"
+    >
+      🎯 MONITORAMENTO
+    </button>
+
+    <button
+      class="tab"
+      id="tabBtnCapturas"
+      onclick="abrirAba('capturas')"
+    >
+      🤖 CAPTURAS
+    </button>
+
+    <button
+      class="tab"
+      id="tabBtnOportunidades"
+      onclick="abrirAba('oportunidades')"
+    >
+      📡 OPORTUNIDADES
+    </button>
+
+    <button
+      class="tab"
+      id="tabBtnSaude"
+      onclick="abrirAba('saude')"
+    >
+      🩺 SAÚDE DO ROBÔ
+    </button>
+
+  </div>
+
   <div class="stats">
 
     <div class="stat">
+      <b id="sAlvos">0</b>
+      <span>Alvos ativos</span>
+    </div>
+
+    <div class="stat">
+      <b id="sPendentes">0</b>
+      <span>Capturas pendentes</span>
+    </div>
+
+    <div class="stat">
       <b id="sTotal">0</b>
-      <span>Total de oportunidades</span>
-    </div>
-
-    <div class="stat">
-      <b id="sExceptional">0</b>
-      <span>Excepcionais (90+)</span>
-    </div>
-
-    <div class="stat">
-      <b id="sHigh">0</b>
-      <span>Alta oportunidade (70+)</span>
+      <span>Oportunidades</span>
     </div>
 
     <div class="stat">
@@ -485,93 +608,457 @@ pre{
 
   </div>
 
-  <div class="grid">
+  <!-- ─────────────── MONITORAMENTO ─────────────── -->
+  <div id="abaMonitoramento">
+
+    <div class="grid">
+
+      <section class="card">
+
+        <h2>
+          🎯 Alvo de monitoramento
+        </h2>
+
+        <p class="sub">
+          Defina quais resorts, períodos e tipos de negócio
+          o robô deve procurar.
+        </p>
+
+        <input id="alvoId" type="hidden">
+
+        <label for="alvoNome">
+          Nome do alvo
+        </label>
+
+        <input
+          id="alvoNome"
+          placeholder="Ex.: Cotas em Olímpia no 2º semestre"
+        >
+
+        <label for="alvoEmpreendimentos">
+          Resorts / empreendimentos
+          (vazio = todos)
+        </label>
+
+        <select id="alvoEmpreendimentos" multiple></select>
+
+        <label for="alvoTipos">
+          Tipos de negócio
+          (vazio = todos)
+        </label>
+
+        <select id="alvoTipos" multiple>
+          <option>VENDA_COTA</option>
+          <option>VENDA_PERIODO</option>
+          <option>ALUGUEL</option>
+          <option>CESSAO</option>
+          <option>TROCA</option>
+          <option>PERMUTA</option>
+          <option>DISPONIBILIDADE</option>
+          <option>OUTRO</option>
+        </select>
+
+        <label for="alvoFontes">
+          Fontes
+          (vazio = todas as fontes automáticas)
+        </label>
+
+        <select id="alvoFontes" multiple></select>
+
+        <div class="cols2">
+
+          <div>
+
+            <label for="alvoInicio">
+              Período — início
+            </label>
+
+            <input id="alvoInicio" type="date">
+
+          </div>
+
+          <div>
+
+            <label for="alvoFim">
+              Período — fim
+            </label>
+
+            <input id="alvoFim" type="date">
+
+          </div>
+
+        </div>
+
+        <div class="cols2">
+
+          <div>
+
+            <label for="alvoJanela">
+              Ou próximos N dias
+            </label>
+
+            <input
+              id="alvoJanela"
+              type="number"
+              min="1"
+              placeholder="Ex.: 180"
+            >
+
+          </div>
+
+          <div>
+
+            <label for="alvoSemanas">
+              Semanas do ano
+              (separadas por vírgula)
+            </label>
+
+            <input
+              id="alvoSemanas"
+              placeholder="Ex.: 1,2,27,52"
+            >
+
+          </div>
+
+        </div>
+
+        <div class="cols2">
+
+          <div>
+
+            <label for="alvoValorMin">
+              Valor mínimo (R$)
+            </label>
+
+            <input id="alvoValorMin" type="number" min="0">
+
+          </div>
+
+          <div>
+
+            <label for="alvoValorMax">
+              Valor máximo (R$)
+            </label>
+
+            <input id="alvoValorMax" type="number" min="0">
+
+          </div>
+
+        </div>
+
+        <div class="cols3">
+
+          <div>
+
+            <label for="alvoDorm">
+              Dormitórios mín.
+            </label>
+
+            <input id="alvoDorm" type="number" min="0">
+
+          </div>
+
+          <div>
+
+            <label for="alvoCap">
+              Capacidade mín.
+            </label>
+
+            <input id="alvoCap" type="number" min="0">
+
+          </div>
+
+          <div>
+
+            <label for="alvoScore">
+              Score mínimo
+            </label>
+
+            <input
+              id="alvoScore"
+              type="number"
+              min="0"
+              max="100"
+              value="60"
+            >
+
+          </div>
+
+        </div>
+
+        <div class="cols3">
+
+          <div>
+
+            <label for="alvoPrioridade">
+              Prioridade (1-5)
+            </label>
+
+            <input
+              id="alvoPrioridade"
+              type="number"
+              min="1"
+              max="5"
+              value="3"
+            >
+
+          </div>
+
+          <div>
+
+            <label for="alvoCadencia">
+              Cadência (minutos)
+            </label>
+
+            <input
+              id="alvoCadencia"
+              type="number"
+              min="15"
+              value="360"
+            >
+
+          </div>
+
+          <div>
+
+            <label for="alvoAtivo">
+              Situação
+            </label>
+
+            <select id="alvoAtivo">
+              <option value="true">Ativo</option>
+              <option value="false">Pausado</option>
+            </select>
+
+          </div>
+
+        </div>
+
+        <label for="alvoCidades">
+          Cidades (separadas por vírgula)
+        </label>
+
+        <input
+          id="alvoCidades"
+          placeholder="Ex.: Olímpia, Gramado"
+        >
+
+        <div class="actions">
+
+          <button
+            class="btn primary"
+            id="btnSalvarAlvo"
+            onclick="salvarAlvo()"
+          >
+            💾 SALVAR ALVO
+          </button>
+
+          <button
+            class="btn light"
+            onclick="limparAlvo()"
+          >
+            NOVO
+          </button>
+
+        </div>
+
+        <div id="alvoMsg"></div>
+
+      </section>
+
+      <section class="card">
+
+        <h2>
+          📋 Alvos cadastrados
+        </h2>
+
+        <p class="sub">
+          O robô varre as fontes oficiais seguindo a cadência
+          de cada alvo ativo.
+        </p>
+
+        <div class="actions" style="margin-bottom:14px">
+
+          <button
+            class="btn dark"
+            onclick="varrer(null)"
+          >
+            🚀 VARRER AGORA
+          </button>
+
+          <button
+            class="btn light"
+            onclick="processarPendentes()"
+          >
+            🧠 ANALISAR PENDENTES
+          </button>
+
+        </div>
+
+        <div id="listaAlvos" class="list"></div>
+
+      </section>
+
+    </div>
+
+  </div>
+
+  <!-- ─────────────── CAPTURAS ─────────────── -->
+  <div id="abaCapturas" class="hidden">
+
+    <div class="grid">
+
+      <section class="card">
+
+        <h2>
+          🤖 Captura manual
+        </h2>
+
+        <p class="sub">
+          Cole uma publicação, mensagem ou anúncio.
+          O conteúdo entra no mesmo pipeline do robô.
+        </p>
+
+        <div class="notice warn">
+
+          Instagram/Facebook são capturados apenas pelas
+          APIs oficiais da Meta. O Radar não faz scraping
+          nem usa senha de rede social.
+
+        </div>
+
+        <label for="fonte">
+          Fonte
+        </label>
+
+        <select id="fonte">
+
+          <option>Manual</option>
+          <option>Instagram</option>
+          <option>Facebook</option>
+          <option>Site</option>
+          <option>WhatsApp</option>
+          <option>Indicação</option>
+
+        </select>
+
+        <label for="capturaAlvo">
+          Alvo (opcional)
+        </label>
+
+        <select id="capturaAlvo">
+          <option value="">Sem alvo — validação manual</option>
+        </select>
+
+        <label for="url">
+          URL original (opcional)
+        </label>
+
+        <input
+          id="url"
+          type="url"
+          placeholder="https://..."
+        >
+
+        <label for="conteudo">
+          Conteúdo da publicação / anúncio
+        </label>
+
+        <textarea
+          id="conteudo"
+          placeholder="Ex.: Ipioca Beach Maceió, 01 dormitório, 2 semanas, acomoda 4 adultos + 1 criança, cota quitada, hereditária, R$ 42.000..."
+        ></textarea>
+
+        <div class="actions">
+
+          <button
+            class="btn primary"
+            id="btnAnalisar"
+            onclick="analisar()"
+          >
+            ✨ ANALISAR COM IA
+          </button>
+
+          <button
+            class="btn light"
+            onclick="enfileirar()"
+          >
+            📥 SÓ ENFILEIRAR
+          </button>
+
+          <button
+            class="btn light"
+            onclick="limpar()"
+          >
+            LIMPAR
+          </button>
+
+        </div>
+
+        <div id="result"></div>
+
+      </section>
+
+      <section class="card">
+
+        <h2>
+          📥 Fila de capturas
+        </h2>
+
+        <p class="sub">
+          Tudo que o robô encontrou, antes e depois da IA.
+        </p>
+
+        <div class="toolbar" style="grid-template-columns:1fr 180px 180px">
+
+          <input
+            id="buscaCaptura"
+            placeholder="Buscar no texto capturado..."
+            oninput="renderCapturas()"
+          >
+
+          <select
+            id="filtroEstado"
+            onchange="renderCapturas()"
+          >
+
+            <option value="PENDENTE">Pendentes</option>
+            <option value="">Todos os estados</option>
+            <option value="ANALISADO">Analisadas</option>
+            <option value="DESCARTADO">Descartadas</option>
+            <option value="ERRO">Com erro</option>
+
+          </select>
+
+          <button
+            class="btn light"
+            onclick="processarPendentes()"
+          >
+            🧠 ANALISAR PENDENTES
+          </button>
+
+        </div>
+
+        <div id="listaCapturas" class="list"></div>
+
+      </section>
+
+    </div>
+
+  </div>
+
+  <!-- ─────────────── OPORTUNIDADES ─────────────── -->
+  <div id="abaOportunidades" class="hidden">
 
     <section class="card">
 
       <h2>
-        🤖 Nova captura
+        📡 Oportunidades selecionadas
       </h2>
 
       <p class="sub">
-        Cole uma publicação, mensagem ou anúncio.
-        A IA transforma o conteúdo em uma oportunidade estruturada.
-      </p>
-
-      <div class="notice warn">
-
-        Instagram/Facebook: esta versão está preparada
-        para receber conteúdo via API oficial/webhook.
-        Não faz scraping nem usa senha de rede social.
-
-      </div>
-
-      <label for="fonte">
-        Fonte
-      </label>
-
-      <select id="fonte">
-
-        <option>Manual</option>
-        <option>Instagram</option>
-        <option>Facebook</option>
-        <option>Site</option>
-        <option>WhatsApp</option>
-        <option>Indicação</option>
-
-      </select>
-
-      <label for="url">
-        URL original (opcional)
-      </label>
-
-      <input
-        id="url"
-        type="url"
-        placeholder="https://..."
-      >
-
-      <label for="conteudo">
-        Conteúdo da publicação / anúncio
-      </label>
-
-      <textarea
-        id="conteudo"
-        placeholder="Ex.: Ipioca Beach Maceió, 01 dormitório, 2 semanas, acomoda 4 adultos + 1 criança, cota quitada, hereditária, R$ 42.000..."
-      ></textarea>
-
-      <div class="actions">
-
-        <button
-          class="btn primary"
-          id="btnAnalisar"
-          onclick="analisar()"
-        >
-          ✨ ANALISAR COM IA
-        </button>
-
-        <button
-          class="btn light"
-          onclick="limpar()"
-        >
-          LIMPAR
-        </button>
-
-      </div>
-
-      <div id="result"></div>
-
-    </section>
-
-    <section class="card">
-
-      <h2>
-        📡 Oportunidades detectadas
-      </h2>
-
-      <p class="sub">
-        Ordenadas por potencial.
-        Clique em uma oportunidade para visualizar os dados.
+        Ordenadas por potencial. Clique em uma oportunidade
+        para visualizar os dados e negociar.
       </p>
 
       <div class="toolbar">
@@ -579,12 +1066,12 @@ pre{
         <input
           id="busca"
           placeholder="Buscar resort, cidade, tipo, anunciante..."
-          oninput="render()"
+          oninput="renderOportunidades()"
         >
 
         <select
           id="filtroStatus"
-          onchange="render()"
+          onchange="renderOportunidades()"
         >
 
           <option value="">
@@ -607,7 +1094,7 @@ pre{
 
         <select
           id="filtroEmp"
-          onchange="render()"
+          onchange="renderOportunidades()"
         >
 
           <option value="">
@@ -618,7 +1105,7 @@ pre{
 
         <select
           id="filtroTipo"
-          onchange="render()"
+          onchange="renderOportunidades()"
         >
 
           <option value="">
@@ -628,8 +1115,19 @@ pre{
         </select>
 
         <select
+          id="filtroAlvo"
+          onchange="renderOportunidades()"
+        >
+
+          <option value="">
+            Todos os alvos
+          </option>
+
+        </select>
+
+        <select
           id="ordem"
-          onchange="render()"
+          onchange="renderOportunidades()"
         >
 
           <option value="score">
@@ -650,7 +1148,117 @@ pre{
 
       <div id="lista" class="list"></div>
 
+      <div id="detalhe"></div>
+
     </section>
+
+  </div>
+
+  <!-- ─────────────── SAÚDE ─────────────── -->
+  <div id="abaSaude" class="hidden">
+
+    <div class="grid">
+
+      <section class="card">
+
+        <h2>
+          📡 Fontes de captura
+        </h2>
+
+        <p class="sub">
+          Apenas APIs oficiais. Sem credencial válida,
+          a fonte fica inativa sem derrubar o pipeline.
+        </p>
+
+        <label for="fonteNome">
+          Nome da fonte
+        </label>
+
+        <input
+          id="fonteNome"
+          placeholder="Ex.: Instagram #cotahotbeach"
+        >
+
+        <label for="fonteTipo">
+          Tipo
+        </label>
+
+        <select id="fonteTipo">
+          <option value="INSTAGRAM_GRAPH">Instagram (Graph API)</option>
+          <option value="FACEBOOK_GRAPH">Facebook (Graph API)</option>
+          <option value="MANUAL">Manual</option>
+          <option value="IMPORT">Importação em lote</option>
+        </select>
+
+        <label for="fonteIdent">
+          Identificador externo
+          (hashtag, id da conta ou da página)
+        </label>
+
+        <input
+          id="fonteIdent"
+          placeholder="Ex.: cotahotbeach"
+        >
+
+        <label for="fonteModo">
+          Modo (Instagram)
+        </label>
+
+        <select id="fonteModo">
+          <option value="hashtag">Hashtag</option>
+          <option value="usuario">Conta / perfil</option>
+        </select>
+
+        <div class="actions">
+
+          <button
+            class="btn primary"
+            onclick="salvarFonte()"
+          >
+            💾 SALVAR FONTE
+          </button>
+
+        </div>
+
+        <div id="fonteMsg"></div>
+
+        <div id="listaFontes" class="list" style="margin-top:18px"></div>
+
+      </section>
+
+      <section class="card">
+
+        <h2>
+          🩺 Últimas execuções
+        </h2>
+
+        <p class="sub">
+          Varreduras do robô e lotes analisados pela IA.
+        </p>
+
+        <div class="actions" style="margin-bottom:14px">
+
+          <button
+            class="btn dark"
+            onclick="varrer(null)"
+          >
+            🚀 VARRER AGORA
+          </button>
+
+          <button
+            class="btn light"
+            onclick="load()"
+          >
+            🔄 ATUALIZAR
+          </button>
+
+        </div>
+
+        <div id="listaExecucoes" class="list"></div>
+
+      </section>
+
+    </div>
 
   </div>
 
@@ -667,17 +1275,46 @@ const CONFIG={
     "sb_publishable_GBmfYhy8hANTG3yGfHPSwA_sVp0T7F_",
 
   functionName:
-    "radar-ia"
+    "radar-ia",
+
+  capturaFunction:
+    "radar-captura"
 
 };
 
 const TOKEN_KEY=
   "hospedah_radar_token";
 
+const TIPOS=[
+  "VENDA_COTA",
+  "VENDA_PERIODO",
+  "ALUGUEL",
+  "CESSAO",
+  "TROCA",
+  "PERMUTA",
+  "DISPONIBILIDADE",
+  "OUTRO"
+];
+
+const NEGOCIACAO=[
+  "NOVA",
+  "EM_NEGOCIACAO",
+  "GANHA",
+  "PERDIDA"
+];
+
 let token=
   localStorage.getItem(TOKEN_KEY)||"";
 
 let oportunidades=[];
+let alvos=[];
+let fontes=[];
+let capturas=[];
+let execucoes=[];
+let empreendimentos=[];
+let vinculos=[];
+let faltaMigration=false;
+let erroConexao="";
 
 
 function api(path,opts={}){
@@ -729,7 +1366,7 @@ function api(path,opts={}){
       )
 
         throw new Error(
-          "A análise demorou demais "+
+          "A operação demorou demais "+
           "(timeout). Tente novamente."
         );
 
@@ -768,18 +1405,67 @@ function api(path,opts={}){
 
       throw new Error(
         "Sem conexão com o servidor "+
-        "(rede, CORS ou função "+
-        CONFIG.functionName+
-        " indisponível)."+
+        "(rede, CORS ou Edge Function "+
+        "indisponível)."+
         detalhe+
-        " Verifique o deploy da "+
-        "Edge Function."
+        " Verifique o deploy das "+
+        "Edge Functions."
       );
 
     }
   ).finally(
     ()=>clearTimeout(timer)
   );
+
+}
+
+
+// Chamada às Edge Functions com tradução
+// das mensagens de erro.
+async function chamarFuncao(nome,corpo,timeout){
+
+  const r=await api(
+
+    "/functions/v1/"+nome,
+
+    {
+      method:"POST",
+      body:JSON.stringify(corpo),
+      timeout:timeout||120000
+    }
+
+  );
+
+  if(r.status===401||r.status===403){
+
+    sessaoExpirada();
+
+    throw new Error("Sessão expirada.");
+
+  }
+
+  const d=
+    await r.json()
+      .catch(()=>null);
+
+  if(!r.ok)
+
+    throw new Error(
+      (d&&(d.error||d.message))||
+      "Erro na função "+nome+
+      " (HTTP "+r.status+"). "+
+      "Confira o deploy da Edge Function "+
+      "e os secrets."
+    );
+
+  if(!d)
+
+    throw new Error(
+      "A função "+nome+" retornou uma "+
+      "resposta inválida."
+    );
+
+  return d;
 
 }
 
@@ -831,10 +1517,10 @@ async function login(ev){
         body:JSON.stringify({
 
           email:
-            email.value,
+            document.getElementById("email").value,
 
           password:
-            password.value
+            document.getElementById("password").value
 
         })
 
@@ -915,14 +1601,693 @@ function sessaoExpirada(){
 }
 
 
+function abrirAba(nome){
+
+  const abas=[
+    "monitoramento",
+    "capturas",
+    "oportunidades",
+    "saude"
+  ];
+
+  abas.forEach(a=>{
+
+    const painel=
+      document.getElementById(
+        "aba"+
+        a.charAt(0).toUpperCase()+
+        a.slice(1)
+      );
+
+    const botao=
+      document.getElementById(
+        "tabBtn"+
+        a.charAt(0).toUpperCase()+
+        a.slice(1)
+      );
+
+    if(painel)
+
+      painel.classList.toggle(
+        "hidden",
+        a!==nome
+      );
+
+    if(botao)
+
+      botao.classList.toggle(
+        "on",
+        a===nome
+      );
+
+  });
+
+}
+
+
+// Leitura via PostgREST. Tabelas ausentes
+// (migration 008 não aplicada) não podem
+// derrubar o painel inteiro.
+async function ler(tabela,query){
+
+  let r;
+
+  try{
+
+    r=await api(
+      "/rest/v1/"+tabela+"?"+query
+    );
+
+  }catch(e){
+
+    // Falha de rede/CORS não pode derrubar
+    // o carregamento inteiro do painel.
+    erroConexao=
+      e&&e.message
+        ?e.message
+        :"Falha de conexão.";
+
+    return [];
+
+  }
+
+  if(r.status===401||r.status===403){
+
+    sessaoExpirada();
+
+    return null;
+
+  }
+
+  if(r.status===404){
+
+    faltaMigration=true;
+
+    return [];
+
+  }
+
+  if(!r.ok){
+
+    const d=
+      await r.json()
+        .catch(()=>null);
+
+    if(
+      d&&
+      /does not exist|not find the table/i
+        .test(d.message||d.hint||"")
+    )
+
+      faltaMigration=true;
+
+    return [];
+
+  }
+
+  return await r.json();
+
+}
+
+
 async function load(){
+
+  faltaMigration=false;
+  erroConexao="";
+
+  const [o,a,f,c,x,e,v]=await Promise.all([
+
+    ler(
+      "radar_oportunidades",
+      "select=*&order=score_oportunidade.desc,"+
+      "criado_em.desc&limit=500"
+    ),
+
+    ler(
+      "radar_alvos",
+      "select=*&order=prioridade.asc,nome.asc"
+    ),
+
+    ler(
+      "radar_fontes",
+      "select=*&order=nome.asc"
+    ),
+
+    ler(
+      "radar_capturas",
+      "select=*&order=capturado_em.desc&limit=300"
+    ),
+
+    ler(
+      "radar_execucoes",
+      "select=*&order=criado_em.desc&limit=40"
+    ),
+
+    ler(
+      "radar_empreendimentos",
+      "select=nome,cidade,estado&order=nome.asc"
+    ),
+
+    ler(
+      "radar_alvo_fontes",
+      "select=alvo_id,fonte_id"
+    )
+
+  ]);
+
+  if(o===null)
+
+    return;
+
+  oportunidades=o||[];
+  alvos=a||[];
+  fontes=f||[];
+  capturas=c||[];
+  execucoes=x||[];
+  empreendimentos=e||[];
+  vinculos=v||[];
+
+  document.getElementById(
+    "avisoMigration"
+  ).innerHTML=
+
+    (erroConexao
+
+      ?'<div class="notice warn">'+
+       esc(erroConexao)+
+       '</div>'
+
+      :"")+
+
+    (faltaMigration
+
+      ?'<div class="notice warn">'+
+       'Algumas tabelas da Central de Monitoramento '+
+       'não foram encontradas. Aplique a migration '+
+       'supabase/migrations/008_radar_central_monitoramento.sql '+
+       'no SQL Editor do Supabase.'+
+       '</div>'
+
+      :"");
+
+  popularSelects();
+
+  renderAlvos();
+
+  renderCapturas();
+
+  renderOportunidades();
+
+  renderFontes();
+
+  renderExecucoes();
+
+  stats();
+
+}
+
+
+function popularSelects(){
+
+  const emps=[
+    ...new Set(
+      empreendimentos
+        .map(e=>e.nome)
+        .filter(Boolean)
+        .concat(
+          oportunidades
+            .map(o=>o.empreendimento)
+            .filter(Boolean)
+        )
+    )
+  ].sort();
+
+  const selEmp=
+    document.getElementById(
+      "alvoEmpreendimentos"
+    );
+
+  const marcados=
+    Array.from(selEmp.selectedOptions)
+      .map(x=>x.value);
+
+  selEmp.innerHTML=
+    emps.map(n=>
+      '<option>'+esc(n)+'</option>'
+    ).join("");
+
+  Array.from(selEmp.options)
+    .forEach(op=>{
+
+      op.selected=
+        marcados.includes(op.value);
+
+    });
+
+  const selFontes=
+    document.getElementById(
+      "alvoFontes"
+    );
+
+  const fMarcadas=
+    Array.from(selFontes.selectedOptions)
+      .map(x=>x.value);
+
+  selFontes.innerHTML=
+    fontes
+      .filter(f=>f.ativo!==false)
+      .map(f=>
+        '<option value="'+esc(f.id)+'">'+
+        esc(f.nome)+' ('+esc(f.tipo)+')'+
+        '</option>'
+      ).join("");
+
+  Array.from(selFontes.options)
+    .forEach(op=>{
+
+      op.selected=
+        fMarcadas.includes(op.value);
+
+    });
+
+  const opcoesAlvos=
+    alvos.map(a=>
+      '<option value="'+esc(a.id)+'">'+
+      esc(a.nome)+'</option>'
+    ).join("");
+
+  const selCaptura=
+    document.getElementById(
+      "capturaAlvo"
+    );
+
+  const capturaAtual=selCaptura.value;
+
+  selCaptura.innerHTML=
+    '<option value="">Sem alvo — validação manual</option>'+
+    opcoesAlvos;
+
+  selCaptura.value=capturaAtual;
+
+  const selFiltroAlvo=
+    document.getElementById(
+      "filtroAlvo"
+    );
+
+  const filtroAtual=selFiltroAlvo.value;
+
+  selFiltroAlvo.innerHTML=
+    '<option value="">Todos os alvos</option>'+
+    opcoesAlvos;
+
+  selFiltroAlvo.value=filtroAtual;
+
+  const filtroEmp=
+    document.getElementById("filtroEmp");
+
+  const filtroTipo=
+    document.getElementById("filtroTipo");
+
+  const empAtual=filtroEmp.value;
+  const tipoAtual=filtroTipo.value;
+
+  filtroEmp.innerHTML=
+    '<option value="">Todos empreendimentos</option>'+
+    [
+      ...new Set(
+        oportunidades
+          .map(o=>o.empreendimento)
+          .filter(Boolean)
+      )
+    ].sort().map(e=>
+      '<option>'+esc(e)+'</option>'
+    ).join("");
+
+  filtroTipo.innerHTML=
+    '<option value="">Todos os tipos</option>'+
+    TIPOS.map(t=>
+      '<option>'+esc(t)+'</option>'
+    ).join("");
+
+  filtroEmp.value=empAtual;
+  filtroTipo.value=tipoAtual;
+
+}
+
+
+// ─────────── ALVOS ───────────
+
+function valoresSelecionados(id){
+
+  return Array.from(
+    document.getElementById(id)
+      .selectedOptions
+  ).map(o=>o.value);
+
+}
+
+
+function lista(texto){
+
+  return String(texto||"")
+    .split(",")
+    .map(s=>s.trim())
+    .filter(Boolean);
+
+}
+
+
+function numero(id){
+
+  const v=
+    document.getElementById(id).value;
+
+  if(v==="")
+
+    return null;
+
+  const n=Number(v);
+
+  return Number.isFinite(n)?n:null;
+
+}
+
+
+async function salvarAlvo(){
+
+  const msg=
+    document.getElementById("alvoMsg");
+
+  const nome=
+    document.getElementById("alvoNome")
+      .value.trim();
+
+  if(!nome){
+
+    msg.innerHTML=
+      '<div class="notice warn">'+
+      'Informe o nome do alvo.'+
+      '</div>';
+
+    return;
+
+  }
+
+  const id=
+    document.getElementById("alvoId").value;
+
+  const registro={
+
+    nome:nome,
+
+    empreendimentos:
+      valoresSelecionados("alvoEmpreendimentos"),
+
+    cidades:
+      lista(
+        document.getElementById("alvoCidades").value
+      ),
+
+    tipos_negocio:
+      valoresSelecionados("alvoTipos"),
+
+    periodo_inicio:
+      document.getElementById("alvoInicio").value||null,
+
+    periodo_fim:
+      document.getElementById("alvoFim").value||null,
+
+    janela_dias:numero("alvoJanela"),
+
+    semanas:
+      lista(
+        document.getElementById("alvoSemanas").value
+      ).map(Number).filter(n=>Number.isFinite(n)),
+
+    valor_min:numero("alvoValorMin"),
+
+    valor_max:numero("alvoValorMax"),
+
+    dormitorios_min:numero("alvoDorm"),
+
+    capacidade_min:numero("alvoCap"),
+
+    score_minimo:numero("alvoScore"),
+
+    prioridade:numero("alvoPrioridade"),
+
+    cadencia_minutos:numero("alvoCadencia"),
+
+    ativo:
+      document.getElementById("alvoAtivo").value==="true"
+
+  };
+
+  const btn=
+    document.getElementById("btnSalvarAlvo");
+
+  btn.disabled=true;
+
+  msg.innerHTML="";
+
+  try{
+
+    const r=await api(
+
+      "/rest/v1/radar_alvos"+
+      (id?"?id=eq."+encodeURIComponent(id):""),
+
+      {
+
+        method:id?"PATCH":"POST",
+
+        headers:{
+          "Prefer":"return=representation"
+        },
+
+        body:JSON.stringify(registro)
+
+      }
+
+    );
+
+    if(r.status===401||r.status===403){
+
+      sessaoExpirada();
+
+      return;
+
+    }
+
+    const d=
+      await r.json()
+        .catch(()=>null);
+
+    if(!r.ok)
+
+      throw new Error(
+        (d&&(d.message||d.hint))||
+        "Não foi possível salvar o alvo "+
+        "(HTTP "+r.status+")."
+      );
+
+    const alvoId=
+      id||(Array.isArray(d)&&d[0]&&d[0].id);
+
+    await salvarVinculos(alvoId);
+
+    msg.innerHTML=
+      '<div class="notice ok">'+
+      'Alvo salvo.'+
+      '</div>';
+
+    limparAlvo();
+
+    await load();
+
+  }catch(e){
+
+    msg.innerHTML=
+      '<div class="notice warn">'+
+      esc(e.message)+
+      '</div>';
+
+  }finally{
+
+    btn.disabled=false;
+
+  }
+
+}
+
+
+async function salvarVinculos(alvoId){
+
+  if(!alvoId)
+
+    return;
+
+  const escolhidas=
+    valoresSelecionados("alvoFontes");
+
+  await api(
+    "/rest/v1/radar_alvo_fontes"+
+    "?alvo_id=eq."+encodeURIComponent(alvoId),
+    {
+      method:"DELETE",
+      headers:{"Prefer":"return=minimal"}
+    }
+  );
+
+  if(!escolhidas.length)
+
+    return;
+
+  await api(
+    "/rest/v1/radar_alvo_fontes",
+    {
+      method:"POST",
+      headers:{"Prefer":"return=minimal"},
+      body:JSON.stringify(
+        escolhidas.map(f=>({
+          alvo_id:alvoId,
+          fonte_id:f
+        }))
+      )
+    }
+  );
+
+}
+
+
+function editarAlvo(id){
+
+  const a=
+    alvos.find(x=>x.id===id);
+
+  if(!a)
+
+    return;
+
+  document.getElementById("alvoId").value=a.id;
+
+  document.getElementById("alvoNome").value=
+    a.nome||"";
+
+  document.getElementById("alvoCidades").value=
+    (a.cidades||[]).join(", ");
+
+  document.getElementById("alvoInicio").value=
+    a.periodo_inicio||"";
+
+  document.getElementById("alvoFim").value=
+    a.periodo_fim||"";
+
+  document.getElementById("alvoJanela").value=
+    a.janela_dias??"";
+
+  document.getElementById("alvoSemanas").value=
+    (a.semanas||[]).join(", ");
+
+  document.getElementById("alvoValorMin").value=
+    a.valor_min??"";
+
+  document.getElementById("alvoValorMax").value=
+    a.valor_max??"";
+
+  document.getElementById("alvoDorm").value=
+    a.dormitorios_min??"";
+
+  document.getElementById("alvoCap").value=
+    a.capacidade_min??"";
+
+  document.getElementById("alvoScore").value=
+    a.score_minimo??60;
+
+  document.getElementById("alvoPrioridade").value=
+    a.prioridade??3;
+
+  document.getElementById("alvoCadencia").value=
+    a.cadencia_minutos??360;
+
+  document.getElementById("alvoAtivo").value=
+    a.ativo===false?"false":"true";
+
+  marcar(
+    "alvoEmpreendimentos",
+    a.empreendimentos||[]
+  );
+
+  marcar(
+    "alvoTipos",
+    a.tipos_negocio||[]
+  );
+
+  marcar(
+    "alvoFontes",
+    vinculos
+      .filter(v=>v.alvo_id===a.id)
+      .map(v=>v.fonte_id)
+  );
+
+  abrirAba("monitoramento");
+
+  window.scrollTo({top:0,behavior:"smooth"});
+
+}
+
+
+function marcar(id,valores){
+
+  Array.from(
+    document.getElementById(id).options
+  ).forEach(op=>{
+
+    op.selected=
+      valores.indexOf(op.value)>=0;
+
+  });
+
+}
+
+
+function limparAlvo(){
+
+  document.getElementById("alvoId").value="";
+  document.getElementById("alvoNome").value="";
+  document.getElementById("alvoCidades").value="";
+  document.getElementById("alvoInicio").value="";
+  document.getElementById("alvoFim").value="";
+  document.getElementById("alvoJanela").value="";
+  document.getElementById("alvoSemanas").value="";
+  document.getElementById("alvoValorMin").value="";
+  document.getElementById("alvoValorMax").value="";
+  document.getElementById("alvoDorm").value="";
+  document.getElementById("alvoCap").value="";
+  document.getElementById("alvoScore").value="60";
+  document.getElementById("alvoPrioridade").value="3";
+  document.getElementById("alvoCadencia").value="360";
+  document.getElementById("alvoAtivo").value="true";
+
+  marcar("alvoEmpreendimentos",[]);
+  marcar("alvoTipos",[]);
+  marcar("alvoFontes",[]);
+
+}
+
+
+async function alternarAlvo(id,ativo){
 
   const r=await api(
 
-    "/rest/v1/radar_oportunidades"+
-    "?select=*"+
-    "&order=score_oportunidade.desc,criado_em.desc"+
-    "&limit=500"
+    "/rest/v1/radar_alvos?id=eq."+
+    encodeURIComponent(id),
+
+    {
+      method:"PATCH",
+      headers:{"Prefer":"return=minimal"},
+      body:JSON.stringify({ativo:ativo})
+    }
 
   );
 
@@ -934,20 +2299,297 @@ async function load(){
 
   }
 
-  if(r.ok)
+  await load();
 
-    oportunidades=
-      await r.json();
+}
 
-  else
 
-    oportunidades=[];
+async function excluirAlvo(id){
 
-  popularFiltros();
+  if(
+    !confirm(
+      "Excluir este alvo? "+
+      "As oportunidades já criadas continuam no Radar."
+    )
+  )
 
-  render();
+    return;
 
-  stats();
+  const r=await api(
+
+    "/rest/v1/radar_alvos?id=eq."+
+    encodeURIComponent(id),
+
+    {
+      method:"DELETE",
+      headers:{"Prefer":"return=minimal"}
+    }
+
+  );
+
+  if(r.status===401||r.status===403){
+
+    sessaoExpirada();
+
+    return;
+
+  }
+
+  await load();
+
+}
+
+
+function renderAlvos(){
+
+  const el=
+    document.getElementById("listaAlvos");
+
+  if(!alvos.length){
+
+    el.innerHTML=
+      '<div class="empty">'+
+      'Nenhum alvo cadastrado. Defina o primeiro alvo '+
+      'para o robô saber o que procurar.'+
+      '</div>';
+
+    return;
+
+  }
+
+  el.innerHTML=
+
+    alvos.map(a=>{
+
+      const emps=
+        (a.empreendimentos||[]).length
+          ?(a.empreendimentos||[]).join(", ")
+          :"Todos os empreendimentos";
+
+      const tipos=
+        (a.tipos_negocio||[]).length
+          ?(a.tipos_negocio||[]).join(", ")
+          :"Todos os tipos";
+
+      return '<div class="opp">'+
+
+        '<div class="opp-top">'+
+
+          '<div class="opp-title">'+
+          esc(a.nome)+
+          '</div>'+
+
+          '<span class="badge '+
+          (a.ativo===false?"descartada":"ok")+
+          '">'+
+          (a.ativo===false?"PAUSADO":"ATIVO")+
+          '</span>'+
+
+        '</div>'+
+
+        '<div class="meta">'+
+          '<span>🏨 '+esc(emps)+'</span>'+
+          '<span>🏷️ '+esc(tipos)+'</span>'+
+        '</div>'+
+
+        '<div class="meta">'+
+          '<span>📅 '+
+          esc(janela(a))+
+          '</span>'+
+          '<span>🎯 score ≥ '+
+          esc(a.score_minimo??0)+
+          '</span>'+
+          '<span>⏱️ '+
+          esc(a.cadencia_minutos??360)+
+          ' min</span>'+
+          '<span>🕓 '+
+          esc(
+            a.ultima_varredura
+              ?dataHora(a.ultima_varredura)
+              :"nunca varrido"
+          )+
+          '</span>'+
+        '</div>'+
+
+        '<div class="actions">'+
+
+          '<button class="btn light small" onclick="editarAlvo(\''+
+          esc(a.id)+'\')">EDITAR</button>'+
+
+          '<button class="btn light small" onclick="varrer(\''+
+          esc(a.id)+'\')">VARRER AGORA</button>'+
+
+          '<button class="btn '+
+          (a.ativo===false?"success":"light")+
+          ' small" onclick="alternarAlvo(\''+
+          esc(a.id)+'\','+
+          (a.ativo===false?"true":"false")+
+          ')">'+
+          (a.ativo===false?"ATIVAR":"PAUSAR")+
+          '</button>'+
+
+          '<button class="btn danger small" onclick="excluirAlvo(\''+
+          esc(a.id)+'\')">EXCLUIR</button>'+
+
+        '</div>'+
+
+      '</div>';
+
+    }).join("");
+
+}
+
+
+function janela(a){
+
+  if(a.periodo_inicio||a.periodo_fim)
+
+    return periodo(
+      a.periodo_inicio,
+      a.periodo_fim
+    );
+
+  if(a.janela_dias)
+
+    return "próximos "+a.janela_dias+" dias";
+
+  return "qualquer período";
+
+}
+
+
+// ─────────── CAPTURA / IA ───────────
+
+async function varrer(alvoId){
+
+  const box=
+    document.getElementById("result");
+
+  try{
+
+    const d=await chamarFuncao(
+
+      CONFIG.capturaFunction,
+
+      {
+        acao:"varrer",
+        alvo_id:alvoId||null,
+        forcar:true
+      }
+
+    );
+
+    alert(
+      "Varredura concluída: "+
+      (d.capturados||0)+
+      " nova(s) captura(s)."
+    );
+
+    await load();
+
+  }catch(e){
+
+    if(box)
+
+      box.innerHTML=
+        '<div class="notice warn">'+
+        esc(e.message)+
+        '</div>';
+
+    alert(e.message);
+
+  }
+
+}
+
+
+async function processarPendentes(){
+
+  try{
+
+    const d=await chamarFuncao(
+
+      CONFIG.functionName,
+
+      {
+        acao:"processar_pendentes",
+        limite:10
+      },
+
+      180000
+
+    );
+
+    alert(
+      "Analisadas: "+(d.analisados||0)+
+      " • Selecionadas: "+(d.aprovados||0)+
+      " • Descartadas: "+(d.descartados||0)+
+      (d.falhas?" • Falhas: "+d.falhas:"")
+    );
+
+    await load();
+
+  }catch(e){
+
+    alert(e.message);
+
+  }
+
+}
+
+
+async function enfileirar(){
+
+  const texto=
+    document.getElementById("conteudo")
+      .value.trim();
+
+  const box=
+    document.getElementById("result");
+
+  if(!texto){
+
+    alert("Cole o conteúdo que deseja enfileirar.");
+
+    return;
+
+  }
+
+  try{
+
+    await chamarFuncao(
+
+      CONFIG.capturaFunction,
+
+      {
+        acao:"capturar_manual",
+        texto_original:texto,
+        url_original:
+          document.getElementById("url").value,
+        alvo_id:
+          document.getElementById("capturaAlvo").value||null
+      }
+
+    );
+
+    box.innerHTML=
+      '<div class="notice ok">'+
+      'Captura enfileirada. Use ANALISAR PENDENTES '+
+      'para a IA processar.'+
+      '</div>';
+
+    limpar();
+
+    await load();
+
+  }catch(e){
+
+    box.innerHTML=
+      '<div class="notice warn">'+
+      esc(e.message)+
+      '</div>';
+
+  }
 
 }
 
@@ -987,67 +2629,47 @@ async function analisar(){
 
   try{
 
-    const r=await api(
+    const d=await chamarFuncao(
 
-      "/functions/v1/"+
       CONFIG.functionName,
 
       {
 
-        method:"POST",
+        acao:"analisar_texto",
 
-        body:JSON.stringify({
+        fonte:
+          document.getElementById("fonte").value,
 
-          fonte:
-            fonte.value,
+        url_original:
+          document.getElementById("url").value,
 
-          url_original:
-            url.value,
+        alvo_id:
+          document.getElementById("capturaAlvo").value||null,
 
-          texto_original:
-            content
-
-        })
+        texto_original:
+          content
 
       }
 
     );
 
-    if(
-      r.status===401||
-      r.status===403
-    ){
+    if(d.selecionada===false){
 
-      sessaoExpirada();
+      box.innerHTML=
+        '<div class="notice warn">'+
+        'A IA entendeu o conteúdo, mas o Radar não '+
+        'selecionou esta oportunidade: '+
+        esc(d.motivo||"")+
+        '</div>';
 
-      return;
+    }else{
+
+      mostrarResultado(
+        d.oportunidade||d,
+        "result"
+      );
 
     }
-
-    const d=
-      await r.json()
-        .catch(()=>null);
-
-    if(!r.ok)
-
-      throw new Error(
-        (d&&(d.error||d.message))||
-        "Erro na função (HTTP "+
-        r.status+
-        "). Confira o deploy da "+
-        "Edge Function e os secrets."
-      );
-
-    if(!d)
-
-      throw new Error(
-        "A função retornou uma "+
-        "resposta inválida."
-      );
-
-    mostrarResultado(
-      d.oportunidade||d
-    );
 
     await load();
 
@@ -1067,6 +2689,220 @@ async function analisar(){
 
 }
 
+
+async function analisarCaptura(id){
+
+  const c=
+    capturas.find(x=>x.id===id);
+
+  if(!c)
+
+    return;
+
+  try{
+
+    const d=await chamarFuncao(
+
+      CONFIG.functionName,
+
+      {
+        acao:"analisar_texto",
+        captura_id:c.id,
+        alvo_id:c.alvo_id||null,
+        fonte:nomeFonte(c.fonte_id),
+        url_original:c.permalink||"",
+        texto_original:c.texto
+      }
+
+    );
+
+    alert(
+      d.selecionada===false
+        ?"Não selecionada: "+(d.motivo||"")
+        :"Oportunidade criada."
+    );
+
+    await load();
+
+  }catch(e){
+
+    alert(e.message);
+
+  }
+
+}
+
+
+async function descartarCaptura(id){
+
+  const motivo=
+    prompt(
+      "Motivo do descarte:",
+      "Sem relevância comercial"
+    );
+
+  if(motivo===null)
+
+    return;
+
+  try{
+
+    await chamarFuncao(
+
+      CONFIG.capturaFunction,
+
+      {
+        acao:"descartar",
+        captura_id:id,
+        motivo:motivo
+      }
+
+    );
+
+    await load();
+
+  }catch(e){
+
+    alert(e.message);
+
+  }
+
+}
+
+
+function nomeFonte(id){
+
+  const f=
+    fontes.find(x=>x.id===id);
+
+  return f?f.nome:"Manual";
+
+}
+
+
+function nomeAlvo(id){
+
+  const a=
+    alvos.find(x=>x.id===id);
+
+  return a?a.nome:"";
+
+}
+
+
+function renderCapturas(){
+
+  const q=
+    document.getElementById("buscaCaptura")
+      .value.toLowerCase();
+
+  const estado=
+    document.getElementById("filtroEstado").value;
+
+  const itens=
+    capturas
+
+      .filter(c=>
+        !estado||
+        c.estado===estado
+      )
+
+      .filter(c=>
+        String(c.texto||"")
+          .toLowerCase()
+          .includes(q)
+      );
+
+  const el=
+    document.getElementById("listaCapturas");
+
+  if(!itens.length){
+
+    el.innerHTML=
+      '<div class="empty">'+
+      'Nenhuma captura neste filtro.'+
+      '</div>';
+
+    return;
+
+  }
+
+  el.innerHTML=
+
+    itens.map(c=>{
+
+      const classe=
+        c.estado==="ANALISADO"
+          ?"ok"
+          :c.estado==="PENDENTE"
+            ?"pendente"
+            :c.estado==="ERRO"
+              ?"erro"
+              :"descartada";
+
+      return '<div class="opp">'+
+
+        '<div class="opp-top">'+
+
+          '<div class="opp-title">'+
+          esc(nomeFonte(c.fonte_id))+
+          (c.alvo_id
+            ?' • '+esc(nomeAlvo(c.alvo_id))
+            :"")+
+          '</div>'+
+
+          '<span class="badge '+classe+'">'+
+          esc(c.estado||"")+
+          '</span>'+
+
+        '</div>'+
+
+        '<div class="texto">'+
+        esc(
+          String(c.texto||"").slice(0,400)
+        )+
+        (String(c.texto||"").length>400?"…":"")+
+        '</div>'+
+
+        (c.motivo||c.erro
+          ?'<div class="motivo">'+
+           esc(c.erro||c.motivo)+
+           '</div>'
+          :"")+
+
+        '<div class="meta">'+
+          '<span>🕓 '+
+          esc(dataHora(c.capturado_em))+
+          '</span>'+
+          (c.permalink
+            ?'<span><a href="'+esc(c.permalink)+
+             '" target="_blank" rel="noopener">🔗 publicação</a></span>'
+            :"")+
+          (c.autor?'<span>👤 '+esc(c.autor)+'</span>':"")+
+        '</div>'+
+
+        '<div class="actions">'+
+
+          (c.estado==="ANALISADO"
+            ?""
+            :'<button class="btn success small" onclick="analisarCaptura(\''+
+             esc(c.id)+'\')">ANALISAR AGORA</button>')+
+
+          (c.estado==="DESCARTADO"
+            ?""
+            :'<button class="btn danger small" onclick="descartarCaptura(\''+
+             esc(c.id)+'\')">DESCARTAR</button>')+
+
+        '</div>'+
+
+      '</div>';
+
+    }).join("");
+
+}
+
+
+// ─────────── OPORTUNIDADES ───────────
 
 async function setStatus(id,status){
 
@@ -1113,8 +2949,88 @@ async function setStatus(id,status){
   await load();
 
   document.getElementById(
-    "result"
+    "detalhe"
   ).innerHTML="";
+
+}
+
+
+async function setNegociacao(id,status){
+
+  if(NEGOCIACAO.indexOf(status)<0)
+
+    return;
+
+  const r=await api(
+
+    "/rest/v1/radar_oportunidades"+
+    "?id=eq."+
+    encodeURIComponent(id),
+
+    {
+
+      method:"PATCH",
+
+      headers:{
+        "Prefer":"return=minimal"
+      },
+
+      body:JSON.stringify({
+        negociacao_status:status
+      })
+
+    }
+
+  );
+
+  if(r.status===401||r.status===403){
+
+    sessaoExpirada();
+
+    return;
+
+  }
+
+  if(!r.ok){
+
+    alert(
+      "Não foi possível atualizar a negociação. "+
+      "Confirme se a migration 008 foi aplicada."
+    );
+
+    return;
+
+  }
+
+  await load();
+
+}
+
+
+async function reavaliar(id){
+
+  try{
+
+    await chamarFuncao(
+
+      CONFIG.functionName,
+
+      {
+        acao:"reavaliar",
+        oportunidade_id:id
+      }
+
+    );
+
+    await load();
+
+    alert("Oportunidade reavaliada pela IA.");
+
+  }catch(e){
+
+    alert(e.message);
+
+  }
 
 }
 
@@ -1125,23 +3041,40 @@ function acoes(o){
 
     return "";
 
+  let html="";
+
   if(o.status==="APROVADA")
 
-    return '<button class="btn danger" onclick="setStatus(\''+o.id+'\',\'DESCARTADA\')">DESCARTAR</button>';
+    html+='<button class="btn danger" onclick="setStatus(\''+o.id+'\',\'DESCARTADA\')">DESCARTAR</button>';
 
-  if(o.status==="DESCARTADA")
+  else if(o.status==="DESCARTADA")
 
-    return '<button class="btn success" onclick="setStatus(\''+o.id+'\',\'APROVADA\')">APROVAR</button>';
+    html+='<button class="btn success" onclick="setStatus(\''+o.id+'\',\'APROVADA\')">APROVAR</button>';
 
-  return (
-    '<button class="btn success" onclick="setStatus(\''+o.id+'\',\'APROVADA\')">APROVAR</button>'+
-    '<button class="btn danger" onclick="setStatus(\''+o.id+'\',\'DESCARTADA\')">DESCARTAR</button>'
-  );
+  else
+
+    html+=
+      '<button class="btn success" onclick="setStatus(\''+o.id+'\',\'APROVADA\')">APROVAR</button>'+
+      '<button class="btn danger" onclick="setStatus(\''+o.id+'\',\'DESCARTADA\')">DESCARTAR</button>';
+
+  html+=
+    '<button class="btn light" onclick="reavaliar(\''+o.id+'\')">🔁 REAVALIAR</button>';
+
+  html+=
+    NEGOCIACAO.map(s=>
+      '<button class="btn '+
+      (o.negociacao_status===s?"dark":"light")+
+      '" onclick="setNegociacao(\''+o.id+'\',\''+s+'\')">'+
+      s.replace("_"," ")+
+      '</button>'
+    ).join("");
+
+  return html;
 
 }
 
 
-function mostrarResultado(o){
+function mostrarResultado(o,destino){
 
   const campos=[
 
@@ -1198,11 +3131,21 @@ function mostrarResultado(o){
     [
       "Status",
       o.status
+    ],
+
+    [
+      "Alvo",
+      nomeAlvo(o.alvo_id)||"—"
+    ],
+
+    [
+      "Negociação",
+      o.negociacao_status||"NOVA"
     ]
 
   ];
 
-  document.getElementById("result").innerHTML=
+  const html=
 
     '<div class="result">'+
 
@@ -1231,6 +3174,12 @@ function mostrarResultado(o){
     esc(o.resumo_ia||"")+
     '</p>'+
 
+    (o.motivo_selecao
+      ?'<div class="motivo">'+
+       esc(o.motivo_selecao)+
+       '</div>'
+      :"")+
+
     '<div class="actions">'+
     acoes(o)+
     '</div>'+
@@ -1253,59 +3202,19 @@ function mostrarResultado(o){
 
     '</div>';
 
-}
-
-
-function popularFiltros(){
-
-  const emp=
+  const el=
     document.getElementById(
-      "filtroEmp"
+      destino||"detalhe"
     );
 
-  const tipo=
-    document.getElementById(
-      "filtroTipo"
-    );
+  if(el)
 
-  const empAtual=emp.value;
-  const tipoAtual=tipo.value;
-
-  const emps=[
-    ...new Set(
-      oportunidades
-        .map(o=>o.empreendimento)
-        .filter(Boolean)
-    )
-  ].sort();
-
-  const tipos=[
-    ...new Set(
-      oportunidades
-        .map(o=>o.tipo_oportunidade)
-        .filter(Boolean)
-    )
-  ].sort();
-
-  emp.innerHTML=
-    '<option value="">Todos empreendimentos</option>'+
-    emps.map(e=>
-      '<option>'+esc(e)+'</option>'
-    ).join("");
-
-  tipo.innerHTML=
-    '<option value="">Todos os tipos</option>'+
-    tipos.map(t=>
-      '<option>'+esc(t)+'</option>'
-    ).join("");
-
-  emp.value=empAtual;
-  tipo.value=tipoAtual;
+    el.innerHTML=html;
 
 }
 
 
-function render(){
+function renderOportunidades(){
 
   const q=
     document
@@ -1326,6 +3235,11 @@ function render(){
   const fTipo=
     document
       .getElementById("filtroTipo")
+      .value;
+
+  const fAlvo=
+    document
+      .getElementById("filtroAlvo")
       .value;
 
   const ord=
@@ -1349,6 +3263,11 @@ function render(){
       .filter(o=>
         !fTipo||
         o.tipo_oportunidade===fTipo
+      )
+
+      .filter(o=>
+        !fAlvo||
+        o.alvo_id===fAlvo
       )
 
       .filter(o=>
@@ -1414,7 +3333,7 @@ function render(){
       return `
 
       <div
-        class="opp"
+        class="opp click"
         data-idx="${idx}"
       >
 
@@ -1470,6 +3389,13 @@ function render(){
             )}
           </span>
 
+          <span>
+            🤝
+            ${esc(
+              o.negociacao_status||"NOVA"
+            )}
+          </span>
+
         </div>
 
         <div class="meta">
@@ -1497,7 +3423,20 @@ function render(){
             ${esc(o.fonte||"")}
           </span>
 
+          <span>
+            🎯
+            ${esc(nomeAlvo(o.alvo_id)||"sem alvo")}
+          </span>
+
         </div>
+
+        ${
+          o.motivo_selecao
+            ?'<div class="motivo">'+
+             esc(o.motivo_selecao)+
+             '</div>'
+            :""
+        }
 
       </div>
 
@@ -1508,28 +3447,271 @@ function render(){
 }
 
 
+// ─────────── FONTES / SAÚDE ───────────
+
+async function salvarFonte(){
+
+  const msg=
+    document.getElementById("fonteMsg");
+
+  const nome=
+    document.getElementById("fonteNome")
+      .value.trim();
+
+  if(!nome){
+
+    msg.innerHTML=
+      '<div class="notice warn">'+
+      'Informe o nome da fonte.'+
+      '</div>';
+
+    return;
+
+  }
+
+  try{
+
+    await chamarFuncao(
+
+      CONFIG.capturaFunction,
+
+      {
+        acao:"salvar_fonte",
+        nome:nome,
+        tipo:
+          document.getElementById("fonteTipo").value,
+        identificador_externo:
+          document.getElementById("fonteIdent").value,
+        config:{
+          modo:
+            document.getElementById("fonteModo").value
+        }
+      }
+
+    );
+
+    msg.innerHTML=
+      '<div class="notice ok">Fonte salva.</div>';
+
+    document.getElementById("fonteNome").value="";
+    document.getElementById("fonteIdent").value="";
+
+    await load();
+
+  }catch(e){
+
+    msg.innerHTML=
+      '<div class="notice warn">'+
+      esc(e.message)+
+      '</div>';
+
+  }
+
+}
+
+
+async function removerFonte(id){
+
+  if(!confirm("Desativar esta fonte?"))
+
+    return;
+
+  try{
+
+    await chamarFuncao(
+
+      CONFIG.capturaFunction,
+
+      {
+        acao:"remover_fonte",
+        id:id
+      }
+
+    );
+
+    await load();
+
+  }catch(e){
+
+    alert(e.message);
+
+  }
+
+}
+
+
+function renderFontes(){
+
+  const el=
+    document.getElementById("listaFontes");
+
+  if(!fontes.length){
+
+    el.innerHTML=
+      '<div class="empty">'+
+      'Nenhuma fonte cadastrada.'+
+      '</div>';
+
+    return;
+
+  }
+
+  el.innerHTML=
+
+    fontes.map(f=>{
+
+      const classe=
+        f.credencial_status==="OK"
+          ?"ok"
+          :f.credencial_status==="ERRO"||
+           f.credencial_status==="EXPIRADA"
+            ?"erro"
+            :"pendente";
+
+      return '<div class="opp">'+
+
+        '<div class="opp-top">'+
+
+          '<div class="opp-title">'+
+          esc(f.nome)+
+          '</div>'+
+
+          '<span class="badge '+classe+'">'+
+          esc(f.credencial_status||"")+
+          '</span>'+
+
+        '</div>'+
+
+        '<div class="meta">'+
+          '<span>🔌 '+esc(f.tipo)+'</span>'+
+          (f.identificador_externo
+            ?'<span>#'+esc(f.identificador_externo)+'</span>'
+            :"")+
+          '<span>🕓 '+
+          esc(
+            f.ultima_sincronizacao
+              ?dataHora(f.ultima_sincronizacao)
+              :"nunca sincronizada"
+          )+
+          '</span>'+
+          '<span>'+
+          (f.ativo===false?"⏸️ inativa":"▶️ ativa")+
+          '</span>'+
+        '</div>'+
+
+        (f.credencial_mensagem
+          ?'<div class="motivo">'+
+           esc(f.credencial_mensagem)+
+           '</div>'
+          :"")+
+
+        (f.ativo===false
+          ?""
+          :'<div class="actions">'+
+           '<button class="btn danger small" onclick="removerFonte(\''+
+           esc(f.id)+'\')">DESATIVAR</button>'+
+           '</div>')+
+
+      '</div>';
+
+    }).join("");
+
+}
+
+
+function renderExecucoes(){
+
+  const el=
+    document.getElementById("listaExecucoes");
+
+  if(!execucoes.length){
+
+    el.innerHTML=
+      '<div class="empty">'+
+      'Nenhuma execução registrada ainda.'+
+      '</div>';
+
+    return;
+
+  }
+
+  el.innerHTML=
+
+    execucoes.map(x=>{
+
+      const classe=
+        x.status==="OK"
+          ?"ok"
+          :x.status==="ERRO"
+            ?"erro"
+            :"pendente";
+
+      return '<div class="opp">'+
+
+        '<div class="opp-top">'+
+
+          '<div class="opp-title">'+
+          esc(
+            x.origem==="ANALISE"
+              ?"IA • análise de pendentes"
+              :"Robô • varredura"
+          )+
+          '</div>'+
+
+          '<span class="badge '+classe+'">'+
+          esc(x.status||"")+
+          '</span>'+
+
+        '</div>'+
+
+        '<div class="meta">'+
+          '<span>🕓 '+esc(dataHora(x.criado_em))+'</span>'+
+          '<span>📥 '+esc(x.capturados??0)+' capturados</span>'+
+          '<span>🧠 '+esc(x.analisados??0)+' analisados</span>'+
+          '<span>✅ '+esc(x.aprovados??0)+' selecionados</span>'+
+          '<span>🚫 '+esc(x.descartados??0)+' descartados</span>'+
+          (x.alvo_id
+            ?'<span>🎯 '+esc(nomeAlvo(x.alvo_id))+'</span>'
+            :"")+
+          (x.fonte_id
+            ?'<span>🔌 '+esc(nomeFonte(x.fonte_id))+'</span>'
+            :"")+
+        '</div>'+
+
+        (x.erro
+          ?'<div class="motivo">'+
+           esc(x.erro)+
+           (x.trace_id?" (ref. "+esc(x.trace_id)+")":"")+
+           '</div>'
+          :"")+
+
+      '</div>';
+
+    }).join("");
+
+}
+
+
 function stats(){
+
+  document.getElementById(
+    "sAlvos"
+  ).textContent=
+    alvos.filter(
+      a=>a.ativo!==false
+    ).length;
+
+  document.getElementById(
+    "sPendentes"
+  ).textContent=
+    capturas.filter(
+      c=>c.estado==="PENDENTE"
+    ).length;
 
   document.getElementById(
     "sTotal"
   ).textContent=
     oportunidades.length;
-
-  document.getElementById(
-    "sExceptional"
-  ).textContent=
-    oportunidades.filter(
-      o=>
-        (o.score_oportunidade||0)>=90
-    ).length;
-
-  document.getElementById(
-    "sHigh"
-  ).textContent=
-    oportunidades.filter(
-      o=>
-        (o.score_oportunidade||0)>=70
-    ).length;
 
   document.getElementById(
     "sValidate"
@@ -1544,8 +3726,8 @@ function stats(){
 
 function limpar(){
 
-  conteudo.value="";
-  url.value="";
+  document.getElementById("conteudo").value="";
+  document.getElementById("url").value="";
 
   document.getElementById(
     "result"
@@ -1582,6 +3764,26 @@ function fmt(x){
   }catch{
 
     return x;
+
+  }
+
+}
+
+
+function dataHora(x){
+
+  if(!x)
+
+    return "—";
+
+  try{
+
+    return new Date(x)
+      .toLocaleString("pt-BR");
+
+  }catch{
+
+    return String(x);
 
   }
 
