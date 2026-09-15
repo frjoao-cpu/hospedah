@@ -718,7 +718,7 @@ function api(path,opts={}){
     CONFIG.supabaseUrl+path,
     opts
   ).catch(
-    (e)=>{
+    async (e)=>{
 
       // Erro de rede / CORS / função
       // fora do ar chega aqui como
@@ -733,12 +733,47 @@ function api(path,opts={}){
           "(timeout). Tente novamente."
         );
 
+      // Autodiagnóstico: testa a URL da
+      // função para distinguir "função
+      // não implantada" de falha de rede
+      // local (internet, VPN, bloqueio).
+      let detalhe="";
+
+      try{
+
+        const probe=
+          await fetch(
+            CONFIG.supabaseUrl+
+            "/functions/v1/"+
+            CONFIG.functionName,
+            {method:"OPTIONS"}
+          );
+
+        if(probe.status===404)
+
+          detalhe=
+            " A função "+
+            CONFIG.functionName+
+            " não foi encontrada no "+
+            "servidor (deploy pendente).";
+
+      }catch(_){
+
+        detalhe=
+          " Não foi possível alcançar "+
+          "o Supabase — verifique sua "+
+          "internet/VPN.";
+
+      }
+
       throw new Error(
         "Sem conexão com o servidor "+
         "(rede, CORS ou função "+
         CONFIG.functionName+
-        " indisponível). Verifique sua "+
-        "internet e o deploy da Edge Function."
+        " indisponível)."+
+        detalhe+
+        " Verifique o deploy da "+
+        "Edge Function."
       );
 
     }
