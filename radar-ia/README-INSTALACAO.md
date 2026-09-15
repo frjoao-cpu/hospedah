@@ -107,12 +107,28 @@ configure:
 
 GEMINI_API_KEY
 
-SUPABASE_SERVICE_ROLE_KEY
-
 Opcional:
 
 GEMINI_MODEL
 (padrão: gemini-2.0-flash)
+
+A chave de acesso ao banco é
+injetada automaticamente pelo
+runtime do Supabase:
+
+SUPABASE_SECRET_KEYS
+(JSON com as Secret Keys
+sb_secret_… emitidas via
+JWT Signing Keys)
+
+A chave legada
+
+SUPABASE_SERVICE_ROLE_KEY
+
+está descontinuada — a função
+ainda aceita essa variável como
+fallback, mas o Supabase a removerá
+no fim de 2026.
 
 Essas informações são secretas.
 
@@ -168,18 +184,20 @@ COLE_AQUI_SUA_PUBLISHABLE_OU_ANON_KEY
 Substitua pela:
 
 Publishable Key
+(sb_publishable_…)
 
-ou
+do seu projeto Supabase
+(a Anon Key legada está
+descontinuada).
 
-Anon Key
-
-do seu projeto Supabase.
-
-A Publishable/Anon Key pode ficar no frontend.
+A Publishable Key pode ficar no frontend.
 
 NÃO coloque:
 
+SUPABASE_SECRET_KEYS
+
 SUPABASE_SERVICE_ROLE_KEY
+(legada/descontinuada)
 
 ou:
 
@@ -372,13 +390,18 @@ Nunca publicar:
 
 GEMINI_API_KEY
 
+SUPABASE_SECRET_KEYS
+(chaves sb_secret_…)
+
 SUPABASE_SERVICE_ROLE_KEY
+(legada/descontinuada)
 
 Nunca colocar essas chaves
 diretamente no HTML.
 
-Apenas a Publishable/Anon Key
-deve ser utilizada no frontend.
+Apenas a Publishable Key
+(sb_publishable_…) deve ser
+utilizada no frontend.
 
 ---
 
@@ -438,7 +461,13 @@ Verifique nesta ordem:
    confirme:
 
    GEMINI_API_KEY
+
+   A chave de acesso ao banco
+   (SUPABASE_SECRET_KEYS) é
+   injetada automaticamente
+   pelo runtime — a legada
    SUPABASE_SERVICE_ROLE_KEY
+   serve como fallback.
 
    Opcional:
 

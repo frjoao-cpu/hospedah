@@ -30,8 +30,9 @@
 //   force  → "1" para ignorar o cache e buscar direto da API
 // ============================================================
 
-import { serve }        from 'https://deno.land/std@0.224.0/http/server.ts';
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { serve }                from 'https://deno.land/std@0.224.0/http/server.ts';
+import { createClient }         from 'https://esm.sh/@supabase/supabase-js@2';
+import { getSupabaseSecretKey } from '../_shared/secret-key.ts';
 
 const CACHE_TTL_MINUTES   = 60;
 const DEFAULT_LIMIT       = 12;
@@ -72,10 +73,11 @@ serve(async (req: Request): Promise<Response> => {
         return new Response(null, { status: 204, headers: CORS_HEADERS });
     }
 
-    // Inicializa cliente Supabase (service role para acessar a tabela de cache)
+    // Inicializa cliente Supabase (chave secreta para acessar a tabela de cache;
+    // usa SUPABASE_SECRET_KEYS com fallback para a legada SUPABASE_SERVICE_ROLE_KEY)
     const supabase = createClient(
         Deno.env.get('SUPABASE_URL') ?? '',
-        Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
+        getSupabaseSecretKey(),
     );
 
     // ── Resolve token: tabela instagram_config tem prioridade ────

@@ -6,7 +6,8 @@
 //
 // Variáveis de ambiente necessárias:
 //   SUPABASE_URL           → URL do projeto Supabase
-//   SUPABASE_SERVICE_ROLE_KEY → Service Role Key (não a anon key)
+//   SUPABASE_SECRET_KEYS   → Secret Keys (JWT Signing Keys); a legada
+//                            SUPABASE_SERVICE_ROLE_KEY é o fallback
 //   ZAPI_INSTANCE_ID       → ID da instância Z-API
 //   ZAPI_TOKEN             → Token da instância Z-API
 //
@@ -15,13 +16,14 @@
 //     -H "Authorization: Bearer <service_role_key>"
 // ============================================================
 
-import { serve }          from 'https://deno.land/std@0.224.0/http/server.ts';
-import { createClient }   from 'https://esm.sh/@supabase/supabase-js@2';
+import { serve }                from 'https://deno.land/std@0.224.0/http/server.ts';
+import { createClient }         from 'https://esm.sh/@supabase/supabase-js@2';
+import { getSupabaseSecretKey } from '../_shared/secret-key.ts';
 
 serve(async (_req: Request): Promise<Response> => {
     const supabase = createClient(
         Deno.env.get('SUPABASE_URL') ?? '',
-        Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
+        getSupabaseSecretKey(),
         { auth: { persistSession: false } },
     );
 

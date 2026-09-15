@@ -20,8 +20,9 @@
 //   { error: string }     → em caso de falha
 // ============================================================
 
-import { serve }        from 'https://deno.land/std@0.224.0/http/server.ts';
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { serve }                from 'https://deno.land/std@0.224.0/http/server.ts';
+import { createClient }         from 'https://esm.sh/@supabase/supabase-js@2';
+import { getSupabaseSecretKey } from '../_shared/secret-key.ts';
 
 const GEMINI_API_KEY = Deno.env.get('GEMINI_API_KEY') ?? '';
 // Model can be overridden via GEMINI_MODEL env variable (Supabase Dashboard → Settings → Edge Functions → Secrets).
@@ -291,8 +292,10 @@ Instruções de comportamento:
 // there would remove all food/dining information from the AI's context —
 // causing the "alimentação de outra parte" conflict. Custom overrides
 // should use 'custom_instructions' instead.
-const SUPABASE_URL         = Deno.env.get('SUPABASE_URL')             ?? '';
-const SUPABASE_SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '';
+// Chave legada SUPABASE_SERVICE_ROLE_KEY descontinuada: usa
+// SUPABASE_SECRET_KEYS (JWT Signing Keys) com fallback legado.
+const SUPABASE_URL         = Deno.env.get('SUPABASE_URL') ?? '';
+const SUPABASE_SERVICE_KEY = getSupabaseSecretKey();
 const CONFIG_CACHE_TTL_MS  = 5 * 60 * 1000; // 5 minutes
 
 interface ConfigCache { systemPrompt: string; faqExtras: string; fetchedAt: number; }

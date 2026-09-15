@@ -3,6 +3,11 @@ import {
 } from "https://esm.sh/@supabase/supabase-js@2";
 
 
+import {
+  getSupabaseSecretKey
+} from "../_shared/secret-key.ts";
+
+
 const cors = {
 
   "Access-Control-Allow-Origin": "*",
@@ -352,10 +357,11 @@ Deno.serve(
         )!;
 
 
+      // Chave legada SUPABASE_SERVICE_ROLE_KEY
+      // descontinuada: usa SUPABASE_SECRET_KEYS
+      // (JWT Signing Keys) com fallback legado.
       const SERVICE =
-        Deno.env.get(
-          "SUPABASE_SERVICE_ROLE_KEY"
-        )!;
+        getSupabaseSecretKey();
 
 
       const GEMINI =

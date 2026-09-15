@@ -13,11 +13,13 @@
 //   RESEND_API_KEY  → Chave da API Resend
 //   RESEND_FROM     → Remetente (ex: HOSPEDAH <noreply@hospedah.tur.br>)
 //   SUPABASE_URL    → URL do projeto Supabase
-//   SUPABASE_SERVICE_ROLE_KEY → Service role key (acesso total à fila)
+//   SUPABASE_SECRET_KEYS → Secret Keys (JWT Signing Keys, acesso total à fila);
+//                          a legada SUPABASE_SERVICE_ROLE_KEY é o fallback
 // ============================================================
 
-import { serve }        from 'https://deno.land/std@0.224.0/http/server.ts';
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { serve }                from 'https://deno.land/std@0.224.0/http/server.ts';
+import { createClient }         from 'https://esm.sh/@supabase/supabase-js@2';
+import { getSupabaseSecretKey } from '../_shared/secret-key.ts';
 
 // ── Sequências de e-mail ─────────────────────────────────────
 // Cada entrada: { diasAposAnterior, assunto, corpo }
@@ -213,7 +215,7 @@ function buildEmail(record: NurturingRecord, step: EmailStep): string {
 
 serve(async (): Promise<Response> => {
   const supabaseUrl     = Deno.env.get('SUPABASE_URL')!;
-  const serviceRoleKey  = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+  const serviceRoleKey  = getSupabaseSecretKey();
   const resendKey       = Deno.env.get('RESEND_API_KEY');
   const resendFrom      = Deno.env.get('RESEND_FROM') ?? 'HOSPEDAH <noreply@hospedah.tur.br>';
 
