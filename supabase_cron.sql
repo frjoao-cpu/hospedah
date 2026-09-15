@@ -346,3 +346,51 @@ SELECT cron.schedule(
       AND pontos > 0;
     $$
 );
+
+-- ============================================================
+-- 13. RADAR IA — CENTRAL DE MONITORAMENTO
+--     13.1 Varredura das fontes oficiais (o robô encontra)
+--          a cada hora; a função respeita a cadência
+--          (cadencia_minutos) de cada alvo ativo.
+--     13.2 Análise das capturas pendentes (a IA entende /
+--          o Radar seleciona) 10 minutos depois.
+--
+--     Pré-requisito: a chave de serviço precisa estar em
+--     app.service_role_key (ver seção 1) — é ela que o
+--     radar-captura/radar-ia reconhecem como "robô".
+-- ============================================================
+SELECT cron.unschedule('radar-captura-varredura')
+WHERE EXISTS (SELECT 1 FROM cron.job WHERE jobname = 'radar-captura-varredura');
+
+SELECT cron.schedule(
+    'radar-captura-varredura',
+    '0 * * * *',
+    $$
+    SELECT net.http_post(
+        url     := 'https://ydrmjoppjxtmnwtvtinb.supabase.co/functions/v1/radar-captura',
+        headers := jsonb_build_object(
+            'Content-Type',  'application/json',
+            'Authorization', 'Bearer ' || current_setting('app.service_role_key', true)
+        ),
+        body    := '{"acao":"varrer"}'::jsonb
+    );
+    $$
+);
+
+SELECT cron.unschedule('radar-ia-processar-pendentes')
+WHERE EXISTS (SELECT 1 FROM cron.job WHERE jobname = 'radar-ia-processar-pendentes');
+
+SELECT cron.schedule(
+    'radar-ia-processar-pendentes',
+    '10 * * * *',
+    $$
+    SELECT net.http_post(
+        url     := 'https://ydrmjoppjxtmnwtvtinb.supabase.co/functions/v1/radar-ia',
+        headers := jsonb_build_object(
+            'Content-Type',  'application/json',
+            'Authorization', 'Bearer ' || current_setting('app.service_role_key', true)
+        ),
+        body    := '{"acao":"processar_pendentes","limite":10}'::jsonb
+    );
+    $$
+);
