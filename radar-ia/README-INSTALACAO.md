@@ -86,9 +86,13 @@ Não coloque essa senha no código.
 
 # 4. GEMINI
 
-A Edge Function utiliza:
+A Edge Function utiliza por padrão:
 
-gemini-2.5-flash
+gemini-2.0-flash
+
+O modelo pode ser alterado pelo secret:
+
+GEMINI_MODEL
 
 Crie uma chave da API do Google Gemini.
 
@@ -105,7 +109,12 @@ GEMINI_API_KEY
 
 SUPABASE_SERVICE_ROLE_KEY
 
-Essas duas informações são secretas.
+Opcional:
+
+GEMINI_MODEL
+(padrão: gemini-2.0-flash)
+
+Essas informações são secretas.
 
 Nunca coloque essas chaves
 em um repositório público.
@@ -128,11 +137,15 @@ empreendimento usando o cadastro de
 aliases e grava o histórico de cada
 análise em radar_analises.
 
-Faça o deploy da Edge Function.
+O deploy da Edge Function é feito
+automaticamente pelo CI
+(.github/workflows/ci.yml)
+a cada push na branch main.
 
-Com Supabase CLI:
+Para fazer o deploy manual com
+Supabase CLI:
 
-supabase functions deploy radar-ia
+supabase functions deploy radar-ia --no-verify-jwt
 
 Depois configure os Secrets.
 
@@ -394,13 +407,16 @@ a oportunidade no Supabase.
 
 ---
 
-# 16.1 ERRO "FALHOU EM BUSCAR"
+# 16.1 ERRO DE CONEXÃO COM O SERVIDOR
 
 Se aparecer:
 
-Erro: Falhou em buscar
+Erro: Sem conexão com o servidor
+(rede, CORS ou função radar-ia
+indisponível)...
 
-(ou "Failed to fetch")
+(ou "Falhou em buscar" /
+"Failed to fetch")
 ao clicar em ANALISAR COM IA,
 o navegador não conseguiu
 concluir a chamada à Edge Function.
@@ -409,9 +425,11 @@ Verifique nesta ordem:
 1. DEPLOY DA FUNÇÃO
 
    Confirme que a função radar-ia
-   foi publicada:
+   foi publicada
+   (o CI faz o deploy automaticamente
+   a cada push na main):
 
-   supabase functions deploy radar-ia
+   supabase functions deploy radar-ia --no-verify-jwt
 
 2. SECRETS
 
