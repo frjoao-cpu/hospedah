@@ -561,6 +561,56 @@ Verifique nesta ordem:
 
 ---
 
+# 16.2 ERRO INTERNO AO PROCESSAR A ANÁLISE
+
+A função radar-ia agora devolve a
+causa real do problema em vez da
+mensagem genérica. Se ainda assim
+aparecer:
+
+Erro: Erro interno ao processar a
+análise (ref. XXXXXXXX)...
+
+o código "ref." é o trace_id do
+erro: procure por ele em
+Supabase → Edge Functions →
+radar-ia → Logs para ver o stack
+trace completo.
+
+Mensagens agora tratadas
+diretamente na tela:
+
+1. "Tabela radar_oportunidades não
+   encontrada no banco" →
+   aplique a migration
+   supabase/migrations/007_radar_ia.sql
+   no SQL Editor do Supabase.
+
+2. "Estrutura da tabela ...
+   desatualizada (coluna ausente)" →
+   reaplique a mesma migration
+   (o schema está antigo).
+
+3. "Sem permissão para gravar ...
+   (RLS)" → confira as policies
+   criadas pela migration 007 e o
+   secret de chave secreta da
+   Edge Function.
+
+4. "Edge Function sem credenciais
+   do Supabase" → defina
+   SUPABASE_URL e
+   SUPABASE_SECRET_KEY em
+   Edge Functions → Secrets.
+
+5. "GEMINI_API_KEY inválida",
+   "Modelo ... indisponível",
+   "Limite de uso da IA atingido",
+   "timeout" → veja a seção 16.1,
+   itens 2 e 3.
+
+---
+
 # 17. PRÓXIMA EVOLUÇÃO
 
 A arquitetura pode posteriormente receber:
