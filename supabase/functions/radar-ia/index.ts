@@ -817,23 +817,11 @@ Deno.serve(
       }
 
 
-      if(!gd){
-
-        throw new AppError(
-          "A API do Gemini retornou uma " +
-          "resposta vazia (HTTP " +
-          gr.status + "). Tente novamente.",
-          502
-        );
-
-      }
-
-
       if(!gr.ok){
 
         const geminiMsg =
           String(
-            gd.error?.message ||
+            gd?.error?.message ||
             "Erro Gemini"
           );
 
@@ -890,6 +878,18 @@ Deno.serve(
         throw new AppError(
           "Erro na API do Gemini: " +
           geminiMsg,
+          502
+        );
+
+      }
+
+
+      if(!gd){
+
+        throw new AppError(
+          "A API do Gemini retornou uma " +
+          "resposta vazia (HTTP " +
+          gr.status + "). Tente novamente.",
           502
         );
 
