@@ -454,6 +454,40 @@ Verifique nesta ordem:
 
    supabase functions deploy radar-ia --no-verify-jwt
 
+   No GitHub, confira o job
+   "Deploy Edge Functions (Supabase)"
+   do workflow CI na aba Actions:
+   se estiver vermelho, abra os logs —
+   a causa exata (token inválido,
+   função com erro, etc.) aparece lá.
+
+1.1 TOKEN DO CI SEM PRIVILÉGIO
+
+   Se os logs do CI mostrarem
+   "Unauthorized" (401) ou
+   "Your account does not have the
+   necessary privileges", o
+   SUPABASE_ACCESS_TOKEN está
+   inválido, expirado ou sem
+   permissão no projeto.
+
+   Gere um novo Personal Access Token
+   (formato sbp_…) em:
+
+   https://supabase.com/dashboard/account/tokens
+
+   com uma conta que seja OWNER/ADMIN
+   da organização do projeto, e
+   atualize o GitHub Secret
+   SUPABASE_ACCESS_TOKEN em
+   Settings → Secrets and variables
+   → Actions.
+
+   O secret GEMINI_API_KEY também
+   pode ser configurado manualmente:
+   Supabase Dashboard →
+   Edge Functions → Secrets.
+
 2. SECRETS
 
    No Supabase, em

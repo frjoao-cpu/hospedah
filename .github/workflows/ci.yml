@@ -295,49 +295,53 @@ jobs:
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
 
+      # A configuração do secret é uma conveniência: o token
+      # SUPABASE_ACCESS_TOKEN pode não ter privilégio de escrita
+      # de secrets (erro "does not have the necessary privileges").
+      # Isso NÃO pode impedir o deploy das funções — por isso a
+      # falha vira aviso e o job segue para os deploys.
       - name: Configurar segredo GEMINI_API_KEY no Supabase
         run: |
-          if [ -n "$GEMINI_API_KEY" ]; then
-            supabase secrets set GEMINI_API_KEY="$GEMINI_API_KEY" --project-ref ydrmjoppjxtmnwtvtinb
+          if [ -z "$GEMINI_API_KEY" ]; then
+            echo "⚠️  GEMINI_API_KEY não configurado como GitHub Secret — configure o secret manualmente no Supabase (Edge Functions → Secrets)."
+            exit 0
+          fi
+          if supabase secrets set GEMINI_API_KEY="$GEMINI_API_KEY" --project-ref ydrmjoppjxtmnwtvtinb; then
+            echo "✅ Secret GEMINI_API_KEY configurado no Supabase."
           else
-            echo "⚠️  GEMINI_API_KEY não configurado como GitHub Secret — pule esta etapa ou configure o secret."
+            echo "::warning::Não foi possível gravar o secret GEMINI_API_KEY via CI (token sem privilégio de escrita de secrets?)."
+            echo "::warning::Configure-o manualmente: Supabase Dashboard → Edge Functions → Secrets → GEMINI_API_KEY. O deploy das funções continuará."
           fi
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
 
-      - name: Deploy ai-concierge
-        run: supabase functions deploy ai-concierge --project-ref ydrmjoppjxtmnwtvtinb --no-verify-jwt
-        env:
-          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
-
-      - name: Deploy ai-insights
-        run: supabase functions deploy ai-insights --project-ref ydrmjoppjxtmnwtvtinb --no-verify-jwt
-        env:
-          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
-
-      - name: Deploy lembrete-checkin
-        run: supabase functions deploy lembrete-checkin --project-ref ydrmjoppjxtmnwtvtinb --no-verify-jwt
-        env:
-          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
-
-      - name: Deploy notificacao-reserva
-        run: supabase functions deploy notificacao-reserva --project-ref ydrmjoppjxtmnwtvtinb --no-verify-jwt
-        env:
-          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
-
-      - name: Deploy recuperacao-abandono
-        run: supabase functions deploy recuperacao-abandono --project-ref ydrmjoppjxtmnwtvtinb --no-verify-jwt
-        env:
-          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
-
-      - name: Deploy weather
-        run: supabase functions deploy weather --project-ref ydrmjoppjxtmnwtvtinb --no-verify-jwt
-        env:
-          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
-
-      - name: Deploy radar-ia
-        run: supabase functions deploy radar-ia --project-ref ydrmjoppjxtmnwtvtinb --no-verify-jwt
+      # Deploy de todas as Edge Functions em um único step
+      # resiliente: uma falha individual não impede as demais
+      # (o radar-ia sempre é tentado), mas o job falha no final
+      # com o resumo das funções que não subiram.
+      - name: Deploy Edge Functions
+        run: |
+          FAILED=""
+          for fn in ai-concierge ai-insights lembrete-checkin notificacao-reserva recuperacao-abandono weather radar-ia; do
+            echo "────────────────────────────────────────"
+            echo "🚀 Deploy: $fn"
+            echo "────────────────────────────────────────"
+            if supabase functions deploy "$fn" --project-ref ydrmjoppjxtmnwtvtinb --no-verify-jwt; then
+              echo "✅ $fn implantada."
+            else
+              echo "::error::Falha ao fazer deploy da Edge Function $fn."
+              FAILED="$FAILED $fn"
+            fi
+          done
+          if [ -n "$FAILED" ]; then
+            echo ""
+            echo "::error::Falha no deploy das funções:$FAILED"
+            echo "::error::Verifique o SUPABASE_ACCESS_TOKEN (privilégios no projeto) e os logs acima."
+            exit 1
+          fi
+          echo ""
+          echo "✅ Todas as Edge Functions implantadas com sucesso."
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
 
