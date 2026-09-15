@@ -760,13 +760,18 @@ Deno.serve(
 
     }catch(e){
 
+      // Detalhes do erro ficam apenas
+      // no log interno da função;
+      // o cliente recebe mensagem
+      // genérica para não expor
+      // stack trace/internals.
+      console.error(e);
+
       return json(
 
         {
           error:
-            (e as Error)
-              ?.message ||
-            String(e)
+            "Erro interno ao processar a análise"
         },
 
         500
