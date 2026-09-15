@@ -23,8 +23,19 @@ const headers = {
 };
 
 
+// Modelo configurável via secret GEMINI_MODEL.
+// Padrão: gemini-2.0-flash (estável e disponível
+// no nível gratuito). gemini-2.5-flash pode não
+// estar habilitado em todas as chaves/projetos.
 const MODEL =
-  "gemini-2.5-flash";
+  Deno.env.get("GEMINI_MODEL") ||
+  "gemini-2.0-flash";
+
+
+// Timeout da chamada ao Gemini para evitar
+// que a Edge Function trave indefinidamente
+// e o browser aborte com "Failed to fetch".
+const GEMINI_TIMEOUT_MS = 45000;
 
 
 const TIPOS = [
@@ -350,7 +361,22 @@ Deno.serve(
       const GEMINI =
         Deno.env.get(
           "GEMINI_API_KEY"
-        )!;
+        );
+
+
+      if(!GEMINI){
+
+        return json(
+          {
+            error:
+              "IA não configurada. " +
+              "Defina o secret GEMINI_API_KEY " +
+              "na Edge Function."
+          },
+          500
+        );
+
+      }
 
 
       const supabase =
@@ -435,49 +461,109 @@ Deno.serve(
         body.texto_original;
 
 
-      const gr =
-        await fetch(
+      const geminiUrl =
+        "https://generativelanguage.googleapis.com" +
+        "/v1beta/models/" +
+        MODEL +
+        ":generateContent?key=" +
+        GEMINI;
 
-          `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${GEMINI}`,
 
-          {
+      const geminiBody =
+        JSON.stringify({
 
-            method: "POST",
+          contents: [
+            {
+              role: "user",
 
-            headers: {
-              "Content-Type":
-                "application/json"
-            },
-
-            body:
-              JSON.stringify({
-
-                contents: [
-                  {
-                    role: "user",
-
-                    parts: [
-                      {
-                        text: prompt
-                      }
-                    ]
-                  }
-                ],
-
-                generationConfig: {
-
-                  temperature: 0.1,
-
-                  responseMimeType:
-                    "application/json"
-
+              parts: [
+                {
+                  text: prompt
                 }
+              ]
+            }
+          ],
 
-              })
+          generationConfig: {
+
+            temperature: 0.1,
+
+            responseMimeType:
+              "application/json"
 
           }
 
+        });
+
+
+      async function chamarGemini(
+        modelUrl: string
+      ){
+
+        const ctrl =
+          new AbortController();
+
+        const timer =
+          setTimeout(
+            () => ctrl.abort(),
+            GEMINI_TIMEOUT_MS
+          );
+
+        try{
+
+          return await fetch(
+            modelUrl,
+            {
+              method: "POST",
+
+              headers: {
+                "Content-Type":
+                  "application/json"
+              },
+
+              body: geminiBody,
+
+              signal: ctrl.signal
+            }
+          );
+
+        }finally{
+
+          clearTimeout(timer);
+
+        }
+
+      }
+
+
+      let gr;
+
+      try{
+
+        gr =
+          await chamarGemini(
+            geminiUrl
+          );
+
+      }catch(err){
+
+        if(
+          err instanceof Error &&
+          err.name === "AbortError"
+        )
+
+          throw new Error(
+            "A IA demorou demais " +
+            "para responder " +
+            "(timeout). Tente novamente."
+          );
+
+        throw new Error(
+          "Falha de rede ao chamar " +
+          "a API do Gemini"
         );
+
+      }
 
 
       const gd =
@@ -486,9 +572,53 @@ Deno.serve(
 
       if(!gr.ok){
 
+        const geminiMsg =
+          String(
+            gd.error?.message ||
+            "Erro Gemini"
+          );
+
+
+        // Mensagens acionáveis para os
+        // erros de configuração mais comuns.
+        if(gr.status === 400 &&
+          /API key not valid|API_KEY_INVALID/i
+            .test(geminiMsg))
+
+          throw new Error(
+            "GEMINI_API_KEY inválida. " +
+            "Revise o secret na Edge Function."
+          );
+
+        if(gr.status === 403)
+
+          throw new Error(
+            "API do Gemini sem permissão. " +
+            "Verifique a GEMINI_API_KEY e se " +
+            "a Generative Language API está ativa."
+          );
+
+        if(gr.status === 404 ||
+          /not found|not supported/i
+            .test(geminiMsg))
+
+          throw new Error(
+            "Modelo " + MODEL +
+            " indisponível para esta chave. " +
+            "Defina o secret GEMINI_MODEL " +
+            "com um modelo válido (ex.: " +
+            "gemini-2.0-flash) na Edge Function."
+          );
+
+        if(gr.status === 429)
+
+          throw new Error(
+            "Limite de uso da IA atingido. " +
+            "Aguarde e tente novamente."
+          );
+
         throw new Error(
-          gd.error?.message ||
-          "Erro Gemini"
+          geminiMsg
         );
 
       }
@@ -760,18 +890,42 @@ Deno.serve(
 
     }catch(e){
 
-      // Detalhes do erro ficam apenas
-      // no log interno da função;
-      // o cliente recebe mensagem
-      // genérica para não expor
-      // stack trace/internals.
       console.error(e);
+
+      // Mensagens operacionais (criadas por
+      // este arquivo) são seguras para o
+      // cliente; qualquer outro erro interno
+      // recebe mensagem genérica para não
+      // expor stack trace/internals.
+      const msg =
+        e instanceof Error
+          ? e.message
+          : "";
+
+
+      const segura =
+        [
+          "timeout",
+          "Tente novamente",
+          "GEMINI_API_KEY",
+          "GEMINI_MODEL",
+          "Gemini",
+          "Limite de uso",
+          "JSON válido",
+          "não retornou conteúdo",
+          "Falha de rede"
+        ].some(
+          (p) => msg.includes(p)
+        );
+
 
       return json(
 
         {
           error:
-            "Erro interno ao processar a análise"
+            segura && msg
+              ? msg
+              : "Erro interno ao processar a análise"
         },
 
         500

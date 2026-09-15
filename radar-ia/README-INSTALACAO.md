@@ -394,6 +394,71 @@ a oportunidade no Supabase.
 
 ---
 
+# 16.1 ERRO "FALHOU EM BUSCAR"
+
+Se aparecer:
+
+Erro: Falhou em buscar
+
+(ou "Failed to fetch")
+ao clicar em ANALISAR COM IA,
+o navegador não conseguiu
+concluir a chamada à Edge Function.
+Verifique nesta ordem:
+
+1. DEPLOY DA FUNÇÃO
+
+   Confirme que a função radar-ia
+   foi publicada:
+
+   supabase functions deploy radar-ia
+
+2. SECRETS
+
+   No Supabase, em
+   Edge Functions → Secrets,
+   confirme:
+
+   GEMINI_API_KEY
+   SUPABASE_SERVICE_ROLE_KEY
+
+   Opcional:
+
+   GEMINI_MODEL
+   (padrão: gemini-2.0-flash)
+
+3. MODELO GEMINI
+
+   Se o log da função mostrar
+   erro 404 ou "model not found",
+   defina:
+
+   GEMINI_MODEL=gemini-2.0-flash
+
+   O código usa gemini-2.0-flash
+   por padrão, que está disponível
+   no nível gratuito da API.
+
+4. LOGS DA FUNÇÃO
+
+   Supabase → Edge Functions →
+   radar-ia → Logs mostram a causa
+   exata (chave inválida, modelo
+   indisponível, timeout, etc.).
+
+5. CONEXÃO
+
+   Teste a URL da função:
+
+   https://ydrmjoppjxtmnwtvtinb.supabase.co/functions/v1/radar-ia
+
+   Ela deve responder um JSON
+   de erro de autenticação (401),
+   o que confirma que a função
+   está no ar.
+
+---
+
 # 17. PRÓXIMA EVOLUÇÃO
 
 A arquitetura pode posteriormente receber:
