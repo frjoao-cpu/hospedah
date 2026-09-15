@@ -609,6 +609,31 @@ diretamente na tela:
    "timeout" → veja a seção 16.1,
    itens 2 e 3.
 
+6. "A API do Gemini retornou uma
+   resposta inesperada",
+   "resposta truncada",
+   "A IA bloqueou a análise" →
+   instabilidade/limite do Gemini
+   ou texto muito grande: tente
+   novamente com um trecho menor.
+
+IMPORTANTE: se a mensagem exibida
+for a versão ANTIGA, sem o código
+"(ref. ...)", a função implantada
+está desatualizada. Verifique o job
+"Deploy Edge Functions (Supabase)"
+no GitHub Actions — se ele falhou
+por SUPABASE_ACCESS_TOKEN inválido
+ou expirado, gere um novo token em
+https://supabase.com/dashboard/account/tokens
+e atualize o GitHub Secret
+SUPABASE_ACCESS_TOKEN. Alternativa
+manual:
+
+supabase functions deploy radar-ia \
+  --project-ref ydrmjoppjxtmnwtvtinb \
+  --no-verify-jwt
+
 ---
 
 # 17. PRÓXIMA EVOLUÇÃO
