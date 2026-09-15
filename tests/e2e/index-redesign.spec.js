@@ -18,6 +18,40 @@ test.describe('Homepage redesign integrations', () => {
     await expect(page.locator('#oportunidades')).toBeVisible();
   });
 
+  test('exibe os 5 cards reais do radar de oportunidades com imagens otimizadas', async ({ page }) => {
+    await page.goto('/');
+    const cards = page.locator('#oportunidades .score-op-card');
+    await expect(cards).toHaveCount(5);
+    await expect(cards.nth(0)).toContainText('Wyndham Royal Olímpia');
+    await expect(cards.nth(1)).toContainText('São Pedro Thermas Resort');
+    await expect(cards.nth(2)).toContainText('Olímpia Park Resort');
+    await expect(cards.nth(3)).toContainText('Hot Beach Suítes');
+    await expect(cards.nth(4)).toContainText('Ipioca Beach Park Maceió');
+
+    const optimizedImages = page.locator('#oportunidades .score-op-card img[loading="lazy"][decoding="async"]');
+    await expect(optimizedImages).toHaveCount(5);
+  });
+
+  test('navbar desktop abre o dropdown, mobile expõe Oportunidades na gaveta e tracking carrega uma única vez', async ({ page }) => {
+    await page.goto('/');
+    if ((page.viewportSize()?.width || 0) < 901) {
+      await expect(page.locator('#navDrawer a[href="#oportunidades"]')).toHaveCount(1);
+      await expect(page.locator('script[src$="/assets/tracking.js"]')).toHaveCount(1);
+      return;
+    }
+    const moreButton = page.locator('#navMoreBtn');
+    const moreMenu = page.locator('#navMoreMenu');
+    await expect(moreButton).toBeVisible();
+    await expect(moreMenu).toBeHidden();
+    await moreButton.click();
+    await expect(moreMenu).toBeVisible();
+    await expect(moreMenu.getByRole('menuitem', { name: /FAQ/i })).toBeVisible();
+    await page.keyboard.press('Escape');
+    await expect(moreMenu).toBeHidden();
+
+    await expect(page.locator('script[src$="/assets/tracking.js"]')).toHaveCount(1);
+  });
+
   test('calculadora usa campo de diária e percentual dinâmico', async ({ page }) => {
     await page.goto('/');
     await expect(page.locator('#diaria')).toBeVisible();
