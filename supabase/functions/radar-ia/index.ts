@@ -405,22 +405,32 @@ function parseAiJson(
     const end =
       cleaned.lastIndexOf("}");
 
-    if(
-      start >= 0 &&
-      end > start
-    ){
+    try{
 
-      return JSON.parse(
-        cleaned.slice(
-          start,
-          end + 1
-        )
-      );
+      if(
+        start >= 0 &&
+        end > start
+      ){
+
+        return JSON.parse(
+          cleaned.slice(
+            start,
+            end + 1
+          )
+        );
+
+      }
+
+    }catch{
+
+      // Segue para o erro tratado abaixo.
 
     }
 
     throw new AppError(
-      "A IA não retornou um JSON válido",
+      "A IA não retornou um JSON válido " +
+      "(resposta possivelmente truncada). " +
+      "Tente novamente com um texto menor.",
       502
     );
 
@@ -537,7 +547,18 @@ Deno.serve(
         error: authError
       } =
         await supabase.auth
-          .getUser(jwt);
+          .getUser(jwt)
+          .catch(
+            () => ({
+              data: null,
+              error: {
+                message: "network"
+              }
+            })
+          ) as {
+            data: { user?: unknown } | null;
+            error: { message?: string } | null;
+          };
 
 
       if(
@@ -765,8 +786,47 @@ Deno.serve(
       }
 
 
-      const gd =
-        await gr.json();
+      // O Gemini pode responder com HTML/texto
+      // (proxy, 5xx, bloqueio) — nesse caso
+      // gr.json() lançaria SyntaxError e viraria
+      // "Erro interno". Lemos como texto primeiro.
+      const rawGemini =
+        await gr.text()
+          .catch(() => "");
+
+
+      let gd: any = null;
+
+      try{
+
+        gd =
+          rawGemini
+            ? JSON.parse(rawGemini)
+            : null;
+
+      }catch{
+
+        throw new AppError(
+          "A API do Gemini retornou uma " +
+          "resposta inesperada (HTTP " +
+          gr.status + "). Tente novamente " +
+          "em instantes.",
+          502
+        );
+
+      }
+
+
+      if(!gd){
+
+        throw new AppError(
+          "A API do Gemini retornou uma " +
+          "resposta vazia (HTTP " +
+          gr.status + "). Tente novamente.",
+          502
+        );
+
+      }
 
 
       if(!gr.ok){
@@ -845,8 +905,40 @@ Deno.serve(
 
       if(!text){
 
+        const motivo =
+          String(
+            gd.candidates?.[0]
+              ?.finishReason ||
+            gd.promptFeedback
+              ?.blockReason ||
+            ""
+          );
+
+
+        if(/MAX_TOKENS/i.test(motivo))
+
+          throw new AppError(
+            "A resposta da IA foi truncada. " +
+            "Analise um texto menor.",
+            502
+          );
+
+
+        if(/SAFETY|BLOCK|RECITATION/i
+          .test(motivo))
+
+          throw new AppError(
+            "A IA bloqueou a análise deste " +
+            "conteúdo (" + motivo + "). " +
+            "Revise o texto colado.",
+            502
+          );
+
+
         throw new AppError(
-          "A IA não retornou conteúdo",
+          "A IA não retornou conteúdo" +
+          (motivo ? " (" + motivo + ")" : "") +
+          ".",
           502
         );
 
