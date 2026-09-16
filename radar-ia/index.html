@@ -3308,16 +3308,24 @@ function renderOportunidades(){
           .includes(q)
       )
 
-      .filter(o=>
-        scoreMin===null||
-        Number.isNaN(scoreMin)||
-        (
-          !Number.isNaN(
-            Number(o.score_oportunidade)
-          )&&
-          Number(o.score_oportunidade)>=scoreMin
+      .filter(o=>{
+
+        if(
+          scoreMin===null||
+          Number.isNaN(scoreMin)
         )
-      );
+
+          return true;
+
+        const score=
+          Number(o.score_oportunidade);
+
+        return (
+          !Number.isNaN(score)&&
+          score>=scoreMin
+        );
+
+      });
 
   if(ord==="score")
 
