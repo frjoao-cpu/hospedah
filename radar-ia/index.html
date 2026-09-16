@@ -244,9 +244,13 @@ select[multiple]{
 
 .toolbar{
   display:grid;
-  grid-template-columns:1fr 160px 170px 150px 160px 140px;
+  grid-template-columns:1fr 160px 170px 150px 160px 140px 130px 170px;
   gap:10px;
   margin-bottom:14px;
+}
+
+.toolbar .btn{
+  width:100%;
 }
 
 .cols2{
@@ -454,10 +458,10 @@ pre{
   }
 
   .toolbar{
-    grid-template-columns:1fr 1fr;
+    grid-template-columns:repeat(2,minmax(0,1fr));
   }
 
-  .toolbar input{
+  .toolbar #busca{
     grid-column:1/-1;
   }
 }
@@ -1143,6 +1147,23 @@ pre{
           </option>
 
         </select>
+
+        <input
+          type="number"
+          id="filtroScoreMin"
+          min="0"
+          max="100"
+          placeholder="Score mín. %"
+          oninput="renderOportunidades()"
+        >
+
+        <button
+          type="button"
+          class="btn light"
+          onclick="limparFiltrosOportunidades()"
+        >
+          LIMPAR FILTROS
+        </button>
 
       </div>
 
@@ -3247,6 +3268,16 @@ function renderOportunidades(){
       .getElementById("ordem")
       .value;
 
+  const scoreMinValor=
+    document
+      .getElementById("filtroScoreMin")
+      .value;
+
+  const scoreMin=
+    scoreMinValor===""
+      ? null
+      : Number(scoreMinValor);
+
   let a=
     oportunidades
 
@@ -3275,6 +3306,17 @@ function renderOportunidades(){
           .stringify(o)
           .toLowerCase()
           .includes(q)
+      )
+
+      .filter(o=>
+        scoreMin===null||
+        Number.isNaN(scoreMin)||
+        (
+          !Number.isNaN(
+            Number(o.score_oportunidade)
+          )&&
+          Number(o.score_oportunidade)>=scoreMin
+        )
       );
 
   if(ord==="score")
@@ -3732,6 +3774,21 @@ function limpar(){
   document.getElementById(
     "result"
   ).innerHTML="";
+
+}
+
+
+function limparFiltrosOportunidades(){
+
+  document.getElementById("busca").value="";
+  document.getElementById("filtroStatus").value="";
+  document.getElementById("filtroEmp").value="";
+  document.getElementById("filtroTipo").value="";
+  document.getElementById("filtroAlvo").value="";
+  document.getElementById("ordem").value="score";
+  document.getElementById("filtroScoreMin").value="";
+
+  renderOportunidades();
 
 }
 
