@@ -3335,8 +3335,7 @@ function renderOportunidades(){
 
         const scoreNormalizado=
           scoreBruto>=0&&
-          scoreBruto<=1&&
-          !Number.isInteger(scoreBruto)
+          scoreBruto<=1
             ?scoreBruto*100
             :scoreBruto;
 
@@ -3816,13 +3815,20 @@ function limpar(){
 
 function limparFiltrosOportunidades(){
 
-  document.getElementById("busca").value="";
-  document.getElementById("filtroStatus").value="";
-  document.getElementById("filtroEmp").value="";
-  document.getElementById("filtroTipo").value="";
-  document.getElementById("filtroAlvo").value="";
+  [
+    "busca",
+    "filtroStatus",
+    "filtroEmp",
+    "filtroTipo",
+    "filtroAlvo",
+    "filtroScoreMin"
+  ].forEach(id=>{
+
+    document.getElementById(id).value="";
+
+  });
+
   document.getElementById("ordem").value="score";
-  document.getElementById("filtroScoreMin").value="";
 
   renderOportunidades();
 
