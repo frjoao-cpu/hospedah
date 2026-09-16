@@ -3273,10 +3273,19 @@ function renderOportunidades(){
       .getElementById("filtroScoreMin")
       .value;
 
-  const scoreMin=
+  const scoreMinNumero=
     scoreMinValor===""
       ? null
       : Number(scoreMinValor);
+
+  const scoreMin=
+    scoreMinNumero===null||
+    Number.isNaN(scoreMinNumero)
+      ? scoreMinNumero
+      : Math.max(
+          0,
+          Math.min(100,scoreMinNumero)
+        );
 
   let a=
     oportunidades
