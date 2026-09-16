@@ -3326,11 +3326,30 @@ function renderOportunidades(){
 
           return true;
 
-        const score=
+        const scoreBruto=
           Number(o.score_oportunidade);
 
+        if(Number.isNaN(scoreBruto))
+
+          return false;
+
+        const scoreNormalizado=
+          scoreBruto>=0&&
+          scoreBruto<=1&&
+          !Number.isInteger(scoreBruto)
+            ?scoreBruto*100
+            :scoreBruto;
+
+        const score=
+          Math.max(
+            0,
+            Math.min(
+              100,
+              scoreNormalizado
+            )
+          );
+
         return (
-          !Number.isNaN(score)&&
           score>=scoreMin
         );
 
