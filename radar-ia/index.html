@@ -1695,7 +1695,7 @@ async function ler(tabela,query){
 
     if(
       d&&
-      /does not exist|not find the table/i
+      /does not exist|not find the table|schema cache/i
         .test(d.message||d.hint||"")
     )
 
