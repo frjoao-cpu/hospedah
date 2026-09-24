@@ -3909,23 +3909,27 @@ function money(x){
 
 
 function cap(o){
+    const total = o.capacidade_total;
+    const adultos = o.capacidade_adultos;
+    const criancas = o.capacidade_criancas;
 
-  let a=
-    o.capacidade_adultos;
+    if(total != null && total !== ""){
+        return `Até ${total} pessoas`;
+    }
 
-  let c=
-    o.capacidade_criancas;
+    if(adultos != null && adultos !== "" && criancas != null && criancas !== ""){
+        return `${adultos} adultos + ${criancas} crianças`;
+    }
 
-  if(a==null&&c==null)
+    if(adultos != null && adultos !== ""){
+        return `${adultos} adultos`;
+    }
+
+    if(criancas != null && criancas !== ""){
+        return `${criancas} crianças`;
+    }
 
     return "Não informado";
-
-  return `${
-    a??"-"
-  } adultos + ${
-    c??"-"
-  } crianças`;
-
 }
 
 
