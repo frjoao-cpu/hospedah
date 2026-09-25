@@ -21,6 +21,7 @@
 //   capturar_manual   → grava um texto colado pelo operador
 //   importar_lote     → grava vários textos de uma vez
 //   descartar         → descarta uma captura com motivo
+//   testar_fonte      → consulta a fonte sem gravar nada
 //   salvar_fonte      → cria/atualiza uma fonte
 //   remover_fonte     → desativa uma fonte
 //
@@ -281,7 +282,7 @@ async function buscarInstagram(fonte: Fonte): Promise<ResultadoFonte> {
     }
 
     const modo = asText((fonte.config || {}).modo) || 'hashtag';
-    const alvo = asText(fonte.identificador_externo);
+    const alvo = asText(fonte.identificador_externo) || '';
 
     const invalido = validarIdentificador(
         'INSTAGRAM_GRAPH',
@@ -367,7 +368,7 @@ async function buscarFacebook(fonte: Fonte): Promise<ResultadoFonte> {
     const token = Deno.env.get('FACEBOOK_PAGE_ACCESS_TOKEN') ||
         Deno.env.get('INSTAGRAM_ACCESS_TOKEN');
 
-    const pagina = asText(fonte.identificador_externo);
+    const pagina = asText(fonte.identificador_externo) || '';
 
     if (!token) {
         return {
@@ -773,16 +774,20 @@ Deno.serve(async (req) => {
             // aplica por cima apenas o que o painel enviou.
             let configAtual: Record<string, unknown> = {};
 
-            if (id) {
-                const { data: atual } = await supabase
+            const { data: atual } = id
+                ? await supabase
                     .from('radar_fontes')
                     .select('config')
                     .eq('id', id)
+                    .maybeSingle()
+                : await supabase
+                    .from('radar_fontes')
+                    .select('config')
+                    .eq('nome', nome)
                     .maybeSingle();
 
-                if (atual?.config && typeof atual.config === 'object') {
-                    configAtual = atual.config as Record<string, unknown>;
-                }
+            if (atual?.config && typeof atual.config === 'object') {
+                configAtual = atual.config as Record<string, unknown>;
             }
 
             const config = {
