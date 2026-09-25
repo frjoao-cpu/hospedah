@@ -35,10 +35,13 @@ supabase/
         007_radar_ia.sql
         008_radar_central_monitoramento.sql
         009_radar_pipeline_robustez.sql
+        010_radar_inteligencia.sql
 
     functions/
         _shared/
+            ia.ts
             radar.ts
+            radar.test.ts
         radar-ia/
             index.ts
         radar-captura/
@@ -141,29 +144,51 @@ Não coloque essa senha no código.
 
 ---
 
-# 4. GEMINI
+# 4. IA — GPT LUNA
 
-A Edge Function utiliza por padrão:
+A IA do Radar é a GPT Luna, consumida
+por API compatível com OpenAI.
 
-gemini-2.5-flash
+Secret obrigatório:
 
-O modelo pode ser alterado pelo secret:
+LUNA_API_KEY
 
+Opcionais:
+
+LUNA_BASE_URL
+(padrão https://api.openai.com/v1)
+
+LUNA_MODEL
+(padrão gpt-luna)
+
+LUNA_MODEL_TRIAGEM
+(modelo barato usado nas tarefas
+de triagem em massa)
+
+O Gemini continua disponível como
+CONTINGÊNCIA: se a GPT Luna estiver
+fora do ar, sem cota ou sem chave, a
+análise segue pelo Gemini em vez de
+parar o pipeline.
+
+GEMINI_API_KEY
 GEMINI_MODEL
-
-Modelos alternativos, tentados
-automaticamente (em ordem) quando o
-modelo principal está indisponível
-para a chave (erro 404):
-
+(padrão gemini-2.5-flash)
 GEMINI_FALLBACK_MODELS
 (padrão: gemini-2.5-flash-lite,
 gemini-2.0-flash,
 gemini-1.5-flash)
 
-Crie uma chave da API do Google Gemini.
+NÃO coloque nenhuma dessas chaves
+no index.html.
 
-NÃO coloque essa chave no index.html.
+Preço por milhão de tokens (usado só
+para estimar o custo no painel):
+
+LUNA_PRECO_ENTRADA_MTOK
+LUNA_PRECO_SAIDA_MTOK
+GEMINI_PRECO_ENTRADA_MTOK
+GEMINI_PRECO_SAIDA_MTOK
 
 ---
 
@@ -172,19 +197,40 @@ NÃO coloque essa chave no index.html.
 Na configuração da Edge Function
 configure:
 
-GEMINI_API_KEY
+LUNA_API_KEY
+(GPT Luna — IA principal)
 
-Opcional:
+Opcionais de IA:
 
+LUNA_BASE_URL
+LUNA_MODEL
+LUNA_MODEL_TRIAGEM
+GEMINI_API_KEY (contingência)
 GEMINI_MODEL
-(padrão: gemini-2.5-flash)
-
 GEMINI_FALLBACK_MODELS
-(tentados em ordem se o modelo
-principal retornar 404; padrão:
-gemini-2.5-flash-lite,
-gemini-2.0-flash,
-gemini-1.5-flash)
+
+Alertas automáticos das
+oportunidades quentes:
+
+RADAR_ALERTA_SCORE
+(padrão 80)
+
+RADAR_ALERTA_WHATSAPP
+(número; usa WHATSAPP_ADMIN_NUMBER
+quando ausente)
+
+RADAR_ALERTA_EMAIL
+(um ou mais e-mails separados
+por vírgula)
+
+Os alertas reaproveitam os secrets
+já usados pelas outras funções:
+
+ZAPI_INSTANCE_ID
+ZAPI_TOKEN
+ZAPI_CLIENT_TOKEN
+RESEND_API_KEY
+RESEND_FROM
 
 A chave de acesso ao banco é
 injetada automaticamente pelo
@@ -352,6 +398,20 @@ captura como DESCARTADA com motivo)
 reavaliar
 (reprocessa uma oportunidade sem
 reabrir o funil de negociação)
+
+rascunho_abordagem
+(a IA escreve a primeira mensagem
+para o anunciante; quem envia é o
+operador, depois de revisar)
+
+registrar_desfecho
+(grava GANHA/PERDIDA, valor fechado
+e motivo — é o que alimenta o
+aprendizado do Radar)
+
+saude
+(fila de capturas, custo de IA dos
+últimos 30 dias e alertas enviados)
 
 O deploy das Edge Functions é feito
 automaticamente pelo CI
@@ -651,6 +711,77 @@ o último cursor de paginação e se está
 ativa. A escrita em radar_fontes e
 radar_capturas é feita apenas pelas Edge
 Functions (service role); o painel só lê.
+
+---
+
+# 13.1 INTELIGÊNCIA (MIGRATION 010)
+
+A migration 010_radar_inteligencia.sql
+acrescenta a camada que transforma o
+Radar em central de decisão:
+
+CACHE DE ANÁLISE
+radar_analise_cache guarda o resultado
+por hash do texto. O mesmo anúncio não
+é pago duas vezes à IA.
+
+DEDUPE SEMÂNTICO
+A mesma cota anunciada em três fontes
+vira UMA oportunidade: as repetições só
+incrementam o campo ocorrencias e a
+captura é marcada como DESCARTADA com
+o motivo.
+
+PREÇO DE REFERÊNCIA
+valor_referencia é a mediana já
+praticada para o mesmo empreendimento e
+tipo; desconto_pct mostra o quanto o
+anúncio está abaixo (positivo) ou acima
+(negativo) do praticado.
+
+SINAIS DE NEGOCIAÇÃO
+urgencia (BAIXA a IMEDIATA) e
+risco_fraude (BAIXO a ALTO) ajustam o
+score: score_base guarda a nota pura da
+IA e score_oportunidade a nota final.
+
+FILA COM RETRY
+Capturas que falham voltam com espera
+exponencial (2, 4, 8… até 60 minutos) e,
+depois de 5 tentativas, viram ABANDONADO
+para não travar a fila.
+
+CIRCUIT BREAKER
+Três falhas seguidas suspendem a fonte
+por um tempo crescente, sem queimar cota
+de API.
+
+CUSTO E ALERTAS
+radar_ia_uso registra tokens e custo por
+chamada; radar_alertas guarda o que já
+foi avisado por WhatsApp e e-mail. A aba
+Saúde do painel lê os dois pela ação
+"saude".
+
+Sem a 010, tudo continua funcionando: as
+funções regravam sem as colunas novas.
+
+---
+
+# 13.2 FONTES RSS/ATOM
+
+Além de Instagram e Facebook, o robô lê
+feeds RSS/Atom publicados oficialmente
+pelos portais.
+
+Cadastre a fonte com:
+
+Tipo: RSS
+Identificador: a URL https do feed
+
+O adaptador só consome o feed público
+oferecido pelo portal — continua valendo
+a regra de NÃO fazer scraping.
 
 ---
 

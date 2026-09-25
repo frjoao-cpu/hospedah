@@ -152,6 +152,21 @@ function validarIdentificador(
 
     if (tipo === 'MANUAL' || tipo === 'IMPORT') return null;
 
+    // RSS/Atom: o identificador é a própria URL do feed
+    // publicado pelo portal — nada de scraping de página.
+    if (tipo === 'RSS') {
+        if (!/^https:\/\//i.test(valor)) {
+            return 'RSS: informe a URL https do feed ' +
+                '(ex.: https://portal.com.br/anuncios/feed).';
+        }
+
+        return null;
+    }
+
+    // E-mail e WhatsApp recebem conteúdo por webhook próprio:
+    // o identificador é só um rótulo do remetente/grupo.
+    if (tipo === 'EMAIL' || tipo === 'WHATSAPP') return null;
+
     if (!valor) {
         return 'Informe o identificador externo da fonte ' +
             '(id numérico da Página/conta ou hashtag).';
@@ -201,6 +216,8 @@ interface Fonte {
     config?: Record<string, unknown> | null;
     ultimo_cursor?: string | null;
     ativo?: boolean;
+    falhas_consecutivas?: number | null;
+    suspensa_ate?: string | null;
 }
 
 interface CapturaBruta {
@@ -427,12 +444,148 @@ async function buscarFacebook(fonte: Fonte): Promise<ResultadoFonte> {
     }
 }
 
+// ── Adaptador: RSS/Atom (feed oficial do portal) ───────────
+
+// Extrai o conteúdo de uma tag simples, já sem CDATA nem
+// entidades HTML. Parser mínimo e deliberado: feeds são XML
+// previsível e a Edge Function não carrega dependência extra.
+function tag(bloco: string, nome: string): string | null {
+    const m = bloco.match(
+        new RegExp('<' + nome + '[^>]*>([\\s\\S]*?)</' + nome + '>', 'i'),
+    );
+
+    if (!m) return null;
+
+    return destextualizar(m[1]);
+}
+
+
+function destextualizar(bruto: string): string {
+    return bruto
+        .replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g, '$1')
+        .replace(/<[^>]+>/g, ' ')
+        .replace(/&lt;/g, '<')
+        .replace(/&gt;/g, '>')
+        .replace(/&quot;/g, '"')
+        .replace(/&#39;/g, "'")
+        .replace(/&nbsp;/g, ' ')
+        .replace(/&amp;/g, '&')
+        .replace(/\s+/g, ' ')
+        .trim();
+}
+
+
+function dataISO(valor: string | null): string | null {
+    if (!valor) return null;
+
+    const t = Date.parse(valor);
+
+    return Number.isFinite(t) ? new Date(t).toISOString() : null;
+}
+
+
+async function buscarRss(fonte: Fonte): Promise<ResultadoFonte> {
+    const url = (fonte.identificador_externo || '').trim();
+
+    if (!/^https:\/\//i.test(url)) {
+        return {
+            capturas: [],
+            erro: 'RSS: URL do feed ausente ou não é https.',
+            credencial: 'NAO_CONFIGURADA',
+        };
+    }
+
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), GRAPH_TIMEOUT_MS);
+
+    let xml = '';
+
+    try {
+        const r = await fetch(url, {
+            signal: ctrl.signal,
+            headers: { Accept: 'application/rss+xml, application/xml' },
+        });
+
+        if (!r.ok) {
+            return {
+                capturas: [],
+                erro: 'RSS: o feed respondeu HTTP ' + r.status + '.',
+                credencial: 'ERRO',
+            };
+        }
+
+        xml = await r.text();
+    } catch (e) {
+        const detalhe = e instanceof Error && e.name === 'AbortError'
+            ? 'tempo limite excedido'
+            : (e as Error)?.message || 'falha desconhecida';
+
+        return {
+            capturas: [],
+            erro: 'RSS: não foi possível ler o feed (' + detalhe + ').',
+            credencial: 'ERRO',
+        };
+    } finally {
+        clearTimeout(timer);
+    }
+
+    const blocos = [
+        ...xml.matchAll(/<(item|entry)[\s\S]*?<\/\1>/gi),
+    ].map((m) => m[0]).slice(0, LIMITE_POR_FONTE);
+
+    const capturas: CapturaBruta[] = [];
+
+    for (const bloco of blocos) {
+        const titulo = tag(bloco, 'title');
+
+        const descricao = tag(bloco, 'description') ||
+            tag(bloco, 'summary') ||
+            tag(bloco, 'content:encoded') ||
+            tag(bloco, 'content');
+
+        const texto = [titulo, descricao]
+            .filter(Boolean)
+            .join('\n\n')
+            .trim();
+
+        if (!texto) continue;
+
+        const link = tag(bloco, 'link') ||
+            bloco.match(/<link[^>]+href="([^"]+)"/i)?.[1] ||
+            null;
+
+        const publicado = dataISO(
+            tag(bloco, 'pubDate') ||
+                tag(bloco, 'published') ||
+                tag(bloco, 'updated'),
+        );
+
+        capturas.push({
+            external_id: tag(bloco, 'guid') || tag(bloco, 'id') || link,
+            autor: tag(bloco, 'author') || tag(bloco, 'dc:creator'),
+            permalink: link,
+            texto,
+            midia_url: bloco.match(
+                /<enclosure[^>]+url="([^"]+)"/i,
+            )?.[1] ?? null,
+            midia_tipo: null,
+            publicado_em: publicado,
+            payload: { origem: 'RSS', feed: url },
+        });
+    }
+
+    return { capturas, erro: null, credencial: 'OK' };
+}
+
+
 // Interface única de adaptador: buscar(fonte) → capturas.
 async function buscar(fonte: Fonte): Promise<ResultadoFonte> {
     if (fonte.tipo === 'INSTAGRAM_GRAPH') return await buscarInstagram(fonte);
     if (fonte.tipo === 'FACEBOOK_GRAPH') return await buscarFacebook(fonte);
+    if (fonte.tipo === 'RSS') return await buscarRss(fonte);
 
-    // MANUAL e IMPORT são alimentadas pelo operador,
+    // MANUAL, IMPORT, EMAIL e WHATSAPP são alimentadas pelo
+    // operador ou por webhook,
     // não por varredura automática.
     return { capturas: [], erro: null, credencial: 'OK' };
 }
@@ -535,6 +688,57 @@ const COLUNAS_DIAGNOSTICO = [
     'relevantes',
     'duplicados',
 ];
+
+// Circuit breaker: três falhas seguidas suspendem a fonte por
+// um tempo crescente, para não queimar cota de API nem encher
+// o histórico de execuções com o mesmo erro.
+const FALHAS_PARA_SUSPENDER = 3;
+
+async function atualizarSaudeFonte(
+    supabase: Cliente,
+    fonte: Fonte,
+    r: ResultadoFonte,
+) {
+    const falhas = r.erro ? (fonte.falhas_consecutivas ?? 0) + 1 : 0;
+
+    const campos: Record<string, unknown> = {
+        credencial_status: r.credencial,
+        credencial_mensagem: r.erro,
+        ultima_sincronizacao: new Date().toISOString(),
+        falhas_consecutivas: falhas,
+        suspensa_ate: null,
+    };
+
+    if (falhas >= FALHAS_PARA_SUSPENDER) {
+        const minutos = Math.min(
+            720,
+            15 * Math.pow(2, falhas - FALHAS_PARA_SUSPENDER),
+        );
+
+        campos.suspensa_ate = new Date(
+            Date.now() + minutos * 60000,
+        ).toISOString();
+    }
+
+    const { error } = await supabase
+        .from('radar_fontes')
+        .update(campos)
+        .eq('id', fonte.id);
+
+    // Banco ainda sem as colunas da migration 010: mantém o
+    // comportamento anterior em vez de falhar a varredura.
+    if (error) {
+        await supabase
+            .from('radar_fontes')
+            .update({
+                credencial_status: r.credencial,
+                credencial_mensagem: r.erro,
+                ultima_sincronizacao: new Date().toISOString(),
+            })
+            .eq('id', fonte.id);
+    }
+}
+
 
 async function registrarExecucao(
     supabase: Cliente,
@@ -951,10 +1155,23 @@ Deno.serve(async (req) => {
             .from('radar_alvo_fontes')
             .select('alvo_id,fonte_id');
 
-        const automaticas = ((fontes || []) as Fonte[]).filter(
-            (f) =>
-                f.tipo === 'INSTAGRAM_GRAPH' || f.tipo === 'FACEBOOK_GRAPH',
-        );
+        const agora = Date.now();
+
+        const automaticas = ((fontes || []) as Fonte[]).filter((f) => {
+            const varre = f.tipo === 'INSTAGRAM_GRAPH' ||
+                f.tipo === 'FACEBOOK_GRAPH' ||
+                f.tipo === 'RSS';
+
+            if (!varre) return false;
+
+            // Circuit breaker: fonte suspensa por falhas
+            // consecutivas fica de fora até o prazo vencer.
+            const ate = f.suspensa_ate
+                ? Date.parse(String(f.suspensa_ate))
+                : NaN;
+
+            return !(Number.isFinite(ate) && ate > agora);
+        });
 
         const resumo: Record<string, unknown>[] = [];
         let total = 0;
@@ -981,14 +1198,7 @@ Deno.serve(async (req) => {
 
                 const r = await buscar(fonte);
 
-                await supabase
-                    .from('radar_fontes')
-                    .update({
-                        credencial_status: r.credencial,
-                        credencial_mensagem: r.erro,
-                        ultima_sincronizacao: new Date().toISOString(),
-                    })
-                    .eq('id', fonte.id);
+                await atualizarSaudeFonte(supabase, fonte, r);
 
                 if (r.erro) {
                     await registrarExecucao(supabase, {
