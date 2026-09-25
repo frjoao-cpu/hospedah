@@ -27,3 +27,45 @@ export function getSupabaseSecretKey(): string {
         ?? Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
         ?? '';
 }
+
+// Todas as chaves de servidor aceitas, não só a preferida.
+//
+// O pg_cron (supabase_cron.sql) autentica com a chave guardada em
+// app.service_role_key, que pode ser a legada SUPABASE_SERVICE_ROLE_KEY
+// ou qualquer entrada de SUPABASE_SECRET_KEYS. Comparar apenas com
+// getSupabaseSecretKey() faria a varredura automática falhar com 401
+// silencioso sempre que as duas chaves divergissem.
+export function getSupabaseSecretKeys(): string[] {
+    const chaves: string[] = [];
+
+    const add = (valor: string | undefined) => {
+        if (valor && !chaves.includes(valor)) chaves.push(valor);
+    };
+
+    const secretKeysJson = Deno.env.get('SUPABASE_SECRET_KEYS');
+    if (secretKeysJson) {
+        try {
+            const keys = JSON.parse(secretKeysJson) as Record<string, string>;
+            if (keys && typeof keys === 'object') {
+                for (const valor of Object.values(keys)) {
+                    if (typeof valor === 'string') add(valor);
+                }
+            }
+        } catch {
+            // JSON inválido — segue para os fallbacks.
+        }
+    }
+
+    add(Deno.env.get('SUPABASE_SECRET_KEY'));
+    add(Deno.env.get('SUPABASE_SERVICE_ROLE_KEY'));
+
+    return chaves;
+}
+
+// true quando o JWT apresentado é uma das chaves de servidor,
+// ou seja, quem chamou é o robô (pg_cron) e não um usuário.
+export function isSupabaseSecretKey(jwt: string): boolean {
+    if (!jwt) return false;
+    return getSupabaseSecretKeys().includes(jwt);
+}
+

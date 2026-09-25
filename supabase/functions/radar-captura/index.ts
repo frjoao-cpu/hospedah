@@ -32,7 +32,10 @@
 // ============================================================
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-import { getSupabaseSecretKey } from '../_shared/secret-key.ts';
+import {
+    getSupabaseSecretKey,
+    isSupabaseSecretKey,
+} from '../_shared/secret-key.ts';
 import {
     Alvo,
     asInt,
@@ -424,7 +427,7 @@ Deno.serve(async (req) => {
 
         // O pg_cron chama com a chave de serviço; o painel
         // chama com o token do usuário autenticado.
-        const robo = jwt === SERVICE;
+        const robo = isSupabaseSecretKey(jwt);
 
         if (!robo) {
             const { data: userData, error: authError } = await supabase.auth

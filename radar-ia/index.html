@@ -1303,8 +1303,22 @@ const CONFIG={
 
 };
 
+// Entrada única e versionada da sessão:
+// guarda access_token, refresh_token e o
+// instante de expiração para que o painel
+// se renove sozinho em vez de "cair".
+const SESSAO_KEY=
+  "hospedah_radar_sessao_v1";
+
+// Chave antiga (só o access_token) — lida
+// uma única vez para migrar a sessão.
 const TOKEN_KEY=
   "hospedah_radar_token";
+
+// Margem de segurança para renovar antes
+// de o token expirar de fato.
+const RENOVAR_ANTES_MS=
+  120000;
 
 const TIPOS=[
   "VENDA_COTA",
@@ -1324,8 +1338,13 @@ const NEGOCIACAO=[
   "PERDIDA"
 ];
 
-let token=
-  localStorage.getItem(TOKEN_KEY)||"";
+let sessao=
+  carregarSessao();
+
+// Renovação em andamento — evita disparar
+// vários refresh simultâneos quando várias
+// leituras saem em paralelo (load()).
+let renovando=null;
 
 let oportunidades=[];
 let alvos=[];
@@ -1338,7 +1357,224 @@ let faltaMigration=false;
 let erroConexao="";
 
 
-function api(path,opts={}){
+// ───────────── Sessão ─────────────
+
+function carregarSessao(){
+
+  try{
+
+    const bruto=
+      localStorage.getItem(SESSAO_KEY);
+
+    if(bruto){
+
+      const s=JSON.parse(bruto);
+
+      if(s&&s.access_token)
+
+        return s;
+
+    }
+
+  }catch(_){
+
+    // Entrada corrompida: descarta.
+
+  }
+
+  // Migração da chave antiga: sem
+  // refresh_token e sem validade
+  // conhecida, a sessão vale só até
+  // o primeiro 401.
+  const legado=
+    localStorage.getItem(TOKEN_KEY);
+
+  if(legado)
+
+    return {
+      access_token:legado,
+      refresh_token:"",
+      expires_at:0
+    };
+
+  return null;
+
+}
+
+
+function salvarSessao(d){
+
+  const agora=
+    Date.now();
+
+  sessao={
+
+    access_token:
+      d.access_token||"",
+
+    refresh_token:
+      d.refresh_token||
+      (sessao&&sessao.refresh_token)||
+      "",
+
+    expires_at:
+      d.expires_at
+        ?Number(d.expires_at)*1000
+        :agora+
+         (Number(d.expires_in)||3600)*1000
+
+  };
+
+  localStorage.setItem(
+    SESSAO_KEY,
+    JSON.stringify(sessao)
+  );
+
+  localStorage.removeItem(TOKEN_KEY);
+
+}
+
+
+function limparSessao(){
+
+  sessao=null;
+  renovando=null;
+
+  localStorage.removeItem(SESSAO_KEY);
+  localStorage.removeItem(TOKEN_KEY);
+
+}
+
+
+// A sessão só é utilizável quando tem
+// access_token válido OU um refresh_token
+// para trocá-lo.
+function sessaoUtilizavel(){
+
+  if(!sessao||!sessao.access_token)
+
+    return false;
+
+  if(sessao.refresh_token)
+
+    return true;
+
+  // Sem refresh_token (sessão legada):
+  // só vale enquanto não expirou.
+  return !sessao.expires_at||
+    sessao.expires_at>Date.now();
+
+}
+
+
+async function renovarSessao(){
+
+  if(!sessao||!sessao.refresh_token)
+
+    return false;
+
+  if(!renovando)
+
+    renovando=(async()=>{
+
+      try{
+
+        const r=await fetch(
+
+          CONFIG.supabaseUrl+
+          "/auth/v1/token?grant_type=refresh_token",
+
+          {
+            method:"POST",
+
+            headers:{
+              "apikey":
+                CONFIG.supabaseAnonKey,
+
+              "Content-Type":
+                "application/json"
+            },
+
+            body:JSON.stringify({
+              refresh_token:
+                sessao.refresh_token
+            })
+          }
+
+        );
+
+        if(!r.ok)
+
+          return false;
+
+        const d=
+          await r.json()
+            .catch(()=>null);
+
+        if(!d||!d.access_token)
+
+          return false;
+
+        salvarSessao(d);
+
+        return true;
+
+      }catch(_){
+
+        // Falha de rede: não invalida a
+        // sessão, apenas não renova agora.
+        return false;
+
+      }finally{
+
+        renovando=null;
+
+      }
+
+    })();
+
+  return await renovando;
+
+}
+
+
+// Ponto único de obtenção do token: renova
+// quando falta pouco para expirar.
+async function obterToken(){
+
+  if(!sessao||!sessao.access_token)
+
+    return "";
+
+  const venceEm=
+    Number(sessao.expires_at)||0;
+
+  if(
+    venceEm&&
+    venceEm-Date.now()<=RENOVAR_ANTES_MS
+  ){
+
+    const ok=
+      await renovarSessao();
+
+    if(!ok&&venceEm<=Date.now()){
+
+      sessaoExpirada();
+
+      return "";
+
+    }
+
+  }
+
+  return sessao&&sessao.access_token
+    ?sessao.access_token
+    :"";
+
+}
+
+
+async function api(path,opts={}){
 
   opts.headers=Object.assign({
 
@@ -1350,6 +1586,9 @@ function api(path,opts={}){
 
   },opts.headers||{});
 
+  const token=
+    await obterToken();
+
   if(token){
 
     opts.headers.Authorization=
@@ -1359,84 +1598,130 @@ function api(path,opts={}){
 
   // Timeout para a análise da IA não
   // ficar carregando indefinidamente.
-  const ctrl=
-    new AbortController();
-
-  const timer=
-    setTimeout(
-      ()=>ctrl.abort(),
-      opts.timeout||60000
-    );
+  const tempoLimite=
+    opts.timeout||60000;
 
   delete opts.timeout;
 
-  opts.signal=ctrl.signal;
+  const enviar=async()=>{
 
-  return fetch(
-    CONFIG.supabaseUrl+path,
-    opts
-  ).catch(
-    async (e)=>{
+    const ctrl=
+      new AbortController();
 
-      // Erro de rede / CORS / função
-      // fora do ar chega aqui como
-      // "Failed to fetch" — traduzimos
-      // para uma mensagem útil.
-      if(
-        e&&e.name==="AbortError"
-      )
-
-        throw new Error(
-          "A operação demorou demais "+
-          "(timeout). Tente novamente."
-        );
-
-      // Autodiagnóstico: testa a URL da
-      // função para distinguir "função
-      // não implantada" de falha de rede
-      // local (internet, VPN, bloqueio).
-      let detalhe="";
-
-      try{
-
-        const probe=
-          await fetch(
-            CONFIG.supabaseUrl+
-            "/functions/v1/"+
-            CONFIG.functionName,
-            {method:"OPTIONS"}
-          );
-
-        if(probe.status===404)
-
-          detalhe=
-            " A função "+
-            CONFIG.functionName+
-            " não foi encontrada no "+
-            "servidor (deploy pendente).";
-
-      }catch(_){
-
-        detalhe=
-          " Não foi possível alcançar "+
-          "o Supabase — verifique sua "+
-          "internet/VPN.";
-
-      }
-
-      throw new Error(
-        "Sem conexão com o servidor "+
-        "(rede, CORS ou Edge Function "+
-        "indisponível)."+
-        detalhe+
-        " Verifique o deploy das "+
-        "Edge Functions."
+    const timer=
+      setTimeout(
+        ()=>ctrl.abort(),
+        tempoLimite
       );
 
+    opts.signal=ctrl.signal;
+
+    return fetch(
+      CONFIG.supabaseUrl+path,
+      opts
+    ).catch(
+      async (e)=>{
+
+        // Erro de rede / CORS / função
+        // fora do ar chega aqui como
+        // "Failed to fetch" — traduzimos
+        // para uma mensagem útil.
+        if(
+          e&&e.name==="AbortError"
+        )
+
+          throw new Error(
+            "A operação demorou demais "+
+            "(timeout). Tente novamente."
+          );
+
+        // Autodiagnóstico: testa a URL da
+        // função para distinguir "função
+        // não implantada" de falha de rede
+        // local (internet, VPN, bloqueio).
+        let detalhe="";
+
+        try{
+
+          const probe=
+            await fetch(
+              CONFIG.supabaseUrl+
+              "/functions/v1/"+
+              CONFIG.functionName,
+              {method:"OPTIONS"}
+            );
+
+          if(probe.status===404)
+
+            detalhe=
+              " A função "+
+              CONFIG.functionName+
+              " não foi encontrada no "+
+              "servidor (deploy pendente).";
+
+        }catch(_){
+
+          detalhe=
+            " Não foi possível alcançar "+
+            "o Supabase — verifique sua "+
+            "internet/VPN.";
+
+        }
+
+        throw new Error(
+          "Sem conexão com o servidor "+
+          "(rede, CORS ou Edge Function "+
+          "indisponível)."+
+          detalhe+
+          " Verifique o deploy das "+
+          "Edge Functions."
+        );
+
+      }
+    ).finally(
+      ()=>clearTimeout(timer)
+    );
+
+  };
+
+  const aplicarToken=(t)=>{
+
+    if(t)
+
+      opts.headers.Authorization=
+        "Bearer "+t;
+
+    else
+
+      delete opts.headers.Authorization;
+
+  };
+
+  aplicarToken(await obterToken());
+
+  let r=await enviar();
+
+  // Token recusado: tenta renovar uma vez
+  // antes de devolver o 401 ao chamador.
+  if(
+    (r.status===401||r.status===403)&&
+    sessao&&sessao.refresh_token
+  ){
+
+    const ok=
+      await renovarSessao();
+
+    if(ok){
+
+      aplicarToken(await obterToken());
+
+      r=await enviar();
+
     }
-  ).finally(
-    ()=>clearTimeout(timer)
-  );
+
+  }
+
+  return r;
 
 }
 
@@ -1560,13 +1845,7 @@ async function login(ev){
         "Falha no login"
       );
 
-    token=
-      d.access_token;
-
-    localStorage.setItem(
-      TOKEN_KEY,
-      token
-    );
+    salvarSessao(d);
 
     document
       .getElementById("login")
@@ -1588,11 +1867,7 @@ async function login(ev){
 
 function logout(){
 
-  token="";
-
-  localStorage.removeItem(
-    TOKEN_KEY
-  );
+  limparSessao();
 
   location.reload();
 
@@ -1601,11 +1876,7 @@ function logout(){
 
 function sessaoExpirada(){
 
-  token="";
-
-  localStorage.removeItem(
-    TOKEN_KEY
-  );
+  limparSessao();
 
   document
     .getElementById("login")
@@ -3994,7 +4265,12 @@ document
   );
 
 
-if(token){
+// No boot a sessão só é aceita quando
+// ainda é utilizável (token válido ou
+// refresh_token disponível); caso
+// contrário o painel abre no login em
+// vez de travar em chamadas 401.
+if(sessaoUtilizavel()){
 
   document
     .getElementById("login")
@@ -4002,6 +4278,10 @@ if(token){
     .add("hidden");
 
   load();
+
+}else if(sessao){
+
+  limparSessao();
 
 }
 

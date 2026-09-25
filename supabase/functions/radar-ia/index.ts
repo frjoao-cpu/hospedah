@@ -16,7 +16,10 @@
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-import { getSupabaseSecretKey } from "../_shared/secret-key.ts";
+import {
+    getSupabaseSecretKey,
+    isSupabaseSecretKey,
+} from "../_shared/secret-key.ts";
 
 import {
     Alvo,
@@ -885,7 +888,7 @@ Deno.serve(async (req) => {
 
         // O pg_cron chama com a chave de serviço; o painel
         // chama com o token do usuário autenticado.
-        const robo = jwt === SERVICE;
+        const robo = isSupabaseSecretKey(jwt);
 
         if (!robo) {
             // Valida o token do usuário antes de qualquer

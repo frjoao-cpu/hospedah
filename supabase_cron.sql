@@ -358,6 +358,11 @@ SELECT cron.schedule(
 --     Pré-requisito: a chave de serviço precisa estar em
 --     app.service_role_key (ver seção 1) — é ela que o
 --     radar-captura/radar-ia reconhecem como "robô".
+--     As funções aceitam qualquer chave de servidor conhecida
+--     (SUPABASE_SECRET_KEYS, SUPABASE_SECRET_KEY ou a legada
+--     SUPABASE_SERVICE_ROLE_KEY), então basta que o valor aqui
+--     seja uma delas. Se nenhuma bater, a varredura horária
+--     responde 401 e nada é capturado.
 -- ============================================================
 SELECT cron.unschedule('radar-captura-varredura')
 WHERE EXISTS (SELECT 1 FROM cron.job WHERE jobname = 'radar-captura-varredura');
