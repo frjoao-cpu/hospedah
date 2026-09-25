@@ -63,6 +63,135 @@ const LIMITE_POR_FONTE = 25;
 // Timeout das chamadas à Graph API.
 const GRAPH_TIMEOUT_MS = 20000;
 
+type CredencialStatus = 'OK' | 'ERRO' | 'EXPIRADA' | 'NAO_CONFIGURADA';
+
+// Erro da Graph API preservando os códigos da Meta — é o que
+// permite distinguir token expirado (190) de falta de permissão
+// ou de id inválido.
+class GraphError extends Error {
+    code: number | null;
+    subcode: number | null;
+    tipo: string | null;
+
+    constructor(
+        mensagem: string,
+        code: number | null,
+        subcode: number | null,
+        tipo: string | null,
+    ) {
+        super(mensagem);
+        this.name = 'GraphError';
+        this.code = code;
+        this.subcode = subcode;
+        this.tipo = tipo;
+    }
+}
+
+// Traduz o erro da Graph em status de credencial + mensagem
+// acionável para o operador ver no painel.
+function classificarErroGraph(
+    e: unknown,
+    origem: string,
+): { status: CredencialStatus; mensagem: string } {
+    const erro = e as GraphError;
+    const detalhe = (e as Error)?.message || 'falha desconhecida';
+
+    if (erro instanceof GraphError) {
+        // 190 = access token inválido/expirado/revogado.
+        // 102 / 463 / 467 = sessão expirada ou invalidada.
+        if (
+            erro.code === 190 || erro.code === 102 ||
+            erro.code === 463 || erro.code === 467 ||
+            erro.subcode === 463 || erro.subcode === 467
+        ) {
+            return {
+                status: 'EXPIRADA',
+                mensagem: origem + ': token expirado ou revogado (' +
+                    detalhe + '). Gere um novo token de Página de longa ' +
+                    'duração no Graph API Explorer e regrave o secret ' +
+                    'FACEBOOK_PAGE_ACCESS_TOKEN / INSTAGRAM_ACCESS_TOKEN.',
+            };
+        }
+
+        // 10 / 200-299 = permissão ausente para o recurso.
+        if (
+            erro.code === 10 ||
+            (erro.code !== null && erro.code >= 200 && erro.code <= 299)
+        ) {
+            return {
+                status: 'ERRO',
+                mensagem: origem + ': permissão insuficiente (' + detalhe +
+                    '). Revise as permissões pages_read_engagement e ' +
+                    'pages_show_list do aplicativo na Meta.',
+            };
+        }
+
+        // 803 / 100 = objeto inexistente ou id no formato errado.
+        if (erro.code === 803 || erro.code === 100) {
+            return {
+                status: 'ERRO',
+                mensagem: origem + ': identificador não encontrado (' +
+                    detalhe + '). Confira o id numérico da Página/conta ' +
+                    '— URLs, @handles e ids de grupo não são aceitos.',
+            };
+        }
+    }
+
+    return { status: 'ERRO', mensagem: origem + ': ' + detalhe };
+}
+
+// Validação do identificador por tipo de fonte. O endpoint usado
+// é /{page-id}/posts, que não atende grupos nem perfis pessoais.
+function validarIdentificador(
+    tipo: string,
+    identificador: string,
+    modo: string,
+): string | null {
+    const valor = (identificador || '').trim();
+
+    if (tipo === 'MANUAL' || tipo === 'IMPORT') return null;
+
+    if (!valor) {
+        return 'Informe o identificador externo da fonte ' +
+            '(id numérico da Página/conta ou hashtag).';
+    }
+
+    if (/^https?:\/\//i.test(valor) || valor.includes('/')) {
+        return 'Cole apenas o identificador, não a URL do perfil, ' +
+            'da página ou do grupo.';
+    }
+
+    if (tipo === 'FACEBOOK_GRAPH') {
+        if (!/^\d+$/.test(valor)) {
+            return 'Facebook: use o id numérico da Página. ' +
+                '@handles, URLs e ids de grupo ou de perfil pessoal ' +
+                'não são aceitos pela Graph API em /{page-id}/posts.';
+        }
+
+        return null;
+    }
+
+    if (tipo === 'INSTAGRAM_GRAPH') {
+        if (modo === 'hashtag') {
+            if (!/^#?[A-Za-z0-9_]+$/.test(valor)) {
+                return 'Instagram (hashtag): use apenas letras, ' +
+                    'números e underscore, sem espaços nem URL.';
+            }
+
+            return null;
+        }
+
+        if (!/^\d+$/.test(valor)) {
+            return 'Instagram (conta): use o id numérico da conta ' +
+                'Business/Creator, não o @usuário.';
+        }
+
+        return null;
+    }
+
+    return null;
+}
+
 interface Fonte {
     id: string;
     nome: string;
@@ -87,7 +216,7 @@ interface CapturaBruta {
 interface ResultadoFonte {
     capturas: CapturaBruta[];
     erro: string | null;
-    credencial: 'OK' | 'ERRO' | 'NAO_CONFIGURADA';
+    credencial: CredencialStatus;
 }
 
 function json(body: unknown, status = 200) {
@@ -111,9 +240,21 @@ async function graphFetch(url: string) {
         }
 
         if (!r.ok || !corpo) {
-            const msg = (corpo?.error as { message?: string })?.message ||
-                'HTTP ' + r.status;
-            throw new Error(String(msg));
+            const err = corpo?.error as {
+                message?: string;
+                code?: number;
+                error_subcode?: number;
+                type?: string;
+            } | undefined;
+
+            throw new GraphError(
+                String(err?.message || 'HTTP ' + r.status),
+                typeof err?.code === 'number' ? err.code : null,
+                typeof err?.error_subcode === 'number'
+                    ? err.error_subcode
+                    : null,
+                err?.type ?? null,
+            );
         }
 
         return corpo;
@@ -142,12 +283,16 @@ async function buscarInstagram(fonte: Fonte): Promise<ResultadoFonte> {
     const modo = asText((fonte.config || {}).modo) || 'hashtag';
     const alvo = asText(fonte.identificador_externo);
 
-    if (!alvo) {
+    const invalido = validarIdentificador(
+        'INSTAGRAM_GRAPH',
+        alvo,
+        modo,
+    );
+
+    if (invalido) {
         return {
             capturas: [],
-            erro:
-                'Fonte sem identificador externo ' +
-                '(hashtag ou id da conta).',
+            erro: invalido,
             credencial: 'NAO_CONFIGURADA',
         };
     }
@@ -207,10 +352,12 @@ async function buscarInstagram(fonte: Fonte): Promise<ResultadoFonte> {
 
         return { capturas, erro: null, credencial: 'OK' };
     } catch (e) {
+        const c = classificarErroGraph(e, 'Instagram Graph API');
+
         return {
             capturas: [],
-            erro: 'Instagram Graph API: ' + (e as Error).message,
-            credencial: 'ERRO',
+            erro: c.mensagem,
+            credencial: c.status,
         };
     }
 }
@@ -222,13 +369,23 @@ async function buscarFacebook(fonte: Fonte): Promise<ResultadoFonte> {
 
     const pagina = asText(fonte.identificador_externo);
 
-    if (!token || !pagina) {
+    if (!token) {
         return {
             capturas: [],
             erro:
                 'Fonte não configurada: defina o secret ' +
                 'FACEBOOK_PAGE_ACCESS_TOKEN e o id da página ' +
                 '(Graph API oficial da Meta).',
+            credencial: 'NAO_CONFIGURADA',
+        };
+    }
+
+    const invalido = validarIdentificador('FACEBOOK_GRAPH', pagina, '');
+
+    if (invalido) {
+        return {
+            capturas: [],
+            erro: invalido,
             credencial: 'NAO_CONFIGURADA',
         };
     }
@@ -259,10 +416,12 @@ async function buscarFacebook(fonte: Fonte): Promise<ResultadoFonte> {
 
         return { capturas, erro: null, credencial: 'OK' };
     } catch (e) {
+        const c = classificarErroGraph(e, 'Facebook Graph API');
+
         return {
             capturas: [],
-            erro: 'Facebook Graph API: ' + (e as Error).message,
-            credencial: 'ERRO',
+            erro: c.mensagem,
+            credencial: c.status,
         };
     }
 }
@@ -307,13 +466,15 @@ async function fonteManual(
 }
 
 // Grava capturas com dedupe por (fonte_id, external_id).
+// Devolve quantas entraram e quantas já existiam, para que o
+// painel distinga "nada novo" de "nada encontrado".
 async function gravarCapturas(
     supabase: Cliente,
     fonteId: string | null,
     alvoId: string | null,
     capturas: CapturaBruta[],
-): Promise<number> {
-    if (!capturas.length) return 0;
+): Promise<{ gravadas: number; duplicadas: number }> {
+    if (!capturas.length) return { gravadas: 0, duplicadas: 0 };
 
     const registros = capturas.map((c) => ({
         fonte_id: fonteId,
@@ -359,22 +520,62 @@ async function gravarCapturas(
         gravadas += (data || []).length;
     }
 
-    return gravadas;
+    return {
+        gravadas,
+        duplicadas: Math.max(0, comId.length - gravadas),
+    };
 }
+
+// Colunas de diagnóstico da migration 009. Se a migration ainda
+// não foi aplicada (PGRST204), o registro é regravado sem elas
+// para não perder a execução inteira.
+const COLUNAS_DIAGNOSTICO = [
+    'encontrados',
+    'relevantes',
+    'duplicados',
+];
 
 async function registrarExecucao(
     supabase: Cliente,
     registro: Record<string, unknown>,
 ) {
+    const base = {
+        origem: 'CAPTURA',
+        finalizado_em: new Date().toISOString(),
+        ...registro,
+    };
+
     const { error } = await supabase
         .from('radar_execucoes')
-        .insert({
-            origem: 'CAPTURA',
-            finalizado_em: new Date().toISOString(),
-            ...registro,
-        });
+        .insert(base);
 
-    if (error) console.error('[radar-captura] execucao:', error);
+    if (!error) return;
+
+    if (error.code === 'PGRST204') {
+        const reduzido = { ...base } as Record<string, unknown>;
+
+        for (const coluna of COLUNAS_DIAGNOSTICO) delete reduzido[coluna];
+
+        const { error: e2 } = await supabase
+            .from('radar_execucoes')
+            .insert(reduzido);
+
+        if (!e2) {
+            console.warn(
+                '[radar-captura] execucao gravada sem as colunas de ' +
+                    'diagnóstico — aplique a migration ' +
+                    '009_radar_pipeline_robustez.sql.',
+            );
+
+            return;
+        }
+
+        console.error('[radar-captura] execucao:', e2);
+
+        return;
+    }
+
+    console.error('[radar-captura] execucao:', error);
 }
 
 // Um alvo está vencido quando nunca varreu ou quando já
@@ -564,17 +765,50 @@ Deno.serve(async (req) => {
                 return json({ error: 'Tipo de fonte inválido' }, 400);
             }
 
+            const identificador = asText(body.identificador_externo) || '';
+
+            const id = asText(body.id);
+
+            // Preserva a config já gravada (ex.: ig_user_id) e
+            // aplica por cima apenas o que o painel enviou.
+            let configAtual: Record<string, unknown> = {};
+
+            if (id) {
+                const { data: atual } = await supabase
+                    .from('radar_fontes')
+                    .select('config')
+                    .eq('id', id)
+                    .maybeSingle();
+
+                if (atual?.config && typeof atual.config === 'object') {
+                    configAtual = atual.config as Record<string, unknown>;
+                }
+            }
+
+            const config = {
+                ...configAtual,
+                ...(body.config && typeof body.config === 'object'
+                    ? body.config as Record<string, unknown>
+                    : {}),
+            };
+
+            const invalido = validarIdentificador(
+                tipo,
+                identificador,
+                asText(config.modo) || 'hashtag',
+            );
+
+            if (invalido) {
+                return json({ error: invalido }, 400);
+            }
+
             const registro: Record<string, unknown> = {
                 nome,
                 tipo,
-                identificador_externo: asText(body.identificador_externo),
-                config: body.config && typeof body.config === 'object'
-                    ? body.config
-                    : {},
+                identificador_externo: identificador || null,
+                config,
                 ativo: body.ativo !== false,
             };
-
-            const id = asText(body.id);
 
             const { data, error } = id
                 ? await supabase
@@ -592,6 +826,76 @@ Deno.serve(async (req) => {
             if (error) throw error;
 
             return json({ ok: true, fonte: data });
+        }
+
+        // ── testar_fonte ────────────────────────────────────
+        // Busca sem gravar nada: isola problema de credencial
+        // de problema de configuração antes da varredura.
+        if (acao === 'testar_fonte') {
+            const id = asText(body.id);
+
+            if (!id) {
+                return json({ error: 'id é obrigatório' }, 400);
+            }
+
+            const { data: fonte, error: eFonte } = await supabase
+                .from('radar_fontes')
+                .select('*')
+                .eq('id', id)
+                .maybeSingle();
+
+            if (eFonte) throw eFonte;
+
+            if (!fonte) {
+                return json({ error: 'Fonte não encontrada' }, 404);
+            }
+
+            const alvoFonte = fonte as unknown as Fonte;
+
+            if (
+                alvoFonte.tipo !== 'INSTAGRAM_GRAPH' &&
+                alvoFonte.tipo !== 'FACEBOOK_GRAPH'
+            ) {
+                return json({
+                    ok: true,
+                    credencial: 'OK',
+                    encontrados: 0,
+                    mensagem:
+                        'Fonte alimentada manualmente — não há ' +
+                        'credencial a testar.',
+                });
+            }
+
+            const r = await buscar(alvoFonte);
+
+            await supabase
+                .from('radar_fontes')
+                .update({
+                    credencial_status: r.credencial,
+                    credencial_mensagem: r.erro,
+                })
+                .eq('id', id);
+
+            return json({
+                ok: !r.erro,
+                credencial: r.credencial,
+                encontrados: r.capturas.length,
+                erro: r.erro,
+                amostra: r.capturas.length
+                    ? {
+                        autor: r.capturas[0].autor,
+                        permalink: r.capturas[0].permalink,
+                        texto: r.capturas[0].texto.slice(0, 280),
+                    }
+                    : null,
+                mensagem: r.erro
+                    ? r.erro
+                    : r.capturas.length
+                    ? 'Credencial OK — ' + r.capturas.length +
+                        ' item(ns) visível(is) na fonte.'
+                    : 'Credencial OK, mas a fonte não devolveu ' +
+                        'nenhum item com texto.',
+            });
         }
 
         if (acao === 'remover_fonte') {
@@ -711,26 +1015,38 @@ Deno.serve(async (req) => {
                 );
 
                 let gravadas = 0;
+                let duplicadas = 0;
                 let erro: string | null = null;
 
                 try {
-                    gravadas = await gravarCapturas(
+                    const g = await gravarCapturas(
                         supabase,
                         fonte.id,
                         alvo.id,
                         filtradas,
                     );
+
+                    gravadas = g.gravadas;
+                    duplicadas = g.duplicadas;
                 } catch (e) {
                     erro = (e as Error).message;
                 }
 
                 total += gravadas;
 
+                // Descartados aqui são os cortados pelo pré-filtro,
+                // antes de gastar token de IA.
+                const preFiltrados = r.capturas.length - filtradas.length;
+
                 await registrarExecucao(supabase, {
                     alvo_id: alvo.id,
                     fonte_id: fonte.id,
                     iniciado_em: inicio,
                     capturados: gravadas,
+                    encontrados: r.capturas.length,
+                    relevantes: filtradas.length,
+                    duplicados: duplicadas,
+                    descartados: preFiltrados,
                     status: erro ? 'ERRO' : 'OK',
                     erro,
                     trace_id: traceId,
@@ -741,6 +1057,8 @@ Deno.serve(async (req) => {
                     fonte: fonte.nome,
                     encontrados: r.capturas.length,
                     relevantes: filtradas.length,
+                    duplicados: duplicadas,
+                    pre_filtrados: preFiltrados,
                     gravados: gravadas,
                     erro,
                 });
