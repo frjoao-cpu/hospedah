@@ -1230,6 +1230,21 @@ pre{
           <option value="usuario">Conta / perfil</option>
         </select>
 
+        <label for="fonteIgUser">
+          IG user id (opcional)
+        </label>
+
+        <input
+          id="fonteIgUser"
+          placeholder="Id numérico da conta Business/Creator"
+        >
+
+        <p class="sub">
+          Facebook exige o <b>id numérico da Página</b>.
+          URLs, @handles e ids de grupo ou de perfil pessoal
+          não são aceitos pela Graph API.
+        </p>
+
         <div class="actions">
 
           <button
@@ -2771,10 +2786,35 @@ async function varrer(alvoId){
 
     );
 
+    const detalhes=
+      Array.isArray(d.detalhes)
+        ?d.detalhes
+        :[];
+
+    const encontrados=
+      detalhes.reduce(
+        (t,x)=>t+Number(x.encontrados||0),
+        0
+      );
+
+    const falhas=
+      detalhes.filter(x=>x.erro||x.aviso);
+
     alert(
       "Varredura concluída: "+
       (d.capturados||0)+
-      " nova(s) captura(s)."
+      " nova(s) captura(s) de "+
+      encontrados+
+      " item(ns) encontrado(s)."+
+      (falhas.length
+        ?"\n\n"+
+         falhas
+           .map(x=>
+             (x.fonte?x.fonte+": ":"")+
+             (x.erro||x.aviso)
+           )
+           .join("\n")
+        :"")
     );
 
     await load();
@@ -3797,6 +3837,67 @@ function renderOportunidades(){
 
 // ─────────── FONTES / SAÚDE ───────────
 
+// Espelha validarIdentificador da Edge
+// Function radar-captura: o endpoint usado
+// é /{page-id}/posts, que não atende grupos
+// nem perfis pessoais.
+function validarIdentificadorFonte(tipo,valor,modo){
+
+  if(tipo==="MANUAL"||tipo==="IMPORT")
+
+    return null;
+
+  if(!valor)
+
+    return "Informe o identificador externo da fonte "+
+      "(id numérico da Página/conta ou hashtag).";
+
+  if(
+    /^https?:\/\//i.test(valor)||
+    valor.indexOf("/")>=0
+  )
+
+    return "Cole apenas o identificador, não a URL do "+
+      "perfil, da página ou do grupo.";
+
+  if(tipo==="FACEBOOK_GRAPH"){
+
+    if(!/^\d+$/.test(valor))
+
+      return "Facebook: use o id numérico da Página. "+
+        "@handles, URLs e ids de grupo ou de perfil "+
+        "pessoal não são aceitos pela Graph API em "+
+        "/{page-id}/posts.";
+
+    return null;
+
+  }
+
+  if(tipo==="INSTAGRAM_GRAPH"){
+
+    if(modo==="hashtag"){
+
+      if(!/^#?[A-Za-z0-9_]+$/.test(valor))
+
+        return "Instagram (hashtag): use apenas letras, "+
+          "números e underscore, sem espaços nem URL.";
+
+      return null;
+
+    }
+
+    if(!/^\d+$/.test(valor))
+
+      return "Instagram (conta): use o id numérico da "+
+        "conta Business/Creator, não o @usuário.";
+
+  }
+
+  return null;
+
+}
+
+
 async function salvarFonte(){
 
   const msg=
@@ -3817,6 +3918,46 @@ async function salvarFonte(){
 
   }
 
+  const tipo=
+    document.getElementById("fonteTipo").value;
+
+  const identificador=
+    document.getElementById("fonteIdent")
+      .value.trim();
+
+  const modo=
+    document.getElementById("fonteModo").value;
+
+  const igUser=
+    document.getElementById("fonteIgUser")
+      .value.trim();
+
+  // Mesma regra aplicada na Edge Function —
+  // aqui só para avisar antes de enviar.
+  const invalido=
+    validarIdentificadorFonte(
+      tipo,
+      identificador,
+      modo
+    );
+
+  if(invalido){
+
+    msg.innerHTML=
+      '<div class="notice warn">'+
+      esc(invalido)+
+      '</div>';
+
+    return;
+
+  }
+
+  const config={modo:modo};
+
+  if(igUser)
+
+    config.ig_user_id=igUser;
+
   try{
 
     await chamarFuncao(
@@ -3826,14 +3967,9 @@ async function salvarFonte(){
       {
         acao:"salvar_fonte",
         nome:nome,
-        tipo:
-          document.getElementById("fonteTipo").value,
-        identificador_externo:
-          document.getElementById("fonteIdent").value,
-        config:{
-          modo:
-            document.getElementById("fonteModo").value
-        }
+        tipo:tipo,
+        identificador_externo:identificador,
+        config:config
       }
 
     );
@@ -3843,6 +3979,51 @@ async function salvarFonte(){
 
     document.getElementById("fonteNome").value="";
     document.getElementById("fonteIdent").value="";
+    document.getElementById("fonteIgUser").value="";
+
+    await load();
+
+  }catch(e){
+
+    msg.innerHTML=
+      '<div class="notice warn">'+
+      esc(e.message)+
+      '</div>';
+
+  }
+
+}
+
+
+// Testa a fonte sem gravar nada: separa
+// problema de credencial de problema de
+// configuração antes da varredura.
+async function testarFonte(id){
+
+  const msg=
+    document.getElementById("fonteMsg");
+
+  msg.innerHTML=
+    '<div class="notice">Testando a fonte…</div>';
+
+  try{
+
+    const d=await chamarFuncao(
+
+      CONFIG.capturaFunction,
+
+      {
+        acao:"testar_fonte",
+        id:id
+      }
+
+    );
+
+    msg.innerHTML=
+      '<div class="notice '+
+      (d.ok?"ok":"warn")+'">'+
+      esc(d.mensagem||d.erro||"Teste concluído.")+
+      '</div>';
 
     await load();
 
@@ -3956,6 +4137,8 @@ function renderFontes(){
         (f.ativo===false
           ?""
           :'<div class="actions">'+
+           '<button class="btn light small" onclick="testarFonte(\''+
+           esc(f.id)+'\')">🔍 TESTAR</button>'+
            '<button class="btn danger small" onclick="removerFonte(\''+
            esc(f.id)+'\')">DESATIVAR</button>'+
            '</div>')+
@@ -3963,6 +4146,49 @@ function renderFontes(){
       '</div>';
 
     }).join("");
+
+}
+
+
+// Traduz o "0 capturados" de uma varredura
+// sem erro: nada encontrado na fonte, corte
+// do pré-filtro ou dedupe.
+function explicarZero(x){
+
+  if(
+    x.origem==="ANALISE"||
+    x.erro||
+    (x.capturados??0)>0
+  )
+
+    return "";
+
+  const encontrados=
+    Number(x.encontrados||0);
+
+  const relevantes=
+    Number(x.relevantes||0);
+
+  const duplicados=
+    Number(x.duplicados||0);
+
+  if(!encontrados)
+
+    return "A fonte não devolveu nenhum item "+
+      "nesta janela.";
+
+  if(!relevantes)
+
+    return "Os "+encontrados+" itens encontrados "+
+      "foram cortados pelo pré-filtro: nenhum cita "+
+      "termos do alvo.";
+
+  if(duplicados>=relevantes)
+
+    return "Os "+relevantes+" itens relevantes já "+
+      "estavam capturados (dedupe) — nada novo.";
+
+  return "";
 
 }
 
@@ -4014,6 +4240,14 @@ function renderExecucoes(){
 
         '<div class="meta">'+
           '<span>🕓 '+esc(dataHora(x.criado_em))+'</span>'+
+          (x.origem==="ANALISE"
+            ?""
+            :'<span title="Itens devolvidos pela fonte">'+
+             '🔎 '+esc(x.encontrados??0)+' encontrados</span>'+
+             '<span title="Passaram no pré-filtro do alvo">'+
+             '🎯 '+esc(x.relevantes??0)+' relevantes</span>'+
+             '<span title="Já existiam (dedupe)">'+
+             '♻️ '+esc(x.duplicados??0)+' duplicados</span>')+
           '<span>📥 '+esc(x.capturados??0)+' capturados</span>'+
           '<span>🧠 '+esc(x.analisados??0)+' analisados</span>'+
           '<span>✅ '+esc(x.aprovados??0)+' selecionados</span>'+
@@ -4031,7 +4265,11 @@ function renderExecucoes(){
            esc(x.erro)+
            (x.trace_id?" (ref. "+esc(x.trace_id)+")":"")+
            '</div>'
-          :"")+
+          :explicarZero(x)
+            ?'<div class="motivo">'+
+             esc(explicarZero(x))+
+             '</div>'
+            :"")+
 
       '</div>';
 

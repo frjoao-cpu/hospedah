@@ -42,7 +42,10 @@ module.exports = defineConfig({
   webServer: process.env.HOSPEDAH_BASE_URL
     ? undefined
     : {
-        command: 'npx serve . -p 4000 -s',
+        // Sem -s (SPA): o site é estático e multipágina. Com o
+        // rewrite de SPA, /radar-ia/ e /portal/ caíam na home e
+        // as rotas inexistentes respondiam 200 em vez de 404.
+        command: 'npx serve . -p 4000',
         url: 'http://localhost:4000',
         reuseExistingServer: !process.env.CI,
         timeout: 30000,
