@@ -386,3 +386,260 @@ export function selecionar(
             (emp ? ', ' + emp : '') + '.',
     };
 }
+
+// ── Sinais de negociação ────────────────────────────────────
+
+export const URGENCIAS = ['BAIXA', 'MEDIA', 'ALTA', 'IMEDIATA'];
+
+export const RISCOS_FRAUDE = ['BAIXO', 'MEDIO', 'ALTO'];
+
+export function asUrgencia(v: unknown): string | null {
+    const t = asText(v)?.toUpperCase().replace('É', 'E') ?? null;
+    if (!t) return null;
+    return URGENCIAS.includes(t) ? t : null;
+}
+
+export function asRisco(v: unknown): string | null {
+    const t = asText(v)?.toUpperCase() ?? null;
+    if (!t) return null;
+    return RISCOS_FRAUDE.includes(t) ? t : null;
+}
+
+// ── Cache e dedupe ──────────────────────────────────────────
+
+// Hash estável do conteúdo analisado. Mesmo texto (ignorando
+// acentos, caixa e pontuação) → mesma chave de cache, evitando
+// pagar duas vezes pela mesma análise de IA.
+export async function hashTexto(texto: string): Promise<string> {
+    const base = normalizar(texto);
+
+    const buffer = await crypto.subtle.digest(
+        'SHA-256',
+        new TextEncoder().encode(base),
+    );
+
+    return Array.from(new Uint8Array(buffer))
+        .map((b) => b.toString(16).padStart(2, '0'))
+        .join('');
+}
+
+// Palavras significativas do texto (sem ruído curto), usadas
+// como "impressão digital" para o dedupe por similaridade.
+export function tokensRelevantes(texto: string): string[] {
+    return [
+        ...new Set(
+            normalizar(texto)
+                .split(' ')
+                .filter((t) => t.length >= 4),
+        ),
+    ];
+}
+
+// Impressão digital compacta e determinística: os 40 tokens
+// mais informativos, em ordem alfabética. Guardada na
+// oportunidade para comparar candidatos sem reprocessar texto.
+export function impressaoDigital(texto: string): string {
+    return tokensRelevantes(texto).sort().slice(0, 40).join(' ');
+}
+
+// Similaridade de Jaccard entre duas impressões digitais.
+// 1 = idêntico, 0 = nada em comum.
+export function similaridade(a: string, b: string): number {
+    const A = new Set(tokensRelevantes(a));
+    const B = new Set(tokensRelevantes(b));
+
+    if (!A.size || !B.size) return 0;
+
+    let comuns = 0;
+    for (const t of A) if (B.has(t)) comuns++;
+
+    return comuns / (A.size + B.size - comuns);
+}
+
+// Limite a partir do qual dois anúncios são considerados o
+// mesmo negócio anunciado em fontes diferentes.
+export const LIMIAR_DUPLICADA = 0.62;
+
+export interface Candidata {
+    id: string;
+    impressao_digital?: string | null;
+    texto_original?: string | null;
+    contato?: string | null;
+    empreendimento?: string | null;
+    valor_anunciado?: number | null;
+}
+
+export interface Duplicada {
+    id: string;
+    similaridade: number;
+    motivo: string;
+}
+
+// Procura, entre oportunidades recentes, uma que já represente
+// o mesmo negócio. Contato idêntico + mesmo empreendimento é
+// prova forte; o restante decide por similaridade textual.
+export function acharDuplicada(
+    novo: {
+        texto: string;
+        contato?: string | null;
+        empreendimento?: string | null;
+    },
+    candidatas: Candidata[],
+): Duplicada | null {
+    const contato = normalizar(novo.contato ?? '').replace(/ /g, '');
+    const emp = normalizar(novo.empreendimento ?? '');
+
+    let melhor: Duplicada | null = null;
+
+    for (const c of candidatas) {
+        const impressao = c.impressao_digital ||
+            impressaoDigital(String(c.texto_original || ''));
+
+        const sim = similaridade(novo.texto, impressao);
+
+        const mesmoContato = !!contato &&
+            normalizar(c.contato ?? '').replace(/ /g, '') === contato;
+
+        const mesmoEmp = !!emp &&
+            normalizar(c.empreendimento ?? '') === emp;
+
+        const duplicada = (mesmoContato && (mesmoEmp || sim >= 0.35)) ||
+            sim >= LIMIAR_DUPLICADA;
+
+        if (!duplicada) continue;
+
+        if (!melhor || sim > melhor.similaridade) {
+            melhor = {
+                id: c.id,
+                similaridade: Math.round(sim * 100) / 100,
+                motivo: mesmoContato
+                    ? 'Mesmo contato do anunciante' +
+                        (mesmoEmp ? ' e mesmo empreendimento' : '') +
+                        ' (similaridade ' + Math.round(sim * 100) + '%).'
+                    : 'Conteúdo equivalente a uma oportunidade já ' +
+                        'registrada (similaridade ' +
+                        Math.round(sim * 100) + '%).',
+            };
+        }
+    }
+
+    return melhor;
+}
+
+// ── Preço de referência (RAG sobre a base própria) ──────────
+
+export interface Referencia {
+    valor: number;
+    amostras: number;
+}
+
+// Mediana dos valores já praticados para o mesmo
+// empreendimento/tipo. Mediana (e não média) para que um
+// anúncio absurdo não contamine a referência.
+export function referenciaDePreco(
+    historico: { valor_anunciado?: number | null }[],
+): Referencia | null {
+    const valores = historico
+        .map((h) => asNum(h.valor_anunciado))
+        .filter((v): v is number => v !== null && v > 0)
+        .sort((a, b) => a - b);
+
+    if (valores.length < 3) return null;
+
+    const meio = Math.floor(valores.length / 2);
+
+    const valor = valores.length % 2
+        ? valores[meio]
+        : (valores[meio - 1] + valores[meio]) / 2;
+
+    return { valor, amostras: valores.length };
+}
+
+// Desconto (%) do valor anunciado em relação à referência.
+// Positivo = mais barato que o praticado.
+export function descontoPercentual(
+    valor: number | null,
+    referencia: Referencia | null,
+): number | null {
+    if (valor === null || !referencia || referencia.valor <= 0) return null;
+
+    const pct = (1 - valor / referencia.valor) * 100;
+
+    return Math.round(pct * 10) / 10;
+}
+
+// Ajuste do score comercial pelo que a HOSPEDAH já praticou e
+// pelos sinais de urgência/fraude — o score deixa de depender
+// só da opinião da IA sobre o texto isolado.
+export function ajustarScore(
+    score: number,
+    ctx: {
+        desconto?: number | null;
+        urgencia?: string | null;
+        risco?: string | null;
+    },
+): { score: number; motivos: string[] } {
+    let ajustado = score;
+    const motivos: string[] = [];
+
+    const desconto = ctx.desconto ?? null;
+
+    if (desconto !== null) {
+        if (desconto >= 25) {
+            ajustado += 12;
+            motivos.push(
+                'preço ' + Math.round(desconto) +
+                    '% abaixo do praticado',
+            );
+        } else if (desconto >= 10) {
+            ajustado += 6;
+            motivos.push(
+                'preço ' + Math.round(desconto) +
+                    '% abaixo do praticado',
+            );
+        } else if (desconto <= -15) {
+            ajustado -= 8;
+            motivos.push(
+                'preço ' + Math.round(Math.abs(desconto)) +
+                    '% acima do praticado',
+            );
+        }
+    }
+
+    if (ctx.urgencia === 'IMEDIATA') {
+        ajustado += 8;
+        motivos.push('vendedor com urgência imediata');
+    } else if (ctx.urgencia === 'ALTA') {
+        ajustado += 4;
+        motivos.push('vendedor com urgência alta');
+    }
+
+    if (ctx.risco === 'ALTO') {
+        ajustado -= 25;
+        motivos.push('sinais de fraude');
+    } else if (ctx.risco === 'MEDIO') {
+        ajustado -= 10;
+        motivos.push('sinais de risco a confirmar');
+    }
+
+    return {
+        score: Math.min(100, Math.max(0, Math.round(ajustado))),
+        motivos,
+    };
+}
+
+// ── Backoff da fila ─────────────────────────────────────────
+
+// Espera exponencial com teto de 1 hora: 2, 4, 8, 16, 32, 60 min.
+export function proximaTentativa(
+    tentativas: number,
+    agora = new Date(),
+): string {
+    const minutos = Math.min(60, Math.pow(2, Math.max(1, tentativas)));
+
+    return new Date(agora.getTime() + minutos * 60000).toISOString();
+}
+
+// Depois disso a captura vira dead-letter (estado ERRO fixo) e
+// para de consumir a fila.
+export const MAX_TENTATIVAS = 5;
