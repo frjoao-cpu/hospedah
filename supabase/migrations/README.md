@@ -12,6 +12,9 @@ Este diretório contém as migrations **incrementais** do banco de dados.
 | `004_security_rls_fixes2.sql` | Correções adicionais de RLS e RPC `registrar_ref_code_fidelidade` |
 | `005_oferta_especial.sql` | Ofertas especiais personalizadas e contrapropostas |
 | `006_fidelidade_cpf.sql` | Adiciona coluna `cpf` à tabela `fidelidade` |
+| `007_radar_ia.sql` | Radar IA: oportunidades analisadas pela IA |
+| `008_radar_central_monitoramento.sql` | Central de Monitoramento do Radar: alvos, fontes, capturas e execuções |
+| `009_radar_pipeline_robustez.sql` | Contadores de diagnóstico das execuções (`encontrados`, `relevantes`, `duplicados`) |
 
 ## Como aplicar
 

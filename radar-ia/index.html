@@ -1230,6 +1230,21 @@ pre{
           <option value="usuario">Conta / perfil</option>
         </select>
 
+        <label for="fonteIgUser">
+          IG user id (opcional)
+        </label>
+
+        <input
+          id="fonteIgUser"
+          placeholder="Id numérico da conta Business/Creator"
+        >
+
+        <p class="sub">
+          Facebook exige o <b>id numérico da Página</b>.
+          URLs, @handles e ids de grupo ou de perfil pessoal
+          não são aceitos pela Graph API.
+        </p>
+
         <div class="actions">
 
           <button
@@ -1303,8 +1318,22 @@ const CONFIG={
 
 };
 
+// Entrada única e versionada da sessão:
+// guarda access_token, refresh_token e o
+// instante de expiração para que o painel
+// se renove sozinho em vez de "cair".
+const SESSAO_KEY=
+  "hospedah_radar_sessao_v1";
+
+// Chave antiga (só o access_token) — lida
+// uma única vez para migrar a sessão.
 const TOKEN_KEY=
   "hospedah_radar_token";
+
+// Margem de segurança para renovar antes
+// de o token expirar de fato.
+const RENOVAR_ANTES_MS=
+  120000;
 
 const TIPOS=[
   "VENDA_COTA",
@@ -1324,8 +1353,13 @@ const NEGOCIACAO=[
   "PERDIDA"
 ];
 
-let token=
-  localStorage.getItem(TOKEN_KEY)||"";
+let sessao=
+  carregarSessao();
+
+// Renovação em andamento — evita disparar
+// vários refresh simultâneos quando várias
+// leituras saem em paralelo (load()).
+let renovando=null;
 
 let oportunidades=[];
 let alvos=[];
@@ -1338,7 +1372,224 @@ let faltaMigration=false;
 let erroConexao="";
 
 
-function api(path,opts={}){
+// ───────────── Sessão ─────────────
+
+function carregarSessao(){
+
+  try{
+
+    const bruto=
+      localStorage.getItem(SESSAO_KEY);
+
+    if(bruto){
+
+      const s=JSON.parse(bruto);
+
+      if(s&&s.access_token)
+
+        return s;
+
+    }
+
+  }catch(_){
+
+    // Entrada corrompida: descarta.
+
+  }
+
+  // Migração da chave antiga: sem
+  // refresh_token e sem validade
+  // conhecida, a sessão vale só até
+  // o primeiro 401.
+  const legado=
+    localStorage.getItem(TOKEN_KEY);
+
+  if(legado)
+
+    return {
+      access_token:legado,
+      refresh_token:"",
+      expires_at:0
+    };
+
+  return null;
+
+}
+
+
+function salvarSessao(d){
+
+  const agora=
+    Date.now();
+
+  sessao={
+
+    access_token:
+      d.access_token||"",
+
+    refresh_token:
+      d.refresh_token||
+      (sessao&&sessao.refresh_token)||
+      "",
+
+    expires_at:
+      d.expires_at
+        ?Number(d.expires_at)*1000
+        :agora+
+         (Number(d.expires_in)||3600)*1000
+
+  };
+
+  localStorage.setItem(
+    SESSAO_KEY,
+    JSON.stringify(sessao)
+  );
+
+  localStorage.removeItem(TOKEN_KEY);
+
+}
+
+
+function limparSessao(){
+
+  sessao=null;
+  renovando=null;
+
+  localStorage.removeItem(SESSAO_KEY);
+  localStorage.removeItem(TOKEN_KEY);
+
+}
+
+
+// A sessão só é utilizável quando tem
+// access_token válido OU um refresh_token
+// para trocá-lo.
+function sessaoUtilizavel(){
+
+  if(!sessao||!sessao.access_token)
+
+    return false;
+
+  if(sessao.refresh_token)
+
+    return true;
+
+  // Sem refresh_token (sessão legada):
+  // só vale enquanto não expirou.
+  return !sessao.expires_at||
+    sessao.expires_at>Date.now();
+
+}
+
+
+async function renovarSessao(){
+
+  if(!sessao||!sessao.refresh_token)
+
+    return false;
+
+  if(!renovando)
+
+    renovando=(async()=>{
+
+      try{
+
+        const r=await fetch(
+
+          CONFIG.supabaseUrl+
+          "/auth/v1/token?grant_type=refresh_token",
+
+          {
+            method:"POST",
+
+            headers:{
+              "apikey":
+                CONFIG.supabaseAnonKey,
+
+              "Content-Type":
+                "application/json"
+            },
+
+            body:JSON.stringify({
+              refresh_token:
+                sessao.refresh_token
+            })
+          }
+
+        );
+
+        if(!r.ok)
+
+          return false;
+
+        const d=
+          await r.json()
+            .catch(()=>null);
+
+        if(!d||!d.access_token)
+
+          return false;
+
+        salvarSessao(d);
+
+        return true;
+
+      }catch(_){
+
+        // Falha de rede: não invalida a
+        // sessão, apenas não renova agora.
+        return false;
+
+      }finally{
+
+        renovando=null;
+
+      }
+
+    })();
+
+  return await renovando;
+
+}
+
+
+// Ponto único de obtenção do token: renova
+// quando falta pouco para expirar.
+async function obterToken(){
+
+  if(!sessao||!sessao.access_token)
+
+    return "";
+
+  const venceEm=
+    Number(sessao.expires_at)||0;
+
+  if(
+    venceEm&&
+    venceEm-Date.now()<=RENOVAR_ANTES_MS
+  ){
+
+    const ok=
+      await renovarSessao();
+
+    if(!ok&&venceEm<=Date.now()){
+
+      sessaoExpirada();
+
+      return "";
+
+    }
+
+  }
+
+  return sessao&&sessao.access_token
+    ?sessao.access_token
+    :"";
+
+}
+
+
+async function api(path,opts={}){
 
   opts.headers=Object.assign({
 
@@ -1350,6 +1601,9 @@ function api(path,opts={}){
 
   },opts.headers||{});
 
+  const token=
+    await obterToken();
+
   if(token){
 
     opts.headers.Authorization=
@@ -1359,84 +1613,130 @@ function api(path,opts={}){
 
   // Timeout para a análise da IA não
   // ficar carregando indefinidamente.
-  const ctrl=
-    new AbortController();
-
-  const timer=
-    setTimeout(
-      ()=>ctrl.abort(),
-      opts.timeout||60000
-    );
+  const tempoLimite=
+    opts.timeout||60000;
 
   delete opts.timeout;
 
-  opts.signal=ctrl.signal;
+  const enviar=async()=>{
 
-  return fetch(
-    CONFIG.supabaseUrl+path,
-    opts
-  ).catch(
-    async (e)=>{
+    const ctrl=
+      new AbortController();
 
-      // Erro de rede / CORS / função
-      // fora do ar chega aqui como
-      // "Failed to fetch" — traduzimos
-      // para uma mensagem útil.
-      if(
-        e&&e.name==="AbortError"
-      )
-
-        throw new Error(
-          "A operação demorou demais "+
-          "(timeout). Tente novamente."
-        );
-
-      // Autodiagnóstico: testa a URL da
-      // função para distinguir "função
-      // não implantada" de falha de rede
-      // local (internet, VPN, bloqueio).
-      let detalhe="";
-
-      try{
-
-        const probe=
-          await fetch(
-            CONFIG.supabaseUrl+
-            "/functions/v1/"+
-            CONFIG.functionName,
-            {method:"OPTIONS"}
-          );
-
-        if(probe.status===404)
-
-          detalhe=
-            " A função "+
-            CONFIG.functionName+
-            " não foi encontrada no "+
-            "servidor (deploy pendente).";
-
-      }catch(_){
-
-        detalhe=
-          " Não foi possível alcançar "+
-          "o Supabase — verifique sua "+
-          "internet/VPN.";
-
-      }
-
-      throw new Error(
-        "Sem conexão com o servidor "+
-        "(rede, CORS ou Edge Function "+
-        "indisponível)."+
-        detalhe+
-        " Verifique o deploy das "+
-        "Edge Functions."
+    const timer=
+      setTimeout(
+        ()=>ctrl.abort(),
+        tempoLimite
       );
 
+    opts.signal=ctrl.signal;
+
+    return fetch(
+      CONFIG.supabaseUrl+path,
+      opts
+    ).catch(
+      async (e)=>{
+
+        // Erro de rede / CORS / função
+        // fora do ar chega aqui como
+        // "Failed to fetch" — traduzimos
+        // para uma mensagem útil.
+        if(
+          e&&e.name==="AbortError"
+        )
+
+          throw new Error(
+            "A operação demorou demais "+
+            "(timeout). Tente novamente."
+          );
+
+        // Autodiagnóstico: testa a URL da
+        // função para distinguir "função
+        // não implantada" de falha de rede
+        // local (internet, VPN, bloqueio).
+        let detalhe="";
+
+        try{
+
+          const probe=
+            await fetch(
+              CONFIG.supabaseUrl+
+              "/functions/v1/"+
+              CONFIG.functionName,
+              {method:"OPTIONS"}
+            );
+
+          if(probe.status===404)
+
+            detalhe=
+              " A função "+
+              CONFIG.functionName+
+              " não foi encontrada no "+
+              "servidor (deploy pendente).";
+
+        }catch(_){
+
+          detalhe=
+            " Não foi possível alcançar "+
+            "o Supabase — verifique sua "+
+            "internet/VPN.";
+
+        }
+
+        throw new Error(
+          "Sem conexão com o servidor "+
+          "(rede, CORS ou Edge Function "+
+          "indisponível)."+
+          detalhe+
+          " Verifique o deploy das "+
+          "Edge Functions."
+        );
+
+      }
+    ).finally(
+      ()=>clearTimeout(timer)
+    );
+
+  };
+
+  const aplicarToken=(t)=>{
+
+    if(t)
+
+      opts.headers.Authorization=
+        "Bearer "+t;
+
+    else
+
+      delete opts.headers.Authorization;
+
+  };
+
+  aplicarToken(await obterToken());
+
+  let r=await enviar();
+
+  // Token recusado: tenta renovar uma vez
+  // antes de devolver o 401 ao chamador.
+  if(
+    (r.status===401||r.status===403)&&
+    sessao&&sessao.refresh_token
+  ){
+
+    const ok=
+      await renovarSessao();
+
+    if(ok){
+
+      aplicarToken(await obterToken());
+
+      r=await enviar();
+
     }
-  ).finally(
-    ()=>clearTimeout(timer)
-  );
+
+  }
+
+  return r;
 
 }
 
@@ -1560,13 +1860,7 @@ async function login(ev){
         "Falha no login"
       );
 
-    token=
-      d.access_token;
-
-    localStorage.setItem(
-      TOKEN_KEY,
-      token
-    );
+    salvarSessao(d);
 
     document
       .getElementById("login")
@@ -1588,11 +1882,7 @@ async function login(ev){
 
 function logout(){
 
-  token="";
-
-  localStorage.removeItem(
-    TOKEN_KEY
-  );
+  limparSessao();
 
   location.reload();
 
@@ -1601,11 +1891,7 @@ function logout(){
 
 function sessaoExpirada(){
 
-  token="";
-
-  localStorage.removeItem(
-    TOKEN_KEY
-  );
+  limparSessao();
 
   document
     .getElementById("login")
@@ -2500,10 +2786,35 @@ async function varrer(alvoId){
 
     );
 
+    const detalhes=
+      Array.isArray(d.detalhes)
+        ?d.detalhes
+        :[];
+
+    const encontrados=
+      detalhes.reduce(
+        (t,x)=>t+Number(x.encontrados||0),
+        0
+      );
+
+    const falhas=
+      detalhes.filter(x=>x.erro||x.aviso);
+
     alert(
       "Varredura concluída: "+
       (d.capturados||0)+
-      " nova(s) captura(s)."
+      " nova(s) captura(s) de "+
+      encontrados+
+      " item(ns) encontrado(s)."+
+      (falhas.length
+        ?"\n\n"+
+         falhas
+           .map(x=>
+             (x.fonte?x.fonte+": ":"")+
+             (x.erro||x.aviso)
+           )
+           .join("\n")
+        :"")
     );
 
     await load();
@@ -3526,6 +3837,67 @@ function renderOportunidades(){
 
 // ─────────── FONTES / SAÚDE ───────────
 
+// Espelha validarIdentificador da Edge
+// Function radar-captura: o endpoint usado
+// é /{page-id}/posts, que não atende grupos
+// nem perfis pessoais.
+function validarIdentificadorFonte(tipo,valor,modo){
+
+  if(tipo==="MANUAL"||tipo==="IMPORT")
+
+    return null;
+
+  if(!valor)
+
+    return "Informe o identificador externo da fonte "+
+      "(id numérico da Página/conta ou hashtag).";
+
+  if(
+    /^https?:\/\//i.test(valor)||
+    valor.indexOf("/")>=0
+  )
+
+    return "Cole apenas o identificador, não a URL do "+
+      "perfil, da página ou do grupo.";
+
+  if(tipo==="FACEBOOK_GRAPH"){
+
+    if(!/^\d+$/.test(valor))
+
+      return "Facebook: use o id numérico da Página. "+
+        "@handles, URLs e ids de grupo ou de perfil "+
+        "pessoal não são aceitos pela Graph API em "+
+        "/{page-id}/posts.";
+
+    return null;
+
+  }
+
+  if(tipo==="INSTAGRAM_GRAPH"){
+
+    if(modo==="hashtag"){
+
+      if(!/^#?[A-Za-z0-9_]+$/.test(valor))
+
+        return "Instagram (hashtag): use apenas letras, "+
+          "números e underscore, sem espaços nem URL.";
+
+      return null;
+
+    }
+
+    if(!/^\d+$/.test(valor))
+
+      return "Instagram (conta): use o id numérico da "+
+        "conta Business/Creator, não o @usuário.";
+
+  }
+
+  return null;
+
+}
+
+
 async function salvarFonte(){
 
   const msg=
@@ -3546,6 +3918,46 @@ async function salvarFonte(){
 
   }
 
+  const tipo=
+    document.getElementById("fonteTipo").value;
+
+  const identificador=
+    document.getElementById("fonteIdent")
+      .value.trim();
+
+  const modo=
+    document.getElementById("fonteModo").value;
+
+  const igUser=
+    document.getElementById("fonteIgUser")
+      .value.trim();
+
+  // Mesma regra aplicada na Edge Function —
+  // aqui só para avisar antes de enviar.
+  const invalido=
+    validarIdentificadorFonte(
+      tipo,
+      identificador,
+      modo
+    );
+
+  if(invalido){
+
+    msg.innerHTML=
+      '<div class="notice warn">'+
+      esc(invalido)+
+      '</div>';
+
+    return;
+
+  }
+
+  const config={modo:modo};
+
+  if(igUser)
+
+    config.ig_user_id=igUser;
+
   try{
 
     await chamarFuncao(
@@ -3555,14 +3967,9 @@ async function salvarFonte(){
       {
         acao:"salvar_fonte",
         nome:nome,
-        tipo:
-          document.getElementById("fonteTipo").value,
-        identificador_externo:
-          document.getElementById("fonteIdent").value,
-        config:{
-          modo:
-            document.getElementById("fonteModo").value
-        }
+        tipo:tipo,
+        identificador_externo:identificador,
+        config:config
       }
 
     );
@@ -3572,6 +3979,51 @@ async function salvarFonte(){
 
     document.getElementById("fonteNome").value="";
     document.getElementById("fonteIdent").value="";
+    document.getElementById("fonteIgUser").value="";
+
+    await load();
+
+  }catch(e){
+
+    msg.innerHTML=
+      '<div class="notice warn">'+
+      esc(e.message)+
+      '</div>';
+
+  }
+
+}
+
+
+// Testa a fonte sem gravar nada: separa
+// problema de credencial de problema de
+// configuração antes da varredura.
+async function testarFonte(id){
+
+  const msg=
+    document.getElementById("fonteMsg");
+
+  msg.innerHTML=
+    '<div class="notice">Testando a fonte…</div>';
+
+  try{
+
+    const d=await chamarFuncao(
+
+      CONFIG.capturaFunction,
+
+      {
+        acao:"testar_fonte",
+        id:id
+      }
+
+    );
+
+    msg.innerHTML=
+      '<div class="notice '+
+      (d.ok?"ok":"warn")+'">'+
+      esc(d.mensagem||d.erro||"Teste concluído.")+
+      '</div>';
 
     await load();
 
@@ -3685,6 +4137,8 @@ function renderFontes(){
         (f.ativo===false
           ?""
           :'<div class="actions">'+
+           '<button class="btn light small" onclick="testarFonte(\''+
+           esc(f.id)+'\')">🔍 TESTAR</button>'+
            '<button class="btn danger small" onclick="removerFonte(\''+
            esc(f.id)+'\')">DESATIVAR</button>'+
            '</div>')+
@@ -3692,6 +4146,49 @@ function renderFontes(){
       '</div>';
 
     }).join("");
+
+}
+
+
+// Traduz o "0 capturados" de uma varredura
+// sem erro: nada encontrado na fonte, corte
+// do pré-filtro ou dedupe.
+function explicarZero(x){
+
+  if(
+    x.origem==="ANALISE"||
+    x.erro||
+    (x.capturados??0)>0
+  )
+
+    return "";
+
+  const encontrados=
+    Number(x.encontrados||0);
+
+  const relevantes=
+    Number(x.relevantes||0);
+
+  const duplicados=
+    Number(x.duplicados||0);
+
+  if(!encontrados)
+
+    return "A fonte não devolveu nenhum item "+
+      "nesta janela.";
+
+  if(!relevantes)
+
+    return "Os "+encontrados+" itens encontrados "+
+      "foram cortados pelo pré-filtro: nenhum cita "+
+      "termos do alvo.";
+
+  if(duplicados>=relevantes)
+
+    return "Os "+relevantes+" itens relevantes já "+
+      "estavam capturados (dedupe) — nada novo.";
+
+  return "";
 
 }
 
@@ -3743,6 +4240,14 @@ function renderExecucoes(){
 
         '<div class="meta">'+
           '<span>🕓 '+esc(dataHora(x.criado_em))+'</span>'+
+          (x.origem==="ANALISE"
+            ?""
+            :'<span title="Itens devolvidos pela fonte">'+
+             '🔎 '+esc(x.encontrados??0)+' encontrados</span>'+
+             '<span title="Passaram no pré-filtro do alvo">'+
+             '🎯 '+esc(x.relevantes??0)+' relevantes</span>'+
+             '<span title="Já existiam (dedupe)">'+
+             '♻️ '+esc(x.duplicados??0)+' duplicados</span>')+
           '<span>📥 '+esc(x.capturados??0)+' capturados</span>'+
           '<span>🧠 '+esc(x.analisados??0)+' analisados</span>'+
           '<span>✅ '+esc(x.aprovados??0)+' selecionados</span>'+
@@ -3760,7 +4265,11 @@ function renderExecucoes(){
            esc(x.erro)+
            (x.trace_id?" (ref. "+esc(x.trace_id)+")":"")+
            '</div>'
-          :"")+
+          :explicarZero(x)
+            ?'<div class="motivo">'+
+             esc(explicarZero(x))+
+             '</div>'
+            :"")+
 
       '</div>';
 
@@ -3994,7 +4503,12 @@ document
   );
 
 
-if(token){
+// No boot a sessão só é aceita quando
+// ainda é utilizável (token válido ou
+// refresh_token disponível); caso
+// contrário o painel abre no login em
+// vez de travar em chamadas 401.
+if(sessaoUtilizavel()){
 
   document
     .getElementById("login")
@@ -4002,6 +4516,10 @@ if(token){
     .add("hidden");
 
   load();
+
+}else if(sessao){
+
+  limparSessao();
 
 }
 

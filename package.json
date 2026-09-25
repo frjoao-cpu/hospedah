@@ -9,7 +9,7 @@
     "test:e2e:reservas": "playwright test tests/e2e/reservas.spec.js",
     "test:e2e:busca": "playwright test tests/e2e/busca.spec.js",
     "test:a11y": "playwright test tests/e2e/accessibility.spec.js",
-    "serve": "npx serve . -p 4000 -s",
+    "serve": "npx serve . -p 4000",
     "size-check": "node scripts/size-check.js"
   },
   "devDependencies": {

@@ -34,6 +34,7 @@ supabase/
     migrations/
         007_radar_ia.sql
         008_radar_central_monitoramento.sql
+        009_radar_pipeline_robustez.sql
 
     functions/
         _shared/
@@ -233,6 +234,67 @@ motivo em radar_execucoes e NÃO derruba
 o resto do pipeline — as fontes MANUAL
 e IMPORT continuam funcionando.
 
+## Renovar o FACEBOOK_PAGE_ACCESS_TOKEN
+
+O token de usuário do Graph API Explorer
+dura cerca de 1 a 2 horas. Use sempre um
+token de Página de LONGA DURAÇÃO, que não
+expira enquanto o app e as permissões
+continuarem válidos:
+
+1. Graph API Explorer → gere um token de
+   usuário com as permissões
+   pages_read_engagement e pages_show_list.
+
+2. Troque-o por um token de usuário de
+   longa duração (~60 dias):
+   GET /oauth/access_token
+   ?grant_type=fb_exchange_token
+   &client_id=<APP_ID>
+   &client_secret=<APP_SECRET>
+   &fb_exchange_token=<TOKEN_CURTO>
+
+3. Com o token longo, peça o token da
+   Página:
+   GET /me/accounts
+   O campo access_token de cada página é o
+   token de Página de longa duração.
+
+4. Grave esse valor no secret
+   FACEBOOK_PAGE_ACCESS_TOKEN
+   (Edge Functions → Secrets) e clique em
+   TESTAR no card da fonte, na aba
+   "Saúde do robô".
+
+Quando o token expira ou é revogado, a
+Graph API responde com os códigos 190,
+102, 463 ou 467. A radar-captura grava
+credencial_status = EXPIRADA na fonte e
+mostra no painel a instrução de renovação
+— é o que diferencia "token vencido" de
+"permissão faltando" (códigos 10 e 200-299)
+e de "identificador errado" (100 e 803).
+
+## Identificadores aceitos
+
+O adaptador do Facebook consulta
+/{page-id}/posts, que atende apenas
+PÁGINAS:
+
+FACEBOOK_GRAPH → id NUMÉRICO da Página.
+URLs, @handles e ids de grupo ou de perfil
+pessoal são rejeitados no cadastro.
+
+INSTAGRAM_GRAPH (modo hashtag) → a hashtag
+sem espaços (o # é opcional).
+
+INSTAGRAM_GRAPH (modo conta) → id numérico
+da conta Business/Creator. O ig_user_id
+pode ser informado por fonte no campo
+"IG user id" do painel, sobrescrevendo o
+secret INSTAGRAM_USER_ID apenas quando
+este não estiver definido.
+
 ---
 
 # 6. EDGE FUNCTIONS
@@ -266,6 +328,10 @@ importar_lote
 
 descartar
 (marca a captura como DESCARTADA)
+
+testar_fonte
+(consulta a fonte sem gravar nada e
+atualiza o status da credencial)
 
 salvar_fonte / remover_fonte
 (cadastro das fontes)
@@ -543,7 +609,9 @@ INSTAGRAM_GRAPH
 
 FACEBOOK_GRAPH
 (Graph API oficial do Facebook;
-identificador = id da Página)
+identificador = id NUMÉRICO da Página —
+grupos e perfis pessoais não são
+atendidos por /{page-id}/posts)
 
 MANUAL
 (texto colado pelo operador)
@@ -554,7 +622,29 @@ IMPORT
 A migration 008 já cria as fontes
 "Manual" e "Importação em lote", então
 o pipeline funciona desde o primeiro dia,
-mesmo sem token da Meta.
+mesmo sem token da Meta. As fontes
+automáticas (Instagram/Facebook) precisam
+ser cadastradas na aba "Saúde do robô" e,
+se o alvo tiver vínculos explícitos,
+associadas ao alvo — sem nenhuma fonte
+automática ativa a varredura devolve o
+aviso "Nenhuma fonte automática cadastrada".
+
+Depois de cadastrar, use o botão TESTAR do
+card da fonte: ele consulta a API sem
+gravar nada e devolve o status da
+credencial, separando problema de token de
+problema de identificador.
+
+A migration 009 acrescenta a
+radar_execucoes os contadores
+encontrados / relevantes / duplicados, que
+o painel usa para explicar uma varredura
+com zero capturas: nada na fonte, corte do
+pré-filtro ou conteúdo já capturado
+(dedupe). Sem a 009 a captura continua
+funcionando — a execução é apenas gravada
+sem esses contadores.
 
 Cada fonte guarda o status da credencial,
 o último cursor de paginação e se está
