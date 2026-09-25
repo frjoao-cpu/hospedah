@@ -15,6 +15,7 @@ Este diretório contém as migrations **incrementais** do banco de dados.
 | `007_radar_ia.sql` | Radar IA: oportunidades analisadas pela IA |
 | `008_radar_central_monitoramento.sql` | Central de Monitoramento do Radar: alvos, fontes, capturas e execuções |
 | `009_radar_pipeline_robustez.sql` | Contadores de diagnóstico das execuções (`encontrados`, `relevantes`, `duplicados`) |
+| `010_radar_inteligencia.sql` | Cache de análise, dedupe semântico, preço de referência, fila com retry, custo de IA e alertas |
 
 ## Como aplicar
 

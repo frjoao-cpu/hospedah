@@ -1207,6 +1207,7 @@ pre{
         <select id="fonteTipo">
           <option value="INSTAGRAM_GRAPH">Instagram (Graph API)</option>
           <option value="FACEBOOK_GRAPH">Facebook (Graph API)</option>
+          <option value="RSS">Feed RSS/Atom oficial</option>
           <option value="MANUAL">Manual</option>
           <option value="IMPORT">Importação em lote</option>
         </select>
@@ -1294,6 +1295,32 @@ pre{
 
       </section>
 
+      <section class="card">
+
+        <h2>
+          💸 Custo da IA e fila
+        </h2>
+
+        <p class="sub">
+          Tokens e custo por dia, fila de capturas e
+          alertas enviados ao time.
+        </p>
+
+        <div class="actions" style="margin-bottom:14px">
+
+          <button
+            class="btn light"
+            onclick="carregarSaude()"
+          >
+            📊 ATUALIZAR SAÚDE
+          </button>
+
+        </div>
+
+        <div id="painelSaude" class="list"></div>
+
+      </section>
+
     </div>
 
   </div>
@@ -1370,6 +1397,15 @@ let empreendimentos=[];
 let vinculos=[];
 let faltaMigration=false;
 let erroConexao="";
+
+// Atualização automática: o painel busca
+// sozinho as oportunidades novas e avisa
+// sem exigir refresh manual.
+const INTERVALO_ATUALIZACAO_MS=30000;
+
+let atualizacaoTimer=null;
+
+let ultimaOportunidadeVista="";
 
 
 // ───────────── Sessão ─────────────
@@ -1868,6 +1904,8 @@ async function login(ev){
 
     load();
 
+    iniciarAtualizacaoAutomatica();
+
   }catch(e){
 
     msg.innerHTML=
@@ -1948,6 +1986,21 @@ function abrirAba(nome){
       );
 
   });
+
+  // Abrir a aba significa "já vi": o
+  // contador de novidades zera.
+  if(nome==="oportunidades"){
+
+    ultimaOportunidadeVista=
+      oportunidades
+        .map(o=>o.criado_em||"")
+        .sort()
+        .slice(-1)[0]||
+      ultimaOportunidadeVista;
+
+    marcarNovidades();
+
+  }
 
 }
 
@@ -2110,6 +2163,8 @@ async function load(){
   renderExecucoes();
 
   stats();
+
+  marcarNovidades();
 
 }
 
@@ -3367,6 +3422,155 @@ async function reavaliar(id){
 }
 
 
+// Pede à IA a primeira mensagem de abordagem.
+// O texto é apenas sugerido: quem envia é o
+// operador, depois de revisar.
+async function rascunhoAbordagem(id){
+
+  try{
+
+    const d=
+      await chamarFuncao(
+
+        CONFIG.functionName,
+
+        {
+          acao:"rascunho_abordagem",
+          oportunidade_id:id
+        }
+
+      );
+
+    const r=d.rascunho||{};
+
+    const texto=
+      r.mensagem||
+      "A IA não devolveu mensagem.";
+
+    const atencao=
+      Array.isArray(r.pontos_de_atencao)&&
+      r.pontos_de_atencao.length
+
+        ? "\n\nPontos de atenção:\n- "+
+          r.pontos_de_atencao.join("\n- ")
+
+        : "";
+
+    if(navigator.clipboard&&r.mensagem)
+
+      await navigator.clipboard
+        .writeText(r.mensagem)
+        .catch(()=>{});
+
+    alert(
+      "Canal sugerido: "+
+      (r.canal_sugerido||"WHATSAPP")+
+      "\n\n"+
+      texto+
+      atencao+
+      "\n\n(Rascunho copiado para a área "+
+      "de transferência. Revise antes de enviar.)"
+    );
+
+  }catch(e){
+
+    alert(e.message);
+
+  }
+
+}
+
+
+// Fila, custo de IA e alertas recentes.
+async function carregarSaude(){
+
+  const el=
+    document.getElementById("painelSaude");
+
+  if(!el)
+
+    return;
+
+  el.innerHTML=
+    '<div class="empty">Consultando…</div>';
+
+  try{
+
+    const d=
+      await chamarFuncao(
+
+        CONFIG.functionName,
+
+        { acao:"saude" }
+
+      );
+
+    const fila=
+      (d.fila||[])
+        .map(f=>
+          '<div class="item">'+
+          '<b>'+esc(f.estado)+'</b>: '+
+          esc(f.total)+
+          ' captura(s)'+
+          (f.aguardando_retry
+            ?' — '+esc(f.aguardando_retry)+
+             ' aguardando nova tentativa'
+            :"")+
+          '</div>'
+        )
+        .join("");
+
+    const custo=
+      (d.custo||[])
+        .map(c=>
+          '<div class="item">'+
+          esc(c.dia)+' · '+
+          esc(c.provedor||"IA")+' · '+
+          esc(c.chamadas)+' chamada(s), '+
+          esc(c.do_cache||0)+' do cache · '+
+          'US$ '+esc(c.custo_usd||0)+
+          '</div>'
+        )
+        .join("");
+
+    const alertas=
+      (d.alertas||[])
+        .map(a=>
+          '<div class="item">'+
+          esc(dataHora(a.criado_em))+' · '+
+          esc(a.canal)+' · '+
+          esc(a.status)+
+          (a.erro?' — '+esc(a.erro):"")+
+          '</div>'
+        )
+        .join("");
+
+    el.innerHTML=
+
+      '<div class="motivo">Alerta automático a partir '+
+      'do score '+esc(d.alerta_score)+'.</div>'+
+
+      '<h3>Fila</h3>'+
+      (fila||'<div class="empty">Fila vazia.</div>')+
+
+      '<h3>Custo da IA (30 dias)</h3>'+
+      (custo||'<div class="empty">Sem uso registrado.</div>')+
+
+      '<h3>Alertas recentes</h3>'+
+      (alertas||'<div class="empty">Nenhum alerta enviado.</div>');
+
+  }catch(e){
+
+    el.innerHTML=
+      '<div class="notice warn">'+
+      esc(e.message)+
+      '</div>';
+
+  }
+
+}
+
+
 function acoes(o){
 
   if(!o.id)
@@ -3390,7 +3594,8 @@ function acoes(o){
       '<button class="btn danger" onclick="setStatus(\''+o.id+'\',\'DESCARTADA\')">DESCARTAR</button>';
 
   html+=
-    '<button class="btn light" onclick="reavaliar(\''+o.id+'\')">🔁 REAVALIAR</button>';
+    '<button class="btn light" onclick="reavaliar(\''+o.id+'\')">🔁 REAVALIAR</button>'+
+    '<button class="btn light" onclick="rascunhoAbordagem(\''+o.id+'\')">✍️ RASCUNHO IA</button>';
 
   html+=
     NEGOCIACAO.map(s=>
@@ -3542,6 +3747,53 @@ function mostrarResultado(o,destino){
   if(el)
 
     el.innerHTML=html;
+
+}
+
+
+// Sinais de inteligência da migration 010.
+// Ficam ocultos enquanto o banco não tiver
+// as colunas, mantendo o card legível.
+function sinais(o){
+
+  const itens=[];
+
+  if(o.desconto_pct!==null&&
+     o.desconto_pct!==undefined){
+
+    const d=Math.round(o.desconto_pct);
+
+    itens.push(
+      (d>=0?"📉 ":"📈 ")+
+      Math.abs(d)+"% "+
+      (d>=0?"abaixo":"acima")+
+      " do praticado"
+    );
+
+  }
+
+  if(o.urgencia)
+
+    itens.push("⏱️ "+o.urgencia);
+
+  if(o.risco_fraude&&
+     o.risco_fraude!=="BAIXO")
+
+    itens.push("⚠️ risco "+o.risco_fraude);
+
+  if(o.ocorrencias>1)
+
+    itens.push("🔁 "+o.ocorrencias+"x anunciada");
+
+  if(o.alertado_em)
+
+    itens.push("🔔 time avisado");
+
+  return itens
+    .map(t=>
+      "<span>"+esc(t)+"</span>"
+    )
+    .join("");
 
 }
 
@@ -3816,6 +4068,8 @@ function renderOportunidades(){
             ${esc(nomeAlvo(o.alvo_id)||"sem alvo")}
           </span>
 
+          ${sinais(o)}
+
         </div>
 
         ${
@@ -3846,6 +4100,19 @@ function validarIdentificadorFonte(tipo,valor,modo){
   if(tipo==="MANUAL"||tipo==="IMPORT")
 
     return null;
+
+  // RSS: o identificador é a própria URL
+  // do feed publicado pelo portal.
+  if(tipo==="RSS"){
+
+    if(!/^https:\/\//i.test(valor||""))
+
+      return "RSS: informe a URL https do feed "+
+        "(ex.: https://portal.com.br/anuncios/feed).";
+
+    return null;
+
+  }
 
   if(!valor)
 
@@ -4310,6 +4577,78 @@ function stats(){
 }
 
 
+// Marca quantas oportunidades chegaram
+// desde a última vez que o operador olhou
+// a aba de oportunidades.
+function marcarNovidades(){
+
+  const maisRecente=
+    oportunidades
+      .map(o=>o.criado_em||"")
+      .sort()
+      .slice(-1)[0]||"";
+
+  if(!ultimaOportunidadeVista){
+
+    ultimaOportunidadeVista=maisRecente;
+
+    return;
+
+  }
+
+  const novas=
+    oportunidades.filter(o=>
+      (o.criado_em||"")>
+      ultimaOportunidadeVista
+    ).length;
+
+  const botao=
+    document.getElementById(
+      "tabBtnOportunidades"
+    );
+
+  if(!botao)
+
+    return;
+
+  const base="🎯 Oportunidades";
+
+  botao.textContent=
+    novas
+      ? base+" ("+novas+" nova"+
+        (novas>1?"s":"")+")"
+      : base;
+
+}
+
+
+// Recarrega em segundo plano. Falhas são
+// silenciosas: o ciclo seguinte tenta de
+// novo em vez de poluir a tela.
+function iniciarAtualizacaoAutomatica(){
+
+  if(atualizacaoTimer)
+
+    clearInterval(atualizacaoTimer);
+
+  atualizacaoTimer=
+    setInterval(()=>{
+
+      if(document.hidden)
+
+        return;
+
+      if(!sessaoUtilizavel())
+
+        return;
+
+      load().catch(()=>{});
+
+    },INTERVALO_ATUALIZACAO_MS);
+
+}
+
+
 function limpar(){
 
   document.getElementById("conteudo").value="";
@@ -4516,6 +4855,8 @@ if(sessaoUtilizavel()){
     .add("hidden");
 
   load();
+
+  iniciarAtualizacaoAutomatica();
 
 }else if(sessao){
 
