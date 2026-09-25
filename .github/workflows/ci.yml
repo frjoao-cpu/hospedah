@@ -96,6 +96,28 @@ jobs:
         run: stylelint "**/*.css" --config .stylelintrc.json
 
   # ──────────────────────────────────────────────
+  # 3b. Testa o núcleo do Radar IA (Deno)
+  # As Edge Functions rodam em Deno; os algoritmos que
+  # decidem dedupe, preço de referência e score ficam em
+  # supabase/functions/_shared e são testados aqui.
+  # ──────────────────────────────────────────────
+  test-radar-core:
+    name: Testes do núcleo do Radar IA
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Instalar Deno
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
+      - name: Executar testes
+        run: deno test supabase/functions/_shared/
+
+  # ──────────────────────────────────────────────
   # 4. Verifica links quebrados com Lychee
   # ──────────────────────────────────────────────
   check-links:
@@ -263,7 +285,8 @@ jobs:
   # Pré-requisitos (GitHub Secrets):
   #   SUPABASE_ACCESS_TOKEN → Supabase Personal Access Token (formato sbp_…)
   #                           Gere em: https://supabase.com/dashboard/account/tokens
-  #   GEMINI_API_KEY        → Chave da API Google AI Studio (gratuita em aistudio.google.com)
+  #   LUNA_API_KEY          → Chave da GPT Luna (IA principal do Radar IA)
+  #   GEMINI_API_KEY        → Chave da API Google AI Studio (contingência da IA)
   # ──────────────────────────────────────────────
   deploy-edge-functions:
     name: Deploy Edge Functions (Supabase)
@@ -310,20 +333,29 @@ jobs:
       # de secrets (erro "does not have the necessary privileges").
       # Isso NÃO pode impedir o deploy das funções — por isso a
       # falha vira aviso e o job segue para os deploys.
-      - name: Configurar segredo GEMINI_API_KEY no Supabase
+      - name: Configurar segredos de IA no Supabase
         run: |
-          if [ -z "$GEMINI_API_KEY" ]; then
-            echo "⚠️  GEMINI_API_KEY não configurado como GitHub Secret — configure o secret manualmente no Supabase (Edge Functions → Secrets)."
-            exit 0
-          fi
-          if supabase secrets set GEMINI_API_KEY="$GEMINI_API_KEY" --project-ref ydrmjoppjxtmnwtvtinb; then
-            echo "✅ Secret GEMINI_API_KEY configurado no Supabase."
-          else
-            echo "::warning::Não foi possível gravar o secret GEMINI_API_KEY via CI (token sem privilégio de escrita de secrets?)."
-            echo "::warning::Configure-o manualmente: Supabase Dashboard → Edge Functions → Secrets → GEMINI_API_KEY. O deploy das funções continuará."
-          fi
+          configurar() {
+            nome="$1"
+            valor="$2"
+            if [ -z "$valor" ]; then
+              echo "⚠️  $nome não configurado como GitHub Secret — configure-o manualmente no Supabase (Edge Functions → Secrets)."
+              return 0
+            fi
+            if supabase secrets set "$nome=$valor" --project-ref ydrmjoppjxtmnwtvtinb; then
+              echo "✅ Secret $nome configurado no Supabase."
+            else
+              echo "::warning::Não foi possível gravar o secret $nome via CI (token sem privilégio de escrita de secrets?)."
+              echo "::warning::Configure-o manualmente: Supabase Dashboard → Edge Functions → Secrets → $nome."
+            fi
+          }
+          # LUNA_API_KEY é a chave da GPT Luna, IA principal do
+          # Radar. GEMINI_API_KEY segue como contingência.
+          configurar LUNA_API_KEY "$LUNA_API_KEY"
+          configurar GEMINI_API_KEY "$GEMINI_API_KEY"
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          LUNA_API_KEY: ${{ secrets.LUNA_API_KEY }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
 
       # Deploy de todas as Edge Functions em um único step
