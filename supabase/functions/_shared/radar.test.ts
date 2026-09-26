@@ -17,15 +17,24 @@ import {
 import {
     acharDuplicada,
     ajustarScore,
+    Alvo,
     asRisco,
     asUrgencia,
     descontoPercentual,
+    Empreendimento,
     hashTexto,
     impressaoDigital,
     MAX_TENTATIVAS,
+    mesmoEmpreendimento,
+    preFiltrar,
     proximaTentativa,
     referenciaDePreco,
+    REGRAS,
+    resolverEmpreendimento,
+    rotuloRegra,
+    selecionar,
     similaridade,
+    termosDoAlvo,
 } from './radar.ts';
 
 const anuncio =
@@ -174,4 +183,260 @@ Deno.test('proximaTentativa cresce e tem teto de 1 hora', () => {
         proximaTentativa(MAX_TENTATIVAS + 10, base),
         '2026-01-01T01:00:00.000Z',
     );
+});
+
+// ── Seleção pelos critérios do alvo ─────────────────────────
+//
+// O funil ficou fechado (8 lidas, 8 descartadas) porque a
+// seleção comparava o texto cru da IA com o nome cadastrado
+// no alvo. Os casos abaixo fixam o contrato novo.
+
+const cadastro: Empreendimento[] = [
+    {
+        nome: 'Golden Laghetto Resort',
+        cidade: 'Olímpia',
+        estado: 'SP',
+        aliases: ['Golden Laghetto', 'Laghetto Olímpia'],
+    },
+    {
+        nome: 'Hot Beach Suítes',
+        cidade: 'Olímpia',
+        estado: 'SP',
+        aliases: ['Hot Beach'],
+    },
+    {
+        nome: 'Mavsa Resort',
+        cidade: 'Cesário Lange',
+        estado: 'SP',
+        aliases: [],
+    },
+];
+
+const alvoOlimpia: Alvo = {
+    id: 'alvo-1',
+    nome: 'Cotas em Olímpia',
+    empreendimentos: ['Golden Laghetto Resort'],
+    score_minimo: 60,
+};
+
+const anuncioGolden =
+    'Vendo cota no Golden Laghetto, semana 32, 2 dormitórios. ' +
+    'R$ 48.000.';
+
+Deno.test('resolverEmpreendimento casa por nome e por alias', () => {
+    assertEquals(
+        resolverEmpreendimento('Golden Laghetto', cadastro)?.nome,
+        'Golden Laghetto Resort',
+    );
+
+    assertEquals(
+        resolverEmpreendimento('golden laghetto resort', cadastro)?.nome,
+        'Golden Laghetto Resort',
+    );
+
+    assertEquals(resolverEmpreendimento('Pousada X', cadastro), null);
+    assertEquals(resolverEmpreendimento(null, cadastro), null);
+});
+
+Deno.test('mesmoEmpreendimento liga apelido e nome oficial', () => {
+    assert(
+        mesmoEmpreendimento(
+            'Golden Laghetto Resort',
+            'Golden Laghetto',
+            cadastro,
+        ),
+    );
+
+    assert(
+        mesmoEmpreendimento('Hot Beach', 'Hot Beach Suítes', cadastro),
+    );
+
+    assert(
+        !mesmoEmpreendimento('Mavsa Resort', 'Hot Beach', cadastro),
+    );
+
+    // Sem cadastro só o nome idêntico (normalizado) casa.
+    assert(mesmoEmpreendimento('Mavsa Resort', 'mavsa resort'));
+    assert(!mesmoEmpreendimento('Golden Laghetto', 'Golden Laghetto Resort'));
+});
+
+Deno.test('selecionar aprova o apelido resolvido pelo cadastro', () => {
+    const ai = {
+        empreendimento: 'Golden Laghetto',
+        tipo_oportunidade: 'VENDA_COTA',
+        score_oportunidade: 80,
+    };
+
+    // Sem contexto: o texto cru não bate com o nome do alvo.
+    const semContexto = selecionar(ai, alvoOlimpia);
+
+    assertEquals(semContexto.aprovado, false);
+    assertEquals(semContexto.regra, REGRAS.EMPREENDIMENTO_FORA);
+
+    // Com o cadastro, o alias é reconhecido.
+    const comContexto = selecionar(ai, alvoOlimpia, {
+        empreendimento: 'Golden Laghetto Resort',
+        empreendimentos: cadastro,
+        texto: anuncioGolden,
+    });
+
+    assert(comContexto.aprovado, comContexto.motivo);
+    assertEquals(comContexto.regra, REGRAS.APROVADA);
+    assertEquals(comContexto.revisar, false);
+});
+
+Deno.test(
+    'selecionar manda para validação manual quando o texto cita o alvo',
+    () => {
+        const ai = {
+            empreendimento: null,
+            tipo_oportunidade: 'VENDA_COTA',
+            score_oportunidade: 70,
+        };
+
+        const r = selecionar(ai, alvoOlimpia, {
+            empreendimento: null,
+            empreendimentos: cadastro,
+            texto: anuncioGolden,
+        });
+
+        assert(r.aprovado, r.motivo);
+        assertEquals(r.regra, REGRAS.VALIDACAO_MANUAL);
+        assertEquals(r.revisar, true);
+        assert(r.motivo.includes('confira antes de abordar'));
+    },
+);
+
+Deno.test(
+    'selecionar descarta quando não há empreendimento nem termo do alvo',
+    () => {
+        const r = selecionar({
+            empreendimento: null,
+            tipo_oportunidade: 'VENDA_COTA',
+            score_oportunidade: 90,
+        }, alvoOlimpia, {
+            empreendimentos: cadastro,
+            texto: 'Alugo chalé na serra para o feriado.',
+        });
+
+        assertEquals(r.aprovado, false);
+        assertEquals(r.regra, REGRAS.EMPREENDIMENTO_NAO_IDENTIFICADO);
+    },
+);
+
+Deno.test('selecionar classifica cada regra de descarte', () => {
+    const base = {
+        empreendimento: 'Golden Laghetto Resort',
+        tipo_oportunidade: 'VENDA_COTA',
+        score_oportunidade: 90,
+    };
+
+    const ctx = {
+        empreendimento: 'Golden Laghetto Resort',
+        empreendimentos: cadastro,
+        texto: anuncioGolden,
+    };
+
+    assertEquals(
+        selecionar(
+            { ...base, tipo_oportunidade: 'ALUGUEL' },
+            { ...alvoOlimpia, tipos_negocio: ['VENDA_COTA'] },
+            ctx,
+        ).regra,
+        REGRAS.TIPO_FORA,
+    );
+
+    assertEquals(
+        selecionar({ ...base, score_oportunidade: 10 }, alvoOlimpia, ctx)
+            .regra,
+        REGRAS.SCORE_BAIXO,
+    );
+
+    assertEquals(
+        selecionar(
+            {
+                ...base,
+                periodo_inicio: '2026-01-10',
+                periodo_fim: '2026-01-20',
+            },
+            {
+                ...alvoOlimpia,
+                periodo_inicio: '2026-07-01',
+                periodo_fim: '2026-12-31',
+            },
+            ctx,
+        ).regra,
+        REGRAS.PERIODO_FORA,
+    );
+
+    assertEquals(
+        selecionar(
+            { ...base, numero_semana: 5 },
+            { ...alvoOlimpia, semanas: [30, 31, 32] },
+            ctx,
+        ).regra,
+        REGRAS.SEMANA_FORA,
+    );
+
+    assertEquals(
+        selecionar(
+            { ...base, valor_anunciado: 10_000 },
+            { ...alvoOlimpia, valor_min: 30_000 },
+            ctx,
+        ).regra,
+        REGRAS.VALOR_FORA,
+    );
+
+    assertEquals(
+        selecionar(
+            { ...base, dormitorios: 1 },
+            { ...alvoOlimpia, dormitorios_min: 2 },
+            ctx,
+        ).regra,
+        REGRAS.DORMITORIOS_ABAIXO,
+    );
+
+    assertEquals(
+        selecionar(
+            { ...base, capacidade_adultos: 2, capacidade_criancas: 0 },
+            { ...alvoOlimpia, capacidade_min: 6 },
+            ctx,
+        ).regra,
+        REGRAS.CAPACIDADE_ABAIXO,
+    );
+
+    assertEquals(selecionar(base, null).regra, REGRAS.SEM_ALVO);
+});
+
+Deno.test('termosDoAlvo expande o alvo cadastrado por apelido', () => {
+    const termos = termosDoAlvo(
+        { nome: 'alvo', empreendimentos: ['Golden Laghetto'] },
+        cadastro,
+    );
+
+    // O alvo cita o apelido, mas o pré-filtro passa a conhecer
+    // o nome oficial e os demais aliases da mesma ficha.
+    assert(termos.includes('Golden Laghetto Resort'));
+    assert(termos.includes('Laghetto Olímpia'));
+    assert(!termos.includes('Mavsa Resort'));
+});
+
+Deno.test('preFiltrar reconhece o alvo cadastrado por apelido', () => {
+    const r = preFiltrar(
+        anuncioGolden,
+        { nome: 'alvo', empreendimentos: ['Golden Laghetto Resort'] },
+        cadastro,
+    );
+
+    assert(r.aprovado, r.motivo);
+});
+
+Deno.test('rotuloRegra traduz as regras conhecidas', () => {
+    assertEquals(
+        rotuloRegra(REGRAS.SCORE_BAIXO),
+        'Score abaixo do mínimo do alvo',
+    );
+
+    assertEquals(rotuloRegra('INVENTADA'), 'INVENTADA');
+    assertEquals(rotuloRegra(null), 'Não classificada');
 });

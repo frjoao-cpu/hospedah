@@ -52,9 +52,60 @@ export interface Alvo {
     score_minimo?: number | null;
 }
 
+// Códigos estáveis da decisão de seleção. O motivo é texto
+// para o operador ler; a regra é o que o painel agrupa para
+// mostrar POR QUE um lote inteiro foi descartado.
+export const REGRAS = {
+    SEM_ALVO: 'SEM_ALVO',
+    APROVADA: 'APROVADA',
+    VALIDACAO_MANUAL: 'VALIDACAO_MANUAL',
+    EMPREENDIMENTO_FORA: 'EMPREENDIMENTO_FORA',
+    EMPREENDIMENTO_NAO_IDENTIFICADO: 'EMPREENDIMENTO_NAO_IDENTIFICADO',
+    TIPO_FORA: 'TIPO_FORA',
+    SCORE_BAIXO: 'SCORE_BAIXO',
+    PERIODO_FORA: 'PERIODO_FORA',
+    SEMANA_FORA: 'SEMANA_FORA',
+    VALOR_FORA: 'VALOR_FORA',
+    DORMITORIOS_ABAIXO: 'DORMITORIOS_ABAIXO',
+    CAPACIDADE_ABAIXO: 'CAPACIDADE_ABAIXO',
+    DUPLICADA: 'DUPLICADA',
+} as const;
+
+// Rótulo legível de cada regra: é o que o painel mostra ao
+// agregar "por que o lote inteiro foi descartado".
+export const ROTULOS_REGRA: Record<string, string> = {
+    SEM_ALVO: 'Sem alvo vinculado — validação manual',
+    APROVADA: 'Selecionada pelo alvo',
+    VALIDACAO_MANUAL: 'Selecionada para conferência ' +
+        '(empreendimento não identificado)',
+    EMPREENDIMENTO_FORA: 'Empreendimento fora do alvo',
+    EMPREENDIMENTO_NAO_IDENTIFICADO: 'Empreendimento não identificado ' +
+        'e nenhum termo do alvo no texto',
+    TIPO_FORA: 'Tipo de negócio fora do alvo',
+    SCORE_BAIXO: 'Score abaixo do mínimo do alvo',
+    PERIODO_FORA: 'Período fora da janela do alvo',
+    SEMANA_FORA: 'Semana fora das semanas do alvo',
+    VALOR_FORA: 'Valor fora da faixa do alvo',
+    DORMITORIOS_ABAIXO: 'Dormitórios abaixo do mínimo do alvo',
+    CAPACIDADE_ABAIXO: 'Capacidade abaixo do mínimo do alvo',
+    DUPLICADA: 'Já registrada (duplicada)',
+};
+
+export function rotuloRegra(regra: unknown): string {
+    const chave = asText(regra);
+
+    if (!chave) return 'Não classificada';
+
+    return ROTULOS_REGRA[chave] || chave;
+}
+
 export interface Selecao {
     aprovado: boolean;
     motivo: string;
+    regra?: string;
+    // Aprovada, mas com dado faltando: o operador precisa
+    // conferir antes de abordar.
+    revisar?: boolean;
 }
 
 // ── Coerções ────────────────────────────────────────────────
@@ -151,6 +202,50 @@ export function periodosSobrepostos(
     return true;
 }
 
+// ── Empreendimentos: cadastro e aliases ─────────────────────
+
+// Acha no cadastro a ficha do empreendimento citado, casando
+// pelo nome oficial OU por qualquer alias. É o que permite
+// "Golden Laghetto" bater com "Golden Laghetto Resort".
+export function resolverEmpreendimento(
+    nome: unknown,
+    empreendimentos: Empreendimento[] = [],
+): Empreendimento | null {
+    const alvo = normalizar(nome);
+
+    if (!alvo) return null;
+
+    return empreendimentos.find((e) =>
+        [e.nome, ...(e.aliases || [])]
+            .filter(Boolean)
+            .some((n) => normalizar(n) === alvo)
+    ) ?? null;
+}
+
+
+// Dois nomes designam o mesmo empreendimento quando são iguais
+// já normalizados ou quando resolvem para a mesma ficha do
+// cadastro (um pelo nome oficial, outro por um alias).
+export function mesmoEmpreendimento(
+    a: unknown,
+    b: unknown,
+    empreendimentos: Empreendimento[] = [],
+): boolean {
+    const na = normalizar(a);
+    const nb = normalizar(b);
+
+    if (!na || !nb) return false;
+    if (na === nb) return true;
+
+    const fichaA = resolverEmpreendimento(a, empreendimentos);
+    const fichaB = resolverEmpreendimento(b, empreendimentos);
+
+    if (!fichaA || !fichaB) return false;
+
+    return normalizar(fichaA.nome) === normalizar(fichaB.nome);
+}
+
+
 // ── Termos de busca do alvo ─────────────────────────────────
 
 // Nomes + aliases dos empreendimentos do alvo (ou de todo o
@@ -163,13 +258,28 @@ export function termosDoAlvo(
     const escolhidos = asLista(alvo.empreendimentos);
     const alvos = escolhidos.map(normalizar);
 
+    // O alvo pode ter sido cadastrado com um apelido; resolver
+    // pelo cadastro garante que os demais aliases da mesma
+    // ficha também entrem no pré-filtro.
+    const canonicos = new Set(
+        escolhidos
+            .map((n) =>
+                resolverEmpreendimento(n, empreendimentos)?.nome ?? n
+            )
+            .map(normalizar),
+    );
+
     const termos: string[] = [];
 
     for (const e of empreendimentos) {
         const nomes = [e.nome, ...(e.aliases || [])]
             .filter(Boolean) as string[];
 
-        if (alvos.length && !alvos.includes(normalizar(e.nome))) {
+        if (
+            alvos.length &&
+            !canonicos.has(normalizar(e.nome)) &&
+            !nomes.some((n) => canonicos.has(normalizar(n)))
+        ) {
             continue;
         }
 
@@ -228,20 +338,45 @@ export function preFiltrar(
 
 // ── Seleção: "o Radar seleciona" ────────────────────────────
 
+// Contexto opcional da seleção. Sem ele o comportamento é o
+// mesmo de antes; com ele a decisão passa a enxergar o nome
+// já canonizado pelo cadastro e o texto original.
+export interface ContextoSelecao {
+    // Empreendimento já resolvido pelo cadastro/aliases. Tem
+    // prioridade sobre o texto cru devolvido pela IA.
+    empreendimento?: string | null;
+    // Cadastro completo, para comparar alvo e anúncio mesmo
+    // quando cada um usa um apelido diferente.
+    empreendimentos?: Empreendimento[];
+    // Texto original da captura: quando a IA não identifica o
+    // empreendimento, é ele que diz se o anúncio ao menos cita
+    // um termo do alvo.
+    texto?: string | null;
+}
+
 // Compara o resultado da IA com os critérios do alvo.
 // Sem alvo, mantém o comportamento legado (tudo entra
 // para validação manual).
 export function selecionar(
     ai: Record<string, unknown>,
     alvo: Alvo | null,
+    contexto: ContextoSelecao = {},
 ): Selecao {
     const tipo = asText(ai.tipo_oportunidade) || 'OUTRO';
     const score = asScore(ai.score_oportunidade) ?? 0;
-    const emp = asText(ai.empreendimento);
+
+    const cadastro = contexto.empreendimentos || [];
+
+    // O nome canonizado pelo cadastro vence o texto cru da IA:
+    // é a diferença entre "Golden Laghetto" ser reconhecido ou
+    // descartado por não bater com "Golden Laghetto Resort".
+    const emp = asText(contexto.empreendimento) ??
+        asText(ai.empreendimento);
 
     if (!alvo) {
         return {
             aprovado: true,
+            regra: REGRAS.SEM_ALVO,
             motivo:
                 'Sem alvo vinculado — enviada para validação manual ' +
                 '(score ' + score + ').',
@@ -252,19 +387,51 @@ export function selecionar(
 
     const empreendimentos = asLista(alvo.empreendimentos);
 
+    // Aprovada, mas com o empreendimento em aberto: segue o
+    // funil marcada para conferência humana.
+    let revisar = false;
+    let ressalva = '';
+
     if (empreendimentos.length) {
-        const ok = emp &&
-            empreendimentos.some(
-                (n) => normalizar(n) === normalizar(emp),
+        if (emp) {
+            const ok = empreendimentos.some(
+                (n) => mesmoEmpreendimento(n, emp, cadastro),
             );
 
-        if (!ok) {
-            return {
-                aprovado: false,
-                motivo:
-                    'Empreendimento "' + (emp || 'não identificado') +
-                    '" fora do alvo ' + nomeAlvo + '.',
-            };
+            if (!ok) {
+                return {
+                    aprovado: false,
+                    regra: REGRAS.EMPREENDIMENTO_FORA,
+                    motivo:
+                        'Empreendimento "' + emp +
+                        '" fora do alvo ' + nomeAlvo + '.',
+                };
+            }
+        } else {
+            // A IA não identificou o empreendimento. Descartar
+            // aqui perde oportunidade em silêncio: se o texto
+            // cita um termo do alvo, quem decide é o operador.
+            const pre = preFiltrar(
+                contexto.texto || '',
+                alvo,
+                cadastro,
+            );
+
+            if (!pre.aprovado) {
+                return {
+                    aprovado: false,
+                    regra: REGRAS.EMPREENDIMENTO_NAO_IDENTIFICADO,
+                    motivo:
+                        'Empreendimento não identificado e nenhum termo ' +
+                        'do alvo ' + nomeAlvo + ' no texto.',
+                };
+            }
+
+            revisar = true;
+
+            ressalva = ' Empreendimento não identificado pela IA, ' +
+                'mas o texto cita termo do alvo (' + pre.motivo +
+                ') — confira antes de abordar.';
         }
     }
 
@@ -273,6 +440,7 @@ export function selecionar(
     if (tipos.length && !tipos.includes(tipo)) {
         return {
             aprovado: false,
+            regra: REGRAS.TIPO_FORA,
             motivo:
                 'Tipo de negócio ' + tipo +
                 ' fora do alvo ' + nomeAlvo + '.',
@@ -284,6 +452,7 @@ export function selecionar(
     if (minimo !== null && score < minimo) {
         return {
             aprovado: false,
+            regra: REGRAS.SCORE_BAIXO,
             motivo:
                 'Score ' + score + ' abaixo do mínimo ' +
                 minimo + ' do alvo ' + nomeAlvo + '.',
@@ -302,6 +471,7 @@ export function selecionar(
         ) {
             return {
                 aprovado: false,
+                regra: REGRAS.PERIODO_FORA,
                 motivo:
                     'Período fora da janela do alvo ' + nomeAlvo +
                     ' (' + (janela.inicio || '…') + ' → ' +
@@ -319,6 +489,7 @@ export function selecionar(
     if (semanas.length && semana !== null && !semanas.includes(semana)) {
         return {
             aprovado: false,
+            regra: REGRAS.SEMANA_FORA,
             motivo:
                 'Semana ' + semana + ' fora das semanas do alvo ' +
                 nomeAlvo + '.',
@@ -334,6 +505,7 @@ export function selecionar(
         if (min !== null && valor < min) {
             return {
                 aprovado: false,
+                regra: REGRAS.VALOR_FORA,
                 motivo:
                     'Valor abaixo da faixa do alvo ' + nomeAlvo + '.',
             };
@@ -342,6 +514,7 @@ export function selecionar(
         if (max !== null && valor > max) {
             return {
                 aprovado: false,
+                regra: REGRAS.VALOR_FORA,
                 motivo:
                     'Valor acima da faixa do alvo ' + nomeAlvo + '.',
             };
@@ -354,6 +527,7 @@ export function selecionar(
     if (dormMin !== null && dorm !== null && dorm < dormMin) {
         return {
             aprovado: false,
+            regra: REGRAS.DORMITORIOS_ABAIXO,
             motivo:
                 'Dormitórios (' + dorm + ') abaixo do mínimo ' +
                 dormMin + ' do alvo ' + nomeAlvo + '.',
@@ -370,6 +544,7 @@ export function selecionar(
         if (total < capMin) {
             return {
                 aprovado: false,
+                regra: REGRAS.CAPACIDADE_ABAIXO,
                 motivo:
                     'Capacidade (' + total + ') abaixo do mínimo ' +
                     capMin + ' do alvo ' + nomeAlvo + '.',
@@ -379,11 +554,13 @@ export function selecionar(
 
     return {
         aprovado: true,
+        revisar,
+        regra: revisar ? REGRAS.VALIDACAO_MANUAL : REGRAS.APROVADA,
         motivo:
             'Selecionada pelo alvo ' + nomeAlvo + ': ' + tipo +
             ', score ' + score +
             (minimo !== null ? ' (mínimo ' + minimo + ')' : '') +
-            (emp ? ', ' + emp : '') + '.',
+            (emp ? ', ' + emp : '') + '.' + ressalva,
     };
 }
 

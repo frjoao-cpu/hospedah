@@ -47,6 +47,7 @@ import {
     Alvo,
     asDate,
     asInt,
+    asLista,
     asNum,
     asRisco,
     asScore,
@@ -57,10 +58,14 @@ import {
     hashTexto,
     impressaoDigital,
     MAX_TENTATIVAS,
-    normalizar,
+    mesmoEmpreendimento,
     proximaTentativa,
     Referencia,
     referenciaDePreco,
+    REGRAS,
+    resolverEmpreendimento,
+    rotuloRegra,
+    Selecao,
     selecionar,
     TIPOS,
 } from "../_shared/radar.ts";
@@ -460,6 +465,58 @@ function montarPrompt(
 }
 
 
+// Quantos empreendimentos do cadastro cabem no prompt sem
+// inflar o custo de cada análise.
+const MAX_EMPREENDIMENTOS_PROMPT = 60;
+
+
+// Sem esta lista a IA devolve o nome como veio no anúncio
+// ("Golden Laghetto", "resort em Olímpia") e a seleção não
+// reconhece o empreendimento. Com ela, a IA responde o nome
+// oficial do cadastro.
+function contextoEmpreendimentos(
+    empreendimentos: Empreendimento[],
+    alvo: Alvo | null,
+): string | null {
+    if (!empreendimentos.length) return null;
+
+    const escolhidos = asLista(alvo?.empreendimentos);
+
+    // Alvo restrito: só os empreendimentos que interessam.
+    const relevantes = escolhidos.length
+        ? empreendimentos.filter((e) =>
+            escolhidos.some((n) =>
+                mesmoEmpreendimento(n, e.nome, empreendimentos)
+            )
+        )
+        : empreendimentos;
+
+    const lista = (relevantes.length ? relevantes : empreendimentos)
+        .slice(0, MAX_EMPREENDIMENTOS_PROMPT);
+
+    if (!lista.length) return null;
+
+    const linhas = lista.map((e) => {
+        const aliases = (e.aliases || []).filter(Boolean);
+
+        return "- " + e.nome +
+            (e.cidade ? " (" + e.cidade +
+                (e.estado ? "/" + e.estado : "") + ")" : "") +
+            (aliases.length
+                ? " — também chamado de: " + aliases.join(", ")
+                : "");
+    });
+
+    return "EMPREENDIMENTOS CONHECIDOS DA HOSPEDAH.\n" +
+        "Se o texto se referir a um deles (mesmo por apelido,\n" +
+        "abreviação ou sem a palavra \"resort\"), responda em\n" +
+        "\"empreendimento\" EXATAMENTE o nome oficial abaixo.\n" +
+        "Se não for nenhum destes, responda o nome como aparece\n" +
+        "no texto; se não houver nome, responda null.\n\n" +
+        linhas.join("\n");
+}
+
+
 // Converte o erro do cliente de IA no erro operacional da
 // função, preservando o status e a mensagem já revisada.
 function erroIA(e: unknown): AppError {
@@ -516,19 +573,12 @@ function normalizarEmpreendimento(
     let cidade = asText(ai.cidade);
     let estado = asText(ai.estado);
 
-    if (empreendimento) {
-        const alvo = normalizar(empreendimento);
+    const match = resolverEmpreendimento(empreendimento, empreendimentos);
 
-        const match = empreendimentos.find((e) => {
-            const nomes = [e.nome, ...(e.aliases || [])];
-            return nomes.some((n) => normalizar(n) === alvo);
-        });
-
-        if (match) {
-            empreendimento = match.nome;
-            cidade = cidade || match.cidade || null;
-            estado = estado || match.estado || null;
-        }
+    if (match) {
+        empreendimento = match.nome;
+        cidade = cidade || match.cidade || null;
+        estado = estado || match.estado || null;
     }
 
     return { empreendimento, cidade, estado };
@@ -1232,7 +1282,12 @@ async function processarTexto(
 
     const ia = cacheado ??
         await entenderComIA(
-            montarPrompt(entrada.fonte, entrada.url, entrada.texto),
+            montarPrompt(
+                entrada.fonte,
+                entrada.url,
+                entrada.texto,
+                contextoEmpreendimentos(empreendimentos, entrada.alvo),
+            ),
         );
 
     if (!cacheado) await gravarCache(supabase, hash, ia);
@@ -1248,7 +1303,13 @@ async function processarTexto(
 
     const local = normalizarEmpreendimento(ai, empreendimentos);
 
-    const selecao = selecionar(ai, entrada.alvo);
+    // A seleção enxerga o nome já canonizado pelo cadastro e o
+    // texto original: sem isso um apelido reprovava o anúncio.
+    const selecao = selecionar(ai, entrada.alvo, {
+        empreendimento: local.empreendimento,
+        empreendimentos,
+        texto: entrada.texto,
+    });
 
     if (!selecao.aprovado) {
         const estado = await atualizarCaptura(
@@ -1311,7 +1372,11 @@ async function processarTexto(
         return {
             ai,
             ia,
-            selecao: { aprovado: false, motivo: duplicada.motivo },
+            selecao: {
+                aprovado: false,
+                regra: REGRAS.DUPLICADA,
+                motivo: duplicada.motivo,
+            } as Selecao,
             oportunidade: null,
             duplicada,
             estado,
@@ -1384,7 +1449,12 @@ async function processarTexto(
     return {
         ai,
         ia,
-        selecao: { aprovado: true, motivo },
+        selecao: {
+            aprovado: true,
+            regra: selecao.regra,
+            revisar: selecao.revisar,
+            motivo,
+        } as Selecao,
         oportunidade,
         duplicada: null,
         alerta,
@@ -1540,6 +1610,16 @@ Deno.serve(async (req) => {
 
             const detalhes: Record<string, unknown>[] = [];
 
+            // Sem isto a calibração do alvo é às cegas: o lote
+            // diz quantas foram descartadas, mas não por quê.
+            const porRegra = new Map<string, number>();
+
+            const contar = (regra: unknown) => {
+                const chave = asText(regra) || "NAO_CLASSIFICADA";
+
+                porRegra.set(chave, (porRegra.get(chave) ?? 0) + 1);
+            };
+
             // Cache de alvos para não recarregar a cada captura.
             const alvos = new Map<string, Alvo | null>();
 
@@ -1586,9 +1666,13 @@ Deno.serve(async (req) => {
                         );
                     }
 
+                    contar(r.selecao.regra);
+
                     detalhes.push({
                         captura_id: captura.id,
                         selecionada: !!r.oportunidade,
+                        regra: r.selecao.regra,
+                        revisar: !!r.selecao.revisar,
                         motivo: r.selecao.motivo,
                         estado_persistido: r.estado ? r.estado.ok : true,
                         erro: r.estado && !r.estado.ok
@@ -1643,6 +1727,8 @@ Deno.serve(async (req) => {
                         );
                     }
 
+                    contar("FALHA");
+
                     detalhes.push({
                         captura_id: captura.id,
                         erro: msg,
@@ -1671,6 +1757,16 @@ Deno.serve(async (req) => {
 
             if (eExec) console.error("[radar-ia] execucao:", eExec);
 
+            const motivos = [...porRegra.entries()]
+                .map(([regra, quantidade]) => ({
+                    regra,
+                    rotulo: regra === "FALHA"
+                        ? "Falha ao analisar"
+                        : rotuloRegra(regra),
+                    quantidade,
+                }))
+                .sort((a, b) => b.quantidade - a.quantidade);
+
             return json({
                 ok: true,
                 pendentes_lidas: (capturas || []).length,
@@ -1678,7 +1774,48 @@ Deno.serve(async (req) => {
                 aprovados,
                 descartados,
                 falhas,
+                motivos,
                 detalhes,
+                trace_id: traceId,
+            });
+        }
+
+        // ── reenfileirar_descartadas ────────────────────────
+        // Critério de seleção mudou? As capturas já descartadas
+        // precisam ser reavaliadas. O cache por hash do texto
+        // faz a IA não ser paga de novo pelas mesmas capturas.
+        if (acao === "reenfileirar_descartadas") {
+            const alvoFiltro = asText(body.alvo_id);
+
+            let q = supabase
+                .from("radar_capturas")
+                .update({
+                    estado: "PENDENTE",
+                    motivo: null,
+                    erro: null,
+                })
+                .eq("estado", "DESCARTADO")
+                // Descarte por duplicidade já tem oportunidade
+                // ligada: reenfileirar só reabriria o mesmo caso.
+                .is("oportunidade_id", null);
+
+            if (alvoFiltro) q = q.eq("alvo_id", alvoFiltro);
+
+            const { data, error } = await q.select("id");
+
+            if (error) throw erroBanco(error, "radar_capturas");
+
+            const reenfileiradas = (data || []).length;
+
+            return json({
+                ok: true,
+                reenfileiradas,
+                mensagem: reenfileiradas
+                    ? reenfileiradas + " captura(s) voltaram para a " +
+                        "fila. Use ANALISAR PENDENTES para reavaliá-las " +
+                        "com os critérios atuais."
+                    : "Nenhuma captura descartada disponível para " +
+                        "reenfileirar.",
                 trace_id: traceId,
             });
         }
@@ -1711,6 +1848,12 @@ Deno.serve(async (req) => {
 
             const texto = String(atual.texto_original || "");
 
+            const alvoReavaliacao = await carregarAlvo(
+                supabase,
+                asText(body.alvo_id) ||
+                    (atual.alvo_id as string | null),
+            );
+
             // Reavaliação ignora o cache de propósito: é o
             // botão de "pensar de novo".
             const ia = await entenderComIA(
@@ -1718,6 +1861,10 @@ Deno.serve(async (req) => {
                     asText(atual.fonte),
                     asText(atual.url_original),
                     texto,
+                    contextoEmpreendimentos(
+                        empreendimentos,
+                        alvoReavaliacao,
+                    ),
                 ),
             );
 
@@ -1733,13 +1880,13 @@ Deno.serve(async (req) => {
 
             const local = normalizarEmpreendimento(ai, empreendimentos);
 
-            const alvo = await carregarAlvo(
-                supabase,
-                asText(body.alvo_id) ||
-                    (atual.alvo_id as string | null),
-            );
+            const alvo = alvoReavaliacao;
 
-            const selecao = selecionar(ai, alvo);
+            const selecao = selecionar(ai, alvo, {
+                empreendimento: local.empreendimento,
+                empreendimentos,
+                texto,
+            });
 
             const tipo = TIPOS.includes(String(ai.tipo_oportunidade))
                 ? String(ai.tipo_oportunidade)
