@@ -159,6 +159,32 @@ test.describe('Radar IA — ANALISAR PENDENTES', () => {
     await expect(aviso).toContainText('Score abaixo do mínimo do alvo: 2');
   });
 
+  test('lote interrompido pelo tempo avisa para rodar de novo', async ({ page }) => {
+    // O lote para sozinho antes do timeout da Edge Function. Sem
+    // este aviso o operador acha que a fila acabou e deixa
+    // capturas pendentes paradas até o próximo cron.
+    await mockarFuncao(page, {
+      ok: true,
+      pendentes_lidas: 25,
+      analisados: 18,
+      aprovados: 4,
+      descartados: 14,
+      falhas: 0,
+      interrompido: true,
+      detalhes: [],
+    });
+
+    await page.goto(PAGINA);
+
+    await page.locator('[data-acao="pendentes"]').first().click();
+
+    const aviso = page.locator('#pendentesMsg');
+
+    await expect(aviso).toContainText(/Analisadas: 18/, { timeout: 15000 });
+    await expect(aviso).toContainText('tempo limite');
+    await expect(aviso).toContainText('rode de novo');
+  });
+
   test('REAVALIAR DESCARTADAS devolve as capturas para a fila', async ({ page }) => {
     await mockarFuncao(page, {
       ok: true,

@@ -2983,7 +2983,7 @@ async function processarPendentes(){
 
       {
         acao:"processar_pendentes",
-        limite:10
+        limite:25
       },
 
       180000
@@ -3001,7 +3001,11 @@ async function processarPendentes(){
       " • Analisadas: "+(d.analisados||0)+
       " • Selecionadas: "+(d.aprovados||0)+
       " • Descartadas: "+(d.descartados||0)+
-      (d.falhas?" • Falhas: "+d.falhas:"");
+      (d.falhas?" • Falhas: "+d.falhas:"")+
+      (d.interrompido
+        ?" • Lote encerrado no tempo limite; "+
+         "rode de novo para continuar a fila."
+        :"");
 
     // Sem isto, "Descartadas: 8" não diz qual critério do
     // alvo fechou o funil — e a calibração vira adivinhação.

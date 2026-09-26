@@ -84,8 +84,16 @@ const headers = {
 
 
 // Máximo de capturas analisadas em uma chamada de
-// processar_pendentes (protege o tempo limite da função).
-const LOTE_MAXIMO = 15;
+// processar_pendentes. O teto real é o orçamento de tempo
+// abaixo: o lote para sozinho antes do limite da função e
+// devolve o que sobrou para a fila.
+const LOTE_MAXIMO = 30;
+
+
+// Tempo máximo gasto analisando um lote. Acima disso a função
+// encerra o lote em vez de ser morta pelo runtime — capturas
+// não analisadas continuam PENDENTES para a próxima rodada.
+const ORCAMENTO_LOTE_MS = 110_000;
 
 
 const PROMPT_VERSAO = "2.0";
@@ -1603,6 +1611,10 @@ Deno.serve(async (req) => {
 
             const iniciadoEm = new Date().toISOString();
 
+            const comecou = Date.now();
+
+            let interrompido = false;
+
             let analisados = 0;
             let aprovados = 0;
             let descartados = 0;
@@ -1624,6 +1636,17 @@ Deno.serve(async (req) => {
             const alvos = new Map<string, Alvo | null>();
 
             for (const captura of (capturas || [])) {
+                // Estourar o tempo limite mata a função e perde
+                // o relatório do lote inteiro: melhor encerrar
+                // no controle e deixar o resto na fila.
+                if (
+                    analisados + falhas > 0 &&
+                    Date.now() - comecou > ORCAMENTO_LOTE_MS
+                ) {
+                    interrompido = true;
+                    break;
+                }
+
                 const alvoId = (captura.alvo_id as string) || null;
 
                 if (alvoId && !alvos.has(alvoId)) {
@@ -1774,6 +1797,7 @@ Deno.serve(async (req) => {
                 aprovados,
                 descartados,
                 falhas,
+                interrompido,
                 motivos,
                 detalhes,
                 trace_id: traceId,

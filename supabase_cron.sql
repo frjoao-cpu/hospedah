@@ -350,10 +350,14 @@ SELECT cron.schedule(
 -- ============================================================
 -- 13. RADAR IA — CENTRAL DE MONITORAMENTO
 --     13.1 Varredura das fontes oficiais (o robô encontra)
---          a cada hora; a função respeita a cadência
---          (cadencia_minutos) de cada alvo ativo.
+--          a cada 30 minutos; a função respeita a cadência
+--          (cadencia_minutos) de cada alvo ativo, então
+--          rodar com mais frequência só faz diferença para
+--          os alvos de cadência curta.
 --     13.2 Análise das capturas pendentes (a IA entende /
---          o Radar seleciona) 10 minutos depois.
+--          o Radar seleciona) a cada 15 minutos, em lotes de
+--          25. A função tem orçamento de tempo próprio: o
+--          que não couber no lote continua na fila.
 --
 --     Pré-requisito: a chave de serviço precisa estar em
 --     app.service_role_key (ver seção 1) — é ela que o
@@ -361,7 +365,7 @@ SELECT cron.schedule(
 --     As funções aceitam qualquer chave de servidor conhecida
 --     (SUPABASE_SECRET_KEYS, SUPABASE_SECRET_KEY ou a legada
 --     SUPABASE_SERVICE_ROLE_KEY), então basta que o valor aqui
---     seja uma delas. Se nenhuma bater, a varredura horária
+--     seja uma delas. Se nenhuma bater, a varredura
 --     responde 401 e nada é capturado.
 -- ============================================================
 SELECT cron.unschedule('radar-captura-varredura')
@@ -369,7 +373,7 @@ WHERE EXISTS (SELECT 1 FROM cron.job WHERE jobname = 'radar-captura-varredura');
 
 SELECT cron.schedule(
     'radar-captura-varredura',
-    '0 * * * *',
+    '0,30 * * * *',
     $$
     SELECT net.http_post(
         url     := 'https://ydrmjoppjxtmnwtvtinb.supabase.co/functions/v1/radar-captura',
@@ -387,7 +391,7 @@ WHERE EXISTS (SELECT 1 FROM cron.job WHERE jobname = 'radar-ia-processar-pendent
 
 SELECT cron.schedule(
     'radar-ia-processar-pendentes',
-    '10 * * * *',
+    '5,20,35,50 * * * *',
     $$
     SELECT net.http_post(
         url     := 'https://ydrmjoppjxtmnwtvtinb.supabase.co/functions/v1/radar-ia',
@@ -395,7 +399,7 @@ SELECT cron.schedule(
             'Content-Type',  'application/json',
             'Authorization', 'Bearer ' || current_setting('app.service_role_key', true)
         ),
-        body    := '{"acao":"processar_pendentes","limite":10}'::jsonb
+        body    := '{"acao":"processar_pendentes","limite":25}'::jsonb
     );
     $$
 );
