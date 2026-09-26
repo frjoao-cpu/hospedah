@@ -23,6 +23,28 @@
 
 
 -- ============================================================
+-- 0. PRÉ-REQUISITO
+--    Sem a 008 não existe fila de capturas: melhor parar aqui
+--    com uma mensagem clara do que falhar no meio do arquivo.
+-- ============================================================
+do $$
+begin
+
+  if to_regclass('public.radar_capturas') is null then
+    raise exception
+      'radar_capturas não existe. Aplique 007 e 008 antes da 011.';
+  end if;
+
+  if to_regclass('public.radar_oportunidades') is null then
+    raise exception
+      'radar_oportunidades não existe. Aplique a 007 antes da 011.';
+  end if;
+
+end
+$$;
+
+
+-- ============================================================
 -- 1. REPARO — oportunidades duplicadas pela mesma captura
 --    Mantém a mais antiga (a que o funil já conhece), marca as
 --    demais como DESCARTADA apontando para ela e soma as
@@ -61,6 +83,10 @@ begin
       and table_name = 'radar_oportunidades'
       and column_name = 'ocorrencias'
   ) into tem_ocorrencias;
+
+  -- Fora de transação o ON COMMIT DROP não roda: a segunda
+  -- execução na mesma sessão encontraria a tabela de pé.
+  drop table if exists radar_dup_tmp;
 
   create temporary table radar_dup_tmp on commit drop as
   select
@@ -125,21 +151,43 @@ $$;
 --    antigas e manuais sem captura não conflitam).
 -- ============================================================
 do $$
+declare
+  duplicadas integer;
 begin
 
-  if exists (
+  if not exists (
     select 1 from information_schema.columns
     where table_schema = 'public'
       and table_name = 'radar_oportunidades'
       and column_name = 'captura_id'
   ) then
-
-    create unique index if not exists
-    radar_opp_captura_unica_idx
-    on public.radar_oportunidades(captura_id)
-    where captura_id is not null;
-
+    return;
   end if;
+
+  select count(*) into duplicadas
+  from (
+    select captura_id
+    from public.radar_oportunidades
+    where captura_id is not null
+    group by captura_id
+    having count(*) > 1
+  ) d;
+
+  -- Criar o índice com duplicidade pendente abortaria o
+  -- arquivo inteiro (e as visões do passo 4 nem chegariam a
+  -- ser criadas). Melhor avisar e seguir.
+  if duplicadas > 0 then
+    raise notice
+      'Ainda há % captura(s) com mais de uma oportunidade: '
+      'índice único não criado. Revise e rode a 011 de novo.',
+      duplicadas;
+    return;
+  end if;
+
+  create unique index if not exists
+  radar_opp_captura_unica_idx
+  on public.radar_oportunidades(captura_id)
+  where captura_id is not null;
 
 end
 $$;
@@ -179,55 +227,72 @@ on public.radar_capturas(oportunidade_id);
 
 -- ============================================================
 -- 4. DIAGNÓSTICO — o que está PENDENTE / ANALISADO / ERRO
+--    security_invoker (a visão respeita a RLS de quem lê) só
+--    existe a partir do PostgreSQL 15. Em bancos anteriores a
+--    opção aborta o arquivo inteiro — e era isso que deixava
+--    as visões sem criar, com o erro 42P01 na hora de
+--    consultá-las. Aqui a opção só é usada quando suportada.
 -- ============================================================
+do $$
+declare
+  opcao text := case
+    when current_setting('server_version_num')::int >= 150000
+      then ' with (security_invoker = true)'
+    else ''
+  end;
+begin
 
--- Uma linha por estado: é a resposta direta para
--- "conferir PENDENTE / ANALISADO / ERRO no SQL".
-create or replace view public.radar_capturas_estado
-with (security_invoker = true) as
-select
-  coalesce(estado, 'SEM_ESTADO')        as estado,
-  count(*)                              as total,
-  count(*) filter (where erro is not null) as com_erro,
-  count(oportunidade_id)                as com_oportunidade,
-  min(capturado_em)                     as mais_antiga,
-  max(capturado_em)                     as mais_recente
-from public.radar_capturas
-group by 1;
+  -- Uma linha por estado: é a resposta direta para
+  -- "conferir PENDENTE / ANALISADO / ERRO no SQL".
+  execute
+    'create or replace view public.radar_capturas_estado' ||
+    opcao || ' as
+     select
+       coalesce(estado, ''SEM_ESTADO'')          as estado,
+       count(*)                                  as total,
+       count(*) filter (where erro is not null)  as com_erro,
+       count(oportunidade_id)                    as com_oportunidade,
+       min(capturado_em)                         as mais_antiga,
+       max(capturado_em)                         as mais_recente
+     from public.radar_capturas
+     group by 1';
 
+  -- As falhas, agrupadas pela mensagem: mostra exatamente
+  -- quantas e quais são (ex.: as 4 falhas de um lote).
+  execute
+    'create or replace view public.radar_capturas_falhas' ||
+    opcao || ' as
+     select
+       coalesce(erro, ''sem mensagem'')  as erro,
+       count(*)                          as capturas,
+       min(capturado_em)                 as mais_antiga,
+       max(atualizado_em)                as ultima_ocorrencia,
+       (array_agg(id order by atualizado_em desc))[1:5] as exemplos
+     from public.radar_capturas
+     where estado in (''ERRO'', ''ABANDONADO'')
+     group by 1';
 
--- As falhas, agrupadas pela mensagem: mostra exatamente
--- quantas e quais são (ex.: as 4 falhas de um lote).
-create or replace view public.radar_capturas_falhas
-with (security_invoker = true) as
-select
-  coalesce(erro, 'sem mensagem')  as erro,
-  count(*)                        as capturas,
-  min(capturado_em)               as mais_antiga,
-  max(atualizado_em)              as ultima_ocorrencia,
-  (array_agg(id order by atualizado_em desc))[1:5] as exemplos
-from public.radar_capturas
-where estado in ('ERRO', 'ABANDONADO')
-group by 1;
+  -- Capturas que a análise deveria ter tirado da fila e não
+  -- tirou (pendentes antigas): sintoma do UPDATE que falhava.
+  execute
+    'create or replace view public.radar_capturas_travadas' ||
+    opcao || ' as
+     select
+       id,
+       fonte_id,
+       alvo_id,
+       estado,
+       erro,
+       oportunidade_id,
+       capturado_em,
+       atualizado_em
+     from public.radar_capturas
+     where estado = ''PENDENTE''
+       and capturado_em < now() - interval ''2 hours''
+     order by capturado_em';
 
-
--- Capturas que a análise deveria ter tirado da fila e não
--- tirou (pendentes antigas): sintoma do UPDATE que falhava.
-create or replace view public.radar_capturas_travadas
-with (security_invoker = true) as
-select
-  id,
-  fonte_id,
-  alvo_id,
-  estado,
-  erro,
-  oportunidade_id,
-  capturado_em,
-  atualizado_em
-from public.radar_capturas
-where estado = 'PENDENTE'
-  and capturado_em < now() - interval '2 hours'
-order by capturado_em;
+end
+$$;
 
 
 -- ============================================================
@@ -287,19 +352,46 @@ $$;
 -- A função é operação de manutenção: só o painel autenticado
 -- (e as Edge Functions, que ignoram RLS) podem chamar.
 revoke all on function public.radar_reenfileirar(uuid[]) from public;
-revoke all on function public.radar_reenfileirar(uuid[]) from anon;
-grant execute on function public.radar_reenfileirar(uuid[]) to authenticated;
-grant execute on function public.radar_reenfileirar(uuid[]) to service_role;
+
+do $$
+begin
+
+  revoke all on function public.radar_reenfileirar(uuid[]) from anon;
+  grant execute on function public.radar_reenfileirar(uuid[])
+    to authenticated;
+  grant execute on function public.radar_reenfileirar(uuid[])
+    to service_role;
+
+exception
+  -- Banco sem os papéis do Supabase (ex.: cópia local).
+  when undefined_object then
+    raise notice 'Papéis anon/authenticated/service_role ausentes.';
+end
+$$;
 
 
 -- ============================================================
 -- 6. PERMISSÕES DAS VISÕES
---    security_invoker: a visão respeita a RLS de quem lê, sem
---    abrir a fila para o anon.
+--    Sem security_invoker (PostgreSQL 14) a visão roda com os
+--    direitos do dono, então o revoke do anon é o que impede a
+--    fila de vazar para quem não está autenticado.
 -- ============================================================
-grant select on public.radar_capturas_estado    to authenticated;
-grant select on public.radar_capturas_falhas    to authenticated;
-grant select on public.radar_capturas_travadas  to authenticated;
+do $$
+begin
+
+  revoke all on public.radar_capturas_estado    from anon;
+  revoke all on public.radar_capturas_falhas    from anon;
+  revoke all on public.radar_capturas_travadas  from anon;
+
+  grant select on public.radar_capturas_estado    to authenticated;
+  grant select on public.radar_capturas_falhas    to authenticated;
+  grant select on public.radar_capturas_travadas  to authenticated;
+
+exception
+  when undefined_object then
+    raise notice 'Papéis anon/authenticated ausentes.';
+end
+$$;
 
 
 -- ============================================================

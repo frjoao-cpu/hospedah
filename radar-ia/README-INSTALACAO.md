@@ -1162,6 +1162,32 @@ Depois de reenfileirar, rode
 ANALISAR PENDENTES no painel e confira
 de novo radar_capturas_estado.
 
+ERRO 42P01:
+relation "public.radar_capturas_estado"
+does not exist
+
+Significa que a 011 ainda não foi
+aplicada (ou foi interrompida no meio).
+Abra o SQL Editor, cole o conteúdo de
+supabase/migrations/011_radar_saneamento.sql
+INTEIRO, execute, e só depois rode as
+consultas acima. Confira com:
+
+select table_name
+from information_schema.views
+where table_schema = 'public'
+  and table_name like 'radar_capturas_%';
+-- precisa listar estado, falhas e
+-- travadas
+
+Observação: a 011 cria as visões com
+security_invoker só quando o
+PostgreSQL é 15 ou superior; em bancos
+14 a opção é omitida e o acesso do anon
+é revogado no lugar. O arquivo é
+idempotente e não aborta por papel
+ausente nem por índice já criado.
+
 Conferência rápida de duplicidade:
 
 select captura_id, count(*)
