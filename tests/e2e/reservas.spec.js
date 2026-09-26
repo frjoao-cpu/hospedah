@@ -25,7 +25,7 @@ test.describe('Fluxo de reserva — wizard multi-step', () => {
 
   test('step 1 → step 2 — selecionar resort habilita botão e avança', async ({ page }) => {
     // Clica no primeiro card de resort disponível
-    const resortCard = page.locator('#resortsGrid .resort-card, #resortsGrid [data-resort]').first();
+    const resortCard = page.locator('#resortsGrid .resort-option, #resortsGrid .resort-card, #resortsGrid [data-resort]').first();
     await resortCard.click();
 
     const btnNext1 = page.locator('#btnNext1');
@@ -37,7 +37,7 @@ test.describe('Fluxo de reserva — wizard multi-step', () => {
   });
 
   test('step 2 — botão Próximo desabilitado sem datas', async ({ page }) => {
-    const resortCard = page.locator('#resortsGrid .resort-card, #resortsGrid [data-resort]').first();
+    const resortCard = page.locator('#resortsGrid .resort-option, #resortsGrid .resort-card, #resortsGrid [data-resort]').first();
     await resortCard.click();
     await page.locator('#btnNext1').click();
 
@@ -108,7 +108,7 @@ test.describe('Resumo lateral de reserva', () => {
     await page.goto('/reservas.html');
     await page.waitForSelector('#resortsGrid', { state: 'visible', timeout: 15000 });
 
-    const resortCard = page.locator('#resortsGrid .resort-card, #resortsGrid [data-resort]').first();
+    const resortCard = page.locator('#resortsGrid .resort-option, #resortsGrid .resort-card, #resortsGrid [data-resort]').first();
     await resortCard.click();
 
     // Sumário lateral (sumResort) deve ser preenchido

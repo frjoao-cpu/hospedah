@@ -17,7 +17,9 @@ test.describe('Páginas públicas', () => {
 
   test('homepage exibe botão de orçamento via WhatsApp', async ({ page }) => {
     await page.goto('/');
-    const waLink = page.locator('a[href*="wa.me"]').first();
+    // O primeiro link wa.me do DOM fica dentro do popup de oferta
+    // especial (oculto por padrão): usa o primeiro link visível.
+    const waLink = page.locator('a[href*="wa.me"]:visible').first();
     await expect(waLink).toBeVisible();
   });
 

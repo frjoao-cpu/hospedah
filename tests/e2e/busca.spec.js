@@ -24,6 +24,10 @@ test.describe('Página de busca — formulário e filtros', () => {
   });
 
   test('campos de preço mín/máx aceitam números', async ({ page }) => {
+    // Preço fica dentro de <details> "Filtros avançados", fechado
+    // por padrão: precisa abrir antes de interagir.
+    await page.locator('details.adv-filters > summary').click();
+
     const precoMin = page.locator('#f_preco_min');
     const precoMax = page.locator('#f_preco_max');
     await expect(precoMin).toBeVisible();
@@ -65,7 +69,9 @@ test.describe('Página de busca — formulário e filtros', () => {
 test.describe('Navegação entre páginas', () => {
   test('link "Buscar resorts" na homepage aponta para busca.html', async ({ page }) => {
     await page.goto('/');
-    const buscarLink = page.locator('a[href*="busca"]').first();
+    // No mobile o menu principal fica oculto até ser aberto:
+    // considera apenas links visíveis.
+    const buscarLink = page.locator('a[href*="busca"]:visible').first();
     await expect(buscarLink).toBeVisible();
   });
 
