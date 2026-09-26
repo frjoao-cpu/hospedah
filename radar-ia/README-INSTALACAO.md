@@ -395,6 +395,18 @@ aplica a seleção pelos critérios do
 alvo e cria a oportunidade ou marca a
 captura como DESCARTADA com motivo)
 
+A resposta traz "detalhes" com uma
+linha por captura: motivo, erro e
+"estado_persistido". Quando
+estado_persistido vem false, a análise
+funcionou mas o UPDATE da captura não
+(banco desatualizado ou RLS) — o painel
+mostra a falha item a item no botão
+ANALISAR PENDENTES. A mesma captura
+nunca gera duas oportunidades: se ela
+voltar à fila, a oportunidade já ligada
+a ela é reaproveitada.
+
 reavaliar
 (reprocessa uma oportunidade sem
 reabrir o funil de negociação)
