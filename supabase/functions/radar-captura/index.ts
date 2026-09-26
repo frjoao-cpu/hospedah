@@ -578,6 +578,22 @@ async function buscarRss(fonte: Fonte): Promise<ResultadoFonte> {
 }
 
 
+// Fontes que o robô busca sozinho. MANUAL, IMPORT, EMAIL e
+// WHATSAPP dependem do operador ou de webhook. Uma única
+// definição evita que a varredura e o teste de fonte
+// divirjam — foi o que deixou o RSS meio ligado.
+const TIPOS_REMOTOS = [
+    'INSTAGRAM_GRAPH',
+    'FACEBOOK_GRAPH',
+    'RSS',
+];
+
+
+function fonteRemota(tipo: string | null | undefined): boolean {
+    return TIPOS_REMOTOS.includes(String(tipo || ''));
+}
+
+
 // Interface única de adaptador: buscar(fonte) → capturas.
 async function buscar(fonte: Fonte): Promise<ResultadoFonte> {
     if (fonte.tipo === 'INSTAGRAM_GRAPH') return await buscarInstagram(fonte);
@@ -959,10 +975,16 @@ Deno.serve(async (req) => {
 
             const tipo = asText(body.tipo) || 'MANUAL';
 
+            // Precisa espelhar o que o robô sabe varrer
+            // (buscarFonte) e o que o CHECK da migration 010
+            // aceita. EMAIL/WHATSAPP estão liberados no banco
+            // mas ainda sem adaptador: cadastrá-los criaria
+            // uma fonte que nunca captura nada.
             if (
                 ![
                     'INSTAGRAM_GRAPH',
                     'FACEBOOK_GRAPH',
+                    'RSS',
                     'MANUAL',
                     'IMPORT',
                 ].includes(tipo)
@@ -1061,10 +1083,7 @@ Deno.serve(async (req) => {
 
             const alvoFonte = fonte as unknown as Fonte;
 
-            if (
-                alvoFonte.tipo !== 'INSTAGRAM_GRAPH' &&
-                alvoFonte.tipo !== 'FACEBOOK_GRAPH'
-            ) {
+            if (!fonteRemota(alvoFonte.tipo)) {
                 return json({
                     ok: true,
                     credencial: 'OK',
@@ -1158,11 +1177,7 @@ Deno.serve(async (req) => {
         const agora = Date.now();
 
         const automaticas = ((fontes || []) as Fonte[]).filter((f) => {
-            const varre = f.tipo === 'INSTAGRAM_GRAPH' ||
-                f.tipo === 'FACEBOOK_GRAPH' ||
-                f.tipo === 'RSS';
-
-            if (!varre) return false;
+            if (!fonteRemota(f.tipo)) return false;
 
             // Circuit breaker: fonte suspensa por falhas
             // consecutivas fica de fora até o prazo vencer.

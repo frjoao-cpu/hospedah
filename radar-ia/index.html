@@ -903,6 +903,16 @@ pre{
             🧠 ANALISAR PENDENTES
           </button>
 
+          <button
+            class="btn light"
+            data-acao="reenfileirar"
+            onclick="reenfileirarDescartadas()"
+            title="Devolve à fila as capturas descartadas para
+reavaliá-las com os critérios atuais do alvo."
+          >
+            ♻️ REAVALIAR DESCARTADAS
+          </button>
+
         </div>
 
         <div id="pendentesMsg"></div>
@@ -1049,6 +1059,16 @@ pre{
             onclick="processarPendentes()"
           >
             🧠 ANALISAR PENDENTES
+          </button>
+
+          <button
+            class="btn light"
+            data-acao="reenfileirar"
+            onclick="reenfileirarDescartadas()"
+            title="Devolve à fila as capturas descartadas para
+reavaliá-las com os critérios atuais do alvo."
+          >
+            ♻️ REAVALIAR DESCARTADAS
           </button>
 
         </div>
@@ -2983,10 +3003,32 @@ async function processarPendentes(){
       " • Descartadas: "+(d.descartados||0)+
       (d.falhas?" • Falhas: "+d.falhas:"");
 
+    // Sem isto, "Descartadas: 8" não diz qual critério do
+    // alvo fechou o funil — e a calibração vira adivinhação.
+    const motivos=
+      Array.isArray(d.motivos)?d.motivos:[];
+
+    const porRegra=
+      motivos.length
+        ?'<div style="margin:8px 0 0">'+
+         '<div class="sub">Por que o lote terminou assim:</div>'+
+         '<ul style="margin:4px 0 0;padding-left:18px">'+
+         motivos
+           .map(m=>
+             '<li>'+
+             esc(String(m.rotulo||m.regra||""))+
+             ': '+esc(String(m.quantidade||0))+
+             '</li>'
+           )
+           .join("")+
+         '</ul></div>'
+        :"";
+
     avisoPendentes(
       '<div class="notice '+
       (d.falhas?"warn":"ok")+'">'+
       esc(resumo)+
+      porRegra+
       (falhas.length
         ?'<ul style="margin:8px 0 0;padding-left:18px">'+
          falhas
@@ -3031,6 +3073,92 @@ async function processarPendentes(){
     });
 
     analisandoPendentes=false;
+
+  }
+
+}
+
+
+// Mudou o critério do alvo? As capturas já descartadas
+// precisam voltar para a fila, senão a oportunidade fica
+// presa num descarte tomado com a regra antiga. O cache por
+// hash do texto evita pagar a IA de novo por elas.
+let reenfileirando=false;
+
+
+async function reenfileirarDescartadas(){
+
+  if(reenfileirando)
+
+    return;
+
+  if(!confirm(
+    "Devolver as capturas descartadas para a fila?\n\n"+
+    "Elas serao reavaliadas com os criterios atuais do alvo. "+
+    "Capturas descartadas por duplicidade nao sao afetadas."
+  ))
+
+    return;
+
+  reenfileirando=true;
+
+  const botoes=
+    Array.from(
+      document.querySelectorAll('[data-acao="reenfileirar"]')
+    );
+
+  const rotulos=botoes.map(b=>b.innerHTML);
+
+  botoes.forEach(b=>{
+
+    b.disabled=true;
+
+    b.innerHTML="⏳ REENFILEIRANDO...";
+
+  });
+
+  try{
+
+    const d=await chamarFuncao(
+
+      CONFIG.functionName,
+
+      { acao:"reenfileirar_descartadas" },
+
+      60000
+
+    );
+
+    avisoPendentes(
+      '<div class="notice ok">'+
+      esc(
+        d.mensagem||
+        ((d.reenfileiradas||0)+" captura(s) reenfileirada(s).")
+      )+
+      '</div>'
+    );
+
+    await load();
+
+  }catch(e){
+
+    avisoPendentes(
+      '<div class="notice warn">'+
+      esc(e.message)+
+      '</div>'
+    );
+
+  }finally{
+
+    botoes.forEach((b,i)=>{
+
+      b.disabled=false;
+
+      b.innerHTML=rotulos[i];
+
+    });
+
+    reenfileirando=false;
 
   }
 
