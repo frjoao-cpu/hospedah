@@ -395,6 +395,18 @@ aplica a seleção pelos critérios do
 alvo e cria a oportunidade ou marca a
 captura como DESCARTADA com motivo)
 
+A resposta traz "detalhes" com uma
+linha por captura: motivo, erro e
+"estado_persistido". Quando
+estado_persistido vem false, a análise
+funcionou mas o UPDATE da captura não
+(banco desatualizado ou RLS) — o painel
+mostra a falha item a item no botão
+ANALISAR PENDENTES. A mesma captura
+nunca gera duas oportunidades: se ela
+voltar à fila, a oportunidade já ligada
+a ela é reaproveitada.
+
 reavaliar
 (reprocessa uma oportunidade sem
 reabrir o funil de negociação)
@@ -1091,6 +1103,99 @@ manual:
 supabase functions deploy radar-ia \
   --project-ref ydrmjoppjxtmnwtvtinb \
   --no-verify-jwt
+
+---
+
+# 16.3 SQL DE SANEAMENTO E
+#      DIAGNÓSTICO (MIGRATION 011)
+
+supabase/migrations/011_radar_saneamento.sql
+roda no SQL Editor, é idempotente e:
+
+1. Junta as oportunidades duplicadas
+geradas pela MESMA captura (mantém a
+mais antiga, soma as ocorrências e
+marca as demais como DESCARTADA com
+duplicada_de).
+
+2. Cria o índice único parcial
+radar_opp_captura_unica_idx: no banco,
+uma captura passa a gerar no máximo
+uma oportunidade.
+
+3. Cria os índices que faltavam para o
+dedupe (hash_texto, empreendimento +
+criado_em, oportunidade_id).
+
+4. Cria as visões de conferência:
+
+select * from radar_capturas_estado;
+-- PENDENTE / ANALISADO / DESCARTADO /
+-- ERRO / ABANDONADO, com quantas têm
+-- erro e quantas viraram oportunidade
+
+select * from radar_capturas_falhas;
+-- agrupa as falhas pela mensagem e
+-- mostra até 5 ids de exemplo: é como
+-- identificar exatamente quais e
+-- quantas capturas falharam
+
+select * from radar_capturas_travadas;
+-- PENDENTES com mais de 2 horas, o
+-- sintoma de quem não saiu da fila
+
+select * from radar_fila;
+-- visão da 010, com o retry pendente
+
+5. Cria a função de manutenção:
+
+select public.radar_reenfileirar();
+-- devolve todas as ERRO/ABANDONADO
+-- para PENDENTE, zerando tentativas
+
+select public.radar_reenfileirar(
+  array['<uuid>','<uuid>']::uuid[]
+);
+-- reenfileira só as escolhidas
+
+Depois de reenfileirar, rode
+ANALISAR PENDENTES no painel e confira
+de novo radar_capturas_estado.
+
+ERRO 42P01:
+relation "public.radar_capturas_estado"
+does not exist
+
+Significa que a 011 ainda não foi
+aplicada (ou foi interrompida no meio).
+Abra o SQL Editor, cole o conteúdo de
+supabase/migrations/011_radar_saneamento.sql
+INTEIRO, execute, e só depois rode as
+consultas acima. Confira com:
+
+select table_name
+from information_schema.views
+where table_schema = 'public'
+  and table_name like 'radar_capturas_%';
+-- precisa listar estado, falhas e
+-- travadas
+
+Observação: a 011 cria as visões com
+security_invoker só quando o
+PostgreSQL é 15 ou superior; em bancos
+14 a opção é omitida e o acesso do anon
+é revogado no lugar. O arquivo é
+idempotente e não aborta por papel
+ausente nem por índice já criado.
+
+Conferência rápida de duplicidade:
+
+select captura_id, count(*)
+from radar_oportunidades
+where captura_id is not null
+group by 1
+having count(*) > 1;
+-- depois da 011 precisa vir vazio
 
 ---
 

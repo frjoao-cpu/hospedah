@@ -425,6 +425,15 @@ function erroBanco(e: unknown, tabela: string): AppError {
         );
     }
 
+    if (code === "23505" || /duplicate key value/i.test(msg)) {
+        return new AppError(
+            "Registro duplicado em " + tabela +
+                ". A captura já havia gerado esta oportunidade " +
+                "(índice único da migration 011).",
+            409,
+        );
+    }
+
     return new AppError(
         "Falha ao gravar no banco (" + tabela + ")" +
             (code ? " — código " + code : "") + ".",
@@ -591,6 +600,29 @@ function montarRegistro(
 }
 
 
+// Usada quando o insert esbarra no índice único por captura:
+// a linha vencedora da corrida é a resposta correta.
+async function oportunidadeExistente(
+    supabase: Cliente,
+    capturaId: string | null,
+): Promise<Record<string, unknown> | null> {
+    if (!capturaId) return null;
+
+    const { data, error } = await supabase
+        .from("radar_oportunidades")
+        .select("*")
+        .eq("captura_id", capturaId)
+        .limit(1);
+
+    if (error) {
+        console.error("[radar-ia] oportunidade existente:", error);
+        return null;
+    }
+
+    return (data?.[0] as Record<string, unknown>) ?? null;
+}
+
+
 async function gravarOportunidade(
     supabase: Cliente,
     registro: Record<string, unknown>,
@@ -626,6 +658,18 @@ async function gravarOportunidade(
             .insert(semColunasNovas(registro))
             .select()
             .single());
+    }
+
+    // Índice único radar_opp_captura_unica_idx (migration 011):
+    // a mesma captura tentou virar oportunidade duas vezes.
+    // Em vez de erro, devolve a que já existe.
+    if (e1 && String((e1 as { code?: string }).code) === "23505") {
+        const jaExiste = await oportunidadeExistente(
+            supabase,
+            asText(registro.captura_id),
+        );
+
+        if (jaExiste) return jaExiste;
     }
 
     if (e1) throw erroBanco(e1, "radar_oportunidades");
@@ -714,19 +758,58 @@ async function registrarCapturaManual(
 }
 
 
+// O estado da captura é o que tira o item da fila. Se este
+// UPDATE falha em silêncio, a captura volta ao lote na próxima
+// rodada e a IA é paga de novo — por isso as colunas ausentes
+// são descartadas uma a uma até sobrar o essencial (estado), e
+// o resultado é devolvido para quem chamou poder reportar.
 async function atualizarCaptura(
     supabase: Cliente,
     capturaId: string | null,
     campos: Record<string, unknown>,
-) {
-    if (!capturaId) return;
+): Promise<{ ok: boolean; erro: string | null }> {
+    if (!capturaId) return { ok: true, erro: null };
 
-    const { error } = await supabase
-        .from("radar_capturas")
-        .update(campos)
-        .eq("id", capturaId);
+    let payload = { ...campos };
 
-    if (error) console.error("[radar-ia] captura:", error);
+    for (let tentativa = 0; tentativa < 6; tentativa++) {
+        const { error } = await supabase
+            .from("radar_capturas")
+            .update(payload)
+            .eq("id", capturaId);
+
+        if (!error) return { ok: true, erro: null };
+
+        console.error("[radar-ia] captura:", error);
+
+        if (!ehColunaAusente(error)) {
+            return { ok: false, erro: error.message ?? "erro no UPDATE" };
+        }
+
+        // Banco desatualizado: remove a coluna citada no erro
+        // (ou todas as opcionais) e tenta de novo.
+        const coluna = colunaAusente(String(error.message || ""));
+
+        const restantes = Object.keys(payload)
+            .filter((c) => c !== "estado");
+
+        if (!restantes.length) {
+            return {
+                ok: false,
+                erro: error.message ?? "coluna estado ausente",
+            };
+        }
+
+        payload = { ...payload };
+
+        if (coluna && coluna !== "estado" && coluna in payload) {
+            delete payload[coluna];
+        } else {
+            for (const c of restantes) delete payload[c];
+        }
+    }
+
+    return { ok: false, erro: "não foi possível atualizar a captura" };
 }
 
 
@@ -866,11 +949,16 @@ async function procurarDuplicada(
     },
 ) {
     // 1. Idêntica (mesmo hash) — atalho barato.
-    const { data: iguais } = await supabase
+    const { data: iguais, error: eHash } = await supabase
         .from("radar_oportunidades")
         .select("id")
         .eq("hash_texto", novo.hash)
         .limit(1);
+
+    // Banco sem as colunas da 010: o atalho some, mas a
+    // comparação por similaridade (passo 2) ainda protege
+    // contra oportunidades duplicadas.
+    if (eHash) console.error("[radar-ia] dedupe hash:", eHash);
 
     if (iguais?.length) {
         return {
@@ -883,21 +971,33 @@ async function procurarDuplicada(
     // 2. Semelhante entre as recentes do mesmo empreendimento.
     const desde = new Date(Date.now() - 90 * 86400000).toISOString();
 
-    let q = supabase
-        .from("radar_oportunidades")
-        .select(
-            "id,impressao_digital,texto_original,contato," +
-                "empreendimento,valor_anunciado",
-        )
-        .gte("criado_em", desde)
-        .order("criado_em", { ascending: false })
-        .limit(200);
+    const consulta = (colunas: string) => {
+        let q = supabase
+            .from("radar_oportunidades")
+            .select(colunas)
+            .gte("criado_em", desde)
+            .order("criado_em", { ascending: false })
+            .limit(200);
 
-    if (novo.empreendimento) {
-        q = q.eq("empreendimento", novo.empreendimento);
+        if (novo.empreendimento) {
+            q = q.eq("empreendimento", novo.empreendimento);
+        }
+
+        return q;
+    };
+
+    let { data, error } = await consulta(
+        "id,impressao_digital,texto_original,contato," +
+            "empreendimento,valor_anunciado",
+    );
+
+    // Sem a 010 não existe impressao_digital: a similaridade
+    // passa a ser calculada a partir do texto original.
+    if (error && ehColunaAusente(error)) {
+        ({ data, error } = await consulta(
+            "id,texto_original,contato,empreendimento,valor_anunciado",
+        ));
     }
-
-    const { data, error } = await q;
 
     if (error) {
         console.error("[radar-ia] dedupe:", error);
@@ -905,6 +1005,36 @@ async function procurarDuplicada(
     }
 
     return acharDuplicada(novo, (data || []) as never);
+}
+
+
+// A mesma captura nunca pode gerar duas oportunidades: se o
+// UPDATE de estado falhou antes, ela volta para a fila e seria
+// analisada de novo. Aqui a oportunidade já gravada é
+// reaproveitada em vez de duplicada.
+async function oportunidadeDaCaptura(
+    supabase: Cliente,
+    capturaId: string | null,
+): Promise<string | null> {
+    if (!capturaId) return null;
+
+    const { data, error } = await supabase
+        .from("radar_oportunidades")
+        .select("id")
+        .eq("captura_id", capturaId)
+        .limit(1);
+
+    // Banco na 007 (sem captura_id): sem atalho, o dedupe
+    // semântico continua valendo.
+    if (error) {
+        if (!ehColunaAusente(error)) {
+            console.error("[radar-ia] captura_id:", error);
+        }
+
+        return null;
+    }
+
+    return (data?.[0]?.id as string) ?? null;
 }
 
 
@@ -1121,31 +1251,62 @@ async function processarTexto(
     const selecao = selecionar(ai, entrada.alvo);
 
     if (!selecao.aprovado) {
-        await atualizarCaptura(supabase, entrada.capturaId, {
-            estado: "DESCARTADO",
-            motivo: selecao.motivo,
-        });
+        const estado = await atualizarCaptura(
+            supabase,
+            entrada.capturaId,
+            { estado: "DESCARTADO", motivo: selecao.motivo },
+        );
 
-        return { ai, ia, selecao, oportunidade: null, duplicada: null };
+        return {
+            ai,
+            ia,
+            selecao,
+            oportunidade: null,
+            duplicada: null,
+            estado,
+        };
     }
+
+    // Reprocessamento da mesma captura (o estado anterior não
+    // chegou a ser gravado): reaproveita a oportunidade em vez
+    // de criar uma segunda no funil.
+    const jaGravada = await oportunidadeDaCaptura(
+        supabase,
+        entrada.capturaId,
+    );
 
     // Mesmo negócio já registrado: conta a repetição e não
     // duplica a oportunidade no funil.
-    const duplicada = await procurarDuplicada(supabase, {
-        texto: entrada.texto,
-        hash,
-        contato: asText(ai.contato),
-        empreendimento: local.empreendimento,
-    });
+    const duplicada = jaGravada
+        ? {
+            id: jaGravada,
+            similaridade: 1,
+            motivo: "Captura já havia gerado esta oportunidade.",
+        }
+        : await procurarDuplicada(supabase, {
+            texto: entrada.texto,
+            hash,
+            contato: asText(ai.contato),
+            empreendimento: local.empreendimento,
+        });
 
     if (duplicada) {
-        await contabilizarRepeticao(supabase, duplicada.id);
+        // Repetição só conta quando é outra captura: o
+        // reprocessamento da mesma não infla o contador.
+        if (!jaGravada) {
+            await contabilizarRepeticao(supabase, duplicada.id);
+        }
 
-        await atualizarCaptura(supabase, entrada.capturaId, {
-            estado: "DESCARTADO",
-            motivo: duplicada.motivo,
-            oportunidade_id: duplicada.id,
-        });
+        const estado = await atualizarCaptura(
+            supabase,
+            entrada.capturaId,
+            {
+                estado: jaGravada ? "ANALISADO" : "DESCARTADO",
+                motivo: duplicada.motivo,
+                oportunidade_id: duplicada.id,
+                erro: null,
+            },
+        );
 
         return {
             ai,
@@ -1153,6 +1314,7 @@ async function processarTexto(
             selecao: { aprovado: false, motivo: duplicada.motivo },
             oportunidade: null,
             duplicada,
+            estado,
         };
     }
 
@@ -1210,7 +1372,7 @@ async function processarTexto(
         ia,
     );
 
-    await atualizarCaptura(supabase, entrada.capturaId, {
+    const estado = await atualizarCaptura(supabase, entrada.capturaId, {
         estado: "ANALISADO",
         motivo,
         oportunidade_id: oportunidade.id,
@@ -1226,6 +1388,7 @@ async function processarTexto(
         oportunidade,
         duplicada: null,
         alerta,
+        estado,
     };
 }
 
@@ -1408,10 +1571,31 @@ Deno.serve(async (req) => {
                     if (r.oportunidade) aprovados++;
                     else descartados++;
 
+                    // Estado não persistido = captura volta à
+                    // fila e a IA é paga de novo: isso precisa
+                    // aparecer no relatório do lote.
+                    if (r.estado && !r.estado.ok) {
+                        falhas++;
+
+                        console.error(
+                            "[radar-ia]",
+                            traceId,
+                            captura.id,
+                            "estado não persistido:",
+                            r.estado.erro,
+                        );
+                    }
+
                     detalhes.push({
                         captura_id: captura.id,
                         selecionada: !!r.oportunidade,
                         motivo: r.selecao.motivo,
+                        estado_persistido: r.estado ? r.estado.ok : true,
+                        erro: r.estado && !r.estado.ok
+                            ? "Análise concluída, mas o estado da " +
+                                "captura não pôde ser gravado: " +
+                                r.estado.erro
+                            : undefined,
                     });
                 } catch (e) {
                     // Erros por captura são isolados: uma falha
@@ -1440,15 +1624,19 @@ Deno.serve(async (req) => {
                             : proximaTentativa(tentativas),
                     };
 
-                    const { error: eRetry } = await supabase
-                        .from("radar_capturas")
-                        .update(campos)
-                        .eq("id", captura.id as string);
+                    // atualizarCaptura já descarta sozinho as
+                    // colunas que o banco não tiver (fila da
+                    // 010), preservando ao menos o estado.
+                    let estado = await atualizarCaptura(
+                        supabase,
+                        captura.id as string,
+                        campos,
+                    );
 
-                    // Banco sem as colunas de fila: mantém o
-                    // comportamento antigo.
-                    if (eRetry) {
-                        await atualizarCaptura(
+                    // Banco sem o estado ABANDONADO no CHECK
+                    // (010 não aplicada): grava como ERRO.
+                    if (!estado.ok && desistiu) {
+                        estado = await atualizarCaptura(
                             supabase,
                             captura.id as string,
                             { estado: "ERRO", erro: msg },
@@ -1460,6 +1648,7 @@ Deno.serve(async (req) => {
                         erro: msg,
                         tentativas,
                         abandonada: desistiu,
+                        estado_persistido: estado.ok,
                     });
                 }
             }

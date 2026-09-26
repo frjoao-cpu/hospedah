@@ -155,6 +155,11 @@ select[multiple]{
   font-size:12px;
 }
 
+.btn[disabled]{
+  opacity:.6;
+  cursor:progress;
+}
+
 .primary{
   background:var(--gold);
   color:#111;
@@ -892,12 +897,15 @@ pre{
 
           <button
             class="btn light"
+            data-acao="pendentes"
             onclick="processarPendentes()"
           >
             🧠 ANALISAR PENDENTES
           </button>
 
         </div>
+
+        <div id="pendentesMsg"></div>
 
         <div id="listaAlvos" class="list"></div>
 
@@ -1031,17 +1039,21 @@ pre{
             <option value="ANALISADO">Analisadas</option>
             <option value="DESCARTADO">Descartadas</option>
             <option value="ERRO">Com erro</option>
+            <option value="ABANDONADO">Abandonadas</option>
 
           </select>
 
           <button
             class="btn light"
+            data-acao="pendentes"
             onclick="processarPendentes()"
           >
             🧠 ANALISAR PENDENTES
           </button>
 
         </div>
+
+        <div id="pendentesMsgCapturas"></div>
 
         <div id="listaCapturas" class="list"></div>
 
@@ -2890,7 +2902,58 @@ async function varrer(alvoId){
 }
 
 
+// A análise de um lote pode levar minutos: o painel mostra o
+// andamento no próprio botão e detalha o resultado (inclusive
+// o erro de cada captura) em vez de depender de um alert.
+let analisandoPendentes=false;
+
+
+function avisoPendentes(html){
+
+  ["pendentesMsg","pendentesMsgCapturas"]
+
+    .forEach(id=>{
+
+      const el=document.getElementById(id);
+
+      if(el)
+
+        el.innerHTML=html;
+
+    });
+
+}
+
+
 async function processarPendentes(){
+
+  if(analisandoPendentes)
+
+    return;
+
+  analisandoPendentes=true;
+
+  const botoes=
+    Array.from(
+      document.querySelectorAll('[data-acao="pendentes"]')
+    );
+
+  const rotulos=botoes.map(b=>b.innerHTML);
+
+  botoes.forEach(b=>{
+
+    b.disabled=true;
+
+    b.innerHTML="⏳ ANALISANDO...";
+
+  });
+
+  avisoPendentes(
+    '<div class="notice">'+
+    '⏳ Analisando as capturas pendentes com a IA. '+
+    'Isso pode levar alguns minutos.'+
+    '</div>'
+  );
 
   try{
 
@@ -2907,18 +2970,67 @@ async function processarPendentes(){
 
     );
 
-    alert(
-      "Analisadas: "+(d.analisados||0)+
+    const detalhes=
+      Array.isArray(d.detalhes)?d.detalhes:[];
+
+    const falhas=
+      detalhes.filter(x=>x&&x.erro);
+
+    const resumo=
+      "Lidas: "+(d.pendentes_lidas||0)+
+      " • Analisadas: "+(d.analisados||0)+
       " • Selecionadas: "+(d.aprovados||0)+
       " • Descartadas: "+(d.descartados||0)+
-      (d.falhas?" • Falhas: "+d.falhas:"")
+      (d.falhas?" • Falhas: "+d.falhas:"");
+
+    avisoPendentes(
+      '<div class="notice '+
+      (d.falhas?"warn":"ok")+'">'+
+      esc(resumo)+
+      (falhas.length
+        ?'<ul style="margin:8px 0 0;padding-left:18px">'+
+         falhas
+           .map(f=>
+             '<li>'+
+             esc(
+               String(f.captura_id||"")
+                 .slice(0,8)
+             )+
+             ': '+esc(String(f.erro))+
+             (f.abandonada?" (abandonada)":"")+
+             '</li>'
+           )
+           .join("")+
+         '</ul>'
+        :"")+
+      (d.trace_id
+        ?'<div class="sub" style="margin-top:6px">ref. '+
+         esc(d.trace_id)+'</div>'
+        :"")+
+      '</div>'
     );
 
     await load();
 
   }catch(e){
 
-    alert(e.message);
+    avisoPendentes(
+      '<div class="notice warn">'+
+      esc(e.message)+
+      '</div>'
+    );
+
+  }finally{
+
+    botoes.forEach((b,i)=>{
+
+      b.disabled=false;
+
+      b.innerHTML=rotulos[i];
+
+    });
+
+    analisandoPendentes=false;
 
   }
 
@@ -3105,7 +3217,10 @@ async function analisarCaptura(id){
 
     alert(
       d.selecionada===false
-        ?"Não selecionada: "+(d.motivo||"")
+        ?(d.duplicada_de
+            ?"Já existe oportunidade para este conteúdo: "+
+             (d.motivo||"")
+            :"Não selecionada: "+(d.motivo||""))
         :"Oportunidade criada."
     );
 
@@ -3223,7 +3338,7 @@ function renderCapturas(){
           ?"ok"
           :c.estado==="PENDENTE"
             ?"pendente"
-            :c.estado==="ERRO"
+            :(c.estado==="ERRO"||c.estado==="ABANDONADO")
               ?"erro"
               :"descartada";
 
