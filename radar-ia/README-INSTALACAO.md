@@ -1167,11 +1167,27 @@ relation "public.radar_capturas_estado"
 does not exist
 
 Significa que a 011 ainda não foi
-aplicada (ou foi interrompida no meio).
-Abra o SQL Editor, cole o conteúdo de
+aplicada (ou foi interrompida no meio:
+ela faz o saneamento ANTES de criar as
+visões, então qualquer erro no caminho
+deixa as visões sem nascer).
+
+Solução rápida: abra o SQL Editor, cole
+o conteúdo de
+supabase/migrations/012_radar_diagnostico_views.sql
+INTEIRO e execute. Essa migration cria
+SÓ as visões, cada uma isolada, sem
+depender do saneamento — se alguma não
+puder ser criada, ela avisa o motivo
+(NOTICE) em vez de abortar tudo.
+
+Depois, para o saneamento completo
+(duplicidade + índices + função de
+reenfileirar), rode também
 supabase/migrations/011_radar_saneamento.sql
-INTEIRO, execute, e só depois rode as
-consultas acima. Confira com:
+INTEIRO e leia os NOTICE do resultado.
+Só então rode as consultas acima.
+Confira com:
 
 select table_name
 from information_schema.views
@@ -1180,12 +1196,12 @@ where table_schema = 'public'
 -- precisa listar estado, falhas e
 -- travadas
 
-Observação: a 011 cria as visões com
-security_invoker só quando o
+Observação: a 011 e a 012 criam as
+visões com security_invoker só quando o
 PostgreSQL é 15 ou superior; em bancos
 14 a opção é omitida e o acesso do anon
-é revogado no lugar. O arquivo é
-idempotente e não aborta por papel
+é revogado no lugar. Os arquivos são
+idempotentes e não abortam por papel
 ausente nem por índice já criado.
 
 Conferência rápida de duplicidade:
