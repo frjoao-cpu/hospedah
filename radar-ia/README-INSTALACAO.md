@@ -36,6 +36,9 @@ supabase/
         008_radar_central_monitoramento.sql
         009_radar_pipeline_robustez.sql
         010_radar_inteligencia.sql
+        011_radar_saneamento.sql
+        012_radar_diagnostico_views.sql
+        013_radar_calibragem_selecao.sql
 
     functions/
         _shared/
@@ -444,11 +447,16 @@ O arquivo supabase_cron.sql (seção 13)
 cria dois jobs:
 
 radar-captura-varredura
-(de hora em hora, acao "varrer")
+(a cada 30 minutos, acao "varrer")
 
 radar-ia-processar-pendentes
-(10 minutos depois, acao
-"processar_pendentes")
+(a cada 15 minutos, defasado da captura,
+acao "processar_pendentes", limite 25)
+
+A cadência é o que define o custo de IA:
+são até 4 lotes por hora. Se o consumo
+pesar, reduza a frequência ou o "limite"
+no próprio supabase_cron.sql.
 
 Execute o supabase_cron.sql no SQL
 Editor e garanta que
@@ -529,6 +537,11 @@ prioridade, cadência e fontes vinculadas.
 É aqui que você define o que o robô
 deve procurar. Alvos podem ser
 ativados/pausados.
+Os botões ANALISAR PENDENTES e REAVALIAR
+DESCARTADAS ficam nesta aba (e também na
+de Capturas). O resumo do lote lista os
+motivos de descarte agregados — veja a
+seção 16.4 para calibrar a partir deles.
 
 CAPTURAS
 A fila do que o robô encontrou, com
@@ -685,11 +698,22 @@ identificador = id NUMÉRICO da Página —
 grupos e perfis pessoais não são
 atendidos por /{page-id}/posts)
 
+RSS
+(feed RSS/Atom público do portal;
+identificador = URL https do feed —
+veja a seção 13.2)
+
 MANUAL
 (texto colado pelo operador)
 
 IMPORT
 (importação de lote)
+
+EMAIL e WHATSAPP existem no banco como
+reserva de espaço, mas ainda NÃO têm
+adaptador de captura: cadastrá-los criaria
+fonte que nunca captura, então a função
+recusa esses tipos de propósito.
 
 A migration 008 já cria as fontes
 "Manual" e "Importação em lote", então
@@ -794,6 +818,52 @@ Identificador: a URL https do feed
 O adaptador só consome o feed público
 oferecido pelo portal — continua valendo
 a regra de NÃO fazer scraping.
+
+## Que feeds cadastrar
+
+O RSS é hoje o canal de maior cobertura
+por esforço: não depende de token da Meta
+e não esbarra em termo de uso.
+
+Três famílias valem o cadastro:
+
+1. Portais de classificados
+   Muitos expõem a busca como feed. Faça
+   a busca no site (ex.: "cota Gramado",
+   "multipropriedade Olímpia") e procure
+   o ícone de RSS ou tente acrescentar
+   /rss ou ?format=rss à URL do resultado.
+   Cadastre uma fonte por busca salva:
+   assim cada fonte já vem pré-filtrada.
+
+2. Sites de revenda de cotas
+   Portais especializados em revenda de
+   multipropriedade costumam publicar o
+   feed de novos anúncios. É a fonte com
+   a maior densidade de oportunidade real.
+
+3. Blogs e agregadores do setor
+   Feeds de notícias de resorts e de
+   grupos hoteleiros antecipam abertura
+   de vendas e liquidação de estoque.
+
+Como validar antes de confiar na fonte:
+
+- Abra a URL no navegador. Tem que vir
+  XML com <item> ou <entry>. Se vier
+  HTML, não é feed.
+- Cadastre e clique em TESTAR FONTE. O
+  teste faz a requisição de verdade e
+  diz quantos itens o feed devolveu.
+- Rode VARRER e confira na aba Capturas
+  se os itens entraram como PENDENTE.
+
+O que NÃO funciona por RSS: grupos do
+Facebook e o Marketplace. Eles não
+publicam feed, e raspar o HTML viola os
+Termos da Meta. Cobertura desses espaços
+só por ingestão em lote (copiar e colar o
+texto do anúncio no painel).
 
 ---
 
@@ -1212,6 +1282,83 @@ where captura_id is not null
 group by 1
 having count(*) > 1;
 -- depois da 011 precisa vir vazio
+
+---
+
+# 16.4 "SELECIONADAS: 0" —
+#      CALIBRAR O FUNIL
+
+Sintoma: o lote termina com
+"Lidas: 8 · Analisadas: 8 ·
+Selecionadas: 0 · Descartadas: 8".
+
+A IA não reprova nada. Quem descarta é a
+regra do alvo, aplicada depois da
+extração. Para saber QUAL regra fechou o
+funil, o resumo do botão ANALISAR
+PENDENTES agora lista os motivos
+agregados, por exemplo:
+
+  Por que o lote terminou assim:
+  Empreendimento fora do alvo: 6
+  Score abaixo do mínimo do alvo: 2
+
+O mesmo recorte, direto no banco:
+
+select * from radar_descartes_por_motivo;
+-- visão criada pela migration 013
+
+Leitura de cada resultado:
+
+- "Empreendimento fora do alvo"
+  O anúncio cita um empreendimento que
+  não está na lista do alvo. A seleção já
+  resolve apelidos pelo cadastro, então
+  o caminho é cadastrar o apelido usado
+  no anúncio como alias do empreendimento
+  (ou incluir o empreendimento no alvo).
+
+- "Empreendimento não identificado"
+  A IA não achou o nome NO texto e o
+  texto também não cita nenhum termo do
+  alvo. Quando o texto cita o alvo, a
+  captura não é mais descartada: ela é
+  aprovada com ressalva e cai na fila de
+  validação manual, para o operador
+  decidir. Nenhuma oportunidade se perde
+  em silêncio.
+
+- "Score abaixo do mínimo do alvo"
+  Corte alto demais. O padrão de alvos
+  novos caiu de 60 para 45 na migration
+  013. Alvos JÁ cadastrados não são
+  alterados automaticamente — reveja-os
+  com o SQL documentado na seção 3 da
+  013.
+
+- "Duplicada"
+  Funcionou como devia: a oportunidade
+  já existia.
+
+Depois de ajustar alias, alvo ou score,
+devolva as capturas descartadas para a
+fila com o botão REAVALIAR DESCARTADAS
+(abas Monitoramento e Capturas), ou pela
+ação da função:
+
+{ "acao": "reenfileirar_descartadas" }
+
+Aceita "alvo_id" para limitar a um alvo.
+Capturas descartadas por duplicidade não
+voltam. O cache por hash do texto evita
+pagar a IA de novo pelo reprocessamento.
+
+Se o lote parar antes de esvaziar a fila,
+o painel avisa que o lote foi encerrado
+no tempo limite: é só rodar de novo. O
+lote para sozinho antes do timeout da
+Edge Function para não perder o que já
+foi analisado.
 
 ---
 

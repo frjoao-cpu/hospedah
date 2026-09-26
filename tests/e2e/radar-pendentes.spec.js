@@ -122,6 +122,92 @@ test.describe('Radar IA — ANALISAR PENDENTES', () => {
     await expect(aviso).toContainText('abc123');
   });
 
+  test('o painel agrega por que as capturas foram descartadas', async ({ page }) => {
+    // "Descartadas: 8" sozinho não diz qual critério do alvo
+    // fechou o funil — a agregação por regra é o que permite
+    // calibrar o alvo sem abrir o banco.
+    await mockarFuncao(page, {
+      ok: true,
+      pendentes_lidas: 8,
+      analisados: 8,
+      aprovados: 0,
+      descartados: 8,
+      falhas: 0,
+      motivos: [
+        {
+          regra: 'EMPREENDIMENTO_FORA',
+          rotulo: 'Empreendimento fora do alvo',
+          quantidade: 6,
+        },
+        {
+          regra: 'SCORE_BAIXO',
+          rotulo: 'Score abaixo do mínimo do alvo',
+          quantidade: 2,
+        },
+      ],
+      detalhes: [],
+    });
+
+    await page.goto(PAGINA);
+
+    await page.locator('[data-acao="pendentes"]').first().click();
+
+    const aviso = page.locator('#pendentesMsg');
+
+    await expect(aviso).toContainText(/Descartadas: 8/, { timeout: 15000 });
+    await expect(aviso).toContainText('Empreendimento fora do alvo: 6');
+    await expect(aviso).toContainText('Score abaixo do mínimo do alvo: 2');
+  });
+
+  test('lote interrompido pelo tempo avisa para rodar de novo', async ({ page }) => {
+    // O lote para sozinho antes do timeout da Edge Function. Sem
+    // este aviso o operador acha que a fila acabou e deixa
+    // capturas pendentes paradas até o próximo cron.
+    await mockarFuncao(page, {
+      ok: true,
+      pendentes_lidas: 25,
+      analisados: 18,
+      aprovados: 4,
+      descartados: 14,
+      falhas: 0,
+      interrompido: true,
+      detalhes: [],
+    });
+
+    await page.goto(PAGINA);
+
+    await page.locator('[data-acao="pendentes"]').first().click();
+
+    const aviso = page.locator('#pendentesMsg');
+
+    await expect(aviso).toContainText(/Analisadas: 18/, { timeout: 15000 });
+    await expect(aviso).toContainText('tempo limite');
+    await expect(aviso).toContainText('rode de novo');
+  });
+
+  test('REAVALIAR DESCARTADAS devolve as capturas para a fila', async ({ page }) => {
+    await mockarFuncao(page, {
+      ok: true,
+      reenfileiradas: 8,
+      mensagem: '8 captura(s) voltaram para a fila.',
+    });
+
+    await page.goto(PAGINA);
+
+    const botao = page.locator('[data-acao="reenfileirar"]').first();
+
+    await expect(botao).toBeVisible();
+
+    await botao.click();
+
+    await expect(page.locator('#pendentesMsg')).toContainText(
+      /8 captura\(s\) voltaram para a fila/,
+      { timeout: 15000 },
+    );
+
+    await expect(botao).toBeEnabled();
+  });
+
   test('erro da função é mostrado no painel, não só em alert', async ({ page }) => {
     await page.route('**/functions/v1/radar-ia', (route) =>
       route.fulfill({
