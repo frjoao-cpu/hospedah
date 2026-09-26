@@ -1106,6 +1106,73 @@ supabase functions deploy radar-ia \
 
 ---
 
+# 16.3 SQL DE SANEAMENTO E
+#      DIAGNÓSTICO (MIGRATION 011)
+
+supabase/migrations/011_radar_saneamento.sql
+roda no SQL Editor, é idempotente e:
+
+1. Junta as oportunidades duplicadas
+geradas pela MESMA captura (mantém a
+mais antiga, soma as ocorrências e
+marca as demais como DESCARTADA com
+duplicada_de).
+
+2. Cria o índice único parcial
+radar_opp_captura_unica_idx: no banco,
+uma captura passa a gerar no máximo
+uma oportunidade.
+
+3. Cria os índices que faltavam para o
+dedupe (hash_texto, empreendimento +
+criado_em, oportunidade_id).
+
+4. Cria as visões de conferência:
+
+select * from radar_capturas_estado;
+-- PENDENTE / ANALISADO / DESCARTADO /
+-- ERRO / ABANDONADO, com quantas têm
+-- erro e quantas viraram oportunidade
+
+select * from radar_capturas_falhas;
+-- agrupa as falhas pela mensagem e
+-- mostra até 5 ids de exemplo: é como
+-- identificar exatamente quais e
+-- quantas capturas falharam
+
+select * from radar_capturas_travadas;
+-- PENDENTES com mais de 2 horas, o
+-- sintoma de quem não saiu da fila
+
+select * from radar_fila;
+-- visão da 010, com o retry pendente
+
+5. Cria a função de manutenção:
+
+select public.radar_reenfileirar();
+-- devolve todas as ERRO/ABANDONADO
+-- para PENDENTE, zerando tentativas
+
+select public.radar_reenfileirar(
+  array['<uuid>','<uuid>']::uuid[]
+);
+-- reenfileira só as escolhidas
+
+Depois de reenfileirar, rode
+ANALISAR PENDENTES no painel e confira
+de novo radar_capturas_estado.
+
+Conferência rápida de duplicidade:
+
+select captura_id, count(*)
+from radar_oportunidades
+where captura_id is not null
+group by 1
+having count(*) > 1;
+-- depois da 011 precisa vir vazio
+
+---
+
 # 17. PRÓXIMA EVOLUÇÃO
 
 A arquitetura pode posteriormente receber:

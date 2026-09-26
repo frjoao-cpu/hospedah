@@ -425,6 +425,15 @@ function erroBanco(e: unknown, tabela: string): AppError {
         );
     }
 
+    if (code === "23505" || /duplicate key value/i.test(msg)) {
+        return new AppError(
+            "Registro duplicado em " + tabela +
+                ". A captura já havia gerado esta oportunidade " +
+                "(índice único da migration 011).",
+            409,
+        );
+    }
+
     return new AppError(
         "Falha ao gravar no banco (" + tabela + ")" +
             (code ? " — código " + code : "") + ".",
@@ -591,6 +600,29 @@ function montarRegistro(
 }
 
 
+// Usada quando o insert esbarra no índice único por captura:
+// a linha vencedora da corrida é a resposta correta.
+async function oportunidadeExistente(
+    supabase: Cliente,
+    capturaId: string | null,
+): Promise<Record<string, unknown> | null> {
+    if (!capturaId) return null;
+
+    const { data, error } = await supabase
+        .from("radar_oportunidades")
+        .select("*")
+        .eq("captura_id", capturaId)
+        .limit(1);
+
+    if (error) {
+        console.error("[radar-ia] oportunidade existente:", error);
+        return null;
+    }
+
+    return (data?.[0] as Record<string, unknown>) ?? null;
+}
+
+
 async function gravarOportunidade(
     supabase: Cliente,
     registro: Record<string, unknown>,
@@ -626,6 +658,18 @@ async function gravarOportunidade(
             .insert(semColunasNovas(registro))
             .select()
             .single());
+    }
+
+    // Índice único radar_opp_captura_unica_idx (migration 011):
+    // a mesma captura tentou virar oportunidade duas vezes.
+    // Em vez de erro, devolve a que já existe.
+    if (e1 && String((e1 as { code?: string }).code) === "23505") {
+        const jaExiste = await oportunidadeExistente(
+            supabase,
+            asText(registro.captura_id),
+        );
+
+        if (jaExiste) return jaExiste;
     }
 
     if (e1) throw erroBanco(e1, "radar_oportunidades");
