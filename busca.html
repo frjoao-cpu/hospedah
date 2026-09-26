@@ -42,7 +42,7 @@
 <div class="filter-bar">
   <div class="filter-grid">
     <div class="field-group">
-      <label>🔍 Destino / Cidade</label>
+      <label for="f_destino">🔍 Destino / Cidade</label>
       <div class="autocomplete-wrapper">
         <input type="text" id="f_destino" placeholder="Ex.: Olímpia, Juquehy..." autocomplete="off"
                role="combobox" aria-autocomplete="list" aria-controls="autocompleteList" aria-expanded="false"
@@ -51,15 +51,15 @@
       </div>
     </div>
     <div class="field-group">
-      <label>📅 Check-in</label>
+      <label for="f_entrada">📅 Check-in</label>
       <input type="text" id="f_entrada" placeholder="DD/MM/AAAA" readonly>
     </div>
     <div class="field-group">
-      <label>📅 Check-out</label>
+      <label for="f_saida">📅 Check-out</label>
       <input type="text" id="f_saida" placeholder="DD/MM/AAAA" readonly>
     </div>
     <div class="field-group">
-      <label>👥 Hóspedes</label>
+      <label for="f_hospedes">👥 Hóspedes</label>
       <select id="f_hospedes" onchange="filtrar()">
         <option value="">Qualquer</option>
         <option value="1">1 pessoa</option>
@@ -79,15 +79,15 @@
       <summary>⚙️ Filtros avançados<span id="advBadge" class="adv-badge" aria-live="polite" aria-atomic="true" style="display:none;"></span></summary>
       <div class="adv-grid">
         <div class="field-group" style="min-width:160px;">
-          <label>💲 Preço máx/noite</label>
+          <label for="f_preco_max">💲 Preço máx/noite</label>
           <input type="number" id="f_preco_max" placeholder="R$ máximo" min="0" step="50" oninput="filtrar()">
         </div>
         <div class="field-group" style="min-width:160px;">
-          <label>💲 Preço mín/noite</label>
+          <label for="f_preco_min">💲 Preço mín/noite</label>
           <input type="number" id="f_preco_min" placeholder="R$ mínimo" min="0" step="50" oninput="filtrar()">
         </div>
         <div class="field-group" style="min-width:140px;">
-          <label>🏠 Tipo</label>
+          <label for="f_tipo">🏠 Tipo</label>
           <select id="f_tipo" onchange="filtrar()">
             <option value="">Todos</option>
             <option value="resort">Resort</option>
@@ -96,7 +96,7 @@
           </select>
         </div>
         <div class="field-group" style="min-width:140px;">
-          <label>⭐ Avaliação mín.</label>
+          <label for="f_nota">⭐ Avaliação mín.</label>
           <select id="f_nota" onchange="filtrar()">
             <option value="">Qualquer</option>
             <option value="4.5">4.5+</option>
