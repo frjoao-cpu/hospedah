@@ -212,6 +212,27 @@ GEMINI_API_KEY (contingência)
 GEMINI_MODEL
 GEMINI_FALLBACK_MODELS
 
+Calibragem do lote e do retry
+(todos opcionais — os padrões
+atuais continuam valendo):
+
+RADAR_LOTE_MAXIMO
+(padrão 30 — teto de capturas
+analisadas por chamada)
+
+RADAR_ORCAMENTO_LOTE_MS
+(padrão 110000 — tempo máximo
+gasto em um lote antes de
+devolver o resto para a fila)
+
+IA_RETRY_TENTATIVAS
+(padrão 3, máximo 5 — quantas
+vezes repetir uma chamada de IA
+que falhou por sobrecarga ou
+indisponibilidade do provedor,
+com espera exponencial de
+500ms a 8s)
+
 Alertas automáticos das
 oportunidades quentes:
 
@@ -564,7 +585,9 @@ SAÚDE DO ROBÔ
 (capturado / analisado / aprovado),
 status das fontes e credenciais e o
 último erro — para saber se o pipeline
-está vivo.
+está vivo. Também traz o custo de IA,
+a fila e o painel de LIMPEZA E RETENÇÃO
+(seção 8.3).
 
 ---
 
@@ -584,6 +607,71 @@ PERDIDA
 
 O campo responsavel registra quem está
 conduzindo.
+
+---
+
+# 8.3 LIMPEZA E RETENÇÃO
+
+O Radar acumula depressa: texto bruto
+das capturas, cache de análises, alertas
+enviados, execuções e a medição de
+tokens. Sem limpeza o painel fica lento
+e o banco cresce sem necessidade.
+
+Na aba SAÚDE DO ROBÔ, o bloco
+"Limpeza e retenção" funciona em
+dois passos:
+
+1. CALCULAR LIMPEZA
+   Conta, sem apagar nada, quantos
+   registros antigos existem em cada
+   categoria.
+
+2. APAGAR
+   Só fica disponível quando há algo a
+   remover, mostra quantos dias serão
+   preservados (editável) e pede
+   confirmação. A remoção é definitiva.
+
+Categorias e retenção padrão:
+
+| Categoria | Padrão | Mínimo |
+|---|---|---|
+| Capturas já analisadas | 90 dias | 30 |
+| Capturas descartadas | 60 dias | 15 |
+| Capturas com erro / abandonadas | 30 dias | 7 |
+| Oportunidades descartadas | 180 dias | 30 |
+| Cache de análises da IA | 60 dias | 7 |
+| Histórico de alertas | 90 dias | 7 |
+| Histórico de execuções | 60 dias | 7 |
+| Medição de tokens e custo | 180 dias | 30 |
+
+Garantias de segurança:
+
+- Oportunidades em VALIDAR ou APROVADA
+  nunca são apagadas — apenas as
+  DESCARTADA.
+- O painel nunca envia nome de tabela ou
+  de coluna: escolhe uma das políticas
+  fixas definidas em
+  supabase/functions/_shared/radar.ts.
+- O número de dias é limitado ao mínimo
+  de cada categoria, então não é possível
+  apagar o histórico recente por engano.
+- Limpar o cache de IA não perde dado:
+  só faz a IA reanalisar textos antigos
+  (e pagar por isso de novo).
+
+Também dá para chamar a limpeza
+diretamente na Edge Function:
+
+```
+POST /functions/v1/radar-ia
+{ "acao": "limpar", "alvo": "todos", "previa": true }
+
+POST /functions/v1/radar-ia
+{ "acao": "limpar", "alvo": "cache_ia", "dias": 60 }
+```
 
 ---
 

@@ -4287,18 +4287,21 @@ async function executarLimpeza(idx){
 
     );
 
-    limpezaMsg(
+    const sucesso=
       '<div class="notice ok">'+
       esc(
         d.mensagem||
         ((d.removidos||0)+" registro(s) removido(s).")
       )+
-      '</div>'
-    );
+      '</div>';
 
     limpando=false;
 
+    // A prévia recalcula os totais e zera a área de mensagem;
+    // o resultado é reposto depois para não sumir da tela.
     await previaLimpeza();
+
+    limpezaMsg(sucesso);
 
     await load();
 

@@ -532,6 +532,7 @@ jobs:
             "https://hospedah.tur.br/reservas.html"
             "https://hospedah.tur.br/resorts/hotbeach.html"
             "https://hospedah.tur.br/resorts/ipioca.html"
+            "https://hospedah.tur.br/radar-ia/"
           )
           FAILED=0
           for url in "${URLS[@]}"; do
