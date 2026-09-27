@@ -996,10 +996,19 @@ identificador = id NUMÉRICO da Página —
 grupos e perfis pessoais não são
 atendidos por /{page-id}/posts)
 
-RSS
+WEB, WEB_PUBLICA, SITE, HTML
+(página pública de site/portal;
+URL em config.url — veja a seção 13.3)
+
+RSS, ATOM, FEED
 (feed RSS/Atom público do portal;
-identificador = URL https do feed —
+URL em config.url —
 veja a seção 13.2)
+
+API, JSON_API
+(API JSON pública; URL em config.url e,
+se preciso, config.items_path —
+veja a seção 13.4)
 
 MANUAL
 (texto colado pelo operador)
@@ -1110,10 +1119,10 @@ pelos portais.
 
 Cadastre a fonte com:
 
-Tipo: RSS
-Identificador: a URL https do feed
+Tipo: RSS (ou ATOM/FEED)
+Identificador / config.url: a URL do feed
 
-O adaptador só consome o feed público
+O motor só consome o feed público
 oferecido pelo portal — continua valendo
 a regra de NÃO fazer scraping.
 
@@ -1162,6 +1171,104 @@ publicam feed, e raspar o HTML viola os
 Termos da Meta. Cobertura desses espaços
 só por ingestão em lote (copiar e colar o
 texto do anúncio no painel).
+
+---
+
+# 13.3 FONTES WEB PÚBLICAS
+
+REQUISITO: aplicar
+supabase/migrations/015_radar_fontes_genericas.sql
+— é ela que libera os tipos genéricos
+(WEB/WEB_PUBLICA/SITE/HTML, ATOM/FEED,
+API/JSON_API) no CHECK de radar_fontes.
+A migration é idempotente e não altera
+nenhuma tabela nem dado.
+
+O motor WEB lê uma página pública e
+transforma o texto dela em captura. Ele
+não conhece nenhum site: a URL vem do
+cadastro.
+
+Cadastre com:
+
+Tipo: WEB_PUBLICA (ou WEB/SITE/HTML)
+config.url: a URL da página
+
+Exemplos:
+
+{
+  "nome": "Conecta Multi",
+  "tipo": "WEB_PUBLICA",
+  "config": {
+    "url": "https://conectamulti.com/..."
+  },
+  "ativo": true
+}
+
+{
+  "nome": "QuotasBNB",
+  "tipo": "WEB_PUBLICA",
+  "config": {
+    "url": "https://www.quotasbnb.com.br/..."
+  },
+  "ativo": true
+}
+
+O motor baixa a página com timeout,
+confere o status HTTP, remove scripts,
+estilos, comentários e tags, guarda o
+título e a URL e manda o texto para o
+pré-filtro de sempre.
+
+Limites: só conteúdo público. Nada de
+login, CAPTCHA ou bypass de proteção.
+Página cujo conteúdo é montado por
+JavaScript volta vazia — nesse caso use
+RSS, API ou captura manual.
+
+Dedupe: a página só vira captura nova
+quando o texto muda; varreduras seguidas
+com o mesmo conteúdo não regravam nada.
+
+---
+
+# 13.4 FONTES DE API JSON
+
+O motor API lê um endpoint JSON público.
+
+Cadastre com:
+
+Tipo: API (ou JSON_API)
+config.url: a URL do endpoint
+config.items_path: opcional, o caminho
+da lista dentro do JSON (ex.: "data" ou
+"retorno.anuncios")
+
+Sem items_path, o motor procura sozinho
+as coleções mais comuns: data, items,
+results, posts, entries.
+
+De cada registro ele aproveita título,
+texto/descrição/conteúdo, link, autor,
+data, imagem e identificador — sempre no
+mesmo formato das demais fontes.
+
+---
+
+# 13.5 ADICIONAR UMA FONTE NOVA
+
+Fonte nova é CADASTRO, não código. Para
+incluir um portal, marketplace, blog ou
+API basta criar a fonte com o tipo certo
+e a URL em config.url. A Edge Function
+radar-captura não tem função por site:
+ela tem um motor por família de fonte.
+
+Erro em uma fonte (403, 404, 429, timeout,
+URL inválida, resposta vazia, JSON quebrado)
+fica registrado em credencial_status /
+credencial_mensagem e na execução daquela
+fonte, sem interromper as demais.
 
 ---
 

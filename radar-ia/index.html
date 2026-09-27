@@ -1261,7 +1261,9 @@ reavaliá-las com os critérios atuais do alvo."
         </h2>
 
         <p class="sub">
-          Apenas APIs oficiais. Sem credencial válida,
+          APIs oficiais da Meta e fontes públicas
+          (site, RSS, API JSON). Fonte nova é cadastro:
+          basta o tipo e a URL. Sem credencial válida,
           a fonte fica inativa sem derrubar o pipeline.
         </p>
 
@@ -1281,19 +1283,30 @@ reavaliá-las com os critérios atuais do alvo."
         <select id="fonteTipo">
           <option value="INSTAGRAM_GRAPH">Instagram (Graph API)</option>
           <option value="FACEBOOK_GRAPH">Facebook (Graph API)</option>
+          <option value="WEB_PUBLICA">Página pública (site/portal)</option>
           <option value="RSS">Feed RSS/Atom oficial</option>
+          <option value="API">API JSON pública</option>
           <option value="MANUAL">Manual</option>
           <option value="IMPORT">Importação em lote</option>
         </select>
 
         <label for="fonteIdent">
           Identificador externo
-          (hashtag, id da conta ou da página)
+          (hashtag, id da conta/página ou URL da fonte)
         </label>
 
         <input
           id="fonteIdent"
           placeholder="Ex.: cotahotbeach"
+        >
+
+        <label for="fonteItems">
+          Caminho dos itens (API JSON, opcional)
+        </label>
+
+        <input
+          id="fonteItems"
+          placeholder="Ex.: data"
         >
 
         <label for="fonteModo">
@@ -5158,6 +5171,15 @@ function renderOportunidades(){
 
 // ─────────── FONTES / SAÚDE ───────────
 
+// Tipos cuja fonte é uma URL pública: o motor
+// genérico da Edge Function usa config.url.
+const TIPOS_URL=[
+  "WEB","WEB_PUBLICA","SITE","HTML",
+  "RSS","ATOM","FEED",
+  "API","JSON_API"
+];
+
+
 // Espelha validarIdentificador da Edge
 // Function radar-captura: o endpoint usado
 // é /{page-id}/posts, que não atende grupos
@@ -5168,14 +5190,14 @@ function validarIdentificadorFonte(tipo,valor,modo){
 
     return null;
 
-  // RSS: o identificador é a própria URL
-  // do feed publicado pelo portal.
-  if(tipo==="RSS"){
+  // WEB/RSS/API: a fonte é uma URL pública.
+  // A Edge Function lê a mesma URL de config.url.
+  if(TIPOS_URL.indexOf(tipo)>=0){
 
-    if(!/^https:\/\//i.test(valor||""))
+    if(!/^https?:\/\//i.test(valor||""))
 
-      return "RSS: informe a URL https do feed "+
-        "(ex.: https://portal.com.br/anuncios/feed).";
+      return "Informe a URL da fonte "+
+        "(ex.: https://portal.com.br/anuncios).";
 
     return null;
 
@@ -5292,6 +5314,22 @@ async function salvarFonte(){
 
     config.ig_user_id=igUser;
 
+  // Fonte por URL: o motor genérico lê config.url,
+  // e a API aceita items_path para achar a lista.
+  if(TIPOS_URL.indexOf(tipo)>=0){
+
+    config.url=identificador;
+
+    const items=
+      document.getElementById("fonteItems")
+        .value.trim();
+
+    if(items)
+
+      config.items_path=items;
+
+  }
+
   try{
 
     await chamarFuncao(
@@ -5314,6 +5352,7 @@ async function salvarFonte(){
     document.getElementById("fonteNome").value="";
     document.getElementById("fonteIdent").value="";
     document.getElementById("fonteIgUser").value="";
+    document.getElementById("fonteItems").value="";
 
     await load();
 
