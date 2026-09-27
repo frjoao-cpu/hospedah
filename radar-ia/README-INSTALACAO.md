@@ -256,6 +256,29 @@ ZAPI_CLIENT_TOKEN
 RESEND_API_KEY
 RESEND_FROM
 
+Opcionais da inteligência avançada
+(migration 014). Todos têm padrão
+seguro — só defina para calibrar:
+
+LUNA_EMBEDDING_MODEL
+(padrão text-embedding-3-small)
+
+GEMINI_EMBEDDING_MODEL
+(padrão text-embedding-004,
+usado só se a Luna falhar)
+
+RADAR_DEDUPE_SEMANTICO
+(0 desliga o dedupe por vetor e
+volta a comparar só por palavras)
+
+Limites da saúde operacional:
+
+RADAR_SAUDE_FILA_MAXIMA      (200)
+RADAR_SAUDE_DEAD_LETTER      (25)
+RADAR_SAUDE_FALHAS_FONTE     (3)
+RADAR_SAUDE_CUSTO_DIARIO     (5, em USD)
+RADAR_SAUDE_HORAS_SEM_CAPTURA (6)
+
 A chave de acesso ao banco é
 injetada automaticamente pelo
 runtime do Supabase:
@@ -449,6 +472,15 @@ saude
 (fila de capturas, custo de IA dos
 últimos 30 dias e alertas enviados)
 
+saude_operacional
+(avalia fila, fontes, custo e ritmo de
+captura, abre incidentes e alerta o
+time uma única vez por problema;
+previa:true só avalia, sem gravar)
+
+limpar
+(retenção do histórico; ver seção 8.3)
+
 O deploy das Edge Functions é feito
 automaticamente pelo CI
 (.github/workflows/ci.yml)
@@ -465,7 +497,7 @@ Depois configure os Secrets.
 # 6.1 AGENDAMENTO (CRON)
 
 O arquivo supabase_cron.sql (seção 13)
-cria dois jobs:
+cria três jobs:
 
 radar-captura-varredura
 (a cada 30 minutos, acao "varrer")
@@ -474,15 +506,44 @@ radar-ia-processar-pendentes
 (a cada 15 minutos, defasado da captura,
 acao "processar_pendentes", limite 25)
 
+radar-ia-saude
+(de hora em hora, acao
+"saude_operacional" — avalia o
+pipeline e avisa sozinho quando algo
+quebra; ver seção 8.4)
+
 A cadência é o que define o custo de IA:
 são até 4 lotes por hora. Se o consumo
 pesar, reduza a frequência ou o "limite"
 no próprio supabase_cron.sql.
 
+Os três jobs passam pela função
+public.radar_chamar(), que traz duas
+proteções:
+
+1. A URL vem de app.supabase_url. Antes
+   o endereço do projeto estava escrito
+   à mão em cada job e restaurar o banco
+   em outro projeto disparava chamadas
+   para o projeto errado.
+
+2. Jitter: um atraso aleatório de até
+   30-90 segundos espalha a carga, em
+   vez de todos os jobs baterem na API
+   no mesmo segundo.
+
 Execute o supabase_cron.sql no SQL
 Editor e garanta que
-app.service_role_key esteja definido,
-como nos demais jobs do projeto.
+app.service_role_key e app.supabase_url
+estejam definidos:
+
+ALTER DATABASE postgres
+  SET app.supabase_url =
+  'https://<seu-projeto>.supabase.co';
+
+Sem a chave de serviço, radar_chamar
+apenas emite um WARNING e não chama
+nada — nenhum job falha em silêncio.
 
 ---
 
@@ -672,6 +733,126 @@ POST /functions/v1/radar-ia
 POST /functions/v1/radar-ia
 { "acao": "limpar", "alvo": "cache_ia", "dias": 60 }
 ```
+
+---
+
+# 8.4 SAÚDE OPERACIONAL
+
+Antes, um problema no pipeline só
+aparecia se alguém abrisse o painel.
+Agora o Radar se avalia de hora em
+hora e reclama sozinho.
+
+Aba SAÚDE → botão VERIFICAR AGORA,
+ou o job horário radar-ia-saude.
+
+O QUE É AVALIADO
+
+FILA_TRAVADA
+capturas PENDENTES acima do teto: a
+análise não acompanha a captura.
+
+DEAD_LETTER
+capturas que esgotaram as tentativas.
+Investigue a causa antes de usar o
+reenfileiramento.
+
+FONTE_FALHANDO
+falhas consecutivas em uma fonte. O
+incidente diz QUAL fonte e qual foi
+o último erro.
+
+CUSTO_ALTO
+gasto de IA do dia acima do teto.
+
+SEM_CAPTURA
+nenhuma captura há X horas. Quase
+sempre significa cron parado ou
+credencial da fonte vencida.
+
+COMO O ALERTA FUNCIONA
+
+Cada problema vira uma linha em
+radar_incidentes, com um incidente
+ABERTO por tipo+alvo. Só o CRÍTICO
+dispara WhatsApp/e-mail, e apenas na
+primeira vez: as rodadas seguintes
+atualizam os números sem repetir o
+aviso. Quando o problema some, o
+incidente é marcado RESOLVIDO.
+
+Os canais são os mesmos do alerta de
+oportunidade (Z-API e Resend).
+
+---
+
+# 8.5 COMPARATIVO DE MERCADO
+
+A mesma cota costuma ser anunciada em
+vários lugares por preços diferentes.
+O Radar agrupa essas aparições por
+empreendimento + tipo + semana (ou
+mês, quando não há semana).
+
+No detalhe da oportunidade aparece:
+
+📊 Mesmo negócio no mercado:
+4 anúncio(s) · 2 fonte(s) ·
+menor pedido R$ 24.000 ·
+50% de variação ·
+18 dia(s) em mercado
+
+Isso responde, sem planilha, "qual é
+o menor preço pedido?" e "há quanto
+tempo está encalhado?" — quanto mais
+dias em mercado, maior o espaço para
+negociar.
+
+O bloco só aparece a partir do
+segundo anúncio do mesmo negócio.
+
+---
+
+# 8.6 DEDUPE SEMÂNTICO
+#      (MIGRATION 014)
+
+A comparação por palavras não
+reconhecia o mesmo anúncio reescrito:
+"vendo cota no Golden" e "passo minha
+fração no Golden" viravam duas
+oportunidades.
+
+Agora o texto também vira um vetor de
+768 dimensões (pgvector) e a busca é
+por significado. O vetor é guardado
+por hash do texto, então o mesmo
+texto nunca é pago duas vezes.
+
+REQUISITOS
+
+1. Aplicar
+   supabase/migrations/014_radar_inteligencia_avancada.sql
+
+2. A extensão vector precisa estar
+   disponível no projeto. Se não
+   estiver, a migration avisa e pula
+   os passos de embedding — o Radar
+   continua funcionando com a
+   comparação por palavras.
+
+A migration é idempotente: pode ser
+reaplicada quantas vezes for preciso.
+Cada passo roda isolado e avisa por
+NOTICE se falhar, sem abortar o
+restante.
+
+A 014 também aperta o RLS: escrever
+nas tabelas do Radar passa a exigir
+papel admin ou proprietário em
+profiles. Se a tabela profiles não
+existir, a migration mantém o
+comportamento antigo e emite um
+NOTICE de ATENÇÃO.
 
 ---
 
