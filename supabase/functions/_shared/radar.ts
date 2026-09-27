@@ -990,3 +990,438 @@ export function corteLimpeza(
 ): string {
     return new Date(agora.getTime() - dias * 86400000).toISOString();
 }
+
+
+// ── Dedupe semântico (embeddings) ───────────────────────────
+//
+// A similaridade por palavras (Jaccard) não reconhece o mesmo
+// anúncio reescrito. O vetor compara significado: "vendo cota
+// no Golden" e "passo minha fração no Laghetto" ficam próximos
+// mesmo sem compartilhar palavras.
+
+// Acima disto dois textos são o mesmo negócio. É mais alto que
+// o limiar de palavras porque cosseno de embeddings é sempre
+// alto: textos do mesmo domínio já partem de ~0.7.
+export const LIMIAR_SEMANTICO = 0.9;
+
+// Similaridade do cosseno. Vetores de tamanhos diferentes ou
+// nulos devolvem 0 em vez de quebrar o pipeline.
+export function cosseno(a: number[], b: number[]): number {
+    if (!Array.isArray(a) || !Array.isArray(b)) return 0;
+
+    if (a.length === 0 || a.length !== b.length) return 0;
+
+    let produto = 0;
+    let normaA = 0;
+    let normaB = 0;
+
+    for (let i = 0; i < a.length; i++) {
+        const x = Number(a[i]);
+        const y = Number(b[i]);
+
+        if (!Number.isFinite(x) || !Number.isFinite(y)) return 0;
+
+        produto += x * y;
+        normaA += x * x;
+        normaB += y * y;
+    }
+
+    if (normaA === 0 || normaB === 0) return 0;
+
+    const cos = produto / (Math.sqrt(normaA) * Math.sqrt(normaB));
+
+    // Ruído de ponto flutuante pode passar de 1 por frações.
+    return Math.min(1, Math.max(-1, cos));
+}
+
+export interface VizinhoSemantico {
+    oportunidade_id?: string | null;
+    oportunidadeId?: string | null;
+    similaridade?: number | null;
+}
+
+// Escolhe o vizinho mais parecido que passe do limiar. Devolve
+// null quando nada é próximo o bastante — o chamador então cai
+// na comparação por palavras, que continua valendo.
+export function duplicadaSemantica(
+    vizinhos: VizinhoSemantico[] | null | undefined,
+    limiar = LIMIAR_SEMANTICO,
+): Duplicada | null {
+    if (!Array.isArray(vizinhos)) return null;
+
+    let melhor: Duplicada | null = null;
+
+    for (const v of vizinhos) {
+        const id = v?.oportunidade_id ?? v?.oportunidadeId ?? null;
+
+        const sim = Number(v?.similaridade);
+
+        if (!id || !Number.isFinite(sim) || sim < limiar) continue;
+
+        if (!melhor || sim > melhor.similaridade) {
+            melhor = {
+                id: String(id),
+                similaridade: Math.round(sim * 100) / 100,
+                motivo: 'Mesmo anúncio já registrado, reescrito com ' +
+                    'outras palavras (semelhança semântica ' +
+                    Math.round(sim * 100) + '%).',
+            };
+        }
+    }
+
+    return melhor;
+}
+
+
+// ── Inteligência competitiva ────────────────────────────────
+//
+// A mesma cota costuma ser anunciada em vários lugares e por
+// preços diferentes. Agrupar essas aparições responde a duas
+// perguntas que o operador fazia na mão: "qual é o menor preço
+// pedido?" e "há quanto tempo isto está encalhado?".
+
+export interface ChaveGrupo {
+    empreendimento?: string | null;
+    tipo?: string | null;
+    numeroSemana?: number | null;
+    periodoInicio?: string | null;
+}
+
+// Assinatura estável do negócio. Sem empreendimento não há
+// grupo: comparar preços de resorts diferentes não diz nada.
+export function chaveGrupo(c: ChaveGrupo): string | null {
+    const emp = normalizar(c.empreendimento ?? '');
+
+    if (!emp) return null;
+
+    const tipo = String(c.tipo || 'OUTRO').toUpperCase();
+
+    const semana = Number.isFinite(Number(c.numeroSemana))
+        ? 'S' + Number(c.numeroSemana)
+        : '';
+
+    // Sem semana, o mês do período separa negócios distintos
+    // sem exigir que as datas batam exatamente.
+    const mes = !semana && c.periodoInicio
+        ? String(c.periodoInicio).slice(0, 7)
+        : '';
+
+    return [emp, tipo, semana || mes || 'SEMPERIODO'].join('|');
+}
+
+export function rotuloGrupo(c: ChaveGrupo): string {
+    const partes: string[] = [];
+
+    if (c.empreendimento) partes.push(String(c.empreendimento));
+
+    if (c.tipo) partes.push(String(c.tipo));
+
+    if (Number.isFinite(Number(c.numeroSemana))) {
+        partes.push('sem. ' + Number(c.numeroSemana));
+    } else if (c.periodoInicio) {
+        partes.push(String(c.periodoInicio).slice(0, 7));
+    }
+
+    return partes.join(' · ') || 'Sem identificação';
+}
+
+export interface Grupo {
+    anuncios?: number | null;
+    fontes?: number | null;
+    valor_minimo?: number | null;
+    valor_maximo?: number | null;
+    primeiro_em?: string | null;
+    ultimo_em?: string | null;
+}
+
+export interface AtualizacaoGrupo {
+    anuncios: number;
+    fontes: number;
+    valor_minimo: number | null;
+    valor_maximo: number | null;
+    ultimo_em: string;
+}
+
+// Incorpora um anúncio novo ao grupo. Valor ausente não apaga
+// a faixa já conhecida; fonte repetida não infla a contagem de
+// fontes distintas.
+export function acumularGrupo(
+    grupo: Grupo | null | undefined,
+    anuncio: { valor?: number | null; fonteNova?: boolean },
+    agora: Date = new Date(),
+): AtualizacaoGrupo {
+    const atual = grupo ?? {};
+
+    const valor = Number(anuncio?.valor);
+
+    const temValor = Number.isFinite(valor) && valor > 0;
+
+    const minAtual = Number(atual.valor_minimo);
+    const maxAtual = Number(atual.valor_maximo);
+
+    const minimo = temValor
+        ? (Number.isFinite(minAtual) ? Math.min(minAtual, valor) : valor)
+        : (Number.isFinite(minAtual) ? minAtual : null);
+
+    const maximo = temValor
+        ? (Number.isFinite(maxAtual) ? Math.max(maxAtual, valor) : valor)
+        : (Number.isFinite(maxAtual) ? maxAtual : null);
+
+    return {
+        anuncios: Math.max(1, Number(atual.anuncios) || 0) +
+            (grupo ? 1 : 0),
+        fontes: Math.max(1, Number(atual.fontes) || 1) +
+            (grupo && anuncio?.fonteNova ? 1 : 0),
+        valor_minimo: minimo,
+        valor_maximo: maximo,
+        ultimo_em: agora.toISOString(),
+    };
+}
+
+export interface LeituraGrupo {
+    anuncios: number;
+    fontes: number;
+    menorValor: number | null;
+    variacaoPct: number | null;
+    diasEmMercado: number;
+    resumo: string;
+}
+
+// Traduz o grupo em uma frase para o painel. Só faz sentido a
+// partir do segundo anúncio — antes disso não há comparação.
+export function lerGrupo(
+    grupo: Grupo | null | undefined,
+    agora: Date = new Date(),
+): LeituraGrupo | null {
+    if (!grupo) return null;
+
+    const anuncios = Number(grupo.anuncios) || 0;
+
+    if (anuncios < 2) return null;
+
+    const minimo = Number(grupo.valor_minimo);
+    const maximo = Number(grupo.valor_maximo);
+
+    const temFaixa = Number.isFinite(minimo) && minimo > 0 &&
+        Number.isFinite(maximo);
+
+    const variacao = temFaixa
+        ? Math.round(((maximo - minimo) / minimo) * 100)
+        : null;
+
+    const primeiro = grupo.primeiro_em
+        ? new Date(grupo.primeiro_em).getTime()
+        : NaN;
+
+    const ultimo = grupo.ultimo_em
+        ? new Date(grupo.ultimo_em).getTime()
+        : agora.getTime();
+
+    const dias = Number.isFinite(primeiro)
+        ? Math.max(0, Math.floor((ultimo - primeiro) / 86400000))
+        : 0;
+
+    const partes = [
+        anuncios + ' anúncios',
+        (Number(grupo.fontes) || 1) + ' fonte(s)',
+    ];
+
+    if (temFaixa && variacao !== null && variacao > 0) {
+        partes.push('menor pedido R$ ' + Math.round(minimo) +
+            ' (' + variacao + '% de variação)');
+    } else if (temFaixa) {
+        partes.push('pedido R$ ' + Math.round(minimo));
+    }
+
+    if (dias > 0) partes.push(dias + ' dia(s) em mercado');
+
+    return {
+        anuncios,
+        fontes: Number(grupo.fontes) || 1,
+        menorValor: temFaixa ? minimo : null,
+        variacaoPct: variacao,
+        diasEmMercado: dias,
+        resumo: partes.join(' · '),
+    };
+}
+
+
+// ── Saúde operacional ───────────────────────────────────────
+//
+// Os dados de fila, falha e custo já existiam; faltava alguém
+// olhando. Estas regras transformam os números em incidentes
+// que a função pode notificar uma única vez.
+
+export type TipoIncidente =
+    | 'FILA_TRAVADA'
+    | 'DEAD_LETTER'
+    | 'FONTE_FALHANDO'
+    | 'CUSTO_ALTO'
+    | 'SEM_CAPTURA';
+
+export interface Incidente {
+    tipo: TipoIncidente;
+    alvo: string;
+    severidade: 'AVISO' | 'CRITICO';
+    mensagem: string;
+    detalhes: Record<string, unknown>;
+}
+
+export interface LimitesSaude {
+    filaMaxima: number;
+    deadLetterMaximo: number;
+    falhasPorFonte: number;
+    custoDiarioUSD: number;
+    horasSemCaptura: number;
+}
+
+export const LIMITES_SAUDE: LimitesSaude = {
+    filaMaxima: 200,
+    deadLetterMaximo: 25,
+    falhasPorFonte: 3,
+    custoDiarioUSD: 5,
+    horasSemCaptura: 6,
+};
+
+export interface EstadoSaude {
+    // Capturas por estado: { PENDENTE: 12, ERRO: 3, ... }
+    fila?: Record<string, number> | null;
+    fontes?: Array<{
+        id?: string | null;
+        nome?: string | null;
+        ativo?: boolean | null;
+        falhas_consecutivas?: number | null;
+        ultimo_erro?: string | null;
+    }> | null;
+    custoHojeUSD?: number | null;
+    ultimaCapturaEm?: string | null;
+}
+
+// Avalia o estado e devolve os incidentes abertos. Lista vazia
+// significa pipeline saudável.
+export function avaliarSaude(
+    estado: EstadoSaude,
+    limites: LimitesSaude = LIMITES_SAUDE,
+    agora: Date = new Date(),
+): Incidente[] {
+    const incidentes: Incidente[] = [];
+
+    const fila = estado?.fila ?? {};
+
+    const pendentes = Number(fila.PENDENTE) || 0;
+
+    if (pendentes > limites.filaMaxima) {
+        incidentes.push({
+            tipo: 'FILA_TRAVADA',
+            alvo: 'global',
+            severidade: pendentes > limites.filaMaxima * 2
+                ? 'CRITICO'
+                : 'AVISO',
+            mensagem: pendentes + ' capturas pendentes na fila ' +
+                '(limite ' + limites.filaMaxima + '). A análise ' +
+                'não está acompanhando o ritmo da captura.',
+            detalhes: { pendentes, limite: limites.filaMaxima },
+        });
+    }
+
+    const mortas = (Number(fila.ABANDONADO) || 0) +
+        (Number(fila.ERRO) || 0);
+
+    if (mortas > limites.deadLetterMaximo) {
+        incidentes.push({
+            tipo: 'DEAD_LETTER',
+            alvo: 'global',
+            severidade: 'AVISO',
+            mensagem: mortas + ' capturas esgotaram as tentativas ' +
+                '(limite ' + limites.deadLetterMaximo + '). ' +
+                'Investigue antes de reenfileirar.',
+            detalhes: { mortas, limite: limites.deadLetterMaximo },
+        });
+    }
+
+    for (const fonte of estado?.fontes ?? []) {
+        const falhas = Number(fonte?.falhas_consecutivas) || 0;
+
+        if (falhas < limites.falhasPorFonte) continue;
+
+        incidentes.push({
+            tipo: 'FONTE_FALHANDO',
+            alvo: String(fonte?.id || fonte?.nome || 'desconhecida'),
+            severidade: fonte?.ativo === false ? 'CRITICO' : 'AVISO',
+            mensagem: 'A fonte "' +
+                (fonte?.nome || fonte?.id || 'desconhecida') +
+                '" falhou ' + falhas + ' vez(es) seguidas' +
+                (fonte?.ativo === false ? ' e foi suspensa' : '') +
+                '. Último erro: ' +
+                (fonte?.ultimo_erro || 'não registrado') + '.',
+            detalhes: {
+                falhas,
+                ativo: fonte?.ativo !== false,
+                erro: fonte?.ultimo_erro ?? null,
+            },
+        });
+    }
+
+    const custo = Number(estado?.custoHojeUSD);
+
+    if (Number.isFinite(custo) && custo > limites.custoDiarioUSD) {
+        incidentes.push({
+            tipo: 'CUSTO_ALTO',
+            alvo: 'global',
+            severidade: custo > limites.custoDiarioUSD * 3
+                ? 'CRITICO'
+                : 'AVISO',
+            mensagem: 'Custo de IA hoje em US$ ' +
+                custo.toFixed(2) + ' (teto US$ ' +
+                limites.custoDiarioUSD.toFixed(2) + ').',
+            detalhes: { custo, limite: limites.custoDiarioUSD },
+        });
+    }
+
+    if (estado?.ultimaCapturaEm) {
+        const ultima = new Date(estado.ultimaCapturaEm).getTime();
+
+        if (Number.isFinite(ultima)) {
+            const horas = (agora.getTime() - ultima) / 3600000;
+
+            if (horas > limites.horasSemCaptura) {
+                incidentes.push({
+                    tipo: 'SEM_CAPTURA',
+                    alvo: 'global',
+                    severidade: 'CRITICO',
+                    mensagem: 'Nenhuma captura há ' +
+                        Math.floor(horas) + ' hora(s). ' +
+                        'O robô pode estar parado — confira o ' +
+                        'agendamento (pg_cron) e as credenciais ' +
+                        'das fontes.',
+                    detalhes: {
+                        horas: Math.floor(horas),
+                        limite: limites.horasSemCaptura,
+                    },
+                });
+            }
+        }
+    }
+
+    return incidentes;
+}
+
+// Lê os limites de variáveis de ambiente, mantendo os padrões
+// quando ausentes — calibrar não deve exigir novo deploy.
+export function limitesDeAmbiente(
+    ler: (nome: string) => string | undefined,
+): LimitesSaude {
+    const num = (nome: string, padrao: number, minimo: number) => {
+        const n = Number(ler(nome));
+
+        return Number.isFinite(n) && n >= minimo ? n : padrao;
+    };
+
+    return {
+        filaMaxima: num('RADAR_SAUDE_FILA_MAXIMA', 200, 1),
+        deadLetterMaximo: num('RADAR_SAUDE_DEAD_LETTER', 25, 1),
+        falhasPorFonte: num('RADAR_SAUDE_FALHAS_FONTE', 3, 1),
+        custoDiarioUSD: num('RADAR_SAUDE_CUSTO_DIARIO', 5, 0),
+        horasSemCaptura: num('RADAR_SAUDE_HORAS_SEM_CAPTURA', 6, 1),
+    };
+}

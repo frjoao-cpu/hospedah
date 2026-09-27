@@ -16,7 +16,16 @@ import {
 
 import {
     acharDuplicada,
+    acumularGrupo,
     ajustarScore,
+    avaliarSaude,
+    chaveGrupo,
+    cosseno,
+    duplicadaSemantica,
+    lerGrupo,
+    limitesDeAmbiente,
+    LIMIAR_SEMANTICO,
+    rotuloGrupo,
     Alvo,
     corteLimpeza,
     DIAS_LIMPEZA_MAXIMO,
@@ -510,4 +519,259 @@ Deno.test('limpeza — toda política aponta para tabela do Radar', () => {
         assert(p.diasMinimo > 0);
         assert(p.diasPadrao >= p.diasMinimo);
     }
+});
+
+
+// ── Dedupe semântico ────────────────────────────────────────
+
+Deno.test('cosseno — vetores idênticos valem 1', () => {
+    assertAlmostEquals(cosseno([1, 2, 3], [1, 2, 3]), 1, 1e-9);
+});
+
+Deno.test('cosseno — vetores ortogonais valem 0', () => {
+    assertEquals(cosseno([1, 0], [0, 1]), 0);
+});
+
+Deno.test('cosseno — entrada inválida devolve 0 sem quebrar', () => {
+    assertEquals(cosseno([1, 2], [1]), 0);
+    assertEquals(cosseno([], []), 0);
+    assertEquals(cosseno([0, 0], [1, 1]), 0);
+    assertEquals(cosseno([NaN, 1], [1, 1]), 0);
+    // deno-lint-ignore no-explicit-any
+    assertEquals(cosseno(null as any, [1]), 0);
+});
+
+Deno.test('semântico — escolhe o vizinho mais parecido', () => {
+    const d = duplicadaSemantica([
+        { oportunidade_id: 'a', similaridade: 0.91 },
+        { oportunidade_id: 'b', similaridade: 0.97 },
+    ]);
+
+    assertEquals(d?.id, 'b');
+    assertEquals(d?.similaridade, 0.97);
+});
+
+Deno.test('semântico — abaixo do limiar não é duplicata', () => {
+    assertEquals(
+        duplicadaSemantica([{ oportunidade_id: 'a', similaridade: 0.85 }]),
+        null,
+    );
+    assertEquals(duplicadaSemantica([]), null);
+    assertEquals(duplicadaSemantica(null), null);
+    assert(LIMIAR_SEMANTICO > 0.8);
+});
+
+Deno.test('semântico — vizinho sem id é ignorado', () => {
+    assertEquals(
+        duplicadaSemantica([{ oportunidade_id: null, similaridade: 0.99 }]),
+        null,
+    );
+});
+
+
+// ── Inteligência competitiva ────────────────────────────────
+
+Deno.test('grupo — mesma cota gera a mesma chave', () => {
+    const a = chaveGrupo({
+        empreendimento: 'Golden Gramado',
+        tipo: 'COTA',
+        numeroSemana: 12,
+    });
+
+    const b = chaveGrupo({
+        empreendimento: 'golden  gramado',
+        tipo: 'COTA',
+        numeroSemana: 12,
+    });
+
+    assertEquals(a, b);
+    assert(a !== null);
+});
+
+Deno.test('grupo — empreendimentos diferentes não se misturam', () => {
+    assert(
+        chaveGrupo({ empreendimento: 'Golden', tipo: 'COTA' }) !==
+            chaveGrupo({ empreendimento: 'Laghetto', tipo: 'COTA' }),
+    );
+});
+
+Deno.test('grupo — sem empreendimento não há comparação', () => {
+    assertEquals(chaveGrupo({ empreendimento: '' }), null);
+    assertEquals(chaveGrupo({ empreendimento: null }), null);
+});
+
+Deno.test('grupo — sem semana, o mês separa os períodos', () => {
+    const jan = chaveGrupo({
+        empreendimento: 'Golden',
+        tipo: 'COTA',
+        periodoInicio: '2026-01-10',
+    });
+
+    const fev = chaveGrupo({
+        empreendimento: 'Golden',
+        tipo: 'COTA',
+        periodoInicio: '2026-02-10',
+    });
+
+    assert(jan !== fev);
+});
+
+Deno.test('grupo — rótulo é legível para o operador', () => {
+    assertEquals(
+        rotuloGrupo({
+            empreendimento: 'Golden',
+            tipo: 'COTA',
+            numeroSemana: 7,
+        }),
+        'Golden · COTA · sem. 7',
+    );
+});
+
+Deno.test('grupo — acumular amplia a faixa de preço', () => {
+    const agora = new Date('2026-03-01T00:00:00.000Z');
+
+    const g = acumularGrupo(
+        {
+            anuncios: 1,
+            fontes: 1,
+            valor_minimo: 40000,
+            valor_maximo: 40000,
+        },
+        { valor: 25000, fonteNova: true },
+        agora,
+    );
+
+    assertEquals(g.anuncios, 2);
+    assertEquals(g.fontes, 2);
+    assertEquals(g.valor_minimo, 25000);
+    assertEquals(g.valor_maximo, 40000);
+    assertEquals(g.ultimo_em, '2026-03-01T00:00:00.000Z');
+});
+
+Deno.test('grupo — anúncio sem valor preserva a faixa conhecida', () => {
+    const g = acumularGrupo(
+        { anuncios: 2, fontes: 1, valor_minimo: 30000, valor_maximo: 50000 },
+        { valor: null },
+    );
+
+    assertEquals(g.valor_minimo, 30000);
+    assertEquals(g.valor_maximo, 50000);
+    assertEquals(g.fontes, 1);
+});
+
+Deno.test('grupo — primeiro anúncio começa o grupo', () => {
+    const g = acumularGrupo(null, { valor: 10000, fonteNova: true });
+
+    assertEquals(g.anuncios, 1);
+    assertEquals(g.fontes, 1);
+    assertEquals(g.valor_minimo, 10000);
+});
+
+Deno.test('grupo — leitura traz variação e dias em mercado', () => {
+    const l = lerGrupo({
+        anuncios: 4,
+        fontes: 2,
+        valor_minimo: 20000,
+        valor_maximo: 30000,
+        primeiro_em: '2026-01-01T00:00:00.000Z',
+        ultimo_em: '2026-01-11T00:00:00.000Z',
+    });
+
+    assertEquals(l?.variacaoPct, 50);
+    assertEquals(l?.diasEmMercado, 10);
+    assertEquals(l?.menorValor, 20000);
+    assert(l!.resumo.includes('4 anúncios'));
+    assert(l!.resumo.includes('10 dia(s)'));
+});
+
+Deno.test('grupo — anúncio isolado não vira comparação', () => {
+    assertEquals(lerGrupo({ anuncios: 1, fontes: 1 }), null);
+    assertEquals(lerGrupo(null), null);
+});
+
+
+// ── Saúde operacional ───────────────────────────────────────
+
+Deno.test('saúde — pipeline em ordem não gera incidente', () => {
+    const agora = new Date('2026-03-01T12:00:00.000Z');
+
+    assertEquals(
+        avaliarSaude(
+            {
+                fila: { PENDENTE: 10, ERRO: 1 },
+                fontes: [{ id: 'f1', nome: 'RSS', falhas_consecutivas: 0 }],
+                custoHojeUSD: 0.4,
+                ultimaCapturaEm: '2026-03-01T11:30:00.000Z',
+            },
+            undefined,
+            agora,
+        ),
+        [],
+    );
+});
+
+Deno.test('saúde — fila acima do teto vira incidente', () => {
+    const i = avaliarSaude({ fila: { PENDENTE: 500 } });
+
+    assertEquals(i.length, 1);
+    assertEquals(i[0].tipo, 'FILA_TRAVADA');
+    assertEquals(i[0].severidade, 'CRITICO');
+    assertEquals(i[0].alvo, 'global');
+});
+
+Deno.test('saúde — fonte com falhas seguidas é apontada por id', () => {
+    const i = avaliarSaude({
+        fontes: [
+            { id: 'f1', nome: 'Instagram', falhas_consecutivas: 5, ativo: false },
+            { id: 'f2', nome: 'RSS', falhas_consecutivas: 1 },
+        ],
+    });
+
+    assertEquals(i.length, 1);
+    assertEquals(i[0].tipo, 'FONTE_FALHANDO');
+    assertEquals(i[0].alvo, 'f1');
+    assertEquals(i[0].severidade, 'CRITICO');
+});
+
+Deno.test('saúde — custo acima do teto é avisado', () => {
+    const i = avaliarSaude({ custoHojeUSD: 7 });
+
+    assertEquals(i[0].tipo, 'CUSTO_ALTO');
+    assertEquals(i[0].severidade, 'AVISO');
+});
+
+Deno.test('saúde — robô parado é crítico', () => {
+    const i = avaliarSaude(
+        { ultimaCapturaEm: '2026-03-01T00:00:00.000Z' },
+        undefined,
+        new Date('2026-03-01T12:00:00.000Z'),
+    );
+
+    assertEquals(i[0].tipo, 'SEM_CAPTURA');
+    assertEquals(i[0].severidade, 'CRITICO');
+    assertEquals(i[0].detalhes.horas, 12);
+});
+
+Deno.test('saúde — dead letter acima do teto é avisado', () => {
+    const i = avaliarSaude({ fila: { ABANDONADO: 30, ERRO: 5 } });
+
+    assertEquals(i[0].tipo, 'DEAD_LETTER');
+    assertEquals(i[0].detalhes.mortas, 35);
+});
+
+Deno.test('saúde — estado vazio não gera incidente', () => {
+    assertEquals(avaliarSaude({}), []);
+});
+
+Deno.test('saúde — limites vêm do ambiente com padrão seguro', () => {
+    const env: Record<string, string> = {
+        RADAR_SAUDE_FILA_MAXIMA: '50',
+        RADAR_SAUDE_CUSTO_DIARIO: 'abc',
+    };
+
+    const l = limitesDeAmbiente((n) => env[n]);
+
+    assertEquals(l.filaMaxima, 50);
+    assertEquals(l.custoDiarioUSD, 5);
+    assertEquals(l.horasSemCaptura, 6);
 });
