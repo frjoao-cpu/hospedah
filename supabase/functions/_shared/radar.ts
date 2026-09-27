@@ -1115,6 +1115,43 @@ export function proximaTentativa(
 export const MAX_TENTATIVAS = 5;
 
 
+// ── Circuit breaker das fontes ──────────────────────────────
+//
+// Erro comum não pode custar o mesmo que erro terminal. Uma
+// falha de rede passa sozinha; token expirado/revogado só sai
+// com intervenção humana (gerar token novo e regravar o
+// secret). Por isso a credencial EXPIRADA suspende a fonte já
+// na primeira falha, em vez de esperar três varreduras
+// queimando cota da Graph API e enchendo o histórico com a
+// mesma mensagem.
+
+export const FALHAS_PARA_SUSPENDER = 3;
+
+// Token morto: nova tentativa só depois de 6 horas.
+export const SUSPENSAO_CREDENCIAL_MIN = 360;
+
+// Teto do backoff de falhas genéricas: 12 horas.
+export const SUSPENSAO_MAXIMA_MIN = 720;
+
+// Minutos de suspensão da fonte, ou null quando ela segue
+// elegível na próxima varredura.
+export function suspensaoDaFonte(
+    credencial: string | null | undefined,
+    falhasConsecutivas: number,
+): number | null {
+    if (falhasConsecutivas <= 0) return null;
+
+    if (credencial === 'EXPIRADA') return SUSPENSAO_CREDENCIAL_MIN;
+
+    if (falhasConsecutivas < FALHAS_PARA_SUSPENDER) return null;
+
+    return Math.min(
+        SUSPENSAO_MAXIMA_MIN,
+        15 * Math.pow(2, falhasConsecutivas - FALHAS_PARA_SUSPENDER),
+    );
+}
+
+
 // ── Limpeza / retenção ──────────────────────────────────────
 //
 // O Radar acumula histórico depressa: capturas brutas, cache

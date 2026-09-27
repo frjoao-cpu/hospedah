@@ -50,6 +50,9 @@ import {
     rotuloRegra,
     selecionar,
     similaridade,
+    SUSPENSAO_CREDENCIAL_MIN,
+    suspensaoDaFonte,
+    SUSPENSAO_MAXIMA_MIN,
     termosDoAlvo,
 } from './radar.ts';
 
@@ -835,4 +838,26 @@ Deno.test('anunciante — "Whatsapp" não é lido como nome', () => {
 
     assertEquals(a.nome, null);
     assertEquals(a.telefone, '(17) 98888-0000');
+});
+
+
+Deno.test('suspensaoDaFonte corta token expirado na 1ª falha', () => {
+    assertEquals(suspensaoDaFonte('OK', 0), null);
+    assertEquals(suspensaoDaFonte('ERRO', 1), null);
+    assertEquals(suspensaoDaFonte('ERRO', 2), null);
+    assertEquals(suspensaoDaFonte('ERRO', 3), 15);
+    assertEquals(suspensaoDaFonte('ERRO', 5), 60);
+
+    assertEquals(
+        suspensaoDaFonte('ERRO', 20),
+        SUSPENSAO_MAXIMA_MIN,
+    );
+
+    // Token vencido não se conserta sozinho: suspende já.
+    assertEquals(
+        suspensaoDaFonte('EXPIRADA', 1),
+        SUSPENSAO_CREDENCIAL_MIN,
+    );
+
+    assertEquals(suspensaoDaFonte('EXPIRADA', 0), null);
 });

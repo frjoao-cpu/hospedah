@@ -2979,6 +2979,59 @@ function janela(a){
 
 // ─────────── CAPTURA / IA ───────────
 
+// O mesmo secret vencido derruba todas as fontes do mesmo
+// tipo, em todos os alvos. Repetir o texto inteiro dezenas de
+// vezes esconde o que o operador precisa fazer, então cada
+// mensagem aparece uma vez só, com as fontes afetadas e
+// quantas vezes ocorreu.
+function agruparFalhas(detalhes){
+
+  const grupos=new Map();
+
+  (detalhes||[])
+    .filter(x=>x&&(x.erro||x.aviso))
+    .forEach(x=>{
+
+      const texto=String(x.erro||x.aviso);
+
+      const g=grupos.get(texto)||{
+        vezes:0,
+        fontes:[]
+      };
+
+      g.vezes++;
+
+      if(x.fonte&&g.fontes.indexOf(x.fonte)<0)
+
+        g.fontes.push(x.fonte);
+
+      grupos.set(texto,g);
+
+    });
+
+  return [...grupos.entries()].map(([texto,g])=>{
+
+    const onde=
+      g.fontes.length
+        ?g.fontes.slice(0,3).join(", ")+
+         (g.fontes.length>3
+           ?" e mais "+(g.fontes.length-3)
+           :"")+
+         ": "
+        :"";
+
+    const vezes=
+      g.vezes>1
+        ?" ("+g.vezes+"x)"
+        :"";
+
+    return onde+texto+vezes;
+
+  });
+
+}
+
+
 async function varrer(alvoId){
 
   const box=
@@ -3010,7 +3063,7 @@ async function varrer(alvoId){
       );
 
     const falhas=
-      detalhes.filter(x=>x.erro||x.aviso);
+      agruparFalhas(detalhes);
 
     aviso(
       "Varredura concluída: "+
@@ -3019,13 +3072,7 @@ async function varrer(alvoId){
       encontrados+
       " item(ns) encontrado(s)."+
       (falhas.length
-        ?"\n\n"+
-         falhas
-           .map(x=>
-             (x.fonte?x.fonte+": ":"")+
-             (x.erro||x.aviso)
-           )
-           .join("\n")
+        ?"\n\n"+falhas.join("\n")
         :"")
     );
 
