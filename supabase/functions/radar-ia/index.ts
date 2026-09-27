@@ -24,6 +24,8 @@
 //   rascunho_abordagem  → gera a mensagem de abordagem
 //   registrar_desfecho  → grava o resultado da negociação
 //   saude               → fila, custo de IA e alertas recentes
+//   limpar              → retenção: apaga histórico antigo
+//                         (aceita previa:true para só contar)
 // ============================================================
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
@@ -35,16 +37,25 @@ import {
 
 import {
     custoUSD,
+    embutir,
     iaConfigurada,
     IAError,
+    modeloEmbeddingLuna,
     pensar,
     RespostaIA,
 } from "../_shared/ia.ts";
 
 import {
     acharDuplicada,
+    acumularGrupo,
     ajustarScore,
     Alvo,
+    avaliarSaude,
+    chaveGrupo,
+    duplicadaSemantica,
+    Incidente,
+    limitesDeAmbiente,
+    rotuloGrupo,
     asDate,
     asInt,
     asLista,
@@ -53,12 +64,16 @@ import {
     asScore,
     asText,
     asUrgencia,
+    corteLimpeza,
     descontoPercentual,
+    diasLimpeza,
+    LIMPEZAS,
     Empreendimento,
     hashTexto,
     impressaoDigital,
     MAX_TENTATIVAS,
     mesmoEmpreendimento,
+    politicaLimpeza,
     proximaTentativa,
     Referencia,
     referenciaDePreco,
@@ -87,13 +102,32 @@ const headers = {
 // processar_pendentes. O teto real é o orçamento de tempo
 // abaixo: o lote para sozinho antes do limite da função e
 // devolve o que sobrou para a fila.
-const LOTE_MAXIMO = 30;
+// Lê um inteiro de secret, caindo no padrão quando ausente ou
+// inválido — calibrar o lote não deve exigir novo deploy.
+function envInt(nome: string, padrao: number, minimo: number): number {
+    const bruto = Deno.env.get(nome);
+
+    if (!bruto) return padrao;
+
+    const n = Number(bruto);
+
+    if (!Number.isFinite(n)) return padrao;
+
+    return Math.max(minimo, Math.floor(n));
+}
+
+
+const LOTE_MAXIMO = envInt("RADAR_LOTE_MAXIMO", 30, 1);
 
 
 // Tempo máximo gasto analisando um lote. Acima disso a função
 // encerra o lote em vez de ser morta pelo runtime — capturas
 // não analisadas continuam PENDENTES para a próxima rodada.
-const ORCAMENTO_LOTE_MS = 110_000;
+const ORCAMENTO_LOTE_MS = envInt(
+    "RADAR_ORCAMENTO_LOTE_MS",
+    110_000,
+    10_000,
+);
 
 
 const PROMPT_VERSAO = "2.0";
@@ -551,6 +585,30 @@ async function entenderComIA(prompt: string): Promise<RespostaIA> {
 
 
 type Cliente = ReturnType<typeof createClient>;
+
+
+// Conta quantos registros uma política de limpeza atingiria,
+// sem apagar nada. Usado pela prévia do painel.
+async function contarLimpeza(
+    supabase: Cliente,
+    politica: { tabela: string; colunaData: string; colunaEstado?: string; estados?: string[] },
+    corte: string,
+): Promise<number> {
+    let q = supabase
+        .from(politica.tabela)
+        .select("id", { count: "exact", head: true })
+        .lt(politica.colunaData, corte);
+
+    if (politica.colunaEstado && politica.estados?.length) {
+        q = q.in(politica.colunaEstado, politica.estados);
+    }
+
+    const { count, error } = await q;
+
+    if (error) throw erroBanco(error, politica.tabela);
+
+    return count ?? 0;
+}
 
 
 async function carregarEmpreendimentos(
@@ -1066,6 +1124,228 @@ async function procurarDuplicada(
 }
 
 
+// Recursos da migration 014 são opcionais: um banco que ainda
+// não a recebeu deve seguir analisando anúncios normalmente,
+// apenas sem embedding, grupo ou incidente.
+function ehRecursoAusente(e: unknown): boolean {
+    const err = e as { code?: string; message?: string };
+
+    const code = String(err?.code || "");
+
+    return code === "42P01" || code === "42883" ||
+        code === "PGRST202" || code === "PGRST205" ||
+        ehColunaAusente(e);
+}
+
+function usarSemantica(): boolean {
+    return Deno.env.get("RADAR_DEDUPE_SEMANTICO") !== "0";
+}
+
+
+// ── Embeddings: o mesmo anúncio reescrito ───────────────────
+
+// O vetor é indexado pelo hash do texto: reescrever o mesmo
+// anúncio gera hash novo, mas texto igual nunca paga a IA de
+// novo. Devolve null quando o recurso não está disponível.
+async function vetorDoTexto(
+    supabase: Cliente,
+    hash: string,
+    texto: string,
+): Promise<number[] | null> {
+    if (!usarSemantica()) return null;
+
+    try {
+        const { data, error } = await supabase
+            .from("radar_embeddings")
+            .select("embedding")
+            .eq("hash_texto", hash)
+            .maybeSingle();
+
+        if (error) {
+            if (ehRecursoAusente(error)) return null;
+
+            console.error("[radar-ia] embedding cache:", error);
+        }
+
+        const guardado = data?.embedding;
+
+        if (guardado) {
+            // pgvector volta como texto "[0.1,0.2,…]" no
+            // PostgREST; aceitar ambos evita gerar de novo.
+            const v = typeof guardado === "string"
+                ? JSON.parse(guardado)
+                : guardado;
+
+            if (Array.isArray(v) && v.length) return v as number[];
+        }
+    } catch (e) {
+        console.error("[radar-ia] embedding cache:", e);
+    }
+
+    try {
+        return await embutir(texto);
+    } catch (e) {
+        console.error("[radar-ia] embedding:", e);
+
+        return null;
+    }
+}
+
+async function gravarEmbedding(
+    supabase: Cliente,
+    dados: {
+        hash: string;
+        vetor: number[];
+        empreendimento: string | null;
+        oportunidadeId: string | null;
+    },
+) {
+    try {
+        const { error } = await supabase
+            .from("radar_embeddings")
+            .upsert({
+                hash_texto: dados.hash,
+                embedding: JSON.stringify(dados.vetor),
+                modelo: modeloEmbeddingLuna(),
+                provedor: "ia",
+                empreendimento: dados.empreendimento,
+                oportunidade_id: dados.oportunidadeId,
+                usado_em: new Date().toISOString(),
+            }, { onConflict: "hash_texto" });
+
+        if (error && !ehRecursoAusente(error)) {
+            console.error("[radar-ia] gravar embedding:", error);
+        }
+    } catch (e) {
+        console.error("[radar-ia] gravar embedding:", e);
+    }
+}
+
+// Busca vizinhos pelo significado. Complementa (não substitui)
+// a comparação por palavras: ela continua pegando os casos em
+// que o embedding não está disponível.
+async function duplicadaPorVetor(
+    supabase: Cliente,
+    vetor: number[],
+    empreendimento: string | null,
+) {
+    try {
+        const { data, error } = await supabase.rpc(
+            "radar_buscar_semelhantes",
+            {
+                p_embedding: JSON.stringify(vetor),
+                p_limiar: 0.85,
+                p_limite: 5,
+                p_empreendimento: empreendimento,
+            },
+        );
+
+        if (error) {
+            if (!ehRecursoAusente(error)) {
+                console.error("[radar-ia] busca semântica:", error);
+            }
+
+            return null;
+        }
+
+        return duplicadaSemantica(data as never);
+    } catch (e) {
+        console.error("[radar-ia] busca semântica:", e);
+
+        return null;
+    }
+}
+
+
+// ── Inteligência competitiva ────────────────────────────────
+
+// Liga a oportunidade ao grupo do mesmo negócio e atualiza os
+// agregados (faixa de preço, nº de anúncios, tempo em mercado)
+// que o painel usa para responder "quanto estão pedindo?".
+async function atribuirGrupo(
+    supabase: Cliente,
+    oportunidade: Record<string, unknown>,
+): Promise<string | null> {
+    const identidade = {
+        empreendimento: asText(oportunidade.empreendimento),
+        tipo: asText(oportunidade.tipo_oportunidade),
+        numeroSemana: asInt(oportunidade.numero_semana),
+        periodoInicio: asText(oportunidade.periodo_inicio),
+    };
+
+    const chave = chaveGrupo(identidade);
+
+    if (!chave) return null;
+
+    const valor = asNum(oportunidade.valor_anunciado);
+
+    const agora = new Date();
+
+    try {
+        const { data: atual, error: eLer } = await supabase
+            .from("radar_grupos")
+            .select(
+                "id,anuncios,fontes,valor_minimo,valor_maximo," +
+                    "primeiro_em,ultimo_em",
+            )
+            .eq("chave", chave)
+            .maybeSingle();
+
+        if (eLer && ehRecursoAusente(eLer)) return null;
+
+        if (eLer) console.error("[radar-ia] ler grupo:", eLer);
+
+        const acumulado = acumularGrupo(
+            atual ?? null,
+            { valor, fonteNova: true },
+            agora,
+        );
+
+        const { data: gravado, error } = await supabase
+            .from("radar_grupos")
+            .upsert({
+                chave,
+                empreendimento: identidade.empreendimento,
+                tipo_oportunidade: identidade.tipo,
+                rotulo: rotuloGrupo(identidade),
+                periodo_inicio: identidade.periodoInicio,
+                periodo_fim: asText(oportunidade.periodo_fim),
+                numero_semana: identidade.numeroSemana,
+                ...acumulado,
+            }, { onConflict: "chave" })
+            .select("id")
+            .maybeSingle();
+
+        if (error) {
+            if (!ehRecursoAusente(error)) {
+                console.error("[radar-ia] gravar grupo:", error);
+            }
+
+            return null;
+        }
+
+        const grupoId = (gravado?.id as string) || null;
+
+        if (grupoId) {
+            const { error: eLig } = await supabase
+                .from("radar_oportunidades")
+                .update({ grupo_id: grupoId })
+                .eq("id", oportunidade.id);
+
+            if (eLig && !ehRecursoAusente(eLig)) {
+                console.error("[radar-ia] ligar grupo:", eLig);
+            }
+        }
+
+        return grupoId;
+    } catch (e) {
+        console.error("[radar-ia] grupo:", e);
+
+        return null;
+    }
+}
+
+
 // A mesma captura nunca pode gerar duas oportunidades: se o
 // UPDATE de estado falhou antes, ela volta para a fila e seria
 // analisada de novo. Aqui a oportunidade já gravada é
@@ -1270,6 +1550,199 @@ async function alertar(
 }
 
 
+// ── Incidentes de saúde operacional ─────────────────────────
+
+// Grava os incidentes encontrados, fecha os que deixaram de
+// existir e notifica só os que ainda não foram avisados — o
+// cron roda de hora em hora e não pode repetir o mesmo alerta.
+async function registrarIncidentes(
+    supabase: Cliente,
+    incidentes: Incidente[],
+) {
+    const resultado = {
+        abertos: 0,
+        novos: 0,
+        resolvidos: 0,
+        notificados: [] as string[],
+    };
+
+    let existentes: Record<string, unknown>[] = [];
+
+    try {
+        const { data, error } = await supabase
+            .from("radar_incidentes")
+            .select("id,tipo,alvo,notificado_em")
+            .eq("estado", "ABERTO");
+
+        if (error) {
+            if (ehRecursoAusente(error)) return resultado;
+
+            console.error("[radar-ia] ler incidentes:", error);
+        }
+
+        existentes = (data || []) as Record<string, unknown>[];
+    } catch (e) {
+        console.error("[radar-ia] ler incidentes:", e);
+
+        return resultado;
+    }
+
+    const chave = (t: string, a: string) => t + "\u0000" + a;
+
+    const anteriores = new Map(
+        existentes.map((
+            i,
+        ) => [chave(String(i.tipo), String(i.alvo)), i]),
+    );
+
+    const agora = new Date().toISOString();
+
+    for (const inc of incidentes) {
+        const anterior = anteriores.get(chave(inc.tipo, inc.alvo));
+
+        // Já avisado: atualiza os números sem incomodar de novo.
+        const jaNotificado = !!anterior?.notificado_em;
+
+        const notificar = !jaNotificado &&
+            inc.severidade === "CRITICO";
+
+        let enviado = false;
+
+        if (notificar) {
+            enviado = await notificarIncidente(inc);
+
+            if (enviado) resultado.notificados.push(inc.tipo);
+        }
+
+        try {
+            const { error } = await supabase
+                .from("radar_incidentes")
+                .upsert({
+                    tipo: inc.tipo,
+                    alvo: inc.alvo,
+                    severidade: inc.severidade,
+                    mensagem: inc.mensagem,
+                    detalhes: inc.detalhes,
+                    estado: "ABERTO",
+                    notificado_em: enviado
+                        ? agora
+                        : (anterior?.notificado_em as string) ?? null,
+                    atualizado_em: agora,
+                }, { onConflict: "tipo,alvo" });
+
+            if (error) {
+                if (ehRecursoAusente(error)) return resultado;
+
+                console.error("[radar-ia] gravar incidente:", error);
+                continue;
+            }
+        } catch (e) {
+            console.error("[radar-ia] gravar incidente:", e);
+            continue;
+        }
+
+        resultado.abertos++;
+
+        if (!anterior) resultado.novos++;
+    }
+
+    // O que sumiu da avaliação foi resolvido: fechar evita que
+    // o painel mostre um problema que já não existe.
+    const atuais = new Set(
+        incidentes.map((i) => chave(i.tipo, i.alvo)),
+    );
+
+    for (const [k, anterior] of anteriores) {
+        if (atuais.has(k)) continue;
+
+        try {
+            const { error } = await supabase
+                .from("radar_incidentes")
+                .update({ estado: "RESOLVIDO", atualizado_em: agora })
+                .eq("id", anterior.id as string);
+
+            if (!error) resultado.resolvidos++;
+        } catch (e) {
+            console.error("[radar-ia] resolver incidente:", e);
+        }
+    }
+
+    return resultado;
+}
+
+// Reaproveita os mesmos canais do alerta de oportunidade. Uma
+// falha de envio nunca derruba a avaliação de saúde.
+async function notificarIncidente(inc: Incidente): Promise<boolean> {
+    const mensagem = "\u26a0\ufe0f HOSPEDAH Radar IA — " +
+        inc.severidade + "\n\n" + inc.mensagem;
+
+    let enviado = false;
+
+    const zapiId = Deno.env.get("ZAPI_INSTANCE_ID");
+    const zapiToken = Deno.env.get("ZAPI_TOKEN");
+    const zapiClient = Deno.env.get("ZAPI_CLIENT_TOKEN");
+
+    const destinoWhats = Deno.env.get("RADAR_ALERTA_WHATSAPP") ||
+        Deno.env.get("WHATSAPP_ADMIN_NUMBER");
+
+    if (zapiId && zapiToken && destinoWhats) {
+        const cabecalhos: Record<string, string> = {
+            "Content-Type": "application/json",
+        };
+
+        if (zapiClient) cabecalhos["Client-Token"] = zapiClient;
+
+        try {
+            const r = await fetch(
+                "https://api.z-api.io/instances/" + zapiId +
+                    "/token/" + zapiToken + "/send-text",
+                {
+                    method: "POST",
+                    headers: cabecalhos,
+                    body: JSON.stringify({
+                        phone: destinoWhats,
+                        message: mensagem,
+                    }),
+                },
+            );
+
+            if (r.ok) enviado = true;
+        } catch (e) {
+            console.error("[radar-ia] incidente whatsapp:", e);
+        }
+    }
+
+    const resendKey = Deno.env.get("RESEND_API_KEY");
+    const destinoEmail = Deno.env.get("RADAR_ALERTA_EMAIL");
+
+    if (resendKey && destinoEmail) {
+        try {
+            const r = await fetch("https://api.resend.com/emails", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: "Bearer " + resendKey,
+                },
+                body: JSON.stringify({
+                    from: Deno.env.get("RESEND_FROM") ||
+                        "HOSPEDAH <noreply@hospedah.tur.br>",
+                    to: destinoEmail.split(",").map((e) => e.trim()),
+                    subject: "Radar IA — " + inc.severidade + ": " +
+                        inc.tipo,
+                    text: mensagem,
+                }),
+            });
+
+            if (r.ok) enviado = true;
+        } catch (e) {
+            console.error("[radar-ia] incidente email:", e);
+        }
+    }
+
+    return enviado;
+}
+
+
 // Analisa um texto, aplica a seleção do alvo e grava a
 // oportunidade quando aprovada.
 async function processarTexto(
@@ -1344,6 +1817,12 @@ async function processarTexto(
         entrada.capturaId,
     );
 
+    // Vetor do texto: reconhece o mesmo anúncio reescrito com
+    // outras palavras, que a comparação por palavras perderia.
+    const vetor = jaGravada
+        ? null
+        : await vetorDoTexto(supabase, hash, entrada.texto);
+
     // Mesmo negócio já registrado: conta a repetição e não
     // duplica a oportunidade no funil.
     const duplicada = jaGravada
@@ -1352,18 +1831,37 @@ async function processarTexto(
             similaridade: 1,
             motivo: "Captura já havia gerado esta oportunidade.",
         }
-        : await procurarDuplicada(supabase, {
+        : (await procurarDuplicada(supabase, {
             texto: entrada.texto,
             hash,
             contato: asText(ai.contato),
             empreendimento: local.empreendimento,
-        });
+        })) ??
+            (vetor
+                ? await duplicadaPorVetor(
+                    supabase,
+                    vetor,
+                    local.empreendimento,
+                )
+                : null);
 
     if (duplicada) {
         // Repetição só conta quando é outra captura: o
         // reprocessamento da mesma não infla o contador.
         if (!jaGravada) {
             await contabilizarRepeticao(supabase, duplicada.id);
+
+            // O texto reescrito passa a apontar para a
+            // oportunidade original: a próxima variação é
+            // reconhecida sem gerar o vetor de novo.
+            if (vetor) {
+                await gravarEmbedding(supabase, {
+                    hash,
+                    vetor,
+                    empreendimento: local.empreendimento,
+                    oportunidadeId: duplicada.id,
+                });
+            }
         }
 
         const estado = await atualizarCaptura(
@@ -1452,6 +1950,19 @@ async function processarTexto(
         erro: null,
     });
 
+    if (vetor) {
+        await gravarEmbedding(supabase, {
+            hash,
+            vetor,
+            empreendimento: local.empreendimento,
+            oportunidadeId: oportunidade.id as string,
+        });
+    }
+
+    // Agrupa com os outros anúncios do mesmo negócio: é o que
+    // responde "quanto estão pedindo por esta semana?".
+    const grupoId = await atribuirGrupo(supabase, oportunidade);
+
     const alerta = await alertar(supabase, oportunidade);
 
     return {
@@ -1463,7 +1974,9 @@ async function processarTexto(
             revisar: selecao.revisar,
             motivo,
         } as Selecao,
-        oportunidade,
+        oportunidade: grupoId
+            ? { ...oportunidade, grupo_id: grupoId }
+            : oportunidade,
         duplicada: null,
         alerta,
         estado,
@@ -2164,6 +2677,212 @@ Deno.serve(async (req) => {
                 custo: custo || [],
                 alertas: alertas || [],
                 alerta_score: scoreAlerta(),
+            });
+        }
+
+        // ── saude_operacional ───────────────────────────────
+        // Olha sozinho para fila, fontes, custo e ritmo de
+        // captura, abre um incidente por problema encontrado
+        // e avisa UMA vez por incidente. É o que transforma
+        // "ninguém abriu o painel" em um alerta no WhatsApp.
+        //
+        // previa:true apenas avalia, sem gravar nem notificar.
+        if (acao === "saude_operacional") {
+            const previa = body.previa === true;
+
+            const { data: fila } = await supabase
+                .from("radar_fila")
+                .select("estado,total");
+
+            const porEstado: Record<string, number> = {};
+
+            for (const l of (fila || []) as Record<string, unknown>[]) {
+                porEstado[String(l.estado)] = Number(l.total) || 0;
+            }
+
+            const { data: fontes } = await supabase
+                .from("radar_fontes")
+                .select(
+                    "id,nome,ativo,falhas_consecutivas," +
+                        "credencial_mensagem",
+                );
+
+            const hoje = new Date().toISOString().slice(0, 10);
+
+            const { data: custo } = await supabase
+                .from("radar_custo_ia_diario")
+                .select("custo_usd")
+                .eq("dia", hoje);
+
+            const custoHoje = ((custo || []) as { custo_usd?: number }[])
+                .reduce((t, l) => t + (Number(l.custo_usd) || 0), 0);
+
+            const { data: ultima } = await supabase
+                .from("radar_capturas")
+                .select("capturado_em")
+                .order("capturado_em", { ascending: false })
+                .limit(1);
+
+            const incidentes = avaliarSaude(
+                {
+                    fila: porEstado,
+                    fontes: ((fontes || []) as Record<string, unknown>[])
+                        .map((f) => ({
+                            id: f.id as string,
+                            nome: f.nome as string,
+                            ativo: f.ativo !== false,
+                            falhas_consecutivas: Number(
+                                f.falhas_consecutivas,
+                            ) || 0,
+                            ultimo_erro:
+                                (f.credencial_mensagem as string) || null,
+                        })),
+                    custoHojeUSD: custoHoje,
+                    ultimaCapturaEm:
+                        (ultima?.[0]?.capturado_em as string) || null,
+                },
+                limitesDeAmbiente((n) => Deno.env.get(n) || undefined),
+            );
+
+            if (previa) {
+                return json({
+                    ok: true,
+                    previa: true,
+                    incidentes,
+                    saudavel: incidentes.length === 0,
+                });
+            }
+
+            const registrados = await registrarIncidentes(
+                supabase,
+                incidentes,
+            );
+
+            return json({
+                ok: true,
+                incidentes,
+                saudavel: incidentes.length === 0,
+                abertos: registrados.abertos,
+                novos: registrados.novos,
+                resolvidos: registrados.resolvidos,
+                notificados: registrados.notificados,
+            });
+        }
+
+        // ── limpar ──────────────────────────────────────────
+        // Retenção do histórico. O cliente só escolhe UM alvo
+        // da lista fechada de políticas (_shared/radar.ts) e,
+        // no máximo, quantos dias preservar: nome de tabela,
+        // coluna e estados nunca vêm do corpo da requisição.
+        //
+        // previa:true conta sem apagar — o painel mostra o
+        // número antes de pedir confirmação.
+        if (acao === "limpar") {
+            const previa = body.previa === true;
+
+            // Sem alvo (ou alvo "todos") a prévia devolve o
+            // panorama de tudo que pode ser limpo.
+            const alvoBruto = asText(body.alvo);
+
+            if (!alvoBruto || alvoBruto.toLowerCase() === "todos") {
+                if (!previa) {
+                    return json({
+                        error: "Informe qual limpeza executar " +
+                            "(campo alvo).",
+                    }, 400);
+                }
+
+                const itens = [];
+
+                for (const politica of Object.values(LIMPEZAS)) {
+                    const dias = politica.diasPadrao;
+
+                    const total = await contarLimpeza(
+                        supabase,
+                        politica,
+                        corteLimpeza(dias),
+                    );
+
+                    itens.push({
+                        alvo: politica.alvo,
+                        rotulo: politica.rotulo,
+                        descricao: politica.descricao,
+                        dias,
+                        dias_minimo: politica.diasMinimo,
+                        total,
+                    });
+                }
+
+                return json({
+                    ok: true,
+                    previa: true,
+                    itens,
+                    trace_id: traceId,
+                });
+            }
+
+            const politica = politicaLimpeza(alvoBruto);
+
+            if (!politica) {
+                return json({
+                    error: "Limpeza desconhecida: " + alvoBruto,
+                }, 400);
+            }
+
+            const dias = diasLimpeza(politica, body.dias);
+
+            const corte = corteLimpeza(dias);
+
+            if (previa) {
+                const total = await contarLimpeza(
+                    supabase,
+                    politica,
+                    corte,
+                );
+
+                return json({
+                    ok: true,
+                    previa: true,
+                    alvo: politica.alvo,
+                    rotulo: politica.rotulo,
+                    dias,
+                    corte,
+                    total,
+                    trace_id: traceId,
+                });
+            }
+
+            let q = supabase
+                .from(politica.tabela)
+                .delete()
+                .lt(politica.colunaData, corte);
+
+            if (politica.colunaEstado && politica.estados?.length) {
+                q = q.in(politica.colunaEstado, politica.estados);
+            }
+
+            const { data, error } = await q.select("id");
+
+            if (error) throw erroBanco(error, politica.tabela);
+
+            const removidos = (data || []).length;
+
+            return json({
+                ok: true,
+                previa: false,
+                alvo: politica.alvo,
+                rotulo: politica.rotulo,
+                dias,
+                corte,
+                removidos,
+                mensagem: removidos
+                    ? removidos + " registro(s) removido(s) de " +
+                        politica.rotulo.toLowerCase() +
+                        " com mais de " + dias + " dias."
+                    : "Nada a limpar: nenhum registro de " +
+                        politica.rotulo.toLowerCase() +
+                        " com mais de " + dias + " dias.",
+                trace_id: traceId,
             });
         }
 

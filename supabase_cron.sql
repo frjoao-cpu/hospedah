@@ -368,6 +368,67 @@ SELECT cron.schedule(
 --     seja uma delas. Se nenhuma bater, a varredura
 --     responde 401 e nada é capturado.
 -- ============================================================
+-- Chamada única das funções do Radar.
+--
+--   Duas melhorias em relação ao POST solto:
+--
+--   1. URL configurável. Antes o endereço do projeto estava
+--      escrito à mão em cada job; restaurar o banco em outro
+--      projeto disparava chamadas para o projeto antigo.
+--      Agora vem de app.supabase_url (seção 1), com o valor
+--      atual apenas como último recurso.
+--
+--   2. Jitter. Todos os jobs caíam no mesmo segundo do
+--      minuto, batendo de uma vez nas APIs externas e na
+--      própria função. Um atraso aleatório de até
+--      p_jitter_seg espalha a carga.
+CREATE OR REPLACE FUNCTION public.radar_chamar(
+    p_funcao     text,
+    p_corpo      jsonb,
+    p_jitter_seg integer DEFAULT 45
+)
+RETURNS void
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public, extensions
+AS $fn$
+DECLARE
+    v_base  text;
+    v_chave text;
+BEGIN
+    v_base := coalesce(
+        nullif(current_setting('app.supabase_url', true), ''),
+        'https://ydrmjoppjxtmnwtvtinb.supabase.co'
+    );
+
+    v_chave := current_setting('app.service_role_key', true);
+
+    IF coalesce(v_chave, '') = '' THEN
+        RAISE WARNING
+            'radar_chamar: app.service_role_key não configurada — '
+            '% não foi chamada.', p_funcao;
+        RETURN;
+    END IF;
+
+    IF p_jitter_seg > 0 THEN
+        PERFORM pg_sleep(random() * p_jitter_seg);
+    END IF;
+
+    PERFORM net.http_post(
+        url     := rtrim(v_base, '/') || '/functions/v1/' || p_funcao,
+        headers := jsonb_build_object(
+            'Content-Type',  'application/json',
+            'Authorization', 'Bearer ' || v_chave
+        ),
+        body    := p_corpo
+    );
+END;
+$fn$;
+
+REVOKE ALL ON FUNCTION public.radar_chamar(text, jsonb, integer)
+FROM PUBLIC, anon, authenticated;
+
+
 SELECT cron.unschedule('radar-captura-varredura')
 WHERE EXISTS (SELECT 1 FROM cron.job WHERE jobname = 'radar-captura-varredura');
 
@@ -375,14 +436,7 @@ SELECT cron.schedule(
     'radar-captura-varredura',
     '0,30 * * * *',
     $$
-    SELECT net.http_post(
-        url     := 'https://ydrmjoppjxtmnwtvtinb.supabase.co/functions/v1/radar-captura',
-        headers := jsonb_build_object(
-            'Content-Type',  'application/json',
-            'Authorization', 'Bearer ' || current_setting('app.service_role_key', true)
-        ),
-        body    := '{"acao":"varrer"}'::jsonb
-    );
+    SELECT public.radar_chamar('radar-captura', '{"acao":"varrer"}'::jsonb, 90);
     $$
 );
 
@@ -393,13 +447,33 @@ SELECT cron.schedule(
     'radar-ia-processar-pendentes',
     '5,20,35,50 * * * *',
     $$
-    SELECT net.http_post(
-        url     := 'https://ydrmjoppjxtmnwtvtinb.supabase.co/functions/v1/radar-ia',
-        headers := jsonb_build_object(
-            'Content-Type',  'application/json',
-            'Authorization', 'Bearer ' || current_setting('app.service_role_key', true)
-        ),
-        body    := '{"acao":"processar_pendentes","limite":25}'::jsonb
+    SELECT public.radar_chamar(
+        'radar-ia',
+        '{"acao":"processar_pendentes","limite":25}'::jsonb,
+        30
+    );
+    $$
+);
+
+--     13.3 Saúde operacional, de hora em hora. Avalia fila,
+--          fontes, custo e ritmo de captura, abre incidentes
+--          e avisa uma única vez por problema. É o que faz o
+--          sistema reclamar sozinho quando o robô para, em
+--          vez de esperar alguém abrir o painel.
+--
+--          Requer a migration 014 (radar_incidentes). Sem
+--          ela a função responde sem gravar nada.
+SELECT cron.unschedule('radar-ia-saude')
+WHERE EXISTS (SELECT 1 FROM cron.job WHERE jobname = 'radar-ia-saude');
+
+SELECT cron.schedule(
+    'radar-ia-saude',
+    '12 * * * *',
+    $$
+    SELECT public.radar_chamar(
+        'radar-ia',
+        '{"acao":"saude_operacional"}'::jsonb,
+        60
     );
     $$
 );
