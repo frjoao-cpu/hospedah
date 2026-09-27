@@ -368,6 +368,21 @@ mostra no painel a instrução de renovação
 "permissão faltando" (códigos 10 e 200-299)
 e de "identificador errado" (100 e 803).
 
+Com credencial EXPIRADA a varredura para
+de insistir: a fonte é suspensa por 6
+horas já na primeira falha (as demais
+falhas só suspendem depois de 3 seguidas)
+e, dentro da mesma varredura, as outras
+fontes do mesmo tipo nem chegam a chamar
+a Graph API — reaproveitam o mesmo erro.
+Isso evita queimar cota e encher o
+histórico com a mesma mensagem. Depois de
+regravar o secret, clique em TESTAR na
+fonte ou em VARRER AGORA: a varredura
+manual ignora a suspensão de propósito,
+para confirmar na hora que o token novo
+funciona.
+
 ## Identificadores aceitos
 
 O adaptador do Facebook consulta

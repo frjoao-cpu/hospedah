@@ -44,6 +44,7 @@ import {
     Empreendimento,
     extrairAnunciante,
     preFiltrar,
+    suspensaoDaFonte,
 } from '../_shared/radar.ts';
 
 const cors = {
@@ -712,11 +713,11 @@ const COLUNAS_DIAGNOSTICO = [
     'duplicados',
 ];
 
-// Circuit breaker: três falhas seguidas suspendem a fonte por
-// um tempo crescente, para não queimar cota de API nem encher
-// o histórico de execuções com o mesmo erro.
-const FALHAS_PARA_SUSPENDER = 3;
-
+// Circuit breaker: falhas seguidas suspendem a fonte por um
+// tempo crescente, e credencial expirada suspende já na
+// primeira, para não queimar cota de API nem encher o
+// histórico de execuções com o mesmo erro. A regra vive em
+// suspensaoDaFonte() (_shared/radar.ts).
 async function atualizarSaudeFonte(
     supabase: Cliente,
     fonte: Fonte,
@@ -732,12 +733,9 @@ async function atualizarSaudeFonte(
         suspensa_ate: null,
     };
 
-    if (falhas >= FALHAS_PARA_SUSPENDER) {
-        const minutos = Math.min(
-            720,
-            15 * Math.pow(2, falhas - FALHAS_PARA_SUSPENDER),
-        );
+    const minutos = suspensaoDaFonte(r.credencial, falhas);
 
+    if (minutos !== null) {
         campos.suspensa_ate = new Date(
             Date.now() + minutos * 60000,
         ).toISOString();
@@ -1192,6 +1190,11 @@ Deno.serve(async (req) => {
 
             // Circuit breaker: fonte suspensa por falhas
             // consecutivas fica de fora até o prazo vencer.
+            // A varredura manual (forcar) ignora a suspensão:
+            // é ela que o operador usa para conferir se o
+            // secret recém-gravado já funciona.
+            if (forcar) return true;
+
             const ate = f.suspensa_ate
                 ? Date.parse(String(f.suspensa_ate))
                 : NaN;
@@ -1201,6 +1204,13 @@ Deno.serve(async (req) => {
 
         const resumo: Record<string, unknown>[] = [];
         let total = 0;
+
+        // O token da Meta é um secret por tipo de fonte, não
+        // por fonte. Quando ele expira, insistir em cada
+        // página de cada alvo só repete o mesmo erro dezenas
+        // de vezes. A primeira falha de credencial bloqueia o
+        // tipo até o fim desta varredura.
+        const credencialMorta = new Map<string, ResultadoFonte>();
 
         for (const alvo of (alvos || [])) {
             if (alvoFiltro && alvo.id !== alvoFiltro) continue;
@@ -1222,7 +1232,13 @@ Deno.serve(async (req) => {
             for (const fonte of doAlvo) {
                 const inicio = new Date().toISOString();
 
-                const r = await buscar(fonte);
+                const bloqueada = credencialMorta.get(fonte.tipo);
+
+                const r = bloqueada ?? await buscar(fonte);
+
+                if (!bloqueada && r.credencial === 'EXPIRADA') {
+                    credencialMorta.set(fonte.tipo, r);
+                }
 
                 await atualizarSaudeFonte(supabase, fonte, r);
 
