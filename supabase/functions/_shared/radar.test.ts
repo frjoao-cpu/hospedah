@@ -22,6 +22,7 @@ import {
     chaveGrupo,
     cosseno,
     duplicadaSemantica,
+    erroDeBanco,
     extrairAnunciante,
     extrairTelefones,
     lerGrupo,
@@ -874,4 +875,52 @@ Deno.test('suspensaoDaFonte corta token expirado na 1ª falha', () => {
     );
 
     assertEquals(suspensaoDaFonte('ERRO', 0, true), null);
+});
+
+Deno.test('erroDeBanco traduz o CHECK de tipo em migration', () => {
+    // Banco sem a 015: o painel já oferece WEB_PUBLICA, mas o
+    // CHECK só aceita os tipos antigos. Antes virava
+    // "Erro interno na captura".
+    const r = erroDeBanco({
+        code: '23514',
+        message: 'new row for relation "radar_fontes" violates ' +
+            'check constraint "radar_fontes_tipo_check"',
+    });
+
+    assert(r);
+    assertEquals(r.status, 400);
+    assert(/015_radar_fontes_genericas/.test(r.mensagem));
+});
+
+Deno.test('erroDeBanco cobre tabela, coluna, duplicidade e RLS', () => {
+    const tabela = erroDeBanco({ code: '42P01' });
+
+    assert(tabela);
+    assertEquals(tabela.status, 500);
+    assert(/008_radar_central_monitoramento/.test(tabela.mensagem));
+
+    const coluna = erroDeBanco({
+        code: 'PGRST204',
+        message: "Could not find the 'config' column",
+    });
+
+    assert(coluna);
+    assertEquals(coluna.status, 500);
+
+    const duplicado = erroDeBanco({ code: '23505' });
+
+    assert(duplicado);
+    assertEquals(duplicado.status, 409);
+
+    const rls = erroDeBanco({
+        message: 'new row violates row-level security policy',
+    });
+
+    assert(rls);
+    assertEquals(rls.status, 403);
+
+    // Erro desconhecido continua caindo no "erro interno", que
+    // carrega o trace_id para os logs.
+    assertEquals(erroDeBanco(new Error('boom')), null);
+    assertEquals(erroDeBanco(null), null);
 });

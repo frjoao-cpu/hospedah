@@ -1761,3 +1761,129 @@ export function limitesDeAmbiente(
         horasSemCaptura: num('RADAR_SAUDE_HORAS_SEM_CAPTURA', 6, 1),
     };
 }
+
+// ============================================================
+// ERROS DE BANCO — tradução para linguagem do operador
+//
+// O painel só recebe o que a Edge Function devolve. Um erro
+// do Postgres/PostgREST caindo no catch genérico vira
+// "Erro interno na captura (ref. ...)", que não diz ao
+// operador o que fazer. Aqui cada código conhecido vira uma
+// mensagem acionável (o que aconteceu + qual migration ou
+// ajuste resolve). Função pura: sem rede e sem banco.
+// ============================================================
+
+export interface ErroBanco {
+    mensagem: string;
+    status: number;
+}
+
+export function erroDeBanco(e: unknown): ErroBanco | null {
+    const err = (e || {}) as {
+        code?: string | number;
+        message?: string;
+        details?: string;
+        hint?: string;
+    };
+
+    const code = String(err.code ?? '');
+
+    const texto = [err.message, err.details, err.hint]
+        .filter(Boolean)
+        .join(' ');
+
+    // Tabela/visão ausente: a migration não foi aplicada.
+    if (
+        code === '42P01' || code === 'PGRST205' ||
+        /relation .* does not exist/i.test(texto) ||
+        /could not find the table/i.test(texto)
+    ) {
+        return {
+            mensagem: 'Tabelas da Central de Monitoramento não ' +
+                'encontradas. Aplique a migration supabase/migrations/' +
+                '008_radar_central_monitoramento.sql.',
+            status: 500,
+        };
+    }
+
+    // Coluna ausente: banco atrás das migrations mais recentes.
+    if (
+        code === '42703' || code === 'PGRST204' ||
+        /column .* does not exist/i.test(texto)
+    ) {
+        return {
+            mensagem: 'O banco está desatualizado para esta versão do ' +
+                'Radar (' + (err.message || 'coluna ausente') + '). ' +
+                'Aplique as migrations pendentes em ' +
+                'supabase/migrations/.',
+            status: 500,
+        };
+    }
+
+    // CHECK violado. O caso comum é o tipo da fonte: o painel já
+    // oferece os tipos genéricos, mas o banco só aceita os
+    // antigos enquanto a 015 não roda.
+    if (code === '23514') {
+        if (/radar_fontes_tipo_check/i.test(texto)) {
+            return {
+                mensagem: 'Este tipo de fonte ainda não é aceito pelo ' +
+                    'banco. Aplique a migration supabase/migrations/' +
+                    '015_radar_fontes_genericas.sql para liberar os ' +
+                    'tipos genéricos (WEB_PUBLICA, RSS, API…).',
+                status: 400,
+            };
+        }
+
+        return {
+            mensagem: 'O banco recusou os dados enviados (' +
+                (err.message || 'restrição violada') + '). ' +
+                'Revise os campos da fonte.',
+            status: 400,
+        };
+    }
+
+    // Nome repetido: radar_fontes.nome é único.
+    if (code === '23505') {
+        return {
+            mensagem: 'Já existe uma fonte com esse nome. Use outro ' +
+                'nome ou edite a fonte existente.',
+            status: 409,
+        };
+    }
+
+    // ON CONFLICT sem índice único correspondente.
+    if (code === '42P10') {
+        return {
+            mensagem: 'O banco não tem o índice único esperado em ' +
+                'radar_fontes.nome. Aplique a migration ' +
+                'supabase/migrations/008_radar_central_monitoramento.sql.',
+            status: 500,
+        };
+    }
+
+    // Permissão/RLS: chave errada ou política ausente.
+    if (
+        code === '42501' || code === 'PGRST301' ||
+        /row-level security/i.test(texto)
+    ) {
+        return {
+            mensagem: 'Sem permissão para gravar no Radar. Confira a ' +
+                'chave de servidor (SUPABASE_SECRET_KEYS) e as políticas ' +
+                'de RLS das tabelas radar_*.',
+            status: 403,
+        };
+    }
+
+    // Compatibilidade: mensagens de objeto ausente sem código
+    // conhecido continuam apontando para a migration base.
+    if (/does not exist/i.test(texto)) {
+        return {
+            mensagem: 'Tabelas da Central de Monitoramento não ' +
+                'encontradas. Aplique a migration supabase/migrations/' +
+                '008_radar_central_monitoramento.sql.',
+            status: 500,
+        };
+    }
+
+    return null;
+}

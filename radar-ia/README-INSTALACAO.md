@@ -1707,6 +1707,62 @@ supabase functions deploy radar-ia \
 
 ---
 
+# 16.2.1 ERRO INTERNO NA CAPTURA
+#        AO SALVAR UMA FONTE
+
+Sintoma: ao clicar em SALVAR FONTE
+aparece
+
+Erro interno na captura
+(ref. XXXXXXXX). Consulte os logs
+da Edge Function radar-captura.
+
+Causa mais comum: o banco ainda não
+recebeu a migration que libera os
+tipos genéricos, então o CHECK
+radar_fontes_tipo_check recusa
+WEB_PUBLICA/RSS/API. Aplique
+supabase/migrations/015_radar_fontes_genericas.sql
+no SQL Editor do Supabase e salve de
+novo.
+
+A função radar-captura agora traduz
+os erros conhecidos do banco em vez
+de cair na mensagem genérica:
+
+1. "Este tipo de fonte ainda não é
+   aceito pelo banco" → migration 015.
+
+2. "Tabelas da Central de
+   Monitoramento não encontradas" →
+   migration 008.
+
+3. "O banco está desatualizado para
+   esta versão do Radar (coluna
+   ausente)" → reaplique as
+   migrations pendentes.
+
+4. "Já existe uma fonte com esse
+   nome" → edite a fonte existente
+   ou use outro nome.
+
+5. "Sem permissão para gravar no
+   Radar" → confira
+   SUPABASE_SECRET_KEYS e as
+   policies de RLS das tabelas
+   radar_*.
+
+Se a mensagem continuar genérica,
+o "ref." é o trace_id: procure por
+ele em Supabase → Edge Functions →
+radar-captura → Logs. Mensagem
+genérica em um caso já listado acima
+significa função desatualizada em
+produção — veja o aviso de deploy no
+fim da seção 16.2.
+
+---
+
 # 16.3 SQL DE SANEAMENTO E
 #      DIAGNÓSTICO (MIGRATION 011)
 
