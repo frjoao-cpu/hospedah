@@ -1138,10 +1138,16 @@ export const SUSPENSAO_MAXIMA_MIN = 720;
 export function suspensaoDaFonte(
     credencial: string | null | undefined,
     falhasConsecutivas: number,
+    permanente = false,
 ): number | null {
     if (falhasConsecutivas <= 0) return null;
 
-    if (credencial === 'EXPIRADA') return SUSPENSAO_CREDENCIAL_MIN;
+    // Erro de configuração (id que não é de Página, objeto
+    // inexistente) não se conserta sozinho: insistir só repete
+    // a mesma mensagem e queima cota da Graph API.
+    if (credencial === 'EXPIRADA' || permanente) {
+        return SUSPENSAO_CREDENCIAL_MIN;
+    }
 
     if (falhasConsecutivas < FALHAS_PARA_SUSPENDER) return null;
 

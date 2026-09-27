@@ -95,7 +95,7 @@ class GraphError extends Error {
 function classificarErroGraph(
     e: unknown,
     origem: string,
-): { status: CredencialStatus; mensagem: string } {
+): { status: CredencialStatus; mensagem: string; permanente?: boolean } {
     const erro = e as GraphError;
     const detalhe = (e as Error)?.message || 'falha desconhecida';
 
@@ -131,8 +131,25 @@ function classificarErroGraph(
 
         // 803 / 100 = objeto inexistente ou id no formato errado.
         if (erro.code === 803 || erro.code === 100) {
+            // "nonexisting field (posts)" é o id existir e não
+            // ser de uma Página: grupo ou perfil pessoal. A
+            // Graph API não publica o feed desses objetos, logo
+            // não adianta tentar de novo com o mesmo id.
+            if (/nonexisting field/i.test(detalhe)) {
+                return {
+                    status: 'ERRO',
+                    permanente: true,
+                    mensagem: origem + ': este id não é de uma Página ' +
+                        '(' + detalhe + '). Grupos e perfis pessoais não ' +
+                        'têm feed público na Graph API da Meta — troque ' +
+                        'pelo id numérico da Página oficial ou cadastre ' +
+                        'o conteúdo como fonte RSS/MANUAL.',
+                };
+            }
+
             return {
                 status: 'ERRO',
+                permanente: true,
                 mensagem: origem + ': identificador não encontrado (' +
                     detalhe + '). Confira o id numérico da Página/conta ' +
                     '— URLs, @handles e ids de grupo não são aceitos.',
@@ -237,6 +254,9 @@ interface ResultadoFonte {
     capturas: CapturaBruta[];
     erro: string | null;
     credencial: CredencialStatus;
+    // Erro de configuração: repetir com o mesmo id/identificador
+    // dá sempre o mesmo resultado, então a fonte sai da varredura.
+    permanente?: boolean;
 }
 
 function json(body: unknown, status = 200) {
@@ -314,6 +334,7 @@ async function buscarInstagram(fonte: Fonte): Promise<ResultadoFonte> {
             capturas: [],
             erro: invalido,
             credencial: 'NAO_CONFIGURADA',
+            permanente: true,
         };
     }
 
@@ -378,6 +399,7 @@ async function buscarInstagram(fonte: Fonte): Promise<ResultadoFonte> {
             capturas: [],
             erro: c.mensagem,
             credencial: c.status,
+            permanente: c.permanente === true,
         };
     }
 }
@@ -407,6 +429,7 @@ async function buscarFacebook(fonte: Fonte): Promise<ResultadoFonte> {
             capturas: [],
             erro: invalido,
             credencial: 'NAO_CONFIGURADA',
+            permanente: true,
         };
     }
 
@@ -442,6 +465,7 @@ async function buscarFacebook(fonte: Fonte): Promise<ResultadoFonte> {
             capturas: [],
             erro: c.mensagem,
             credencial: c.status,
+            permanente: c.permanente === true,
         };
     }
 }
@@ -733,7 +757,11 @@ async function atualizarSaudeFonte(
         suspensa_ate: null,
     };
 
-    const minutos = suspensaoDaFonte(r.credencial, falhas);
+    const minutos = suspensaoDaFonte(
+        r.credencial,
+        falhas,
+        r.permanente === true,
+    );
 
     if (minutos !== null) {
         campos.suspensa_ate = new Date(
@@ -1212,6 +1240,11 @@ Deno.serve(async (req) => {
         // tipo até o fim desta varredura.
         const credencialMorta = new Map<string, ResultadoFonte>();
 
+        // Erro de configuração é da fonte, não do tipo: um id de
+        // grupo em /{page-id}/posts falha igual para todos os
+        // alvos. Registra uma vez e tira a fonte da varredura.
+        const fonteMorta = new Set<string>();
+
         for (const alvo of (alvos || [])) {
             if (alvoFiltro && alvo.id !== alvoFiltro) continue;
             if (!forcar && !venceu(alvo)) continue;
@@ -1232,6 +1265,8 @@ Deno.serve(async (req) => {
             for (const fonte of doAlvo) {
                 const inicio = new Date().toISOString();
 
+                if (fonteMorta.has(fonte.id)) continue;
+
                 const bloqueada = credencialMorta.get(fonte.tipo);
 
                 const r = bloqueada ?? await buscar(fonte);
@@ -1239,6 +1274,8 @@ Deno.serve(async (req) => {
                 if (!bloqueada && r.credencial === 'EXPIRADA') {
                     credencialMorta.set(fonte.tipo, r);
                 }
+
+                if (r.permanente === true) fonteMorta.add(fonte.id);
 
                 await atualizarSaudeFonte(supabase, fonte, r);
 

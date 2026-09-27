@@ -383,6 +383,20 @@ manual ignora a suspensão de propósito,
 para confirmar na hora que o token novo
 funciona.
 
+O mesmo vale para erro de identificador
+(códigos 100 e 803): um id de grupo ou de
+perfil pessoal existe na Meta, mas não tem
+o campo posts — a Graph API responde
+"(#100) Tried accessing nonexisting field
+(posts)". Como repetir com o mesmo id dá
+sempre o mesmo resultado, a fonte é
+suspensa por 6 horas já na primeira falha
+e sai da varredura em curso, em vez de
+repetir a mensagem para cada alvo. Troque
+o identificador pelo id numérico da Página
+oficial ou cadastre o conteúdo como fonte
+RSS/MANUAL.
+
 ## Identificadores aceitos
 
 O adaptador do Facebook consulta
