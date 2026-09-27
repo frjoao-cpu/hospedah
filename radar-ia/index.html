@@ -439,6 +439,48 @@ select[multiple]{
   color:#126441;
 }
 
+#avisos{
+  position:fixed;
+  top:14px;
+  right:14px;
+  z-index:90;
+  display:grid;
+  gap:8px;
+  width:min(380px,92vw);
+}
+
+.aviso{
+  background:#fff;
+  border:1px solid var(--line);
+  border-left:5px solid var(--navy);
+  border-radius:12px;
+  padding:12px 14px;
+  font-size:12px;
+  color:#344054;
+  white-space:pre-wrap;
+  box-shadow:0 10px 30px rgba(16,24,40,.16);
+  display:flex;
+  gap:10px;
+  align-items:flex-start;
+}
+
+.aviso.warn{
+  border-left-color:var(--red);
+}
+
+.aviso.ok{
+  border-left-color:var(--green);
+}
+
+.aviso button{
+  border:0;
+  background:transparent;
+  cursor:pointer;
+  font-size:15px;
+  line-height:1;
+  color:var(--muted);
+}
+
 pre{
   white-space:pre-wrap;
   background:#101828;
@@ -1036,7 +1078,7 @@ reavaliá-las com os critérios atuais do alvo."
           <input
             id="buscaCaptura"
             placeholder="Buscar no texto capturado..."
-            oninput="renderCapturas()"
+            oninput="renderCapturasDepois()"
           >
 
           <select
@@ -1102,7 +1144,7 @@ reavaliá-las com os critérios atuais do alvo."
         <input
           id="busca"
           placeholder="Buscar resort, cidade, tipo, anunciante..."
-          oninput="renderOportunidades()"
+          oninput="renderOportunidadesDepois()"
         >
 
         <select
@@ -1186,7 +1228,7 @@ reavaliá-las com os critérios atuais do alvo."
           min="0"
           max="100"
           placeholder="Score mín. %"
-          oninput="renderOportunidades()"
+          oninput="renderOportunidadesDepois()"
         >
 
         <button
@@ -1353,11 +1395,55 @@ reavaliá-las com os critérios atuais do alvo."
 
       </section>
 
+      <section class="card">
+
+        <h2>
+          🧹 Limpeza e retenção
+        </h2>
+
+        <p class="sub">
+          O Radar acumula texto bruto, cache de IA, alertas e
+          execuções. Calcule primeiro o que está elegível e só
+          então apague — oportunidades em VALIDAR ou APROVADA
+          nunca são removidas.
+        </p>
+
+        <div class="actions" style="margin-bottom:14px">
+
+          <button
+            class="btn light"
+            data-acao="previa-limpeza"
+            onclick="previaLimpeza()"
+          >
+            📊 CALCULAR LIMPEZA
+          </button>
+
+        </div>
+
+        <div id="limpezaMsg"></div>
+
+        <div id="painelLimpeza" class="list">
+
+          <div class="empty">
+            Use CALCULAR LIMPEZA para ver quantos registros
+            antigos podem ser apagados.
+          </div>
+
+        </div>
+
+      </section>
+
     </div>
 
   </div>
 
 </main>
+
+<div
+  id="avisos"
+  role="status"
+  aria-live="polite"
+></div>
 
 <script>
 
@@ -1436,6 +1522,9 @@ let erroConexao="";
 const INTERVALO_ATUALIZACAO_MS=30000;
 
 let atualizacaoTimer=null;
+
+// Falhas seguidas da atualização em segundo plano.
+let falhasAtualizacao=0;
 
 let ultimaOportunidadeVista="";
 
@@ -2887,7 +2976,7 @@ async function varrer(alvoId){
     const falhas=
       detalhes.filter(x=>x.erro||x.aviso);
 
-    alert(
+    aviso(
       "Varredura concluída: "+
       (d.capturados||0)+
       " nova(s) captura(s) de "+
@@ -2915,7 +3004,7 @@ async function varrer(alvoId){
         esc(e.message)+
         '</div>';
 
-    alert(e.message);
+    aviso(e.message,"warn");
 
   }
 
@@ -3180,7 +3269,7 @@ async function enfileirar(){
 
   if(!texto){
 
-    alert("Cole o conteúdo que deseja enfileirar.");
+    aviso("Cole o conteúdo que deseja enfileirar.","warn");
 
     return;
 
@@ -3235,8 +3324,9 @@ async function analisar(){
 
   if(!content){
 
-    alert(
-      "Cole o conteúdo que deseja analisar."
+    aviso(
+      "Cole o conteúdo que deseja analisar.",
+      "warn"
     );
 
     return;
@@ -3347,7 +3437,7 @@ async function analisarCaptura(id){
 
     );
 
-    alert(
+    aviso(
       d.selecionada===false
         ?(d.duplicada_de
             ?"Já existe oportunidade para este conteúdo: "+
@@ -3360,7 +3450,7 @@ async function analisarCaptura(id){
 
   }catch(e){
 
-    alert(e.message);
+    aviso(e.message,"warn");
 
   }
 
@@ -3397,7 +3487,7 @@ async function descartarCaptura(id){
 
   }catch(e){
 
-    alert(e.message);
+    aviso(e.message,"warn");
 
   }
 
@@ -3572,8 +3662,9 @@ async function setStatus(id,status){
 
   if(!r.ok){
 
-    alert(
-      "Não foi possível atualizar o status."
+    aviso(
+      "Não foi possível atualizar o status.",
+      "warn"
     );
 
     return;
@@ -3627,9 +3718,10 @@ async function setNegociacao(id,status){
 
   if(!r.ok){
 
-    alert(
+    aviso(
       "Não foi possível atualizar a negociação. "+
-      "Confirme se a migration 008 foi aplicada."
+      "Confirme se a migration 008 foi aplicada.",
+      "warn"
     );
 
     return;
@@ -3658,11 +3750,11 @@ async function reavaliar(id){
 
     await load();
 
-    alert("Oportunidade reavaliada pela IA.");
+    aviso("Oportunidade reavaliada pela IA.","ok");
 
   }catch(e){
 
-    alert(e.message);
+    aviso(e.message,"warn");
 
   }
 
@@ -3709,7 +3801,7 @@ async function rascunhoAbordagem(id){
         .writeText(r.mensagem)
         .catch(()=>{});
 
-    alert(
+    aviso(
       "Canal sugerido: "+
       (r.canal_sugerido||"WHATSAPP")+
       "\n\n"+
@@ -3721,7 +3813,7 @@ async function rascunhoAbordagem(id){
 
   }catch(e){
 
-    alert(e.message);
+    aviso(e.message,"warn");
 
   }
 
@@ -3812,6 +3904,429 @@ async function carregarSaude(){
       '<div class="notice warn">'+
       esc(e.message)+
       '</div>';
+
+  }
+
+}
+
+
+// ───────────── Filtros com espera ─────────────
+
+// Digitar na busca re-renderizava a lista inteira a cada
+// tecla. A espera curta agrupa as teclas em um único render.
+const ESPERA_FILTRO_MS=180;
+
+let filtroTimer=null;
+
+function agendarRender(fn){
+
+  if(filtroTimer)
+
+    clearTimeout(filtroTimer);
+
+  filtroTimer=
+    setTimeout(()=>{
+
+      filtroTimer=null;
+
+      fn();
+
+    },ESPERA_FILTRO_MS);
+
+}
+
+
+function renderOportunidadesDepois(){
+
+  agendarRender(renderOportunidades);
+
+}
+
+
+function renderCapturasDepois(){
+
+  agendarRender(renderCapturas);
+
+}
+
+
+// ───────────── Avisos do painel ─────────────
+
+// Substitui alert(): o operador pode ter bloqueado pop-ups e,
+// pior, alert() trava a página inteira enquanto o painel ainda
+// está atualizando em segundo plano.
+function aviso(texto,tipo){
+
+  const caixa=
+    document.getElementById("avisos");
+
+  const msg=String(texto||"").trim();
+
+  if(!caixa||!msg)
+
+    return;
+
+  const el=
+    document.createElement("div");
+
+  el.className=
+    "aviso "+(tipo||"");
+
+  const corpo=
+    document.createElement("div");
+
+  corpo.style.flex="1";
+
+  corpo.textContent=msg;
+
+  const fechar=
+    document.createElement("button");
+
+  fechar.type="button";
+
+  fechar.setAttribute(
+    "aria-label",
+    "Fechar aviso"
+  );
+
+  fechar.textContent="✕";
+
+  fechar.onclick=()=>el.remove();
+
+  el.appendChild(corpo);
+
+  el.appendChild(fechar);
+
+  caixa.appendChild(el);
+
+  // Mensagens curtas somem sozinhas; as longas (rascunho da
+  // IA, relatório de varredura) ficam até o operador fechar.
+  if(msg.length<200)
+
+    setTimeout(
+      ()=>el.remove(),
+      9000
+    );
+
+}
+
+
+// ───────────── Limpeza / retenção ─────────────
+
+// Guarda a última prévia para que o botão APAGAR use
+// exatamente os dias que o operador viu na tela.
+let limpezaPrevia=[];
+
+let limpando=false;
+
+
+function limpezaMsg(html){
+
+  const el=
+    document.getElementById("limpezaMsg");
+
+  if(el)
+
+    el.innerHTML=html||"";
+
+}
+
+
+function renderLimpeza(){
+
+  const el=
+    document.getElementById("painelLimpeza");
+
+  if(!el)
+
+    return;
+
+  if(!limpezaPrevia.length){
+
+    el.innerHTML=
+      '<div class="empty">'+
+      'Nada elegível para limpeza no momento.'+
+      '</div>';
+
+    return;
+
+  }
+
+  el.innerHTML=
+
+    limpezaPrevia
+      .map((i,idx)=>
+
+        '<div class="item">'+
+
+        '<b>'+esc(i.rotulo)+'</b>'+
+        '<div class="motivo">'+esc(i.descricao||"")+'</div>'+
+
+        '<div class="motivo">'+
+        esc(i.total||0)+' registro(s) com mais de '+
+        esc(i.dias)+' dias'+
+        '</div>'+
+
+        '<div class="actions">'+
+
+        '<input '+
+        'id="limpezaDias'+idx+'" '+
+        'type="number" '+
+        'title="Dias preservados" '+
+        'min="'+esc(i.dias_minimo||1)+'" '+
+        'value="'+esc(i.dias)+'" '+
+        'style="max-width:120px" '+
+        'aria-label="Dias preservados em '+esc(i.rotulo)+'"'+
+        '>'+
+
+        '<button '+
+        'class="btn light small" '+
+        'data-acao="previa-limpeza-item" '+
+        'onclick="previaLimpezaItem('+idx+')"'+
+        '>🔍 RECALCULAR</button>'+
+
+        '<button '+
+        'class="btn danger small" '+
+        'data-acao="limpar" '+
+        'data-alvo="'+esc(i.alvo)+'" '+
+        (i.total?"":"disabled ")+
+        'onclick="executarLimpeza('+idx+')"'+
+        '>🧹 APAGAR</button>'+
+
+        '</div>'+
+
+        '</div>'
+      )
+      .join("");
+
+}
+
+
+async function previaLimpeza(){
+
+  const el=
+    document.getElementById("painelLimpeza");
+
+  if(el)
+
+    el.innerHTML=
+      '<div class="empty">Calculando…</div>';
+
+  limpezaMsg("");
+
+  const botoes=
+    Array.from(
+      document.querySelectorAll('[data-acao="previa-limpeza"]')
+    );
+
+  const rotulos=botoes.map(b=>b.innerHTML);
+
+  botoes.forEach(b=>{
+
+    b.disabled=true;
+
+    b.innerHTML="⏳ CALCULANDO...";
+
+  });
+
+  try{
+
+    const d=await chamarFuncao(
+
+      CONFIG.functionName,
+
+      { acao:"limpar", alvo:"todos", previa:true },
+
+      60000
+
+    );
+
+    limpezaPrevia=d.itens||[];
+
+    renderLimpeza();
+
+  }catch(e){
+
+    limpezaPrevia=[];
+
+    if(el)
+
+      el.innerHTML=
+        '<div class="empty">'+
+        'Não foi possível calcular.'+
+        '</div>';
+
+    limpezaMsg(
+      '<div class="notice warn">'+
+      esc(e.message)+
+      '</div>'
+    );
+
+  }finally{
+
+    botoes.forEach((b,i)=>{
+
+      b.disabled=false;
+
+      b.innerHTML=rotulos[i];
+
+    });
+
+  }
+
+}
+
+
+function diasDoItem(idx){
+
+  const campo=
+    document.getElementById("limpezaDias"+idx);
+
+  const n=
+    campo?parseInt(campo.value,10):NaN;
+
+  return Number.isFinite(n)
+    ?n
+    :(limpezaPrevia[idx]||{}).dias;
+
+}
+
+
+async function previaLimpezaItem(idx){
+
+  const item=limpezaPrevia[idx];
+
+  if(!item||limpando)
+
+    return;
+
+  limpezaMsg("");
+
+  try{
+
+    const d=await chamarFuncao(
+
+      CONFIG.functionName,
+
+      {
+        acao:"limpar",
+        alvo:item.alvo,
+        dias:diasDoItem(idx),
+        previa:true
+      },
+
+      60000
+
+    );
+
+    limpezaPrevia[idx]=
+      Object.assign({},item,{
+        dias:d.dias,
+        total:d.total
+      });
+
+    renderLimpeza();
+
+  }catch(e){
+
+    limpezaMsg(
+      '<div class="notice warn">'+
+      esc(e.message)+
+      '</div>'
+    );
+
+  }
+
+}
+
+
+async function executarLimpeza(idx){
+
+  const item=limpezaPrevia[idx];
+
+  if(!item||limpando)
+
+    return;
+
+  const dias=diasDoItem(idx);
+
+  if(!confirm(
+    "Apagar definitivamente: "+item.rotulo+"?\n\n"+
+    "Serao removidos os registros com mais de "+dias+
+    " dias. Esta acao nao pode ser desfeita."
+  ))
+
+    return;
+
+  limpando=true;
+
+  const botoes=
+    Array.from(
+      document.querySelectorAll('[data-acao="limpar"]')
+    );
+
+  const rotulos=botoes.map(b=>b.innerHTML);
+
+  botoes.forEach(b=>{
+
+    b.disabled=true;
+
+    b.innerHTML="⏳ APAGANDO...";
+
+  });
+
+  try{
+
+    const d=await chamarFuncao(
+
+      CONFIG.functionName,
+
+      { acao:"limpar", alvo:item.alvo, dias:dias },
+
+      120000
+
+    );
+
+    limpezaMsg(
+      '<div class="notice ok">'+
+      esc(
+        d.mensagem||
+        ((d.removidos||0)+" registro(s) removido(s).")
+      )+
+      '</div>'
+    );
+
+    limpando=false;
+
+    await previaLimpeza();
+
+    await load();
+
+    return;
+
+  }catch(e){
+
+    limpezaMsg(
+      '<div class="notice warn">'+
+      esc(e.message)+
+      '</div>'
+    );
+
+  }finally{
+
+    botoes.forEach((b,i)=>{
+
+      if(b.isConnected){
+
+        b.disabled=false;
+
+        b.innerHTML=rotulos[i];
+
+      }
+
+    });
+
+    limpando=false;
 
   }
 
@@ -4576,7 +5091,7 @@ async function removerFonte(id){
 
   }catch(e){
 
-    alert(e.message);
+    aviso(e.message,"warn");
 
   }
 
@@ -4889,7 +5404,29 @@ function iniciarAtualizacaoAutomatica(){
 
         return;
 
-      load().catch(()=>{});
+      load()
+        .then(()=>{
+
+          falhasAtualizacao=0;
+
+        })
+        .catch(()=>{
+
+          falhasAtualizacao++;
+
+          // Uma falha isolada é ruído de rede; a partir da
+          // segunda o operador precisa saber que o que está
+          // na tela pode estar velho.
+          if(falhasAtualizacao===2)
+
+            aviso(
+              "A atualização automática falhou. Os dados na "+
+              "tela podem estar desatualizados — use ATUALIZAR "+
+              "para tentar de novo.",
+              "warn"
+            );
+
+        });
 
     },INTERVALO_ATUALIZACAO_MS);
 
