@@ -1398,6 +1398,42 @@ reavaliá-las com os critérios atuais do alvo."
       <section class="card">
 
         <h2>
+          🩺 Saúde operacional
+        </h2>
+
+        <p class="sub">
+          O Radar avalia sozinho, de hora em hora, se a fila
+          travou, se alguma fonte parou de responder, se o
+          custo estourou o teto e se o robô ainda está
+          capturando. Cada problema vira um incidente e o
+          crítico é avisado uma única vez.
+        </p>
+
+        <div class="actions" style="margin-bottom:14px">
+
+          <button
+            class="btn light"
+            data-acao="verificar-saude"
+            onclick="verificarSaudeOperacional()"
+          >
+            🩺 VERIFICAR AGORA
+          </button>
+
+        </div>
+
+        <div id="painelIncidentes" class="list">
+
+          <div class="empty">
+            Use VERIFICAR AGORA para avaliar o pipeline.
+          </div>
+
+        </div>
+
+      </section>
+
+      <section class="card">
+
+        <h2>
           🧹 Limpeza e retenção
         </h2>
 
@@ -4011,6 +4047,102 @@ function aviso(texto,tipo){
 }
 
 
+// ───────────── Saúde operacional ─────────────
+
+// Pede ao Radar que avalie o pipeline. Diferente do painel de
+// custo, que só mostra números, aqui o próprio sistema diz o
+// que está errado e o que já foi avisado.
+async function verificarSaudeOperacional(){
+
+  const el=
+    document.getElementById("painelIncidentes");
+
+  if(!el)
+
+    return;
+
+  el.innerHTML=
+    '<div class="empty">Avaliando o pipeline…</div>';
+
+  try{
+
+    const d=
+      await chamarFuncao(
+
+        CONFIG.functionName,
+
+        { acao:"saude_operacional" }
+
+      );
+
+    const lista=
+      d.incidentes||[];
+
+    if(!lista.length){
+
+      el.innerHTML=
+        '<div class="item ok">'+
+        '<b>✅ Pipeline saudável.</b> '+
+        'Fila, fontes, custo e ritmo de captura dentro '+
+        'dos limites.'+
+        (d.resolvidos
+          ?' '+esc(d.resolvidos)+
+           ' incidente(s) anterior(es) foram fechados.'
+          :"")+
+        '</div>';
+
+      aviso(
+        "Nenhum problema encontrado no pipeline.",
+        "ok"
+      );
+
+      return;
+
+    }
+
+    el.innerHTML=
+      lista
+        .map(i=>
+          '<div class="item">'+
+          '<b>'+
+          (i.severidade==="CRITICO"?"🔴":"🟡")+
+          ' '+esc(i.tipo.replace(/_/g," "))+
+          '</b>'+
+          (i.alvo && i.alvo!=="global"
+            ?' <span class="sub">('+esc(i.alvo)+')</span>'
+            :"")+
+          '<div class="sub">'+esc(i.mensagem)+'</div>'+
+          '</div>'
+        )
+        .join("");
+
+    const criticos=
+      lista.filter(i=>i.severidade==="CRITICO").length;
+
+    aviso(
+      lista.length+" problema(s) encontrado(s)"+
+      (criticos?", "+criticos+" crítico(s)":"")+
+      (d.notificados && d.notificados.length
+        ?". Alerta enviado ao time."
+        :"."),
+      "warn"
+    );
+
+  }catch(e){
+
+    el.innerHTML=
+      '<div class="item erro">'+esc(e.message)+'</div>';
+
+    aviso(
+      "Não foi possível avaliar a saúde: "+e.message,
+      "warn"
+    );
+
+  }
+
+}
+
+
 // ───────────── Limpeza / retenção ─────────────
 
 // Guarda a última prévia para que o botão APAGAR use
@@ -4482,6 +4614,8 @@ function mostrarResultado(o,destino){
        '</div>'
       :"")+
 
+    '<div id="grupo_'+esc(o.id||"x")+'"></div>'+
+
     '<div class="actions">'+
     acoes(o)+
     '</div>'+
@@ -4512,6 +4646,89 @@ function mostrarResultado(o,destino){
   if(el)
 
     el.innerHTML=html;
+
+  // O comparativo vem de outra tabela: é buscado depois para
+  // não atrasar a exibição do resultado da IA.
+  if(o.id&&o.grupo_id)
+
+    mostrarGrupo(o.id,o.grupo_id);
+
+}
+
+
+// ───────────── Inteligência competitiva ─────────────
+
+// Mostra quanto estão pedindo pelo MESMO negócio em outras
+// fontes. Sem isto, o operador só via o preço do anúncio que
+// estava lendo e não tinha como saber se era o melhor.
+async function mostrarGrupo(oportunidadeId,grupoId){
+
+  const el=
+    document.getElementById("grupo_"+oportunidadeId);
+
+  if(!el)
+
+    return;
+
+  try{
+
+    const r=
+      await api(
+        "/rest/v1/radar_grupos_resumo"+
+        "?id=eq."+encodeURIComponent(grupoId)+
+        "&select=*&limit=1"
+      );
+
+    // Banco sem a migration 014: o bloco simplesmente não
+    // aparece, o resto do painel continua igual.
+    if(!r.ok)
+
+      return;
+
+    const g=
+      (await r.json())[0];
+
+    if(!g||Number(g.anuncios||0)<2)
+
+      return;
+
+    const partes=[
+      esc(g.anuncios)+" anúncio(s)",
+      esc(g.fontes||1)+" fonte(s)"
+    ];
+
+    if(g.valor_minimo)
+
+      partes.push(
+        "menor pedido "+money(g.valor_minimo)
+      );
+
+    if(g.variacao_pct)
+
+      partes.push(
+        esc(g.variacao_pct)+"% de variação"
+      );
+
+    if(g.dias_em_mercado)
+
+      partes.push(
+        esc(g.dias_em_mercado)+" dia(s) em mercado"
+      );
+
+    el.innerHTML=
+      '<div class="motivo">'+
+      '<b>📊 Mesmo negócio no mercado:</b> '+
+      partes.join(" · ")+
+      (g.rotulo
+        ?'<div class="sub">'+esc(g.rotulo)+'</div>'
+        :"")+
+      '</div>';
+
+  }catch(e){
+
+    console.warn("grupo competitivo:",e);
+
+  }
 
 }
 
