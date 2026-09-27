@@ -650,3 +650,218 @@ export function custoUSD(provedor: string, uso: Uso): number {
 
     return Math.round(total * 1_000_000) / 1_000_000;
 }
+
+
+// ── Embeddings ──────────────────────────────────────────────
+//
+// O vetor representa o significado do anúncio. É o que permite
+// reconhecer o mesmo negócio reescrito com outras palavras,
+// algo que a comparação por palavras nunca pegaria.
+//
+// A dimensão é fixa porque a coluna do banco é vector(768):
+// mudar exige nova migration, então normalizamos aqui.
+
+export const DIMENSAO_EMBEDDING = 768;
+
+export function modeloEmbeddingLuna(): string {
+    return env('LUNA_EMBEDDING_MODEL') || 'text-embedding-3-small';
+}
+
+export function modeloEmbeddingGemini(): string {
+    return env('GEMINI_EMBEDDING_MODEL') || 'text-embedding-004';
+}
+
+// Ajusta o vetor à dimensão da coluna: corta o excesso (os
+// modelos OpenAI suportam truncagem por design, as primeiras
+// dimensões carregam a maior parte do sinal) e completa com
+// zero quando vem menor.
+export function ajustarDimensao(
+    v: number[],
+    dimensao = DIMENSAO_EMBEDDING,
+): number[] {
+    const saida = new Array(dimensao).fill(0);
+
+    for (let i = 0; i < Math.min(v.length, dimensao); i++) {
+        const n = Number(v[i]);
+
+        saida[i] = Number.isFinite(n) ? n : 0;
+    }
+
+    // Truncar desnormaliza o vetor; renormalizar mantém o
+    // cosseno comparável entre textos de tamanhos diferentes.
+    let norma = 0;
+
+    for (const n of saida) norma += n * n;
+
+    norma = Math.sqrt(norma);
+
+    if (norma === 0) return saida;
+
+    return saida.map((n) => n / norma);
+}
+
+async function embutirLuna(
+    chave: string,
+    texto: string,
+    timeoutMs: number,
+): Promise<number[]> {
+    let r: Response;
+
+    try {
+        r = await chamar(
+            baseLuna() + '/embeddings',
+            {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: 'Bearer ' + chave,
+                },
+                body: JSON.stringify({
+                    model: modeloEmbeddingLuna(),
+                    input: texto,
+                    dimensions: DIMENSAO_EMBEDDING,
+                }),
+            },
+            timeoutMs,
+        );
+    } catch (e) {
+        if (e instanceof Error && e.name === 'AbortError') {
+            throw new IAError(
+                'A GPT Luna demorou demais para gerar o vetor.',
+                504,
+            );
+        }
+
+        throw new IAError('Falha de rede ao gerar o vetor na GPT Luna.');
+    }
+
+    if (!r.ok) {
+        const detalhe = (await r.text().catch(() => '')).slice(0, 300);
+
+        throw new IAError(
+            'Erro ao gerar embedding na GPT Luna (HTTP ' +
+                r.status + '). ' + detalhe,
+            r.status,
+        );
+    }
+
+    const json = await r.json().catch(() => null);
+
+    const v = json?.data?.[0]?.embedding;
+
+    if (!Array.isArray(v) || v.length === 0) {
+        throw new IAError('A GPT Luna não retornou vetor.', 502);
+    }
+
+    return ajustarDimensao(v);
+}
+
+async function embutirGemini(
+    chave: string,
+    texto: string,
+    timeoutMs: number,
+): Promise<number[]> {
+    const modelo = modeloEmbeddingGemini();
+
+    let r: Response;
+
+    try {
+        r = await chamar(
+            'https://generativelanguage.googleapis.com/v1beta/models/' +
+                modelo + ':embedContent?key=' + encodeURIComponent(chave),
+            {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    model: 'models/' + modelo,
+                    content: { parts: [{ text: texto }] },
+                    outputDimensionality: DIMENSAO_EMBEDDING,
+                }),
+            },
+            timeoutMs,
+        );
+    } catch (e) {
+        if (e instanceof Error && e.name === 'AbortError') {
+            throw new IAError(
+                'O Gemini demorou demais para gerar o vetor.',
+                504,
+            );
+        }
+
+        throw new IAError('Falha de rede ao gerar o vetor no Gemini.');
+    }
+
+    if (!r.ok) {
+        const detalhe = (await r.text().catch(() => '')).slice(0, 300);
+
+        throw new IAError(
+            'Erro ao gerar embedding no Gemini (HTTP ' +
+                r.status + '). ' + detalhe,
+            r.status,
+        );
+    }
+
+    const json = await r.json().catch(() => null);
+
+    const v = json?.embedding?.values;
+
+    if (!Array.isArray(v) || v.length === 0) {
+        throw new IAError('O Gemini não retornou vetor.', 502);
+    }
+
+    return ajustarDimensao(v);
+}
+
+// Gera o vetor do texto. Devolve null quando não há provedor
+// configurado ou quando ambos falham: o embedding é um reforço
+// do dedupe, nunca um pré-requisito para analisar o anúncio.
+export async function embutir(
+    texto: string,
+    timeoutMs = 20000,
+): Promise<number[] | null> {
+    const limpo = String(texto || '').trim().slice(0, 8000);
+
+    if (!limpo) return null;
+
+    const luna = chaveLuna();
+
+    const gemini = chaveGemini();
+
+    if (luna) {
+        try {
+            return await comRetry(
+                'embedding Luna',
+                () => embutirLuna(luna, limpo, timeoutMs),
+            );
+        } catch (e) {
+            if (!gemini) {
+                console.warn(
+                    '[ia] embedding indisponível: ' +
+                        (e as Error).message,
+                );
+
+                return null;
+            }
+
+            console.warn(
+                '[ia] embedding da Luna falhou (' +
+                    (e as Error).message + ') — usando Gemini.',
+            );
+        }
+    }
+
+    if (!gemini) return null;
+
+    try {
+        return await comRetry(
+            'embedding Gemini',
+            () => embutirGemini(gemini, limpo, timeoutMs),
+        );
+    } catch (e) {
+        console.warn(
+            '[ia] embedding indisponível: ' + (e as Error).message,
+        );
+
+        return null;
+    }
+}
