@@ -51,6 +51,7 @@ import {
     asInt,
     asText,
     Empreendimento,
+    erroDeBanco,
     extrairAnunciante,
     preFiltrar,
     suspensaoDaFonte,
@@ -1402,7 +1403,23 @@ Deno.serve(async (req) => {
                     .select()
                     .single();
 
-            if (error) throw error;
+            // Erro de gravação aqui quase sempre é banco atrás das
+            // migrations (tipo novo, coluna nova) ou nome repetido:
+            // devolve o que fazer, em vez de "erro interno".
+            if (error) {
+                console.error('[radar-captura] salvar_fonte', traceId, error);
+
+                const conhecido = erroDeBanco(error);
+
+                if (conhecido) {
+                    return json({
+                        error: conhecido.mensagem,
+                        trace_id: traceId,
+                    }, conhecido.status);
+                }
+
+                throw error;
+            }
 
             return json({ ok: true, fonte: data });
         }
@@ -1695,19 +1712,13 @@ Deno.serve(async (req) => {
     } catch (e) {
         console.error('[radar-captura]', traceId, e);
 
-        const err = e as { code?: string; message?: string };
+        const conhecido = erroDeBanco(e);
 
-        if (
-            err?.code === '42P01' || err?.code === 'PGRST205' ||
-            /does not exist/i.test(String(err?.message || ''))
-        ) {
+        if (conhecido) {
             return json({
-                error:
-                    'Tabelas da Central de Monitoramento não encontradas. ' +
-                    'Aplique a migration supabase/migrations/' +
-                    '008_radar_central_monitoramento.sql.',
+                error: conhecido.mensagem,
                 trace_id: traceId,
-            }, 500);
+            }, conhecido.status);
         }
 
         return json({
