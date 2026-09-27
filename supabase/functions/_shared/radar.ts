@@ -820,3 +820,173 @@ export function proximaTentativa(
 // Depois disso a captura vira dead-letter (estado ERRO fixo) e
 // para de consumir a fila.
 export const MAX_TENTATIVAS = 5;
+
+
+// ── Limpeza / retenção ──────────────────────────────────────
+//
+// O Radar acumula histórico depressa: capturas brutas, cache
+// de IA, alertas e execuções. Sem uma política de retenção o
+// painel fica lento e o banco cresce sem necessidade.
+//
+// Cada política é declarativa de propósito: a Edge Function só
+// monta o DELETE a partir daqui, nunca a partir de nomes de
+// tabela ou coluna vindos do cliente.
+
+export type AlvoLimpeza =
+    | 'capturas_analisadas'
+    | 'capturas_descartadas'
+    | 'capturas_abandonadas'
+    | 'oportunidades_descartadas'
+    | 'cache_ia'
+    | 'alertas'
+    | 'execucoes'
+    | 'uso_ia';
+
+export interface PoliticaLimpeza {
+    alvo: AlvoLimpeza;
+    rotulo: string;
+    tabela: string;
+    // Coluna de data usada no corte por idade.
+    colunaData: string;
+    // Filtro de estado/status, quando a limpeza é restrita.
+    colunaEstado?: string;
+    estados?: string[];
+    // Nunca apagar nada mais novo que isto.
+    diasMinimo: number;
+    diasPadrao: number;
+    descricao: string;
+}
+
+// Teto de idade: acima disso o pedido vira "não apague nada",
+// evitando datas absurdas vindas do cliente.
+export const DIAS_LIMPEZA_MAXIMO = 3650;
+
+export const LIMPEZAS: Record<AlvoLimpeza, PoliticaLimpeza> = {
+    capturas_analisadas: {
+        alvo: 'capturas_analisadas',
+        rotulo: 'Capturas já analisadas',
+        tabela: 'radar_capturas',
+        colunaData: 'capturado_em',
+        colunaEstado: 'estado',
+        estados: ['ANALISADO'],
+        diasMinimo: 30,
+        diasPadrao: 90,
+        descricao: 'Texto bruto de capturas que já viraram ' +
+            'oportunidade ou já foram avaliadas. A oportunidade ' +
+            'gerada permanece intacta.',
+    },
+
+    capturas_descartadas: {
+        alvo: 'capturas_descartadas',
+        rotulo: 'Capturas descartadas',
+        tabela: 'radar_capturas',
+        colunaData: 'capturado_em',
+        colunaEstado: 'estado',
+        estados: ['DESCARTADO'],
+        diasMinimo: 15,
+        diasPadrao: 60,
+        descricao: 'Capturas que não passaram nos critérios do ' +
+            'alvo. Depois de apagadas não podem ser reenfileiradas.',
+    },
+
+    capturas_abandonadas: {
+        alvo: 'capturas_abandonadas',
+        rotulo: 'Capturas com erro / abandonadas',
+        tabela: 'radar_capturas',
+        colunaData: 'capturado_em',
+        colunaEstado: 'estado',
+        estados: ['ERRO', 'ABANDONADO'],
+        diasMinimo: 7,
+        diasPadrao: 30,
+        descricao: 'Dead-letter da fila: capturas que estouraram ' +
+            'as tentativas. Limpe só depois de investigar a causa.',
+    },
+
+    oportunidades_descartadas: {
+        alvo: 'oportunidades_descartadas',
+        rotulo: 'Oportunidades descartadas',
+        tabela: 'radar_oportunidades',
+        colunaData: 'criado_em',
+        colunaEstado: 'status',
+        estados: ['DESCARTADA'],
+        diasMinimo: 30,
+        diasPadrao: 180,
+        descricao: 'Oportunidades reprovadas pelo time. ' +
+            'VALIDAR e APROVADA nunca são apagadas.',
+    },
+
+    cache_ia: {
+        alvo: 'cache_ia',
+        rotulo: 'Cache de análises da IA',
+        tabela: 'radar_analise_cache',
+        colunaData: 'usado_em',
+        diasMinimo: 7,
+        diasPadrao: 60,
+        descricao: 'Respostas reaproveitadas por hash do texto. ' +
+            'Limpar só faz a IA reanalisar textos antigos.',
+    },
+
+    alertas: {
+        alvo: 'alertas',
+        rotulo: 'Histórico de alertas',
+        tabela: 'radar_alertas',
+        colunaData: 'criado_em',
+        diasMinimo: 7,
+        diasPadrao: 90,
+        descricao: 'Trilha de WhatsApp/e-mail enviados ao time.',
+    },
+
+    execucoes: {
+        alvo: 'execucoes',
+        rotulo: 'Histórico de execuções',
+        tabela: 'radar_execucoes',
+        colunaData: 'iniciado_em',
+        diasMinimo: 7,
+        diasPadrao: 60,
+        descricao: 'Varreduras do robô e lotes da IA já concluídos.',
+    },
+
+    uso_ia: {
+        alvo: 'uso_ia',
+        rotulo: 'Medição de tokens e custo',
+        tabela: 'radar_ia_uso',
+        colunaData: 'criado_em',
+        diasMinimo: 30,
+        diasPadrao: 180,
+        descricao: 'Registro de tokens e custo por chamada. ' +
+            'Apagar reduz o histórico do painel de custo.',
+    },
+};
+
+export function politicaLimpeza(alvo: unknown): PoliticaLimpeza | null {
+    const chave = typeof alvo === 'string' ? alvo.trim().toLowerCase() : '';
+
+    return (LIMPEZAS as Record<string, PoliticaLimpeza>)[chave] ?? null;
+}
+
+// Normaliza os dias pedidos: nunca abaixo do mínimo da política
+// e nunca acima do teto. Valor ausente ou inválido cai no padrão.
+export function diasLimpeza(
+    politica: PoliticaLimpeza,
+    dias?: unknown,
+): number {
+    const n = typeof dias === 'number' ? dias : Number(dias);
+
+    if (!Number.isFinite(n)) return politica.diasPadrao;
+
+    const inteiro = Math.floor(n);
+
+    if (inteiro < politica.diasMinimo) return politica.diasMinimo;
+
+    if (inteiro > DIAS_LIMPEZA_MAXIMO) return DIAS_LIMPEZA_MAXIMO;
+
+    return inteiro;
+}
+
+// Data de corte em ISO: tudo mais antigo que isto é elegível.
+export function corteLimpeza(
+    dias: number,
+    agora: Date = new Date(),
+): string {
+    return new Date(agora.getTime() - dias * 86400000).toISOString();
+}

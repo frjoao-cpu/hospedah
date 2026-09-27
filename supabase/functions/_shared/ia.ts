@@ -253,6 +253,16 @@ async function pedirLuna(
             );
         }
 
+        // 5xx é indisponibilidade do provedor, não erro de
+        // conteúdo: vale tentar de novo e, se insistir, cair
+        // para o Gemini.
+        if (r.status >= 500) {
+            throw new IAError(
+                'GPT Luna indisponível (HTTP ' + r.status + '): ' + msg,
+                503,
+            );
+        }
+
         throw new IAError('Erro na API da GPT Luna: ' + msg);
     }
 
@@ -507,6 +517,65 @@ async function pedirGemini(
     };
 }
 
+// ── Retry de erros transitórios ─────────────────────────────
+
+// Sobrecarga e indisponibilidade do provedor são temporárias:
+// repetir com espera costuma resolver sem trocar de modelo (o
+// que dobraria o custo). Erros de conteúdo nunca são repetidos.
+export function erroTransitorio(e: unknown): boolean {
+    if (!(e instanceof IAError)) return false;
+
+    return e.status === 429 || e.status === 502 ||
+        e.status === 503 || e.status === 504;
+}
+
+// Espera exponencial com teto, em milissegundos.
+export function esperaRetry(tentativa: number): number {
+    return Math.min(8000, 500 * Math.pow(2, Math.max(0, tentativa)));
+}
+
+function tentativasIA(): number {
+    const bruto = env('IA_RETRY_TENTATIVAS');
+
+    const n = Number(bruto);
+
+    if (!Number.isFinite(n)) return 3;
+
+    return Math.min(5, Math.max(1, Math.floor(n)));
+}
+
+async function comRetry<T>(
+    rotulo: string,
+    fn: () => Promise<T>,
+): Promise<T> {
+    const total = tentativasIA();
+
+    let ultimo: unknown;
+
+    for (let i = 0; i < total; i++) {
+        try {
+            return await fn();
+        } catch (e) {
+            ultimo = e;
+
+            if (!erroTransitorio(e) || i === total - 1) throw e;
+
+            const espera = esperaRetry(i);
+
+            console.warn(
+                '[ia] ' + rotulo + ' instável (' +
+                    (e as Error).message + ') — nova tentativa em ' +
+                    espera + 'ms (' + (i + 2) + '/' + total + ').',
+            );
+
+            await new Promise((r) => setTimeout(r, espera));
+        }
+    }
+
+    throw ultimo;
+}
+
+
 // ── Entrada única ───────────────────────────────────────────
 
 // Executa a tarefa na GPT Luna e, em caso de indisponibilidade,
@@ -531,7 +600,10 @@ export async function pensar(
 
     if (luna) {
         try {
-            return await pedirLuna(luna, system, usuario, op);
+            return await comRetry(
+                'GPT Luna',
+                () => pedirLuna(luna, system, usuario, op),
+            );
         } catch (e) {
             const erro = e as IAError;
 
@@ -549,7 +621,10 @@ export async function pensar(
         }
     }
 
-    return await pedirGemini(gemini as string, system, usuario, op);
+    return await comRetry(
+        'Gemini',
+        () => pedirGemini(gemini as string, system, usuario, op),
+    );
 }
 
 // ── Custo ───────────────────────────────────────────────────

@@ -18,6 +18,11 @@ import {
     acharDuplicada,
     ajustarScore,
     Alvo,
+    corteLimpeza,
+    DIAS_LIMPEZA_MAXIMO,
+    diasLimpeza,
+    LIMPEZAS,
+    politicaLimpeza,
     asRisco,
     asUrgencia,
     descontoPercentual,
@@ -439,4 +444,70 @@ Deno.test('rotuloRegra traduz as regras conhecidas', () => {
 
     assertEquals(rotuloRegra('INVENTADA'), 'INVENTADA');
     assertEquals(rotuloRegra(null), 'Não classificada');
+});
+
+
+// ── Limpeza / retenção ──────────────────────────────────────
+
+Deno.test('limpeza — alvo desconhecido não vira DELETE', () => {
+    assertEquals(politicaLimpeza('tabela_secreta'), null);
+    assertEquals(politicaLimpeza(''), null);
+    assertEquals(politicaLimpeza(null), null);
+    assertEquals(politicaLimpeza(123), null);
+});
+
+Deno.test('limpeza — alvo válido aceita espaços e maiúsculas', () => {
+    const p = politicaLimpeza('  Cache_IA ');
+
+    assert(p);
+    assertEquals(p?.tabela, 'radar_analise_cache');
+});
+
+Deno.test('limpeza — dias nunca descem abaixo do mínimo', () => {
+    const p = politicaLimpeza('capturas_abandonadas')!;
+
+    assertEquals(diasLimpeza(p, 0), p.diasMinimo);
+    assertEquals(diasLimpeza(p, -500), p.diasMinimo);
+    assertEquals(diasLimpeza(p, 1), p.diasMinimo);
+});
+
+Deno.test('limpeza — dias ausentes ou inválidos usam o padrão', () => {
+    const p = politicaLimpeza('alertas')!;
+
+    assertEquals(diasLimpeza(p, undefined), p.diasPadrao);
+    assertEquals(diasLimpeza(p, 'abc'), p.diasPadrao);
+    assertEquals(diasLimpeza(p, NaN), p.diasPadrao);
+});
+
+Deno.test('limpeza — dias têm teto e são inteiros', () => {
+    const p = politicaLimpeza('alertas')!;
+
+    assertEquals(diasLimpeza(p, 999999), DIAS_LIMPEZA_MAXIMO);
+    assertEquals(diasLimpeza(p, 120.9), 120);
+});
+
+Deno.test('limpeza — corte é calculado para trás no tempo', () => {
+    const agora = new Date('2026-03-10T12:00:00.000Z');
+
+    assertEquals(
+        corteLimpeza(10, agora),
+        '2026-02-28T12:00:00.000Z',
+    );
+});
+
+Deno.test('limpeza — oportunidades vivas ficam fora da política', () => {
+    const p = politicaLimpeza('oportunidades_descartadas')!;
+
+    assertEquals(p.estados, ['DESCARTADA']);
+    assert(!p.estados?.includes('VALIDAR'));
+    assert(!p.estados?.includes('APROVADA'));
+});
+
+Deno.test('limpeza — toda política aponta para tabela do Radar', () => {
+    for (const p of Object.values(LIMPEZAS)) {
+        assert(p.tabela.startsWith('radar_'));
+        assert(p.colunaData.length > 0);
+        assert(p.diasMinimo > 0);
+        assert(p.diasPadrao >= p.diasMinimo);
+    }
 });

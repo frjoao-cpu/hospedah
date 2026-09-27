@@ -24,6 +24,8 @@
 //   rascunho_abordagem  → gera a mensagem de abordagem
 //   registrar_desfecho  → grava o resultado da negociação
 //   saude               → fila, custo de IA e alertas recentes
+//   limpar              → retenção: apaga histórico antigo
+//                         (aceita previa:true para só contar)
 // ============================================================
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
@@ -53,12 +55,16 @@ import {
     asScore,
     asText,
     asUrgencia,
+    corteLimpeza,
     descontoPercentual,
+    diasLimpeza,
+    LIMPEZAS,
     Empreendimento,
     hashTexto,
     impressaoDigital,
     MAX_TENTATIVAS,
     mesmoEmpreendimento,
+    politicaLimpeza,
     proximaTentativa,
     Referencia,
     referenciaDePreco,
@@ -87,13 +93,32 @@ const headers = {
 // processar_pendentes. O teto real é o orçamento de tempo
 // abaixo: o lote para sozinho antes do limite da função e
 // devolve o que sobrou para a fila.
-const LOTE_MAXIMO = 30;
+// Lê um inteiro de secret, caindo no padrão quando ausente ou
+// inválido — calibrar o lote não deve exigir novo deploy.
+function envInt(nome: string, padrao: number, minimo: number): number {
+    const bruto = Deno.env.get(nome);
+
+    if (!bruto) return padrao;
+
+    const n = Number(bruto);
+
+    if (!Number.isFinite(n)) return padrao;
+
+    return Math.max(minimo, Math.floor(n));
+}
+
+
+const LOTE_MAXIMO = envInt("RADAR_LOTE_MAXIMO", 30, 1);
 
 
 // Tempo máximo gasto analisando um lote. Acima disso a função
 // encerra o lote em vez de ser morta pelo runtime — capturas
 // não analisadas continuam PENDENTES para a próxima rodada.
-const ORCAMENTO_LOTE_MS = 110_000;
+const ORCAMENTO_LOTE_MS = envInt(
+    "RADAR_ORCAMENTO_LOTE_MS",
+    110_000,
+    10_000,
+);
 
 
 const PROMPT_VERSAO = "2.0";
@@ -551,6 +576,30 @@ async function entenderComIA(prompt: string): Promise<RespostaIA> {
 
 
 type Cliente = ReturnType<typeof createClient>;
+
+
+// Conta quantos registros uma política de limpeza atingiria,
+// sem apagar nada. Usado pela prévia do painel.
+async function contarLimpeza(
+    supabase: Cliente,
+    politica: { tabela: string; colunaData: string; colunaEstado?: string; estados?: string[] },
+    corte: string,
+): Promise<number> {
+    let q = supabase
+        .from(politica.tabela)
+        .select("id", { count: "exact", head: true })
+        .lt(politica.colunaData, corte);
+
+    if (politica.colunaEstado && politica.estados?.length) {
+        q = q.in(politica.colunaEstado, politica.estados);
+    }
+
+    const { count, error } = await q;
+
+    if (error) throw erroBanco(error, politica.tabela);
+
+    return count ?? 0;
+}
 
 
 async function carregarEmpreendimentos(
@@ -2164,6 +2213,123 @@ Deno.serve(async (req) => {
                 custo: custo || [],
                 alertas: alertas || [],
                 alerta_score: scoreAlerta(),
+            });
+        }
+
+        // ── limpar ──────────────────────────────────────────
+        // Retenção do histórico. O cliente só escolhe UM alvo
+        // da lista fechada de políticas (_shared/radar.ts) e,
+        // no máximo, quantos dias preservar: nome de tabela,
+        // coluna e estados nunca vêm do corpo da requisição.
+        //
+        // previa:true conta sem apagar — o painel mostra o
+        // número antes de pedir confirmação.
+        if (acao === "limpar") {
+            const previa = body.previa === true;
+
+            // Sem alvo (ou alvo "todos") a prévia devolve o
+            // panorama de tudo que pode ser limpo.
+            const alvoBruto = asText(body.alvo);
+
+            if (!alvoBruto || alvoBruto.toLowerCase() === "todos") {
+                if (!previa) {
+                    return json({
+                        error: "Informe qual limpeza executar " +
+                            "(campo alvo).",
+                    }, 400);
+                }
+
+                const itens = [];
+
+                for (const politica of Object.values(LIMPEZAS)) {
+                    const dias = politica.diasPadrao;
+
+                    const total = await contarLimpeza(
+                        supabase,
+                        politica,
+                        corteLimpeza(dias),
+                    );
+
+                    itens.push({
+                        alvo: politica.alvo,
+                        rotulo: politica.rotulo,
+                        descricao: politica.descricao,
+                        dias,
+                        dias_minimo: politica.diasMinimo,
+                        total,
+                    });
+                }
+
+                return json({
+                    ok: true,
+                    previa: true,
+                    itens,
+                    trace_id: traceId,
+                });
+            }
+
+            const politica = politicaLimpeza(alvoBruto);
+
+            if (!politica) {
+                return json({
+                    error: "Limpeza desconhecida: " + alvoBruto,
+                }, 400);
+            }
+
+            const dias = diasLimpeza(politica, body.dias);
+
+            const corte = corteLimpeza(dias);
+
+            if (previa) {
+                const total = await contarLimpeza(
+                    supabase,
+                    politica,
+                    corte,
+                );
+
+                return json({
+                    ok: true,
+                    previa: true,
+                    alvo: politica.alvo,
+                    rotulo: politica.rotulo,
+                    dias,
+                    corte,
+                    total,
+                    trace_id: traceId,
+                });
+            }
+
+            let q = supabase
+                .from(politica.tabela)
+                .delete()
+                .lt(politica.colunaData, corte);
+
+            if (politica.colunaEstado && politica.estados?.length) {
+                q = q.in(politica.colunaEstado, politica.estados);
+            }
+
+            const { data, error } = await q.select("id");
+
+            if (error) throw erroBanco(error, politica.tabela);
+
+            const removidos = (data || []).length;
+
+            return json({
+                ok: true,
+                previa: false,
+                alvo: politica.alvo,
+                rotulo: politica.rotulo,
+                dias,
+                corte,
+                removidos,
+                mensagem: removidos
+                    ? removidos + " registro(s) removido(s) de " +
+                        politica.rotulo.toLowerCase() +
+                        " com mais de " + dias + " dias."
+                    : "Nada a limpar: nenhum registro de " +
+                        politica.rotulo.toLowerCase() +
+                        " com mais de " + dias + " dias.",
+                trace_id: traceId,
             });
         }
 
