@@ -1230,6 +1230,81 @@ Dedupe: a página só vira captura nova
 quando o texto muda; varreduras seguidas
 com o mesmo conteúdo não regravam nada.
 
+PÁGINA COM LISTA DE ANÚNCIOS
+
+Quando a página lista vários anúncios,
+informe os seletores em config — assim
+cada bloco vira UMA captura. Os seletores
+ficam no cadastro da fonte, nunca no
+código:
+
+{
+  "nome": "Portal de cotas",
+  "tipo": "WEB_PUBLICA",
+  "config": {
+    "url": "https://portal.com.br/anuncios",
+    "item_selector": ".card-anuncio",
+    "fields": {
+      "external_id": "@data-id",
+      "title": "h2",
+      "text": ".descricao",
+      "url": "a@href",
+      "image": "img@src",
+      "published_at": "time@datetime"
+    },
+    "limit": 25
+  },
+  "ativo": true
+}
+
+Seletores aceitos: tag, .classe,
+tag.classe, #id e [atributo] ou
+[atributo=valor]. Em fields, o sufixo
+@atributo lê o atributo do elemento
+(ex.: "a@href"); sem sufixo, lê o texto.
+Sem item_selector o motor continua no
+modo genérico (página inteira = uma
+captura).
+
+MAIS DE UMA PÁGINA NA MESMA FONTE
+
+config.urls aceita uma lista:
+
+{
+  "urls": [
+    "https://portal.com.br/pagina1",
+    "https://portal.com.br/pagina2"
+  ]
+}
+
+PAGINAÇÃO (opcional)
+
+{
+  "pagination": {
+    "enabled": true,
+    "mode": "page",
+    "param": "page",
+    "start": 1,
+    "step": 1,
+    "pages": 3
+  }
+}
+
+mode aceita "page", "offset" e "cursor".
+O teto é de 5 páginas por fonte e o
+limite de itens por fonte continua
+valendo — não existe loop infinito.
+A paginação só é usada quando há
+item_selector (lista); no modo genérico
+a página inteira já é a captura.
+
+OUTROS AJUSTES DE config
+
+method, headers, query e body (para
+fontes que exigem POST ou cabeçalho de
+aplicação) e limit (itens por varredura,
+sempre limitado pelo teto do sistema).
+
 ---
 
 # 13.4 FONTES DE API JSON
@@ -1253,6 +1328,40 @@ texto/descrição/conteúdo, link, autor,
 data, imagem e identificador — sempre no
 mesmo formato das demais fontes.
 
+Quando os nomes dos campos da API forem
+diferentes, mapeie em config.fields (o
+valor é o caminho dentro do registro,
+com ponto para descer níveis):
+
+{
+  "url": "https://api.exemplo.com/posts",
+  "method": "GET",
+  "headers": {},
+  "query": {},
+  "items_path": "data",
+  "fields": {
+    "external_id": "id",
+    "autor": "author.name",
+    "url": "link",
+    "text": "message",
+    "midia_url": "image",
+    "published_at": "created_at"
+  },
+  "limit": 25
+}
+
+A paginação é a mesma da seção 13.3 e
+ainda aceita cursor/next vindos da
+resposta:
+
+{
+  "pagination": {
+    "enabled": true,
+    "mode": "cursor",
+    "next_path": "paging.next"
+  }
+}
+
 ---
 
 # 13.5 ADICIONAR UMA FONTE NOVA
@@ -1263,6 +1372,23 @@ API basta criar a fonte com o tipo certo
 e a URL em config.url. A Edge Function
 radar-captura não tem função por site:
 ela tem um motor por família de fonte.
+
+PELO PAINEL (radar-ia):
+
+1. Fontes de captura → Nome da fonte.
+2. Tipo: "Página pública (site/portal)"
+   para WEB, "Feed RSS/Atom oficial" para
+   RSS ou "API JSON pública" para API.
+3. Identificador externo: cole a URL
+   (vira config.url).
+4. Caminho dos itens: só para API JSON.
+5. Configuração avançada (JSON): opcional
+   — item_selector, fields, pagination,
+   headers, limit, urls.
+6. Salvar e vincular a fonte ao alvo em
+   radar_alvo_fontes (sem vínculo, a fonte
+   entra na varredura automática).
+7. "Testar fonte" antes da varredura.
 
 Erro em uma fonte (403, 404, 429, timeout,
 URL inválida, resposta vazia, JSON quebrado)

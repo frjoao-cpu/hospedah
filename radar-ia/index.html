@@ -1309,6 +1309,22 @@ reavaliá-las com os critérios atuais do alvo."
           placeholder="Ex.: data"
         >
 
+        <label for="fonteConfig">
+          Configuração avançada (JSON, opcional)
+        </label>
+
+        <textarea
+          id="fonteConfig"
+          rows="4"
+          placeholder="Ex.: {&quot;item_selector&quot;:&quot;.card&quot;,&quot;limit&quot;:25}"
+        ></textarea>
+
+        <p class="sub">
+          Opcional. Serve para sites com estrutura própria:
+          seletores, cabeçalhos, paginação e limite. O que for
+          informado aqui é mesclado ao config da fonte.
+        </p>
+
         <label for="fonteModo">
           Modo (Instagram)
         </label>
@@ -5184,17 +5200,27 @@ const TIPOS_URL=[
 // Function radar-captura: o endpoint usado
 // é /{page-id}/posts, que não atende grupos
 // nem perfis pessoais.
-function validarIdentificadorFonte(tipo,valor,modo){
+function validarIdentificadorFonte(tipo,valor,modo,config){
 
   if(tipo==="MANUAL"||tipo==="IMPORT")
 
     return null;
 
   // WEB/RSS/API: a fonte é uma URL pública.
-  // A Edge Function lê a mesma URL de config.url.
+  // A Edge Function lê a mesma URL de config.url
+  // (ou da lista config.urls).
   if(TIPOS_URL.indexOf(tipo)>=0){
 
-    if(!/^https?:\/\//i.test(valor||""))
+    const c=config||{};
+
+    const daConfig=
+      (Array.isArray(c.urls)?c.urls[0]:null)||
+      c.url||c.feed_url||c.endpoint||"";
+
+    if(
+      !/^https?:\/\//i.test(valor||"")&&
+      !/^https?:\/\//i.test(daConfig||"")
+    )
 
       return "Informe a URL da fonte "+
         "(ex.: https://portal.com.br/anuncios).";
@@ -5288,13 +5314,82 @@ async function salvarFonte(){
     document.getElementById("fonteIgUser")
       .value.trim();
 
+  const config={modo:modo};
+
+  if(igUser)
+
+    config.ig_user_id=igUser;
+
+  // Configuração avançada: o que o site exigir
+  // (seletores, headers, paginação, limite) vive
+  // no config da fonte, nunca no código.
+  const avancado=
+    document.getElementById("fonteConfig")
+      .value.trim();
+
+  if(avancado){
+
+    let extra=null;
+
+    try{
+
+      extra=JSON.parse(avancado);
+
+    }catch(e){
+
+      msg.innerHTML=
+        '<div class="notice warn">'+
+        'Configuração avançada inválida: '+
+        esc(e.message)+
+        '</div>';
+
+      return;
+
+    }
+
+    if(!extra||typeof extra!=="object"||
+       Array.isArray(extra)){
+
+      msg.innerHTML=
+        '<div class="notice warn">'+
+        'Configuração avançada deve ser um objeto JSON.'+
+        '</div>';
+
+      return;
+
+    }
+
+    Object.assign(config,extra);
+
+  }
+
+  // Fonte por URL: o motor genérico lê config.url,
+  // e a API aceita items_path para achar a lista.
+  if(TIPOS_URL.indexOf(tipo)>=0){
+
+    if(identificador)
+
+      config.url=identificador;
+
+    const items=
+      document.getElementById("fonteItems")
+        .value.trim();
+
+    if(items)
+
+      config.items_path=items;
+
+  }
+
   // Mesma regra aplicada na Edge Function —
-  // aqui só para avisar antes de enviar.
+  // aqui só para avisar antes de enviar. A URL
+  // pode vir do campo ou da config avançada.
   const invalido=
     validarIdentificadorFonte(
       tipo,
       identificador,
-      modo
+      modo,
+      config
     );
 
   if(invalido){
@@ -5305,28 +5400,6 @@ async function salvarFonte(){
       '</div>';
 
     return;
-
-  }
-
-  const config={modo:modo};
-
-  if(igUser)
-
-    config.ig_user_id=igUser;
-
-  // Fonte por URL: o motor genérico lê config.url,
-  // e a API aceita items_path para achar a lista.
-  if(TIPOS_URL.indexOf(tipo)>=0){
-
-    config.url=identificador;
-
-    const items=
-      document.getElementById("fonteItems")
-        .value.trim();
-
-    if(items)
-
-      config.items_path=items;
 
   }
 
@@ -5353,6 +5426,7 @@ async function salvarFonte(){
     document.getElementById("fonteIdent").value="";
     document.getElementById("fonteIgUser").value="";
     document.getElementById("fonteItems").value="";
+    document.getElementById("fonteConfig").value="";
 
     await load();
 

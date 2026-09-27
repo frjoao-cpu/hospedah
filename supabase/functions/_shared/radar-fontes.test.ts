@@ -17,11 +17,20 @@ import {
     feedParaItens,
     itensDoJson,
     jsonParaItens,
+    limiteDaFonte,
     limparMarcacao,
+    listaParaItens,
+    montarUrl,
     motorDaFonte,
+    paginacaoDaFonte,
     paginaParaItem,
+    proximaPaginaJson,
+    queryDaPagina,
+    requisicaoDaFonte,
+    selecionarBlocos,
     TIPOS_FONTE,
     urlDaFonte,
+    urlsDaFonte,
     validarUrlFonte,
 } from './radar-fontes.ts';
 
@@ -256,4 +265,248 @@ Deno.test('toda fonte produz o mesmo formato de captura', () => {
             );
         }
     }
+});
+
+// ── Configuração genérica: URLs, limite e requisição ────────
+
+Deno.test('urlsDaFonte aceita uma URL ou uma lista', () => {
+    assertEquals(
+        urlsDaFonte({ config: { url: 'https://a.com.br/1' } }),
+        ['https://a.com.br/1'],
+    );
+
+    assertEquals(
+        urlsDaFonte({
+            config: {
+                urls: ['https://a.com.br/1', 'https://a.com.br/2'],
+            },
+        }),
+        ['https://a.com.br/1', 'https://a.com.br/2'],
+    );
+
+    // Compatibilidade: fonte antiga só com identificador.
+    assertEquals(
+        urlsDaFonte({ identificador_externo: 'https://a.com.br/x' }),
+        ['https://a.com.br/x'],
+    );
+
+    assertEquals(urlsDaFonte({ config: {} }), []);
+});
+
+Deno.test('limiteDaFonte respeita o teto do sistema', () => {
+    assertEquals(limiteDaFonte({ limit: 5 }, 25), 5);
+    assertEquals(limiteDaFonte({ limit: 500 }, 25), 25);
+    assertEquals(limiteDaFonte({}, 25), 25);
+    assertEquals(limiteDaFonte(null, 25), 25);
+});
+
+Deno.test('requisicaoDaFonte monta método, headers e query', () => {
+    const r = requisicaoDaFonte({
+        method: 'post',
+        headers: { 'X-Api-Key': 'abc', Host: 'forjado' },
+        query: { pagina: 2 },
+        body: { q: 'cota' },
+    });
+
+    assertEquals(r.method, 'POST');
+    assertEquals(r.headers['X-Api-Key'], 'abc');
+    // Header de infraestrutura não é sobrescrito pela config.
+    assertEquals(r.headers.Host, undefined);
+    assertEquals(r.query.pagina, '2');
+    assertEquals(r.body, '{"q":"cota"}');
+
+    assertEquals(
+        montarUrl('https://a.com.br/busca', r.query),
+        'https://a.com.br/busca?pagina=2',
+    );
+});
+
+// ── Paginação configurável ──────────────────────────────────
+
+Deno.test('paginação só roda quando a config pede', () => {
+    const desligada = paginacaoDaFonte({});
+
+    assertEquals(desligada.ativa, false);
+    assertEquals(queryDaPagina(desligada, 1), {});
+
+    const porPagina = paginacaoDaFonte({
+        pagination: { enabled: true, param: 'page', start: 1, pages: 3 },
+    });
+
+    assertEquals(porPagina.ativa, true);
+    assertEquals(porPagina.paginas, 3);
+    assertEquals(queryDaPagina(porPagina, 0), {});
+    assertEquals(queryDaPagina(porPagina, 2), { page: '3' });
+
+    const porOffset = paginacaoDaFonte({
+        pagination: { enabled: true, mode: 'offset', step: 20 },
+    });
+
+    assertEquals(queryDaPagina(porOffset, 2), { offset: '40' });
+});
+
+Deno.test('paginação nunca passa do teto de páginas', () => {
+    const p = paginacaoDaFonte({
+        pagination: { enabled: true, pages: 9999 },
+    });
+
+    assert(p.paginas <= 5);
+});
+
+Deno.test('proximaPaginaJson lê cursor e next_url da config', () => {
+    const porNext = paginacaoDaFonte({
+        pagination: { enabled: true, mode: 'cursor', next_path: 'paging.next' },
+    });
+
+    assertEquals(
+        proximaPaginaJson(
+            { paging: { next: '/api?p=2' } },
+            porNext,
+            'https://a.com.br/api',
+        ),
+        { url: 'https://a.com.br/api?p=2' },
+    );
+
+    const porCursor = paginacaoDaFonte({
+        pagination: {
+            enabled: true,
+            mode: 'cursor',
+            cursor_path: 'paging.cursors.after',
+        },
+    });
+
+    assertEquals(
+        proximaPaginaJson(
+            { paging: { cursors: { after: 'XYZ' } } },
+            porCursor,
+            'https://a.com.br/api',
+        ),
+        { cursor: 'XYZ' },
+    );
+
+    assertEquals(
+        proximaPaginaJson({}, porCursor, 'https://a.com.br/api'),
+        null,
+    );
+});
+
+// ── Motor WEB com seletores vindos do config ────────────────
+
+const HTML_LISTA = `
+<html><body>
+  <div class="anuncio" data-id="a-1">
+    <h2>Cota Hot Beach</h2>
+    <p class="txt">Semana disponível para locação</p>
+    <a href="/anuncio/1">ver</a>
+    <img src="/img/1.jpg">
+    <time datetime="2026-01-05T10:00:00Z">05/01</time>
+  </div>
+  <div class="anuncio" data-id="a-2">
+    <h2>Cota Olímpia</h2>
+    <p class="txt">Vendo cota</p>
+    <a href="https://outro.com.br/2">ver</a>
+  </div>
+  <div class="rodape">ignorar</div>
+</body></html>`;
+
+Deno.test('selecionarBlocos entende seletores simples', () => {
+    assertEquals(selecionarBlocos(HTML_LISTA, '.anuncio').length, 2);
+    assertEquals(selecionarBlocos(HTML_LISTA, 'div.anuncio').length, 2);
+    assertEquals(selecionarBlocos(HTML_LISTA, '[data-id=a-2]').length, 1);
+    assertEquals(selecionarBlocos(HTML_LISTA, '.inexistente').length, 0);
+});
+
+Deno.test('listaParaItens usa os campos configurados na fonte', () => {
+    const itens = listaParaItens(
+        HTML_LISTA,
+        'https://portal.com.br/lista',
+        {
+            item_selector: '.anuncio',
+            fields: {
+                external_id: '@data-id',
+                title: 'h2',
+                text: '.txt',
+                url: 'a@href',
+                image: 'img@src',
+                published_at: 'time@datetime',
+            },
+        },
+        25,
+        'Portal',
+    );
+
+    assertEquals(itens.length, 2);
+    assertEquals(itens[0].external_id, 'a-1');
+    assertEquals(itens[0].permalink, 'https://portal.com.br/anuncio/1');
+    assertEquals(itens[0].midia_url, 'https://portal.com.br/img/1.jpg');
+    assertEquals(itens[0].publicado_em, '2026-01-05T10:00:00.000Z');
+    assert(itens[0].texto.includes('Semana disponível'));
+    assertEquals(itens[1].permalink, 'https://outro.com.br/2');
+});
+
+Deno.test('listaParaItens respeita o limite e dispensa fields', () => {
+    const itens = listaParaItens(
+        HTML_LISTA,
+        'https://portal.com.br/lista',
+        { item_selector: '.anuncio' },
+        1,
+    );
+
+    assertEquals(itens.length, 1);
+    assert(itens[0].texto.includes('Cota Hot Beach'));
+});
+
+Deno.test('sem item_selector o motor WEB fica no modo genérico', () => {
+    assertEquals(
+        listaParaItens(HTML_LISTA, 'https://portal.com.br/lista', {}, 25),
+        [],
+    );
+});
+
+Deno.test('captura de lista não duplica entre varreduras', () => {
+    const config = {
+        item_selector: '.anuncio',
+        fields: { title: 'h2', text: '.txt', url: 'a@href' },
+    };
+
+    const a = listaParaItens(HTML_LISTA, 'https://portal.com.br/l', config, 25);
+    const b = listaParaItens(HTML_LISTA, 'https://portal.com.br/l', config, 25);
+
+    assertEquals(
+        a.map((i) => i.external_id),
+        b.map((i) => i.external_id),
+    );
+});
+
+// ── Motor API com mapeamento de campos ──────────────────────
+
+Deno.test('jsonParaItens aceita fields da config', () => {
+    const itens = jsonParaItens(
+        {
+            registros: [{
+                codigo_interno: 'X1',
+                assunto: 'Cota Hot Beach',
+                corpo: 'Semana disponível',
+                pagina: 'https://api.com.br/1',
+                quando: '2026-02-01T00:00:00Z',
+            }],
+        },
+        'https://api.com.br/posts',
+        25,
+        'registros',
+        'API',
+        {
+            external_id: 'codigo_interno',
+            title: 'assunto',
+            text: 'corpo',
+            url: 'pagina',
+            published_at: 'quando',
+        },
+    );
+
+    assertEquals(itens.length, 1);
+    assertEquals(itens[0].external_id, 'X1');
+    assertEquals(itens[0].permalink, 'https://api.com.br/1');
+    assertEquals(itens[0].publicado_em, '2026-02-01T00:00:00.000Z');
+    assert(itens[0].texto.includes('Semana disponível'));
 });

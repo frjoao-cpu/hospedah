@@ -59,13 +59,23 @@ import {
     feedParaItens,
     ItemFonte,
     jsonParaItens,
+    limiteDaFonte,
+    listaParaItens,
+    montarUrl,
     motorDaFonte,
+    Paginacao,
+    paginacaoDaFonte,
     paginaParaItem,
+    proximaPaginaJson,
+    queryDaPagina,
+    requisicaoDaFonte,
+    RequisicaoFonte,
     TIPOS_API,
     TIPOS_FEED,
     TIPOS_FONTE,
     TIPOS_WEB,
     urlDaFonte,
+    urlsDaFonte,
     validarUrlFonte,
 } from '../_shared/radar-fontes.ts';
 
@@ -515,6 +525,7 @@ async function buscarConteudo(
     url: string,
     accept: string,
     origem: string,
+    requisicao?: RequisicaoFonte,
 ): Promise<RespostaFonte> {
     const ctrl = new AbortController();
     const timer = setTimeout(() => ctrl.abort(), WEB_TIMEOUT_MS);
@@ -523,7 +534,13 @@ async function buscarConteudo(
         const r = await fetch(url, {
             signal: ctrl.signal,
             redirect: 'follow',
-            headers: { Accept: accept, 'User-Agent': USER_AGENT },
+            method: requisicao?.method || 'GET',
+            body: requisicao?.body ?? undefined,
+            headers: {
+                Accept: accept,
+                'User-Agent': USER_AGENT,
+                ...(requisicao?.headers || {}),
+            },
         });
 
         if (!r.ok) {
@@ -572,135 +589,327 @@ async function buscarConteudo(
     }
 }
 
-// Resolve e valida a URL cadastrada na fonte.
-function urlValidada(
+// Resolve e valida as URLs cadastradas na fonte. Uma fonte pode
+// apontar para várias páginas (config.urls) — cada uma passa
+// pelo mesmo motor.
+function urlsValidadas(
     fonte: Fonte,
     origem: string,
-): { url: string } | ResultadoFonte {
-    const url = urlDaFonte(fonte);
-    const invalido = validarUrlFonte(url);
+): { urls: string[] } | ResultadoFonte {
+    const urls = urlsDaFonte(fonte);
 
-    if (invalido) {
+    if (!urls.length) {
         return {
             capturas: [],
-            erro: origem + ': ' + invalido,
+            erro: origem + ': ' + validarUrlFonte(null),
             credencial: 'NAO_CONFIGURADA',
         };
     }
 
-    return { url: url as string };
+    for (const url of urls) {
+        const invalido = validarUrlFonte(url);
+
+        if (invalido) {
+            return {
+                capturas: [],
+                erro: origem + ': ' + invalido,
+                credencial: 'NAO_CONFIGURADA',
+            };
+        }
+    }
+
+    return { urls };
 }
 
-function naoResolveu(v: { url: string } | ResultadoFonte): v is ResultadoFonte {
+function naoResolveu(
+    v: { urls: string[] } | ResultadoFonte,
+): v is ResultadoFonte {
     return (v as ResultadoFonte).capturas !== undefined;
 }
 
-// ── Motor WEB: página pública → captura normalizada ────────
+// Quantas páginas percorrer por URL: só quando a config pedir
+// paginação, e sempre com teto — nada de loop infinito.
+function paginasPrevistas(paginacao: Paginacao): number {
+    return paginacao.ativa ? paginacao.paginas : 1;
+}
+
+// ── Motor WEB: página pública → capturas normalizadas ──────
+//
+// Sem item_selector, a página inteira vira uma captura. Com
+// item_selector (+ fields), cada bloco da lista vira uma
+// captura. A diferença entre sites mora no config da fonte.
 async function buscarWeb(fonte: Fonte): Promise<ResultadoFonte> {
-    const alvo = urlValidada(fonte, 'Web pública');
+    const alvo = urlsValidadas(fonte, 'Web pública');
 
     if (naoResolveu(alvo)) return alvo;
 
-    const r = await buscarConteudo(
-        alvo.url,
-        'text/html,application/xhtml+xml',
-        'Web pública',
+    const config = (fonte.config || {}) as Record<string, unknown>;
+    const requisicao = requisicaoDaFonte(config);
+    const paginacao = paginacaoDaFonte(config);
+    const limite = limiteDaFonte(config, LIMITE_POR_FONTE);
+
+    const temSeletor = Boolean(
+        asText(config.item_selector) || asText(config.itemSelector) ||
+            asText(config.seletor_item),
     );
 
-    if (r.erro) {
-        return { capturas: [], erro: r.erro, credencial: r.credencial };
+    const capturas: CapturaBruta[] = [];
+    const erros: string[] = [];
+
+    let credencial: CredencialStatus = 'OK';
+
+    for (const base of alvo.urls) {
+        for (let pagina = 0; pagina < paginasPrevistas(paginacao); pagina++) {
+            if (capturas.length >= limite) break;
+
+            const url = montarUrl(base, {
+                ...requisicao.query,
+                ...queryDaPagina(paginacao, pagina),
+            });
+
+            const r = await buscarConteudo(
+                url,
+                'text/html,application/xhtml+xml',
+                'Web pública',
+                requisicao,
+            );
+
+            if (r.erro) {
+                erros.push(r.erro);
+                credencial = r.credencial;
+
+                break;
+            }
+
+            // Com item_selector a página é uma LISTA: cada
+            // bloco vira uma captura. Sem ele, a página inteira
+            // vira uma captura só (modo genérico).
+            if (temSeletor) {
+                const daPagina = listaParaItens(
+                    r.corpo,
+                    url,
+                    config,
+                    limite - capturas.length,
+                    fonte.nome,
+                );
+
+                if (!daPagina.length) {
+                    if (pagina === 0) {
+                        erros.push(
+                            'Web pública: config.item_selector não casou ' +
+                                'com nenhum bloco da página.',
+                        );
+                        credencial = 'ERRO';
+                    }
+
+                    // Página vazia: acabou a paginação.
+                    break;
+                }
+
+                capturas.push(...daPagina);
+
+                continue;
+            }
+
+            const item = paginaParaItem(r.corpo, url, fonte.nome);
+
+            if (item) capturas.push(item);
+            else {
+                erros.push(
+                    'Web pública: a página não trouxe texto legível ' +
+                        '(conteúdo carregado por script?).',
+                );
+                credencial = 'ERRO';
+            }
+
+            // Sem lista configurada não há o que paginar.
+            break;
+        }
     }
-
-    const item = paginaParaItem(r.corpo, alvo.url, fonte.nome);
-
-    if (!item) {
-        return {
-            capturas: [],
-            erro: 'Web pública: a página não trouxe texto legível ' +
-                '(conteúdo carregado por script?).',
-            credencial: 'ERRO',
-        };
-    }
-
-    return { capturas: [item], erro: null, credencial: 'OK' };
-}
-
-// ── Motor FEED: RSS / Atom publicado pelo portal ───────────
-async function buscarFeed(fonte: Fonte): Promise<ResultadoFonte> {
-    const alvo = urlValidada(fonte, 'Feed RSS/Atom');
-
-    if (naoResolveu(alvo)) return alvo;
-
-    const r = await buscarConteudo(
-        alvo.url,
-        'application/rss+xml, application/atom+xml, application/xml',
-        'Feed RSS/Atom',
-    );
-
-    if (r.erro) {
-        return { capturas: [], erro: r.erro, credencial: r.credencial };
-    }
-
-    const capturas = feedParaItens(r.corpo, alvo.url, LIMITE_POR_FONTE);
-
-    if (!capturas.length && !/<(item|entry)[\s>]/i.test(r.corpo)) {
-        return {
-            capturas: [],
-            erro: 'Feed RSS/Atom: a resposta não parece um feed ' +
-                '(nenhum <item> ou <entry>).',
-            credencial: 'ERRO',
-        };
-    }
-
-    return { capturas, erro: null, credencial: 'OK' };
-}
-
-// ── Motor API: JSON genérico (config.items_path) ───────────
-async function buscarApi(fonte: Fonte): Promise<ResultadoFonte> {
-    const alvo = urlValidada(fonte, 'API JSON');
-
-    if (naoResolveu(alvo)) return alvo;
-
-    const r = await buscarConteudo(alvo.url, 'application/json', 'API JSON');
-
-    if (r.erro) {
-        return { capturas: [], erro: r.erro, credencial: r.credencial };
-    }
-
-    let dados: unknown;
-
-    try {
-        dados = JSON.parse(r.corpo);
-    } catch (e) {
-        return {
-            capturas: [],
-            erro: 'API JSON: resposta não é JSON válido (' +
-                ((e as Error)?.message || 'erro de parsing') + ').',
-            credencial: 'ERRO',
-        };
-    }
-
-    const itemsPath = asText((fonte.config || {}).items_path);
-
-    const capturas = jsonParaItens(
-        dados,
-        alvo.url,
-        LIMITE_POR_FONTE,
-        itemsPath,
-        fonte.nome,
-    );
 
     if (!capturas.length) {
         return {
             capturas: [],
-            erro: 'API JSON: nenhum registro com texto encontrado. ' +
-                'Informe config.items_path apontando para a lista.',
-            credencial: 'ERRO',
+            erro: erros[0] ||
+                'Web pública: a página não trouxe texto legível.',
+            credencial: credencial === 'OK' ? 'ERRO' : credencial,
         };
     }
 
+    // Uma URL com erro não anula o que as outras trouxeram:
+    // a fonte segue saudável e o aviso fica no log.
+    if (erros.length) console.warn('[radar-captura] WEB:', erros[0]);
+
     return { capturas, erro: null, credencial: 'OK' };
 }
+
+// ── Motor FEED: RSS / Atom publicado pelo portal ───────────
+async function buscarFeed(fonte: Fonte): Promise<ResultadoFonte> {
+    const alvo = urlsValidadas(fonte, 'Feed RSS/Atom');
+
+    if (naoResolveu(alvo)) return alvo;
+
+    const config = (fonte.config || {}) as Record<string, unknown>;
+    const requisicao = requisicaoDaFonte(config);
+    const limite = limiteDaFonte(config, LIMITE_POR_FONTE);
+
+    const capturas: CapturaBruta[] = [];
+    const erros: string[] = [];
+
+    let credencial: CredencialStatus = 'OK';
+
+    for (const base of alvo.urls) {
+        if (capturas.length >= limite) break;
+
+        const url = montarUrl(base, requisicao.query);
+
+        const r = await buscarConteudo(
+            url,
+            'application/rss+xml, application/atom+xml, application/xml',
+            'Feed RSS/Atom',
+            requisicao,
+        );
+
+        if (r.erro) {
+            erros.push(r.erro);
+            credencial = r.credencial;
+
+            continue;
+        }
+
+        const itens = feedParaItens(r.corpo, url, limite - capturas.length);
+
+        if (!itens.length && !/<(item|entry)[\s>]/i.test(r.corpo)) {
+            erros.push(
+                'Feed RSS/Atom: a resposta não parece um feed ' +
+                    '(nenhum <item> ou <entry>).',
+            );
+            credencial = 'ERRO';
+
+            continue;
+        }
+
+        capturas.push(...itens);
+    }
+
+    if (!capturas.length && erros.length) {
+        return {
+            capturas: [],
+            erro: erros[0],
+            credencial: credencial === 'OK' ? 'ERRO' : credencial,
+        };
+    }
+
+    if (erros.length) console.warn('[radar-captura] FEED:', erros[0]);
+
+    return { capturas, erro: null, credencial: 'OK' };
+}
+
+// ── Motor API: JSON genérico (items_path / fields) ─────────
+async function buscarApi(fonte: Fonte): Promise<ResultadoFonte> {
+    const alvo = urlsValidadas(fonte, 'API JSON');
+
+    if (naoResolveu(alvo)) return alvo;
+
+    const config = (fonte.config || {}) as Record<string, unknown>;
+    const requisicao = requisicaoDaFonte(config);
+    const paginacao = paginacaoDaFonte(config);
+    const limite = limiteDaFonte(config, LIMITE_POR_FONTE);
+
+    const itemsPath = asText(config.items_path) || asText(config.itemsPath);
+
+    const campos = (config.fields && typeof config.fields === 'object'
+        ? config.fields
+        : null) as Record<string, unknown> | null;
+
+    const capturas: CapturaBruta[] = [];
+    const erros: string[] = [];
+
+    let credencial: CredencialStatus = 'OK';
+
+    for (const base of alvo.urls) {
+        let proxima: string | null = null;
+        let cursor: string | null = null;
+
+        for (let pagina = 0; pagina < paginasPrevistas(paginacao); pagina++) {
+            if (capturas.length >= limite) break;
+
+            const query: Record<string, string> = {
+                ...requisicao.query,
+                ...queryDaPagina(paginacao, pagina),
+            };
+
+            if (cursor && paginacao.parametro) {
+                query[paginacao.parametro] = cursor;
+            }
+
+            const url: string = proxima ? proxima : montarUrl(base, query);
+
+            const r = await buscarConteudo(
+                url,
+                'application/json',
+                'API JSON',
+                requisicao,
+            );
+
+            if (r.erro) {
+                erros.push(r.erro);
+                credencial = r.credencial;
+
+                break;
+            }
+
+            let dados: unknown;
+
+            try {
+                dados = JSON.parse(r.corpo);
+            } catch (e) {
+                erros.push(
+                    'API JSON: resposta não é JSON válido (' +
+                        ((e as Error)?.message || 'erro de parsing') + ').',
+                );
+                credencial = 'ERRO';
+
+                break;
+            }
+
+            capturas.push(
+                ...jsonParaItens(
+                    dados,
+                    url,
+                    limite - capturas.length,
+                    itemsPath,
+                    fonte.nome,
+                    campos,
+                ),
+            );
+
+            const seguinte: { url: string } | { cursor: string } | null =
+                proximaPaginaJson(dados, paginacao, url);
+
+            if (!seguinte) break;
+
+            proxima = 'url' in seguinte ? seguinte.url : null;
+            cursor = 'cursor' in seguinte ? seguinte.cursor : null;
+        }
+    }
+
+    if (!capturas.length) {
+        return {
+            capturas: [],
+            erro: erros[0] ||
+                'API JSON: nenhum registro com texto encontrado. ' +
+                    'Informe config.items_path apontando para a lista.',
+            credencial: credencial === 'OK' ? 'ERRO' : credencial,
+        };
+    }
+
+    if (erros.length) console.warn('[radar-captura] API:', erros[0]);
+
+    return { capturas, erro: null, credencial: 'OK' };
+}
+
+
 
 
 // Fontes que o robô busca sozinho. MANUAL e IMPORT dependem do
