@@ -67,6 +67,7 @@ import {
     corteLimpeza,
     descontoPercentual,
     diasLimpeza,
+    extrairAnunciante,
     LIMPEZAS,
     Empreendimento,
     hashTexto,
@@ -841,6 +842,7 @@ async function registrarCapturaManual(
         fonte: string | null;
         url: string | null;
         texto: string;
+        autor?: string | null;
         alvoId: string | null;
     },
 ): Promise<string | null> {
@@ -852,6 +854,8 @@ async function registrarCapturaManual(
         .limit(1)
         .maybeSingle();
 
+    const quem = extrairAnunciante(dados.texto, dados.autor);
+
     const { data, error } = await supabase
         .from("radar_capturas")
         .insert({
@@ -859,8 +863,13 @@ async function registrarCapturaManual(
             alvo_id: dados.alvoId,
             texto: dados.texto,
             permalink: dados.url,
+            autor: dados.autor || quem.nome,
             estado: "PENDENTE",
-            payload: { origem: "MANUAL", fonte: dados.fonte },
+            payload: {
+                origem: "MANUAL",
+                fonte: dados.fonte,
+                anunciante: quem,
+            },
         })
         .select("id")
         .single();
@@ -1745,6 +1754,26 @@ async function notificarIncidente(inc: Incidente): Promise<boolean> {
 
 // Analisa um texto, aplica a seleção do alvo e grava a
 // oportunidade quando aprovada.
+// A IA erra ou omite o contato com frequência (vem no meio do
+// texto, em outra linha, com emoji). A extração determinística
+// só preenche o que ficou vazio: o que a IA leu tem prioridade.
+function completarAnunciante(
+    ai: Record<string, unknown>,
+    texto: string,
+    autor?: string | null,
+): void {
+    const quem = extrairAnunciante(texto, autor);
+
+    if (!asText(ai.nome_anunciante) && quem.nome) {
+        ai.nome_anunciante = quem.nome;
+    }
+
+    if (!asText(ai.contato) && quem.contato) {
+        ai.contato = quem.contato;
+    }
+}
+
+
 async function processarTexto(
     supabase: Cliente,
     empreendimentos: Empreendimento[],
@@ -1752,6 +1781,7 @@ async function processarTexto(
         fonte: string | null;
         url: string | null;
         texto: string;
+        autor?: string | null;
         alvo: Alvo | null;
         capturaId: string | null;
         traceId: string;
@@ -1781,6 +1811,11 @@ async function processarTexto(
     });
 
     const ai = ia.dados;
+
+    // Quem divulga é o que transforma a oportunidade em
+    // contato: o nome e o telefone do anúncio (ou o autor da
+    // fonte) completam o que a IA não devolveu.
+    completarAnunciante(ai, entrada.texto, entrada.autor);
 
     const local = normalizarEmpreendimento(ai, empreendimentos);
 
@@ -2176,6 +2211,7 @@ Deno.serve(async (req) => {
                             ) || "Robô",
                             url: asText(captura.permalink),
                             texto: String(captura.texto || ""),
+                            autor: asText(captura.autor),
                             alvo: alvoId ? alvos.get(alvoId) ?? null : null,
                             capturaId: captura.id as string,
                             traceId,
@@ -2414,6 +2450,18 @@ Deno.serve(async (req) => {
             });
 
             const ai = ia.dados;
+
+            completarAnunciante(
+                ai,
+                texto,
+                asText(atual.nome_anunciante),
+            );
+
+            // Contato já conhecido não se perde só porque a IA
+            // não o repetiu nesta rodada.
+            if (!asText(ai.contato) && asText(atual.contato)) {
+                ai.contato = asText(atual.contato);
+            }
 
             const local = normalizarEmpreendimento(ai, empreendimentos);
 
@@ -2902,6 +2950,7 @@ Deno.serve(async (req) => {
 
         const fonte = asText(body.fonte);
         const url = asText(body.url_original);
+        const autor = asText(body.autor);
         const alvo = await carregarAlvo(supabase, asText(body.alvo_id));
 
         // A análise manual também passa pela camada de captura,
@@ -2911,6 +2960,7 @@ Deno.serve(async (req) => {
                 fonte,
                 url,
                 texto,
+                autor,
                 alvoId: alvo?.id ?? null,
             });
 
@@ -2918,6 +2968,7 @@ Deno.serve(async (req) => {
             fonte,
             url,
             texto,
+            autor,
             alvo,
             capturaId,
             traceId,

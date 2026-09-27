@@ -582,6 +582,299 @@ export function asRisco(v: unknown): string | null {
     return RISCOS_FRAUDE.includes(t) ? t : null;
 }
 
+// ── Quem está divulgando ────────────────────────────────────
+//
+// O anúncio quase sempre traz o nome e o telefone de quem
+// divulga, mas espalhados no meio do texto. Extrair isso já na
+// captação garante que a oportunidade nasça com o contato,
+// mesmo quando a IA não o devolve, e alimenta o dedupe por
+// "mesmo contato do anunciante".
+
+export interface Anunciante {
+    nome: string | null;
+    telefone: string | null;
+    email: string | null;
+    perfil: string | null;
+    // Melhor forma de falar com a pessoa: telefone > e-mail >
+    // perfil. É o que vai para a coluna `contato`.
+    contato: string | null;
+}
+
+// Candidatos a telefone: DDD opcional, com ou sem +55, aceitando
+// espaço, ponto ou hífen como separador.
+const RE_TELEFONE =
+    /(?:\+?\s?55[\s.-]?)?(?:\(\s?\d{2}\s?\)|\b\d{2})?[\s.-]?\d{4,5}[\s.-]?\d{4}/g;
+
+const RE_EMAIL = /[\w.+-]+@[\w-]+(?:\.[\w-]+)+/g;
+
+const RE_PERFIL = /@([a-z0-9][a-z0-9._]{2,29})\b/gi;
+
+// Sem uma destas palavras por perto, 8 ou 9 dígitos soltos são
+// mais provavelmente preço, código ou data do que telefone.
+const PALAVRAS_TELEFONE =
+    /(whats|whatsapp|zap|tel|fone|celular|cel|contato|liga|chama|direct)\S*\s*$/i;
+
+// Formata em padrão brasileiro para que dois anúncios com o
+// mesmo número escrito de formas diferentes virem o mesmo texto.
+function formatarTelefone(digitos: string): string | null {
+    let d = digitos;
+
+    // Prefixo de discagem ("011 9...") não faz parte do número.
+    if (d.length >= 11 && d.startsWith('0')) d = d.slice(1);
+
+    if (d.startsWith('55') && (d.length === 12 || d.length === 13)) {
+        d = d.slice(2);
+    }
+
+    if (d.length === 10 || d.length === 11) {
+        const ddd = Number(d.slice(0, 2));
+
+        if (ddd < 11 || ddd > 99) return null;
+
+        // Celular brasileiro sempre começa com 9 depois do DDD.
+        if (d.length === 11 && d[2] !== '9') return null;
+
+        return '(' + d.slice(0, 2) + ') ' +
+            d.slice(2, d.length - 4) + '-' + d.slice(-4);
+    }
+
+    if (d.length === 8 || d.length === 9) {
+        if (d.length === 9 && d[0] !== '9') return null;
+
+        return d.slice(0, d.length - 4) + '-' + d.slice(-4);
+    }
+
+    return null;
+}
+
+// Telefones citados no texto, sem repetição e já formatados.
+export function extrairTelefones(texto: string): string[] {
+    const t = String(texto || '');
+
+    const achados: string[] = [];
+
+    RE_TELEFONE.lastIndex = 0;
+
+    for (const m of t.matchAll(RE_TELEFONE)) {
+        let inicio = m.index ?? 0;
+        let fim = inicio + m[0].length;
+
+        // O número pode ter sido cortado no meio de uma sequência
+        // maior ("011987654321"): avalia a sequência inteira.
+        while (inicio > 0 && /\d/.test(t[inicio - 1])) inicio--;
+        while (fim < t.length && /\d/.test(t[fim])) fim++;
+
+        const bruto = t.slice(inicio, fim);
+
+        const antes = t.slice(Math.max(0, inicio - 20), inicio);
+        const depois = t.slice(fim, fim + 2);
+
+        // Casa decimal ou milhar de um valor, não telefone.
+        if (/[,.]$/.test(antes)) continue;
+        if (/^[,.]\d/.test(depois)) continue;
+
+        // Valor em reais não é telefone.
+        if (/r\$\s*$/i.test(antes)) continue;
+
+        const digitos = bruto.replace(/\D/g, '');
+
+        // Número curto só vale com uma palavra de contato perto.
+        if (digitos.length < 10 && !PALAVRAS_TELEFONE.test(antes)) {
+            continue;
+        }
+
+        const fone = formatarTelefone(digitos);
+
+        if (fone && !achados.includes(fone)) achados.push(fone);
+    }
+
+    return achados;
+}
+
+export function extrairEmails(texto: string): string[] {
+    const achados: string[] = [];
+
+    for (const m of String(texto || '').matchAll(RE_EMAIL)) {
+        const email = m[0].toLowerCase().replace(/[.,;]+$/, '');
+
+        if (!achados.includes(email)) achados.push(email);
+    }
+
+    return achados;
+}
+
+export function extrairPerfis(texto: string): string[] {
+    const achados: string[] = [];
+
+    for (const m of String(texto || '').matchAll(RE_PERFIL)) {
+        const perfil = '@' + m[1].toLowerCase();
+
+        if (!achados.includes(perfil)) achados.push(perfil);
+    }
+
+    return achados;
+}
+
+// Trechos de nome próprio: até três palavras capitalizadas,
+// permitindo as preposições usadas em nomes brasileiros.
+const NOME = '([\\p{Lu}][\\p{L}\']+' +
+    '(?:\\s+(?:d[aeo]s?\\s+)?[\\p{Lu}][\\p{L}\']+){0,2})';
+
+const PADROES_NOME: RegExp[] = [
+    new RegExp(
+        '(?:meu\\s+nome\\s+(?:é|e)|me\\s+chamo|sou\\s+(?:o|a))\\s+' + NOME,
+        'iu',
+    ),
+    new RegExp(
+        '(?:falar|fale|falem|chamar|chama|tratar|procurar)\\s+' +
+            '(?:com|c/)\\s+' + NOME,
+        'iu',
+    ),
+    new RegExp(
+        '(?:contato|respons[áa]vel|anunciante|corretor[ea]?|' +
+            'propriet[áa]ri[oa])\\s*[:\\-–]\\s*' + NOME,
+        'iu',
+    ),
+];
+
+// Palavras que aparecem capitalizadas nos mesmos padrões, mas
+// não são nome de gente.
+const NAO_NOMES = [
+    'whatsapp',
+    'whats',
+    'zap',
+    'direct',
+    'telefone',
+    'celular',
+    'contato',
+    'link',
+    'bio',
+    'email',
+    'e-mail',
+    'urgente',
+    'interessados',
+    'interessado',
+];
+
+// Preposições que fazem parte de nomes brasileiros.
+const PARTICULAS = ['da', 'das', 'de', 'do', 'dos', 'e'];
+
+// O padrão captura palavras vizinhas que não são nome ("Maria
+// Silva no whats"): corta na primeira palavra sem maiúscula.
+function nomeValido(bruto: string | null | undefined): string | null {
+    const palavras = String(bruto ?? '')
+        .replace(/\s+/g, ' ')
+        .trim()
+        .replace(/[.,;:–-]+$/, '')
+        .split(' ');
+
+    const aceitas: string[] = [];
+
+    for (const p of palavras) {
+        const minuscula = PARTICULAS.includes(normalizar(p));
+
+        if (minuscula) {
+            // Partícula solta no fim não entra.
+            if (aceitas.length) aceitas.push(p);
+            continue;
+        }
+
+        if (p[0] !== p[0]?.toLocaleUpperCase('pt-BR')) break;
+
+        aceitas.push(p);
+    }
+
+    while (
+        aceitas.length &&
+        PARTICULAS.includes(normalizar(aceitas[aceitas.length - 1]))
+    ) {
+        aceitas.pop();
+    }
+
+    const nome = aceitas.join(' ');
+
+    if (nome.length < 2 || nome.length > 60) return null;
+
+    if (NAO_NOMES.includes(normalizar(aceitas[0]))) return null;
+
+    return nome;
+}
+
+// Nome de quem divulga: primeiro o que o texto declara, depois
+// o autor informado pela fonte (perfil da rede social, autor do
+// feed), que é o dado mais confiável quando o texto não diz.
+export function extrairNomeAnunciante(
+    texto: string,
+    autor?: string | null,
+): string | null {
+    const t = String(texto || '');
+
+    for (const padrao of PADROES_NOME) {
+        const m = t.match(padrao);
+
+        const nome = nomeValido(m?.[1]);
+
+        if (nome) return nome;
+    }
+
+    const doAutor = String(autor ?? '').trim();
+
+    if (doAutor) {
+        // "@joao.corretor" → mantém como veio: é o identificador
+        // real de quem publicou.
+        if (doAutor.startsWith('@')) return doAutor.slice(0, 60);
+
+        const limpo = nomeValido(doAutor);
+
+        if (limpo) return limpo;
+
+        return doAutor.slice(0, 60);
+    }
+
+    return null;
+}
+
+// Quem está divulgando: nome, telefone, e-mail e perfil, com o
+// melhor canal já escolhido em `contato`.
+export function extrairAnunciante(
+    texto: string,
+    autor?: string | null,
+): Anunciante {
+    const t = String(texto || '');
+
+    const telefones = extrairTelefones(t);
+    const emails = extrairEmails(t);
+
+    // O e-mail carrega um "@" que não é perfil de rede social.
+    const semEmail = emails.reduce(
+        (acc, e) => acc.split(e).join(' '),
+        t.toLowerCase(),
+    );
+
+    const perfis = extrairPerfis(semEmail);
+
+    const autorPerfil = String(autor ?? '').trim().startsWith('@')
+        ? String(autor).trim().toLowerCase()
+        : null;
+
+    if (autorPerfil && !perfis.includes(autorPerfil)) {
+        perfis.unshift(autorPerfil);
+    }
+
+    const telefone = telefones[0] ?? null;
+    const email = emails[0] ?? null;
+    const perfil = perfis[0] ?? null;
+
+    return {
+        nome: extrairNomeAnunciante(t, autor),
+        telefone,
+        email,
+        perfil,
+        contato: telefone ?? email ?? perfil,
+    };
+}
+
+
 // ── Cache e dedupe ──────────────────────────────────────────
 
 // Hash estável do conteúdo analisado. Mesmo texto (ignorando

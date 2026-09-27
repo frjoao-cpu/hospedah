@@ -3530,6 +3530,19 @@ async function descartarCaptura(id){
 }
 
 
+// Telefone/e-mail de quem divulgou, detectado na captação e
+// guardado no payload pela função radar-captura.
+function contatoCaptura(c){
+
+  const a=c&&c.payload&&c.payload.anunciante;
+
+  if(!a) return "";
+
+  return a.telefone||a.email||a.perfil||"";
+
+}
+
+
 function nomeFonte(id){
 
   const f=
@@ -3639,6 +3652,9 @@ function renderCapturas(){
              '" target="_blank" rel="noopener">🔗 publicação</a></span>'
             :"")+
           (c.autor?'<span>👤 '+esc(c.autor)+'</span>':"")+
+          (contatoCaptura(c)
+            ?'<span>📞 '+esc(contatoCaptura(c))+'</span>'
+            :"")+
         '</div>'+
 
         '<div class="actions">'+
@@ -4575,6 +4591,16 @@ function mostrarResultado(o,destino){
     [
       "Negociação",
       o.negociacao_status||"NOVA"
+    ],
+
+    [
+      "Quem divulgou",
+      o.nome_anunciante||null
+    ],
+
+    [
+      "Contato",
+      o.contato||null
     ]
 
   ];
@@ -5044,6 +5070,18 @@ function renderOportunidades(){
             📲
             ${esc(o.fonte||"")}
           </span>
+
+          ${
+            o.nome_anunciante
+              ?`<span>👤 ${esc(o.nome_anunciante)}</span>`
+              :""
+          }
+
+          ${
+            o.contato
+              ?`<span>📞 ${esc(o.contato)}</span>`
+              :""
+          }
 
           <span>
             🎯
