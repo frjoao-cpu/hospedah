@@ -231,6 +231,11 @@ begin
 
     id uuid primary key default gen_random_uuid(),
 
+    -- Assinatura estável do negócio, calculada na função:
+    -- "<empreendimento>|<tipo>|<semana ou mês>". É por ela que
+    -- o upsert encontra o grupo sem corrida entre execuções.
+    chave text,
+
     empreendimento text,
 
     tipo_oportunidade text,
@@ -266,6 +271,16 @@ begin
 
   create index if not exists radar_grupos_ultimo_idx
   on public.radar_grupos(ultimo_em desc);
+
+  -- Bancos que já receberam uma versão anterior desta
+  -- migration ganham a coluna sem recriar a tabela.
+  alter table public.radar_grupos
+  add column if not exists chave text;
+
+  -- Índice total (sem WHERE): o upsert do PostgREST não
+  -- consegue inferir um índice parcial no ON CONFLICT.
+  create unique index if not exists radar_grupos_chave_idx
+  on public.radar_grupos(chave);
 
   raise notice 'Passo 5 OK: public.radar_grupos.';
 
