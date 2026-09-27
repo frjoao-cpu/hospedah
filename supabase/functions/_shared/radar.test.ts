@@ -860,4 +860,18 @@ Deno.test('suspensaoDaFonte corta token expirado na 1ª falha', () => {
     );
 
     assertEquals(suspensaoDaFonte('EXPIRADA', 0), null);
+
+    // Id que não é de Página (grupo/perfil) também só sai com
+    // intervenção humana: suspende na primeira falha.
+    assertEquals(
+        suspensaoDaFonte('ERRO', 1, true),
+        SUSPENSAO_CREDENCIAL_MIN,
+    );
+
+    assertEquals(
+        suspensaoDaFonte('NAO_CONFIGURADA', 1, true),
+        SUSPENSAO_CREDENCIAL_MIN,
+    );
+
+    assertEquals(suspensaoDaFonte('ERRO', 0, true), null);
 });
