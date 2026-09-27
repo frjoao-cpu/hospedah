@@ -7,11 +7,20 @@
 // public.radar_capturas, pronto para a Edge Function
 // radar-ia analisar ("a IA entende").
 //
+// A camada de captura é um MOTOR GENÉRICO: o código sabe COMO
+// ler cada FAMÍLIA de fonte (Graph API, página pública, feed
+// RSS/Atom, API JSON) e o banco diz QUAL fonte ler e com qual
+// configuração (radar_fontes.tipo + config). Adicionar um
+// portal novo é cadastro, não alteração de código.
+//
 // IMPORTANTE — NADA DE SCRAPING.
 // Instagram e Facebook são consultados exclusivamente pelas
 // APIs oficiais da Meta (Graph API), com token de aplicativo
 // autorizado. Nunca use senha de rede social, automação de
 // navegador ou qualquer método que contorne permissões.
+// Os motores WEB/FEED/API leem apenas conteúdo público
+// entregue pelo próprio site: nada de CAPTCHA, login ou
+// bypass de proteção.
 // Enquanto o token/permissão não estiver liberado, o
 // adaptador apenas reporta "fonte não configurada" e o
 // restante do pipeline continua funcionando.
@@ -46,6 +55,19 @@ import {
     preFiltrar,
     suspensaoDaFonte,
 } from '../_shared/radar.ts';
+import {
+    feedParaItens,
+    ItemFonte,
+    jsonParaItens,
+    motorDaFonte,
+    paginaParaItem,
+    TIPOS_API,
+    TIPOS_FEED,
+    TIPOS_FONTE,
+    TIPOS_WEB,
+    urlDaFonte,
+    validarUrlFonte,
+} from '../_shared/radar-fontes.ts';
 
 const cors = {
     'Access-Control-Allow-Origin': '*',
@@ -166,20 +188,24 @@ function validarIdentificador(
     tipo: string,
     identificador: string,
     modo: string,
+    config?: Record<string, unknown> | null,
 ): string | null {
     const valor = (identificador || '').trim();
 
     if (tipo === 'MANUAL' || tipo === 'IMPORT') return null;
 
-    // RSS/Atom: o identificador é a própria URL do feed
-    // publicado pelo portal — nada de scraping de página.
-    if (tipo === 'RSS') {
-        if (!/^https:\/\//i.test(valor)) {
-            return 'RSS: informe a URL https do feed ' +
-                '(ex.: https://portal.com.br/anuncios/feed).';
-        }
+    // WEB/FEED/API: a fonte é uma URL pública, informada em
+    // config.url (ou no identificador externo, por
+    // compatibilidade). Nenhum site vive no código.
+    const motor = motorDaFonte(tipo);
 
-        return null;
+    if (motor === 'WEB' || motor === 'FEED' || motor === 'API') {
+        return validarUrlFonte(
+            urlDaFonte({
+                identificador_externo: valor,
+                config: config ?? null,
+            }),
+        );
     }
 
     // E-mail e WhatsApp recebem conteúdo por webhook próprio:
@@ -239,16 +265,8 @@ interface Fonte {
     suspensa_ate?: string | null;
 }
 
-interface CapturaBruta {
-    external_id: string | null;
-    autor: string | null;
-    permalink: string | null;
-    texto: string;
-    midia_url: string | null;
-    midia_tipo: string | null;
-    publicado_em: string | null;
-    payload: Record<string, unknown>;
-}
+// Formato único de captura, qualquer que seja a fonte.
+type CapturaBruta = ItemFonte;
 
 interface ResultadoFonte {
     capturas: CapturaBruta[];
@@ -470,161 +488,249 @@ async function buscarFacebook(fonte: Fonte): Promise<ResultadoFonte> {
     }
 }
 
-// ── Adaptador: RSS/Atom (feed oficial do portal) ───────────
+// ── Motores genéricos de fonte pública ─────────────────────
+//
+// Um motor por FAMÍLIA de fonte (página, feed, API). A URL e
+// os parâmetros vêm de radar_fontes.config — nunca do código.
 
-// Extrai o conteúdo de uma tag simples, já sem CDATA nem
-// entidades HTML. Parser mínimo e deliberado: feeds são XML
-// previsível e a Edge Function não carrega dependência extra.
-function tag(bloco: string, nome: string): string | null {
-    const m = bloco.match(
-        new RegExp('<' + nome + '[^>]*>([\\s\\S]*?)</' + nome + '>', 'i'),
-    );
+// Timeout de qualquer consulta externa: uma fonte lenta não
+// pode travar a varredura das demais.
+const WEB_TIMEOUT_MS = 20000;
 
-    if (!m) return null;
+// Tamanho máximo de corpo lido de uma fonte pública.
+const LIMITE_CORPO = 2_000_000;
 
-    return destextualizar(m[1]);
+const USER_AGENT = 'HospedahRadar/1.0 (+https://hospedah.com.br)';
+
+interface RespostaFonte {
+    corpo: string;
+    erro: string | null;
+    credencial: CredencialStatus;
 }
 
-
-function destextualizar(bruto: string): string {
-    return bruto
-        .replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g, '$1')
-        .replace(/<[^>]+>/g, ' ')
-        .replace(/&lt;/g, '<')
-        .replace(/&gt;/g, '>')
-        .replace(/&quot;/g, '"')
-        .replace(/&#39;/g, "'")
-        .replace(/&nbsp;/g, ' ')
-        .replace(/&amp;/g, '&')
-        .replace(/\s+/g, ' ')
-        .trim();
-}
-
-
-function dataISO(valor: string | null): string | null {
-    if (!valor) return null;
-
-    const t = Date.parse(valor);
-
-    return Number.isFinite(t) ? new Date(t).toISOString() : null;
-}
-
-
-async function buscarRss(fonte: Fonte): Promise<ResultadoFonte> {
-    const url = (fonte.identificador_externo || '').trim();
-
-    if (!/^https:\/\//i.test(url)) {
-        return {
-            capturas: [],
-            erro: 'RSS: URL do feed ausente ou não é https.',
-            credencial: 'NAO_CONFIGURADA',
-        };
-    }
-
+// Busca pública com timeout e status HTTP tratado. Todo erro
+// vira mensagem legível para o operador, sem derrubar a
+// varredura.
+async function buscarConteudo(
+    url: string,
+    accept: string,
+    origem: string,
+): Promise<RespostaFonte> {
     const ctrl = new AbortController();
-    const timer = setTimeout(() => ctrl.abort(), GRAPH_TIMEOUT_MS);
-
-    let xml = '';
+    const timer = setTimeout(() => ctrl.abort(), WEB_TIMEOUT_MS);
 
     try {
         const r = await fetch(url, {
             signal: ctrl.signal,
-            headers: { Accept: 'application/rss+xml, application/xml' },
+            redirect: 'follow',
+            headers: { Accept: accept, 'User-Agent': USER_AGENT },
         });
 
         if (!r.ok) {
+            const dica = r.status === 403 || r.status === 401
+                ? ' A página exige login ou bloqueia acesso automatizado ' +
+                    '— use uma URL pública ou cadastre o conteúdo como ' +
+                    'fonte MANUAL.'
+                : r.status === 429
+                ? ' O site pediu para reduzir a frequência (429).'
+                : r.status === 404
+                ? ' Confira a URL em config.url.'
+                : '';
+
             return {
-                capturas: [],
-                erro: 'RSS: o feed respondeu HTTP ' + r.status + '.',
+                corpo: '',
+                erro: origem + ': a fonte respondeu HTTP ' + r.status + '.' +
+                    dica,
                 credencial: 'ERRO',
             };
         }
 
-        xml = await r.text();
+        const corpo = (await r.text()).slice(0, LIMITE_CORPO);
+
+        if (!corpo.trim()) {
+            return {
+                corpo: '',
+                erro: origem + ': a fonte respondeu vazio.',
+                credencial: 'ERRO',
+            };
+        }
+
+        return { corpo, erro: null, credencial: 'OK' };
     } catch (e) {
         const detalhe = e instanceof Error && e.name === 'AbortError'
             ? 'tempo limite excedido'
             : (e as Error)?.message || 'falha desconhecida';
 
         return {
-            capturas: [],
-            erro: 'RSS: não foi possível ler o feed (' + detalhe + ').',
+            corpo: '',
+            erro: origem + ': não foi possível ler a fonte (' + detalhe +
+                ').',
             credencial: 'ERRO',
         };
     } finally {
         clearTimeout(timer);
     }
+}
 
-    const blocos = [
-        ...xml.matchAll(/<(item|entry)[\s\S]*?<\/\1>/gi),
-    ].map((m) => m[0]).slice(0, LIMITE_POR_FONTE);
+// Resolve e valida a URL cadastrada na fonte.
+function urlValidada(
+    fonte: Fonte,
+    origem: string,
+): { url: string } | ResultadoFonte {
+    const url = urlDaFonte(fonte);
+    const invalido = validarUrlFonte(url);
 
-    const capturas: CapturaBruta[] = [];
+    if (invalido) {
+        return {
+            capturas: [],
+            erro: origem + ': ' + invalido,
+            credencial: 'NAO_CONFIGURADA',
+        };
+    }
 
-    for (const bloco of blocos) {
-        const titulo = tag(bloco, 'title');
+    return { url: url as string };
+}
 
-        const descricao = tag(bloco, 'description') ||
-            tag(bloco, 'summary') ||
-            tag(bloco, 'content:encoded') ||
-            tag(bloco, 'content');
+function naoResolveu(v: { url: string } | ResultadoFonte): v is ResultadoFonte {
+    return (v as ResultadoFonte).capturas !== undefined;
+}
 
-        const texto = [titulo, descricao]
-            .filter(Boolean)
-            .join('\n\n')
-            .trim();
+// ── Motor WEB: página pública → captura normalizada ────────
+async function buscarWeb(fonte: Fonte): Promise<ResultadoFonte> {
+    const alvo = urlValidada(fonte, 'Web pública');
 
-        if (!texto) continue;
+    if (naoResolveu(alvo)) return alvo;
 
-        const link = tag(bloco, 'link') ||
-            bloco.match(/<link[^>]+href="([^"]+)"/i)?.[1] ||
-            null;
+    const r = await buscarConteudo(
+        alvo.url,
+        'text/html,application/xhtml+xml',
+        'Web pública',
+    );
 
-        const publicado = dataISO(
-            tag(bloco, 'pubDate') ||
-                tag(bloco, 'published') ||
-                tag(bloco, 'updated'),
-        );
+    if (r.erro) {
+        return { capturas: [], erro: r.erro, credencial: r.credencial };
+    }
 
-        capturas.push({
-            external_id: tag(bloco, 'guid') || tag(bloco, 'id') || link,
-            autor: tag(bloco, 'author') || tag(bloco, 'dc:creator'),
-            permalink: link,
-            texto,
-            midia_url: bloco.match(
-                /<enclosure[^>]+url="([^"]+)"/i,
-            )?.[1] ?? null,
-            midia_tipo: null,
-            publicado_em: publicado,
-            payload: { origem: 'RSS', feed: url },
-        });
+    const item = paginaParaItem(r.corpo, alvo.url, fonte.nome);
+
+    if (!item) {
+        return {
+            capturas: [],
+            erro: 'Web pública: a página não trouxe texto legível ' +
+                '(conteúdo carregado por script?).',
+            credencial: 'ERRO',
+        };
+    }
+
+    return { capturas: [item], erro: null, credencial: 'OK' };
+}
+
+// ── Motor FEED: RSS / Atom publicado pelo portal ───────────
+async function buscarFeed(fonte: Fonte): Promise<ResultadoFonte> {
+    const alvo = urlValidada(fonte, 'Feed RSS/Atom');
+
+    if (naoResolveu(alvo)) return alvo;
+
+    const r = await buscarConteudo(
+        alvo.url,
+        'application/rss+xml, application/atom+xml, application/xml',
+        'Feed RSS/Atom',
+    );
+
+    if (r.erro) {
+        return { capturas: [], erro: r.erro, credencial: r.credencial };
+    }
+
+    const capturas = feedParaItens(r.corpo, alvo.url, LIMITE_POR_FONTE);
+
+    if (!capturas.length && !/<(item|entry)[\s>]/i.test(r.corpo)) {
+        return {
+            capturas: [],
+            erro: 'Feed RSS/Atom: a resposta não parece um feed ' +
+                '(nenhum <item> ou <entry>).',
+            credencial: 'ERRO',
+        };
+    }
+
+    return { capturas, erro: null, credencial: 'OK' };
+}
+
+// ── Motor API: JSON genérico (config.items_path) ───────────
+async function buscarApi(fonte: Fonte): Promise<ResultadoFonte> {
+    const alvo = urlValidada(fonte, 'API JSON');
+
+    if (naoResolveu(alvo)) return alvo;
+
+    const r = await buscarConteudo(alvo.url, 'application/json', 'API JSON');
+
+    if (r.erro) {
+        return { capturas: [], erro: r.erro, credencial: r.credencial };
+    }
+
+    let dados: unknown;
+
+    try {
+        dados = JSON.parse(r.corpo);
+    } catch (e) {
+        return {
+            capturas: [],
+            erro: 'API JSON: resposta não é JSON válido (' +
+                ((e as Error)?.message || 'erro de parsing') + ').',
+            credencial: 'ERRO',
+        };
+    }
+
+    const itemsPath = asText((fonte.config || {}).items_path);
+
+    const capturas = jsonParaItens(
+        dados,
+        alvo.url,
+        LIMITE_POR_FONTE,
+        itemsPath,
+        fonte.nome,
+    );
+
+    if (!capturas.length) {
+        return {
+            capturas: [],
+            erro: 'API JSON: nenhum registro com texto encontrado. ' +
+                'Informe config.items_path apontando para a lista.',
+            credencial: 'ERRO',
+        };
     }
 
     return { capturas, erro: null, credencial: 'OK' };
 }
 
 
-// Fontes que o robô busca sozinho. MANUAL, IMPORT, EMAIL e
-// WHATSAPP dependem do operador ou de webhook. Uma única
-// definição evita que a varredura e o teste de fonte
-// divirjam — foi o que deixou o RSS meio ligado.
+// Fontes que o robô busca sozinho. MANUAL e IMPORT dependem do
+// operador. Uma única definição evita que a varredura e o teste
+// de fonte divirjam — foi o que deixou o RSS meio ligado.
 const TIPOS_REMOTOS = [
     'INSTAGRAM_GRAPH',
     'FACEBOOK_GRAPH',
-    'RSS',
+    ...TIPOS_WEB,
+    ...TIPOS_FEED,
+    ...TIPOS_API,
 ];
 
 
 function fonteRemota(tipo: string | null | undefined): boolean {
-    return TIPOS_REMOTOS.includes(String(tipo || ''));
+    return TIPOS_REMOTOS.includes(String(tipo || '').toUpperCase());
 }
 
 
 // Interface única de adaptador: buscar(fonte) → capturas.
+// O motor vem do TIPO da fonte, não do site: um portal novo
+// entra por cadastro (tipo + config.url).
 async function buscar(fonte: Fonte): Promise<ResultadoFonte> {
-    if (fonte.tipo === 'INSTAGRAM_GRAPH') return await buscarInstagram(fonte);
-    if (fonte.tipo === 'FACEBOOK_GRAPH') return await buscarFacebook(fonte);
-    if (fonte.tipo === 'RSS') return await buscarRss(fonte);
+    const motor = motorDaFonte(fonte.tipo);
+
+    if (motor === 'INSTAGRAM') return await buscarInstagram(fonte);
+    if (motor === 'FACEBOOK') return await buscarFacebook(fonte);
+    if (motor === 'WEB') return await buscarWeb(fonte);
+    if (motor === 'FEED') return await buscarFeed(fonte);
+    if (motor === 'API') return await buscarApi(fonte);
 
     // MANUAL, IMPORT, EMAIL e WHATSAPP são alimentadas pelo
     // operador ou por webhook,
@@ -1013,20 +1119,15 @@ Deno.serve(async (req) => {
             const tipo = asText(body.tipo) || 'MANUAL';
 
             // Precisa espelhar o que o robô sabe varrer
-            // (buscarFonte) e o que o CHECK da migration 010
-            // aceita. EMAIL/WHATSAPP estão liberados no banco
-            // mas ainda sem adaptador: cadastrá-los criaria
-            // uma fonte que nunca captura nada.
-            if (
-                ![
-                    'INSTAGRAM_GRAPH',
-                    'FACEBOOK_GRAPH',
-                    'RSS',
-                    'MANUAL',
-                    'IMPORT',
-                ].includes(tipo)
-            ) {
-                return json({ error: 'Tipo de fonte inválido' }, 400);
+            // (motorDaFonte) e o que o CHECK de radar_fontes
+            // aceita. EMAIL/WHATSAPP continuam de fora: estão
+            // liberados no banco mas não têm motor, e cadastrá-los
+            // criaria uma fonte que nunca captura nada.
+            if (!TIPOS_FONTE.includes(tipo)) {
+                return json({
+                    error: 'Tipo de fonte inválido. Aceitos: ' +
+                        TIPOS_FONTE.join(', ') + '.',
+                }, 400);
             }
 
             const identificador = asText(body.identificador_externo) || '';
@@ -1064,6 +1165,7 @@ Deno.serve(async (req) => {
                 tipo,
                 identificador,
                 asText(config.modo) || 'hashtag',
+                config,
             );
 
             if (invalido) {
@@ -1367,9 +1469,10 @@ Deno.serve(async (req) => {
         if (!automaticas.length) {
             resumo.push({
                 aviso:
-                    'Nenhuma fonte automática (Instagram/Facebook) ' +
-                    'cadastrada e ativa. Cadastre uma fonte com as ' +
-                    'credenciais oficiais da Meta ou use a captura manual.',
+                    'Nenhuma fonte automática cadastrada e ativa. ' +
+                    'Cadastre uma fonte da Meta (Graph API) ou uma fonte ' +
+                    'pública (WEB_PUBLICA, RSS, API) com a URL em ' +
+                    'config.url — ou use a captura manual.',
             });
         }
 
