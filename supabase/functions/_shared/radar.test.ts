@@ -22,6 +22,8 @@ import {
     chaveGrupo,
     cosseno,
     duplicadaSemantica,
+    extrairAnunciante,
+    extrairTelefones,
     lerGrupo,
     limitesDeAmbiente,
     LIMIAR_SEMANTICO,
@@ -774,4 +776,63 @@ Deno.test('saúde — limites vêm do ambiente com padrão seguro', () => {
     assertEquals(l.filaMaxima, 50);
     assertEquals(l.custoDiarioUSD, 5);
     assertEquals(l.horasSemCaptura, 6);
+});
+
+// ── Quem está divulgando ────────────────────────────────────
+
+Deno.test('anunciante — nome e telefone no meio do anúncio', () => {
+    const a = extrairAnunciante(
+        'Vendo cota no Olímpia Park, semana 32, R$ 48.000,00. ' +
+            'Falar com Maria Silva no whats (17) 99999-0000.',
+    );
+
+    assertEquals(a.nome, 'Maria Silva');
+    assertEquals(a.telefone, '(17) 99999-0000');
+    assertEquals(a.contato, '(17) 99999-0000');
+});
+
+Deno.test('anunciante — telefone com +55 e pontos', () => {
+    const a = extrairAnunciante('Contato: +55 17 3333.0000');
+
+    assertEquals(a.telefone, '(17) 3333-0000');
+});
+
+Deno.test('anunciante — valor em reais não vira telefone', () => {
+    const a = extrairAnunciante(
+        'Repasse por R$ 45.000,00 ou 12x de 3.750,00. Sem contato.',
+    );
+
+    assertEquals(a.telefone, null);
+    assertEquals(a.contato, null);
+});
+
+Deno.test('anunciante — número curto só vale com palavra de contato', () => {
+    assertEquals(extrairTelefones('Chama no zap 99999-0000')[0], '99999-0000');
+    assertEquals(extrairTelefones('Semana 3210 1234 do calendário'), []);
+});
+
+Deno.test('anunciante — e-mail e perfil quando não há telefone', () => {
+    const a = extrairAnunciante(
+        'Interessados chamar no direct ou joao.corretor@exemplo.com.br',
+        '@joao.corretor',
+    );
+
+    assertEquals(a.email, 'joao.corretor@exemplo.com.br');
+    assertEquals(a.perfil, '@joao.corretor');
+    assertEquals(a.contato, 'joao.corretor@exemplo.com.br');
+    assertEquals(a.nome, '@joao.corretor');
+});
+
+Deno.test('anunciante — autor da fonte é usado quando o texto não diz', () => {
+    const a = extrairAnunciante('Vendo semana 32.', 'Carlos Andrade');
+
+    assertEquals(a.nome, 'Carlos Andrade');
+    assertEquals(a.telefone, null);
+});
+
+Deno.test('anunciante — "Whatsapp" não é lido como nome', () => {
+    const a = extrairAnunciante('Contato: Whatsapp 17 98888-0000');
+
+    assertEquals(a.nome, null);
+    assertEquals(a.telefone, '(17) 98888-0000');
 });

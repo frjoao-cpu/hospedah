@@ -42,6 +42,7 @@ import {
     asInt,
     asText,
     Empreendimento,
+    extrairAnunciante,
     preFiltrar,
 } from '../_shared/radar.ts';
 
@@ -646,19 +647,25 @@ async function gravarCapturas(
 ): Promise<{ gravadas: number; duplicadas: number }> {
     if (!capturas.length) return { gravadas: 0, duplicadas: 0 };
 
-    const registros = capturas.map((c) => ({
-        fonte_id: fonteId,
-        alvo_id: alvoId,
-        external_id: c.external_id,
-        autor: c.autor,
-        permalink: c.permalink,
-        texto: c.texto,
-        midia_url: c.midia_url,
-        midia_tipo: c.midia_tipo,
-        publicado_em: c.publicado_em,
-        estado: 'PENDENTE',
-        payload: c.payload,
-    }));
+    const registros = capturas.map((c) => {
+        const quem = extrairAnunciante(c.texto, c.autor);
+
+        return {
+            fonte_id: fonteId,
+            alvo_id: alvoId,
+            external_id: c.external_id,
+            // Quando a fonte não identifica quem publicou, o
+            // nome citado no próprio anúncio serve de autor.
+            autor: c.autor || quem.nome,
+            permalink: c.permalink,
+            texto: c.texto,
+            midia_url: c.midia_url,
+            midia_tipo: c.midia_tipo,
+            publicado_em: c.publicado_em,
+            estado: 'PENDENTE',
+            payload: { ...c.payload, anunciante: quem },
+        };
+    });
 
     const comId = registros.filter((r) => r.external_id);
     const semId = registros.filter((r) => !r.external_id);
@@ -914,15 +921,19 @@ Deno.serve(async (req) => {
             const { data, error } = await supabase
                 .from('radar_capturas')
                 .insert(
-                    validos.map((i) => ({
-                        fonte_id: fonteId,
-                        alvo_id: alvoId,
-                        texto: i.texto,
-                        permalink: i.permalink,
-                        autor: i.autor,
-                        estado: 'PENDENTE',
-                        payload: { origem: tipo },
-                    })),
+                    validos.map((i) => {
+                        const quem = extrairAnunciante(i.texto, i.autor);
+
+                        return {
+                            fonte_id: fonteId,
+                            alvo_id: alvoId,
+                            texto: i.texto,
+                            permalink: i.permalink,
+                            autor: i.autor || quem.nome,
+                            estado: 'PENDENTE',
+                            payload: { origem: tipo, anunciante: quem },
+                        };
+                    }),
                 )
                 .select();
 
