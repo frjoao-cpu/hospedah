@@ -365,7 +365,7 @@ jobs:
       - name: Deploy Edge Functions
         run: |
           FAILED=""
-          for fn in ai-concierge ai-insights lembrete-checkin notificacao-reserva recuperacao-abandono weather radar-ia radar-captura; do
+          for fn in ai-concierge ai-insights lembrete-checkin notificacao-reserva recuperacao-abandono weather radar-ia radar-captura crm-automation crm-sync; do
             echo "────────────────────────────────────────"
             echo "🚀 Deploy: $fn"
             echo "────────────────────────────────────────"

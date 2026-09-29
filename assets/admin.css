@@ -162,6 +162,40 @@ body {
   padding: 6px 8px;
 }
 
+.crm-alerts,
+.crm-timeline {
+  margin: 0;
+  padding-left: 20px;
+  color: rgba(245, 248, 255, .9);
+}
+
+.crm-alerts li,
+.crm-timeline li {
+  margin: 8px 0;
+}
+
+.crm-control {
+  display: block;
+  width: 100%;
+  max-width: 520px;
+  box-sizing: border-box;
+  margin: 6px 0 10px;
+  padding: 9px 10px;
+  border: 1px solid var(--admin-border);
+  border-radius: 8px;
+  color: var(--admin-text);
+  background: rgba(255, 255, 255, .08);
+  font: inherit;
+}
+
+.crm-control option {
+  color: #0B1C3D;
+}
+
+#leadDetails h3 {
+  color: var(--admin-gold);
+}
+
 .admin-table-wrap {
   overflow: auto;
 }

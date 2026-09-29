@@ -45,6 +45,13 @@
       </article>
     </section>
 
+    <section class="admin-card glass" aria-labelledby="crmAlertsTitle">
+      <h2 id="crmAlertsTitle">Alertas operacionais</h2>
+      <ul id="crmAlerts" class="crm-alerts" aria-live="polite">
+        <li>Carregando alertas…</li>
+      </ul>
+    </section>
+
     <section class="admin-card glass">
       <div class="admin-table-head">
         <h2>CRM de Leads</h2>
@@ -89,11 +96,44 @@
               <th>Score</th>
               <th>Etapa do funil</th>
               <th>Data</th>
+              <th>Histórico</th>
             </tr>
           </thead>
           <tbody id="crmTableBody"></tbody>
         </table>
       </div>
+    </section>
+
+    <section class="admin-card glass" id="approvalsSection">
+      <div class="admin-table-head">
+        <h2>Aprovações pendentes</h2>
+        <button type="button" id="reloadApprovals" class="admin-btn admin-btn-secondary">↻ Atualizar</button>
+      </div>
+      <div id="approvalsStatus" class="admin-realtime" aria-live="polite">Carregando aprovações…</div>
+      <div class="admin-table-wrap">
+        <table class="admin-table">
+          <thead><tr><th>Tipo</th><th>Solicitação</th><th>Data</th><th>Ações</th></tr></thead>
+          <tbody id="approvalsTableBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="admin-card glass" id="leadDetails" hidden>
+      <div class="admin-table-head">
+        <h2 id="leadDetailsTitle">Histórico do lead</h2>
+        <button type="button" id="closeLeadDetails" class="admin-btn admin-btn-secondary">Fechar</button>
+      </div>
+      <label for="leadAssignee">Responsável</label>
+      <select id="leadAssignee" class="crm-control"></select>
+      <button type="button" id="saveLeadAssignee" class="admin-btn admin-btn-secondary">Atribuir responsável</button>
+      <h3>Notas internas</h3>
+      <ul id="leadNotes" class="crm-timeline"></ul>
+      <label for="leadNoteInput">Adicionar nota</label>
+      <textarea id="leadNoteInput" class="crm-control" rows="3" maxlength="5000"></textarea>
+      <button type="button" id="addLeadNote" class="admin-btn">Salvar nota</button>
+      <h3>Timeline</h3>
+      <ul id="leadTimeline" class="crm-timeline"></ul>
+      <p id="leadDetailsStatus" class="admin-realtime" aria-live="polite"></p>
     </section>
 
     <!-- ── Solicitações de Reserva ── -->
