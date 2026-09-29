@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://www.googletagmanager.com https://www.clarity.ms https://connect.facebook.net https://cdn.onesignal.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://ydrmjoppjxtmnwtvtinb.supabase.co https://www.google-analytics.com https://stats.g.doubleclick.net https://www.googletagmanager.com https://api.openweathermap.org https://generativelanguage.googleapis.com; img-src 'self' data: https://i.imgur.com https://www.facebook.com https://www.googletagmanager.com https://flagcdn.com https://*.cdninstagram.com; media-src https://i.imgur.com; frame-src https://www.googletagmanager.com; worker-src 'self' blob:; object-src 'none'; base-uri 'self';">
-<title>HOSPEDAH | Resorts e Experiências Exclusivas</title>
-<meta name="description" content="Hospede-se com qualidade nos melhores resorts e tenha experiências exclusivas. Orçamento premium, atendimento digital e profissionais à disposição.">
+<title>HOSPEDAH — Especialista em Hospedagens e Resorts</title>
+<meta name="description" content="HOSPEDAH — Especialista em Hospedagens e Resorts. Encontre opções de hospedagem e resorts com atendimento personalizado para planejar sua viagem.">
 <link rel="canonical" href="https://hospedah.tur.br/">
 
 <!-- Google Analytics 4 -->
@@ -30,8 +30,8 @@
 <meta property="og:type"        content="website">
 <meta property="og:url"         content="https://hospedah.tur.br/">
 <meta property="og:site_name"   content="HOSPEDAH">
-<meta property="og:title"       content="HOSPEDAH | Resorts e Experiências Exclusivas">
-<meta property="og:description" content="Hospede-se com qualidade nos melhores resorts. Orçamento premium, atendimento digital e profissionais à disposição.">
+<meta property="og:title"       content="HOSPEDAH — Especialista em Hospedagens e Resorts">
+<meta property="og:description" content="Encontre opções de hospedagem e resorts com atendimento personalizado para planejar sua viagem.">
 <meta property="og:image"       content="https://i.imgur.com/AmFSwwd.jpeg">
 <!-- og:image oficial 1200x630 pendente: substituir pela arte institucional final da HOSPEDAH -->
 <meta property="og:image:width" content="1200">
@@ -40,8 +40,8 @@
 
 <!-- Twitter / X Cards -->
 <meta name="twitter:card"        content="summary_large_image">
-<meta name="twitter:title"       content="HOSPEDAH | Resorts e Experiências Exclusivas">
-<meta name="twitter:description" content="Hospede-se com qualidade nos melhores resorts. Orçamento premium e atendimento digital.">
+<meta name="twitter:title"       content="HOSPEDAH — Especialista em Hospedagens e Resorts">
+<meta name="twitter:description" content="Encontre opções de hospedagem e resorts com atendimento personalizado para planejar sua viagem.">
 <meta name="twitter:image"       content="https://i.imgur.com/AmFSwwd.jpeg">
 
 <!-- Preconnect — reduz latência de recursos externos -->
@@ -75,10 +75,13 @@
 {
   "@context": "https://schema.org",
   "@type": "TravelAgency",
-  "name": "HOSPEDAH",
+  "@id": "https://hospedah.tur.br/#organization",
+  "name": "HOSPEDAH — Especialista em Hospedagens e Resorts",
+  "alternateName": "HOSPEDAH",
+  "slogan": "Especialista em Hospedagens e Resorts",
   "url": "https://hospedah.tur.br",
   "logo": "https://i.imgur.com/fVKGOSt.png",
-  "description": "Hospede-se com qualidade nos melhores resorts e tenha experiências exclusivas. Orçamento premium, atendimento digital e profissionais à disposição.",
+  "description": "Encontre opções de hospedagem e resorts com atendimento personalizado para planejar sua viagem.",
   "address": {
     "@type": "PostalAddress",
     "addressRegion": "SP",
@@ -89,7 +92,6 @@
       "@type": "ContactPoint",
       "telephone": "+55-17-98200-6382",
       "contactType": "customer service",
-      "contactOption": "TollFree",
       "availableLanguage": "Portuguese"
     }
   ],
@@ -178,7 +180,7 @@
 </script>
 <!-- AggregateRating — atualizado dinamicamente via Supabase (ver script no rodapé) -->
 <script type="application/ld+json" id="schema-aggregate">
-{"@context":"https://schema.org","@type":"TravelAgency","name":"HOSPEDAH","url":"https://hospedah.tur.br"}
+{"@context":"https://schema.org","@type":"TravelAgency","@id":"https://hospedah.tur.br/#organization","name":"HOSPEDAH — Especialista em Hospedagens e Resorts","alternateName":"HOSPEDAH","url":"https://hospedah.tur.br"}
 </script>
 <link rel="stylesheet" href="/assets/index.css">
 <style>
@@ -3241,7 +3243,9 @@ function exitIntentSubmit(e) {
         el.textContent = JSON.stringify({
           '@context': 'https://schema.org',
           '@type': 'TravelAgency',
-          'name': 'HOSPEDAH',
+          '@id': 'https://hospedah.tur.br/#organization',
+          'name': 'HOSPEDAH — Especialista em Hospedagens e Resorts',
+          'alternateName': 'HOSPEDAH',
           'url': 'https://hospedah.tur.br',
           'aggregateRating': {
             '@type': 'AggregateRating',

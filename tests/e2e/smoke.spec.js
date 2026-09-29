@@ -12,7 +12,22 @@ const { test, expect } = require('@playwright/test');
 test.describe('Páginas públicas', () => {
   test('homepage carrega e exibe título correto', async ({ page }) => {
     await page.goto('/');
-    await expect(page).toHaveTitle(/HOSPEDAH/i);
+    await expect(page).toHaveTitle('HOSPEDAH — Especialista em Hospedagens e Resorts');
+  });
+
+  test('homepage publica a identidade oficial em JSON-LD válido', async ({ page }) => {
+    await page.goto('/');
+    const schemas = await page.locator('script[type="application/ld+json"]').evaluateAll((scripts) =>
+      scripts.map((script) => JSON.parse(script.textContent || ''))
+    );
+    const agency = schemas.find((schema) => schema['@id'] === 'https://hospedah.tur.br/#organization');
+
+    expect(agency).toMatchObject({
+      '@type': 'TravelAgency',
+      name: 'HOSPEDAH — Especialista em Hospedagens e Resorts',
+      alternateName: 'HOSPEDAH',
+      url: 'https://hospedah.tur.br'
+    });
   });
 
   test('homepage exibe botão de orçamento via WhatsApp', async ({ page }) => {
