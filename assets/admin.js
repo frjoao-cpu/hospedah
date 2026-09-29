@@ -404,7 +404,8 @@
     var bookings = reservasData.filter(function (booking) {
       return BOOKED_STATUSES.indexOf(booking.status) !== -1;
     }).length;
-    var conversion = rows.length ? (bookings / rows.length) * 100 : 0;
+    var closedLeads = rows.filter(function (lead) { return lead.status_pipeline === 'fechado'; }).length;
+    var conversion = rows.length ? (closedLeads / rows.length) * 100 : 0;
     var revenue = reservasData.reduce(function (total, booking) {
       return total + (BOOKED_STATUSES.indexOf(booking.status) !== -1 ? Number(booking.valor_total || 0) : 0);
     }, 0);
