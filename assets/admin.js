@@ -341,6 +341,13 @@
     return digits ? (digits.indexOf('55') === 0 ? digits : '55' + digits) : '';
   }
 
+  function isThisMonth(value) {
+    if (!value) return false;
+    var date = new Date(value);
+    var now = new Date();
+    return !isNaN(date.getTime()) && date.getMonth() === now.getMonth() && date.getFullYear() === now.getFullYear();
+  }
+
   function renderCrm() {
     var search = (document.getElementById('crmSearch') || {}).value || '';
     var stage = (document.getElementById('crmStage') || {}).value || '';
@@ -402,12 +409,13 @@
       return date.toDateString() === now.toDateString();
     }).length;
     var bookings = reservasData.filter(function (booking) {
-      return BOOKED_STATUSES.indexOf(booking.status) !== -1;
+      return BOOKED_STATUSES.indexOf(booking.status) !== -1 && isThisMonth(booking.criado_em);
     }).length;
     var closedLeads = rows.filter(function (lead) { return lead.status_pipeline === 'fechado'; }).length;
     var conversion = rows.length ? (closedLeads / rows.length) * 100 : 0;
     var revenue = reservasData.reduce(function (total, booking) {
-      return total + (BOOKED_STATUSES.indexOf(booking.status) !== -1 ? Number(booking.valor_total || 0) : 0);
+      return total + (BOOKED_STATUSES.indexOf(booking.status) !== -1 && isThisMonth(booking.criado_em)
+        ? Number(booking.valor_total || 0) : 0);
     }, 0);
 
     setText('kpiLeads', String(leadsToday));
@@ -499,6 +507,7 @@
       if (response.error) throw response.error;
       var lead = crmData.find(function (item) { return item.id === id; });
       if (lead) lead.status_pipeline = stage;
+      updateKpis(crmData);
       setRealtimeStatus('Etapa atualizada às ' + new Date().toLocaleTimeString('pt-BR'));
       renderCrm();
     } catch (err) {
@@ -548,7 +557,10 @@
 
   function startPolling() {
     if (pollTimer) return;
-    pollTimer = window.setInterval(function () { loadLeads(false); }, POLL_INTERVAL_MS);
+    pollTimer = window.setInterval(function () {
+      loadLeads(false);
+      loadReservas();
+    }, POLL_INTERVAL_MS);
   }
 
   async function enforceAdmin() {
