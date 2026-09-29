@@ -114,6 +114,54 @@ body {
   color: rgba(245, 248, 255, 0.9);
 }
 
+.crm-filters {
+  display: grid;
+  grid-template-columns: auto minmax(180px, 1fr) auto minmax(150px, .7fr) auto minmax(150px, .7fr);
+  align-items: center;
+  gap: 8px;
+  margin: 12px 0 6px;
+}
+
+.crm-filters label {
+  color: rgba(245, 248, 255, .8);
+  font-size: .82rem;
+}
+
+.crm-filters input,
+.crm-filters select,
+.crm-stage-select {
+  min-width: 0;
+  border: 1px solid var(--admin-border);
+  border-radius: 8px;
+  padding: 8px 10px;
+  color: var(--admin-text);
+  background: rgba(255, 255, 255, .08);
+  font: inherit;
+}
+
+.crm-filters select option,
+.crm-stage-select option {
+  color: #0B1C3D;
+}
+
+.crm-filters input:focus,
+.crm-filters select:focus,
+.crm-stage-select:focus {
+  outline: 2px solid var(--admin-gold);
+  outline-offset: 1px;
+}
+
+.crm-result-count {
+  margin: 4px 0 10px;
+  color: rgba(245, 248, 255, .7);
+  font-size: .82rem;
+}
+
+.crm-stage-select {
+  max-width: 180px;
+  padding: 6px 8px;
+}
+
 .admin-table-wrap {
   overflow: auto;
 }
@@ -348,4 +396,19 @@ body {
   .modal-grid { grid-template-columns: 1fr; }
   .modal-group-full { grid-column: auto; }
   .acoes-cell { flex-wrap: wrap; }
+}
+
+@media (max-width: 760px) {
+  .crm-filters {
+    grid-template-columns: 1fr;
+    gap: 5px;
+  }
+
+  .crm-filters label:not(:first-child) {
+    margin-top: 6px;
+  }
+
+  .crm-stage-select {
+    max-width: none;
+  }
 }
