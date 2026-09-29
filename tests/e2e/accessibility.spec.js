@@ -16,6 +16,8 @@ const PAGES_A11Y = [
   { name: 'reservas',       path: '/reservas.html' },
   { name: 'chat IA',        path: '/chat.html' },
   { name: 'resort hotbeach', path: '/resorts/hotbeach.html' },
+  { name: 'destino Olímpia', path: '/destinos/olimpia.html' },
+  { name: 'guia multipropriedade', path: '/guia-multipropriedade.html' },
 ];
 
 // Violações conhecidas aceitáveis (falsos positivos de componentes externos)

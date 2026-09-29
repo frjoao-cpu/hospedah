@@ -38,6 +38,16 @@ test.describe('Páginas públicas', () => {
     await expect(page).toHaveTitle(/HOSPEDAH/i);
   });
 
+  test('guias públicos carregam com metadados de busca', async ({ page }) => {
+    for (const path of ['/destinos/olimpia.html', '/guia-multipropriedade.html']) {
+      await page.goto(path);
+      await expect(page).toHaveTitle(/HOSPEDAH/i);
+      await expect(page.locator('meta[name="description"]')).toHaveCount(1);
+      await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', `https://hospedah.tur.br${path}`);
+      await expect(page.locator('main h1')).toBeVisible();
+    }
+  });
+
   test('chat IA carrega', async ({ page }) => {
     await page.goto('/chat.html');
     await expect(page).toHaveTitle(/HOSPEDAH/i);
