@@ -48,18 +48,46 @@
     <section class="admin-card glass">
       <div class="admin-table-head">
         <h2>CRM de Leads</h2>
-        <button type="button" id="exportCsv" class="admin-btn">Exportar CSV</button>
+        <div class="admin-actions">
+          <button type="button" id="refreshLeads" class="admin-btn admin-btn-secondary">↻ Atualizar</button>
+          <button type="button" id="exportCsv" class="admin-btn">Exportar CSV</button>
+        </div>
       </div>
       <div class="admin-realtime" id="realtimeStatus">Realtime: aguardando conexão…</div>
+      <div class="crm-filters" role="search" aria-label="Filtros de leads">
+        <label for="crmSearch">Buscar contato</label>
+        <input id="crmSearch" type="search" placeholder="Nome, e-mail, WhatsApp ou resort">
+        <label for="crmStage">Etapa</label>
+        <select id="crmStage">
+          <option value="">Todas as etapas</option>
+          <option value="novo">Novo</option>
+          <option value="contatado">Contatado</option>
+          <option value="proposta_enviada">Proposta enviada</option>
+          <option value="negociacao">Negociação</option>
+          <option value="fechado">Fechado</option>
+          <option value="perdido">Perdido</option>
+        </select>
+        <label for="crmSource">Origem</label>
+        <select id="crmSource">
+          <option value="">Todas as origens</option>
+          <option value="orcamento">Orçamento</option>
+          <option value="exit_intent">Saída do site</option>
+          <option value="busca">Busca</option>
+          <option value="chat">Chat</option>
+        </select>
+      </div>
+      <p id="crmResultCount" class="crm-result-count" aria-live="polite"></p>
       <div class="admin-table-wrap">
         <table class="admin-table" id="crmTable">
           <thead>
             <tr>
               <th>Nome</th>
               <th>E-mail</th>
-              <th>Telefone</th>
+              <th>WhatsApp</th>
+              <th>Interesse</th>
               <th>Origem</th>
-              <th>Status</th>
+              <th>Score</th>
+              <th>Etapa do funil</th>
               <th>Data</th>
             </tr>
           </thead>

@@ -15,7 +15,15 @@
   var pollTimer = null;
   var bookingsChart;
   var leadSourceChart;
-  var BOOKED_STATUSES = ['booked', 'reservado'];
+  var BOOKED_STATUSES = ['confirmada', 'concluida'];
+  var PIPELINE_STAGES = [
+    ['novo', 'Novo'],
+    ['contatado', 'Contatado'],
+    ['proposta_enviada', 'Proposta enviada'],
+    ['negociacao', 'Negociação'],
+    ['fechado', 'Fechado'],
+    ['perdido', 'Perdido']
+  ];
 
   // ── Reservas ─────────────────────────────────────────────────
   var reservasData = [];
@@ -86,12 +94,14 @@
     try {
       var res = await client
         .from('reservas_hospede')
-        .select('id,nome_hospede,email_hospede,telefone,resort_nome,data_entrada,num_hospedes,status,criado_em,mensagem')
+        .select('id,nome_hospede,email_hospede,telefone,resort_nome,data_entrada,num_hospedes,status,criado_em,mensagem,valor_total')
         .order('criado_em', { ascending: false })
         .limit(200);
       if (res.error) throw res.error;
       reservasData = res.data || [];
       renderReservasTable(reservasData);
+      updateKpis(crmData);
+      renderCharts(crmData);
       if (statusEl) statusEl.textContent = 'Atualizado em ' + new Date().toLocaleTimeString('pt-BR');
     } catch (err) {
       if (statusEl) statusEl.textContent = 'Erro ao carregar solicitações.';
@@ -320,6 +330,40 @@
     return (value || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
   }
 
+  function escapeHtml(value) {
+    return String(value == null ? '' : value).replace(/[&<>"']/g, function (char) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char];
+    });
+  }
+
+  function formatPhone(value) {
+    var digits = String(value || '').replace(/\D/g, '');
+    return digits ? (digits.indexOf('55') === 0 ? digits : '55' + digits) : '';
+  }
+
+  function isThisMonth(value) {
+    if (!value) return false;
+    var date = new Date(value);
+    var now = new Date();
+    return !isNaN(date.getTime()) && date.getMonth() === now.getMonth() && date.getFullYear() === now.getFullYear();
+  }
+
+  function renderCrm() {
+    var search = (document.getElementById('crmSearch') || {}).value || '';
+    var stage = (document.getElementById('crmStage') || {}).value || '';
+    var source = (document.getElementById('crmSource') || {}).value || '';
+    var term = search.trim().toLocaleLowerCase('pt-BR');
+    var rows = crmData.filter(function (lead) {
+      var searchable = [lead.nome, lead.email, lead.whatsapp, lead.resort_nome]
+        .join(' ').toLocaleLowerCase('pt-BR');
+      return (!term || searchable.indexOf(term) !== -1) &&
+        (!stage || lead.status_pipeline === stage) &&
+        (!source || lead.origem === source);
+    });
+    renderCrmTable(rows);
+    setText('crmResultCount', rows.length + (rows.length === 1 ? ' lead encontrado' : ' leads encontrados'));
+  }
+
   function setText(id, text) {
     var el = document.getElementById(id);
     if (el) el.textContent = text;
@@ -329,31 +373,49 @@
     var tbody = document.getElementById('crmTableBody');
     if (!tbody) return;
     if (!rows.length) {
-      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--cor-sub,#aab4c4);padding:24px">Nenhum lead encontrado.</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--cor-sub,#aab4c4);padding:24px">Nenhum lead encontrado.</td></tr>';
       return;
     }
     tbody.innerHTML = rows.map(function (lead) {
+      var phone = formatPhone(lead.whatsapp);
+      var stageOptions = PIPELINE_STAGES.map(function (option) {
+        return '<option value="' + option[0] + '"' + (lead.status_pipeline === option[0] ? ' selected' : '') + '>' + option[1] + '</option>';
+      }).join('');
+      var sourceLabels = { orcamento: 'Orçamento', exit_intent: 'Saída do site', busca: 'Busca', chat: 'Chat' };
+      var resortAndDates = [lead.resort_nome, lead.data_entrada ? fmtDate(lead.data_entrada) : '']
+        .filter(Boolean).map(escapeHtml).join(' · ');
       return '<tr>' +
-        '<td>' + (lead.name || '-') + '</td>' +
-        '<td>' + (lead.email || '-') + '</td>' +
-        '<td>' + (lead.phone || '-') + '</td>' +
-        '<td>' + (lead.source || '-') + '</td>' +
-        '<td>' + (lead.status || 'novo') + '</td>' +
-        '<td>' + new Date(lead.created_at || Date.now()).toLocaleDateString('pt-BR') + '</td>' +
+        '<td>' + escapeHtml(lead.nome || '—') + '</td>' +
+        '<td>' + (lead.email ? '<a href="mailto:' + encodeURIComponent(lead.email) + '">' + escapeHtml(lead.email) + '</a>' : '—') + '</td>' +
+        '<td>' + (phone ? '<a class="wpp-link" href="https://wa.me/' + phone + '" target="_blank" rel="noopener noreferrer">' + escapeHtml(lead.whatsapp) + '</a>' : '—') + '</td>' +
+        '<td>' + (resortAndDates || '—') + '</td>' +
+        '<td>' + escapeHtml(sourceLabels[lead.origem] || lead.origem || '—') + '</td>' +
+        '<td>' + escapeHtml(lead.score == null ? 0 : lead.score) + '/100</td>' +
+        '<td><select class="crm-stage-select" data-id="' + escapeHtml(lead.id) + '" aria-label="Etapa de ' + escapeHtml(lead.nome || 'lead') + '">' + stageOptions + '</select></td>' +
+        '<td>' + escapeHtml(fmtDate(lead.criado_em)) + '</td>' +
         '</tr>';
     }).join('');
+    tbody.querySelectorAll('.crm-stage-select').forEach(function (select) {
+      select.addEventListener('change', function () {
+        updateLeadStage(select.dataset.id, select.value, select);
+      });
+    });
   }
 
   function updateKpis(rows) {
     var leadsToday = rows.filter(function (lead) {
-      var date = new Date(lead.created_at || Date.now());
+      var date = new Date(lead.criado_em || 0);
       var now = new Date();
       return date.toDateString() === now.toDateString();
     }).length;
-    var bookings = rows.filter(function (lead) { return BOOKED_STATUSES.indexOf(lead.status) !== -1; }).length;
-    var conversion = rows.length ? (bookings / rows.length) * 100 : 0;
-    var revenue = rows.reduce(function (total, lead) {
-      return total + Number(lead.revenue || 0);
+    var bookings = reservasData.filter(function (booking) {
+      return BOOKED_STATUSES.indexOf(booking.status) !== -1 && isThisMonth(booking.criado_em);
+    }).length;
+    var closedLeads = rows.filter(function (lead) { return lead.status_pipeline === 'fechado'; }).length;
+    var conversion = rows.length ? (closedLeads / rows.length) * 100 : 0;
+    var revenue = reservasData.reduce(function (total, booking) {
+      return total + (BOOKED_STATUSES.indexOf(booking.status) !== -1 && isThisMonth(booking.criado_em)
+        ? Number(booking.valor_total || 0) : 0);
     }, 0);
 
     setText('kpiLeads', String(leadsToday));
@@ -367,11 +429,14 @@
 
     var monthMap = {};
     var sourceMap = {};
-    rows.forEach(function (row) {
-      var date = new Date(row.created_at || Date.now());
+    reservasData.forEach(function (row) {
+      if (BOOKED_STATUSES.indexOf(row.status) === -1) return;
+      var date = new Date(row.criado_em || Date.now());
       var month = date.toLocaleString('pt-BR', { month: 'short' });
-      monthMap[month] = (monthMap[month] || 0) + (BOOKED_STATUSES.indexOf(row.status) !== -1 ? 1 : 0);
-      var source = row.source || 'Direto';
+      monthMap[month] = (monthMap[month] || 0) + 1;
+    });
+    rows.forEach(function (row) {
+      var source = row.origem || 'Direto';
       sourceMap[source] = (sourceMap[source] || 0) + 1;
     });
 
@@ -411,12 +476,16 @@
 
   function exportCsv() {
     if (!crmData.length) return;
-    var header = ['Nome', 'Email', 'Telefone', 'Origem', 'Status', 'Data'];
+    var header = ['Nome', 'Email', 'WhatsApp', 'Resort', 'Origem', 'Score', 'Etapa', 'Data'];
     var rows = crmData.map(function (lead) {
-      return [lead.name || '', lead.email || '', lead.phone || '', lead.source || '', lead.status || '', lead.created_at || ''];
+      return [lead.nome, lead.email, lead.whatsapp, lead.resort_nome, lead.origem, lead.score, lead.status_pipeline, lead.criado_em];
     });
     var csv = [header].concat(rows).map(function (cols) {
-      return cols.map(function (value) { return '"' + String(value).replace(/"/g, '""') + '"'; }).join(',');
+      return cols.map(function (value) {
+        var safe = String(value == null ? '' : value);
+        if (/^[\s]*[=+\-@]/.test(safe)) safe = "'" + safe;
+        return '"' + safe.replace(/"/g, '""') + '"';
+      }).join(',');
     }).join('\n');
 
     var blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
@@ -426,6 +495,27 @@
     link.download = 'crm-leads-hospedah.csv';
     link.click();
     URL.revokeObjectURL(url);
+  }
+
+  async function updateLeadStage(id, stage, select) {
+    if (!id || !PIPELINE_STAGES.some(function (option) { return option[0] === stage; })) return;
+    select.disabled = true;
+    try {
+      var response = await client.from('leads')
+        .update({ status_pipeline: stage, atualizado_em: new Date().toISOString() })
+        .eq('id', id);
+      if (response.error) throw response.error;
+      var lead = crmData.find(function (item) { return item.id === id; });
+      if (lead) lead.status_pipeline = stage;
+      updateKpis(crmData);
+      setRealtimeStatus('Etapa atualizada às ' + new Date().toLocaleTimeString('pt-BR'));
+      renderCrm();
+    } catch (err) {
+      setRealtimeStatus('Não foi possível atualizar a etapa. Verifique sua permissão e tente novamente.');
+      await loadLeads(true);
+    } finally {
+      select.disabled = false;
+    }
   }
 
   function setRealtimeStatus(text) {
@@ -440,29 +530,37 @@
     }
 
     var rows = [];
+    var loadError = null;
     try {
-      var response = await client.from('leads').select('name,email,phone,source,status,created_at,revenue').order('created_at', { ascending: false }).limit(CRM_FETCH_LIMIT);
-      if (!response.error && response.data) rows = response.data;
+      var response = await client.from('leads')
+        .select('id,nome,email,whatsapp,resort_nome,num_pessoas,data_entrada,data_saida,observacoes,origem,utm_source,utm_medium,utm_campaign,score,status_pipeline,criado_em')
+        .order('criado_em', { ascending: false }).limit(CRM_FETCH_LIMIT);
+      if (response.error) throw response.error;
+      rows = response.data || [];
     } catch (err) {
-      rows = [];
-    }
-
-    if (!rows.length) {
+      loadError = err;
       rows = leadsCache || [];
     }
 
     leadsCache = rows;
     leadsCacheTs = Date.now();
     crmData = rows;
-    renderCrmTable(rows);
     updateKpis(rows);
     renderCharts(rows);
-    setRealtimeStatus('Atualizado em ' + new Date().toLocaleTimeString('pt-BR'));
+    renderCrm();
+    if (loadError) {
+      setRealtimeStatus('Não foi possível atualizar os leads. Verifique a migração e as permissões do Supabase.');
+    } else {
+      setRealtimeStatus('Atualizado em ' + new Date().toLocaleTimeString('pt-BR'));
+    }
   }
 
   function startPolling() {
     if (pollTimer) return;
-    pollTimer = window.setInterval(function () { loadLeads(false); }, POLL_INTERVAL_MS);
+    pollTimer = window.setInterval(function () {
+      loadLeads(false);
+      loadReservas();
+    }, POLL_INTERVAL_MS);
   }
 
   async function enforceAdmin() {
@@ -495,6 +593,7 @@
 
     var logout = document.getElementById('adminLogout');
     var exportBtn = document.getElementById('exportCsv');
+    var refreshLeads = document.getElementById('refreshLeads');
 
     if (logout) {
       logout.addEventListener('click', async function () {
@@ -506,6 +605,12 @@
     if (exportBtn) {
       exportBtn.addEventListener('click', exportCsv);
     }
+    if (refreshLeads) refreshLeads.addEventListener('click', function () { loadLeads(true); });
+    ['crmSearch', 'crmStage', 'crmSource'].forEach(function (id) {
+      var field = document.getElementById(id);
+      if (field) field.addEventListener('input', renderCrm);
+      if (field) field.addEventListener('change', renderCrm);
+    });
 
     bindModalEvents();
 

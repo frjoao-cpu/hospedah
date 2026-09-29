@@ -18,6 +18,7 @@ Este diretório contém as migrations **incrementais** do banco de dados.
 | `010_radar_inteligencia.sql` | Cache de análise, dedupe semântico, preço de referência, fila com retry, custo de IA e alertas |
 | `011_radar_saneamento.sql` | Saneamento das oportunidades duplicadas por captura, índice único `captura_id`, índices do dedupe, visões de diagnóstico da fila e função `radar_reenfileirar()` |
 | `012_radar_diagnostico_views.sql` | (Re)cria isoladamente as visões `radar_capturas_estado`, `radar_capturas_falhas` e `radar_capturas_travadas` — use quando o SQL Editor responder `42P01: relation "radar_capturas_estado" does not exist` |
+| `016_crm_score_automatico.sql` | Calcula e atualiza automaticamente a pontuação de leads do CRM |
 
 ## Como aplicar
 
