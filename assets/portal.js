@@ -69,6 +69,13 @@
     return window.location.origin + path;
   }
 
+  function authReturnPath() {
+    var requestedPath = new URLSearchParams(window.location.search).get('next');
+    return requestedPath === '/admin/' || requestedPath === '/admin/index.html'
+      ? requestedPath
+      : '/portal/dashboard.html';
+  }
+
   function translateAuthError(message) {
     var errorMessage = (message ? String(message).trim() : '') || 'Não foi possível concluir a autenticação.';
     var normalized = errorMessage.toLowerCase();
@@ -485,6 +492,10 @@
     var googleBtn  = document.getElementById('btnGoogleAuth');
     var magicBtn   = document.getElementById('btnMagicLink');
     var resetBtn   = document.getElementById('btnPasswordReset');
+    var tagline = document.querySelector('.portal-logo-tagline span');
+    if (tagline && authReturnPath() !== '/portal/dashboard.html') {
+      tagline.textContent = 'Acesso à equipe · CRM';
+    }
 
     var redirectError = getAuthRedirectError();
     if (redirectError) {
@@ -519,7 +530,7 @@
     try {
       var activeUser = await getSessionUser();
       if (activeUser) {
-        window.location.replace('/portal/dashboard.html');
+        window.location.replace(authReturnPath());
         return;
       }
     } catch (e) {
@@ -543,7 +554,7 @@
             setMessage(message, translateAuthError(loginRes.error.message), 'error');
             return;
           }
-          window.location.replace('/portal/dashboard.html');
+          window.location.replace(authReturnPath());
         } catch (err) {
           setMessage(message, translateAuthError((err && err.message) || ''), 'error');
         } finally {
@@ -604,7 +615,7 @@
         try {
           var otpRes = await client.auth.signInWithOtp({
             email: email,
-            options: { emailRedirectTo: portalUrl('/portal/dashboard.html') }
+            options: { emailRedirectTo: portalUrl(authReturnPath()) }
           });
           if (otpRes.error) { throw otpRes.error; }
           setMessage(message, '✉️ Link mágico enviado para ' + email + '. Verifique sua caixa de entrada.', 'success');
@@ -655,7 +666,7 @@
         try {
           var oauthRes = await client.auth.signInWithOAuth({
             provider: 'google',
-            options: { redirectTo: window.location.origin + '/portal/dashboard.html' }
+            options: { redirectTo: portalUrl(authReturnPath()) }
           });
           if (oauthRes.error) {
             throw oauthRes.error;

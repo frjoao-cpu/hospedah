@@ -1,5 +1,60 @@
 const { test, expect } = require('@playwright/test');
 
+test('CRM redireciona para o painel após autenticação da equipe', async ({ page }) => {
+  const mockSupabase = `
+    (() => {
+      const query = (table) => {
+        const builder = {
+          select() { return this; },
+          order() { return this; },
+          limit() { return this; },
+          eq() { return this; },
+          in() { return this; },
+          maybeSingle() {
+            return Promise.resolve({ data: table === 'profiles' ? { role: 'admin' } : null, error: null });
+          },
+          then(resolve, reject) {
+            return Promise.resolve({ data: [], error: null }).then(resolve, reject);
+          }
+        };
+        return builder;
+      };
+      window.supabase = {
+        createClient() {
+          return {
+            auth: {
+              getSession: async () => ({
+                data: { session: localStorage.getItem('crm-signed-in') ? { user: { id: 'admin-id' } } : null }
+              }),
+              signInWithPassword: async () => {
+                localStorage.setItem('crm-signed-in', 'true');
+                return { error: null };
+              },
+              signOut: async () => ({})
+            },
+            from: query,
+            channel() {
+              const channel = { on() { return channel; }, subscribe(callback) { callback('SUBSCRIBED'); return channel; } };
+              return channel;
+            }
+          };
+        }
+      };
+    })();
+  `;
+  await page.addInitScript(() => localStorage.clear());
+  await page.route('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js', (route) =>
+    route.fulfill({ contentType: 'application/javascript', body: mockSupabase }));
+  await page.goto('/portal/?next=%2Fadmin%2F');
+  await expect(page.locator('.portal-logo-tagline')).toContainText('Acesso à equipe · CRM');
+  await page.locator('#loginEmail').fill('admin@example.com');
+  await page.locator('#loginPassword').fill('password');
+  await page.getByRole('button', { name: 'Entrar na minha conta' }).click();
+
+  await expect(page).toHaveURL(/\/admin\/$/);
+  await expect(page.getByRole('heading', { name: 'CRM de Leads' })).toBeVisible();
+});
+
 test('CRM mostra alertas, timeline, notas, responsáveis e aprovações com Realtime', async ({ page }) => {
   const mockSupabase = `
     (() => {
