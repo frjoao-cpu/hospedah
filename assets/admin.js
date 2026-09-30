@@ -806,7 +806,7 @@
     var sessionResponse = await client.auth.getSession();
     var user = sessionResponse && sessionResponse.data && sessionResponse.data.session && sessionResponse.data.session.user;
     if (!user) {
-      window.location.replace('/portal/index.html');
+      window.location.replace('/portal/?next=%2Fadmin%2F');
       return null;
     }
 
