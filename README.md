@@ -129,11 +129,18 @@ O pipeline de CI (`.github/workflows/ci.yml`) executa automaticamente:
 - **Centro de notificações** (status de proposta, confirmação, documentos pendentes, follow-up pós-estadia).
 
 ### Automação e facilidades tecnológicas (usuário e operação)
-- **Lead scoring automático** (origem, intenção, ticket estimado, urgência) para priorizar atendimento.
-- **Disparo automatizado** (WhatsApp/e-mail) para carrinho abandonado, lembrete de proposta e pós-estadia.
-- **Workflow de aprovação** para proprietário (alteração de tarifa, blackout dates, confirmação de disponibilidade).
-- **Integração CRM** (HubSpot/RD/Kommo/Pipedrive) para pipeline completo do lead à reserva confirmada.
-- **Dashboard operacional** com alertas automáticos (queda de conversão, pico de cancelamentos, atraso de resposta).
+- **Integração nativa por provedor com HubSpot/RD Station/Kommo/Pipedrive** — próximo passo; o painel já tem uma Edge Function extensível para encaminhar eventos a um adaptador externo configurado.
+
+### Funcionalidades entregues no CRM administrativo
+- Scoring de 0–100 atualizado automaticamente por origem, e-mail/WhatsApp, tamanho do grupo, urgência da viagem e ticket estimado.
+- Timeline automática de criação, mudanças de etapa e atribuição, além de notas internas e responsável por lead.
+- Alertas para queda de conversão, pico de cancelamentos e leads sem resposta há mais de 24 horas.
+- Solicitações de alteração de tarifa, blackout dates e disponibilidade com aprovação/rejeição por admin ou proprietário.
+- Atualização do CRM e das reservas via Supabase Realtime, com fallback automático para polling.
+- Estrutura configurável de templates e auditoria para mensagens de leads parados, propostas e pós-estadia. Para habilitar envios, configure `CRM_MESSAGING_WEBHOOK` (e opcionalmente `CRM_MESSAGING_WEBHOOK_TOKEN`) nas Edge Function Secrets e aplique a migration `017_crm_operacional.sql`.
+- Edge Function `crm-sync` registra tentativas e retries para mudanças de etapa. A integração com provedor externo depende de um adaptador compatível configurado em `CRM_PROVIDER` (`hubspot`, `rdstation`, `kommo` ou `pipedrive`), `CRM_SYNC_ENDPOINT` e `CRM_SYNC_TOKEN`; credenciais não devem ser armazenadas no banco.
+
+Os cron jobs `crm-mensagens-automaticas` e `crm-integracoes-retry` são definidos em `supabase_cron.sql` e usam `public.radar_chamar`; aplique esse arquivo após configurar `app.supabase_url` e `app.service_role_key`.
 
 ### Stack/frameworks/bibliotecas recomendados
 - **Frontend**: Next.js + TypeScript + Tailwind CSS + shadcn/ui (consistência e velocidade de evolução).
@@ -160,12 +167,12 @@ O pipeline de CI (`.github/workflows/ci.yml`) executa automaticamente:
 - **Fase 2**: unificar jornada em plataforma única (admin/proprietário/hóspede) com RBAC (Role-Based Access Control).
   - Aplicar ABAC (Attribute-Based Access Control) em cenários finos e manter isolamento multi-tenant entre proprietários.
   - Exemplo ABAC: proprietário só edita tarifas de unidades do próprio empreendimento em período permitido.
-- **Fase 3**: automações de CRM/funil + concierge AI + recomendações inteligentes.
+- **Fase 3**: adaptadores nativos de provedores CRM e canais de envio + concierge AI + recomendações inteligentes.
 - **Fase 4**: otimização contínua com A/B test, métricas de conversão e retenção.
 
 ### Checklist de execução prática (prioridade alta → baixa)
 - [ ] **Semana 1–2 (quick wins)**: limpar CSS inline crítico do `index.html`, destacar CTA principal no hero e implementar skeleton/lazy loading de imagens acima/abaixo da dobra.
-- [ ] **Semana 2–4 (conversão)**: lançar busca inteligente com filtros salvos, comparação de resorts e régua automática de recuperação de leads (WhatsApp/e-mail).
+- [ ] **Semana 2–4 (conversão)**: lançar busca inteligente com filtros salvos, comparação de resorts e ativar os canais da régua automática de recuperação de leads.
 - [ ] **Mês 2 (plataforma única)**: consolidar painel de **hóspede, proprietário e admin** com permissões por perfil, centro de notificações e histórico único de atendimento.
-- [ ] **Mês 3 (automação premium)**: integrar CRM + funil com lead scoring, alertas operacionais e concierge AI com handoff para humano.
+- [ ] **Mês 3 (automação premium)**: entregar adaptadores nativos para provedores CRM e canais de mensagens, além de concierge AI com handoff para humano.
 - [ ] **Contínuo (governança)**: acompanhar Lighthouse, tempo de resposta no atendimento, taxa de conversão por etapa e NPS pós-estadia.

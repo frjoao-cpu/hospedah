@@ -477,3 +477,25 @@ SELECT cron.schedule(
     );
     $$
 );
+
+SELECT cron.unschedule('crm-mensagens-automaticas')
+WHERE EXISTS (SELECT 1 FROM cron.job WHERE jobname = 'crm-mensagens-automaticas');
+
+SELECT cron.schedule(
+    'crm-mensagens-automaticas',
+    '*/30 * * * *',
+    $$
+    SELECT public.radar_chamar('crm-automation', '{}'::jsonb, 20);
+    $$
+);
+
+SELECT cron.unschedule('crm-integracoes-retry')
+WHERE EXISTS (SELECT 1 FROM cron.job WHERE jobname = 'crm-integracoes-retry');
+
+SELECT cron.schedule(
+    'crm-integracoes-retry',
+    '*/15 * * * *',
+    $$
+    SELECT public.radar_chamar('crm-sync', '{"acao":"reprocessar"}'::jsonb, 10);
+    $$
+);
