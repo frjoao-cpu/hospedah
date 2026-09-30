@@ -1646,8 +1646,10 @@ function _parseDataDigitada(valor) {
 function _sincronizarDatasDigitadas() {
   var entrada = document.getElementById('dataEntrada');
   var saida = document.getElementById('dataSaida');
-  dataEntradaFP = _parseDataDigitada(entrada && entrada.value);
-  dataSaidaFP = _parseDataDigitada(saida && saida.value);
+  var dataEntradaDigitada = _parseDataDigitada(entrada && entrada.value);
+  var dataSaidaDigitada = _parseDataDigitada(saida && saida.value);
+  dataEntradaFP = dataEntradaDigitada;
+  dataSaidaFP = dataSaidaDigitada;
   return !!(dataEntradaFP && dataSaidaFP && dataSaidaFP > dataEntradaFP);
 }
 
@@ -1655,7 +1657,11 @@ function _sincronizarDatasDigitadas() {
 function _checkDatesForWizard() {
   var btn = document.getElementById('btnNext2');
   if (!btn) return;
-  btn.disabled = !_sincronizarDatasDigitadas();
+  var entrada = document.getElementById('dataEntrada');
+  var saida = document.getElementById('dataSaida');
+  var dataEntradaDigitada = _parseDataDigitada(entrada && entrada.value);
+  var dataSaidaDigitada = _parseDataDigitada(saida && saida.value);
+  btn.disabled = !(dataEntradaDigitada && dataSaidaDigitada && dataSaidaDigitada > dataEntradaDigitada);
 }
 
 /* Habilitar botão "Próximo" do step 3 quando nome e e-mail estão preenchidos */
