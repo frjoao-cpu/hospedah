@@ -64,10 +64,12 @@ test.describe('Fluxo de reserva — wizard multi-step', () => {
     });
     await page.locator('#dataEntrada').fill(dates.checkIn);
     await page.locator('#dataSaida').fill(dates.checkOut);
+    await page.locator('#dataSaida').blur();
     await expect(page.locator('#btnNext2')).toBeEnabled();
     await page.locator('#btnNext2').click();
 
     await expect(page.locator('#wstep-3')).toHaveClass(/active/);
+    await expect(page.locator('#sumSaida')).toHaveText(dates.checkOut);
   });
 
   test('step 3 — campos de dados do hóspede estão presentes', async ({ page }) => {
