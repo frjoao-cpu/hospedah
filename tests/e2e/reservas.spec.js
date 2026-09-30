@@ -45,6 +45,31 @@ test.describe('Fluxo de reserva — wizard multi-step', () => {
     await expect(btnNext2).toBeDisabled();
   });
 
+  test('step 2 — checkout digitado manualmente permite avançar', async ({ page }) => {
+    const resortCard = page.locator('#resortsGrid .resort-option, #resortsGrid .resort-card, #resortsGrid [data-resort]').first();
+    await resortCard.click();
+    await page.locator('#btnNext1').click();
+
+    const dates = await page.evaluate(() => {
+      const checkIn = new Date();
+      checkIn.setDate(checkIn.getDate() + 5);
+      const checkOut = new Date(checkIn);
+      checkOut.setDate(checkOut.getDate() + 2);
+      const format = date => [
+        String(date.getDate()).padStart(2, '0'),
+        String(date.getMonth() + 1).padStart(2, '0'),
+        date.getFullYear(),
+      ].join('/');
+      return { checkIn: format(checkIn), checkOut: format(checkOut) };
+    });
+    await page.locator('#dataEntrada').fill(dates.checkIn);
+    await page.locator('#dataSaida').fill(dates.checkOut);
+    await expect(page.locator('#btnNext2')).toBeEnabled();
+    await page.locator('#btnNext2').click();
+
+    await expect(page.locator('#wstep-3')).toHaveClass(/active/);
+  });
+
   test('step 3 — campos de dados do hóspede estão presentes', async ({ page }) => {
     // Avança até step 3 via JS para evitar dependência do Flatpickr
     await page.evaluate(() => {
