@@ -539,9 +539,28 @@ body {
 
 .flatpickr-day.disabled,
 .flatpickr-day.flatpickr-disabled {
-  background: rgba(231,76,60,0.08) !important;
-  color: rgba(231,76,60,0.45) !important;
+  background: transparent !important;
+  border-color: transparent !important;
+  color: rgba(255, 255, 255, 0.22) !important;
+  text-decoration: none !important;
+  cursor: not-allowed !important;
+}
+
+.flatpickr-day.data-bloqueada,
+.flatpickr-day.data-bloqueada.flatpickr-disabled {
+  background: rgba(231, 76, 60, 0.12) !important;
+  color: rgba(231, 76, 60, 0.65) !important;
   text-decoration: line-through !important;
+  cursor: not-allowed !important;
+}
+
+.flatpickr-day.data-checkin-origem,
+.flatpickr-day.data-checkin-origem.flatpickr-disabled {
+  border: 2px dashed var(--dourado) !important;
+  color: var(--dourado) !important;
+  background: rgba(212, 175, 55, 0.15) !important;
+  text-decoration: none !important;
+  opacity: 0.9 !important;
 }
 
 .flatpickr-months .flatpickr-month,

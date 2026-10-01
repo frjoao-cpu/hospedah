@@ -399,7 +399,7 @@
 // ============================================================
 const SUPABASE_URL = 'https://ydrmjoppjxtmnwtvtinb.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlkcm1qb3Bwanh0bW53dHZ0aW5iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYyNzA3MzksImV4cCI6MjA5MTg0NjczOX0.Gp4ed332v62sC5e5GXXbPqOIBNpS4EzMCFawnBJE_Cw';
-const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const sb = typeof supabase !== 'undefined' ? supabase.createClient(SUPABASE_URL, SUPABASE_KEY) : null;
 
 // Rota pública: reserva deve ser acessível sem login ADM.
 
@@ -615,11 +615,29 @@ async function carregarRegrasPreco(resortNome) {
   }
 }
 
+// Helpers de formatação e verificação de datas
+function formatarDataISO(date) {
+  if (!date) return '';
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+}
+
+function ehDataBloqueada(date) {
+  if (!date || !datasIndisponiveis || !datasIndisponiveis.length) return false;
+  return datasIndisponiveis.includes(formatarDataISO(date));
+}
+
 // ============================================================
 // CARREGAR DISPONIBILIDADE DO SUPABASE
 // ============================================================
 async function carregarDisponibilidade(resortNome) {
   try {
+    if (!sb) {
+      datasIndisponiveis = [];
+      return;
+    }
     const { data } = await sb
       .from('disponibilidade')
       .select('data_bloqueada')
@@ -636,6 +654,8 @@ async function carregarDisponibilidade(resortNome) {
 // ============================================================
 
 function inicializarFlatpickr() {
+  if (typeof flatpickr === 'undefined') return;
+
   // Preservar datas já selecionadas antes de destruir as instâncias anteriores
   const savedEntrada = dataEntradaFP;
   const savedSaida   = dataSaidaFP;
@@ -651,13 +671,53 @@ function inicializarFlatpickr() {
     fpSaidaBlurHandler = null;
   }
 
+  function atualizarLimitesSaida() {
+    if (!fpSaidaInstance) return;
+    if (!dataEntradaFP) {
+      var amanha = new Date();
+      amanha.setDate(amanha.getDate() + 1);
+      amanha.setHours(0, 0, 0, 0);
+      fpSaidaInstance.set('minDate', amanha);
+      fpSaidaInstance.set('maxDate', null);
+      fpSaidaInstance.redraw();
+      return;
+    }
+
+    var minSaida = new Date(dataEntradaFP);
+    minSaida.setDate(minSaida.getDate() + 1);
+    minSaida.setHours(0, 0, 0, 0);
+    fpSaidaInstance.set('minDate', minSaida);
+
+    // O hóspede pode realizar o check-out até a primeira data bloqueada a partir do check-in
+    var entradaISO = formatarDataISO(dataEntradaFP);
+    var primeiroBloqueio = null;
+    var bloqueiosFuturos = (datasIndisponiveis || [])
+      .filter(function(d) { return d >= entradaISO; })
+      .sort();
+    if (bloqueiosFuturos.length > 0) {
+      var partes = bloqueiosFuturos[0].split('-').map(Number);
+      primeiroBloqueio = new Date(partes[0], partes[1] - 1, partes[2], 0, 0, 0);
+    }
+    fpSaidaInstance.set('maxDate', primeiroBloqueio);
+    fpSaidaInstance.redraw();
+  }
+
   // Opções comuns para ambas as instâncias
   const opcoesComuns = {
     dateFormat: 'd/m/Y',
     locale: 'pt',
-    disable: datasIndisponiveis,
     allowInput: true,
     disableMobile: true,
+    onDayCreate(dObj, dStr, fp, dayElem) {
+      var date = dayElem.dateObj;
+      var iso = formatarDataISO(date);
+      if (datasIndisponiveis && datasIndisponiveis.includes(iso)) {
+        dayElem.classList.add('data-bloqueada');
+      }
+      if (dataEntradaFP && formatarDataISO(dataEntradaFP) === iso) {
+        dayElem.classList.add('data-checkin-origem');
+      }
+    },
     onOpen(selectedDates, dateStr, instance) {
       var inputEl = instance.input;
       requestAnimationFrame(function() {
@@ -675,18 +735,28 @@ function inicializarFlatpickr() {
   fpInstance = flatpickr('#dataEntrada', Object.assign({}, opcoesComuns, {
     mode: 'single',
     minDate: 'today',
+    disable: [ ehDataBloqueada ],
     onChange(selectedDates) {
       if (selectedDates.length === 1) {
         dataEntradaFP = selectedDates[0];
-        // Atualizar minDate do check-out: deve ser pelo menos um dia após check-in
-        var proximoDia = new Date(selectedDates[0]);
-        proximoDia.setDate(proximoDia.getDate() + 1);
-        if (fpSaidaInstance) fpSaidaInstance.set('minDate', proximoDia);
-        // Se check-out já definido for anterior ou igual ao novo check-in, limpar
-        if (dataSaidaFP && dataSaidaFP <= dataEntradaFP) {
-          dataSaidaFP = null;
-          if (saidaInput) saidaInput.value = '';
-          if (fpSaidaInstance) fpSaidaInstance.clear();
+        var entradaInput = document.getElementById('dataEntrada');
+        if (entradaInput) {
+          entradaInput.value = fpInstance.formatDate(dataEntradaFP, opcoesComuns.dateFormat);
+        }
+        atualizarLimitesSaida();
+
+        // Se check-out já definido for anterior ou igual ao novo check-in, ou houver conflito, limpar
+        if (dataSaidaFP) {
+          var entradaISO = formatarDataISO(dataEntradaFP);
+          var saidaISO = formatarDataISO(dataSaidaFP);
+          var conflito = dataSaidaFP <= dataEntradaFP || (datasIndisponiveis || []).some(function(d) {
+            return d >= entradaISO && d < saidaISO;
+          });
+          if (conflito) {
+            dataSaidaFP = null;
+            if (saidaInput) saidaInput.value = '';
+            if (fpSaidaInstance) fpSaidaInstance.clear(false);
+          }
         }
         if (dataEntradaFP && dataSaidaFP) {
           verificarPeriodoDisponivel();
@@ -695,8 +765,10 @@ function inicializarFlatpickr() {
         }
       } else {
         dataEntradaFP = null;
+        atualizarLimitesSaida();
         resetarStatus();
       }
+      _checkDatesForWizard();
     },
   }));
 
@@ -715,7 +787,9 @@ function inicializarFlatpickr() {
     onChange(selectedDates) {
       if (selectedDates.length === 1) {
         dataSaidaFP = selectedDates[0];
-        saidaInput.value = fpSaidaInstance.formatDate(dataSaidaFP, opcoesComuns.dateFormat);
+        if (saidaInput) {
+          saidaInput.value = fpSaidaInstance.formatDate(dataSaidaFP, opcoesComuns.dateFormat);
+        }
         if (dataEntradaFP && dataSaidaFP) {
           verificarPeriodoDisponivel();
         } else {
@@ -729,9 +803,40 @@ function inicializarFlatpickr() {
     },
   }));
 
-  // Restaurar datas preservadas (dispara onChange → recalcula preço dinâmico)
-  if (savedEntrada) fpInstance.setDate(savedEntrada, true);
-  if (savedSaida)   fpSaidaInstance.setDate(savedSaida, true);
+  // Restaurar datas preservadas se ainda forem válidas
+  var entradaValida = savedEntrada && !ehDataBloqueada(savedEntrada);
+  if (entradaValida) {
+    dataEntradaFP = savedEntrada;
+    fpInstance.setDate(savedEntrada, false);
+    var entradaInput = document.getElementById('dataEntrada');
+    if (entradaInput) entradaInput.value = fpInstance.formatDate(savedEntrada, opcoesComuns.dateFormat);
+    atualizarLimitesSaida();
+  } else {
+    dataEntradaFP = null;
+    var entradaInput = document.getElementById('dataEntrada');
+    if (entradaInput) entradaInput.value = '';
+  }
+
+  var saidaValida = false;
+  if (entradaValida && savedSaida && savedSaida > savedEntrada) {
+    var entISO = formatarDataISO(savedEntrada);
+    var saiISO = formatarDataISO(savedSaida);
+    var temConflito = (datasIndisponiveis || []).some(function(d) {
+      return d >= entISO && d < saiISO;
+    });
+    if (!temConflito) saidaValida = true;
+  }
+
+  if (saidaValida) {
+    dataSaidaFP = savedSaida;
+    fpSaidaInstance.setDate(savedSaida, false);
+    if (saidaInput) saidaInput.value = fpSaidaInstance.formatDate(savedSaida, opcoesComuns.dateFormat);
+    verificarPeriodoDisponivel();
+  } else {
+    dataSaidaFP = null;
+    if (saidaInput) saidaInput.value = '';
+    if (entradaValida) resetarStatus();
+  }
 
   // --- Validação por digitação manual no check-out ---
   if (saidaInput) {
