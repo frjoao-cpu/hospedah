@@ -13727,20 +13727,37 @@ async function pdToggleBlockDate(ds, block) {
         .eq('resort_nome', pdCal.resort)
         .eq('data_bloqueada', ds);
       if (delErr) throw delErr;
-      var { error } = await _supabase.from('disponibilidade').insert([{
+      var { data: inserted, error } = await _supabase.from('disponibilidade').insert([{
         resort_nome:    pdCal.resort,
         data_bloqueada: ds,
         motivo:         'bloqueio',
-      }]);
+      }]).select('id');
       if (error) throw error;
-      toastSistema('Data ' + fmtDate(ds) + ' bloqueada.', 'success');
+      if (!inserted || inserted.length === 0) {
+        // A política de RLS pode aceitar a chamada sem erro mas não gravar
+        // nenhuma linha quando o usuário autenticado não tem papel
+        // admin/proprietario em "profiles" — sem esta checagem, o toast de
+        // sucesso era exibido mesmo sem nada ter sido realmente bloqueado.
+        toastSistema('Não foi possível bloquear ' + fmtDate(ds) + ': verifique se seu usuário tem permissão de administrador.', 'error');
+      } else {
+        toastSistema('Data ' + fmtDate(ds) + ' bloqueada.', 'success');
+      }
     } else {
-      var { error: err2 } = await _supabase.from('disponibilidade')
+      // Usa .select('id') para confirmar quantas linhas foram realmente
+      // excluídas: RLS pode permitir a chamada sem erro e ainda assim
+      // excluir 0 linhas (ex.: usuário sem papel admin/proprietario), o que
+      // antes fazia o toast de sucesso aparecer sem a data ser liberada.
+      var { data: deletedRows, error: err2 } = await _supabase.from('disponibilidade')
         .delete()
         .eq('resort_nome', pdCal.resort)
-        .eq('data_bloqueada', ds);
+        .eq('data_bloqueada', ds)
+        .select('id');
       if (err2) throw err2;
-      toastSistema('Data ' + fmtDate(ds) + ' liberada.', 'success');
+      if (!deletedRows || deletedRows.length === 0) {
+        toastSistema('Não foi possível liberar ' + fmtDate(ds) + ': verifique se seu usuário tem permissão de administrador.', 'error');
+      } else {
+        toastSistema('Data ' + fmtDate(ds) + ' liberada.', 'success');
+      }
     }
     pdLoadAndRender();
   } catch(e) {
