@@ -13128,7 +13128,21 @@ var pdCal = {
   pricesMap: {},    // { 'YYYY-MM-DD': [{...}, ...] }  aggregated by day
   blockedSet: new Set(), // Set<'YYYY-MM-DD'>
   loading: false,
+  mouseDown: false,     // true enquanto o botão do mouse está pressionado sobre um dia
+  dragStartDate: null,  // dia onde o "arrastar" (drag) começou
+  dragMoved: false,     // true se o ponteiro passou por mais de um dia durante o arrasto
 };
+
+// Permite selecionar um período inteiro clicando em um dia e arrastando o
+// ponteiro até outro dia (como em calendários de reserva comuns), em vez de
+// exigir um clique para cada data individual. Se o mouse for solto sobre o
+// mesmo dia onde começou (sem arrastar), o comportamento de clique único
+// original é preservado (pdCalClickDay).
+document.addEventListener('mouseup', function() {
+  if (pdCal.mouseDown) {
+    pdOnDayMouseUp(pdCal.hoverDate || pdCal.dragStartDate);
+  }
+});
 
 function pdOnResortChange() {
   var resort = document.getElementById('pd_resort').value;
@@ -13255,18 +13269,82 @@ function pdRenderCalendar() {
   }
   wrap.innerHTML = html;
 
-  // Attach hover listeners
+  // Attach hover + drag-select listeners
   var days = wrap.querySelectorAll('.pd-cal-day:not(.empty):not(.past)');
   days.forEach(function(el) {
+    el.addEventListener('mousedown', function(e) {
+      if (e.button !== 0) return; // apenas botão esquerdo
+      pdCal.mouseDown     = true;
+      pdCal.dragStartDate = el.dataset.date;
+      pdCal.dragMoved     = false;
+      pdCal.hoverDate     = el.dataset.date;
+      // Não altera pdCal.rangeStart/rangeEnd aqui: a pré-visualização do
+      // arrasto usa dragStartDate/hoverDate (ver pdUpdateRangeHighlight),
+      // preservando a seleção/estado atual até o botão do mouse ser solto.
+      // Isso evita perder o primeiro clique do fluxo de 2 cliques do modo
+      // "Definir preço" quando o segundo clique também dispara mousedown.
+      pdUpdateRangeHighlight();
+      e.preventDefault(); // evita seleção de texto ao arrastar
+    });
     el.addEventListener('mouseenter', function() {
       pdCal.hoverDate = el.dataset.date;
+      if (pdCal.mouseDown && pdCal.dragStartDate && el.dataset.date !== pdCal.dragStartDate) {
+        pdCal.dragMoved = true;
+      }
       pdUpdateRangeHighlight();
     });
     el.addEventListener('mouseleave', function() {
-      pdCal.hoverDate = null;
-      pdUpdateRangeHighlight();
+      if (!pdCal.mouseDown) {
+        pdCal.hoverDate = null;
+        pdUpdateRangeHighlight();
+      }
+    });
+    el.addEventListener('mouseup', function(e) {
+      if (e.button !== 0) return;
+      pdOnDayMouseUp(el.dataset.date);
     });
   });
+}
+
+// Finaliza a seleção ao soltar o botão do mouse. Se o ponteiro não se
+// deslocou para outro dia (apenas um clique simples), delega para o
+// comportamento de clique único já existente (pdCalClickDay). Se houve
+// arrasto por mais de um dia, define o intervalo completo de uma só vez e
+// abre o painel de confirmação correspondente ao modo atual.
+function pdOnDayMouseUp(ds) {
+  if (!pdCal.mouseDown) return;
+  pdCal.mouseDown = false;
+  var start = pdCal.dragStartDate;
+  pdCal.dragStartDate = null;
+  var moved = pdCal.dragMoved;
+  pdCal.dragMoved = false;
+
+  if (!moved || !ds || ds === start) {
+    // Clique simples (sem arrastar): usa o fluxo de clique único já
+    // existente, sem alterar a seleção que já estava ativa antes do
+    // mousedown (necessário para o 2º clique do modo "Definir preço").
+    pdCalClickDay(ds || start);
+    return;
+  }
+
+  // Arrasto concluído: define o período inteiro de uma só vez.
+  if (ds < start) {
+    pdCal.rangeStart = ds;
+    pdCal.rangeEnd   = start;
+  } else {
+    pdCal.rangeStart = start;
+    pdCal.rangeEnd   = ds;
+  }
+  document.getElementById('pd_data_ini').value = pdCal.rangeStart;
+  document.getElementById('pd_data_fim').value = pdCal.rangeEnd;
+  pdSyncVisibleDateInputs();
+  pdUpdateRangeHighlight();
+
+  if (pdCal.mode === 'price') {
+    pdShowEntryPanel();
+  } else {
+    pdShowBlockPanel();
+  }
 }
 
 function pdBuildMonthHtml(yr, mo, moName) {
@@ -13321,7 +13399,7 @@ function pdBuildMonthHtml(yr, mo, moName) {
       priceHtml = '<div class="d-price" style="color:var(--vermelho); font-size:0.65em;">bloq.</div>';
     }
 
-    html += '<div class="' + classes + '" data-date="' + ds + '" onclick="pdCalClickDay(\'' + ds + '\')">'
+    html += '<div class="' + classes + '" data-date="' + ds + '">'
           + '<div class="d-num">' + day + '</div>'
           + priceHtml
           + '</div>';
@@ -13334,8 +13412,16 @@ function pdUpdateRangeHighlight() {
   var wrap = document.getElementById('pdCalMonths');
   if (!wrap) return;
   var days = wrap.querySelectorAll('.pd-cal-day[data-date]');
-  var rs = pdCal.rangeStart;
-  var re = pdCal.rangeEnd || (pdCal.rangeStart ? pdCal.hoverDate : null);
+  var rs, re;
+  if (pdCal.mouseDown && pdCal.dragStartDate) {
+    // Enquanto o usuário arrasta o ponteiro, mostra a pré-visualização do
+    // período sem sobrescrever a seleção confirmada (rangeStart/rangeEnd).
+    rs = pdCal.dragStartDate;
+    re = pdCal.hoverDate;
+  } else {
+    rs = pdCal.rangeStart;
+    re = pdCal.rangeEnd || (pdCal.rangeStart ? pdCal.hoverDate : null);
+  }
 
   days.forEach(function(el) {
     var ds = el.dataset.date;
@@ -13562,15 +13648,25 @@ function pdCalNavigate(delta) {
 
 function pdSetMode(mode) {
   pdCal.mode = mode;
-  pdCal.rangeStart = null;
-  pdCal.rangeEnd   = null;
   pdCal.hoverDate  = null;
-  document.getElementById('pdEntryPanel').classList.remove('active');
-  var bp = document.getElementById('pdBlockPanel');
-  if (bp) bp.classList.remove('active');
-  document.getElementById('pd_data_ini').value = '';
-  document.getElementById('pd_data_fim').value = '';
-  pdSyncVisibleDateInputs();
+  pdCal.mouseDown  = false;
+  pdCal.dragStartDate = null;
+  pdCal.dragMoved  = false;
+
+  // Preserva um período já selecionado/digitado (Início/Término) ao trocar
+  // de modo: antes, trocar para "Bloquear"/"Liberar" depois de preencher as
+  // datas limpava a seleção, fazendo o botão parecer "sem resposta".
+  var hasRange = !!(pdCal.rangeStart && pdCal.rangeEnd);
+  if (!hasRange) {
+    pdCal.rangeStart = null;
+    pdCal.rangeEnd   = null;
+    document.getElementById('pdEntryPanel').classList.remove('active');
+    var bp0 = document.getElementById('pdBlockPanel');
+    if (bp0) bp0.classList.remove('active');
+    document.getElementById('pd_data_ini').value = '';
+    document.getElementById('pd_data_fim').value = '';
+    pdSyncVisibleDateInputs();
+  }
 
   var modeBtnIds = { price: 'pdModePrice', block: 'pdModeBlock', unblock: 'pdModeUnblock' };
   Object.keys(modeBtnIds).forEach(function(m) {
@@ -13578,6 +13674,17 @@ function pdSetMode(mode) {
     if (btn) btn.classList.toggle('active', m === mode);
   });
   pdRenderCalendar();
+
+  if (hasRange) {
+    if (mode === 'price') {
+      var bp1 = document.getElementById('pdBlockPanel');
+      if (bp1) bp1.classList.remove('active');
+      pdShowEntryPanel();
+    } else {
+      document.getElementById('pdEntryPanel').classList.remove('active');
+      pdShowBlockPanel();
+    }
+  }
 }
 
 // Sync the visible date inputs (Início/Término) from pdCal state
