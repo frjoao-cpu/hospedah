@@ -13422,19 +13422,33 @@ function pdShowBlockPanel() {
   var fim = pdCal.rangeEnd;
   if (!ini || !fim) return;
   var isBlock = pdCal.mode === 'block';
-  var d1 = new Date(ini + 'T00:00:00');
-  var d2 = new Date(fim + 'T00:00:00');
-  // Count inclusive dates using UTC arithmetic to avoid DST issues
-  var dias = Math.round((Date.UTC(d2.getFullYear(), d2.getMonth(), d2.getDate())
-                       - Date.UTC(d1.getFullYear(), d1.getMonth(), d1.getDate())) / 86400000) + 1;
-  var fmtOpts = { day:'2-digit', month:'2-digit', year:'numeric' };
+
+  // Count inclusive dates and format the period using pure string/UTC logic
+  // so the panel text is never shifted by the browser's local timezone.
+  var dias = 0;
+  var cur = ini;
+  while (cur <= fim) {
+    dias++;
+    var p = cur.split('-');
+    var d = new Date(Date.UTC(parseInt(p[0], 10), parseInt(p[1], 10) - 1, parseInt(p[2], 10)));
+    d.setUTCDate(d.getUTCDate() + 1);
+    cur = d.toISOString().slice(0, 10);
+  }
   var panel  = document.getElementById('pdBlockPanel');
   var title  = document.getElementById('pdBlockTitle');
   var info   = document.getElementById('pdBlockInfo');
   var btn    = document.getElementById('pdBlockApplyBtn');
   if (title) {
+    // Format dates as dd/mm/yyyy directly from the ISO strings to keep the
+    // panel text independent of the browser's local timezone.
+    var fmtPeriodo = function(ds) {
+      var p = ds.split('-');
+      return (p[2].length === 1 ? '0' : '') + p[2] + '/'
+           + (p[1].length === 1 ? '0' : '') + p[1] + '/'
+           + p[0];
+    };
     title.textContent = (isBlock ? '🚫 Bloquear' : '✅ Liberar') + ' período: '
-      + d1.toLocaleDateString('pt-BR', fmtOpts) + ' → ' + d2.toLocaleDateString('pt-BR', fmtOpts);
+      + fmtPeriodo(ini) + ' → ' + fmtPeriodo(fim);
   }
   if (info) {
     info.textContent = dias + (dias === 1 ? ' data selecionada — ela será ' : ' datas selecionadas — elas serão ')
@@ -13458,13 +13472,16 @@ async function pdApplyBlockRange() {
   if (!pdCal.resort) { toastSistema('Selecione o resort.', 'error'); return; }
   var isBlock = pdCal.mode === 'block';
 
-  // Build list of all dates in range
+  // Build list of all dates in range using string arithmetic to avoid
+  // timezone shifts that can occur with new Date(dateString + 'T00:00:00').
   var dates = [];
-  var cur = new Date(ini + 'T00:00:00');
-  var end = new Date(fim + 'T00:00:00');
-  while (cur <= end) {
-    dates.push(cur.toISOString().slice(0, 10));
-    cur.setDate(cur.getDate() + 1);
+  var cur = ini;
+  while (cur <= fim) {
+    dates.push(cur);
+    var p = cur.split('-');
+    var d = new Date(Date.UTC(parseInt(p[0], 10), parseInt(p[1], 10) - 1, parseInt(p[2], 10)));
+    d.setUTCDate(d.getUTCDate() + 1);
+    cur = d.toISOString().slice(0, 10);
   }
 
   try {
@@ -13473,8 +13490,7 @@ async function pdApplyBlockRange() {
       var { error: delExisting } = await _supabase.from('disponibilidade')
         .delete()
         .eq('resort_nome', pdCal.resort)
-        .gte('data_bloqueada', ini)
-        .lte('data_bloqueada', fim);
+        .in('data_bloqueada', dates);
       if (delExisting) throw delExisting;
       var rows = dates.map(function(d) {
         return { resort_nome: pdCal.resort, data_bloqueada: d, motivo: 'bloqueio' };
@@ -13483,13 +13499,20 @@ async function pdApplyBlockRange() {
       if (error) throw error;
       toastSistema(dates.length + (dates.length === 1 ? ' data bloqueada.' : ' datas bloqueadas.'), 'success');
     } else {
-      var { error: err2 } = await _supabase.from('disponibilidade')
+      // Delete only the exact selected dates so we can report how many were
+      // actually unblocked (e.g. RLS or missing rows will return 0).
+      var { data: deletedRows, error: err2 } = await _supabase.from('disponibilidade')
         .delete()
         .eq('resort_nome', pdCal.resort)
-        .gte('data_bloqueada', ini)
-        .lte('data_bloqueada', fim);
+        .in('data_bloqueada', dates)
+        .select('id');
       if (err2) throw err2;
-      toastSistema(dates.length + (dates.length === 1 ? ' data liberada.' : ' datas liberadas.'), 'success');
+      var liberadas = (deletedRows || []).length;
+      if (liberadas === 0) {
+        toastSistema('Nenhuma data bloqueada encontrada no período selecionado.', 'warn');
+      } else {
+        toastSistema(liberadas + (liberadas === 1 ? ' data liberada.' : ' datas liberadas.'), 'success');
+      }
     }
     pdClearSelection();
     pdLoadAndRender();
@@ -13535,7 +13558,7 @@ function pdSetMode(mode) {
     var btn = document.getElementById(modeBtnIds[m]);
     if (btn) btn.classList.toggle('active', m === mode);
   });
-  pdUpdateRangeHighlight();
+  pdRenderCalendar();
 }
 
 // Sync the visible date inputs (Início/Término) from pdCal state
