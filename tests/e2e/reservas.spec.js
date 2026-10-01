@@ -72,6 +72,48 @@ test.describe('Fluxo de reserva — wizard multi-step', () => {
     await expect(page.locator('#sumSaida')).toHaveText(dates.checkOut);
   });
 
+  test('step 2 — checkout selecionado no calendário permite avançar', async ({ page }) => {
+    const resortCard = page.locator('#resortsGrid .resort-option, #resortsGrid .resort-card, #resortsGrid [data-resort]').first();
+    await resortCard.click();
+    await page.locator('#btnNext1').click();
+
+    const dates = await page.evaluate(() => {
+      const checkIn = new Date();
+      checkIn.setDate(checkIn.getDate() + 5);
+      const checkOut = new Date(checkIn);
+      checkOut.setDate(checkOut.getDate() + 2);
+      const format = date => [
+        String(date.getDate()).padStart(2, '0'),
+        String(date.getMonth() + 1).padStart(2, '0'),
+        date.getFullYear(),
+      ].join('/');
+      return { checkIn: format(checkIn), checkOut: format(checkOut) };
+    });
+
+    for (const [inputId, date] of [['dataEntrada', dates.checkIn], ['dataSaida', dates.checkOut]]) {
+      await page.locator(`#${inputId}`).click();
+      await page.locator('.flatpickr-calendar.open').waitFor();
+      await page.evaluate(({ inputId, date }) => {
+        const [day, month, year] = date.split('/').map(Number);
+        const input = document.getElementById(inputId);
+        const calendar = input._flatpickr;
+        const dayElement = Array.from(calendar.days.children).find(element =>
+          element.dateObj.getDate() === day &&
+          element.dateObj.getMonth() === month - 1 &&
+          element.dateObj.getFullYear() === year
+        );
+        if (!dayElement) throw new Error(`Calendar date not found: ${date}`);
+        dayElement.click();
+      }, { inputId, date });
+    }
+
+    await expect(page.locator('#dataSaida')).toHaveValue(dates.checkOut);
+    await expect(page.locator('#btnNext2')).toBeEnabled();
+    await page.locator('#btnNext2').click();
+    await expect(page.locator('#wstep-3')).toHaveClass(/active/);
+    await expect(page.locator('#sumSaida')).toHaveText(dates.checkOut);
+  });
+
   test('step 3 — campos de dados do hóspede estão presentes', async ({ page }) => {
     // Avança até step 3 via JS para evitar dependência do Flatpickr
     await page.evaluate(() => {

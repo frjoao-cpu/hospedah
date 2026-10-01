@@ -715,6 +715,7 @@ function inicializarFlatpickr() {
     onChange(selectedDates) {
       if (selectedDates.length === 1) {
         dataSaidaFP = selectedDates[0];
+        saidaInput.value = fpSaidaInstance.formatDate(dataSaidaFP, opcoesComuns.dateFormat);
         if (dataEntradaFP && dataSaidaFP) {
           verificarPeriodoDisponivel();
         } else {
@@ -724,6 +725,7 @@ function inicializarFlatpickr() {
         dataSaidaFP = null;
         resetarStatus();
       }
+      _checkDatesForWizard();
     },
   }));
 
@@ -1673,16 +1675,11 @@ function _checkDadosForWizard() {
   btn.disabled = !(nome.trim() && email.trim());
 }
 
-/* Observa mudanças nos inputs de data — funciona tanto para seleção via calendário
-   (MutationObserver / change) quanto para digitação manual (input event).
-   Ponto de integração: _checkDatesForWizard é o único ponto que habilita o botão "Próximo". */
+/* Observa mudanças nos inputs de data digitadas manualmente. */
 ['dataEntrada', 'dataSaida'].forEach(function(id) {
   var el = document.getElementById(id);
   if (el) {
-    var obs = new MutationObserver(_checkDatesForWizard);
-    obs.observe(el, { attributes: true, attributeFilter: ['value'] });
     el.addEventListener('change', _checkDatesForWizard);
-    // [ADICIONADO] input event: reage imediatamente à digitação manual
     el.addEventListener('input', _checkDatesForWizard);
   }
 });
