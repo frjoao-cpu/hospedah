@@ -13623,8 +13623,13 @@ function pdDateInputChange() {
       pdCal.rangeEnd   = validFim;
     }
   } else if (validIni) {
+    // Término é opcional (rótulo "Término (opcional)"): quando só o Início é
+    // preenchido, trata-se de uma seleção de um único dia. Sem este fallback,
+    // digitar apenas a data de Início nunca aciona o painel de ação (preço
+    // ou bloquear/desbloquear), tornando impossível concluir a operação só
+    // com a data de Início — inclusive para desbloquear um único dia.
     pdCal.rangeStart = validIni;
-    pdCal.rangeEnd   = null;
+    pdCal.rangeEnd   = validIni;
   } else {
     pdCal.rangeStart = null;
     pdCal.rangeEnd   = null;
