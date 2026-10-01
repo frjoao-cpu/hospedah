@@ -13361,7 +13361,31 @@ function pdCalClickDay(ds) {
   var todayStr = pdTodayStr();
   if (ds < todayStr) return; // ignore past dates in all modes
 
-  // All modes now use range selection
+  // Nos modos Bloquear/Liberar, um único clique já aplica a ação imediatamente
+  // no dia clicado — não exige um segundo clique para "fechar" o intervalo nem
+  // um botão de confirmação separado. Isso evita a confusão de o usuário
+  // clicar numa data e nada parecer acontecer (a data só ficava destacada em
+  // dourado aguardando um segundo clique + botão "Liberar/Bloquear período").
+  // Para bloquear/liberar várias datas de uma vez, os campos Início/Término
+  // continuam disponíveis e usam o painel de confirmação normalmente.
+  if (pdCal.mode === 'block' || pdCal.mode === 'unblock') {
+    pdCal.rangeStart = null;
+    pdCal.rangeEnd   = null;
+    pdCal.hoverDate  = null;
+    var ep = document.getElementById('pdEntryPanel');
+    if (ep) ep.classList.remove('active');
+    var bp0 = document.getElementById('pdBlockPanel');
+    if (bp0) bp0.classList.remove('active');
+    document.getElementById('pd_data_ini').value = '';
+    document.getElementById('pd_data_fim').value = '';
+    pdSyncVisibleDateInputs();
+    pdUpdateRangeHighlight();
+    pdToggleBlockDate(ds, pdCal.mode === 'block');
+    return;
+  }
+
+  // Modo "Definir preço": mantém a seleção de intervalo (início + fim) seguida
+  // do painel de confirmação, pois é necessário digitar o valor do preço.
   if (!pdCal.rangeStart || pdCal.rangeEnd) {
     // Start new selection
     pdCal.rangeStart = ds;
@@ -13385,12 +13409,7 @@ function pdCalClickDay(ds) {
     document.getElementById('pd_data_ini').value = pdCal.rangeStart;
     document.getElementById('pd_data_fim').value = pdCal.rangeEnd;
     pdSyncVisibleDateInputs();
-    // Show appropriate action panel
-    if (pdCal.mode === 'price') {
-      pdShowEntryPanel();
-    } else {
-      pdShowBlockPanel();
-    }
+    pdShowEntryPanel();
   }
   pdUpdateRangeHighlight();
 }
