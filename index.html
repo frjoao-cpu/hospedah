@@ -1,273 +1,87 @@
 <!DOCTYPE html>
-<html lang="pt-br" data-theme="dark">
+<html lang="pt-BR" data-theme="dark">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://www.googletagmanager.com http://www.googletagmanager.com https://www.google-analytics.com https://www.gstatic.com https://www.google.com https://www.youtube.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com; img-src 'self' data: blob: https://i.imgur.com https://images.unsplash.com https://images.pexels.com https://flagcdn.com https://cdn.jsdelivr.net https://images.ctfassets.net https://www.google.com https://www.gstatic.com; connect-src 'self' https://*.supabase.co https://*.supabase.com wss://*.supabase.co https://www.google-analytics.com https://analytics.google.com; frame-src 'self' https://www.google.com https://www.youtube.com; font-src 'self' data: https://fonts.gstatic.com https://fonts.googleapis.com; object-src 'none'; base-uri 'self'; form-action 'self' https://wa.me https://api.whatsapp.com; upgrade-insecure-requests; block-all-mixed-content">
-<title>HOSPEDAH — Especialista em Hospedagens e Resorts</title>
-<meta name="description" content="HOSPEDAH — Especialista em Hospedagens e Resorts. Encontre opções de hospedagem e resorts com atendimento personalizado para planejar sua viagem.">
-<link rel="canonical" href="https://hospedah.tur.br/">
-
-<!-- Google Analytics 4 -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-Y6FZYPFRST"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', 'G-Y6FZYPFRST');
-</script>
-
-<!-- PWA -->
-<link rel="manifest" href="/manifest.json">
-<meta name="theme-color" content="#D4AF37">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="HOSPEDAH">
-<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png" sizes="180x180">
-<link rel="icon" type="image/svg+xml" href="/assets/logo-favicon.svg" sizes="any">
-
-<!-- Open Graph — compartilhamento no WhatsApp, Facebook, Instagram -->
-<meta property="og:type"        content="website">
-<meta property="og:url"         content="https://hospedah.tur.br/">
-<meta property="og:site_name"   content="HOSPEDAH">
-<meta property="og:title"       content="HOSPEDAH — Especialista em Hospedagens e Resorts">
-<meta property="og:description" content="Encontre opções de hospedagem e resorts com atendimento personalizado para planejar sua viagem.">
-<meta property="og:image"       content="https://i.imgur.com/AmFSwwd.jpeg">
-<!-- og:image oficial 1200x630 pendente: substituir pela arte institucional final da HOSPEDAH -->
-<meta property="og:image:width" content="1200">
-<meta property="og:image:height" content="630">
-<meta property="og:locale"      content="pt_BR">
-
-<!-- Twitter / X Cards -->
-<meta name="twitter:card"        content="summary_large_image">
-<meta name="twitter:title"       content="HOSPEDAH — Especialista em Hospedagens e Resorts">
-<meta name="twitter:description" content="Encontre opções de hospedagem e resorts com atendimento personalizado para planejar sua viagem.">
-<meta name="twitter:image"       content="https://i.imgur.com/AmFSwwd.jpeg">
-
-<!-- Preconnect — reduz latência de recursos externos -->
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="preconnect" href="https://i.imgur.com">
-<link rel="preconnect" href="https://www.googletagmanager.com">
-<link rel="preconnect" href="https://cdn.jsdelivr.net">
-<link rel="preconnect" href="https://cdnjs.cloudflare.com">
-
-<!-- Preload LCP — primeira imagem do hero (background CSS) -->
-<link rel="preload" as="image" href="https://i.imgur.com/AmFSwwd.jpeg" fetchpriority="high">
-
-<!-- Google Tag Manager & Microsoft Clarity — carregados somente após consentimento LGPD -->
-<!-- Meta Pixel (placeholder):
-<script>
-  // fbq('init', 'SEU_PIXEL_ID');
-  // fbq('track', 'PageView');
-</script>
--->
-<script src="/assets/tracking.js"></script>
-
-<!-- Google Fonts — carregado de forma não-bloqueante para evitar atraso no render -->
-<link rel="preload" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Playfair+Display:wght@700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
-<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Playfair+Display:wght@700&display=swap"></noscript>
-<!-- Mobile-first CSS -->
-<link rel="stylesheet" href="/assets/mobile-first.css">
-
-<!-- Schema.org — Rich Snippets para Google -->
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "TravelAgency",
-  "@id": "https://hospedah.tur.br/#organization",
-  "name": "HOSPEDAH — Especialista em Hospedagens e Resorts",
-  "alternateName": "HOSPEDAH",
-  "slogan": "Especialista em Hospedagens e Resorts",
-  "url": "https://hospedah.tur.br",
-  "logo": "https://i.imgur.com/fVKGOSt.png",
-  "description": "Encontre opções de hospedagem e resorts com atendimento personalizado para planejar sua viagem.",
-  "address": {
-    "@type": "PostalAddress",
-    "addressRegion": "SP",
-    "addressCountry": "BR"
-  },
-  "contactPoint": [
-    {
-      "@type": "ContactPoint",
-      "telephone": "+55-17-98200-6382",
-      "contactType": "customer service",
-      "availableLanguage": "Portuguese"
-    }
-  ],
-  "sameAs": [
-    "https://www.instagram.com/julianasilvaoliveira.joao"
-  ],
-  "hasOfferCatalog": {
-    "@type": "OfferCatalog",
-    "name": "Resorts e Hospedagens",
-    "itemListElement": [
-      { "@type": "Offer", "itemOffered": { "@type": "LodgingBusiness", "name": "Hot Beach Suites", "address": { "@type": "PostalAddress", "addressLocality": "Olímpia", "addressRegion": "SP", "addressCountry": "BR" } } },
-      { "@type": "Offer", "itemOffered": { "@type": "LodgingBusiness", "name": "São Pedro Thermas", "address": { "@type": "PostalAddress", "addressLocality": "São Pedro", "addressRegion": "SP", "addressCountry": "BR" } } },
-      { "@type": "Offer", "itemOffered": { "@type": "LodgingBusiness", "name": "Olimpia Park Resort", "address": { "@type": "PostalAddress", "addressLocality": "Olímpia", "addressRegion": "SP", "addressCountry": "BR" } } },
-      { "@type": "Offer", "itemOffered": { "@type": "LodgingBusiness", "name": "Solar das Águas", "address": { "@type": "PostalAddress", "addressLocality": "Olímpia", "addressRegion": "SP", "addressCountry": "BR" } } },
-      { "@type": "Offer", "itemOffered": { "@type": "LodgingBusiness", "name": "Wyndham Royal Resort", "address": { "@type": "PostalAddress", "addressLocality": "Olímpia", "addressRegion": "SP", "addressCountry": "BR" } } },
-      { "@type": "Offer", "itemOffered": { "@type": "LodgingBusiness", "name": "Praia de Juquehy", "address": { "@type": "PostalAddress", "addressLocality": "São Sebastião", "addressRegion": "SP", "addressCountry": "BR" } } }
-    ]
-  }
-}
-</script>
-
-<!-- Schema.org FAQPage — exibe as FAQs diretamente no resultado do Google -->
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "FAQPage",
-  "mainEntity": [
-    {
-      "@type": "Question",
-      "name": "Como funciona o processo de reserva?",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "Você preenche o formulário de orçamento ou nos chama diretamente no WhatsApp. Nossa equipe responde rapidamente com as opções disponíveis, valores e condições. Após confirmar seu interesse, a reserva é organizada conforme o resort e a data desejada."
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "Quais formas de pagamento são aceitas?",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "Trabalhamos com Pix, transferência bancária e cartão de crédito (parcelamento disponível). As condições específicas são combinadas diretamente com o nosso time via WhatsApp."
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "É possível cancelar ou alterar a reserva?",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "Sim! A política de cancelamento e alteração varia conforme o resort e o período. Entre em contato com nossa equipe para verificar as condições específicas da sua reserva."
-      }
-    }
-  ]
-}
-</script>
-<!-- AggregateRating — atualizado dinamicamente via Supabase (ver script no rodapé) -->
-<script type="application/ld+json" id="schema-aggregate">
-{"@context":"https://schema.org","@type":"TravelAgency","@id":"https://hospedah.tur.br/#organization","name":"HOSPEDAH — Especialista em Hospedagens e Resorts","alternateName":"HOSPEDAH","url":"https://hospedah.tur.br"}
-</script>
-<link rel="stylesheet" href="/assets/index.css">
-<link rel="stylesheet" href="/assets/index-inline.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://i.imgur.com; object-src 'none'; base-uri 'self';">
+  <title>HOSPEDAH — Resorts e hospedagens</title>
+  <meta name="description" content="Encontre resorts e hospedagens para sua próxima viagem. Consulte opções e peça seu orçamento personalizado à HOSPEDAH.">
+  <link rel="canonical" href="https://hospedah.tur.br/">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="HOSPEDAH — Resorts e hospedagens">
+  <meta property="og:description" content="Encontre a hospedagem ideal para sua próxima viagem.">
+  <meta property="og:url" content="https://hospedah.tur.br/">
+  <meta name="theme-color" content="#0B1C3D">
+  <link rel="icon" type="image/svg+xml" href="/assets/logo-favicon.svg">
+  <link rel="stylesheet" href="/assets/mobile-first.css">
+  <link rel="stylesheet" href="/assets/style.css">
+  <style>
+    :root { color-scheme: dark; --navy:#0B1C3D; --gold:#D4AF37; --text:#f4f6fb; --muted:#c5ccda; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--navy); color:var(--text); font-family:Arial,sans-serif; line-height:1.6; }
+    a { color:inherit; }
+    .site-header { display:flex; align-items:center; justify-content:space-between; gap:1rem; padding:1rem max(5vw,1.25rem); background:#07152d; }
+    .brand { color:var(--gold); font-size:1.35rem; font-weight:800; letter-spacing:.12em; text-decoration:none; }
+    .nav { display:flex; flex-wrap:wrap; gap:1rem; }
+    .nav a { text-decoration:none; }
+    .hero { min-height:68vh; display:grid; place-items:center; padding:4rem 1.25rem; text-align:center; background:linear-gradient(120deg,rgba(7,21,45,.93),rgba(11,28,61,.72)),url('https://i.imgur.com/AmFSwwd.jpeg') center/cover; }
+    .hero-inner { max-width:760px; }
+    h1 { margin:.3em 0; font-size:clamp(2.2rem,7vw,4.6rem); line-height:1.1; }
+    .hero p { color:var(--muted); font-size:1.15rem; }
+    .actions { display:flex; justify-content:center; flex-wrap:wrap; gap:.8rem; margin-top:1.5rem; }
+    .button { display:inline-block; padding:.85rem 1.2rem; border-radius:10px; background:var(--gold); color:#07152d; font-weight:700; text-decoration:none; }
+    .button.secondary { border:1px solid var(--gold); background:transparent; color:var(--text); }
+    main { width:min(1100px,92%); margin:3rem auto; }
+    .section-heading { text-align:center; margin-bottom:1.5rem; }
+    .section-heading h2 { color:var(--gold); }
+    .cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:1rem; }
+    .card { padding:1.25rem; border:1px solid rgba(212,175,55,.35); border-radius:16px; background:rgba(255,255,255,.06); }
+    .card h3 { margin-top:0; color:var(--gold); }
+    .card a { font-weight:700; }
+    .contact { margin-top:2rem; padding:2rem 1rem; border-radius:16px; background:rgba(255,255,255,.06); text-align:center; }
+    footer { padding:1.5rem; color:var(--muted); text-align:center; }
+    @media (max-width:600px) { .site-header { align-items:flex-start; flex-direction:column; } .nav { gap:.7rem; } }
+  </style>
 </head>
 <body>
-
-<!-- Skip to main content (acessibilidade) -->
-<a class="skip-link" href="#sobre">Ir para o conteúdo principal</a>
-
-<!-- ==========================================
-     EXIT-INTENT POPUP
-=========================================== -->
-<div id="exit-overlay" role="dialog" aria-modal="true" aria-label="Oferta especial">
-  <div id="exit-popup">
-    <button class="ep-close" id="ep-close-btn" aria-label="Fechar">✕</button>
-    <div class="ep-badge">⏳ Oferta Exclusiva</div>
-    <h2>Espera! Antes de ir…</h2>
-    <p>Nossos resorts têm <strong>disponibilidade limitada</strong>. Deixe seu e-mail e nossa consultora entra em contato com <strong>condições especiais e atendimento VIP</strong>.</p>
-    <form id="ep-email-form" onsubmit="exitIntentSubmit(event)" novalidate>
-      <input type="email" id="ep-email-input" placeholder="Seu melhor e-mail" autocomplete="email" required>
-      <button type="submit" class="ep-btn">🎁 Quero Condições Especiais</button>
-    </form>
-    <a href="https://wa.me/5517982006382?text=Ol%C3%A1%21+Vi+a+oferta+e+quero+saber+mais+sobre+os+resorts." class="ep-btn ep-btn--wpp" target="_blank" rel="noopener"
-      ><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="16" height="16" aria-hidden="true" focusable="false"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.432-1.503-1.469-.023-.037-.086-.198-.163-.396-.076-.197-.318-.667-.544-1.112-.226-.444-.462-.93-.518-1.07-.056-.14-.127-.137-.27-.08-.143.057-.76.3-.84.338-.08.038-.13.055-.188.264-.06.208-.206.694-.298.924-.092.23-.195.26-.36.347-.166.086-.316.113-.45.097-.133-.016-.295-.058-.455-.165-.16-.108-1.5-.924-2.79-2.17-.986-.95-1.78-2.196-1.937-2.56-.157-.364-.092-.55-.038-.66.056-.11.126-.182.197-.27.072-.09.11-.155.164-.25.055-.095.073-.163.11-.27.037-.108.017-.204-.007-.286-.024-.082-.195-.463-.276-.644-.083-.181-.165-.155-.286-.096-.121.059-.542.246-.737.31-.195.064-.347.102-.47.102-.123 0-.276-.015-.434-.104-.159-.088-.716-.351-.774-.412-.058-.061-.09-.091-.207-.037-.117.053-.766.333-.934.428-.168.094-.305.131-.416.149-.111.017-.247.029-.382.029-.135 0-.33-.016-.497-.099-.167-.084-.541-.273-.8-.426-.258-.153-.564-.336-.735-.496-.17-.161-.265-.298-.267-.421-.001-.123.051-.288.105-.369.057-.083.172-.196.242-.283.07-.086.139-.163.185-.268.046-.105.047-.224.005-.323-.042-.098-.436-.93-.596-1.244-.159-.315-.322-.289-.516-.299-.18-.009-.387-.013-.597-.013-.21 0-.394.1-.513.181-.119.081-.234.196-.307.354-.073.158-.129.372-.2.603-.07.231-.133.331-.24.421-.106.09-.253.153-.405.161-.152.009-.319.001-.473-.014-.154-.015-.313-.056-.477-.13-.164-.074-.301-.137-.453-.064-.152.073-.272.194-.389.343-.117.149-.243.471-.289.639-.046.167-.064.273-.091.444-.027.171-.054.335-.115.481-.061.146-.157.269-.269.356-.112.086-.233.134-.365.147-.131.012-.265.009-.391-.031-.126-.04-.302-.153-.462-.222-.16-.068-.326-.149-.497-.125-.171.024-.284.093-.462.262-.177.168-.453.548-.589.75-.136.203-.274.373-.411.497-.137.124-.295.15-.42.162-.125.012-.286-.003-.44-.036-.154-.032-.319-.119-.496-.133-.177-.014-.35.099-.523.277-.173.177-.426.384-.608.52-.181.136-.405.195-.613.241-.209.046-.388.062-.577.084-.189.022-.381-.008-.577-.089-.196-.082-.394-.224-.595-.406-.201-.182-.449-.44-.553-.708-.103-.268-.191-.621-.177-1.011.014-.389.079-.71.206-.934.127-.225.308-.442.585-.657.277-.216.591-.443.957-.731.366-.288.695-.593 1.003-.874.307-.28.611-.6.924-.92.313-.32.61-.554.9-.741.289-.187.573-.296.847-.334.274-.037.626-.054.905-.088.279-.034.553-.086.822-.191.269-.104.516-.232.736-.39.219-.157.406-.339.541-.533.135-.194.231-.423.276-.675.045-.252.047-.525.026-.821-.021-.296-.083-.62-.166-.906-.084-.286-.177-.512-.28-.688-.103-.177-.203-.287-.422-.478-.219-.191-.534-.454-.949-.754-.415-.301-.823-.547-1.149-.715-.326-.168-.554-.246-.75-.25-.195-.004-.41.065-.637.23-.227.164-.46.407-.674.673-.214.265-.392.549-.513.851-.121.302-.177.547-.205.733-.028.185.002.362.083.549.082.187.247.401.48.625.233.224.526.414.86.544.334.129.716.199 1.133.214.418.016.946-.026 1.326-.105.38-.079.615-.207.737-.349.122-.141.194-.373.278-.658.084-.285.173-.531.314-.71.141-.179.386-.4.728-.686.341-.286.752-.648 1.104-.921.352-.272.809-.363 1.257-.421.448-.058.909-.086 1.36-.017.451.07.821.236 1.085.487.264.252.442.606.52 1.029.079.423.024.905-.14 1.436-.163.532-.374.983-.625 1.346-.251.363-.555.679-.924.939-.369.26-.763.44-1.178.553-.417.113-.84.149-1.246.127-.406-.021-.777-.111-1.128-.233-.35-.123-.7-.264-1.043-.469-.343-.205-.638-.47-.878-.755-.24-.285-.42-.646-.519-1.15-.099-.505-.091-1.057.031-1.577.122-.52.351-.984.645-1.328.294-.344.664-.568 1.065-.691.401-.123.84-.181 1.321-.167.482.013.951.069 1.356.146.405.077.764.171 1.055.307.29.134.54.298.718.488.178.189.281.101.292-.198.011-.299-.178-.163-.24.162-.107.446-.154.746-.143.301.011.584.123.836.402.253.279.388.64.429.999.04.359-.028.699-.2.986-.171.287-.381.49-.61.643-.229.154-.485.277-.749.375-.264.097-.523.165-.76.216-.237.051-.438.087-.582.098-.143.011-.252.005-.415-.04-.163-.045-.284-.123-.373-.232-.09-.109-.126-.252-.106-.429.021-.177.088-.353.214-.517.126-.164.293-.265.477-.333.183-.069.388-.104.609-.104.223 0 .483.085.717.293.234.209.43.507.567.903.136.396.182.851.169 1.303-.013.451-.071.824-.183 1.162-.112.338-.334.709-.624 1.077-.291.368-.688.712-1.169 1.019-.48.306-.928.523-1.354.631-.426.108-.788.119-1.123.056-.335-.063-.633-.195-.874-.361-.242-.165-.416-.368-.549-.573-.132-.205-.235-.41-.261-.59-.026-.18-.022-.363.016-.541.037-.178.138-.346.336-.513.198-.167.469-.286.787-.396.318-.109.647-.182.972-.19.326-.008.603.072.814.21.211.138.349.325.357.547.008.223-.104.302-.289.432-.185.13-.422.225-.679.296-.256.071-.548.113-.858.081-.31-.031-.565-.157-.746-.351-.181-.194-.273-.429-.275-.668-.002-.239.085-.49.236-.713.151-.223.364-.43.58-.557.214-.127.499-.224.775-.275.276-.051.576-.081.824-.015.249.066.441.194.615.39.174.196.286.477.335.85.05.372.039.823-.054 1.304-.093.482-.214.958-.333 1.407-.118.449-.245.793-.405 1.008-.161.214-.351.443-.562.698-.212.256-.435.505-.673.761-.238.256-.469.407-.696.458-.227.051-.432-.01-.644-.164-.212-.154-.405-.379-.617-.699-.212-.32-.502-.473-.787-.525-.285-.053-.541.257-.934.633-.392.376-.885.81-1.422 1.255-.537.445-1.174.983-1.88 1.461-.705.478-1.329.94-1.877 1.248-.548.308-1.029.533-1.517.667-.488.134-.983.145-1.458.048-.474-.097-.906-.351-1.292-.692-.386-.341-.705-.704-.963-1.104-.258-.4-.433-.809-.526-1.177-.094-.368-.089-.684.035-.951.124-.267.359-.481.69-.645.331-.163.767-.289 1.169-.35.402-.061.777-.066 1.071-.028.294.039.531.104.742.209.212.106.367.242.424.416.057.174.011.355-.13.547-.14.192-.37.395-.625.578-.255.184-.522.314-.82.389-.298.075-.641.102-.961.098-.32-.004-.596-.049-.831-.178-.235-.129-.423-.336-.578-.613-.154-.277-.265-.627-.249-1.009.016-.382.137-.724.326-1.006.189-.281.465-.526.774-.715.309-.189.69-.329 1.136-.425.446-.095.935-.127 1.438-.099.5.028.964.115 1.337.242.373.126.626.277.757.44.131.164.174.328.129.478-.046.15-.173.287-.395.409-.222.123-.505.24-.868.351-.363.111-.775.171-1.248.205-.475.035-.987.025-1.518-.036-.531-.061-1.021-.179-1.455-.362-.434-.182-.801-.646-.995-1.188-.195-.541-.219-1.105-.064-1.664.154-.559.47-1.053.904-1.303.434-.25.935-.326 1.44-.193.506.134.923.487 1.264.979.341.492.617 1.012.814 1.518.197.506.161 1.247-.166 1.997-.327.75-.947 1.382-1.825 1.87-.878.487-1.978.731-3.319.734-1.341.003-2.493-.229-3.53-.655-.624-.254-1.149-.58-1.563-.999-.413-.419-.728-.916-.902-1.523-.174-.608-.202-1.271-.111-2.014.091-.742.35-1.432.744-2.054.394-.623.986-1.085 1.698-1.329.712-.243 1.565-.327 2.48-.262 0 0 .438.009.71.029.272.02.544.06.982.17.438.111.916.234 1.443.425.527.191.916.382 1.177.589.261.208.417.427.461.659.044.232.044.489.029.74-.015.251-.068.481-.191.71-.122.229-.306.45-.557.639-.251.189-.59.346-1.034.465-.444.119-.959.193-1.54.226-.58.032-1.134.02-1.636-.041-.503-.061-.907-.179-1.24-.373-.333-.193-.558-.476-.68-.84-.122-.365-.088-.818.088-1.325.176-.506.5-.955.965-1.28.465-.325 1.023-.495 1.676-.529.654-.034 1.412.086 2.283.299.869.213 1.541.556 2.013 1.048.473.492.695 1.179.657 2.037-.039.859-.347 1.688-.937 2.303-.59.615-1.554 1.133-2.867 1.53-1.313.396-2.748.61-4.334.479-1.586-.131-3.2-.551-4.71-1.407-.411-.276-.79-.597-1.139-.998-.35-.401-.626-.891-.756-1.436-.131-.545-.177-1.171-.133-1.765.044-.593.244-1.32.587-1.817.344-.497.707-.8 1.135-.994.429-.194.98-.317 1.586-.361.607-.044 1.294-.025 2.09.124.793.149 1.727.453 2.795.879.48.191.965.387 1.4.7.435.314.764.718.956 1.165.192.448.241.902.175 1.339-.066.437-.252.82-.558 1.119-.306.299-.707.53-1.174.68-.467.15-1.033.21-1.656.231-.624.02-1.283-.01-1.993-.113-.711-.103-1.446-.318-2.145-.552-.699-.234-1.318-.558-1.857-.935-.539-.377-.917-.79-1.055-1.258-.139-.468.048-.948.522-1.442.475-.494 1.159-.959 2.031-1.367 0 0 0 0 0 0"},
-</script>
-
-<!-- ==========================================
-     ✅ HERO COM CARROSSEL + OVERLAY + BUSCA
-=========================================== -->
-<a id="topo"></a>
-<section class="hero" aria-label="Banner principal" role="banner">
-  <div class="hero-slides" id="heroSlides" aria-hidden="true">
-    <div class="hero-slide active"></div>
-    <div class="hero-slide"></div>
-    <div class="hero-slide"></div>
-    <div class="hero-slide"></div>
-    <div class="hero-slide"></div>
-    <div class="hero-slide"></div>
-  </div>
-
-  <!-- ✅ Overlay premium -->
-  <div class="hero-overlay"></div>
-
-  <div class="hero-content">
-    <!-- ✅ Logo central com overlay premium -->
-    <picture>
-      <img src="https://i.imgur.com/fVKGOSt.png" alt="HOSPEDAH — Resorts e Experiências Exclusivas"
-            class="hero-logo" loading="eager" fetchpriority="high" decoding="auto" width="700" height="280">
-    </picture>
-
-    <p class="hero-tagline" data-i18n="hero.tagline">Resorts & Experiências Exclusivas</p>
-    <div class="hero-badge-row">
-      <span class="hero-badge" data-i18n="hero.badge">✦ Atendimento Premium ✦</span>
-      <!-- ✅ Contador de visitantes em tempo real -->
-      <div class="hero-viewers-pill" id="heroViewers" aria-live="polite" aria-atomic="true">
-        <span class="live-dot" aria-hidden="true"></span>
-        <span><span id="heroViewersCount"></span> <span data-i18n="hero.viewers">pessoas vendo agora</span></span>
+  <header class="site-header">
+    <a class="brand" href="/" aria-label="HOSPEDAH, início">HOSPEDAH</a>
+    <nav class="nav" aria-label="Navegação principal">
+      <a href="/busca.html">Buscar hospedagem</a>
+      <a href="/reservas.html">Reservar</a>
+      <a href="/avaliacoes.html">Avaliações</a>
+    </nav>
+  </header>
+  <section class="hero" aria-labelledby="hero-title">
+    <div class="hero-inner">
+      <p>Resorts &amp; experiências exclusivas</p>
+      <h1 id="hero-title">Sua próxima viagem começa aqui</h1>
+      <p>Encontre hospedagens especiais com atendimento personalizado para planejar cada detalhe da sua viagem.</p>
+      <div class="actions">
+        <a class="button" href="/busca.html">Encontrar hospedagem</a>
+        <a class="button secondary" href="https://wa.me/5517982006382?text=Ol%C3%A1%21%20Quero%20um%20or%C3%A7amento%20de%20hospedagem." target="_blank" rel="noopener noreferrer">Falar com um especialista</a>
       </div>
     </div>
-
-    <!-- ✅ Busca estilo Booking dentro do banner -->
-    <div class="hero-search" role="search" aria-label="Buscar hospedagem">
-      <div class="hero-search-title" data-i18n="hero.searchTitle">🔍 Encontre sua hospedagem ideal</div>
-      <div class="hero-search-grid">
-        <div class="hs-field">
-          <label for="hs_resort">Destino / Resort</label>
-          <select id="hs_resort">
-            <option value="">Todos os resorts</option>
-            <option value="Hot Beach Suites">Hot Beach Suites</option>
-            <option value="São Pedro Thermas">São Pedro Thermas</option>
-            <option value="Olimpia Park">Olimpia Park</option>
-            <option value="Solar das Águas">Solar das Águas</option>
-            <option value="Wyndham Royal">Wyndham Royal</option>
-            <option value="Praia de Juquehy">Praia de Juquehy</option>
-            <option value="Ipioca Beach Resort">Ipioca Beach Resort</option>
-            <option value="Porto 2 Life">Porto 2 Life</option>
-          </select>
-        </div>
-        <div class="hs-field">
-          <label for="hs_entrada">Check-in</label>
-          <input type="date" id="hs_entrada">
-        </div>
-        <div class="hs-field">
-          <label for="hs_saida">Check-out</label>
-          <input type="date" id="hs_saida">
-        </div>
-        <div class="hs-field">
-          <label for="hs_pessoas">Pessoas</label>
-          <input type="number" id="hs_pessoas" min="1" max="20" placeholder="2">
-        </div>
-        <button class="hs-btn" id="heroCTA" onclick="heroCTAClick()" type="button" data-i18n="hero.searchButton">
-          🔍 Buscar
-        </button>
+  </section>
+  <main>
+    <section aria-labelledby="destinos-title">
+      <div class="section-heading">
+        <h2 id="destinos-title">Conheça nossos destinos</h2>
+        <p>Explore algumas opções e fale com nossa equipe para receber um orçamento.</p>
       </div>
-      <div id="hs_nights_display" style="margin-top:8px;text-align:right;"></div>
-    </div>
-  </div>
-
-  <!-- Setas -->
-  <button class="hero-arrow prev" id="heroPrev" aria-label="Slide anterior">&#8592;</button>
-  <button class="hero-arrow next" id="heroNext" aria-label="Próximo slide">&#8594;</button>
-
-  <!-- Indicadores -->
-  <div class="hero-dots" id="heroDots" aria-hidden="true">
-    <button class="hero-dot active"></button>
-    <button class="hero-dot"></button>
-    <button class="hero-dot"></button>
-    <button class="hero-dot"></button>
-    <button class="hero-dot"></button>
-    <button class="hero-dot"></button>
-  </div>
-</section>
-
-<!-- ==========================================
-     FAIXA DE URGÊNCIA / OFERTAS
-=========================================== -->
-<div class="urgencia-strip" role="region" tabindex="0" aria-label="Ofertas por tempo limitado">
-  <div class="urgencia-strip-inner">
-    <div class="urgencia-item"><span class="ui-icon">🔥</span> Ofertas disponíveis hoje</div>
-    <div class="urgencia-item"><span class="ui-icon">⚡</span> Descontos por tempo limitado</div>
-  </div>
-</div>
+      <div class="cards">
+        <article class="card"><h3>Hot Beach Suites</h3><p>Uma opção para aproveitar Olímpia e seus parques aquáticos.</p><a href="/resorts/hotbeach.html">Conhecer resort →</a></article>
+        <article class="card"><h3>São Pedro Thermas</h3><p>Planeje dias de descanso e diversão em São Pedro.</p><a href="/resorts/saopedro.html">Conhecer resort →</a></article>
+        <article class="card"><h3>Olimpia Park Resort</h3><p>Consulte disponibilidade e organize sua próxima viagem.</p><a href="/resorts/olimpia.html">Conhecer resort →</a></article>
+        <article class="card"><h3>Ipioca Beach Resort</h3><p>Descubra uma experiência de hospedagem à beira-mar.</p><a href="/resorts/ipioca.html">Conhecer resort →</a></article>
+      </div>
+    </section>
+    <section class="contact" aria-labelledby="contact-title">
+      <h2 id="contact-title">Vamos planejar sua viagem?</h2>
+      <p>Conte para nós o destino e as datas desejadas. Nossa equipe ajuda você a encontrar uma opção adequada.</p>
+      <a class="button" href="/reservas.html">Solicitar orçamento</a>
+    </section>
+  </main>
+  <footer>© HOSPEDAH — Especialista em hospedagens e resorts.</footer>
+</body>
+</html>
