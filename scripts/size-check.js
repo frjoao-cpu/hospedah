@@ -2,67 +2,71 @@
 /**
  * HOSPEDAH — Verificação local de tamanho de assets
  *
- * Uso: npm run size-check
+ * Uso: npm run check:assets
  *
- * Exibe o tamanho de cada asset crítica e avisa quando
- * ultrapassa o limite definido (em KB).
+ * Verifica arquivos críticos usando limites em KiB (1 KiB = 1024 bytes).
+ * Arquivos ausentes são avisados, mas não falham o check para manter
+ * compatibilidade com instalações/variantes que não incluem todos os assets.
  */
 
 'use strict';
 
-const fs   = require('fs');
-const path = require('path');
+const fs = require('node:fs');
+const path = require('node:path');
 
 const ROOT = path.resolve(__dirname, '..');
-
-const LIMITS = {
-  'script.js':              150,
-  'sw.js':                   50,
-  'assets/style.css':       120,
-  'assets/index.css':        80,
+const LIMITS_KIB = {
+  'script.js': 150,
+  'sw.js': 50,
+  'assets/style.css': 120,
+  'assets/index.css': 80,
+  'assets/index-inline.css': 50,
   'assets/mobile-first.css': 60,
-  'assets/admin.js':        500,
+  'assets/portal.css': 80,
+  'assets/admin.css': 120,
+  'assets/admin.js': 500,
 };
 
 let failed = 0;
 const rows = [];
 
-for (const [file, limitKb] of Object.entries(LIMITS)) {
-  const abs = path.join(ROOT, file);
-  if (!fs.existsSync(abs)) {
-    rows.push({ file, size: '—', limit: limitKb + ' KB', status: '⚠️  não encontrado' });
+for (const [file, limitKiB] of Object.entries(LIMITS_KIB)) {
+  const absolutePath = path.join(ROOT, file);
+  if (!fs.existsSync(absolutePath)) {
+    rows.push({ file, size: '—', limit: `${limitKiB} KiB`, status: '⚠️ ausente' });
     continue;
   }
-  const bytes = fs.statSync(abs).size;
-  const sizeKb = Math.round(bytes / 1024);
-  const ok = sizeKb <= limitKb;
-  if (!ok) failed++;
+
+  const bytes = fs.statSync(absolutePath).size;
+  const limitBytes = limitKiB * 1024;
+  const passed = bytes <= limitBytes;
+  if (!passed) failed += 1;
+
   rows.push({
     file,
-    size:   sizeKb + ' KB',
-    limit:  limitKb + ' KB',
-    status: ok ? '✅' : '❌ EXCEDEU',
+    size: `${(bytes / 1024).toFixed(1)} KiB`,
+    limit: `${limitKiB} KiB`,
+    status: passed ? '✅' : '❌ excedeu',
   });
 }
 
-// Tabela
-const colWidths = [32, 10, 10, 14];
-const header = ['Arquivo', 'Tamanho', 'Limite', 'Status'];
-const line = colWidths.map(w => '─'.repeat(w)).join('┼');
+const columns = [34, 12, 12, 14];
+const headings = ['Arquivo', 'Tamanho', 'Limite', 'Status'];
+const separator = columns.map(width => '─'.repeat(width)).join('┼');
+const formatRow = values => values
+  .map((value, index) => String(value).padEnd(columns[index]))
+  .join('│');
 
-function row(cols) {
-  return cols.map((c, i) => String(c).padEnd(colWidths[i])).join('│');
+console.log('\n📦 Verificação de tamanho de assets — HOSPEDAH\n');
+console.log(formatRow(headings));
+console.log(separator);
+for (const item of rows) {
+  console.log(formatRow([item.file, item.size, item.limit, item.status]));
 }
 
-console.log('\n📦 Verificação de Tamanho de Assets — HOSPEDAH\n');
-console.log(row(header));
-console.log(line);
-rows.forEach(r => console.log(row([r.file, r.size, r.limit, r.status])));
-
-console.log('');
 if (failed > 0) {
-  console.error(`❌ ${failed} asset(s) excederam o limite. Comprima ou divida o arquivo.\n`);
-  process.exit(1);
+  console.error(`\n❌ ${failed} asset(s) excederam o limite. Comprima ou divida os arquivos.\n`);
+  process.exitCode = 1;
 } else {
-  console.log('✅ Todas as assets dentro do limite.\n');
+  console.log('\n✅ Todos os assets encontrados estão dentro dos limites.\n');
 }
