@@ -16,6 +16,7 @@
     "serve": "npx serve . -p 4000",
     "size-check": "node scripts/size-check.js",
     "check:assets": "node scripts/size-check.js",
+    "check:sistema:inline": "node scripts/check-sistema-inline.js",
     "ci:quick": "npm run check:assets && npm run test:a11y"
   },
   "devDependencies": {

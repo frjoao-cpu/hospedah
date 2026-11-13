@@ -25,6 +25,7 @@ const LIMITS_KIB = {
   'assets/portal.css': 80,
   'assets/admin.css': 120,
   'assets/admin.js': 500,
+  'sistema.html': 740,
 };
 
 let failed = 0;

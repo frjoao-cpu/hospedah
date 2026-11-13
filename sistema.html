@@ -107,16 +107,19 @@ body {
 .sys-topbar-utils button {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
+  gap: 7px;
   color: var(--cor-sub);
   text-decoration: none;
   font-family: inherit;
-  font-size: 0.78em;
-  font-weight: 500;
-  padding: 5px 12px;
-  border-radius: 20px;
-  border: 1px solid var(--borda);
-  background: rgba(255,255,255,0.04);
+  font-size: 0.86em;
+  font-weight: 600;
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(212,175,55,0.22);
+  background: linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.03));
+  box-shadow: 0 4px 12px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.12);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
   cursor: pointer;
   transition: all 0.18s;
   white-space: nowrap;
@@ -198,18 +201,19 @@ body {
 .sys-nav a {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
+  gap: 7px;
   color: var(--cor-sub);
   text-decoration: none;
-  padding: 6px 13px;
-  border-radius: 20px;
-  font-size: 0.79em;
-  font-weight: 500;
+  padding: 8px 15px;
+  border-radius: 999px;
+  font-size: 0.88em;
+  font-weight: 600;
   white-space: nowrap;
   flex-shrink: 0;
   position: relative;
-  border: 1px solid transparent;
-  background: transparent;
+  border: 1px solid rgba(212,175,55,0.14);
+  background: rgba(255,255,255,0.02);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.05);
   transition: background 0.18s ease, border-color 0.18s ease, color 0.18s ease, transform 0.16s ease, box-shadow 0.18s ease;
   letter-spacing: 0.1px;
 }
@@ -250,17 +254,18 @@ body {
 .nav-dropdown-btn {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
+  gap: 7px;
   color: var(--cor-sub);
   font-family: inherit;
-  padding: 6px 13px;
-  border-radius: 20px;
-  font-size: 0.79em;
-  font-weight: 500;
+  padding: 8px 15px;
+  border-radius: 999px;
+  font-size: 0.88em;
+  font-weight: 600;
   white-space: nowrap;
   flex-shrink: 0;
-  border: 1px solid transparent;
-  background: transparent;
+  border: 1px solid rgba(212,175,55,0.14);
+  background: rgba(255,255,255,0.02);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.05);
   cursor: pointer;
   transition: background 0.18s ease, border-color 0.18s ease, color 0.18s ease, transform 0.16s ease, box-shadow 0.18s ease;
   letter-spacing: 0.1px;
@@ -396,8 +401,39 @@ body {
 }
 
 .dash-card .dash-icon {
-  font-size: 1.8em;
-  margin-bottom: 8px;
+  font-size: 2.1em;
+  width: 54px;
+  height: 54px;
+  margin: 0 auto 9px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 16px;
+  background: linear-gradient(145deg, rgba(212,175,55,0.2), rgba(11,28,61,0.25));
+  border: 1px solid rgba(212,175,55,0.3);
+  box-shadow: 0 8px 18px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.2);
+}
+
+#sec-alertas-captacao { position: relative; }
+#alertasCaptacaoFloatBtn {
+  position: absolute;
+  right: -18px;
+  top: 60px;
+  width: 50px;
+  height: 50px;
+  border-radius: 999px;
+  border: 1px solid rgba(212,175,55,0.4);
+  background: linear-gradient(140deg, rgba(212,175,55,0.28), rgba(11,28,61,0.95));
+  color: #fff;
+  box-shadow: 0 12px 28px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.22);
+  cursor: pointer;
+  z-index: 12;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.18s ease;
+}
+#alertasCaptacaoFloatBtn:hover {
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 16px 30px rgba(0,0,0,0.4), 0 0 0 4px rgba(212,175,55,0.12);
+  filter: brightness(1.06);
 }
 
 .dash-card .dash-label {
@@ -1346,10 +1382,10 @@ thead .col-sticky-right {
     flex-shrink: 1;
   }
   .sys-topbar-utils::-webkit-scrollbar { display: none; }
-  .sys-topbar-utils a, .sys-topbar-utils button { padding: 4px 9px; font-size: 0.74em; flex-shrink: 0; }
+  .sys-topbar-utils a, .sys-topbar-utils button { padding: 6px 11px; font-size: 0.8em; flex-shrink: 0; }
   .sys-nav { padding: 6px 10px; gap: 1px; }
-  .sys-nav a { padding: 5px 11px; font-size: 0.72em; }
-  .nav-dropdown-btn { padding: 5px 11px; font-size: 0.72em; }
+  .sys-nav a { padding: 7px 12px; font-size: 0.78em; }
+  .nav-dropdown-btn { padding: 7px 12px; font-size: 0.78em; }
   .nav-group-label { font-size: 0.52em; padding: 0 3px 0 8px; }
   .calc-section, .table-wrap { padding: 16px; }
   /* Botões nas section-titles ficam na linha abaixo quando necessário */
@@ -1361,6 +1397,12 @@ thead .col-sticky-right {
   }
   /* Dois cards por linha nos dashboards dentro do caixa */
   .dashboard-grid { grid-template-columns: repeat(2, 1fr); }
+  #alertasCaptacaoFloatBtn {
+    right: 8px;
+    top: 12px;
+    width: 44px;
+    height: 44px;
+  }
 }
 
 @media (max-width: 440px) {
@@ -2638,16 +2680,14 @@ thead .col-sticky-right {
       <p class="lock-sub">Área restrita. Faça login para continuar.</p>
       <div class="field-group" style="text-align:left; margin-bottom:4px;">
         <label>E-mail</label>
-        <input type="email" id="lockEmail" placeholder="seu@email.com"
-               onkeydown="if(event.key==='Enter') tentarLogin()">
+        <input type="email" id="lockEmail" placeholder="seu@email.com" data-enter-action="tentar-login">
       </div>
       <div class="field-group" style="text-align:left; margin-bottom:4px;">
         <label>Senha</label>
-        <input type="password" id="lockInput" placeholder="••••••••"
-               onkeydown="if(event.key==='Enter') tentarLogin()">
+        <input type="password" id="lockInput" placeholder="••••••••" data-enter-action="tentar-login">
       </div>
       <div id="lockError" class="lock-error">❌ Credenciais inválidas. Tente novamente.</div>
-      <button class="btn btn-primary" style="width:100%; margin-top:16px;" onclick="tentarLogin()">🔓 Entrar</button>
+      <button class="btn btn-primary" style="width:100%; margin-top:16px;" data-action="tentar-login">🔓 Entrar</button>
     </div>
 
     <!-- VIEW 2: Login por link mágico (OTP) -->
@@ -2655,14 +2695,13 @@ thead .col-sticky-right {
       <p class="lock-sub">Informe seu e-mail e enviaremos um link de acesso direto — sem precisar de senha.</p>
       <div class="field-group" style="text-align:left; margin-bottom:4px;">
         <label>E-mail</label>
-        <input type="email" id="lockOTPEmail" placeholder="seu@email.com"
-               onkeydown="if(event.key==='Enter') enviarLinkMagico()">
+        <input type="email" id="lockOTPEmail" placeholder="seu@email.com" data-enter-action="enviar-link-magico">
       </div>
       <div id="lockOTPError" class="lock-error">❌ Informe um e-mail válido.</div>
       <div id="lockOTPSuccess" class="lock-success">✅ Link enviado! Verifique seu e-mail e clique no link para entrar.</div>
-      <button class="btn btn-primary" style="width:100%; margin-top:16px;" onclick="enviarLinkMagico()">✉️ Enviar link de acesso</button>
+      <button class="btn btn-primary" style="width:100%; margin-top:16px;" data-action="enviar-link-magico">✉️ Enviar link de acesso</button>
       <br>
-      <button class="lock-link" onclick="mostrarViewLogin()">← Voltar ao login</button>
+      <button class="lock-link" data-action="mostrar-view-login">← Voltar ao login</button>
     </div>
 
     <!-- VIEW 3: Solicitar redefinição de senha -->
@@ -2670,14 +2709,13 @@ thead .col-sticky-right {
       <p class="lock-sub">Informe seu e-mail para receber o link de definição de senha.</p>
       <div class="field-group" style="text-align:left; margin-bottom:4px;">
         <label>E-mail</label>
-        <input type="email" id="lockResetEmail" placeholder="seu@email.com"
-               onkeydown="if(event.key==='Enter') enviarResetSenha()">
+        <input type="email" id="lockResetEmail" placeholder="seu@email.com" data-enter-action="enviar-reset-senha">
       </div>
       <div id="lockResetError" class="lock-error">❌ Informe um e-mail válido.</div>
       <div id="lockResetSuccess" class="lock-success">✅ Link enviado! Verifique seu e-mail e clique no link para definir sua senha.</div>
-      <button class="btn btn-primary" style="width:100%; margin-top:16px;" onclick="enviarResetSenha()">📧 Enviar link de acesso</button>
+      <button class="btn btn-primary" style="width:100%; margin-top:16px;" data-action="enviar-reset-senha">📧 Enviar link de acesso</button>
       <br>
-      <button class="lock-link" onclick="mostrarViewLogin()">← Voltar ao login</button>
+      <button class="lock-link" data-action="mostrar-view-login">← Voltar ao login</button>
     </div>
 
     <!-- VIEW 4: Definir nova senha (após clicar no link do e-mail) -->
@@ -2685,16 +2723,14 @@ thead .col-sticky-right {
       <p class="lock-sub">Crie sua nova senha de acesso.</p>
       <div class="field-group" style="text-align:left; margin-bottom:4px;">
         <label>Nova senha</label>
-        <input type="password" id="lockNovaSenha" placeholder="Mínimo 12 caracteres"
-               onkeydown="if(event.key==='Enter') definirNovaSenha()">
+        <input type="password" id="lockNovaSenha" placeholder="Mínimo 12 caracteres" data-enter-action="definir-nova-senha">
       </div>
       <div class="field-group" style="text-align:left; margin-bottom:4px;">
         <label>Confirmar senha</label>
-        <input type="password" id="lockConfirmaSenha" placeholder="Repita a senha"
-               onkeydown="if(event.key==='Enter') definirNovaSenha()">
+        <input type="password" id="lockConfirmaSenha" placeholder="Repita a senha" data-enter-action="definir-nova-senha">
       </div>
       <div id="lockNovaSenhaError" class="lock-error">❌ A senha deve ter no mínimo 12 caracteres, incluindo maiúscula, minúscula, número e símbolo (ex: !@#$%).</div>
-      <button class="btn btn-primary" style="width:100%; margin-top:16px;" onclick="definirNovaSenha()">✅ Salvar nova senha</button>
+      <button class="btn btn-primary" style="width:100%; margin-top:16px;" data-action="definir-nova-senha">✅ Salvar nova senha</button>
     </div>
   </div>
 </div>
@@ -2711,13 +2747,13 @@ thead .col-sticky-right {
     </div>
     <div class="sys-topbar-utils">
       <span id="syncStatus" title="Aguardando sincronização...">☁️</span>
-      <a href="javascript:void(0)" onclick="toggleFloatCalc()">🧮 Calculadora</a>
+      <a href="javascript:void(0)" data-action="toggle-float-calc">🧮 Calculadora</a>
       <a href="#calendario" aria-label="Calendário Anual de Feriados">📅 Calendário</a>
-      <a href="javascript:void(0)" onclick="exportarBackup()">💾 Backup</a>
-      <a href="javascript:void(0)" onclick="importarBackup()">📂 Importar</a>
+      <a href="javascript:void(0)" data-action="exportar-backup">💾 Backup</a>
+      <a href="javascript:void(0)" data-action="importar-backup">📂 Importar</a>
       <a href="#cobrancas" class="util-cobrancas">💰 Cobranças</a>
       <a href="index.html">🏠 Site</a>
-      <a href="javascript:void(0)" class="util-danger" onclick="fazerLogout()">🚪 Sair</a>
+      <a href="javascript:void(0)" class="util-danger" data-action="fazer-logout">🚪 Sair</a>
     </div>
   </div>
 
@@ -2731,26 +2767,26 @@ thead .col-sticky-right {
     <!-- Captação -->
     <span class="nav-group-label">Captação</span>
     <div class="nav-dropdown" id="navCaptacaoDropdown">
-      <button class="nav-dropdown-btn" onclick="toggleNavDropdown('navCaptacaoDropdown')" title="Captação">
+      <button class="nav-dropdown-btn" data-action="toggle-nav-dropdown" data-dropdown-id="navCaptacaoDropdown" title="Captação">
         🏡 Captação <span class="nav-dropdown-arrow">▾</span>
       </button>
       <div class="nav-dropdown-menu">
-        <a href="#sec-alertas-captacao" onclick="fecharNavDropdown('navCaptacaoDropdown')">🔔 Alertas de Pagamento</a>
-        <a href="#captacao-resumo" onclick="fecharNavDropdown('navCaptacaoDropdown')">🏡 Captações — Resumo</a>
-        <a href="#captacao"        onclick="fecharNavDropdown('navCaptacaoDropdown')">➕ Nova Captação</a>
-        <a href="#captacoes"       onclick="fecharNavDropdown('navCaptacaoDropdown'); expandirCaptacoes()">🏡 Captações Cadastradas</a>
+        <a href="#sec-alertas-captacao" data-action="close-nav-dropdown" data-dropdown-id="navCaptacaoDropdown">🔔 Alertas de Pagamento</a>
+        <a href="#captacao-resumo" data-action="close-nav-dropdown" data-dropdown-id="navCaptacaoDropdown">🏡 Captações — Resumo</a>
+        <a href="#captacao"        data-action="close-nav-dropdown" data-dropdown-id="navCaptacaoDropdown">➕ Nova Captação</a>
+        <a href="#captacoes"       data-action="close-nav-dropdown" data-dropdown-id="navCaptacaoDropdown" data-expand-captacoes="1">🏡 Captações Cadastradas</a>
       </div>
     </div>
     <span class="nav-sep"></span>
     <!-- Cotas -->
     <span class="nav-group-label">Cotas</span>
     <div class="nav-dropdown" id="navCotasDropdown">
-      <button class="nav-dropdown-btn" onclick="toggleNavDropdown('navCotasDropdown')" title="Vendas de Cotas">
+      <button class="nav-dropdown-btn" data-action="toggle-nav-dropdown" data-dropdown-id="navCotasDropdown" title="Vendas de Cotas">
         🏷️ Cotas <span class="nav-dropdown-arrow">▾</span>
       </button>
       <div class="nav-dropdown-menu">
-        <a href="#nova-cota-venda" onclick="fecharNavDropdown('navCotasDropdown')">➕ Nova Venda de Cota</a>
-        <a href="#cotas-vendas"    onclick="fecharNavDropdown('navCotasDropdown')">📋 Cotas Vendidas</a>
+        <a href="#nova-cota-venda" data-action="close-nav-dropdown" data-dropdown-id="navCotasDropdown">➕ Nova Venda de Cota</a>
+        <a href="#cotas-vendas"    data-action="close-nav-dropdown" data-dropdown-id="navCotasDropdown">📋 Cotas Vendidas</a>
       </div>
     </div>
     <span class="nav-sep"></span>
@@ -2792,8 +2828,8 @@ thead .col-sticky-right {
       📊 Resumo Geral
       <span id="dash-sync-time" style="font-size:0.65em;font-weight:400;color:var(--cor-sub);margin-left:10px;letter-spacing:0;"></span>
       <span style="margin-left:auto;display:flex;gap:6px;align-items:center;">
-        <button class="btn btn-secondary btn-sm" onclick="atualizarDashboard()" title="Atualizar resumo agora" style="font-size:0.75em;">🔄</button>
-        <button class="btn btn-secondary btn-sm" id="dashboardToggleBtn" onclick="toggleDashboard()" title="Minimizar/Expandir seção">▼ Minimizar</button>
+        <button class="btn btn-secondary btn-sm" data-action="atualizar-dashboard" title="Atualizar resumo agora" style="font-size:0.75em;">🔄</button>
+        <button class="btn btn-secondary btn-sm" id="dashboardToggleBtn" data-action="toggle-dashboard" title="Minimizar/Expandir seção">▼ Minimizar</button>
       </span>
     </div>
 
@@ -2802,17 +2838,17 @@ thead .col-sticky-right {
     <div id="dashPeriodFilter" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:16px;
          padding:12px 16px;background:rgba(255,255,255,0.03);border:1px solid var(--borda);border-radius:12px;">
       <span style="font-size:0.82em;color:var(--cor-sub);font-weight:600;">📅 Período:</span>
-      <button class="dash-period-btn"        data-period="all"   onclick="filtrarPeriodoDash('all')">Todos</button>
-      <button class="dash-period-btn active" data-period="month" onclick="filtrarPeriodoDash('month')">Este mês</button>
-      <button class="dash-period-btn"        data-period="3m"    onclick="filtrarPeriodoDash('3m')">3 meses</button>
-      <button class="dash-period-btn"        data-period="6m"    onclick="filtrarPeriodoDash('6m')">6 meses</button>
-      <button class="dash-period-btn"        data-period="year"  onclick="filtrarPeriodoDash('year')">Este ano</button>
+      <button class="dash-period-btn"        data-period="all"   data-action="filtrar-periodo-dash">Todos</button>
+      <button class="dash-period-btn active" data-period="month" data-action="filtrar-periodo-dash">Este mês</button>
+      <button class="dash-period-btn"        data-period="3m"    data-action="filtrar-periodo-dash">3 meses</button>
+      <button class="dash-period-btn"        data-period="6m"    data-action="filtrar-periodo-dash">6 meses</button>
+      <button class="dash-period-btn"        data-period="year"  data-action="filtrar-periodo-dash">Este ano</button>
       <span id="dashPeriodCount" title="Reservas no período selecionado">— reservas</span>
       <div style="display:flex;gap:6px;align-items:center;margin-left:auto;flex-wrap:wrap;">
         <input type="date" id="dashPeriodDe" class="dash-date-input" onchange="filtrarPeriodoDash('custom')">
         <span style="color:var(--cor-sub);font-size:0.8em;">→</span>
         <input type="date" id="dashPeriodAte" class="dash-date-input" onchange="filtrarPeriodoDash('custom')">
-        <button onclick="exportarDashboard()" title="Exportar dados filtrados" class="dash-export-btn">
+        <button data-action="exportar-dashboard" title="Exportar dados filtrados" class="dash-export-btn">
           ⬇️ Exportar
         </button>
       </div>
@@ -2873,22 +2909,22 @@ thead .col-sticky-right {
         </div>
         <div class="goal-edit-wrap">
           <input type="number" id="inputMeta" placeholder="R$ meta..." min="0" step="100">
-          <button class="btn btn-secondary btn-sm" onclick="salvarMeta()">✔</button>
+          <button class="btn btn-secondary btn-sm" data-action="salvar-meta">✔</button>
         </div>
       </div>
-      <div class="dash-card" style="cursor:pointer;" onclick="document.querySelector('[href=\'#visitas-site\']').click()">
+      <div class="dash-card" style="cursor:pointer;" data-action="go-to-hash" data-target-hash="#visitas-site">
         <div class="dash-icon">👁️</div>
         <div class="dash-label">Visitas ao Site</div>
         <div class="dash-value" id="dash-visitas-total">—</div>
         <div style="font-size:0.7em;color:var(--cor-sub);margin-top:4px;" id="dash-visitas-hoje">Hoje: —</div>
       </div>
-      <div class="dash-card" id="dash-card-saldo-caixa" style="cursor:pointer;" onclick="document.querySelector('[href=\'#caixa\']').click()">
+      <div class="dash-card" id="dash-card-saldo-caixa" style="cursor:pointer;" data-action="go-to-hash" data-target-hash="#caixa">
         <div class="dash-icon">💵</div>
         <div class="dash-label">Saldo de Caixa</div>
         <div class="dash-value" id="dash-saldo-caixa">R$ 0,00</div>
         <div style="font-size:0.7em;color:var(--cor-sub);margin-top:4px;">Período filtrado</div>
       </div>
-      <div class="dash-card" id="dash-card-score" style="cursor:pointer;" onclick="toggleScoreDetalhe()" title="Clique para ver os fatores">
+      <div class="dash-card" id="dash-card-score" style="cursor:pointer;" data-action="toggle-score-detalhe" title="Clique para ver os fatores">
         <div class="dash-icon" id="dash-score-emoji">⚪</div>
         <div class="dash-label">Score Financeiro</div>
         <div class="dash-value" id="dash-score-nivel" style="font-size:0.95em;">—</div>
@@ -2941,6 +2977,19 @@ thead .col-sticky-right {
         <div class="chart-card-title">💵 Entradas × Saídas — Últimos 6 Meses</div>
         <canvas id="chartCaixa"></canvas>
       </div>
+      <div class="chart-card">
+        <div class="chart-card-title">🎯 Meta × Real × Projeção (YTD)</div>
+        <canvas id="chartMetaProjecao"></canvas>
+      </div>
+      <div class="chart-card">
+        <div class="chart-card-title">🧭 Funil de Conversão (Site → Financeiro)</div>
+        <canvas id="chartFunilConversao"></canvas>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px;font-size:0.78em;color:var(--cor-sub);">
+          <span>Solicitação→Confirmação: <strong id="funil-cv-1" style="color:var(--dourado);">—</strong></span>
+          <span>Confirmação→Lançamento: <strong id="funil-cv-2" style="color:#4da6ff;">—</strong></span>
+          <span>Lançamento→Pago: <strong id="funil-cv-3" style="color:#25D366;">—</strong></span>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -2951,8 +3000,8 @@ thead .col-sticky-right {
     <div class="section-title">
       💵 Controle de Caixa
       <span style="margin-left:auto;display:flex;gap:8px;">
-        <button class="btn btn-secondary btn-sm" onclick="exportarCSVCaixa()">📥 Exportar CSV</button>
-        <button class="btn btn-secondary btn-sm" id="caixaToggleBtn" onclick="toggleCaixa()" title="Minimizar/Expandir">▼ Minimizar</button>
+        <button class="btn btn-secondary btn-sm" data-action="exportar-csv-caixa">📥 Exportar CSV</button>
+        <button class="btn btn-secondary btn-sm" id="caixaToggleBtn" data-action="toggle-caixa" title="Minimizar/Expandir">▼ Minimizar</button>
       </span>
     </div>
     <div id="caixaContent">
@@ -2986,16 +3035,16 @@ thead .col-sticky-right {
             📈 Evolução do Caixa
           </div>
           <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
-            <button class="btn btn-secondary btn-sm" id="caixaGraficoToggleBtn" onclick="toggleCaixaGrafico()" title="Minimizar/Expandir gráfico">▼ Minimizado</button>
-            <button class="btn-max-chart" type="button" onclick="abrirCaixaMax()" title="Tela cheia">⛶ Tela Cheia</button>
+            <button class="btn btn-secondary btn-sm" id="caixaGraficoToggleBtn" data-action="toggle-caixa-grafico" title="Minimizar/Expandir gráfico">▼ Minimizado</button>
+            <button class="btn-max-chart" type="button" data-action="abrir-caixa-max" title="Tela cheia">⛶ Tela Cheia</button>
           </div>
         </div>
         <div id="caixaGraficoContent" style="display:none;">
           <div style="display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 10px;">
-            <button class="dash-period-btn" onclick="setCaixaGraficoPeriodo(7,this)">7 dias</button>
-            <button class="dash-period-btn active" onclick="setCaixaGraficoPeriodo(30,this)">30 dias</button>
-            <button class="dash-period-btn" onclick="setCaixaGraficoPeriodo(90,this)">3 meses</button>
-            <button class="dash-period-btn" onclick="setCaixaGraficoPeriodo(365,this)">1 ano</button>
+            <button class="dash-period-btn" data-action="set-caixa-grafico-periodo" data-periodo-caixa="7">7 dias</button>
+            <button class="dash-period-btn active" data-action="set-caixa-grafico-periodo" data-periodo-caixa="30">30 dias</button>
+            <button class="dash-period-btn" data-action="set-caixa-grafico-periodo" data-periodo-caixa="90">3 meses</button>
+            <button class="dash-period-btn" data-action="set-caixa-grafico-periodo" data-periodo-caixa="365">1 ano</button>
           </div>
           <canvas id="caixaEvolucaoChart" height="68" aria-label="Gráfico de evolução do caixa"></canvas>
         </div>
@@ -3004,7 +3053,7 @@ thead .col-sticky-right {
       <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:16px;padding:12px 16px;background:rgba(255,255,255,0.03);border:1px solid var(--borda);border-radius:12px;">
         <span style="font-size:0.82em;color:var(--cor-sub);font-weight:600;">⚠️ Saldo Mínimo:</span>
         <input type="number" id="inputSaldoMinimo" placeholder="R$ mínimo..." min="0" step="100" style="width:150px;padding:5px 10px;background:rgba(255,255,255,0.05);border:1px solid var(--borda);border-radius:8px;color:var(--cor-texto);font-size:0.85em;" onchange="salvarSaldoMinimo()" onkeydown="if(event.key==='Enter'){event.preventDefault();salvarSaldoMinimo();}">
-        <button type="button" class="btn btn-secondary btn-sm" onclick="salvarSaldoMinimo()">✔</button>
+        <button type="button" class="btn btn-secondary btn-sm" data-action="salvar-saldo-minimo">✔</button>
         <span style="font-size:0.78em;color:var(--cor-sub);">Alerta quando o saldo cair abaixo deste valor</span>
       </div>
       <!-- Formulário de lançamento -->
@@ -3060,8 +3109,8 @@ thead .col-sticky-right {
           </div>
         </div>
         <div style="margin-top:12px;display:flex;gap:8px;">
-          <button class="btn btn-primary" onclick="adicionarLancamentoCaixa()">➕ Adicionar</button>
-          <button class="btn btn-secondary" onclick="limparFormCaixa()">🗑️ Limpar</button>
+          <button class="btn btn-primary" data-action="adicionar-lancamento-caixa">➕ Adicionar</button>
+          <button class="btn btn-secondary" data-action="limpar-form-caixa">🗑️ Limpar</button>
         </div>
       </div>
       <!-- Filtros -->
@@ -3086,7 +3135,7 @@ thead .col-sticky-right {
         </select>
         <input type="date" id="caixaf_de"  onchange="renderTabelaCaixa()" style="padding:6px 10px;background:rgba(255,255,255,0.05);border:1px solid var(--borda);border-radius:8px;color:var(--cor-texto);font-size:0.85em;">
         <input type="date" id="caixaf_ate" onchange="renderTabelaCaixa()" style="padding:6px 10px;background:rgba(255,255,255,0.05);border:1px solid var(--borda);border-radius:8px;color:var(--cor-texto);font-size:0.85em;">
-        <button class="btn btn-secondary btn-sm" onclick="limparFiltrosCaixa()">✕ Limpar</button>
+        <button class="btn btn-secondary btn-sm" data-action="limpar-filtros-caixa">✕ Limpar</button>
       </div>
       <!-- Tabela -->
       <div class="table-responsive">
@@ -3119,8 +3168,8 @@ thead .col-sticky-right {
     <div class="section-title">
       📊 Fluxo de Caixa Mensal
       <span style="margin-left:auto;display:flex;gap:8px;">
-        <button class="btn btn-secondary btn-sm" onclick="exportarCSVFluxoCaixa()">📥 Exportar CSV</button>
-        <button class="btn btn-secondary btn-sm" id="fluxoCaixaToggleBtn" onclick="toggleFluxoCaixa()" title="Minimizar/Expandir">▼ Minimizar</button>
+        <button class="btn btn-secondary btn-sm" data-action="exportar-csv-fluxo-caixa">📥 Exportar CSV</button>
+        <button class="btn btn-secondary btn-sm" id="fluxoCaixaToggleBtn" data-action="toggle-fluxo-caixa" title="Minimizar/Expandir">▼ Minimizar</button>
       </span>
     </div>
     <div id="fluxoCaixaContent">
@@ -3819,6 +3868,7 @@ thead .col-sticky-right {
        ALERTAS DE PAGAMENTO — CAPTAÇÕES CONFIRMADAS
   =========================================== -->
   <section id="sec-alertas-captacao" class="calc-section" style="border-color:rgba(212,175,55,0.40);">
+    <button id="alertasCaptacaoFloatBtn" onclick="toggleAlertasCaptacao()" title="Minimizar/Expandir alertas" aria-label="Minimizar ou expandir alertas">🗕</button>
     <div class="section-title" style="align-items:center;flex-wrap:wrap;gap:10px;">
       🔔 Alertas de Pagamento — Captações Confirmadas
       <span id="alertas-captacao-badge" style="display:none;background:var(--vermelho,#e74c3c);color:#fff;border-radius:20px;padding:1px 10px;font-size:0.78em;font-weight:700;"></span>
@@ -4858,13 +4908,13 @@ thead .col-sticky-right {
        CALCULADORA FLUTUANTE (FAB)
   =========================================== -->
   <!-- FAB toggle -->
-  <button class="float-calc-fab" id="floatCalcFab" onclick="toggleFloatCalc()" title="Calculadora" aria-label="Abrir calculadora">🧮</button>
+  <button class="float-calc-fab" id="floatCalcFab" data-action="toggle-float-calc" title="Calculadora" aria-label="Abrir calculadora">🧮</button>
 
   <!-- Painel flutuante -->
   <div class="float-calc-panel" id="floatCalcPanel">
     <div class="float-calc-header" id="floatCalcHeader">
       <span>🧮 Calculadora</span>
-      <button class="float-calc-close" onclick="toggleFloatCalc()" aria-label="Fechar calculadora">✕</button>
+      <button class="float-calc-close" data-action="toggle-float-calc" aria-label="Fechar calculadora">✕</button>
     </div>
     <div class="float-calc-body">
       <div class="calc-display">
@@ -4872,29 +4922,29 @@ thead .col-sticky-right {
         <div class="disp-value" id="calc-value">0</div>
       </div>
       <div class="calc-keys">
-        <button class="calc-key clear" onclick="calcAction('C')">C</button>
-        <button class="calc-key op"    onclick="calcAction('±')">±</button>
-        <button class="calc-key op"    onclick="calcAction('%')">%</button>
-        <button class="calc-key op"    onclick="calcAction('/')">÷</button>
+        <button class="calc-key clear" data-action="calc-action" data-calc-action="C">C</button>
+        <button class="calc-key op"    data-action="calc-action" data-calc-action="±">±</button>
+        <button class="calc-key op"    data-action="calc-action" data-calc-action="%">%</button>
+        <button class="calc-key op"    data-action="calc-action" data-calc-action="/">÷</button>
 
-        <button class="calc-key"       onclick="calcAction('7')">7</button>
-        <button class="calc-key"       onclick="calcAction('8')">8</button>
-        <button class="calc-key"       onclick="calcAction('9')">9</button>
-        <button class="calc-key op"    onclick="calcAction('*')">×</button>
+        <button class="calc-key"       data-action="calc-action" data-calc-action="7">7</button>
+        <button class="calc-key"       data-action="calc-action" data-calc-action="8">8</button>
+        <button class="calc-key"       data-action="calc-action" data-calc-action="9">9</button>
+        <button class="calc-key op"    data-action="calc-action" data-calc-action="*">×</button>
 
-        <button class="calc-key"       onclick="calcAction('4')">4</button>
-        <button class="calc-key"       onclick="calcAction('5')">5</button>
-        <button class="calc-key"       onclick="calcAction('6')">6</button>
-        <button class="calc-key op"    onclick="calcAction('-')">−</button>
+        <button class="calc-key"       data-action="calc-action" data-calc-action="4">4</button>
+        <button class="calc-key"       data-action="calc-action" data-calc-action="5">5</button>
+        <button class="calc-key"       data-action="calc-action" data-calc-action="6">6</button>
+        <button class="calc-key op"    data-action="calc-action" data-calc-action="-">−</button>
 
-        <button class="calc-key"       onclick="calcAction('1')">1</button>
-        <button class="calc-key"       onclick="calcAction('2')">2</button>
-        <button class="calc-key"       onclick="calcAction('3')">3</button>
-        <button class="calc-key op"    onclick="calcAction('+')">+</button>
+        <button class="calc-key"       data-action="calc-action" data-calc-action="1">1</button>
+        <button class="calc-key"       data-action="calc-action" data-calc-action="2">2</button>
+        <button class="calc-key"       data-action="calc-action" data-calc-action="3">3</button>
+        <button class="calc-key op"    data-action="calc-action" data-calc-action="+">+</button>
 
-        <button class="calc-key zero"  onclick="calcAction('0')">0</button>
-        <button class="calc-key"       onclick="calcAction('.')">.</button>
-        <button class="calc-key equal" onclick="calcAction('=')">=</button>
+        <button class="calc-key zero"  data-action="calc-action" data-calc-action="0">0</button>
+        <button class="calc-key"       data-action="calc-action" data-calc-action=".">.</button>
+        <button class="calc-key equal" data-action="calc-action" data-calc-action="=">=</button>
       </div>
     </div>
   </div>
@@ -5399,6 +5449,8 @@ thead .col-sticky-right {
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script src="assets/supabase-config.js" onerror="console.warn('Configuração Supabase centralizada não carregada, usando valores padrão (esperado em cache ou ambientes antigos).');"></script>
 <script src="assets/auth-guard.js"></script>
+<script src="assets/sistema-actions.js" defer></script>
+<script src="assets/pwa.js" defer></script>
 <script>
 'use strict';
 
@@ -7278,13 +7330,7 @@ function adicionarReserva() {
   reservas.push(reserva);
   salvarReservas(reservas);
   limparFormulario();
-  renderTabela();
-  atualizarDashboard();
-  atualizarMensal();
-  atualizarPrevisaoRecebimentos();
-  atualizarVendasAnuais();
-  renderRelatorioDesempenho();
-  sincronizarAutomacoes();
+  atualizarPainelReservas({ sincronizarAutomacoes: true });
   registrarAuditoria('Reserva criada', cliente + ' • ' + resort + ' • ' + formatarData(entrada));
   _auditarAnomalias('Reserva', _dupRes.avisos, cliente + ' • ' + resort);
   mostrarToast('✅ Reserva adicionada com sucesso!', 'success');
@@ -7387,12 +7433,7 @@ async function importarReservasSite() {
 
     salvarReservas(reservas);
     _salvarImportadosIds(importados.concat(novasIds));
-    renderTabela();
-    atualizarDashboard();
-    atualizarMensal();
-    atualizarVendasAnuais();
-    atualizarPrevisaoRecebimentos();
-    renderRelatorioDesempenho();
+    atualizarPainelReservas();
     registrarAuditoria('Importação do site', novos.length + ' reserva(s) importada(s) de reservas_hospede');
     if (_dupsImport.length) {
       registrarAuditoria('Importação com possível duplicidade',
@@ -7407,6 +7448,18 @@ async function importarReservasSite() {
   } finally {
     if (btn) { btn.disabled = false; btn.textContent = '📥 Importar do Site'; }
   }
+}
+
+function atualizarPainelReservas(opcoes) {
+  var opts = opcoes || {};
+  renderTabela();
+  atualizarDashboard();
+  atualizarMensal();
+  atualizarPrevisaoRecebimentos();
+  atualizarVendasAnuais();
+  renderRelatorioDesempenho();
+  if (opts.renderGraficos) renderGraficos();
+  if (opts.sincronizarAutomacoes) sincronizarAutomacoes();
 }
 
 /* ==========================================
@@ -7746,12 +7799,7 @@ function marcarPago(id) {
   atualizarDashCaixa();
   renderFluxoCaixa();
   renderGraficoCaixa();
-  renderTabela();
-  atualizarDashboard();
-  atualizarMensal();
-  atualizarPrevisaoRecebimentos();
-  atualizarVendasAnuais();
-  renderRelatorioDesempenho();
+  atualizarPainelReservas();
   registrarAuditoria('Reserva marcada como paga', r.cliente + ' • ' + r.resort);
   mostrarToast('✅ Reserva marcada como paga!', 'success');
 }
@@ -7799,12 +7847,7 @@ function marcarComissaoRecebidaLote() {
   atualizarDashCaixa();
   renderFluxoCaixa();
   renderGraficoCaixa();
-  renderTabela();
-  atualizarDashboard();
-  atualizarMensal();
-  atualizarPrevisaoRecebimentos();
-  atualizarVendasAnuais();
-  renderRelatorioDesempenho();
+  atualizarPainelReservas();
   registrarAuditoria('Comissão marcada como recebida em lote', ids.length + ' reserva(s)');
   mostrarToast('✅ ' + ids.length + ' comissão(ões) marcada(s) como recebida!', 'success');
 }
@@ -7814,13 +7857,7 @@ function excluirReserva(id) {
   var alvo = reservas.find(function (x) { return x.id === id; });
   reservas = reservas.filter(function (x) { return x.id !== id; });
   salvarReservas(reservas);
-  renderTabela();
-  atualizarDashboard();
-  atualizarMensal();
-  atualizarPrevisaoRecebimentos();
-  atualizarVendasAnuais();
-  renderRelatorioDesempenho();
-  sincronizarAutomacoes();
+  atualizarPainelReservas({ sincronizarAutomacoes: true });
   if (alvo) registrarAuditoria('Reserva excluída', alvo.cliente + ' • ' + alvo.resort);
   mostrarToast('🗑️ Reserva excluída.', '');
 }
@@ -7996,13 +8033,7 @@ function salvarEdicao() {
   }
 
   fecharModal();
-  renderTabela();
-  atualizarDashboard();
-  atualizarMensal();
-  atualizarVendasAnuais();
-  atualizarPrevisaoRecebimentos();
-  renderRelatorioDesempenho();
-  sincronizarAutomacoes();
+  atualizarPainelReservas({ sincronizarAutomacoes: true });
   registrarAuditoria('Reserva atualizada', cliente + ' • ' + resort);
   _auditarAnomalias('Reserva', _dupRes.avisos, cliente + ' • ' + resort);
   mostrarToast('✅ Reserva atualizada com sucesso!', 'success');
@@ -10421,6 +10452,9 @@ var _chartReceita = null;
 var _chartStatus  = null;
 var _chartCanal   = null;
 var _chartLucro12 = null;
+var _chartMetaProjecao = null;
+var _chartFunilConversao = null;
+var _reservasHospedeCache = [];
 
 /* Retorna a chave "AAAA-MM" para um objeto Date usando horário local,
    evitando o deslocamento UTC que toISOString() introduz em fusos UTC+. */
@@ -10434,6 +10468,8 @@ function renderGraficos() {
   renderGraficoStatus();
   renderGraficoCanal();
   renderGraficoLucro12();
+  renderGraficoMetaProjecao();
+  renderGraficoFunilConversao();
   renderGraficoCaixa();
 }
 
@@ -10604,6 +10640,157 @@ function renderGraficoLucro12() {
           },
           grid: { color: 'rgba(255,255,255,0.04)' }
         }
+      }
+    }
+  });
+}
+
+function renderGraficoMetaProjecao() {
+  var ctx = document.getElementById('chartMetaProjecao');
+  if (!ctx) return;
+  if (_chartMetaProjecao) _chartMetaProjecao.destroy();
+
+  var anoAtual = new Date().getFullYear();
+  var mesAtual = new Date().getMonth() + 1;
+  var labels = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+  var vendaMes = [];
+
+  for (var m = 1; m <= 12; m++) {
+    var totalMes = 0;
+    reservas.forEach(function (r) {
+      if ((r.status || '').toLowerCase() === 'cancelado') return;
+      var dtVenda = r.dataCaptacao || r.criadoEm || r.entrada;
+      if (!dtVenda) return;
+      var ano = parseInt(dtVenda.slice(0, 4), 10);
+      var mes = parseInt(dtVenda.slice(5, 7), 10);
+      if (ano === anoAtual && mes === m) totalMes += parseFloat(r.total || 0);
+    });
+    vendaMes.push(Math.round(totalMes * 100) / 100);
+  }
+
+  var realYtd = [];
+  var metaYtd = [];
+  var projYtd = [];
+  var accReal = 0;
+  var metaMensal = parseFloat(localStorage.getItem('hospeda_meta')) || CONFIG.metaPadrao || 0;
+
+  for (var i = 0; i < 12; i++) {
+    accReal += vendaMes[i] || 0;
+    realYtd.push(Math.round(accReal * 100) / 100);
+    metaYtd.push(Math.round(metaMensal * (i + 1) * 100) / 100);
+  }
+
+  var realAteHoje = realYtd[Math.max(0, mesAtual - 1)] || 0;
+  var mediaMes = mesAtual > 0 ? (realAteHoje / mesAtual) : 0;
+  var accProj = 0;
+  for (var j = 0; j < 12; j++) {
+    if (j < mesAtual) {
+      accProj = realYtd[j] || 0;
+    } else {
+      accProj += mediaMes;
+    }
+    projYtd.push(Math.round(accProj * 100) / 100);
+  }
+
+  _chartMetaProjecao = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [
+        {
+          label: 'Real (acumulado)',
+          data: realYtd,
+          borderColor: '#25D366',
+          backgroundColor: 'rgba(37,211,102,0.18)',
+          borderWidth: 2,
+          pointRadius: 2.5,
+          tension: 0.25
+        },
+        {
+          label: 'Meta (acumulada)',
+          data: metaYtd,
+          borderColor: '#D4AF37',
+          backgroundColor: 'rgba(212,175,55,0.12)',
+          borderWidth: 2,
+          pointRadius: 0,
+          borderDash: [6, 4],
+          tension: 0
+        },
+        {
+          label: 'Projeção (acumulada)',
+          data: projYtd,
+          borderColor: '#4da6ff',
+          backgroundColor: 'rgba(77,166,255,0.12)',
+          borderWidth: 2,
+          pointRadius: 2,
+          borderDash: [3, 3],
+          tension: 0.2
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { labels: { color: '#aab4c4', font: { family: 'Poppins' } } } },
+      scales: {
+        x: { ticks: { color: '#aab4c4' }, grid: { color: 'rgba(255,255,255,0.04)' } },
+        y: {
+          ticks: {
+            color: '#aab4c4',
+            callback: function (v) { return 'R$\u202F' + Number(v || 0).toLocaleString('pt-BR', { maximumFractionDigits: 0 }); }
+          },
+          grid: { color: 'rgba(255,255,255,0.04)' }
+        }
+      }
+    }
+  });
+}
+
+function _setFunilKpi(id, txt) {
+  var el = document.getElementById(id);
+  if (el) el.textContent = txt;
+}
+
+function renderGraficoFunilConversao() {
+  var ctx = document.getElementById('chartFunilConversao');
+  if (!ctx) return;
+  if (_chartFunilConversao) _chartFunilConversao.destroy();
+
+  var listaRh = Array.isArray(_reservasHospedeCache) ? _reservasHospedeCache : [];
+  var totalSolic = listaRh.length;
+  var confirmadas = listaRh.filter(function (r) {
+    return ['confirmada', 'concluida', 'oferta_aceita'].indexOf(r.status) >= 0;
+  }).length;
+  var convertidas = reservas.filter(function (r) { return !!r.importadoSbId; }).length;
+  var pagas = reservas.filter(function (r) {
+    return !!r.importadoSbId && (r.status || '').toLowerCase() === 'pago';
+  }).length;
+
+  var cv1 = totalSolic > 0 ? ((confirmadas / totalSolic) * 100) : 0;
+  var cv2 = confirmadas > 0 ? ((convertidas / confirmadas) * 100) : 0;
+  var cv3 = convertidas > 0 ? ((pagas / convertidas) * 100) : 0;
+  _setFunilKpi('funil-cv-1', cv1.toFixed(1) + '%');
+  _setFunilKpi('funil-cv-2', cv2.toFixed(1) + '%');
+  _setFunilKpi('funil-cv-3', cv3.toFixed(1) + '%');
+
+  _chartFunilConversao = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: ['Solicitações', 'Confirmadas', 'Lançadas no financeiro', 'Pagas'],
+      datasets: [{
+        label: 'Quantidade',
+        data: [totalSolic, confirmadas, convertidas, pagas],
+        backgroundColor: ['rgba(212,175,55,0.62)', 'rgba(77,166,255,0.62)', 'rgba(243,156,18,0.62)', 'rgba(37,211,102,0.62)'],
+        borderColor: ['#D4AF37', '#4da6ff', '#f39c12', '#25D366'],
+        borderWidth: 1.2
+      }]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { ticks: { color: '#aab4c4', precision: 0 }, grid: { color: 'rgba(255,255,255,0.04)' } },
+        y: { ticks: { color: '#aab4c4' }, grid: { color: 'rgba(255,255,255,0.02)' } }
       }
     }
   });
@@ -11040,20 +11227,13 @@ function importarBackup() {
           auditLogs = dados.auditLogs;
           salvarListaStorage(AUDIT_KEY, auditLogs);
         }
-        renderTabela();
-        atualizarDashboard();
-        atualizarMensal();
-        atualizarPrevisaoRecebimentos();
-        atualizarVendasAnuais();
-        renderGraficos();
-        renderRelatorioDesempenho();
+        atualizarPainelReservas({ renderGraficos: true, sincronizarAutomacoes: true });
         renderTabelaAutomacoes();
         renderTabelaOnboarding();
         renderTabelaManutencao();
         renderTabelaFAQ();
         renderAuditoria();
         atualizarDashAutomacoes();
-        sincronizarAutomacoes();
         registrarAuditoria('Backup importado', String(lista.length) + ' reserva(s) restauradas');
         mostrarToast('✅ Backup importado! ' + lista.length + ' reserva(s).', 'success');
       } catch (err) {
@@ -12787,6 +12967,7 @@ async function carregarReservasHospede() {
     if (error) throw error;
 
     var lista = data || [];
+    _reservasHospedeCache = lista;
 
     document.getElementById('rh-pendentes').textContent  = lista.filter(function(r){ return r.status === 'pendente'; }).length;
     document.getElementById('rh-confirmadas').textContent = lista.filter(function(r){ return r.status === 'confirmada'; }).length;
@@ -12796,6 +12977,7 @@ async function carregarReservasHospede() {
     var body = document.getElementById('rhBody');
     if (lista.length === 0) {
       body.innerHTML = '<tr><td colspan="13"><div class="empty-state"><div class="empty-icon">🛎️</div><div>Nenhuma solicitação de reserva encontrada.</div></div></td></tr>';
+      if (typeof renderGraficoFunilConversao === 'function') renderGraficoFunilConversao();
       return;
     }
 
@@ -12836,7 +13018,10 @@ async function carregarReservasHospede() {
         + '</div></td>'
         + '</tr>';
     }).join('');
+    if (typeof renderGraficoFunilConversao === 'function') renderGraficoFunilConversao();
   } catch(e) {
+    _reservasHospedeCache = [];
+    if (typeof renderGraficoFunilConversao === 'function') renderGraficoFunilConversao();
     toastSistema('Erro ao carregar solicitações: tabela reservas_hospede não encontrada. Execute a migração SQL.', 'error');
   }
 }
@@ -16864,6 +17049,17 @@ function toggleFluxoCaixa() {
   btn.textContent = collapsed ? '▼ Minimizar' : '▲ Expandir';
 }
 
+function toggleAlertasCaptacao() {
+  var content = document.getElementById('alertas-captacao-container');
+  var btn = document.getElementById('alertasCaptacaoFloatBtn');
+  if (!content || !btn) return;
+  var collapsed = content.style.display === 'none';
+  content.style.display = collapsed ? '' : 'none';
+  btn.textContent = collapsed ? '🗕' : '🗖';
+  btn.title = collapsed ? 'Minimizar alertas' : 'Expandir alertas';
+  btn.setAttribute('aria-label', btn.title);
+}
+
 /* ── EXPORTAR CSV ── */
 function exportarCSVCaixa() {
   var lista = Array.isArray(caixaLancamentos) ? caixaLancamentos : [];
@@ -16894,13 +17090,6 @@ function _downloadCaixaCSV(lista) {
   URL.revokeObjectURL(url);
 }
 
-</script>
-<script>
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', function () {
-    navigator.serviceWorker.register('/sw.js').catch(function () {});
-  });
-}
 </script>
 
 <!-- SECURITY SEAL -->

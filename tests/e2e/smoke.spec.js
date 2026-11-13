@@ -67,6 +67,12 @@ test.describe('Páginas públicas', () => {
     await page.goto('/chat.html');
     await expect(page).toHaveTitle(/HOSPEDAH/i);
   });
+
+  test('sistema carrega com autenticação visível', async ({ page }) => {
+    await page.goto('/sistema.html');
+    await expect(page).toHaveTitle(/HOSPEDAH-SISTEMA/i);
+    await expect(page.locator('#lockOverlay')).toBeVisible();
+  });
 });
 
 test.describe('Páginas de resort', () => {

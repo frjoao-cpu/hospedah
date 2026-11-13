@@ -9,6 +9,7 @@
         "http://localhost:3000/index.html",
         "http://localhost:3000/reservas.html",
         "http://localhost:3000/busca.html",
+        "http://localhost:3000/sistema.html",
         "http://localhost:3000/resorts/hotbeach.html"
       ],
       "settings": {

@@ -54,6 +54,9 @@ jobs:
       - name: Validar JavaScript
         run: npm run lint:js
 
+      - name: Guardas do sistema.html (inline handlers)
+        run: npm run check:sistema:inline
+
   # ──────────────────────────────────────────────
   # 3. Valida CSS com Stylelint
   # ──────────────────────────────────────────────
@@ -389,6 +392,7 @@ jobs:
             ["assets/index.css"]=80
             ["assets/mobile-first.css"]=60
             ["assets/admin.js"]=500
+            ["sistema.html"]=740
           )
 
           FAILED=0
