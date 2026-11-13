@@ -76,6 +76,11 @@
       : '/portal/dashboard.html';
   }
 
+  function redirectToPortalLogin(nextPath) {
+    var next = encodeURIComponent(nextPath || '/portal/dashboard.html');
+    window.location.replace('/portal/index.html?next=' + next);
+  }
+
   function translateAuthError(message) {
     var errorMessage = (message ? String(message).trim() : '') || 'Não foi possível concluir a autenticação.';
     var normalized = errorMessage.toLowerCase();
@@ -831,6 +836,9 @@
     } catch (err) {
       setMessage(findFirstMessageElement(), err.message, 'error');
       console.error(err);
+      if (page === 'dashboard' || page === 'reset-password') {
+        redirectToPortalLogin(page === 'reset-password' ? '/portal/reset-password.html' : '/portal/dashboard.html');
+      }
       return;
     }
 
