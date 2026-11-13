@@ -483,6 +483,17 @@ function onDormitoriosChange() {
   }
 }
 
+function trackSalesEvent(eventName, payload) {
+  const attr = getAttributionData();
+  const basePayload = Object.assign({
+    page: 'reservas',
+    ref_code: getRefCode() || null,
+    attribution: resumirAttribution(attr) || null,
+  }, payload || {});
+  if (window.dataLayer) window.dataLayer.push(Object.assign({ event: 'hospedah_' + eventName }, basePayload));
+  if (typeof gtag === 'function') gtag('event', eventName, basePayload);
+}
+
 // Atualiza o select de hóspedes ocultando opções acima da capacidade máxima do apartamento
 function atualizarMaxHospedes() {
   if (!resortAtual) return;
@@ -527,6 +538,7 @@ async function selecionarResort(id) {
 
   // Pixel: ViewContent
   trackPixel('ViewContent', { content_name: resortAtual.nome, content_type: 'resort', value: resortAtual.preco, currency: 'BRL' });
+  trackSalesEvent('view_resort', { resort_nome: resortAtual.nome, preco_base: resortAtual.preco });
   tagOneSignal('interesse_' + resortAtual.id);
 
   // Marcar visualmente
@@ -966,6 +978,12 @@ function verificarPeriodoDisponivel() {
   iniciarContadorUrgencia();
   const _det2 = calcularDetalhamentoPreco(dataEntradaFP, dataSaidaFP);
   trackPixel('InitiateCheckout', { content_name: resortAtual ? resortAtual.nome : '', value: _det2.total, currency: 'BRL' });
+  trackSalesEvent('start_quote', {
+    resort_nome: resortAtual ? resortAtual.nome : null,
+    data_entrada: dataEntradaFP.toISOString().slice(0, 10),
+    data_saida: dataSaidaFP.toISOString().slice(0, 10),
+    valor_estimado: _det2.total,
+  });
   tagOneSignal('iniciou_reserva');
 
   atualizarResumo();
@@ -1092,6 +1110,12 @@ async function enviarReserva() {
 
     // Pixel: Lead
     trackPixel('Lead', { content_name: resortAtual.nome, value: valorTotal, currency: 'BRL' });
+    trackSalesEvent('submit_quote', {
+      resort_nome: resortAtual.nome,
+      noites,
+      valor_total: valorTotal,
+      num_hospedes: numHosp,
+    });
     tagOneSignal('converteu');
 
     // Loyalty points
@@ -1343,7 +1367,11 @@ function montarResumoReserva() {
 function montarMensagemInterna(msgOriginal) {
   const tipo = document.getElementById('tipoAcomodacao').value;
   const det = (dataEntradaFP && dataSaidaFP && resortAtual) ? calcularDetalhamentoPreco(dataEntradaFP, dataSaidaFP) : null;
-  const complemento = det ? `\n\n[Resumo automático]\nTipo de acomodação: ${tipo}\nDiferença por período: ${(det.diferenca >= 0 ? '+' : '-') + Math.abs(det.diferenca).toFixed(2)}` : '';
+  const atr = getAttributionData();
+  const utmResumo = resumirAttribution(atr);
+  const complemento = det
+    ? `\n\n[Resumo automático]\nTipo de acomodação: ${tipo}\nDiferença por período: ${(det.diferenca >= 0 ? '+' : '-') + Math.abs(det.diferenca).toFixed(2)}${utmResumo ? `\nOrigem: ${utmResumo}` : ''}`
+    : (utmResumo ? `\n\n[Origem]\n${utmResumo}` : '');
   return (msgOriginal || '') + complemento;
 }
 
@@ -1352,6 +1380,11 @@ function abrirWhatsAppReserva() {
     toast('Selecione resort e datas para gerar o resumo.', 'error');
     return;
   }
+  trackSalesEvent('click_whatsapp', {
+    resort_nome: resortAtual.nome,
+    data_entrada: dataEntradaFP.toISOString().slice(0, 10),
+    data_saida: dataSaidaFP.toISOString().slice(0, 10),
+  });
   const txt = encodeURIComponent(montarResumoReserva());
   window.open(`https://wa.me/5517982006382?text=${txt}`, '_blank');
 }
@@ -1388,6 +1421,71 @@ carregarDemandasResorts();
 // REFERRAL — Programa de Indicação Viral
 // ============================================================
 const REFERRAL_DISCOUNT = 30;
+const ATTR_STORAGE_KEY = 'hospedah_attr_v1';
+
+function _parseAttributionFromUrl() {
+  const p = new URLSearchParams(window.location.search);
+  const utm_source = p.get('utm_source') || '';
+  const utm_medium = p.get('utm_medium') || '';
+  const utm_campaign = p.get('utm_campaign') || '';
+  const utm_term = p.get('utm_term') || '';
+  const utm_content = p.get('utm_content') || '';
+  const gclid = p.get('gclid') || '';
+  const fbclid = p.get('fbclid') || '';
+  return {
+    utm_source,
+    utm_medium,
+    utm_campaign,
+    utm_term,
+    utm_content,
+    gclid,
+    fbclid,
+    landing_path: window.location.pathname,
+    landing_referrer: document.referrer || '',
+    captured_at: new Date().toISOString(),
+  };
+}
+
+function _saveAttribution(data) {
+  try {
+    localStorage.setItem(ATTR_STORAGE_KEY, JSON.stringify(data));
+  } catch (_) {}
+}
+
+function _readAttribution() {
+  try {
+    const raw = localStorage.getItem(ATTR_STORAGE_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch (_) {
+    return null;
+  }
+}
+
+function getAttributionData() {
+  const fromStorage = _readAttribution();
+  if (fromStorage) return fromStorage;
+  return _parseAttributionFromUrl();
+}
+
+function resumirAttribution(attr) {
+  if (!attr) return '';
+  const parts = [];
+  if (attr.utm_source) parts.push(`utm_source=${attr.utm_source}`);
+  if (attr.utm_medium) parts.push(`utm_medium=${attr.utm_medium}`);
+  if (attr.utm_campaign) parts.push(`utm_campaign=${attr.utm_campaign}`);
+  if (!parts.length && attr.landing_referrer) parts.push(`referrer=${attr.landing_referrer}`);
+  return parts.join(' | ');
+}
+
+(function capturarAttribution() {
+  const parsed = _parseAttributionFromUrl();
+  const hasAttributionSignal = !!(
+    parsed.utm_source || parsed.utm_medium || parsed.utm_campaign || parsed.utm_term || parsed.utm_content || parsed.gclid || parsed.fbclid
+  );
+  if (hasAttributionSignal || !_readAttribution()) {
+    _saveAttribution(parsed);
+  }
+})();
 
 (function detectRefCode() {
   const p = new URLSearchParams(window.location.search);
