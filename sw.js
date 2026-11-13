@@ -33,6 +33,7 @@ var PRECACHE_URLS = [
   '/resorts/portoi2.html',
   '/assets/mobile-first.css',
   '/assets/index.css',
+  '/assets/index-inline.css',
   '/assets/style.css',
   '/assets/portal.css',
   '/assets/admin.css',
