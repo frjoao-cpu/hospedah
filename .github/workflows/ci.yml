@@ -222,7 +222,7 @@ jobs:
       - name: Minificar JavaScript
         run: |
           set -e
-          for f in script.js sw.js; do
+          for f in script.js sw.js assets/index-page.js; do
             if [ -f "$f" ]; then
               echo "Minificando: $f"
               npx terser "$f" -o "$f.min" --compress --mangle && mv "$f.min" "$f"
