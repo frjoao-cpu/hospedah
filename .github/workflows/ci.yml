@@ -23,19 +23,13 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
+          cache: 'npm'
 
-      - name: Cache npm
-        uses: actions/cache@v4
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-npm-htmlhint
-          restore-keys: ${{ runner.os }}-npm-
-
-      - name: Instalar htmlhint
-        run: npm install -g htmlhint
+      - name: Instalar dependências
+        run: npm ci
 
       - name: Validar HTML
-        run: htmlhint "**/*.html" --config .htmlhintrc
+        run: npm run lint:html
 
   # ──────────────────────────────────────────────
   # 2. Valida JavaScript com ESLint
@@ -52,19 +46,13 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
+          cache: 'npm'
 
-      - name: Cache npm
-        uses: actions/cache@v4
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-npm-eslint8
-          restore-keys: ${{ runner.os }}-npm-
-
-      - name: Instalar ESLint
-        run: npm install -g eslint@8
+      - name: Instalar dependências
+        run: npm ci
 
       - name: Validar JavaScript
-        run: eslint . --ext .js
+        run: npm run lint:js
 
   # ──────────────────────────────────────────────
   # 3. Valida CSS com Stylelint
@@ -81,19 +69,13 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
+          cache: 'npm'
 
-      - name: Cache npm
-        uses: actions/cache@v4
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-npm-stylelint
-          restore-keys: ${{ runner.os }}-npm-
-
-      - name: Instalar Stylelint
-        run: npm install -g stylelint
+      - name: Instalar dependências
+        run: npm ci
 
       - name: Validar CSS
-        run: stylelint "**/*.css" --config .stylelintrc.json
+        run: npm run lint:css
 
   # ──────────────────────────────────────────────
   # 3b. Testa o núcleo do Radar IA (Deno)
@@ -149,19 +131,13 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
+          cache: 'npm'
 
-      - name: Cache npm
-        uses: actions/cache@v4
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-npm-lhci
-          restore-keys: ${{ runner.os }}-npm-
-
-      - name: Instalar Lighthouse CI
-        run: npm install -g @lhci/cli
+      - name: Instalar dependências
+        run: npm ci
 
       - name: Executar Lighthouse CI
-        run: lhci autorun
+        run: npm run lighthouse
 
   # ──────────────────────────────────────────────
   # 6. Varredura de segredos com TruffleHog
@@ -206,16 +182,10 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
+          cache: 'npm'
 
-      - name: Cache npm
-        uses: actions/cache@v4
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-npm-deploy
-          restore-keys: ${{ runner.os }}-npm-
-
-      - name: Instalar ferramentas de minificação
-        run: npm install -g html-minifier-terser terser csso-cli
+      - name: Instalar dependências
+        run: npm ci
 
       - name: Gerar páginas de resort a partir de data.json
         run: node scripts/generate-resorts.js
@@ -230,7 +200,7 @@ jobs:
           set -e
           while IFS= read -r f; do
             echo "Minificando: $f"
-            html-minifier-terser \
+            npx html-minifier-terser \
               --collapse-whitespace \
               --remove-comments \
               --remove-optional-tags \
@@ -245,7 +215,7 @@ jobs:
           for f in style.css assets/style.css assets/index.css assets/mobile-first.css; do
             if [ -f "$f" ]; then
               echo "Minificando: $f"
-              csso "$f" -o "$f.min" && mv "$f.min" "$f"
+              npx csso "$f" -o "$f.min" && mv "$f.min" "$f"
             fi
           done
 
@@ -255,7 +225,7 @@ jobs:
           for f in script.js sw.js; do
             if [ -f "$f" ]; then
               echo "Minificando: $f"
-              terser "$f" -o "$f.min" --compress --mangle && mv "$f.min" "$f"
+              npx terser "$f" -o "$f.min" --compress --mangle && mv "$f.min" "$f"
             fi
           done
 

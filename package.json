@@ -4,6 +4,10 @@
   "description": "HOSPEDAH — Resorts e Experiências Exclusivas",
   "private": true,
   "scripts": {
+    "lint:html": "htmlhint \"**/*.html\" --config .htmlhintrc",
+    "lint:js": "eslint . --ext .js",
+    "lint:css": "stylelint \"**/*.css\" --config .stylelintrc.json",
+    "lighthouse": "lhci autorun",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:reservas": "playwright test tests/e2e/reservas.spec.js",
@@ -13,8 +17,15 @@
     "size-check": "node scripts/size-check.js"
   },
   "devDependencies": {
+    "@lhci/cli": "^0.15.1",
     "@playwright/test": "^1.44.0",
     "axe-playwright": "^2.2.2",
-    "flatpickr": "^4.6.13"
+    "csso-cli": "^4.0.2",
+    "eslint": "^8.57.1",
+    "flatpickr": "^4.6.13",
+    "html-minifier-terser": "^7.2.0",
+    "htmlhint": "^1.6.3",
+    "stylelint": "^16.24.0",
+    "terser": "^5.44.1"
   }
 }

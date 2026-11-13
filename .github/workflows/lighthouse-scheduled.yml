@@ -20,20 +20,14 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
+          cache: 'npm'
 
-      - name: Cache npm
-        uses: actions/cache@v4
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-npm-lhci
-          restore-keys: ${{ runner.os }}-npm-
-
-      - name: Instalar Lighthouse CI
-        run: npm install -g @lhci/cli
+      - name: Instalar dependências
+        run: npm ci
 
       - name: Executar Lighthouse CI
         id: lhci
-        run: lhci autorun
+        run: npm run lighthouse
         continue-on-error: true
 
       - name: Abrir issue se performance degradou
