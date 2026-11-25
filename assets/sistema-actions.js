@@ -49,6 +49,12 @@
         if (target.getAttribute('data-expand-captacoes') === '1') {
           callIfFn('expandirCaptacoes');
         }
+        var href = target.getAttribute('href') || '';
+        if (href.charAt(0) === '#' && href.length > 1) {
+          var section = document.querySelector(href);
+          if (section) section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          window.location.hash = href;
+        }
         break;
       case 'toggle-dashboard':
         callIfFn('toggleDashboard');

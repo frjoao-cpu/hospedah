@@ -399,19 +399,26 @@ body {
   .nav-sep { display: none; }
   .nav-dropdown { width: 100%; }
 
+  .nav-dropdown-btn {
+    display: none;
+  }
+
   .nav-dropdown-menu {
+    display: flex;
     position: static;
     min-width: 0;
-    margin: 2px 0 4px;
+    margin: 0 0 6px;
     border: 1px solid rgba(212,175,55,0.2);
     border-radius: 10px;
     box-shadow: none;
     background: rgba(255,255,255,0.02);
+    flex-direction: column;
+    gap: 2px;
   }
 
   .nav-dropdown-menu a {
     font-size: 0.8em;
-    padding: 8px 10px;
+    padding: 8px 10px 8px 12px;
   }
 
   #syncWarning,
@@ -2856,7 +2863,7 @@ thead .col-sticky-right {
         <a href="#sec-alertas-captacao" data-action="close-nav-dropdown" data-dropdown-id="navCaptacaoDropdown">🔔 Alertas de Pagamento</a>
         <a href="#captacao-resumo" data-action="close-nav-dropdown" data-dropdown-id="navCaptacaoDropdown">🏡 Captações — Resumo</a>
         <a href="#captacao"        data-action="close-nav-dropdown" data-dropdown-id="navCaptacaoDropdown">➕ Nova Captação</a>
-        <a href="#captacoes"       data-action="close-nav-dropdown" data-dropdown-id="navCaptacaoDropdown" data-expand-captacoes="1">🏡 Captações Cadastradas</a>
+        <a href="#captacoes"       onclick="expandirCaptacoes()" data-action="close-nav-dropdown" data-dropdown-id="navCaptacaoDropdown" data-expand-captacoes="1">🏡 Captações Cadastradas</a>
       </div>
     </div>
     <span class="nav-sep"></span>
@@ -5531,7 +5538,7 @@ thead .col-sticky-right {
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script src="assets/supabase-config.js" onerror="console.warn('Configuração Supabase centralizada não carregada, usando valores padrão (esperado em cache ou ambientes antigos).');"></script>
 <script src="assets/auth-guard.js"></script>
-<script src="assets/sistema-actions.js" defer></script>
+<script src="assets/sistema-actions.js?v=20261125-2330" defer></script>
 <script src="assets/pwa.js" defer></script>
 <script>
 'use strict';
@@ -14366,6 +14373,7 @@ function toggleCobrancas() {
 function toggleNavDropdown(id) {
   var el = document.getElementById(id);
   if (!el) return;
+  var isDesktopSidebar = window.matchMedia('(min-width: 901px)').matches;
   var isOpen = el.classList.contains('open');
   // Close any open dropdowns first
   document.querySelectorAll('.nav-dropdown.open').forEach(function(dd) {
@@ -14378,6 +14386,10 @@ function toggleNavDropdown(id) {
     }
   });
   if (!isOpen) {
+    if (isDesktopSidebar) {
+      el.classList.add('open');
+      return;
+    }
     var btn = el.querySelector('.nav-dropdown-btn');
     var menu = el.querySelector('.nav-dropdown-menu');
     if (btn && menu) {
