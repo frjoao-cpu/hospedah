@@ -74,40 +74,38 @@
       </div>
 
       <div class="notice" id="demoNotice">
-        Projeto de interface: demonstração da nova navegação.
-        Os dados e formulários ainda precisam ser conectados
-        às funções e tabelas existentes no Supabase.
+        Conectando dados reais do seu usuário no Supabase...
       </div>
 
       <section class="page active" id="page-dashboard">
         <div class="metrics">
           <article class="metric">
             <span>Reservas no período</span>
-            <strong>—</strong>
-            <small>Dados reais após integração</small>
+            <strong id="metricReservas">—</strong>
+            <small id="metricReservasInfo">Carregando</small>
           </article>
           <article class="metric">
             <span>Receita registrada</span>
-            <strong>R$ —</strong>
-            <small>Entradas confirmadas</small>
+            <strong id="metricReceita">R$ —</strong>
+            <small>Base em reservas do sistema</small>
           </article>
           <article class="metric">
             <span>Comissões pendentes</span>
-            <strong>R$ —</strong>
-            <small>Aguardando recebimento</small>
+            <strong id="metricComissaoPendente">R$ —</strong>
+            <small>Comissão gerada menos recebida</small>
           </article>
           <article class="metric">
             <span>Saldo de caixa</span>
-            <strong>R$ —</strong>
-            <small>Posição financeira</small>
+            <strong id="metricSaldoCaixa">R$ —</strong>
+            <small>Entradas menos saídas</small>
           </article>
         </div>
 
         <div class="grid-two">
           <article class="panel">
             <h2>Visão financeira</h2>
-            <p>Entradas e saídas ao longo dos meses</p>
-            <div class="chart-placeholder">Gráfico financeiro demonstrativo</div>
+            <p id="financeSummary">Entradas e saídas com base no caixa sincronizado.</p>
+            <div class="chart-placeholder" id="financePlaceholder">Carregando visão financeira...</div>
           </article>
 
           <article class="panel">
@@ -122,9 +120,23 @@
         </div>
 
         <article class="panel">
-          <h2>Agenda operacional</h2>
-          <p>Reservas, check-ins e pendências</p>
-          <button class="btn light" data-page="calendario">Abrir calendário</button>
+          <h2>Últimas reservas registradas</h2>
+          <div class="mini-table-wrap">
+            <table class="mini-table">
+              <thead>
+                <tr>
+                  <th>Cliente</th>
+                  <th>Resort</th>
+                  <th>Check-in</th>
+                  <th>Status</th>
+                  <th>Valor</th>
+                </tr>
+              </thead>
+              <tbody id="dashboardRecentBody">
+                <tr><td colspan="5">Carregando reservas...</td></tr>
+              </tbody>
+            </table>
+          </div>
         </article>
       </section>
 
@@ -230,6 +242,7 @@
   </main>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="app.js"></script>
 </body>
 </html>

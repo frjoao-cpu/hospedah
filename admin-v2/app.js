@@ -1,6 +1,11 @@
 'use strict';
 
 (function () {
+  var SUPABASE_URL = 'https://ydrmjoppjxtmnwtvtinb.supabase.co';
+  var SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlkcm1qb3Bwanh0bW53dHZ0aW5iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYyNzA3MzksImV4cCI6MjA5MTg0NjczOX0.Gp4ed332v62sC5e5GXXbPqOIBNpS4EzMCFawnBJE_Cw';
+  var STORAGE_KEY_RESERVAS = 'hospeda_reservas';
+  var STORAGE_KEY_CAIXA = 'hospeda_caixa';
+
   var pages = {
     dashboard: {
       title: 'Resumo Geral',
@@ -74,6 +79,7 @@
   var refreshBtn = document.getElementById('refreshBtn');
   var quickReserve = document.getElementById('quickReserve');
   var notice = document.getElementById('demoNotice');
+  var supabaseClient = null;
 
   function setPage(page) {
     if (!pages[page]) return;
@@ -151,9 +157,7 @@
   function bindHeaderActions() {
     if (refreshBtn) {
       refreshBtn.addEventListener('click', function () {
-        var now = new Date();
-        var time = now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-        notice.textContent = 'Demonstração atualizada às ' + time + '. Integração com Supabase será ligada na próxima etapa.';
+        loadDashboardData(true);
       });
     }
 
@@ -162,6 +166,219 @@
         setPage('reservas');
       });
     }
+  }
+
+  function fmtMoney(value) {
+    return Number(value || 0).toLocaleString('pt-BR', {
+      style: 'currency',
+      currency: 'BRL'
+    });
+  }
+
+  function fmtDate(value) {
+    if (!value) return '—';
+    var dt = new Date(value + 'T00:00:00');
+    if (isNaN(dt.getTime())) {
+      var dt2 = new Date(value);
+      if (isNaN(dt2.getTime())) return '—';
+      return dt2.toLocaleDateString('pt-BR');
+    }
+    return dt.toLocaleDateString('pt-BR');
+  }
+
+  function safeText(value) {
+    return String(value || '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
+  function parseNumber(value) {
+    if (typeof value === 'number') return isFinite(value) ? value : 0;
+    if (typeof value === 'string') {
+      var normalized = value.replace(/[^\d,.-]/g, '').replace(',', '.');
+      var num = Number(normalized);
+      return isFinite(num) ? num : 0;
+    }
+    return 0;
+  }
+
+  function buildStatusChip(status) {
+    var s = String(status || '').toLowerCase();
+    var label = s ? s.charAt(0).toUpperCase() + s.slice(1) : '—';
+    return '<span class="status-chip ' + safeText(s || 'pendente') + '">' + safeText(label) + '</span>';
+  }
+
+  function getCriadoEm(item) {
+    return item.criadoEm || item.criado_em || item.updated_at || item.created_at || item.entrada || '';
+  }
+
+  function updateNotice(message, type) {
+    if (!notice) return;
+    notice.classList.remove('success', 'error');
+    if (type) notice.classList.add(type);
+    notice.textContent = message;
+  }
+
+  function setMetric(id, value) {
+    var el = document.getElementById(id);
+    if (el) el.textContent = value;
+  }
+
+  function renderRecentReservations(reservas) {
+    var body = document.getElementById('dashboardRecentBody');
+    if (!body) return;
+    if (!reservas.length) {
+      body.innerHTML = '<tr><td colspan="5">Nenhuma reserva encontrada para este usuário.</td></tr>';
+      return;
+    }
+
+    body.innerHTML = reservas.slice(0, 8).map(function (r) {
+      var cliente = r.cliente || r.nome_hospede || '—';
+      var resort = r.resort || r.resort_nome || '—';
+      var entrada = r.entrada || r.data_entrada || '';
+      var valor = parseNumber(r.total !== undefined ? r.total : r.valor_total);
+      var status = r.status || 'pendente';
+      return '<tr>' +
+        '<td>' + safeText(cliente) + '</td>' +
+        '<td>' + safeText(resort) + '</td>' +
+        '<td>' + safeText(fmtDate(entrada)) + '</td>' +
+        '<td>' + buildStatusChip(status) + '</td>' +
+        '<td>' + safeText(fmtMoney(valor)) + '</td>' +
+        '</tr>';
+    }).join('');
+  }
+
+  function summarizeFinance(caixa) {
+    var entradas = 0;
+    var saidas = 0;
+    caixa.forEach(function (item) {
+      var valor = parseNumber(item.valor);
+      if ((item.tipo || '').toLowerCase() === 'entrada') entradas += valor;
+      else saidas += valor;
+    });
+    return {
+      entradas: entradas,
+      saidas: saidas,
+      saldo: entradas - saidas
+    };
+  }
+
+  async function getSupabaseSessionUser() {
+    var userRes = await supabaseClient.auth.getUser();
+    return userRes && userRes.data ? userRes.data.user : null;
+  }
+
+  async function loadFromHospedaData(userId) {
+    var res = await supabaseClient
+      .from('hospeda_data')
+      .select('chave,valor')
+      .eq('user_id', userId)
+      .in('chave', [STORAGE_KEY_RESERVAS, STORAGE_KEY_CAIXA]);
+
+    if (res.error) throw res.error;
+
+    var map = {};
+    (res.data || []).forEach(function (row) {
+      map[row.chave] = row.valor;
+    });
+
+    return {
+      reservas: Array.isArray(map[STORAGE_KEY_RESERVAS]) ? map[STORAGE_KEY_RESERVAS] : [],
+      caixa: Array.isArray(map[STORAGE_KEY_CAIXA]) ? map[STORAGE_KEY_CAIXA] : []
+    };
+  }
+
+  async function loadFallbackReservasHospede() {
+    var res = await supabaseClient
+      .from('reservas_hospede')
+      .select('nome_hospede,resort_nome,data_entrada,valor_total,status,criado_em')
+      .order('criado_em', { ascending: false })
+      .limit(20);
+
+    if (res.error) return [];
+    return res.data || [];
+  }
+
+  function updateFinancialPanel(finance) {
+    var financeSummary = document.getElementById('financeSummary');
+    var financePlaceholder = document.getElementById('financePlaceholder');
+    if (!financeSummary || !financePlaceholder) return;
+
+    financeSummary.textContent = 'Entradas ' + fmtMoney(finance.entradas) + ' • Saídas ' + fmtMoney(finance.saidas) + ' • Saldo ' + fmtMoney(finance.saldo) + '.';
+    financePlaceholder.textContent = 'Atualizado com dados reais de caixa sincronizados.';
+  }
+
+  async function loadDashboardData(manual) {
+    try {
+      if (!supabaseClient) {
+        updateNotice('Biblioteca do Supabase não carregou. Recarregue a página.', 'error');
+        return;
+      }
+
+      setMetric('metricReservas', '...');
+      setMetric('metricReceita', '...');
+      setMetric('metricComissaoPendente', '...');
+      setMetric('metricSaldoCaixa', '...');
+
+      var user = await getSupabaseSessionUser();
+      if (!user) {
+        updateNotice('Para ver resultados reais, faça login no sistema principal (sistema.html) e volte para este painel.', 'error');
+        renderRecentReservations([]);
+        return;
+      }
+
+      var storageData = await loadFromHospedaData(user.id);
+      var reservas = storageData.reservas || [];
+      var caixa = storageData.caixa || [];
+
+      if (!reservas.length) {
+        reservas = await loadFallbackReservasHospede();
+      }
+
+      var receita = 0;
+      var comissaoPendente = 0;
+
+      reservas.forEach(function (r) {
+        var total = parseNumber(r.total !== undefined ? r.total : r.valor_total);
+        var comissaoTotal = parseNumber(r.comissao);
+        var comissaoRecebida = parseNumber(r.comissaoRecebida !== undefined ? r.comissaoRecebida : r.valor_comissao_recebida);
+        receita += total;
+        comissaoPendente += Math.max(0, comissaoTotal - comissaoRecebida);
+      });
+
+      var finance = summarizeFinance(caixa);
+      var sortedReservas = reservas.slice().sort(function (a, b) {
+        return String(getCriadoEm(b)).localeCompare(String(getCriadoEm(a)));
+      });
+
+      setMetric('metricReservas', String(reservas.length));
+      setMetric('metricReceita', fmtMoney(receita));
+      setMetric('metricComissaoPendente', fmtMoney(comissaoPendente));
+      setMetric('metricSaldoCaixa', fmtMoney(finance.saldo));
+
+      var info = document.getElementById('metricReservasInfo');
+      if (info) info.textContent = 'Base sincronizada do usuário logado';
+
+      updateFinancialPanel(finance);
+      renderRecentReservations(sortedReservas);
+
+      var when = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+      updateNotice('Dados reais carregados com sucesso. Última atualização às ' + when + '.', 'success');
+      if (manual) {
+        notice.textContent += ' Atualização manual concluída.';
+      }
+    } catch (err) {
+      updateNotice('Não foi possível carregar os dados reais agora. Verifique sua sessão/login no Supabase.', 'error');
+      renderRecentReservations([]);
+    }
+  }
+
+  function initSupabase() {
+    if (!window.supabase || !window.supabase.createClient) return;
+    supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
   }
 
   function initFromHash() {
@@ -175,4 +392,6 @@
   bindCalculator();
   bindHeaderActions();
   initFromHash();
+  initSupabase();
+  loadDashboardData(false);
 }());
