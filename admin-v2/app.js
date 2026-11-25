@@ -1,90 +1,89 @@
 'use strict';
 
 (function () {
-  var sidebar = document.getElementById('v2Sidebar');
-  var menuBtn = document.getElementById('v2Menu');
-  var frame = document.getElementById('systemFrame');
-  var sectionName = document.getElementById('v2SectionName');
-  var reloadBtn = document.getElementById('v2Reload');
-  var navItems = Array.prototype.slice.call(document.querySelectorAll('.v2-nav-item'));
-
-  var BASE_SRC = '/sistema.html?v=20261125c';
-  var labels = {
-    dashboard: 'Dashboard',
-    caixa: 'Caixa',
-    'captacao-resumo': 'Captações',
-    reservas: 'Reservas',
-    cobrancas: 'Cobranças',
-    graficos: 'Gráficos',
-    'fidelidade-admin': 'Fidelidade',
-    automacoes: 'Automações',
-    'config-ia': 'Concierge IA'
+  var pages = {
+    dashboard: { title: 'Resumo Geral', subtitle: 'Visão consolidada dos indicadores principais.' },
+    caixa: { title: 'Controle de Caixa', subtitle: 'Entradas, saídas e saldo financeiro da operação.' },
+    fluxo: { title: 'Fluxo de Caixa Mensal', subtitle: 'Acompanhamento do fluxo por competência mensal.' },
+    cobrancas: { title: 'Cobranças', subtitle: 'Gestão de cobranças, vencimentos e recebimentos.' },
+    reservas: { title: 'Reservas', subtitle: 'Gestão completa de reservas e comissões.' },
+    'captacao-resumo': { title: 'Captações', subtitle: 'Resumo e gestão completa de captações.' },
+    'cotas-vendas': { title: 'Vendas de Cotas', subtitle: 'Operação de vendas, margens e resultados.' },
+    calendario: { title: 'Calendário', subtitle: 'Disponibilidade, bloqueios e períodos.' },
+    'reservas-hospede': { title: 'Solicitações', subtitle: 'Solicitações de reserva dos hóspedes.' },
+    'visitas-site': { title: 'Visitas ao Site', subtitle: 'Métricas de visitas e desempenho do site.' },
+    'moderacao-avaliacoes': { title: 'Avaliações', subtitle: 'Moderação e acompanhamento de avaliações.' },
+    'fidelidade-admin': { title: 'Fidelidade', subtitle: 'Gestão completa do programa de fidelidade.' },
+    graficos: { title: 'Relatórios', subtitle: 'Gráficos, análises e visão de resultados.' },
+    automacoes: { title: 'Automações', subtitle: 'Fluxos automáticos e produtividade operacional.' },
+    'config-ia': { title: 'Concierge IA', subtitle: 'Configuração e monitoramento da IA concierge.' }
   };
 
-  function setActive(target) {
+  var navItems = Array.prototype.slice.call(document.querySelectorAll('.nav-item'));
+  var pageTitle = document.getElementById('pageTitle');
+  var pageSubtitle = document.getElementById('pageSubtitle');
+  var crumbTitle = document.getElementById('crumbTitle');
+  var sidebar = document.getElementById('sidebar');
+  var mobileMenu = document.getElementById('mobileMenu');
+  var refreshBtn = document.getElementById('refreshBtn');
+  var frame = document.getElementById('systemMirrorFrame');
+  var baseSrc = '/sistema.html?v=20261125d';
+
+  function setPage(target, forceReload) {
+    if (!pages[target]) return;
+
     navItems.forEach(function (item) {
-      var isActive = item.getAttribute('data-target') === target;
-      item.classList.toggle('active', isActive);
+      var active = item.getAttribute('data-target') === target;
+      item.classList.toggle('active', active);
+      item.setAttribute('aria-current', active ? 'page' : 'false');
     });
-    sectionName.textContent = labels[target] || 'Dashboard';
-  }
 
-  function navigate(target, forceReload) {
-    var hash = target ? '#' + target : '';
-    setActive(target || 'dashboard');
+    pageTitle.textContent = pages[target].title;
+    pageSubtitle.textContent = pages[target].subtitle;
+    crumbTitle.textContent = pages[target].title;
 
-    if (forceReload) {
-      frame.src = BASE_SRC + hash;
-      return;
-    }
-
-    try {
-      if (frame.contentWindow && frame.contentWindow.location) {
-        var current = frame.contentWindow.location.pathname || '';
-        if (current.indexOf('/sistema.html') !== -1) {
-          frame.contentWindow.location.hash = target;
-          return;
-        }
+    var nextSrc = baseSrc + '#' + target;
+    if (forceReload || !frame.src || frame.src.indexOf('#' + target) === -1) {
+      frame.src = nextSrc;
+    } else {
+      try {
+        frame.contentWindow.location.hash = target;
+      } catch (e) {
+        frame.src = nextSrc;
       }
-    } catch (e) {
-      // noop: fallback below
     }
 
-    frame.src = BASE_SRC + hash;
+    window.location.hash = target;
+    if (window.innerWidth <= 720) sidebar.classList.remove('open');
   }
 
   navItems.forEach(function (item) {
     item.addEventListener('click', function () {
-      var target = item.getAttribute('data-target') || 'dashboard';
-      navigate(target, false);
-      if (window.innerWidth <= 980) sidebar.classList.remove('open');
+      setPage(item.getAttribute('data-target'), false);
     });
   });
 
-  if (menuBtn) {
-    menuBtn.addEventListener('click', function () {
+  if (mobileMenu) {
+    mobileMenu.addEventListener('click', function () {
       sidebar.classList.toggle('open');
     });
-  }
 
-  if (reloadBtn) {
-    reloadBtn.addEventListener('click', function () {
-      var active = document.querySelector('.v2-nav-item.active');
-      var target = active ? active.getAttribute('data-target') : 'dashboard';
-      navigate(target, true);
+    document.addEventListener('click', function (event) {
+      if (window.innerWidth > 720) return;
+      if (event.target === mobileMenu || mobileMenu.contains(event.target)) return;
+      if (event.target === sidebar || sidebar.contains(event.target)) return;
+      sidebar.classList.remove('open');
     });
   }
 
-  frame.addEventListener('load', function () {
-    try {
-      var hash = (frame.contentWindow.location.hash || '').replace('#', '');
-      if (hash && labels[hash]) {
-        setActive(hash);
-      }
-    } catch (e) {
-      // ignore
-    }
-  });
+  if (refreshBtn) {
+    refreshBtn.addEventListener('click', function () {
+      var active = document.querySelector('.nav-item.active');
+      var target = active ? active.getAttribute('data-target') : 'dashboard';
+      setPage(target, true);
+    });
+  }
 
-  navigate('dashboard', false);
+  var fromHash = (window.location.hash || '').replace('#', '');
+  setPage(pages[fromHash] ? fromHash : 'dashboard', true);
 }());
