@@ -79,6 +79,14 @@
   var refreshBtn = document.getElementById('refreshBtn');
   var quickReserve = document.getElementById('quickReserve');
   var notice = document.getElementById('demoNotice');
+  var authStatus = document.getElementById('authStatus');
+  var authBtn = document.getElementById('authBtn');
+  var authOverlay = document.getElementById('authOverlay');
+  var authEmail = document.getElementById('authEmail');
+  var authPassword = document.getElementById('authPassword');
+  var authSubmitBtn = document.getElementById('authSubmitBtn');
+  var authCancelBtn = document.getElementById('authCancelBtn');
+  var authError = document.getElementById('authError');
   var supabaseClient = null;
 
   function setPage(page) {
@@ -166,6 +174,38 @@
         setPage('reservas');
       });
     }
+
+    if (authBtn) {
+      authBtn.addEventListener('click', function () {
+        if (!supabaseClient) return;
+        if (authBtn.getAttribute('data-auth') === 'logged') {
+          supabaseClient.auth.signOut().then(function () {
+            updateAuthUi(null);
+            loadDashboardData(false);
+          });
+          return;
+        }
+        openAuthOverlay();
+      });
+    }
+
+    if (authCancelBtn) {
+      authCancelBtn.addEventListener('click', function () {
+        closeAuthOverlay();
+      });
+    }
+
+    if (authSubmitBtn) {
+      authSubmitBtn.addEventListener('click', function () {
+        submitAuthLogin();
+      });
+    }
+
+    if (authPassword) {
+      authPassword.addEventListener('keydown', function (event) {
+        if (event.key === 'Enter') submitAuthLogin();
+      });
+    }
   }
 
   function fmtMoney(value) {
@@ -220,6 +260,62 @@
     notice.classList.remove('success', 'error');
     if (type) notice.classList.add(type);
     notice.textContent = message;
+  }
+
+  function updateAuthUi(user) {
+    if (!authBtn || !authStatus) return;
+    if (user) {
+      authBtn.textContent = 'Sair';
+      authBtn.setAttribute('data-auth', 'logged');
+      authStatus.textContent = 'Conectado: ' + (user.email || 'usuário');
+      return;
+    }
+    authBtn.textContent = 'Entrar';
+    authBtn.setAttribute('data-auth', 'logged-out');
+    authStatus.textContent = 'Sistema v2';
+  }
+
+  function openAuthOverlay() {
+    if (!authOverlay) return;
+    authOverlay.classList.add('open');
+    authOverlay.setAttribute('aria-hidden', 'false');
+    if (authError) authError.textContent = '';
+    if (authEmail) authEmail.focus();
+  }
+
+  function closeAuthOverlay() {
+    if (!authOverlay) return;
+    authOverlay.classList.remove('open');
+    authOverlay.setAttribute('aria-hidden', 'true');
+    if (authError) authError.textContent = '';
+  }
+
+  async function submitAuthLogin() {
+    if (!supabaseClient || !authEmail || !authPassword) return;
+    var email = String(authEmail.value || '').trim();
+    var password = String(authPassword.value || '').trim();
+
+    if (!email || !password) {
+      if (authError) authError.textContent = 'Informe e-mail e senha.';
+      return;
+    }
+
+    if (authSubmitBtn) authSubmitBtn.disabled = true;
+    try {
+      var result = await supabaseClient.auth.signInWithPassword({
+        email: email,
+        password: password
+      });
+
+      if (result.error) throw result.error;
+      closeAuthOverlay();
+      updateAuthUi(result.data && result.data.user ? result.data.user : null);
+      loadDashboardData(true);
+    } catch (err) {
+      if (authError) authError.textContent = 'Login inválido. Verifique e tente novamente.';
+    } finally {
+      if (authSubmitBtn) authSubmitBtn.disabled = false;
+    }
   }
 
   function setMetric(id, value) {
@@ -405,6 +501,12 @@
   function initSupabase() {
     if (!window.supabase || !window.supabase.createClient) return;
     supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    supabaseClient.auth.getUser().then(function (userRes) {
+      updateAuthUi(userRes && userRes.data ? userRes.data.user : null);
+    });
+    supabaseClient.auth.onAuthStateChange(function (_, session) {
+      updateAuthUi(session ? session.user : null);
+    });
   }
 
   function initFromHash() {

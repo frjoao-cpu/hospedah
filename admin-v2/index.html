@@ -54,7 +54,8 @@
         HOSPEDAH / <b id="crumbTitle">Resumo Geral</b>
       </div>
       <div class="top-actions">
-        <span class="status">Sistema v2</span>
+        <span class="status" id="authStatus">Sistema v2</span>
+        <button class="btn light btn-auth" id="authBtn">Entrar</button>
         <div class="avatar">FJ</div>
       </div>
     </header>
@@ -243,6 +244,23 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<div class="auth-overlay" id="authOverlay" aria-hidden="true">
+  <div class="auth-card">
+    <h2>Acesso ao painel v2</h2>
+    <p>Faça login para consultar os dados reais sincronizados.</p>
+    <label>E-mail
+      <input type="email" id="authEmail" placeholder="seu@email.com">
+    </label>
+    <label>Senha
+      <input type="password" id="authPassword" placeholder="••••••••">
+    </label>
+    <div class="auth-actions">
+      <button class="btn light" id="authCancelBtn">Cancelar</button>
+      <button class="btn gold" id="authSubmitBtn">Entrar</button>
+    </div>
+    <small id="authError" class="auth-error"></small>
+  </div>
+</div>
 <script src="app.js"></script>
 </body>
 </html>

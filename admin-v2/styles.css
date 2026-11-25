@@ -67,11 +67,12 @@ body {
   background: transparent;
   color: #c5cfdd;
   text-align: left;
-  padding: 11px 12px;
+  padding: 12px 13px;
   border-radius: 9px;
   margin: 2px 0;
   cursor: pointer;
-  font-size: 12px;
+  font-size: 13px;
+  font-weight: 600;
 }
 
 .nav-item:hover,
@@ -104,6 +105,10 @@ body {
 .crumb { font-size: 12px; color: #8b95a4; }
 .top-actions { display: flex; align-items: center; gap: 17px; }
 .status { color: #5f6e84; font-size: 11px; font-weight: 700; }
+.btn-auth {
+  padding: 9px 13px;
+  font-size: 12px;
+}
 
 .avatar {
   width: 34px;
@@ -178,8 +183,14 @@ body {
   border-radius: 13px;
   box-shadow: 0 3px 14px #23344b08;
 }
-
-.metric { padding: 17px; }
+.metric {
+  padding: 17px;
+  transition: transform 0.16s, box-shadow 0.16s;
+}
+.metric:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px #23344b14;
+}
 .metric strong { display: block; font-size: 25px; margin: 13px 0 5px; color: #1a2a40; }
 .metric small { font-size: 10px; color: #98a2b0; }
 
@@ -254,6 +265,65 @@ body {
 .status-chip.cancelada {
   background: #feeaea;
   color: #8a2a2a;
+}
+
+.auth-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(6, 18, 35, 0.58);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 90;
+  backdrop-filter: blur(4px);
+}
+.auth-overlay.open { display: flex; }
+.auth-card {
+  width: min(420px, 92vw);
+  background: #fff;
+  border-radius: 16px;
+  border: 1px solid #e4e9f1;
+  box-shadow: 0 20px 55px #1c293b3b;
+  padding: 22px;
+}
+.auth-card h2 {
+  margin: 0 0 8px;
+  color: #14243b;
+  font-size: 20px;
+}
+.auth-card p {
+  margin: 0 0 14px;
+  font-size: 13px;
+  color: #607089;
+}
+.auth-card label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 10px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #334258;
+}
+.auth-card input {
+  height: 40px;
+  border: 1px solid #dbe2ec;
+  border-radius: 9px;
+  padding: 0 12px;
+  font-size: 14px;
+}
+.auth-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 12px;
+}
+.auth-error {
+  display: block;
+  min-height: 16px;
+  color: #c0392b;
+  font-size: 12px;
+  margin-top: 8px;
 }
 
 .quick-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
