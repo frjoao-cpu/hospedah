@@ -7,263 +7,66 @@
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
   <title>HOSPEDAH | Painel de Gestão v2</title>
-  <link rel="stylesheet" href="styles.css?v=20261125b">
+  <link rel="stylesheet" href="styles.css?v=20261125c">
 </head>
 <body>
-<div class="app">
-  <aside class="sidebar" id="sidebar">
-    <div class="brand">
-      <div class="brand-mark">H</div>
+<div class="v2-shell">
+  <aside class="v2-sidebar" id="v2Sidebar">
+    <div class="v2-brand">
+      <div class="v2-mark">H</div>
       <div>
-        <b>HOSPEDAH</b>
-        <small>GESTÃO INTELIGENTE</small>
+        <strong>HOSPEDAH</strong>
+        <small>Painel v2 · Alta performance</small>
       </div>
     </div>
 
-    <div class="nav-label">VISÃO GERAL</div>
-    <button class="nav-item active" data-page="dashboard">▦ Resumo Geral</button>
+    <div class="v2-nav-title">Navegação rápida</div>
+    <nav class="v2-nav" id="v2Nav">
+      <button class="v2-nav-item active" data-target="dashboard">📊 Dashboard</button>
+      <button class="v2-nav-item" data-target="caixa">💵 Caixa</button>
+      <button class="v2-nav-item" data-target="captacao-resumo">🏡 Captações</button>
+      <button class="v2-nav-item" data-target="reservas">📋 Reservas</button>
+      <button class="v2-nav-item" data-target="cobrancas">💰 Cobranças</button>
+      <button class="v2-nav-item" data-target="graficos">📈 Gráficos</button>
+      <button class="v2-nav-item" data-target="fidelidade-admin">🏆 Fidelidade</button>
+      <button class="v2-nav-item" data-target="automacoes">🤖 Automações</button>
+      <button class="v2-nav-item" data-target="config-ia">🧠 Concierge IA</button>
+    </nav>
 
-    <div class="nav-label">FINANCEIRO</div>
-    <button class="nav-item" data-page="caixa">▤ Controle de Caixa</button>
-    <button class="nav-item" data-page="fluxo">⌁ Fluxo de Caixa Mensal</button>
-    <button class="nav-item" data-page="cobrancas">▣ Cobranças</button>
-
-    <div class="nav-label">OPERAÇÃO</div>
-    <button class="nav-item" data-page="reservas">▦ Reservas</button>
-    <button class="nav-item" data-page="captacoes">⌂ Captações</button>
-    <button class="nav-item" data-page="cotas">◇ Vendas de Cotas</button>
-    <button class="nav-item" data-page="calendario">▦ Calendário</button>
-
-    <div class="nav-label">RELACIONAMENTO</div>
-    <button class="nav-item" data-page="solicitacoes">Solicitações</button>
-    <button class="nav-item" data-page="visitas">Visitas ao Site</button>
-    <button class="nav-item" data-page="avaliacoes">Avaliações</button>
-    <button class="nav-item" data-page="fidelidade">Fidelidade</button>
-
-    <div class="nav-label">INTELIGÊNCIA</div>
-    <button class="nav-item" data-page="relatorios">Relatórios</button>
-    <button class="nav-item" data-page="automacoes">Automações</button>
-    <button class="nav-item" data-page="concierge">Concierge IA</button>
-
-    <div class="sidebar-bottom">
-      Ambiente de demonstração (sem integração de produção)
+    <div class="v2-side-note">
+      Este painel usa o mesmo sistema e banco de dados do painel principal.
     </div>
   </aside>
 
-  <main class="main">
-    <header class="topbar">
-      <button class="mobile-menu" id="mobileMenu" aria-label="Abrir menu">☰</button>
-      <div class="crumb">
-        HOSPEDAH / <b id="crumbTitle">Resumo Geral</b>
+  <main class="v2-main">
+    <header class="v2-topbar">
+      <button class="v2-menu" id="v2Menu" aria-label="Abrir menu">☰</button>
+      <div class="v2-crumb">
+        HOSPEDAH / <b id="v2SectionName">Dashboard</b>
       </div>
-      <div class="top-actions">
-        <span class="status" id="authStatus">Sistema v2</span>
-        <button class="btn light btn-auth" id="authBtn">Entrar</button>
-        <div class="avatar">FJ</div>
+      <div class="v2-actions">
+        <button class="v2-btn v2-btn-light" id="v2Reload">↻ Recarregar</button>
+        <a class="v2-btn v2-btn-gold" href="/sistema.html?v=20261125c" target="_blank" rel="noopener noreferrer">
+          ↗ Abrir sistema completo
+        </a>
       </div>
     </header>
 
-    <section class="content">
-      <div class="page-head">
-        <div>
-          <div class="eyebrow">PAINEL ADMINISTRATIVO</div>
-          <h1 id="pageTitle">Resumo Geral</h1>
-          <p id="pageSubtitle">Acompanhe os principais indicadores da operação HOSPEDAH.</p>
-        </div>
+    <div class="v2-notice">
+      <strong>Paridade total habilitada:</strong> o conteúdo abaixo é o <code>sistema.html</code> em tempo real,
+      com as mesmas funcionalidades, permissões e dados.
+    </div>
 
-        <div class="head-actions">
-          <button class="btn light" id="refreshBtn">↻ Atualizar</button>
-          <button class="btn gold" id="quickReserve">＋ Nova reserva</button>
-        </div>
-      </div>
-
-      <div class="notice" id="demoNotice">
-        Conectando dados reais do seu usuário no Supabase...
-      </div>
-
-      <section class="page active" id="page-dashboard">
-        <div class="metrics">
-          <article class="metric">
-            <span>Reservas no período</span>
-            <strong id="metricReservas">—</strong>
-            <small id="metricReservasInfo">Carregando</small>
-          </article>
-          <article class="metric">
-            <span>Receita registrada</span>
-            <strong id="metricReceita">R$ —</strong>
-            <small>Base em reservas do sistema</small>
-          </article>
-          <article class="metric">
-            <span>Comissões pendentes</span>
-            <strong id="metricComissaoPendente">R$ —</strong>
-            <small>Comissão gerada menos recebida</small>
-          </article>
-          <article class="metric">
-            <span>Saldo de caixa</span>
-            <strong id="metricSaldoCaixa">R$ —</strong>
-            <small>Entradas menos saídas</small>
-          </article>
-        </div>
-
-        <div class="grid-two">
-          <article class="panel">
-            <h2>Visão financeira</h2>
-            <p id="financeSummary">Entradas e saídas com base no caixa sincronizado.</p>
-            <div class="chart-placeholder" id="financePlaceholder">Carregando visão financeira...</div>
-          </article>
-
-          <article class="panel">
-            <h2>Acessos rápidos</h2>
-            <div class="quick-grid">
-              <button data-page="reservas">＋ Nova reserva</button>
-              <button data-page="caixa">↕ Lançamento de caixa</button>
-              <button data-page="cobrancas">▣ Nova cobrança</button>
-              <button data-page="relatorios">▥ Relatórios</button>
-            </div>
-          </article>
-        </div>
-
-        <article class="panel">
-          <h2>Últimas reservas registradas</h2>
-          <div class="mini-table-wrap">
-            <table class="mini-table">
-              <thead>
-                <tr>
-                  <th>Cliente</th>
-                  <th>Resort</th>
-                  <th>Check-in</th>
-                  <th>Status</th>
-                  <th>Valor</th>
-                </tr>
-              </thead>
-              <tbody id="dashboardRecentBody">
-                <tr><td colspan="5">Carregando reservas...</td></tr>
-              </tbody>
-            </table>
-          </div>
-        </article>
-      </section>
-
-      <section class="page" id="page-caixa">
-        <article class="panel">
-          <h2>Novo lançamento</h2>
-          <div class="form-grid">
-            <label>Tipo
-              <select>
-                <option>Entrada</option>
-                <option>Saída</option>
-              </select>
-            </label>
-            <label>Categoria
-              <select>
-                <option>Selecione</option>
-                <option>Reserva</option>
-                <option>Comissão</option>
-                <option>Despesa operacional</option>
-              </select>
-            </label>
-            <label>Descrição
-              <input placeholder="Descrição do lançamento">
-            </label>
-            <label>Valor
-              <input placeholder="0,00">
-            </label>
-            <label>Data
-              <input type="date">
-            </label>
-            <label>Forma de pagamento
-              <select>
-                <option>PIX</option>
-                <option>Dinheiro</option>
-                <option>Cartão</option>
-                <option>Transferência</option>
-              </select>
-            </label>
-          </div>
-          <button class="btn gold" disabled>Adicionar lançamento</button>
-        </article>
-        <article class="panel"><h2>Histórico de movimentações</h2></article>
-      </section>
-
-      <section class="page" id="page-fluxo"><article class="panel"><h2>Fluxo de caixa mensal</h2><p>Entradas, saídas e saldo acumulado.</p></article></section>
-      <section class="page" id="page-cobrancas"><article class="panel"><h2>Cobranças</h2><p>Valores em aberto, vencimentos, parcelas e recebimentos.</p></article></section>
-
-      <section class="page" id="page-reservas">
-        <article class="panel">
-          <h2>Nova reserva — Calculadora financeira</h2>
-          <div class="form-grid">
-            <label>Cliente
-              <input placeholder="Nome completo">
-            </label>
-            <label>Canal de venda
-              <select>
-                <option>Direto</option>
-                <option>Indicação</option>
-                <option>Parceiro</option>
-              </select>
-            </label>
-            <label>Resort / imóvel
-              <input placeholder="Selecione o empreendimento">
-            </label>
-            <label>Check-in
-              <input type="date" id="checkin">
-            </label>
-            <label>Check-out
-              <input type="date" id="checkout">
-            </label>
-            <label>Valor total
-              <input id="total" type="number" min="0" step="0.01">
-            </label>
-            <label>Comissão (%)
-              <input id="percent" type="number" min="0" max="100" step="0.1" value="15">
-            </label>
-          </div>
-
-          <div class="calc-result">
-            <span>Comissão estimada</span>
-            <b id="commission">R$ 0,00</b>
-            <small>Simulação local; não salva uma reserva.</small>
-          </div>
-
-          <button class="btn gold" disabled>Salvar reserva</button>
-        </article>
-        <article class="panel"><h2>Reservas cadastradas</h2></article>
-      </section>
-
-      <section class="page" id="page-captacoes"><article class="panel"><h2>Captações</h2><p>Proprietários, propriedades, períodos, valores e repasses.</p></article></section>
-      <section class="page" id="page-cotas"><article class="panel"><h2>Vendas de cotas</h2><p>Compradores, vendedores, valores e margens.</p></article></section>
-      <section class="page" id="page-calendario"><article class="panel"><h2>Calendário</h2><p>Disponibilidade, reservas e períodos bloqueados.</p></article></section>
-      <section class="page" id="page-solicitacoes"><article class="panel"><h2>Solicitações de hóspedes</h2></article></section>
-      <section class="page" id="page-visitas"><article class="panel"><h2>Visitas ao site</h2></article></section>
-      <section class="page" id="page-avaliacoes"><article class="panel"><h2>Moderação de avaliações</h2></article></section>
-      <section class="page" id="page-fidelidade"><article class="panel"><h2>Programa de fidelidade</h2></article></section>
-      <section class="page" id="page-relatorios"><article class="panel"><h2>Relatórios e indicadores</h2></article></section>
-      <section class="page" id="page-automacoes"><article class="panel"><h2>Automações</h2></article></section>
-      <section class="page" id="page-concierge"><article class="panel"><h2>Concierge IA</h2></article></section>
-
-      <footer>HOSPEDAH · Painel de Gestão v2 · Protótipo de navegação</footer>
-    </section>
+    <iframe
+      id="systemFrame"
+      class="v2-frame"
+      src="/sistema.html?v=20261125c"
+      title="HOSPEDAH Sistema Completo"
+      loading="eager"
+      referrerpolicy="strict-origin-when-cross-origin"></iframe>
   </main>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<div class="auth-overlay" id="authOverlay" aria-hidden="true">
-  <div class="auth-card">
-    <h2>Acesso ao painel v2</h2>
-    <p>Faça login para consultar os dados reais sincronizados.</p>
-    <label>E-mail
-      <input type="email" id="authEmail" placeholder="seu@email.com">
-    </label>
-    <label>Senha
-      <input type="password" id="authPassword" placeholder="••••••••">
-    </label>
-    <div class="auth-actions">
-      <button class="btn light" id="authCancelBtn">Cancelar</button>
-      <button class="btn gold" id="authSubmitBtn">Entrar</button>
-    </div>
-    <small id="authError" class="auth-error"></small>
-  </div>
-</div>
-<script src="app.js?v=20261125b"></script>
+<script src="app.js?v=20261125c"></script>
 </body>
 </html>
