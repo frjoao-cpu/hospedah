@@ -266,6 +266,17 @@
     };
   }
 
+  function readLocalArray(key) {
+    try {
+      var raw = window.localStorage.getItem(key);
+      if (!raw) return [];
+      var parsed = JSON.parse(raw);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch (e) {
+      return [];
+    }
+  }
+
   async function getSupabaseSessionUser() {
     var userRes = await supabaseClient.auth.getUser();
     return userRes && userRes.data ? userRes.data.user : null;
@@ -313,29 +324,44 @@
 
   async function loadDashboardData(manual) {
     try {
-      if (!supabaseClient) {
-        updateNotice('Biblioteca do Supabase não carregou. Recarregue a página.', 'error');
-        return;
-      }
-
       setMetric('metricReservas', '...');
       setMetric('metricReceita', '...');
       setMetric('metricComissaoPendente', '...');
       setMetric('metricSaldoCaixa', '...');
 
-      var user = await getSupabaseSessionUser();
-      if (!user) {
-        updateNotice('Para ver resultados reais, faça login no sistema principal (sistema.html) e volte para este painel.', 'error');
-        renderRecentReservations([]);
-        return;
+      var reservas = readLocalArray(STORAGE_KEY_RESERVAS);
+      var caixa = readLocalArray(STORAGE_KEY_CAIXA);
+      var sourceLabel = reservas.length || caixa.length ? 'dados locais do navegador' : '';
+
+      if (!supabaseClient) {
+        if (!sourceLabel) {
+          updateNotice('Biblioteca do Supabase não carregou. Recarregue a página.', 'error');
+          renderRecentReservations([]);
+          return;
+        }
+      } else {
+        var user = await getSupabaseSessionUser();
+        if (user) {
+          var storageData = await loadFromHospedaData(user.id);
+          if (storageData.reservas.length || storageData.caixa.length) {
+            reservas = storageData.reservas || [];
+            caixa = storageData.caixa || [];
+            sourceLabel = 'dados sincronizados do Supabase';
+          } else if (!reservas.length) {
+            reservas = await loadFallbackReservasHospede();
+            sourceLabel = 'tabela reservas_hospede';
+          }
+        } else if (!sourceLabel) {
+          updateNotice('Faça login no sistema principal (sistema.html) para carregar os resultados reais aqui.', 'error');
+          renderRecentReservations([]);
+          return;
+        }
       }
 
-      var storageData = await loadFromHospedaData(user.id);
-      var reservas = storageData.reservas || [];
-      var caixa = storageData.caixa || [];
-
-      if (!reservas.length) {
-        reservas = await loadFallbackReservasHospede();
+      if (!sourceLabel) {
+        updateNotice('Nenhum dado encontrado ainda. Cadastre reservas no sistema para visualizar no painel v2.', 'error');
+        renderRecentReservations([]);
+        return;
       }
 
       var receita = 0;
@@ -360,13 +386,13 @@
       setMetric('metricSaldoCaixa', fmtMoney(finance.saldo));
 
       var info = document.getElementById('metricReservasInfo');
-      if (info) info.textContent = 'Base sincronizada do usuário logado';
+      if (info) info.textContent = sourceLabel;
 
       updateFinancialPanel(finance);
       renderRecentReservations(sortedReservas);
 
       var when = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-      updateNotice('Dados reais carregados com sucesso. Última atualização às ' + when + '.', 'success');
+      updateNotice('Dados reais carregados com sucesso (' + sourceLabel + '). Última atualização às ' + when + '.', 'success');
       if (manual) {
         notice.textContent += ' Atualização manual concluída.';
       }
