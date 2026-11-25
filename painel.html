@@ -229,6 +229,32 @@ body { font-family: 'Poppins', sans-serif; background: var(--bg); color: var(--c
   to   { opacity: 1; transform: translateY(0); }
 }
 
+/* ── BOTÃO FLUTUANTE: NOVO PAINEL LATERAL ── */
+.fab-admin-v2 {
+  position: fixed;
+  right: 16px;
+  bottom: 18px;
+  z-index: 9010;
+  display: none;
+  align-items: center;
+  gap: 7px;
+  background: linear-gradient(135deg, var(--dourado), #f0c93a);
+  color: var(--azul);
+  text-decoration: none;
+  border: 1px solid rgba(212,175,55,0.35);
+  border-radius: 999px;
+  padding: 10px 14px;
+  font-size: 0.78em;
+  font-weight: 700;
+  box-shadow: 0 10px 26px rgba(0,0,0,0.35);
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.fab-admin-v2:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 30px rgba(0,0,0,0.4);
+}
+.fab-admin-v2 .fab-ico { font-size: 1rem; line-height: 1; }
+
 /* ── LEVEL BADGE FIDELIDADE ── */
 .fid-badge {
   display: inline-flex; align-items: center; gap: 6px;
@@ -285,6 +311,7 @@ body { font-family: 'Poppins', sans-serif; background: var(--bg); color: var(--c
   .painel-sidebar { display: none; }
   .painel-content { padding: 14px; }
   .painel-header { padding: 12px 14px; }
+  .fab-admin-v2 { bottom: calc(68px + env(safe-area-inset-bottom, 0px)); }
 }
 </style>
 </head>
@@ -738,6 +765,13 @@ body { font-family: 'Poppins', sans-serif; background: var(--bg); color: var(--c
   </ul>
 </nav>
 
+<!-- BOTÃO FLUTUANTE: NOVO PAINEL -->
+<a id="fabAdminV2" class="fab-admin-v2" href="admin-v2/" target="_blank" rel="noopener noreferrer"
+   aria-label="Abrir novo painel lateral (admin-v2)">
+  <span class="fab-ico">✨</span>
+  <span>Novo painel</span>
+</a>
+
 <!-- TOAST -->
 <div id="toastPainel" role="alert" aria-live="polite"></div>
 
@@ -896,6 +930,7 @@ _sb.auth.onAuthStateChange(async (event, session) => {
     document.getElementById('painelHeader').style.display = 'none';
     document.getElementById('painelLayout').style.display = 'none';
     document.getElementById('bottomNav').style.display    = 'none';
+    document.getElementById('fabAdminV2').style.display   = 'none';
   }
 });
 
@@ -935,6 +970,7 @@ function iniciarPainel() {
   document.getElementById('lockOverlay').classList.remove('show');
   document.getElementById('painelHeader').style.display = '';
   document.getElementById('painelLayout').style.display = 'flex';
+  document.getElementById('fabAdminV2').style.display = 'inline-flex';
 
   // Título da página conforme role
   document.title = (role === 'hospede') ? 'Meu Perfil | HOSPEDAH' : 'Painel HOSPEDAH';
