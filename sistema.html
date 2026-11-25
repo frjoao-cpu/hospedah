@@ -2176,38 +2176,6 @@ thead .col-sticky-right {
 }
 .float-calc-close:hover { color: var(--vermelho); }
 
-.float-admin-v2-btn {
-  position: fixed;
-  left: 28px;
-  bottom: 28px;
-  z-index: 9000;
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  padding: 10px 14px;
-  border-radius: 999px;
-  border: 1px solid rgba(212,175,55,0.35);
-  background: linear-gradient(135deg, var(--dourado), var(--dourado-hover));
-  color: var(--azul);
-  text-decoration: none;
-  font-size: 0.78em;
-  font-weight: 700;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.35);
-  transition: transform 0.15s, box-shadow 0.15s;
-}
-.float-admin-v2-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 12px 24px rgba(0,0,0,0.4);
-}
-@media (max-width: 767px) {
-  .float-admin-v2-btn {
-    left: 12px;
-    bottom: calc(70px + env(safe-area-inset-bottom, 0px));
-    padding: 9px 12px;
-    font-size: 0.74em;
-  }
-}
-
 .float-calc-body {
   padding: 16px;
 }
@@ -4984,12 +4952,6 @@ thead .col-sticky-right {
       </div>
     </div>
   </div>
-
-  <!-- Botão flutuante: novo painel lateral -->
-  <a class="float-admin-v2-btn" href="admin-v2/?v=20261125d" target="_blank" rel="noopener noreferrer"
-     aria-label="Abrir novo painel lateral (admin-v2)">
-    ✨ Novo painel
-  </a>
 
 <!-- ==========================================
      MODAL DE EDIÇÃO
