@@ -19,6 +19,7 @@ hospedah/
 ├── jornal.html             # Blog / Jornal HOSPEDAH
 ├── painel.html             # Painel administrativo (não indexado)
 ├── sistema.html            # Sistema interno (não indexado)
+├── admin-v2/               # Protótipo de painel lateral v2 (demonstração)
 ├── resorts/                # Páginas individuais de cada resort
 │   ├── hotbeach.html       # Hot Beach Suites — Olímpia/SP
 │   ├── saopedro.html       # São Pedro Thermas — São Pedro/SP

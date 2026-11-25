@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>HOSPEDAH | Painel de Gestão v2</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <div class="brand-mark">H</div>
+      <div>
+        <b>HOSPEDAH</b>
+        <small>GESTÃO INTELIGENTE</small>
+      </div>
+    </div>
+
+    <div class="nav-label">VISÃO GERAL</div>
+    <button class="nav-item active" data-page="dashboard">▦ Resumo Geral</button>
+
+    <div class="nav-label">FINANCEIRO</div>
+    <button class="nav-item" data-page="caixa">▤ Controle de Caixa</button>
+    <button class="nav-item" data-page="fluxo">⌁ Fluxo de Caixa Mensal</button>
+    <button class="nav-item" data-page="cobrancas">▣ Cobranças</button>
+
+    <div class="nav-label">OPERAÇÃO</div>
+    <button class="nav-item" data-page="reservas">▦ Reservas</button>
+    <button class="nav-item" data-page="captacoes">⌂ Captações</button>
+    <button class="nav-item" data-page="cotas">◇ Vendas de Cotas</button>
+    <button class="nav-item" data-page="calendario">▦ Calendário</button>
+
+    <div class="nav-label">RELACIONAMENTO</div>
+    <button class="nav-item" data-page="solicitacoes">Solicitações</button>
+    <button class="nav-item" data-page="visitas">Visitas ao Site</button>
+    <button class="nav-item" data-page="avaliacoes">Avaliações</button>
+    <button class="nav-item" data-page="fidelidade">Fidelidade</button>
+
+    <div class="nav-label">INTELIGÊNCIA</div>
+    <button class="nav-item" data-page="relatorios">Relatórios</button>
+    <button class="nav-item" data-page="automacoes">Automações</button>
+    <button class="nav-item" data-page="concierge">Concierge IA</button>
+
+    <div class="sidebar-bottom">
+      Ambiente de demonstração (sem integração de produção)
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <button class="mobile-menu" id="mobileMenu" aria-label="Abrir menu">☰</button>
+      <div class="crumb">
+        HOSPEDAH / <b id="crumbTitle">Resumo Geral</b>
+      </div>
+      <div class="top-actions">
+        <span class="status">Sistema v2</span>
+        <div class="avatar">FJ</div>
+      </div>
+    </header>
+
+    <section class="content">
+      <div class="page-head">
+        <div>
+          <div class="eyebrow">PAINEL ADMINISTRATIVO</div>
+          <h1 id="pageTitle">Resumo Geral</h1>
+          <p id="pageSubtitle">Acompanhe os principais indicadores da operação HOSPEDAH.</p>
+        </div>
+
+        <div class="head-actions">
+          <button class="btn light" id="refreshBtn">↻ Atualizar</button>
+          <button class="btn gold" id="quickReserve">＋ Nova reserva</button>
+        </div>
+      </div>
+
+      <div class="notice" id="demoNotice">
+        Projeto de interface: demonstração da nova navegação.
+        Os dados e formulários ainda precisam ser conectados
+        às funções e tabelas existentes no Supabase.
+      </div>
+
+      <section class="page active" id="page-dashboard">
+        <div class="metrics">
+          <article class="metric">
+            <span>Reservas no período</span>
+            <strong>—</strong>
+            <small>Dados reais após integração</small>
+          </article>
+          <article class="metric">
+            <span>Receita registrada</span>
+            <strong>R$ —</strong>
+            <small>Entradas confirmadas</small>
+          </article>
+          <article class="metric">
+            <span>Comissões pendentes</span>
+            <strong>R$ —</strong>
+            <small>Aguardando recebimento</small>
+          </article>
+          <article class="metric">
+            <span>Saldo de caixa</span>
+            <strong>R$ —</strong>
+            <small>Posição financeira</small>
+          </article>
+        </div>
+
+        <div class="grid-two">
+          <article class="panel">
+            <h2>Visão financeira</h2>
+            <p>Entradas e saídas ao longo dos meses</p>
+            <div class="chart-placeholder">Gráfico financeiro demonstrativo</div>
+          </article>
+
+          <article class="panel">
+            <h2>Acessos rápidos</h2>
+            <div class="quick-grid">
+              <button data-page="reservas">＋ Nova reserva</button>
+              <button data-page="caixa">↕ Lançamento de caixa</button>
+              <button data-page="cobrancas">▣ Nova cobrança</button>
+              <button data-page="relatorios">▥ Relatórios</button>
+            </div>
+          </article>
+        </div>
+
+        <article class="panel">
+          <h2>Agenda operacional</h2>
+          <p>Reservas, check-ins e pendências</p>
+          <button class="btn light" data-page="calendario">Abrir calendário</button>
+        </article>
+      </section>
+
+      <section class="page" id="page-caixa">
+        <article class="panel">
+          <h2>Novo lançamento</h2>
+          <div class="form-grid">
+            <label>Tipo
+              <select>
+                <option>Entrada</option>
+                <option>Saída</option>
+              </select>
+            </label>
+            <label>Categoria
+              <select>
+                <option>Selecione</option>
+                <option>Reserva</option>
+                <option>Comissão</option>
+                <option>Despesa operacional</option>
+              </select>
+            </label>
+            <label>Descrição
+              <input placeholder="Descrição do lançamento">
+            </label>
+            <label>Valor
+              <input placeholder="0,00">
+            </label>
+            <label>Data
+              <input type="date">
+            </label>
+            <label>Forma de pagamento
+              <select>
+                <option>PIX</option>
+                <option>Dinheiro</option>
+                <option>Cartão</option>
+                <option>Transferência</option>
+              </select>
+            </label>
+          </div>
+          <button class="btn gold" disabled>Adicionar lançamento</button>
+        </article>
+        <article class="panel"><h2>Histórico de movimentações</h2></article>
+      </section>
+
+      <section class="page" id="page-fluxo"><article class="panel"><h2>Fluxo de caixa mensal</h2><p>Entradas, saídas e saldo acumulado.</p></article></section>
+      <section class="page" id="page-cobrancas"><article class="panel"><h2>Cobranças</h2><p>Valores em aberto, vencimentos, parcelas e recebimentos.</p></article></section>
+
+      <section class="page" id="page-reservas">
+        <article class="panel">
+          <h2>Nova reserva — Calculadora financeira</h2>
+          <div class="form-grid">
+            <label>Cliente
+              <input placeholder="Nome completo">
+            </label>
+            <label>Canal de venda
+              <select>
+                <option>Direto</option>
+                <option>Indicação</option>
+                <option>Parceiro</option>
+              </select>
+            </label>
+            <label>Resort / imóvel
+              <input placeholder="Selecione o empreendimento">
+            </label>
+            <label>Check-in
+              <input type="date" id="checkin">
+            </label>
+            <label>Check-out
+              <input type="date" id="checkout">
+            </label>
+            <label>Valor total
+              <input id="total" type="number" min="0" step="0.01">
+            </label>
+            <label>Comissão (%)
+              <input id="percent" type="number" min="0" max="100" step="0.1" value="15">
+            </label>
+          </div>
+
+          <div class="calc-result">
+            <span>Comissão estimada</span>
+            <b id="commission">R$ 0,00</b>
+            <small>Simulação local; não salva uma reserva.</small>
+          </div>
+
+          <button class="btn gold" disabled>Salvar reserva</button>
+        </article>
+        <article class="panel"><h2>Reservas cadastradas</h2></article>
+      </section>
+
+      <section class="page" id="page-captacoes"><article class="panel"><h2>Captações</h2><p>Proprietários, propriedades, períodos, valores e repasses.</p></article></section>
+      <section class="page" id="page-cotas"><article class="panel"><h2>Vendas de cotas</h2><p>Compradores, vendedores, valores e margens.</p></article></section>
+      <section class="page" id="page-calendario"><article class="panel"><h2>Calendário</h2><p>Disponibilidade, reservas e períodos bloqueados.</p></article></section>
+      <section class="page" id="page-solicitacoes"><article class="panel"><h2>Solicitações de hóspedes</h2></article></section>
+      <section class="page" id="page-visitas"><article class="panel"><h2>Visitas ao site</h2></article></section>
+      <section class="page" id="page-avaliacoes"><article class="panel"><h2>Moderação de avaliações</h2></article></section>
+      <section class="page" id="page-fidelidade"><article class="panel"><h2>Programa de fidelidade</h2></article></section>
+      <section class="page" id="page-relatorios"><article class="panel"><h2>Relatórios e indicadores</h2></article></section>
+      <section class="page" id="page-automacoes"><article class="panel"><h2>Automações</h2></article></section>
+      <section class="page" id="page-concierge"><article class="panel"><h2>Concierge IA</h2></article></section>
+
+      <footer>HOSPEDAH · Painel de Gestão v2 · Protótipo de navegação</footer>
+    </section>
+  </main>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
